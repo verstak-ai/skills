@@ -72,7 +72,8 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   for the next session. `nks-weaving` / `nks-design` carry the *how* (closing
   vimarshas, threading the holon).
 - A `SessionStart` hook and a post-`git push` hook in
-  `.claude/settings.local.json` automate these reminders — verify both wired.
+  `.claude/settings.json` (committed) automate these reminders — verify both
+  wired.
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
 fragile spots, weak error handling, DRY/SOLID violations, repeated patterns,
@@ -222,9 +223,9 @@ there per-tool.
       Mandatory for `production`.
 Write commands into *Commands*, discipline into *Code conventions*.
 ### Step 4 — Hooks
-Two hooks in `.claude/settings.local.json` keep the rituals automatic.
-**Generate them for this project — write the JSON yourself, no verbatim copy
-needed:**
+Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
+agent on every clone needs them) keep the rituals automatic. **Generate them
+for this project — write the JSON yourself, no verbatim copy needed:**
 - **`SessionStart`** → reminder to orient in NKS before acting (skill
   `methodology-entry`), naming *this* realm slug and focus holon.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
@@ -244,18 +245,29 @@ Self-check:
 - [ ] both hooks present;
 - [ ] `SessionStart` names the real realm slug + focus holon, not a placeholder.
 ### Step 5 — Permissions allow-list (optional)
-Same file, `"permissions": { "allow": [...] }`, merged alongside `hooks` (don't
-overwrite). Pre-allow the repetitive *safe* commands this project actually uses
-so they stop prompting: NKS read/write MCP tools and the NKS skills,
-non-destructive `git`, and the stack's build/test/lint commands. Extend ad-hoc.
-Never pre-grant (ask per-use): `rm`, `git reset --hard`, `git push --force`,
-`git branch -D`; `nks_delete_*` / `nks_revert` / `nks_invert`; `nks_create_realm`
-/ `nks_delete_realm` / `nks_admin`; and bash `cat`/`find`/`grep`/`ls`/`sed`/
-`awk`/`head`/`tail` (Read/Glob/Grep/Edit cover those).
+Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
+`hooks` (don't overwrite):
+- **Team base** in `.claude/settings.json` (committed, same file as the hooks).
+  The repetitive *safe* commands this project actually uses, so no one
+  re-grants them: NKS read/write MCP tools and the NKS skills, non-destructive
+  `git`, and the stack's build/test/lint commands.
+- **Personal extensions** in `.claude/settings.local.json` (gitignored —
+  see Step 6). Anything machine-specific or agent-specific; extend ad-hoc.
+
+Never pre-grant in either layer (ask per-use): `rm`, `git reset --hard`,
+`git push --force`, `git branch -D`; `nks_delete_*` / `nks_revert` /
+`nks_invert`; `nks_create_realm` / `nks_delete_realm` / `nks_admin`; and bash
+`cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail` (Read/Glob/Grep/Edit cover
+those).
 > 🛠 The NKS MCP server prefix is environment-specific — confirm the real tool
 > names (run `nks_list_realms`) before hard-coding any `mcp__…__nks_*` entry; a
 > copied prefix often won't match and silently does nothing.
 ### Step 6 — Repo hygiene
+- [ ] `.gitignore` tracks `.claude/settings.json` and ignores
+      `.claude/settings.local.json`. If `.claude/` is broadly ignored, add an
+      explicit un-ignore: `!.claude/settings.json` (and keep
+      `.claude/settings.local.json` ignored). Verify with `git check-ignore -v
+      .claude/settings.json .claude/settings.local.json`.
 - [ ] No project state in agent local memory — it's in repo or NKS. Move
       survivors into AGENTS.md / HANDOUT.md / NKS, then drop the local copies.
 - [ ] *Stack*, *Commands*, *Project structure*, *Code conventions* hold real
