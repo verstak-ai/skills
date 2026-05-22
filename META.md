@@ -50,8 +50,10 @@
   project is for, and when it stops being cheap.>`
 ## Persistence rules
 State lives in the **repo** or in **NKS** — nowhere else. Local agent memory
-(`~/.claude`, conversation summaries, `/tmp`, machine-local files) is gone next
-session, on another machine, for another agent.
+(`~/.claude/projects/<encoded-path>/memory/`, conversation summaries, `/tmp`,
+machine-local files) is **forbidden for project state**, even when convenient:
+it breaks flow reproducibility and silently prevents working from a second
+machine or with another agent.
 - **Repo**: code, configs, conventions, code-level gotchas, branch state — the
   artifact itself.
 - **NKS**: methodology, design decisions, open questions (vimarshas), plans,
@@ -59,6 +61,10 @@ session, on another machine, for another agent.
   in the repo; link to the vimarsha or holon.
 - **Fetch state; never reconstruct it from memory.** No source for a "we
   decided…"? Stop and read NKS or the repo before acting.
+- **Local project-memory dir holds exactly one file**: a stub that (a) forbids
+  using local project memory and (b) points to the repo files + NKS realm
+  where project state actually lives. Anything else found there → move to its
+  real home (AGENTS.md / HANDOUT.md / NKS), reset the stub.
 - Global *user* preferences (language, working style) are agent-scoped and
   persist separately — this rule is about *project* state.
 ## Session lifecycle
@@ -68,9 +74,19 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 - **Start of session:** orient in NKS — the realm named in *What this project
   is*, focus holon if set; read the latest `genre=hint` seed before acting. The
   `methodology-entry` skill runs the protocol.
-- **Every push → update NKS** to match reality and leave a `genre=hint` seed
-  for the next session. `nks-weaving` / `nks-design` carry the *how* (closing
-  vimarshas, threading the holon).
+- **Every push → update NKS.** Two moves, both required:
+  - **Match reality.** Record what positions the change in the target system:
+    architecture, module APIs, supply/delivery, user experience, integration
+    with neighbouring code. Repo-only mechanics — lockfile churn, internal
+    refactors with no outside impact, commands, file moves — stay in git, not
+    NKS.
+  - **Handle the hint seed that drove this push.** Close it if the work it
+    framed is done; edit it (strip done history, keep what's still open) if
+    partial; leave a *new* `genre=hint` only if work continues into the next
+    session — not by default.
+
+  `nks-weaving` / `nks-design` carry the *how* (closing vimarshas, threading
+  the holon).
 - A `SessionStart` hook and a post-`git push` hook in
   `.claude/settings.json` (committed) automate these reminders — verify both
   wired.
@@ -229,8 +245,8 @@ for this project — write the JSON yourself, no verbatim copy needed:**
 - **`SessionStart`** → reminder to orient in NKS before acting (skill
   `methodology-entry`), naming *this* realm slug and focus holon.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS (+ leave a hint seed) and run the
-  after-green-push self-review.
+  push`, reminder to update NKS (match reality + handle the driving hint
+  seed) and run the after-green-push self-review.
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 settings nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`)
 is the easy part to get wrong, so here's the shape (with placeholder reminder
@@ -268,8 +284,11 @@ those).
       explicit un-ignore: `!.claude/settings.json` (and keep
       `.claude/settings.local.json` ignored). Verify with `git check-ignore -v
       .claude/settings.json .claude/settings.local.json`.
-- [ ] No project state in agent local memory — it's in repo or NKS. Move
-      survivors into AGENTS.md / HANDOUT.md / NKS, then drop the local copies.
+- [ ] Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`)
+      holds only the prohibition stub. Move any survivors into AGENTS.md /
+      HANDOUT.md / NKS, then write/refresh the stub: forbid using local
+      project memory, point at the repo files + NKS realm where state lives.
+      Reason in stub: reproducibility + multi-machine work.
 - [ ] *Stack*, *Commands*, *Project structure*, *Code conventions* hold real
       content proportional to maturity. Empty is fine day one; `TBD` is not.
 - [ ] `HANDOUT.md` exists if feature-branch work is in flight. Skip for
@@ -277,7 +296,7 @@ those).
 - [ ] `README.md` is short, human-facing, and doesn't duplicate AGENTS.md.
 ### Step 7 — Finalize
 - [ ] On every bootstrap push, NKS reflects the change (vimarshas opened/closed,
-      hint seed left).
+      driving hint seed closed/edited or a new one left only if work continues).
 - [ ] **Density pass**: for each line of the body, ask "does this change what
       the agent does?" Cut narrative, motivation, and design rationale
       (rationale → NKS). The file should read like a config, not an essay.
