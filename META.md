@@ -64,7 +64,7 @@ machine or with another agent.
 - **Local project-memory dir holds exactly one file**: a stub that (a) forbids
   using local project memory and (b) points to the repo files + NKS realm
   where project state actually lives. Anything else found there → move to its
-  real home (AGENTS.md / HANDOUT.md / NKS), reset the stub.
+  real home (AGENTS.md / HANDOVER.md / NKS), reset the stub.
 - Global *user* preferences (language, working style) are agent-scoped and
   persist separately — this rule is about *project* state.
 ## Session lifecycle
@@ -115,8 +115,7 @@ branches before it merges. After the branch merges (however this project merges
    *what's* unclear, not just "which option". Surface competing
    interpretations; push back when a simpler approach or false premise is
    visible. Check repo + NKS before writing; fetch, don't recall. Hit the
-   live system before trusting a type, a name, or a doc (*pratyaksha before
-   shabda*).
+   live system before trusting a type, a name, or a doc.
 2. **Simplicity first.** Minimum code for the task. No speculative features, no
    abstractions for single-use code, no error handling for impossible cases.
    Validate at boundaries; trust internal invariants. 200 lines that could be
@@ -134,22 +133,20 @@ branches before it merges. After the branch merges (however this project merges
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
    the `methodology` realm before answering (multiple queries; one miss ≠
-   absent). Without this the dialogue defaults to recall instead of method,
-   and methodology rarely surfaces unprompted. The `methodology-entry` skill
-   runs the protocol.
+   absent). The `methodology-entry` skill runs the protocol.
 ## NKS ↔ repo: where things live
 | Concern                                | Repo            | NKS                      |
 |----------------------------------------|-----------------|--------------------------|
 | Code, configs, lockfiles               | ✓               |                          |
 | Commands, conventions, gotchas, stack  | ✓ (AGENTS.md)   |                          |
-| Current branch state, how to verify    | ✓ (HANDOUT.md)  |                          |
+| Current branch state, how to verify    | ✓ (HANDOVER.md) |                          |
 | Gaps in external systems we depend on  | ✓ (MISSING_*.md)|                          |
 | Methodology, ontology                  |                 | ✓ (methodology realm)    |
 | Design decisions, open questions       |                 | ✓ (vimarshas)            |
 | Plans, task lists, session hand-offs   |                 | ✓ (project realm)        |
 | Lessons, hints to next session         |                 | ✓ (`genre=hint`)         |
 | Commit history, PRs, SHAs              | git             | (never NKS)              |
-> 🛠 SETUP — `HANDOUT.md` and `MISSING_*.md` are optional. Keep those two rows
+> 🛠 SETUP — `HANDOVER.md` and `MISSING_*.md` are optional. Keep those two rows
 > only if the project actually uses them; drop them otherwise.
 ## Stack
 `<versions + critical libraries the one-liner in *What this project is* doesn't
@@ -170,7 +167,7 @@ exhaustive.>`
   races, env-specific behavior, library quirks. One paragraph each.>`
 ## What to update when
 - `AGENTS.md` — commands, structure, conventions, or stack change.
-- `HANDOUT.md` — current branch state shifts (branch, what's runnable/blocked).
+- `HANDOVER.md` — current branch state shifts (branch, what's runnable/blocked).
   Not a changelog (that's commits + NKS).
 - `MISSING_*.md` — a need surfaces that an upstream/downstream system doesn't
   satisfy yet.
@@ -279,19 +276,19 @@ those).
 > names (run `nks_list_realms`) before hard-coding any `mcp__…__nks_*` entry; a
 > copied prefix often won't match and silently does nothing.
 ### Step 6 — Repo hygiene
-- [ ] `.gitignore` tracks `.claude/settings.json` and ignores
-      `.claude/settings.local.json`. If `.claude/` is broadly ignored, add an
-      explicit un-ignore: `!.claude/settings.json` (and keep
+- [ ] Commit `.claude/settings.json`; ignore `.claude/settings.local.json`
+      via `.gitignore`. If `.claude/` is broadly ignored, add an explicit
+      un-ignore: `!.claude/settings.json` (and keep
       `.claude/settings.local.json` ignored). Verify with `git check-ignore -v
       .claude/settings.json .claude/settings.local.json`.
 - [ ] Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`)
       holds only the prohibition stub. Move any survivors into AGENTS.md /
-      HANDOUT.md / NKS, then write/refresh the stub: forbid using local
+      HANDOVER.md / NKS, then write/refresh the stub: forbid using local
       project memory, point at the repo files + NKS realm where state lives.
       Reason in stub: reproducibility + multi-machine work.
 - [ ] *Stack*, *Commands*, *Project structure*, *Code conventions* hold real
       content proportional to maturity. Empty is fine day one; `TBD` is not.
-- [ ] `HANDOUT.md` exists if feature-branch work is in flight. Skip for
+- [ ] `HANDOVER.md` exists if feature-branch work is in flight. Skip for
       early-stage or prose-only repos.
 - [ ] `README.md` is short, human-facing, and doesn't duplicate AGENTS.md.
 ### Step 7 — Finalize
