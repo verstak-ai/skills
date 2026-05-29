@@ -67,7 +67,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `META.md` — archetypal AGENTS.md bootstrap template (see above; do not delete).
 - `README.md` — short human-facing pointer.
 - `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
-- `tmp/` — gitignored scratch.
+- `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
 
 ## Code conventions
 - **`SKILL.md` frontmatter**: `name:` (kebab, matches the skill dir) + `description:` carrying explicit trigger phrases — that description is what routes the skill, so keep triggers concrete.

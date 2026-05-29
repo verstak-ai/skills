@@ -53,10 +53,10 @@ DO:
      given_as=grundsatz, epistemic=pramanita, ontic=vartamana, volitive=adhimoksha
      attrs.key=true if foundational
   4. Write description: what it IS, what it PREVENTS, what the anti-pattern looks like
-  5. Wire upadhi edges FROM kriyas that apply this principle TO the new grundsatz
-     Every edge carries sense: "why this principle matters HERE"
-  6. Context edge to appropriate holon (usually 行 Воплощение #179)
-  7. re-nks_look — CHECKS: block clean after wiring? (the create self-validated; this re-check is for the edges you just added)
+  5. Wire upadhi arrows FROM kriyas that apply this principle TO the new grundsatz
+     Every arrow carries sense: "why this principle matters HERE"
+  6. Context arrow to appropriate holon (usually 行 Воплощение #179)
+  7. re-nks_look — CHECKS: block clean after wiring? (the create self-validated; this re-check is for the arrows you just added)
 
 DESCRIPTION FORMAT:
   - What the principle states (one sentence)
@@ -84,8 +84,8 @@ DO:
   6. Write description as pariṇāma: "Before: X. After: Y."
      NOT procedure. NOT steps. The qualitative transition.
   7. Wire: ahara, utpatti, actor, upadhi (principles that apply), next (praśna)
-  8. re-nks_look → CHECKS: clean? (create self-validated; this confirms the edges you just wired)
-  9. Does this kriya belong to a thread (нить)? If yes → wire next edges with praśna
+  8. re-nks_look → CHECKS: clean? (create self-validated; this confirms the arrows you just wired)
+  9. Does this kriya belong to a thread (нить)? If yes → wire next arrows with praśna
   10. Does this kriya participate in an estafeta? If yes → check trace
 
 CRITICAL: a kriya without utpatti is a kriya you don't understand.
@@ -123,7 +123,7 @@ DO:
   1. Create phenomenon: given_as=vollzug
   2. Description: WHEN to use, HOW to apply, ANTI-PATTERN to avoid
   3. Wire upadhi FROM kriyas that use this method
-  4. Context edge to holon
+  4. Context arrow to holon
   5. If derived from a principle → derived_from the grundsatz
 
 vollzug is HOW. grundsatz is WHY. Don't merge them.
@@ -142,7 +142,7 @@ DO:
   1. nks_orient(lens="trace", focus=<thread phenomenon>) (#337-#343, #399) → see current shape
   2. Identify the gap: which transition is missing?
   3. Create intervening kriya with ahara/utpatti/actor
-  4. Wire next edges with praśna (question-needles)
+  4. Wire next arrows with praśna (question-needles)
   5. Wire thread phenomenon as upadhi on new kriya
   6. Re-trace → thread flows?
 
@@ -197,7 +197,7 @@ If the answer is vague ("stuff gets better") — you need to distinguish further
 
 ### Ahara is destruction
 
-ahara = the phenomenon is CONSUMED. Not "read", not "referenced" — destroyed. If a kriya only reads a phenomenon without consuming it → upadhi, not ahara. If you put ahara and the phenomenon should survive → wrong edge type.
+ahara = the phenomenon is CONSUMED. Not "read", not "referenced" — destroyed. If a kriya only reads a phenomenon without consuming it → upadhi, not ahara. If you put ahara and the phenomenon should survive → wrong arrow type.
 
 ### Sachverhalts under an umbrella
 
@@ -233,7 +233,7 @@ At the end of every methodology session, create a hint-vimarsha:
 | 忠 Верность | zhōng | Maintaining form | Ongoing commitments |
 | 忘 Пост-забвение | wàng | Releasing form | Retired forms, scars |
 
-Most methodology work happens in 行 Воплощение (#179). Context edges for new phenomena usually point here.
+Most methodology work happens in 行 Воплощение (#179). Context arrows for new phenomena usually point here.
 
 ## Key nodes to know
 
@@ -252,7 +252,7 @@ Most methodology work happens in 行 Воплощение (#179). Context edges 
 ## What NOT to do
 
 - Don't write from training data. Orient the realm first.
-- Don't create nodes without edges. Orphans are invisible.
+- Don't create nodes without arrows. Orphans are invisible.
 - Don't merge grundsatz and vollzug. WHY ≠ HOW.
 - Don't suppress tensions. Close structure.
 - Don't write description as procedure. pariṇāma = qualitative transition.

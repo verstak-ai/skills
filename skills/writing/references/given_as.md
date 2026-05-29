@@ -22,7 +22,7 @@ Principle — "this is how it must be"? (rule, norm, invariant)
   → grundsatz 法
 ```
 
-## Edge expectations (methodology #376)
+## Arrow expectations (methodology #376)
 
 | given_as | Expected | Forbidden |
 |---|---|---|
@@ -46,5 +46,5 @@ Principle — "this is how it must be"? (rule, norm, invariant)
 ## Lookups
 
 - Full descriptions: `nks_look(node_id="372", realm="methodology")`
-- Edge × given_as matrix: `nks_look(node_id="376", realm="methodology")`
+- Arrow × given_as matrix: `nks_look(node_id="376", realm="methodology")`
 - Incident pattern: `nks_look(node_id="23", realm="methodology")`

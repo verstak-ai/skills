@@ -47,17 +47,17 @@ Cap NKS calls at roughly five per response. If you've made seven and still haven
 
 ## Light writing as a side effect of reading
 
-If, while reading nodes for an answer, you notice a small fix that's clearly correct — a missing edge, a stale phrasing already corrected by the conversation, a vimarsha the user just resolved — you may apply it inline using `nks_update` or `nks_link`, then mention briefly that you did so.
+If, while reading nodes for an answer, you notice a small fix that's clearly correct — a missing arrow, a stale phrasing already corrected by the conversation, a vimarsha the user just resolved — you may apply it inline using `nks_update` (node) or `nks_arrow(action="link")`, then mention briefly that you did so.
 
 Do **not** do silently:
 - Create new entities or kriyas.
 - Open new vimarshas about substantive conflicts.
 - Delete or rename anything.
-- Reconnect existing edges.
+- Reconnect existing arrows.
 
 These all require explicit user agreement.
 
-After an inline edit (`nks_update` / `nks_link`), re-`nks_look(node_id=...)` the touched node — it prints any failed checks in a `CHECKS:` block — and surface them to the user.
+After an inline edit (`nks_update` / `nks_arrow`), re-`nks_look(node_id=...)` the touched node — it prints any failed checks in a `CHECKS:` block — and surface them to the user.
 
 ## Handoff to the user
 
