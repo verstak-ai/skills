@@ -1,6 +1,6 @@
 ---
 name: weaving
-description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on edges, splitting kriyas with multiple actors, reconnecting edges after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_tensions shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
+description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on edges, splitting kriyas with multiple actors, reconnecting edges after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
 ---
 
 # NKS Weaving
@@ -13,27 +13,27 @@ Design creates. Weaving completes.
 
 | Signal | Meaning | Action |
 |---|---|---|
-| `nks_tensions` shows leaked | Phenomenon has utpatti, no ahara | → Close lifecycle |
-| `nks_tensions` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer or mark inlet |
+| `lens="tensions"` shows leaked | Phenomenon has utpatti, no ahara | → Close lifecycle |
+| `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer or mark inlet |
 | `nks_orient` shows ENTRY >> INIT | Many kriyas without upstream | → Wire ahara edges |
 | Edge without description | Mute connection | → Write sense |
 | Kriya with 2 actor edges | Hidden double kriya | → Split |
 | Phenomenon was one, now two | Stale edges | → Reconnect |
-| `nks_trace` shows broken | Lifecycle not connected | → Diagnose → close |
+| `lens="trace"` shows broken | Lifecycle not connected | → Diagnose → close |
 
 ## Core operations
 
 ### 1. Estafeta priming (#417)
 
 ```
-TRIGGER: nks_trace shows broken lifecycle OR nks_tensions shows leaked/relay-gap
+TRIGGER: lens="trace" shows broken lifecycle OR lens="tensions" shows leaked/relay-gap
 DO:
-  1. Identify the break: nks_trace(phenomenon) → find the gap
+  1. Identify the break: nks_orient(lens="trace", focus=<phenomenon>) → find the gap
   2. Send-analysis: utpatti without consumer → who should pick up?
   3. Receive-analysis: ahara without producer → where does it come from?
   4. If connecting phenomenon doesn't exist → create sachverhalt
   5. Wire: nks_link ahara/utpatti
-  6. Verify: nks_trace → lifecycle connected?
+  6. Verify: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
 ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
 
@@ -92,7 +92,7 @@ DO:
 ### 5. Lifecycle closure (#397 → #398)
 
 ```
-TRIGGER: nks_trace shows broken lifecycle on phenomenon
+TRIGGER: lens="trace" shows broken lifecycle on phenomenon
 PATH: trace → diagnose (#397) → close (#398) → re-trace
 DO:
   1. DIAGNOSE nature of break:
@@ -104,7 +104,7 @@ DO:
         Config born at "Bootstrap" → dies at "Teardown" (not at "rm -rf")
      b. Or add producer kriya / mark inlet (boundary='init')
      c. Or defer: kriya in anagata+upeksha = placeholder, lifecycle formally closed
-  3. RE-TRACE: nks_trace → lifecycle connected?
+  3. RE-TRACE: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
   4. If still broken → loop
 PRINCIPLE: every ding is born and dies (#389). Deferred closure via modes is OK (#390). Suppression via attrs is never OK (#404).
 ```
@@ -112,15 +112,15 @@ PRINCIPLE: every ding is born and dies (#389). Deferred closure via modes is OK 
 ## Decision tree: which operation?
 
 ```
-Start: nks_tensions(realm=..., verbose=true)
+Start: nks_orient(realm=..., lens="tensions", verbose=true)
 
 leaked phenomenon?
-  → nks_trace on phenomenon
+  → nks_orient(lens="trace", focus=<phenomenon>)   # auto-forward for a phenomenon
     → lifecycle broken? → Operation 5 (lifecycle closure)
     → lifecycle connected but no consumer? → Operation 1 (estafeta priming)
 
 relay-gap?
-  → nks_relay on consuming kriya
+  → nks_orient(lens="trace", focus=<consuming kriya>)   # auto-backward for a kriya — trace and relay are one lens now
     → missing producer → Operation 1 (add producer or inlet)
 
 orphan phenomenon?
@@ -160,7 +160,7 @@ But weaving is NOT only Phase 2. Enter from:
 - Cap NKS calls at ~7 per response unless batching
 - Re-orient every 5-10 nodes
 - After an edit (reconnect/update): nks_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
-- After lifecycle work: nks_trace to confirm connected
+- After lifecycle work: nks_orient(lens="trace", focus=…) to confirm connected
 - Batch order: phenomena → kriyas → links
 
 ## What weaving is NOT

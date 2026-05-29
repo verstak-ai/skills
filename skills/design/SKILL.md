@@ -50,8 +50,8 @@ DO:
      - Has exactly one actor? If two → split (#419, #386)
      - All edges have sense/description? If no → write sense (#418)
      - ahara/utpatti point to correct phenomena? (may need reconnect after distinctions — #420)
-  4. nks_trace on key phenomena → lifecycle connected?
-  5. nks_tensions → new problems?
+  4. nks_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
+  5. nks_orient(lens="tensions") → new problems?
 OUTPUT: tensions discovered, lifecycles closed
 NEXT: → Phase 3 (risk analysis) or → lifecycle closure (#397→#398) if broken
 ```
@@ -98,7 +98,7 @@ DO:
   2. Each hint: scope of work, acceptance criteria, priority, posed_to
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
-OUTPUT: implementor enters via orient → holon_vimarshas → knows what to do first
+OUTPUT: implementor enters via orient → nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
 anagata kriyas alone don't call to action. Vimarshas do.
@@ -110,17 +110,17 @@ anagata kriyas alone don't call to action. Vimarshas do.
 | Connects | kriyas via `next` | phenomena via `ahara`/`utpatti` |
 | Carries | praśna (question-needle) on each edge | sachverhalt (state of affairs) between kriyas |
 | About | order of actions | lifecycle of a thing |
-| Tool | follow `next` edges | `nks_trace` on phenomenon |
+| Tool | follow `next` edges | `nks_orient(lens="trace")` on phenomenon |
 
 Never confuse. A chain of sachverhalts is an estafeta. A sequence of kriyas is a thread.
 
 ## Lifecycle closure (#399, Нить 8)
 
 ```
-TRIGGER: nks_trace shows "lifecycle broken" or nks_tensions shows leaked/relay-gap
+TRIGGER: lens="trace" shows "lifecycle broken" or lens="tensions" shows leaked/relay-gap
 PATH: #158(tension) → #162(trace) → #397(diagnose) → #398(close) → #162(re-trace)
 DO:
-  1. nks_trace on flagged phenomenon → see where lifecycle breaks
+  1. nks_orient(lens="trace", focus=<phenomenon>) on flagged phenomenon → see where lifecycle breaks
   2. Diagnose: missing end-of-life? missing producer? wrong abstraction level?
   3. Add the missing kriya at the SAME abstraction level as the producing kriya
   4. Re-trace → lifecycle connected? If not → loop
@@ -228,4 +228,4 @@ All mutations require `basis_version` — the `v<N>` from `nks_look`. Read → w
 
 ## orient vimarsha caveat
 
-`orient(focus_holon=...)` may show 0 vimarshas when they're attached to kriyas threading through the holon, not to entities inside it. Verify with `nks_search(node_type="vimarsha", vimarsha_of=<kriya-seq>)` if numbers feel wrong.
+`nks_orient(focus=<holon>)` may show 0 vimarshas when they're attached to kriyas threading through the holon, not to phenomena inside it. The `lens="vimarshas"` view on a holon groups blocking/active/dormant across its scope — but vimarshas posed on threading kriyas still surface best via `nks_search(node_type="vimarsha", vimarsha_of=<kriya-seq>)` if numbers feel wrong.

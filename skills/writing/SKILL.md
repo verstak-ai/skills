@@ -122,7 +122,7 @@ Every edge carries a description explaining WHY.
 ## After writing
 
 1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` edge to a holon does NOT clear it. Wire it to a kriya.
-2. **Phenomenon with ahara/utpatti**: `nks_trace` — lifecycle connected?
+2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
 3. **Kriya**: actor, ahara, utpatti phenomena all exist?
 
 ## Operational reminders
