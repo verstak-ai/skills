@@ -1,0 +1,34 @@
+name: CI
+
+# The repo has no runtime and no tests — the artifact is prose. But a malformed
+# SKILL.md frontmatter (e.g. an unescaped quote in a description) installs
+# silently into every agent that loads the skill, degrading methodology with no
+# crash. This workflow is the loud gate: it validates the frontmatter contract
+# and proves the committed .skill bundles match their source.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate skill frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: make validate
+
+  bundles-in-sync:
+    name: .skill bundles match source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify committed bundles match skills/ (content, not raw bytes)
+        run: make check-bundles
