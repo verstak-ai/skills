@@ -41,7 +41,7 @@ The realm doesn't cover the topic. **Don't paper over this** with a training-dat
 
 ## Recall vs keyword search
 
-Once inside the graph, navigate **by tension**, not by keyword. Each node has neighbors ranked by structural tension (leaked, orphan, missing actor, blocking vimarsha). The most informative neighbor is usually the most *tense* one, not the most textually similar one. Use `nks_explore(node_id=...)` to see what's structurally wrong nearby; that's often where the live thinking is.
+Once inside the graph, navigate **by tension**, not by keyword. Each node has neighbors ranked by structural tension (leaked, orphan, missing actor, blocking vimarsha). The most informative neighbor is usually the most *tense* one, not the most textually similar one. Use `nks_orient(focus=<seq>)` — with **no lens** — to stand on a node and see its neighborhood (tensions + open vimarshas + neighbors); that's often where the live thinking is. `nks_orient` is the single read-dispatcher for connectivity: **focus** = where to stand, **lens** = which way to look. With no lens it prints a *suggester* naming the lenses worth trying next (`lens="trace"` to walk a phenomenon's estafeta, `lens="tensions"` for structural health, `lens="vimarshas"` for the field of inquiry) with copy-paste arguments — follow it.
 
 Cap NKS calls at roughly five per response. If you've made seven and still haven't synthesized — stop, answer from what you have, flag the gap.
 

@@ -139,7 +139,7 @@ SIGNALS:
   - Gap between two kriyas where something should happen
 
 DO:
-  1. nks_trace on thread phenomenon (#337-#343, #399) → see current shape
+  1. nks_orient(lens="trace", focus=<thread phenomenon>) (#337-#343, #399) → see current shape
   2. Identify the gap: which transition is missing?
   3. Create intervening kriya with ahara/utpatti/actor
   4. Wire next edges with praśna (question-needles)
@@ -160,7 +160,7 @@ DO:
      a. Real methodology gaps (agent couldn't find guidance)
      b. Skill gaps (methodology knows, skill doesn't teach)
      c. Agent errors (agent misunderstood, methodology is fine)
-     d. Tool bugs (nks_orient, nks_tensions — not methodology)
+     d. Tool bugs (nks_orient and its lenses — not methodology)
   2. For each real gap: which type of work? (principle/kriya/distinction/vollzug/thread)
   3. For each agent error: what did the agent get wrong? Is it a PATTERN that other agents will repeat?
      If yes → record as distinction or anti-pattern in a grundsatz/vollzug
