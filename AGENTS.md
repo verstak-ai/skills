@@ -48,6 +48,8 @@ Markdown `SKILL.md` (+ optional `references/*.md`) per skill, zipped into `<name
 ## Commands
 `.skill` files are zip archives — edit via unzip → edit → rezip. `tmp/` is gitignored as the scratch area.
 
+> ⚠️ **A `.skill` is a binary zip — you cannot grep it.** `grep`/`Grep` over a raw `*.skill` finds nothing (it's compressed bytes). Always unzip every bundle into `tmp/` first, then search/read/edit the extracted `SKILL.md`. To scope a cross-skill change (e.g. a tool rename), extract all bundles into `tmp/` and grep there.
+
 | Task | Command |
 |---|---|
 | Inspect a bundle | `unzip -o <name>.skill -d tmp/<name>` |

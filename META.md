@@ -211,7 +211,7 @@ Don't silently pick defaults. Confirm in conversation, then write into
 - **Stack**.
 - **Quality gate** (propose strictest, see Step 3).
 ### Step 2 — NKS bootstrap
-- [ ] Realm exists. If not: agree a name with the user, then `nks_create_realm`.
+- [ ] Realm exists. If not: agree a name with the user, then `nks_realm(action="create")`.
 - [ ] If the project has structure beyond the realm itself, a focus holon
       exists (named after the project's boundary, `contains`-linked from the
       realm root), and its `#seq` is in *What this project is*. Design the
@@ -268,12 +268,13 @@ Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
   see Step 6). Anything machine-specific or agent-specific; extend ad-hoc.
 
 Never pre-grant in either layer (ask per-use): `rm`, `git reset --hard`,
-`git push --force`, `git branch -D`; `nks_delete_*` / `nks_revert` /
-`nks_invert`; `nks_create_realm` / `nks_delete_realm` / `nks_admin`; and bash
+`git push --force`, `git branch -D`; `nks_delete_node` / `nks_delete_edge` /
+`nks_history(action="revert"|"invert")`; `nks_realm(action="create"|"delete")` /
+`nks_admin`; and bash
 `cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail` (Read/Glob/Grep/Edit cover
 those).
 > 🛠 The NKS MCP server prefix is environment-specific — confirm the real tool
-> names (run `nks_list_realms`) before hard-coding any `mcp__…__nks_*` entry; a
+> names (run `nks_realm(action="list")`) before hard-coding any `mcp__…__nks_*` entry; a
 > copied prefix often won't match and silently does nothing.
 ### Step 6 — Repo hygiene
 - [ ] Commit `.claude/settings.json`; ignore `.claude/settings.local.json`
