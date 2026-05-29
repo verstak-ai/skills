@@ -5,7 +5,7 @@ Agent-facing NKS skill bundles (Claude Code skills) + the `META.md` bootstrap ar
 - **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: no automated tests/CI (content is prose + methodology); the quality gate is human review of the `SKILL.md` diff plus the skills' own discipline. Breakage is silent, not loud (see Production statement).
 - **NKS realm**: `nks-dev` — every session starts with `nks_orient` here.
 - **Focus holon**: `#844 «📦 verstak-ai/skills (скиллы агента)»`.
-- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`methodology@verstak-ai`). No runtime, no dependencies, no CI.
+- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`). No runtime, no dependencies, no CI.
 - **Production statement**: skills install into agents' `~/.claude/skills/` and shape how every agent works with NKS. A wrong instruction — e.g. a reference to a tool that nks-mcp has dropped — silently degrades every agent that loads the skill; there is no crash, only methodology drift. The consumer is the agent, not a human user. Keeping skills in sync with the nks-mcp tool surface is the core maintenance obligation.
 
 ## Persistence rules
@@ -62,7 +62,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 ## Project structure
 - `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `methodology-work`); `references/*.md` optional.
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`methodology@verstak-ai`).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
 - `META.md` — archetypal AGENTS.md bootstrap template (see above; do not delete).
 - `README.md` — short human-facing pointer.

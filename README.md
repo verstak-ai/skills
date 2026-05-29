@@ -22,11 +22,11 @@ Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
 
 ```sh
 /plugin marketplace add verstak-ai/skills
-/plugin install methodology@verstak-ai
+/plugin install verstak@verstak-ai
 ```
 
-All five skills install together under the `methodology` plugin (invoke explicitly as
-`/methodology:design`, etc.; model-driven invocation works automatically).
+All five skills install together under the `verstak` plugin (invoke explicitly as
+`/verstak:design`, etc.; model-driven invocation works automatically).
 
 **Updating.** `verstak-ai` is a third-party marketplace, so — unlike the official Anthropic
 marketplace — it does **not** auto-update. Anything not from the official marketplace must be
