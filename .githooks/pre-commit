@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Keep the committed .skill bundles in sync with skills/<name>/ on every commit.
+# Enable once with: make hooks   (sets core.hooksPath -> .githooks)
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+bash "$root/scripts/build-skills.sh" >/dev/null
+git add -- "$root"/*.skill

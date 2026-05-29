@@ -18,28 +18,37 @@ Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
 
 ## Install
 
-### Manual (`.skill` bundle) — works today
+### Claude Code plugin (recommended)
 
-Each `*.skill` is a zip bundle containing `<name>/SKILL.md`. Either:
+```sh
+/plugin marketplace add verstak-ai/skills
+/plugin install methodology@verstak-ai
+```
 
-- upload the bundle as a Skill in **claude.ai**, or
-- unzip it into your Claude Code skills directory:
-  ```sh
-  unzip nks-design.skill -d ~/.claude/skills/
-  ```
+All five skills install together under the `methodology` plugin (invoke explicitly as
+`/methodology:nks-design`, etc.; model-driven invocation works automatically).
 
-### Claude Code plugin & `npx skills` — in progress
+### npx
 
-The repo is migrating to the extracted `skills/<name>/SKILL.md` layout so it can be installed as:
+```sh
+npx skills add verstak-ai/skills --all --agent claude
+```
 
-- a **Claude Code plugin**:
-  ```sh
-  /plugin marketplace add verstak-ai/skills
-  /plugin install methodology@verstak-ai
-  ```
-- via **npx**:
-  ```sh
-  npx skills add verstak-ai/skills --all --agent claude
-  ```
-  (`--agent claude` lands skills in `~/.claude/skills/`, which Claude Code scans — not the
-  default `~/.agents/skills/`.)
+`--agent claude` lands skills in `~/.claude/skills/`, which Claude Code scans — **not** the
+default `~/.agents/skills/`.
+
+### Manual (`.skill` bundle)
+
+Each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it as a Skill in
+**claude.ai**, or unzip into your Claude Code skills directory:
+
+```sh
+unzip nks-design.skill -d ~/.claude/skills/
+```
+
+## Layout & build
+
+- `skills/<name>/SKILL.md` — **source of truth.**
+- `*.skill` — committed **derived** bundles. Never hand-edit; run `make build` (or just commit
+  with the hook enabled via `make hooks`, which rebuilds them on every commit).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest.
