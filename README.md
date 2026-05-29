@@ -40,19 +40,24 @@ updated manually:
 Or enable auto-update once: `/plugin` → **Marketplaces** → `verstak-ai` → **Enable auto-update**
 (then it refreshes and updates the plugin at startup).
 
-### npx
+### Portable install (other agents, claude.ai)
+
+For Claude Code, prefer the plugin above — it namespaces the skills (`/verstak:design`) and
+keeps them isolated. The methods below install **flat** into a shared skills directory under
+the bare skill names (`design`, `writing`, …), so they can clash with other skills of the same
+name — rename the target directory if that happens. They don't affect the plugin install.
+
+**npx** (Claude Code, Cursor, Codex, …):
 
 ```sh
 npx skills add verstak-ai/skills --all --agent claude
 ```
 
-`--agent claude` lands skills in `~/.claude/skills/`, which Claude Code scans — **not** the
-default `~/.agents/skills/`.
+`--agent claude` lands skills in `~/.claude/skills/` (what Claude Code scans), not the default
+`~/.agents/skills/`.
 
-### Manual (`.skill` bundle)
-
-Each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it as a Skill in
-**claude.ai**, or unzip into your Claude Code skills directory:
+**claude.ai / manual:** each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it
+as a Skill in claude.ai, or unzip into your skills directory:
 
 ```sh
 unzip design.skill -d ~/.claude/skills/
