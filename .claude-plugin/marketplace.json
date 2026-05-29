@@ -14,11 +14,11 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/methodology-entry",
-        "./skills/nks-writing",
-        "./skills/nks-design",
-        "./skills/nks-weaving",
-        "./skills/nks-methodology-work"
+        "./skills/entry",
+        "./skills/writing",
+        "./skills/design",
+        "./skills/weaving",
+        "./skills/methodology-work"
       ]
     }
   ]

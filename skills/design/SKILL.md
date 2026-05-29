@@ -1,6 +1,6 @@
 ---
-name: nks-design
-description: "Use this skill when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or when the user says to 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use when methodology-entry has triggered and the conversation turns from reading to building — the user shifts from 'what do we know?' to 'what should we build?'. Use this skill even for seemingly simple design tasks if NKS MCP tools are available — the graph prevents losing decisions, questions, and risks."
+name: design
+description: "Use this skill when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or when the user says to 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use when entry has triggered and the conversation turns from reading to building — the user shifts from 'what do we know?' to 'what should we build?'. Use this skill even for seemingly simple design tasks if NKS MCP tools are available — the graph prevents losing decisions, questions, and risks."
 ---
 
 # NKS Design

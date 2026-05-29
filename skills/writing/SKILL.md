@@ -1,6 +1,6 @@
 ---
-name: nks-writing
-description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or any situation where the agent is about to call nks_add_phenomenon, nks_add_kriya, nks_add_vimarsha, nks_add_holon, nks_add_karta, or nks_batch with creates. Also triggers when the agent is unsure which node type to use, what given_as to pick, or which modes to set. Use this skill even for single-node writes — one wrong type propagates through the graph. Distinct from nks-design (which plans paths from goals), nks-weaving (which repairs existing structure), and nks-methodology-work (which evolves methodology itself). This skill is about the act of writing: choosing the right type, name, modes, given_as, edges, and validating afterward."
+name: writing
+description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or any situation where the agent is about to call nks_add_phenomenon, nks_add_kriya, nks_add_vimarsha, nks_add_holon, nks_add_karta, or nks_batch with creates. Also triggers when the agent is unsure which node type to use, what given_as to pick, or which modes to set. Use this skill even for single-node writes — one wrong type propagates through the graph. Distinct from design (which plans paths from goals), weaving (which repairs existing structure), and methodology-work (which evolves methodology itself). This skill is about the act of writing: choosing the right type, name, modes, given_as, edges, and validating afterward."
 ---
 
 # NKS Writing
@@ -156,7 +156,7 @@ Can't pick one → two questions tangled. Separate.
 ## Scope
 
 This skill: the act of writing. Not covered:
-- **Design** → nks-design
-- **Weaving** → nks-weaving
-- **Methodology work** → nks-methodology-work
-- **Reading** → methodology-entry
+- **Design** → design
+- **Weaving** → weaving
+- **Methodology work** → methodology-work
+- **Reading** → entry

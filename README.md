@@ -8,11 +8,11 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 
 | Skill | What it does |
 |---|---|
-| **methodology-entry** | Orientation & reading protocol — enter a realm, search, deepen. |
-| **nks-writing** | Node-writing discipline — naming (正名), modes, edges. |
-| **nks-design** | Projecting systems — backward chaining, forward weaving, risk analysis. |
-| **nks-weaving** | Semantic completion of an existing graph — close lifecycles, fix tensions. |
-| **nks-methodology-work** | Working on the methodology realm itself. |
+| **entry** | Orientation & reading protocol — enter a realm, search, deepen. |
+| **writing** | Node-writing discipline — naming (正名), modes, edges. |
+| **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |
+| **weaving** | Semantic completion of an existing graph — close lifecycles, fix tensions. |
+| **methodology-work** | Working on the methodology realm itself. |
 
 Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
 
@@ -26,7 +26,7 @@ Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
 ```
 
 All five skills install together under the `methodology` plugin (invoke explicitly as
-`/methodology:nks-design`, etc.; model-driven invocation works automatically).
+`/methodology:design`, etc.; model-driven invocation works automatically).
 
 ### npx
 
@@ -43,7 +43,7 @@ Each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it as a Ski
 **claude.ai**, or unzip into your Claude Code skills directory:
 
 ```sh
-unzip nks-design.skill -d ~/.claude/skills/
+unzip design.skill -d ~/.claude/skills/
 ```
 
 ## Layout & build

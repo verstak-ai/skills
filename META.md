@@ -73,7 +73,7 @@ NKS = the work (structure, open questions, what's next). Git = how it got here
 PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 - **Start of session:** orient in NKS — the realm named in *What this project
   is*, focus holon if set; read the latest `genre=hint` seed before acting. The
-  `methodology-entry` skill runs the protocol.
+  `entry` skill runs the protocol.
 - **Every push → update NKS.** Two moves, both required:
   - **Match reality.** Record what positions the change in the target system:
     architecture, module APIs, supply/delivery, user experience, integration
@@ -85,7 +85,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     partial; leave a *new* `genre=hint` only if work continues into the next
     session — not by default.
 
-  `nks-weaving` / `nks-design` carry the *how* (closing vimarshas, threading
+  `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
 - A `SessionStart` hook and a post-`git push` hook in
   `.claude/settings.json` (committed) automate these reminders — verify both
@@ -103,7 +103,7 @@ branches before it merges. After the branch merges (however this project merges
 2. Delete the merged branch (`git branch -d <name>`); prune others now on
    `main`.
 3. Update NKS: change is on `main`, not a branch — thread shipped state into
-   the holon, close vimarshas the merge resolved (`nks-weaving`).
+   the holon, close vimarshas the merge resolved (`weaving`).
 4. Confirm cleanup is done before the next task.
 > 🛠 SETUP — keep this section merge-signal-agnostic. *How* the project learns a
 > branch merged (user says so / PR merged / CI) and the rest of its merge flow
@@ -133,7 +133,7 @@ branches before it merges. After the branch merges (however this project merges
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
    the `methodology` realm before answering (multiple queries; one miss ≠
-   absent). The `methodology-entry` skill runs the protocol.
+   absent). The `entry` skill runs the protocol.
 ## NKS ↔ repo: where things live
 | Concern                                | Repo            | NKS                      |
 |----------------------------------------|-----------------|--------------------------|
@@ -215,7 +215,7 @@ Don't silently pick defaults. Confirm in conversation, then write into
 - [ ] If the project has structure beyond the realm itself, a focus holon
       exists (named after the project's boundary, `contains`-linked from the
       realm root), and its `#seq` is in *What this project is*. Design the
-      boundary with `nks-design`, create with `nks_add_holon`.
+      boundary with `design`, create with `nks_add_holon`.
 ### Step 3 — Quality gate (propose strictest, user confirms)
 For each: propose the strictest sensible option for the stack, one-line
 trade-off, await confirmation. Default strict; relaxations need an explicit
@@ -240,7 +240,7 @@ Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them) keep the rituals automatic. **Generate them
 for this project — write the JSON yourself, no verbatim copy needed:**
 - **`SessionStart`** → reminder to orient in NKS before acting (skill
-  `methodology-entry`), naming *this* realm slug and focus holon.
+  `entry`), naming *this* realm slug and focus holon.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
   push`, reminder to update NKS (match reality + handle the driving hint
   seed) and run the after-green-push self-review.

@@ -1,6 +1,6 @@
 ---
-name: nks-methodology-work
-description: "Use this skill when working on the methodology realm itself — not applying methodology to a project, but evolving the methodology. Triggers: 'methodology realm', 'работа над методологией', 'обогатить методологию', 'methodology нужно дополнить', 'записать принцип', 'новая крия в methodology', 'новая нить', references to 'methodology' realm by name, or when the user brings agent feedback about methodology gaps. Distinct from nks-design (designing external systems) and nks-weaving (semantic repair). This is meta-work: methodology applied to itself. The stakes are highest — every node here shapes how every future agent thinks."
+name: methodology-work
+description: "Use this skill when working on the methodology realm itself — not applying methodology to a project, but evolving the methodology. Triggers: 'methodology realm', 'работа над методологией', 'обогатить методологию', 'methodology нужно дополнить', 'записать принцип', 'новая крия в methodology', 'новая нить', references to 'methodology' realm by name, or when the user brings agent feedback about methodology gaps. Distinct from design (designing external systems) and weaving (semantic repair). This is meta-work: methodology applied to itself. The stakes are highest — every node here shapes how every future agent thinks."
 ---
 
 # NKS Methodology Work

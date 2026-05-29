@@ -16,7 +16,7 @@ State lives in the **repo** or in **NKS** — nowhere else.
 - Fetch state; never reconstruct it from memory.
 
 ## Session lifecycle
-- **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; read the latest `genre=hint` seed before acting (the `methodology-entry` skill runs the protocol).
+- **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; read the latest `genre=hint` seed before acting (the `entry` skill runs the protocol).
 - **Every push → update NKS:** thread shipped skill changes into holon #844; handle the driving hint seed — close it if its skill-edits shipped, edit it if partial, leave a new `genre=hint` only if work continues.
 - **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
@@ -60,7 +60,7 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. No test/lint — the artifact is prose.
 
 ## Project structure
-- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`methodology-entry`, `nks-writing`, `nks-design`, `nks-weaving`, `nks-methodology-work`); `references/*.md` optional.
+- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `methodology-work`); `references/*.md` optional.
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest (`methodology@verstak-ai`).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.

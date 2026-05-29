@@ -1,6 +1,6 @@
 ---
-name: nks-weaving
-description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on edges, splitting kriyas with multiple actors, reconnecting edges after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_tensions shows structural problems. Also triggers when methodology-entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from nks-design: design creates structure from goals, weaving completes structure that already exists."
+name: weaving
+description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on edges, splitting kriyas with multiple actors, reconnecting edges after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_tensions shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
 ---
 
 # NKS Weaving
