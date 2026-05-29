@@ -1,6 +1,6 @@
 ---
 name: writing
-description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or any situation where the agent is about to call nks_add_phenomenon, nks_add_kriya, nks_add_vimarsha, nks_add_holon, nks_add_karta, or nks_batch with creates. Also triggers when the agent is unsure which node type to use, what given_as to pick, or which modes to set. Use this skill even for single-node writes — one wrong type propagates through the graph. Distinct from design (which plans paths from goals), weaving (which repairs existing structure), and methodology-work (which evolves methodology itself). This skill is about the act of writing: choosing the right type, name, modes, given_as, edges, and validating afterward."
+description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or any situation where the agent is about to call nks_add_phenomenon, nks_add_kriya, nks_add_vimarsha, nks_add_holon, nks_add_karta, or nks_batch with creates. Also triggers when the agent is unsure which node type to use, what given_as to pick, or which modes to set. Use this skill even for single-node writes — one wrong type propagates through the graph. Distinct from design (which plans paths from goals), weaving (which repairs existing structure), and methodology-work (which evolves methodology itself). This skill is about the act of writing: choosing the right type, name, modes, given_as, arrows, and validating afterward."
 ---
 
 # NKS Writing
@@ -13,7 +13,7 @@ Five decisions, in order. Do not skip ahead.
 
 Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing into before the first call.
 
-**Cross-realm edges do not work.** `nks_link(source_id="739", target_id="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong edge. For cross-realm references, use text in the description ("see methodology #29") — never edges.
+**Cross-realm arrows do not work.** `nks_arrow(action="link", source="739", target="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong arrow. For cross-realm references, use text in the sense ("see methodology #29") — never arrows.
 
 ## Decision 1: What type of node?
 
@@ -84,9 +84,9 @@ The critical trap: **upeksha is not a default.** anagata + upeksha = "this will 
 - **Holon**: what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta**: motivation. nks_add_karta requires it as `motivation=`.
 
-## Decision 5: Edges
+## Decision 5: Arrows
 
-Edgeless = orphan = invisible.
+Arrowless = orphan = invisible.
 
 ### Kriya (four questions)
 
@@ -95,7 +95,7 @@ Edgeless = orphan = invisible.
 3. **Who acts?** → `actor` to karta.
 4. **Context?** → `upadhi` to phenomenon. `attrs.mutable=true` if modified.
 
-Plus: `next` (description = praśna — yes/no question). `contains` for sub-steps.
+Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
 Realm-inlet kriyas: `attrs.boundary="init"` waives ahara requirement.
 
@@ -111,9 +111,9 @@ Realm-inlet kriyas: `attrs.boundary="init"` waives ahara requirement.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
 
-### Sense on edges
+### Sense on arrows
 
-Every edge carries a description explaining WHY.
+Every arrow carries a sense explaining WHY.
 
 - `next` → praśna. ✓ "Path built — where can it break?" ✗ "Go to next step."
 - `upadhi` → why this phenomenon matters HERE.
@@ -121,7 +121,7 @@ Every edge carries a description explaining WHY.
 
 ## After writing
 
-1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` edge to a holon does NOT clear it. Wire it to a kriya.
+1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` arrow to a holon does NOT clear it. Wire it to a kriya.
 2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
 3. **Kriya**: actor, ahara, utpatti phenomena all exist?
 
@@ -129,9 +129,9 @@ Every edge carries a description explaining WHY.
 
 **reasoning.** Every write tool accepts `reasoning="..."`. Use it.
 
-**basis_version.** Every `nks_update`, `nks_delete_*`, `nks_reconnect_edge` requires it. Read → write → re-read on conflict.
+**basis_version.** Every `nks_update`, `nks_arrow` (delete/reconnect/update), and `nks_delete_node` requires it. Read → write → re-read on conflict.
 
-**Cross-realm.** Text references in descriptions. Never edges.
+**Cross-realm.** Text references in descriptions. Never arrows.
 
 ## Vimarsha genres
 
@@ -151,7 +151,7 @@ Can't pick one → two questions tangled. Separate.
 
 1. Phenomena first
 2. Kriyas second (referencing phenomena)
-3. Cross-cutting links last
+3. Cross-cutting arrows last
 
 ## Scope
 

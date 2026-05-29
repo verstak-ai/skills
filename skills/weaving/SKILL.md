@@ -1,6 +1,6 @@
 ---
 name: weaving
-description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on edges, splitting kriyas with multiple actors, reconnecting edges after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
+description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on arrows, splitting kriyas with multiple actors, reconnecting arrows after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
 ---
 
 # NKS Weaving
@@ -15,10 +15,10 @@ Design creates. Weaving completes.
 |---|---|---|
 | `lens="tensions"` shows leaked | Phenomenon has utpatti, no ahara | → Close lifecycle |
 | `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer or mark inlet |
-| `nks_orient` shows ENTRY >> INIT | Many kriyas without upstream | → Wire ahara edges |
-| Edge without description | Mute connection | → Write sense |
-| Kriya with 2 actor edges | Hidden double kriya | → Split |
-| Phenomenon was one, now two | Stale edges | → Reconnect |
+| `nks_orient` shows ENTRY >> INIT | Many kriyas without upstream | → Wire ahara arrows |
+| Arrow without sense | Mute connection | → Write sense |
+| Kriya with 2 actor arrows | Hidden double kriya | → Split |
+| Phenomenon was one, now two | Stale arrows | → Reconnect |
 | `lens="trace"` shows broken | Lifecycle not connected | → Diagnose → close |
 
 ## Core operations
@@ -32,7 +32,7 @@ DO:
   2. Send-analysis: utpatti without consumer → who should pick up?
   3. Receive-analysis: ahara without producer → where does it come from?
   4. If connecting phenomenon doesn't exist → create sachverhalt
-  5. Wire: nks_link ahara/utpatti
+  5. Wire: nks_arrow(action="link") ahara/utpatti
   6. Verify: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
 ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
@@ -40,11 +40,11 @@ ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ### 2. Sense writing (#418)
 
 ```
-TRIGGER: edge has no description, or description duplicates target name
+TRIGGER: arrow has no sense, or sense duplicates target name
 DO:
   1. Read both endpoints: nks_look on source and target
   2. Ask: WHY does this connection exist? What does the target DO for the source?
-  3. Write sense based on edge type:
+  3. Write sense based on arrow type:
      - next → praśna: yes/no question agent answers from their situation
        ✓ "Path built — where can it break?"
        ✗ "Go to next step" (not a question)
@@ -53,16 +53,16 @@ DO:
        ✗ "principle of lifecycle closure" (duplicates phenomenon name)
      - arose_from → "what gave birth to this question"
      - ahara → "what this kriya consumes and why"
-  4. nks_link or nks_update to write description on edge
+  4. nks_arrow(action="link") or nks_arrow(action="update") to write sense on the arrow
 SIGNAL of bad sense: it says the same thing as the target phenomenon's name
 ```
 
 ### 3. Double kriya decomposition (#419)
 
 ```
-TRIGGER: kriya has 2+ actor edges, or description implies two actors with different motivations
+TRIGGER: kriya has 2+ actor arrows, or description implies two actors with different motivations
 SIGNALS:
-  - Two actor edges visible in nks_look
+  - Two actor arrows visible in nks_look
   - Description contains "and then another agent/role..."
   - pariṇāma describes TWO qualitative transitions
   - Different time scales within one kriya
@@ -70,7 +70,7 @@ DO:
   1. Identify the two roles and their motivations
   2. Create two kriyas, each with one actor
   3. Connect via next (if sequential) or via sachverhalt transfer (utpatti → ahara)
-  4. Move edges from original to appropriate child
+  4. Move arrows from original to appropriate child
   5. Delete or visarjana the original
   6. read the CHECKS: block each create response prints (factories self-validate) — both new kriyas clean?
 BASIS: methodology #386 — call = communication, not nesting (π-calculus scope extrusion)
@@ -79,13 +79,13 @@ BASIS: methodology #386 — call = communication, not nesting (π-calculus scope
 ### 4. Distinction reconnection (#420)
 
 ```
-TRIGGER: phenomenon was one, now distinguished into two (or more). Old edges point at the undistinguished whole.
+TRIGGER: phenomenon was one, now distinguished into two (or more). Old arrows point at the undistinguished whole.
 EXAMPLE: "Config" split into "Runtime Config" + "Build Config". Kriya K has ahara → "Config". Which config does K consume?
 DO:
-  1. Find all edges pointing at the old phenomenon: nks_look
-  2. For each edge: which distinguished phenomenon is correct?
-  3. nks_reconnect_edge to redirect (atomic, never half-reconnected)
-  4. If old phenomenon is now empty of edges → visarjana or delete
+  1. Find all arrows pointing at the old phenomenon: nks_look
+  2. For each arrow: which distinguished phenomenon is correct?
+  3. nks_arrow(action="reconnect") to redirect (atomic, never half-reconnected)
+  4. If old phenomenon is now empty of arrows → visarjana or delete
   5. nks_look on affected kriyas — check the CHECKS: block (reconnect is an edit, so re-look)
 ```
 
@@ -126,16 +126,16 @@ relay-gap?
 orphan phenomenon?
   → nks_look: does it belong to any kriya?
     → no → wire to relevant kriya or delete
-    → yes but edges have no sense → Operation 2 (sense writing)
+    → yes but arrows have no sense → Operation 2 (sense writing)
 
 no-actor on kriya?
   → nks_look: who performs this?
-    → one role → nks_link actor
+    → one role → nks_arrow(action="link") actor
     → two roles → Operation 3 (decomposition)
 
 no structural tension but graph feels incomplete?
   → Read kriyas manually: nks_look on key kriyas
-    → edges without description? → Operation 2
+    → arrows without sense? → Operation 2
     → two actors? → Operation 3
     → entities that were split? → Operation 4
 ```
@@ -145,8 +145,8 @@ no structural tension but graph feels incomplete?
 When weaving as Phase 2 of design (#421):
 1. Walk the path built by backward chaining (Phase 1)
 2. For each phenomenon: lifecycle closed? → if not, Operation 5
-3. For each kriya: one actor? sense on edges? → Operations 2, 3
-4. For each distinction made during walk: old edges correct? → Operation 4
+3. For each kriya: one actor? sense on arrows? → Operations 2, 3
+4. For each distinction made during walk: old arrows correct? → Operation 4
 5. When path is woven → next to Phase 3 (risk analysis, #161)
 
 But weaving is NOT only Phase 2. Enter from:
@@ -161,7 +161,7 @@ But weaving is NOT only Phase 2. Enter from:
 - Re-orient every 5-10 nodes
 - After an edit (reconnect/update): nks_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
 - After lifecycle work: nks_orient(lens="trace", focus=…) to confirm connected
-- Batch order: phenomena → kriyas → links
+- Batch order: phenomena → kriyas → arrows
 
 ## What weaving is NOT
 
@@ -182,7 +182,7 @@ Weaving DISCOVERS connections that were implied but not explicit. The Ткач r
 | System growth (defer OK) | `nks_look(node_id="390", realm="methodology")` |
 | Tensions = truthful signal | `nks_look(node_id="404", realm="methodology")` |
 | Call = communication #386 | `nks_look(node_id="386", realm="methodology")` |
-| Sense on edges principle | `nks_look(node_id="332", realm="methodology")` (principle 6) |
+| Sense on arrows principle | `nks_look(node_id="332", realm="methodology")` (principle 6) |
 | Graph = tension with reality | `nks_look(node_id="403", realm="methodology")` |
 | Weaving as Phase 2 | `nks_look(node_id="421", realm="methodology")` |
 | Weaving vimarsha (origin) | `nks_look(node_id="290", realm="methodology")` |

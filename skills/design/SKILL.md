@@ -48,7 +48,7 @@ DO:
      - Level of abstraction matches? Bootstrap creates config → Teardown destroys config (same level)
   3. For each kriya:
      - Has exactly one actor? If two → split (#419, #386)
-     - All edges have sense/description? If no → write sense (#418)
+     - All arrows have sense? If no → write sense (#418)
      - ahara/utpatti point to correct phenomena? (may need reconnect after distinctions — #420)
   4. nks_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
   5. nks_orient(lens="tensions") → new problems?
@@ -83,7 +83,7 @@ DO:
      a. Mitigation kriya → new action preventing/handling failure
      b. Grundsatz invariant → principle as upadhi
      c. Conscious acceptance → vimarsha to upeksha with reasoning
-  4. Wire response, nks_link addressed_by from vimarsha
+  4. Wire response, nks_arrow(action="link") addressed_by from vimarsha
 OUTPUT: hint-vimarshas for implementation (#401)
 NEXT: → Phase 4 or → next risk
 ```
@@ -108,9 +108,9 @@ anagata kriyas alone don't call to action. Vimarshas do.
 | | Thread (нить) | Estafeta |
 |---|---|---|
 | Connects | kriyas via `next` | phenomena via `ahara`/`utpatti` |
-| Carries | praśna (question-needle) on each edge | sachverhalt (state of affairs) between kriyas |
+| Carries | praśna (question-needle) on each arrow | sachverhalt (state of affairs) between kriyas |
 | About | order of actions | lifecycle of a thing |
-| Tool | follow `next` edges | `nks_orient(lens="trace")` on phenomenon |
+| Tool | follow `next` arrows | `nks_orient(lens="trace")` on phenomenon |
 
 Never confuse. A chain of sachverhalts is an estafeta. A sequence of kriyas is a thread.
 
@@ -127,9 +127,9 @@ DO:
   5. Deferred closure OK: kriya in anagata+upeksha = placeholder, lifecycle formally closed
 ```
 
-## given_as — edge legality
+## given_as — arrow legality
 
-| given_as | What it is | Legal edges |
+| given_as | What it is | Legal arrows |
 |---|---|---|
 | ding 物 | Thing outside graph | ahara, utpatti, context |
 | sachverhalt 勢 | State of affairs | ahara, utpatti, context |
@@ -146,9 +146,9 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 |---|---|---|
 | leaked | phenomenon has utpatti, no ahara | Add consuming kriya (end-of-life) or parked kriya (anagata+upeksha) |
 | relay-gap | phenomenon has ahara, no utpatti | Add producing kriya or mark inlet (boundary='init') |
-| orphan | phenomenon has no kriya edges at all | Wire to a kriya (ahara/utpatti/upadhi) or delete if spurious |
+| orphan | phenomenon has no kriya arrows at all | Wire to a kriya (ahara/utpatti/upadhi) or delete if spurious |
 | no-ahara | kriya without input | Add ahara or set attrs.boundary='init' for inlets |
-| no-actor | kriya without actor | Add actor edge to karta |
+| no-actor | kriya without actor | Add actor arrow to karta |
 | lifecycle | disconnected lifecycle segments | Thread via next, or trace to find the break |
 | unreachable | upadhi phenomenon not reachable via happens-before | Check producer is hb-before consumer |
 
@@ -156,8 +156,8 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 
 When using `nks_batch` with 3+ operations:
 1. **Phenomena first** — sachverhalts, dings, sinns
-2. **Kriyas second** — with edges-inline referencing phenomena from step 1
-3. **Cross-cutting links last** — next between kriyas, context to holons, vimarsha_of
+2. **Kriyas second** — with arrows-inline referencing phenomena from step 1
+3. **Cross-cutting arrows last** — next between kriyas, context to holons, vimarsha_of
 
 Partial failure is safe in this order: phenomena without kriyas = orphan (fixable), kriyas without phenomena = broken (harder).
 
@@ -167,7 +167,7 @@ HTTP endpoints → kriyas, not text descriptions:
 1. Root sinn container (e.g. "API URL") — contains all endpoint phenomena
 2. Endpoint phenomenon = sachverhalt (HTTP request). attrs: method, path
 3. Kriya "Обслуживание GET /path" — ahara ← endpoint phenomenon, utpatti → response phenomenon, actor → API client
-4. Next edges: caller → endpoint kriya → renderer
+4. Next arrows: caller → endpoint kriya → renderer
 
 ## Fat Node — where to put content (#414)
 
@@ -176,7 +176,7 @@ HTTP endpoints → kriyas, not text descriptions:
 | Insights, reasoning, justifications | Vimarshas (prati-paksha, hint, hetu-dosha) with arose_from |
 | Sub-steps, stages | Contains children (sub-kriyas) |
 | Reference data, schemas | Separate phenomena (ding) — long description OK for dings |
-| Related concepts | Separate phenomena (sinn) + upadhi edges |
+| Related concepts | Separate phenomena (sinn) + upadhi arrows |
 
 Long description on ding = fine (describing a thing). Long description on kriya = anti-pattern (procedure instead of pariṇāma).
 
@@ -194,7 +194,7 @@ Anti-pattern: attrs.parked=true to suppress tensions. Use modes and vimarshas.
 
 Kriyas without upstream (HTTP handler, scheduled tick, bootstrap):
 - Set `attrs.boundary="init"` → waives has_ahara tension
-- ENTRY KRIYAS in orient = diagnostic signal. Healthy realm: ENTRY ≈ INIT. ENTRY >> INIT → unprimed ahara edges, needs weaving.
+- ENTRY KRIYAS in orient = diagnostic signal. Healthy realm: ENTRY ≈ INIT. ENTRY >> INIT → unprimed ahara arrows, needs weaving.
 
 ## Naming (正名, #72)
 
@@ -208,7 +208,7 @@ Kriyas without upstream (HTTP handler, scheduled tick, bootstrap):
 
 | Question | Node |
 |---|---|
-| Edge × given_as matrix | `nks_look(node_id="376", realm="methodology")` |
+| Arrow × given_as matrix | `nks_look(node_id="376", realm="methodology")` |
 | Backward chaining | `nks_look(node_id="160", realm="methodology")` |
 | Call = communication | `nks_look(node_id="386", realm="methodology")` |
 | Five risk questions | `nks_look(node_id="262", realm="methodology")` |
