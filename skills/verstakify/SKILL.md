@@ -17,6 +17,13 @@ have, with `<…>` slots and a few `<!-- … -->` notes. Fill the slots, drop
 optional rows/sections that don't apply, strip every `<!-- … -->` note, never
 leave an angle bracket. The skeleton is *what to produce*; this file is *how*.
 
+The skeleton deliberately *inlines* repo-agnostic agent-discipline (Working
+principles, parts of Session lifecycle) into every generated `AGENTS.md` so the
+file stands alone for agents with no NKS access. Keep it inline — don't replace
+it with a pointer to the methodology realm even though it duplicates content
+there. (Whether invariant discipline should instead live once in methodology
+with a pointer is a deliberate open trade-off, tracked as a samshaya in nks-dev.)
+
 ## Two scenarios — detect first
 
 Look for an existing `AGENTS.md`, `CLAUDE.md`, or `.claude/` before doing
@@ -85,6 +92,13 @@ For each: propose the strictest sensible option for the stack, a one-line
 trade-off, await confirmation. Default strict; relaxations need an explicit ask,
 calibrated to cost-of-breakage from *What this project is* and recorded there
 per-tool.
+
+**Tightening an existing gate is not free.** On a mature repo whose gate is
+already relaxed, `max-warnings 0` is not a checkbox — it commits the user to a
+refactor. Before proposing to tighten, *measure*: run the linter/typechecker at
+the proposed strictness, count the failures, and show that cost. Tightening an
+already-relaxed gate needs the same explicit ask as a relaxation — and may belong
+in a follow-up branch, not the bootstrap.
 - **Linter**, max strict (e.g. `@typescript-eslint/strict`; Ruff
   `E,F,B,I,N,UP,RUF`; `golangci-lint` broad; `clippy -- -D clippy::pedantic`).
 - **Formatter**, auto-fix on save + pre-commit (Prettier, `ruff format`,
@@ -119,8 +133,18 @@ easy part to get wrong:
 ```
 The `PostToolUse` entry adds `"matcher": "Bash"` and gates the echo on the
 command: `jq -r '.tool_input.command // ""' | grep -q 'git push' && echo '<envelope>' || true`.
+This matches the command *text*, so it will also fire on commands that merely
+*mention* `git push` (an `echo`, a PR-body heredoc, this very hook's own
+validation) — a known false-positive. Harmless for a non-blocking reminder, so
+ship it as-is; just never promote this text-match to anything that gates work. To
+cut the noise, also branch on `.tool_response` so the reminder fires only when
+the push actually ran.
 Self-check: both hooks present; `SessionStart` names the real realm slug + focus
 holon, not a placeholder.
+
+Heads-up: writing `.claude/settings.json` may be flagged by the harness as
+self-modification and require explicit approval — surface the write for
+confirmation rather than assuming it lands silently.
 
 ### Step 5 — Permissions allow-list (optional)
 Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
@@ -147,10 +171,13 @@ copied prefix often won't match and silently does nothing.
   `!.claude/settings.json`. Verify with `git check-ignore -v
   .claude/settings.json .claude/settings.local.json`.
 - Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`) holds
-  only the prohibition stub. Move any survivors into AGENTS.md / HANDOVER.md /
-  NKS, then write/refresh the stub: forbid using local project memory, point at
-  the repo files + NKS realm where state lives (reason: reproducibility +
-  multi-machine work).
+  only the prohibition stub. Classify each survivor before moving it: **project
+  state** (decisions, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS;
+  **user/agent-scoped preferences** (working style, language) are *not* project
+  state — they persist separately by design (see *Persistence rules*), so leave
+  them where they live, don't force them into the stub. Then write/refresh the
+  stub: forbid using local project memory, point at the repo files + NKS realm
+  where state lives (reason: reproducibility + multi-machine work).
 - *Stack*, *Commands*, *Project structure*, *Code conventions* hold real content
   proportional to maturity. Empty is fine day one; `TBD` is not.
 - `HANDOVER.md` exists only if feature-branch work is in flight.
