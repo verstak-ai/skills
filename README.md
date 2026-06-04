@@ -13,8 +13,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |
 | **weaving** | Semantic completion of an existing graph — close lifecycles, fix tensions. |
 | **methodology-work** | Working on the methodology realm itself. |
-
-Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
+| **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` symlink), wire the NKS session rituals, set the quality gate. |
 
 ## Install
 
@@ -25,7 +24,7 @@ Plus `META.md` — a bootstrap template for a new repo's `AGENTS.md`.
 /plugin install verstak@verstak-ai
 ```
 
-All five skills install together under the `verstak` plugin (invoke explicitly as
+All six skills install together under the `verstak` plugin (invoke explicitly as
 `/verstak:design`, etc.; model-driven invocation works automatically).
 
 **Updating.** `verstak-ai` is a third-party marketplace, so — unlike the official Anthropic
