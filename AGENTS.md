@@ -1,5 +1,5 @@
 # verstak-ai/skills
-Agent-facing NKS skill bundles (Claude Code skills) + the `META.md` bootstrap archetype for future repos.
+Agent-facing NKS skill bundles (Claude Code skills), including `verstakify` — the skill that bootstraps any repo to this `AGENTS.md` standard.
 
 ## What this project is
 - **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: content is prose + methodology, so there are no behavioural tests. The gates are (1) human review of the `SKILL.md` diff plus the skills' own discipline and (2) a lightweight CI that validates the frontmatter contract and bundle sync (`make check`). Breakage is otherwise silent, not loud (see Production statement) — CI catches the one mechanical class (malformed frontmatter / drifted bundles).
@@ -10,7 +10,7 @@ Agent-facing NKS skill bundles (Claude Code skills) + the `META.md` bootstrap ar
 
 ## Persistence rules
 State lives in the **repo** or in **NKS** — nowhere else.
-- **Repo**: `skills/<name>/SKILL.md` (source of truth), the derived `<name>.skill` bundles, `META.md`, `README.md`, conventions.
+- **Repo**: `skills/<name>/SKILL.md` (source of truth), the derived `<name>.skill` bundles, `README.md`, conventions.
 - **NKS** (`nks-dev`): design decisions, open questions (vimarshas), hand-offs, hints — the thinking around the skills. Don't restate NKS in the repo; link to the vimarsha/holon.
 - **`skills/<name>/SKILL.md` is the source of truth.** The `<name>.skill` zips are derived build artifacts (committed for download/claude.ai); the installed copy in `~/.claude/skills/` is derived too. Never treat a hand-edited bundle or installed copy as canonical — edit the source dir and run `make build`.
 - Fetch state; never reconstruct it from memory.
@@ -35,13 +35,13 @@ One branch through to its merge — commit follow-ups into it, don't chain new b
 |---|---|---|
 | `skills/<name>/SKILL.md` (source of truth) + derived `.skill` bundles | ✓ | |
 | `.claude-plugin/marketplace.json`, build (`Makefile`, `scripts/`, `.githooks/`) | ✓ | |
-| META archetype, README, conventions | ✓ (AGENTS.md / META.md) | |
+| README, conventions | ✓ (AGENTS.md) | |
 | Design decisions, open questions | | ✓ (vimarshas) |
 | Plans, hand-offs, hints | | ✓ (#844 + `genre=hint`) |
 | Commit history, SHAs, PRs | git | (never NKS) |
 
-## META.md is an archetype — do not delete
-`META.md` is the **bootstrap template for future repos' `AGENTS.md`** — fill-in slots, `> 🛠 SETUP` callouts, and a Bootstrap checklist. It is a reusable artifact, not this repo's config. **This** repo's config is `AGENTS.md` (the file you are reading). Never delete `META.md`, never trim it down to awesome-nks specifics, and don't treat its placeholder slots as live instructions.
+## The bootstrap template lives in the `verstakify` skill
+The fill-in `AGENTS.md` skeleton for future repos is `skills/verstakify/references/agents-template.md`; the bootstrap protocol is `skills/verstakify/SKILL.md`. **This** repo's own config is `AGENTS.md` (the file you are reading). Edit the template/protocol to improve bootstrapping for all future repos — don't confuse them with this file.
 
 ## Stack
 Markdown `skills/<name>/SKILL.md` (+ optional `skills/<name>/references/*.md`) per skill — **edit these directly, they are plain files and fully greppable.** Each is packed into a derived `<name>.skill` zip (top-level `<name>/` dir containing `SKILL.md`) by `make build`. No code, no lockfiles. The only "code" is the build + format-validation scripts (`scripts/*.sh`, `scripts/*.mjs`), run by `make` and CI.
@@ -63,12 +63,11 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. The only automated gate is **format**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source. Both run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
 
 ## Project structure
-- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `methodology-work`); `references/*.md` optional.
+- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
-- `META.md` — archetypal AGENTS.md bootstrap template (see above; do not delete).
 - `README.md` — short human-facing pointer.
 - `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
 - `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
@@ -84,7 +83,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 
 ## What to update when
 - `AGENTS.md` — repo conventions, structure, or the skill set change.
-- `META.md` — only when improving the **archetype** for all future repos (never for awesome-nks specifics).
+- `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
 - NKS (`nks-dev`, #844) — every push: thread shipped skill state, close resolved vimarshas.
 
 ## Git workflow
@@ -92,4 +91,4 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
 - **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 and close the driving hint.
-- **Never** `--force`, `git reset --hard`, or delete `META.md` without explicit instruction.
+- **Never** `--force` or `git reset --hard` without explicit instruction.
