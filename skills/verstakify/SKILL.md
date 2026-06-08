@@ -1,6 +1,6 @@
 ---
 name: verstakify
-description: "Use this skill when the user asks to verstakify a repo, bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions to a project, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, permissions allow-list, CLAUDE.md symlink). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". Default path is an EXISTING repo — read its current CLAUDE.md/AGENTS.md and bring it to standard idempotently, fixing only what fails; fresh repos ask the user for the slots. Needs the nks_* MCP tools for the NKS steps."
+description: "Use this skill when the user asks to verstakify a repo, bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions to a project, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, permissions allow-list, CLAUDE.md symlink). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". Treats AGENTS.md as a derived view, not hand-written prose: audits each concern against its source of truth (versions→package.json, commands→scripts, gate→CI, structure→filesystem, decisions→NKS), classifies it absent/stale/correct, and re-projects stale facts while preserving authored judgment (gotchas, why-clauses); fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
 ---
 
 # Verstakify
@@ -10,6 +10,16 @@ Bring the **current repo** to the verstak agent standard: a dense, AI-first
 the NKS session rituals wired as hooks, and a quality gate. You **generate** the
 config from the skeleton — nothing is copied by hand and the user pastes no
 template.
+
+The real deliverable is **a trust interface**: a doc the agent can believe every
+session — not a pretty dense file. `AGENTS.md` is a *derived view*, a projection
+of sources that already hold the truth (code, `package.json`, CI config, the
+filesystem, NKS) plus a thin layer of authored judgment (gotchas, why-clauses)
+that lives nowhere else. So the contract has two co-equal halves: **density**
+(every line changes behavior) and **accuracy** (every derived line re-checked
+against its source *this run*). A dense false line is worse than a verbose one —
+short and confident, the agent swallows it without resistance. Verify with the
+same rigor you compress with.
 
 The body skeleton lives in `references/agents-template.md` (relative to this
 skill). Read it; it is the set of `##` sections your finished `AGENTS.md` must
@@ -24,23 +34,51 @@ it with a pointer to the methodology realm even though it duplicates content
 there. (Whether invariant discipline should instead live once in methodology
 with a pointer is a deliberate open trade-off, tracked as a samshaya in nks-dev.)
 
-## Two scenarios — detect first
+## Audit → classify → act (not fresh-vs-existing)
 
-Look for an existing `AGENTS.md`, `CLAUDE.md`, or `.claude/` before doing
-anything.
+A repo is never simply *fresh* or *configured* — it's a spectrum, and the trap is
+"a file exists, therefore its facts are true." Don't branch on whether
+`AGENTS.md` / `CLAUDE.md` / `.claude/` exists. Instead **audit every concern
+against its source of truth and classify it**:
 
-- **Existing repo (the common path).** Some config already exists. Read it in
-  full + skim the repo (stack, scripts, CI, `.gitignore`). **Idempotent:** run
-  each Step's self-check against current state, fix only what fails, preserve
-  every project-specific line — fold it into the matching skeleton section,
-  never blow it away. Report what was already fine vs what you changed.
-- **Fresh repo.** Little or no config. Walk Step 1 with the user — don't
-  silently pick defaults for nature / realm / stack / quality gate.
+- **absent** — no claim yet → derive it from the source (or, for an authored
+  slot with no checkable source, ask the user).
+- **stale** — a claim exists but disagrees with its source → re-project from the
+  source, overwriting the stale text. Do not carry it forward just because it was
+  written down.
+- **correct** — claim matches source → leave it.
 
-## The output contract — the whole point
+Run this per concern using the source map below. "Fresh repo" is just
+*everything absent*; a mature repo is a mix — and most dangerous when
+*mostly-correct*, because the few stale lines hide among trusted ones (this is
+why the verify pass is whole-artifact, Step 7). For authored slots with no
+checkable source, *absent* → ask the user; never invent.
 
-The produced `AGENTS.md` is a config the agent reads *every session*, not a
-document a human reads once. Write it that way:
+### Source of truth per concern
+Each claim class has one authority. Verify there — don't recall:
+
+| Concern | Source of truth | How to check |
+|---|---|---|
+| Versions, dependencies | `package.json` / `pyproject.toml` / `go.mod` / `Cargo.toml` + lockfile | read |
+| Build/test/lint/dev commands | `package.json` scripts, `Makefile`/`Justfile`, CI workflow | read; run `--help`/dry-run where cheap |
+| Quality gate (strictness, max-warnings) | linter config, `tsconfig`, CI yaml | read |
+| Project structure, path aliases | filesystem + `tsconfig`/bundler config | glob / list |
+| Nature, production statement, relaxations | the user (authored) | confirm in conversation |
+| Design decisions, why-clauses, open questions | NKS | `nks_orient` / `nks_search` |
+| Branch state, what's runnable | git + `HANDOVER.md` | `git status` / `log` |
+| Gotchas | authored (past pain) | sanity-check only — don't auto-derive |
+
+Two kinds of line, handled differently: **derived facts** (upper rows) are
+re-projected from source every run — never preserved when stale; **authored
+judgment** (lower rows — gotchas, why-clauses, nature) lives nowhere else —
+preserve it, only sanity-check it against the code.
+
+## The output contract — density and accuracy
+
+`AGENTS.md` is read *every session*, so it must be both **dense** and **true** —
+co-equal, not form-first. Accuracy is operationalized above (audit/classify each
+concern against the source map) and below (verify pass, Step 7). The density half
+is these five rules:
 1. **Imperative, addressed to the agent.** "Orient before coding," not "the
    agent should orient."
 2. **Density rule.** Every line must change what the agent *does*. If deleting a
@@ -189,13 +227,27 @@ copied prefix often won't match and silently does nothing.
   (`AGENTS.md` is the vendor-neutral canonical name; Claude Code reads
   `CLAUDE.md` and follows symlinks.)
 - **Legacy config already present** (the common case): use the skeleton as the
-  frame, fold existing `AGENTS.md`/`CLAUDE.md` content into matching sections,
-  preserve project-specific content that has no slot (move to *Code conventions*
-  or a new section). End with `AGENTS.md` as the one file + `CLAUDE.md` as the
-  symlink — if a *regular-file* `CLAUDE.md` exists, replace it with the symlink
-  after folding its content in. One source per concern — no duplicate sections.
+  frame and fold existing content in *by line kind* — re-project derived facts
+  from their source (don't carry a stale version, command, or path forward just
+  because it was written down) but preserve authored judgment (gotchas,
+  why-clauses, nature) that has no checkable source, sanity-checking it against
+  the code. Project-specific content with no slot moves to *Code conventions* or a
+  new section. End with `AGENTS.md` as the one file + `CLAUDE.md` as the symlink —
+  if a *regular-file* `CLAUDE.md` exists, replace it with the symlink after
+  folding its content in. One source per concern — no duplicate sections.
+- **Verify pass (co-equal with the density pass):** re-check every *derived* line
+  against its source from the map — **whole-artifact, not just the lines you
+  touched.** The most dangerous errors sit in untouched, settled-looking lines
+  that drift silently because nothing challenges them. A claim you can't tie to a
+  source is either authored judgment (keep it, recognize it as such) or a guess
+  (cut it).
 - **Density pass:** for every body line ask "does this change what the agent
   does?" Cut narrative, motivation, design rationale (rationale → NKS).
+- Drift between runs is guaranteed — the doc goes stale the moment code changes.
+  verstakify re-verifies only when re-run; an automatic "claimed vs actual" check
+  hook (e.g. doc versions vs `package.json`) is a deliberate non-default —
+  generic prose-vs-source parsing is brittle and would itself drift. Tracked as
+  an open vimarsha in nks-dev; re-running verstakify is the current discipline.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   driving hint seed handled).
