@@ -170,7 +170,7 @@ But weaving is NOT only Phase 2. Enter from:
 - NOT creating vimarshas about what to build (that's questioning, #151)
 - NOT suppressing tensions (that's never OK)
 
-Weaving DISCOVERS connections that were implied but not explicit. The Ткач reads the graph semantically — not just structure, but meaning — and makes the implicit explicit.
+Weaving DISCOVERS connections that were implied but not explicit. The Ткач reads the graph semantically — not just structure, but meaning — and makes the implicit explicit. When the other end of an implied connection isn't in view, **`nks_semantic_search(q=<the concept>)`** finds the node that belongs there by meaning — where tension-walking and keyword search won't surface it.
 
 ## Methodology lookups
 
