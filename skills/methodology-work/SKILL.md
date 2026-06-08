@@ -46,8 +46,9 @@ SIGNALS:
   - A pattern the user has enforced multiple times
 
 DO:
-  1. Search methodology for existing coverage:
-     nks_search(realm="methodology", q="<key terms>")
+  1. Search methodology for existing coverage — both, the realm likely phrased it differently:
+     nks_search(realm="methodology", q="<key terms>")                       # keyword
+     nks_semantic_search(realm="methodology", q="<the principle as a sentence>")  # conceptual — catches differently-worded coverage
   2. If covered → don't duplicate. Link to existing.
   3. If not covered → create phenomenon:
      given_as=grundsatz, epistemic=pramanita, ontic=vartamana, volitive=adhimoksha
@@ -75,7 +76,7 @@ SIGNALS:
   - Agent feedback identifies a gap: "I had to invent this idiom"
 
 DO:
-  1. Search methodology for existing coverage
+  1. Search methodology for existing coverage (nks_search + nks_semantic_search — keyword + conceptual)
   2. Name as verbal noun (正名 #72): "Замыкание жизненного цикла", not "Close lifecycle"
   3. Identify actor: which karta performs this? (must exist in methodology)
   4. Identify ahara: what does this kriya consume? Must be a sachverhalt or ding.

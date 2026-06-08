@@ -17,11 +17,13 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, entry/exit kriyas, active vimarshas, tensions. No full descriptions.
 
-3. **`nks_search(q=<key term from the question>, realm=<token>)`** — what does the graph already know on this topic? Cite found nodes with their seq numbers (`#42`).
+3. **`nks_search(q=<key term from the question>, realm=<token>)`** — full-text (keyword) over names + descriptions: what does the graph already know on this topic? Cite found nodes with their seq numbers (`#42`). Keyword only matches the words the author happened to use.
+
+   When the concept might be **phrased differently** than you'd guess, or the query is **conceptual** (you're describing an idea, not a known label), also run **`nks_semantic_search(q=<the idea as a phrase>, realm=<token>)`** — embedding-based, it surfaces conceptually-related nodes that keyword misses. Reach for it by default on conceptual questions, not only after a keyword miss.
 
 4. **`nks_look(node_id=<seq>, realm=<token>)`** — only on nodes actually needed for the answer. Two or three at most per response.
 
-This is the standard entry protocol: **orient → focus → deepen**, narrowing at each step.
+This is the standard entry protocol: **orient → search (keyword + semantic) → deepen**, narrowing at each step.
 
 ## When NOT to enter the realm
 
@@ -37,7 +39,9 @@ Not paraphrasing one node. The pattern is: cite relevant nodes with seq numbers,
 
 ## When the search returns nothing
 
-The realm doesn't cover the topic. **Don't paper over this** with a training-data answer. Say: "nothing in the realm on this — answering from general considerations; should we open a samshaya?". The honest gap is more valuable than a confident-sounding miss.
+**First escalate, then conclude.** A keyword miss in `nks_search` is not proof the realm is silent — the concept may be recorded under different words. Re-query with **`nks_semantic_search`** before deciding. Only when *that* also returns nothing does the realm not cover the topic.
+
+Then: **don't paper over this** with a training-data answer. Say: "nothing in the realm on this — answering from general considerations; should we open a samshaya?". The honest gap is more valuable than a confident-sounding miss.
 
 ## Recall vs keyword search
 

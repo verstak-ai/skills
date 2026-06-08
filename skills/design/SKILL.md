@@ -26,7 +26,7 @@ Enter any phase based on graph maturity. Not waterfall — any phase can loop ba
 TRIGGER: goal exists, path does not
 DO:
   1. Name goal as sachverhalt(anagata+chanda) — #159
-  2. nks_search to check goal doesn't already exist
+  2. nks_search + nks_semantic_search — goal doesn't already exist? (keyword misses a differently-phrased duplicate; semantic catches it before you design it twice)
   3. From goal: "what produces this?" → create kriya + ahara phenomenon
   4. Recurse until you hit a ding that must be given (realm inlet)
   5. Mark inlets: attrs.boundary="init"
