@@ -63,7 +63,7 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. The only automated gate is **format**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source. Both run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
 
 ## Project structure
-- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
+- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.

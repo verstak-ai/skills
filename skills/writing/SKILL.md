@@ -24,6 +24,9 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 | **asks a question** — doubt, risk, counter-thesis | **vimarsha** | `nks_add_vimarsha` |
 | **draws a boundary** — separates inside from outside | **holon** | `nks_add_holon` |
 | **names a role with a motivation** | **karta** | `nks_add_karta` |
+| **transforms the system qualitatively** — a cross-holon becoming with a *telos* ("what the system becomes") | **bianhua** | `nks_add_bianhua` |
+
+**bianhua is an assembly-level type, not a routine write.** You create one when a *set* of inquiries is really one qualitative shift the system is undergoing ("search becomes semantic", "becomes multi-jurisdictional") — that's the **assembly** skill's work, not single-node writing. If you can't name "the system will be X, which it isn't yet", you don't have a bianhua. See Decision 5 for its arrows.
 
 A phenomenon does not exist on its own — it exists *for* a kriya (noema for noesis, methodology #18). If no kriya consumes, produces, or conditions it, you are about to write an orphan.
 
@@ -94,6 +97,7 @@ Arrowless = orphan = invisible.
 2. **Produces?** → `utpatti` to phenomenon. Can't name utpatti? Stop — you don't understand the kriya.
 3. **Who acts?** → `actor` to karta.
 4. **Context?** → `upadhi` to phenomenon. `attrs.mutable=true` if modified.
+5. **Belongs to what?** → search for a candidate parent kriya before writing top-level (locate-before-write). `nks_semantic_search(q=<what this kriya is part of>)`; on a real hit, pass `parent_id=<seq>` (creates a `contains` edge from parent). **No coercion** — a wrong parent is worse than none (#435); when you can't honestly name the umbrella, stay top-level consciously. The most compressing axis is the one factories never forced — ask it yourself.
 
 Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
@@ -110,6 +114,12 @@ Realm-inlet kriyas: `attrs.boundary="init"` waives ahara requirement.
 - `vimarsha_of` → node(s) this question is about.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
+
+### Bianhua
+
+- `anga` (part→whole): a vimarsha (or sub-bianhua) → the bianhua it *drives*. Pass `anga=<refs>` on `nks_add_bianhua`, or `nks_arrow(action="link", arrow_type="anga", source=<vimarsha>, target=<bianhua>)` later. The driving vimarsha keeps its own `vimarsha_of` — anga does not replace it. A bianhua with zero anga-vimarshas is an *empty transformation* — the factory warns.
+- `anantara` (ordering): bianhua → the bianhua that must complete first. `anantara_after=<refs>`. Acyclic; sets the critical path.
+- `telos` is the description: write the *destination quality* ("система станет …"), rendered as `TELOS:` in `nks_look`. No given_as, no `context`, no ahara/utpatti/upadhi on a bianhua (422). The lifecycle and field work belong to the **inquiry** and **assembly** skills.
 
 ### Sense on arrows
 
@@ -152,6 +162,14 @@ Can't pick one → two questions tangled. Separate.
 1. Phenomena first
 2. Kriyas second (referencing phenomena)
 3. Cross-cutting arrows last
+
+### Inline-arrow form (workaround — bug #981 live)
+
+Inline `arrows` on the factories currently has sharp edges (#981): an old key like `edge_type` is accepted then fails with `Invalid arrow type "undefined"` (it blames the value, not the unknown key); some forms leak a raw `Cannot read properties of undefined (reading 'trim')` TypeError. The canonical shape is the same as `arrow_link` — `{arrow_type, target, sense?, direction?}` — but until #981 ships, the **reliable** pattern is:
+
+> Create the node **without** inline arrows, then add a separate `arrow_link` (with a `temp:N` ref to the just-created node) **in the same atomic batch**.
+
+`anga`/`anantara` on `nks_add_bianhua` are the exception — pass them as `anga=`/`anantara_after=` (their own params), not in `arrows`.
 
 ## Scope
 

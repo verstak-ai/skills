@@ -98,10 +98,12 @@ DO:
   2. Each hint: scope of work, acceptance criteria, priority, posed_to
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
-OUTPUT: implementor enters via orient → nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
+  5. If the work is one qualitative transformation: name the bianhua and attach each
+     driving hint via anga → the impulse becomes part of 形, not a scattered list
+OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
-anagata kriyas alone don't call to action. Vimarshas do.
+anagata kriyas alone don't call to action. Vimarshas do. When the hints form a transformation, a **bianhua** (assembly skill) gathers them into a map the navigator reads — anga inward, anantara between — rather than a flat list of questions.
 
 ## Thread vs Estafeta (#412)
 

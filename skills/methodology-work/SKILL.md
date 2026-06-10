@@ -36,6 +36,8 @@ Do NOT write from training data. The realm has its own vocabulary, its own disti
 
 ## Types of methodology work
 
+> The realm now carries a sixth node type — **bianhua** (变化), a qualitative transformation of the system (methodology #432). It is an *assembly-level* primitive (the **assembly** skill), not a routine methodology write: you rarely create one here, but recognise it when reading 形. The five kinds of work below remain the methodology-recording acts.
+
 ### 1. Recording a principle (grundsatz)
 
 ```
@@ -256,6 +258,7 @@ Most methodology work happens in 行 Воплощение (#179). Context arrows
 - Don't create nodes without arrows. Orphans are invisible.
 - Don't merge grundsatz and vollzug. WHY ≠ HOW.
 - Don't suppress tensions. Close structure.
+- Don't encode **population expectations** ("top-level kriyas should be few and essential") as tension detectors. Detector grammar is node-grained; a population pattern is invisible to it by design (the *граница рода*, #979). Such expectations belong in the **assembly** agenda, not in counter-detectors (#435).
 - Don't write description as procedure. pariṇāma = qualitative transition.
 - Don't ignore the CHECKS: block — it prints on every create and on re-look after edits.
 - Don't forget the seed vimarsha at session end.
