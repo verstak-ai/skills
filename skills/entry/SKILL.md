@@ -15,7 +15,7 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 1. **`nks_realm(action="list")`** — see what's available. The user typically signals which realm is in play by topic, by name, or by explicit mention. If the realm is unambiguous from context, skip to step 2. If unclear and the question is non-trivial, briefly ask which realm to enter.
 
-2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, entry/exit kriyas, active vimarshas, tensions. No full descriptions.
+2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, **active bianhua** (transformations underway — shown right after the root holons, the map of where the realm is going), entry/exit kriyas, active vimarshas, tensions. No full descriptions. A realm with a populated `ACTIVE BIANHUA` section reads as a map, not a wall — read it first.
 
 3. **`nks_search(q=<key term from the question>, realm=<token>)`** — full-text (keyword) over names + descriptions: what does the graph already know on this topic? Cite found nodes with their seq numbers (`#42`). Keyword only matches the words the author happened to use.
 
@@ -45,7 +45,7 @@ Then: **don't paper over this** with a training-data answer. Say: "nothing in th
 
 ## Recall vs keyword search
 
-Once inside the graph, navigate **by tension**, not by keyword. Each node has neighbors ranked by structural tension (leaked, orphan, missing actor, blocking vimarsha). The most informative neighbor is usually the most *tense* one, not the most textually similar one. Use `nks_orient(focus=<seq>)` — with **no lens** — to stand on a node and see its neighborhood (tensions + open vimarshas + neighbors); that's often where the live thinking is. `nks_orient` is the single read-dispatcher for connectivity: **focus** = where to stand, **lens** = which way to look. With no lens it prints a *suggester* naming the lenses worth trying next (`lens="trace"` to walk a phenomenon's estafeta, `lens="tensions"` for structural health, `lens="vimarshas"` for the field of inquiry) with copy-paste arguments — follow it.
+Once inside the graph, navigate **by tension**, not by keyword. Each node has neighbors ranked by structural tension (leaked, orphan, missing actor, blocking vimarsha). The most informative neighbor is usually the most *tense* one, not the most textually similar one. Use `nks_orient(focus=<seq>)` — with **no lens** — to stand on a node and see its neighborhood (tensions + open vimarshas + neighbors); that's often where the live thinking is. `nks_orient` is the single read-dispatcher for connectivity: **focus** = where to stand, **lens** = which way to look. With no lens it prints a *suggester* naming the lenses worth trying next (`lens="trace"` to walk a phenomenon's estafeta, `lens="tensions"` for structural health, `lens="vimarshas"` for the field of inquiry, `lens="bianhua"` for the forest of transformations — ready / blocked / done) with copy-paste arguments — follow it.
 
 Cap NKS calls at roughly five per response. If you've made seven and still haven't synthesized — stop, answer from what you have, flag the gap.
 
