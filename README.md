@@ -12,6 +12,8 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **writing** | Node-writing discipline — naming (正名), modes, edges. |
 | **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |
 | **weaving** | Semantic completion of an existing graph — close lifecycles, fix tensions. |
+| **inquiry** | The life of a vimarsha — anchor, resolve, close, park, crystallize, attach to a bianhua. |
+| **assembly** | The 時-cycle ritual — discern the bianhua a realm is undergoing and produce 形, the assembly map. |
 | **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` symlink), wire the NKS session rituals, set the quality gate. |
 
@@ -24,7 +26,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 /plugin install verstak@verstak-ai
 ```
 
-All six skills install together under the `verstak` plugin (invoke explicitly as
+All eight skills install together under the `verstak` plugin (invoke explicitly as
 `/verstak:design`, etc.; model-driven invocation works automatically).
 
 **Updating.** `verstak-ai` is a third-party marketplace, so — unlike the official Anthropic
