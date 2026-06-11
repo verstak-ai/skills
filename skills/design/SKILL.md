@@ -16,6 +16,19 @@ The graph IS the spec. If it's not in the graph, it doesn't exist.
 | P3 | Graph ≠ reality, graph = tension with reality | Shabda intake lowers tension. Design raises it. Every vimarsha marks a tension. System evolves by processing vimarshas. | #403 |
 | P4 | Tensions are always truthful | Never suppress. Always close structure. attrs.role='reference' = anti-pattern. If tension feels wrong → detector bug (#373), not your cue to silence it. | #404 |
 
+## Starting modes for projected work (#53)
+
+A projected practice is born **planned, not done**. Its triad is the *project* triad — never the "ready" one. Stamping a designed-but-nonexistent kriya/phenomenon as `pramanita/vartamana/upeksha` lies about both its ontic state (it isn't running) and its epistemic state (it isn't verified), and the lie cascades: false `vartamana` breaks the sunset section, succession, anga-raising (a "ready" kriya can't be anga — nothing is left to move), and carrier predicates.
+
+| You are recording | Epistemic | Ontic | Volition | Triad (#53) |
+|---|---|---|---|---|
+| A planned kriya/phenomenon to build | anumita | anagata | chanda | проект |
+| A settled plan you commit to | anumita | anagata | adhimoksha | зрелый проект |
+| Deferred — "needed, not now" | anumita | anagata | upeksha | (parked) |
+| Something observed already running | pratyakshita | vartamana | upeksha | наблюдение |
+
+**Transition to `vartamana` is a separate act of life** (движение 1 «проект → реализация», #53), performed when the practice actually starts — not the default of writing a designed node. Volition graduates along the `chanda → adhimoksha` axis (want → committed); never reach for `attrs` to express urgency or priority (#979).
+
 ## Four phases of design (#405)
 
 Enter any phase based on graph maturity. Not waterfall — any phase can loop back.
@@ -95,7 +108,7 @@ TRIGGER: graph designed, all in anagata modes, no one is working on it
 CONDITION: only for graphs projecting external systems (not methodology, not CJM)
 DO:
   1. Create hint-vimarshas for implementors
-  2. Each hint: scope of work, acceptance criteria, priority, posed_to
+  2. Each hint: scope of work, acceptance criteria, posed_to (volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979)
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
   5. If the work is one qualitative transformation: name the bianhua and attach each
