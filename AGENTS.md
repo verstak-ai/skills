@@ -16,8 +16,8 @@ State lives in the **repo** or in **NKS** — nowhere else.
 - Fetch state; never reconstruct it from memory.
 
 ## Session lifecycle
-- **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; read the latest `genre=hint` seed before acting (the `entry` skill runs the protocol).
-- **Every push → update NKS:** thread shipped skill changes into holon #844; handle the driving hint seed — close it if its skill-edits shipped, edit it if partial, leave a new `genre=hint` only if work continues.
+- **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; orient by the ACTIVE BIANHUA map (`lens="bianhua"` for the forest) — open work lives as anga-vimarshas on transformations; a `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The `entry` skill runs the protocol.
+- **Every push → update NKS:** thread shipped skill changes into holon #844; advance the map — close (visarjana) the vimarshas the push resolved, keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
 - **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
 
@@ -25,7 +25,7 @@ State lives in the **repo** or in **NKS** — nowhere else.
 One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges. After merge: `git checkout main && git pull`, delete the merged branch, update NKS (#844 + close resolved vimarshas).
 
 ## Working principles
-1. **Think before editing.** Orient in nks-dev; read the hint seed. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
+1. **Think before editing.** Orient in nks-dev; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
 2. **Surgical changes.** Touch only the skill steps the task needs. Match each bundle's existing register and terminology. Don't mass-rewrite a bundle for one fix unless asked.
 3. **Sync over invention.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill.
 4. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
@@ -37,7 +37,7 @@ One branch through to its merge — commit follow-ups into it, don't chain new b
 | `.claude-plugin/marketplace.json`, build (`Makefile`, `scripts/`, `.githooks/`) | ✓ | |
 | README, conventions | ✓ (AGENTS.md) | |
 | Design decisions, open questions | | ✓ (vimarshas) |
-| Plans, hand-offs, hints | | ✓ (#844 + `genre=hint`) |
+| Plans, hand-offs | | ✓ (bianhua map + anga-vimarshas on #844; thin `genre=hint` only for off-map remainder) |
 | Commit history, SHAs, PRs | git | (never NKS) |
 
 ## The bootstrap template lives in the `verstakify` skill
@@ -90,5 +90,5 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
-- **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 and close the driving hint.
+- **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
