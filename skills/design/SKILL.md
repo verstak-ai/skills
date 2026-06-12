@@ -110,7 +110,10 @@ TRIGGER: graph designed, all in anagata modes, no one is working on it
 CONDITION: only for graphs projecting external systems (not methodology, not CJM)
 DO:
   1. Create hint-vimarshas for implementors
-  2. Each hint: scope of work, acceptance criteria, posed_to (volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979)
+  2. Each hint: scope of work, acceptance criteria, posed_to (volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979),
+     and an ANCHOR — vimarsha_of into the contour where the work lands (holon at minimum,
+     the precise kriya/phenomenon when known): posed_to without an anchor is a lost hint —
+     the addressee orients by holon and never sees it
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
   5. If the work is one qualitative transformation: attach each driving hint via anga —
