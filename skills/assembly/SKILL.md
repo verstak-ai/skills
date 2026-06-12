@@ -91,6 +91,7 @@ Look at `top-level(scope)` kriyas — "what is really going on here". A wall of 
 Assemble the map:
 
 - **Create / refresh bianhua** for each transformation the field reveals: `nks_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisite bianhua>)`. Write `telos` as the *destination quality* ("система станет …"), never "what this is". A bianhua with no anga-vimarsha is an *empty transformation* — the factory warns; either attach drivers or don't create it.
+- **Run the integrity pass on each newly accepted bianhua** (**integrity** skill): propagate the telos through the graph's closures and mark the wavefront of affected-but-unattached nodes with «затронуто ли?» samshayas anga'd to the transformation.
 - **Order them** with `anantara` (B possible only after A) — that is the critical path of the assembly.
 - **Fix bildung-realizations.** A session must arrive at *understandings*, not only spawn new vimarshas (#435, shared with the inquiry skill). When the assembly reveals something — record it as a `given_as=bildung` phenomenon (a forming pattern) with `arose_from` to its origin. No bildung output ⇒ the assembly didn't land.
 

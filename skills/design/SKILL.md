@@ -117,6 +117,8 @@ DO:
      to an EXISTING bianhua first (lens="bianhua"); a new one only with user-accepted
      name + telos (assembly skill), never per single vimarsha → the impulse becomes
      part of 形, not a scattered list
+  6. On a newly accepted bianhua: run the integrity pass (integrity skill) — the
+     wavefront of affected-but-unattached nodes gets its «затронуто ли?» questions
 OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
