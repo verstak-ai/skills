@@ -159,8 +159,8 @@ yourself:
 - **`SessionStart`** → reminder to orient in NKS before acting (skill `entry`),
   naming *this* realm slug and focus holon.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS (match reality + handle the driving hint seed)
-  and run the after-green-push self-review.
+  push`, reminder to update NKS (match reality + advance the bianhua map:
+  close resolved vimarshas) and run the after-green-push self-review.
 
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`) is the
@@ -250,4 +250,4 @@ copied prefix often won't match and silently does nothing.
   an open vimarsha in nks-dev; re-running verstakify is the current discipline.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
-  driving hint seed handled).
+  the bianhua map advanced).

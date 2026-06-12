@@ -16,10 +16,11 @@ This is not design. This is not weaving. This is the methodology describing itse
    → Read root holons (元意行德忠忘), entry/exit kriyas, key nodes, active vimarshas, tensions
 2. nks_search(realm="methodology", q="", attrs_filter="key:true", limit=50)
    → Key nodes = landmarks. Start here when learning.
-3. Read the seed vimarsha left by the previous session:
-   nks_search(realm="methodology", q="seed", node_type="vimarsha", sort="recent", limit=3)
-4. Read working principles:
-   nks_look(node_id="332", realm="methodology")
+3. Read the map: the ACTIVE BIANHUA section of orient (lens="bianhua" for the
+   full forest) — open work lives there as anga-vimarshas. A seed vimarsha, if
+   one exists, is only a pointer to what the map doesn't carry.
+4. Read working principles — the split principle nodes #441–#445
+   (nks_look the ones your task touches)
 ```
 
 Do NOT write from training data. The realm has its own vocabulary, its own distinctions, its own history. Orient first. Always.
@@ -216,14 +217,12 @@ Example: #141 (Вопрошание поставлено) contains #400 (Risk), 
 
 After creating 5+ nodes, call nks_orient again. Your mental model drifts from the graph's reality. Re-orient catches drift early.
 
-### Leave a seed
+### Close the loop on the map
 
-At the end of every methodology session, create a hint-vimarsha:
-- posed_by: you (with session date)
-- posed_to: Claude (next session)
-- vimarsha_of: 行 Воплощение (#179)
-- Content: what was done, what remains, how to recover context
-- Include conversation_search queries for the next agent
+At the end of a session the graph itself must carry the state forward — not a seed:
+- Completed work changes the graph: update modes, descriptions, arrows of the nodes you touched.
+- Open work lives on the map: vimarshas attached via `anga` to the bianhua they drive.
+- A seed vimarsha is the exception, not the ritual (methodology #131). Leave one ONLY for what the graph cannot carry — external-world state (a deploy in flight, an agreement made in chat), a chosen ordering of priorities, a convention not yet crystallized. Pointer, not payload: no restating what orient/lenses show, no DONE blocks, no dates, no names, no git refs, no context-recovery instructions. Edit an existing seed in place rather than spawning a vol2; close it (visarjana) once its content has grown into the graph.
 
 ## Holons of methodology
 
@@ -245,7 +244,7 @@ Most methodology work happens in 行 Воплощение (#179). Context arrows
 | 111 | Мыслепрактик | Root karta — encompasses all roles |
 | 128 | Эстафета | Phenomenon lifecycle concept |
 | 129 | Натяжение | Structural tension concept |
-| 332 | Working principles | Session 2026-04 principles — read first |
+| 441–445 | Working principles | Split principle nodes: utpatti учит · справочных типов нет · 理 узор · различение среды · sense на стрелках |
 | 389 | Lifecycle closure | Every ding born and dies |
 | 390 | System growth | Can only grow, not be built whole |
 | 403 | Graph = tension | Not reality — tension with reality |
@@ -261,5 +260,5 @@ Most methodology work happens in 行 Воплощение (#179). Context arrows
 - Don't encode **population expectations** ("top-level kriyas should be few and essential") as tension detectors. Detector grammar is node-grained; a population pattern is invisible to it by design (the *граница рода*, #979). Such expectations belong in the **assembly** agenda, not in counter-detectors (#435).
 - Don't write description as procedure. pariṇāma = qualitative transition.
 - Don't ignore the CHECKS: block — it prints on every create and on re-look after edits.
-- Don't forget the seed vimarsha at session end.
+- Don't leave payload seeds at session end — the graph carries the state; a thin seed only for what the graph can't hold (methodology #131).
 - Don't rush. "Не спеши" — the most common correction.

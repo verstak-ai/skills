@@ -38,7 +38,9 @@ NKS = the work (structure, open questions, what's next). Git = how it got here
 (SHAs, branches, PRs). **Keep git refs out of NKS** — no SHAs, branch names,
 PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 - **Start of session:** orient in NKS — the realm named in *What this project
-  is*, focus holon if set; read the latest `genre=hint` seed before acting. The
+  is*, focus holon if set; orient by the ACTIVE BIANHUA map (`lens="bianhua"`
+  for the forest) — open work lives as anga-vimarshas on transformations; a
+  `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The
   `entry` skill runs the protocol.
 - **Every push → update NKS.** Two moves, both required:
   - **Match reality.** Record what positions the change in the target system:
@@ -46,10 +48,11 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
     refactors with no outside impact, commands, file moves — stay in git, not
     NKS.
-  - **Handle the hint seed that drove this push.** Close it if the work it
-    framed is done; edit it (strip done history, keep what's still open) if
-    partial; leave a *new* `genre=hint` only if work continues into the next
-    session — not by default.
+  - **Advance the map.** Close (visarjana) the vimarshas this push resolved;
+    keep open work attached via `anga` to the bianhua it drives. A thin
+    `genre=hint` seed is left only for what the graph can't carry —
+    external-world state, chosen priorities; pointer, not payload
+    (methodology #131) — never by default.
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
@@ -109,7 +112,7 @@ branches before it merges. After the branch merges (however this project merges
 | Methodology, ontology                  |                 | ✓ (methodology realm)    |
 | Design decisions, open questions       |                 | ✓ (vimarshas)            |
 | Plans, task lists, session hand-offs   |                 | ✓ (project realm)        |
-| Lessons, hints to next session         |                 | ✓ (`genre=hint`)         |
+| Lessons, hand-offs                     |                 | ✓ (graph first; thin `genre=hint` for off-map remainder) |
 | Commit history, PRs, SHAs              | git             | (never NKS)              |
 <!-- HANDOVER.md and MISSING_*.md rows are optional — keep them only if the project uses those files; drop them otherwise. -->
 

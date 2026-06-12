@@ -47,7 +47,7 @@ The genre you posed under (writing) determines what *counts* as discharging it:
 | **vyabhichara** ("case the rule misses") | a repair that removes the defect, or a refined rule. |
 | **hetu-dosha** ("reasoning is flawed") | the argument is corrected or withdrawn. |
 | **semantic-drift** ("term has drifted") | the term is re-fixed (正名) and the drifted usages reconciled. |
-| **hint** ("future agent: read this") | read → executed → closed. A hint that's been acted on is done. |
+| **hint** ("future agent: read this") | read → executed → closed. A hint that's been acted on is done. Keep it thin — pointer, not payload (methodology #131): only what orient/lenses can't show; edit in place, close once its content has grown into the graph. |
 
 If you can't say what would discharge a vimarsha, its genre may be wrong — re-check it (that's a **writing** decision).
 

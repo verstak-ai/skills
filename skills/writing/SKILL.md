@@ -87,6 +87,8 @@ The critical trap: **upeksha is not a default.** anagata + upeksha = "this will 
 - **Holon**: what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta**: motivation. nks_add_karta requires it as `motivation=`.
 
+Every description is **future-facing**: it states what IS — the resolved, the asked — not how it was discussed. No dates, no people's names (attribution lives in `attrs.posed_by`), no git refs (SHAs/branches/PRs), no DONE journals — history lives in `nks_history` and git. Done work changes the graph itself (modes, arrows, descriptions); it is not appended as a log.
+
 ## Decision 5: Arrows
 
 Arrowless = orphan = invisible.
@@ -114,6 +116,7 @@ Realm-inlet kriyas: `attrs.boundary="init"` waives ahara requirement.
 - `vimarsha_of` → node(s) this question is about.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
+- A **hint is a pointer, not a payload** (methodology #131): it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.
 
 ### Bianhua
 

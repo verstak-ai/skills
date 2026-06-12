@@ -49,6 +49,15 @@ Once inside the graph, navigate **by tension**, not by keyword. Each node has ne
 
 Cap NKS calls at roughly five per response. If you've made seven and still haven't synthesized — stop, answer from what you have, flag the gap.
 
+## Seeds and the map
+
+The map is primary, seeds are remainder. Open work lives as anga-vimarshas on the `ACTIVE BIANHUA` transformations; a seed vimarsha (`genre=hint`) legitimately carries only what the map can't — external-world state, a chosen ordering of priorities, conventions (methodology #131). Read a seed as a pointer: never trust its snapshot over what orient and the lenses show now, and never copy lens output into one.
+
+## Reading hygiene
+
+- When reporting "what's open / what remains", exclude volitive `visarjana` (released) and `virodha` (rejected) — the mode badge is authoritative, not the node's name. orient's active sections pre-filter; raw `nks_search`/`nks_look` output does not.
+- Emojis on nodes are the author's voice — don't "fix" them.
+
 ## Light writing as a side effect of reading
 
 If, while reading nodes for an answer, you notice a small fix that's clearly correct — a missing arrow, a stale phrasing already corrected by the conversation, a vimarsha the user just resolved — you may apply it inline using `nks_update` (node) or `nks_arrow(action="link")`, then mention briefly that you did so.
