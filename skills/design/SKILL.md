@@ -41,8 +41,8 @@ DO:
   1. Name goal as sachverhalt(anagata+chanda) — #159
   2. nks_search + nks_semantic_search — goal doesn't already exist? (keyword misses a differently-phrased duplicate; semantic catches it before you design it twice)
   3. From goal: "what produces this?" → create kriya + ahara phenomenon
-  4. Recurse until you hit a ding that must be given (realm inlet)
-  5. Mark inlets: attrs.boundary="init"
+  4. Recurse until you hit a ding that must be given (realm inlet — the edge is
+     a topological fact, #978; no marker needed)
 OUTPUT: path of kriyas from inlet to goal
 NEXT: → Phase 2 (forward weaving)
 ```
@@ -160,9 +160,8 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 | Tension | Meaning | Fix |
 |---|---|---|
 | leaked | phenomenon has utpatti, no ahara | Add consuming kriya (end-of-life) or parked kriya (anagata+upeksha) |
-| relay-gap | phenomenon has ahara, no utpatti | Add producing kriya or mark inlet (boundary='init') |
+| relay-gap | phenomenon has ahara, no utpatti | Add producing kriya — or it's the realm edge (boundary_inlet, computed from thread topology #978; information, not work) |
 | orphan | phenomenon has no kriya arrows at all | Wire to a kriya (ahara/utpatti/upadhi) or delete if spurious |
-| no-ahara | kriya without input | Add ahara or set attrs.boundary='init' for inlets |
 | no-actor | kriya without actor | Add actor arrow to karta |
 | lifecycle | disconnected lifecycle segments | Thread via next, or trace to find the break |
 | unreachable | upadhi phenomenon not reachable via happens-before | Check producer is hb-before consumer |
@@ -205,11 +204,9 @@ Both simultaneously OK: kriya in anagata+upeksha + samshaya "is this even needed
 
 Anti-pattern: attrs.parked=true to suppress tensions. Use modes and vimarshas.
 
-## Realm inlets (#416)
+## Realm boundary (#978)
 
-Kriyas without upstream (HTTP handler, scheduled tick, bootstrap):
-- Set `attrs.boundary="init"` → waives has_ahara tension
-- ENTRY KRIYAS in orient = diagnostic signal. Healthy realm: ENTRY ≈ INIT. ENTRY >> INIT → unprimed ahara arrows, needs weaving.
+The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, not a waiver.
 
 ## Naming (正名, #72)
 

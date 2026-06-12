@@ -103,7 +103,7 @@ Arrowless = orphan = invisible.
 
 Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
-Realm-inlet kriyas: `attrs.boundary="init"` waives ahara requirement.
+Realm boundary is topological (#978): a kriya at the realm edge is legal without ahara — no detector demands it, no marker waives it. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, never as a tension-silencer.
 
 ### Phenomenon
 
