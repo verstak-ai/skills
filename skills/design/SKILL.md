@@ -40,7 +40,9 @@ Enter any phase based on graph maturity. Not waterfall — any phase can loop ba
 ```
 TRIGGER: goal exists, path does not
 DO:
-  1. Name goal as sachverhalt(anagata+chanda) — #159
+  1. Name goal as sachverhalt(anagata+chanda) — #159. The target state is the
+     owner's: name it in dialog when needed — the user accepts the goal
+     (and later the bianhua telos), the designer doesn't invent it
   2. nks_search + nks_semantic_search — goal doesn't already exist? (keyword misses a differently-phrased duplicate; semantic catches it before you design it twice)
   3. From goal: "what produces this?" → create kriya + ahara phenomenon
   4. Recurse until you hit a ding that must be given (realm inlet — the edge is
@@ -65,8 +67,10 @@ DO:
      - Has exactly one actor? If two → split (#419, #386)
      - All arrows have sense? If no → write sense (#418)
      - ahara/utpatti point to correct phenomena? (may need reconnect after distinctions — #420)
-  4. nks_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
-  5. nks_orient(lens="tensions") → new problems?
+  4. For each phenomenon: context → holon set? A phenomenon without a holon home
+     is invisible to holon-scoped orientation — distribute ALL of them
+  5. nks_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
+  6. nks_orient(lens="tensions") → new problems?
 OUTPUT: tensions discovered, lifecycles closed
 NEXT: → Phase 3 (risk analysis) or → lifecycle closure (#397→#398) if broken
 ```
@@ -95,7 +99,7 @@ DO:
   1. Read risk context: nks_look on target kriya + neighborhood
   2. Research operational environment
   3. Choose response type:
-     a. Mitigation kriya → new action preventing/handling failure
+     a. Compensating (mitigation) kriya or phenomenon → prevents/handles the transition failure
      b. Grundsatz invariant → principle as upadhi
      c. Conscious acceptance → vimarsha to upeksha with reasoning
   4. Wire response, nks_arrow(action="link") addressed_by from vimarsha
@@ -120,7 +124,12 @@ DO:
      to an EXISTING bianhua first (lens="bianhua"); a new one only with user-accepted
      name + telos (assembly skill), never per single vimarsha → the impulse becomes
      part of 形, not a scattered list
-  6. On a newly accepted bianhua: run the integrity pass (integrity skill) — the
+  6. Stage the flow: when delivery is staged (e.g. тестовая → промежуточная → полная),
+     each stage is a sub-bianhua anga'd into the ONE delivery bianhua, ordered by
+     anantara (what can start only after what); each stage gathers its own driving
+     hints via anga. The canonical result of right-to-left design is this one bianhua
+     with an anantara-ordered flow of stages — the owner reads it as the release plan
+  7. On a newly accepted bianhua: run the integrity pass (integrity skill) — the
      wavefront of affected-but-unattached nodes gets its «затронуто ли?» questions
 OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
@@ -138,29 +147,13 @@ anagata kriyas alone don't call to action. Vimarshas do. When the hints form a t
 
 Never confuse. A chain of sachverhalts is an estafeta. A sequence of kriyas is a thread.
 
-## Lifecycle closure (#399, Нить 8)
+## Lifecycle closure
 
-```
-TRIGGER: lens="trace" shows "lifecycle broken" or lens="tensions" shows leaked/relay-gap
-PATH: #158(tension) → #162(trace) → #397(diagnose) → #398(close) → #162(re-trace)
-DO:
-  1. nks_orient(lens="trace", focus=<phenomenon>) on flagged phenomenon → see where lifecycle breaks
-  2. Diagnose: missing end-of-life? missing producer? wrong abstraction level?
-  3. Add the missing kriya at the SAME abstraction level as the producing kriya
-  4. Re-trace → lifecycle connected? If not → loop
-  5. Deferred closure OK: kriya in anagata+upeksha = placeholder, lifecycle formally closed
-```
+Broken lifecycles surfaced during design (lens="trace" broken, leaked, relay-gap) are repaired by the **weaving** skill, Operation 5 (#399, Нить 8): birth and death at the same abstraction level; deferred closure via anagata+upeksha is OK. Don't re-derive the procedure here.
 
 ## given_as — arrow legality
 
-| given_as | What it is | Legal arrows |
-|---|---|---|
-| ding 物 | Thing outside graph | ahara, utpatti, context |
-| sachverhalt 勢 | State of affairs | ahara, utpatti, context |
-| sinn 名 | Named meaning | upadhi, vimarsha_of |
-| bildung 理 | Forming pattern | arose_from, realized_as |
-| vollzug 行 | Method/procedure | upadhi only |
-| grundsatz 法 | Principle/invariant | upadhi only |
+The **writing** skill owns the given_as decision tree and the full arrow matrix (#376). At design time remember the one that bites: vollzug/grundsatz are applied, never consumed — upadhi only; ahara/utpatti to them = API 422.
 
 vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 
@@ -175,15 +168,6 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 | lifecycle | disconnected lifecycle segments | Thread via next, or trace to find the break |
 | unreachable | upadhi phenomenon not reachable via happens-before | Check producer is hb-before consumer |
 
-## Batch ordering
-
-When using `nks_batch` with 3+ operations:
-1. **Phenomena first** — sachverhalts, dings, sinns
-2. **Kriyas second** — with arrows-inline referencing phenomena from step 1
-3. **Cross-cutting arrows last** — next between kriyas, context to holons, vimarsha_of
-
-Partial failure is safe in this order: phenomena without kriyas = orphan (fixable), kriyas without phenomena = broken (harder).
-
 ## Endpoint wiring pattern (#406)
 
 HTTP endpoints → kriyas, not text descriptions:
@@ -192,16 +176,9 @@ HTTP endpoints → kriyas, not text descriptions:
 3. Kriya "Обслуживание GET /path" — ahara ← endpoint phenomenon, utpatti → response phenomenon, actor → API client
 4. Next arrows: caller → endpoint kriya → renderer
 
-## Fat Node — where to put content (#414)
+## Write mechanics → writing skill
 
-| Content type | Where it goes |
-|---|---|
-| Insights, reasoning, justifications | Vimarshas (prati-paksha, hint, hetu-dosha) with arose_from |
-| Sub-steps, stages | Contains children (sub-kriyas) |
-| Reference data, schemas | Separate phenomena (ding) — long description OK for dings |
-| Related concepts | Separate phenomena (sinn) + upadhi arrows |
-
-Long description on ding = fine (describing a thing). Long description on kriya = anti-pattern (procedure instead of pariṇāma).
+Naming (正名), description form (pariṇāma; Fat Node #414 — reasoning to child vimarshas, sub-steps to contains-children, reference data to dings), modes, given_as, batch ordering — the **writing** skill owns all of it. Invoke it at every write moment of every phase; don't re-derive it here.
 
 ## Deferred work (#415)
 
@@ -216,14 +193,6 @@ Anti-pattern: attrs.parked=true to suppress tensions. Use modes and vimarshas.
 ## Realm boundary (#978)
 
 The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, not a waiver.
-
-## Naming (正名, #72)
-
-- **Kriya**: verbal noun. ✓ "Аутентификация", "Bootstrap VM". ✗ "Build the API" (imperative).
-- **Phenomenon**: noun + emoji. ✓ "⚙️ VM ready", "🛡️ Zero-SSH". ✗ "Token creation" (kriya in disguise).
-- **Holon**: boundary name. ✓ "📦 Контур авторизации". ✗ "📦 Папка auth" (folder thinking).
-- **Karta**: role + motivation. ✓ "👤 Проектирующий". ✗ "Иван Петров" (person, not role).
-- **Vimarsha**: the actual question. ✓ "🕮 How does agent access NKS?". ✗ "Auth stuff" (not a question).
 
 ## Methodology lookups
 
