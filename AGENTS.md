@@ -17,7 +17,7 @@ State lives in the **repo** or in **NKS** — nowhere else.
 
 ## Session lifecycle
 - **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; orient by the ACTIVE BIANHUA map (`lens="bianhua"` for the forest) — open work lives as anga-vimarshas on transformations; a `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The `entry` skill runs the protocol.
-- **Every push → update NKS:** thread shipped skill changes into holon #844; advance the map — close (visarjana) the vimarshas the push resolved, keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
+- **Every push → update NKS:** thread shipped skill changes into holon #844 — concretely, update the **skill phenomena** (the `given_as=vollzug` nodes under #844, «Скилл <name>», #845…): each description matches the shipped `SKILL.md` state, a new skill gets a new phenomenon (+ its applying kriya, pattern of #924–#927). Advance the map — close (visarjana) the vimarshas the push resolved, keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
 - **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
 
@@ -63,7 +63,7 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. The only automated gate is **format**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source. Both run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
 
 ## Project structure
-- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
+- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
@@ -84,7 +84,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 ## What to update when
 - `AGENTS.md` — repo conventions, structure, or the skill set change.
 - `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
-- NKS (`nks-dev`, #844) — every push: thread shipped skill state, close resolved vimarshas.
+- NKS (`nks-dev`, #844) — every push: update the skill phenomena («Скилл <name>», vollzug under #844) to the shipped state, close resolved vimarshas.
 
 ## Git workflow
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
