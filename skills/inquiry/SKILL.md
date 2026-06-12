@@ -16,6 +16,8 @@ An unanchored vimarsha is an **invisible** vimarsha — it surfaces in no `lens=
 - **`vimarsha_of`** → the node(s) the question is *about*. Without it the question floats.
 - **`arose_from`** → the observation it was *seen from* (a node, an incident, a prior vimarsha). Without it the question has no origin to trace back to.
 
+A vimarsha carrying an **expectation** (`posed_to` set, anga to a bianhua) needs the anchor doubly: agents discover work by orienting on a *holon*, and neither `anga` nor `posed_to` scopes a vimarsha into anyone's contour — without `vimarsha_of` into the addressee's territory it is invisible there and will never be done. Minimum anchor — the holon where the expected work lives; better — the precise phenomenon or kriya within it. (The `unanchored` detector fires post-hoc; don't rely on it — anchor at posing time.)
+
 If you find a dangling vimarsha (orient flags them), the first move is almost always to anchor it, then triage.
 
 ## 2. The lifecycle — three outcomes

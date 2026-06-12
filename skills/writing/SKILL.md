@@ -26,7 +26,7 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 | **names a role with a motivation** | **karta** | `nks_add_karta` |
 | **transforms the system qualitatively** — a cross-holon becoming with a *telos* ("what the system becomes") | **bianhua** | `nks_add_bianhua` |
 
-**bianhua is an assembly-level type, not a routine write.** You create one when a *set* of inquiries is really one qualitative shift the system is undergoing ("search becomes semantic", "becomes multi-jurisdictional") — that's the **assembly** skill's work, not single-node writing. If you can't name "the system will be X, which it isn't yet", you don't have a bianhua. **Never create one for a single vimarsha** — locate an existing transformation first (`lens="bianhua"`, `nks_semantic_search(node_type="bianhua")`); unsure where the vimarsha belongs → ask the user. A bianhua's **name and telos are the owner's acceptance surface**: vimarshas the agent writes for itself, bianhua — for the user, who orients by them (possible / necessary / priorities / deferred) — so the name must read for the user and the telos is verified by them. See Decision 5 for its arrows.
+**bianhua is an assembly-level type, not a routine write** — the **assembly** skill's work. Test: "the system will be X, which it isn't yet" — can't say it → not a bianhua. Never for a single vimarsha: locate the existing transformation first (`lens="bianhua"`, `nks_semantic_search(node_type="bianhua")`); unsure → ask the user. Vimarshas the agent writes for itself; **bianhua are the owner's interface** — the name must read for the user, the telos is verified by them. See Decision 5 for its arrows.
 
 A phenomenon does not exist on its own — it exists *for* a kriya (noema for noesis, methodology #18). If no kriya consumes, produces, or conditions it, you are about to write an orphan.
 
@@ -113,7 +113,7 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 
 ### Vimarsha
 
-- `vimarsha_of` → node(s) this question is about.
+- `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
 - A **hint is a pointer, not a payload** (methodology #131): it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.

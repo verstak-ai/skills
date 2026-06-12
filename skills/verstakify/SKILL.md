@@ -194,7 +194,7 @@ Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
   6): machine- or agent-specific; extend ad-hoc.
 
 Never pre-grant in either layer (ask per-use): `rm`, `git reset --hard`, `git
-push --force`, `git branch -D`; `nks_delete_node` / `nks_delete_edge` /
+push --force`, `git branch -D`; `nks_delete_node` / `nks_arrow(action="delete")` /
 `nks_history(action="revert"|"invert")`; `nks_realm(action="create"|"delete")` /
 `nks_admin`; and bash `cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail`
 (Read/Glob/Grep/Edit cover those).

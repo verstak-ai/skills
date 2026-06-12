@@ -1,6 +1,6 @@
 ---
 name: weaving
-description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on arrows, splitting kriyas with multiple actors, reconnecting arrows after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count, or when orient shows ENTRY far exceeding INIT kriyas. Distinct from design: design creates structure from goals, weaving completes structure that already exists."
+description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on arrows, splitting kriyas with multiple actors, reconnecting arrows after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count (large leaked/relay-gap sections in lens=\"tensions\"). Distinct from design: design creates structure from goals, weaving completes structure that already exists."
 ---
 
 # NKS Weaving
@@ -14,8 +14,8 @@ Design creates. Weaving completes.
 | Signal | Meaning | Action |
 |---|---|---|
 | `lens="tensions"` shows leaked | Phenomenon has utpatti, no ahara | → Close lifecycle |
-| `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer or mark inlet |
-| `nks_orient` shows ENTRY >> INIT | Many kriyas without upstream | → Wire ahara arrows |
+| `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer — or it's the realm edge (boundary-inlet, computed from thread topology #978: information, not work) |
+| ENTRY KRIYAS in orient looks bloated | Kriyas missing their ahara wiring | → Wire ahara arrows (true inlets render as boundary-inlet, #978 — no marker needed) |
 | Arrow without sense | Mute connection | → Write sense |
 | Kriya with 2 actor arrows | Hidden double kriya | → Split |
 | Phenomenon was one, now two | Stale arrows | → Reconnect |
@@ -102,7 +102,7 @@ DO:
   2. CLOSE:
      a. Add end-of-life kriya at SAME abstraction level as producer
         Config born at "Bootstrap" → dies at "Teardown" (not at "rm -rf")
-     b. Or add producer kriya / mark inlet (boundary='init')
+     b. Or add producer kriya — or recognize the realm edge (boundary-inlet/outlet is topological, #978: information, not work; no marker)
      c. Or defer: kriya in anagata+upeksha = placeholder, lifecycle formally closed
   3. RE-TRACE: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
   4. If still broken → loop
@@ -137,7 +137,7 @@ no structural tension but graph feels incomplete?
   → Read kriyas manually: nks_look on key kriyas
     → arrows without sense? → Operation 2
     → two actors? → Operation 3
-    → entities that were split? → Operation 4
+    → phenomena that were split? → Operation 4
 ```
 
 ## Weaving in context of design (Phase 2)
@@ -182,7 +182,7 @@ Weaving DISCOVERS connections that were implied but not explicit. The Ткач r
 | System growth (defer OK) | `nks_look(node_id="390", realm="methodology")` |
 | Tensions = truthful signal | `nks_look(node_id="404", realm="methodology")` |
 | Call = communication #386 | `nks_look(node_id="386", realm="methodology")` |
-| Sense on arrows principle | `nks_look(node_id="332", realm="methodology")` (principle 6) |
+| Sense on arrows principle | `nks_look(node_id="445", realm="methodology")` |
 | Graph = tension with reality | `nks_look(node_id="403", realm="methodology")` |
 | Weaving as Phase 2 | `nks_look(node_id="421", realm="methodology")` |
 | Weaving vimarsha (origin) | `nks_look(node_id="290", realm="methodology")` |
