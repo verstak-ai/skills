@@ -29,6 +29,8 @@ A projected practice is born **planned, not done**. Its triad is the *project* t
 
 **Transition to `vartamana` is a separate act of life** (движение 1 «проект → реализация», #53), performed when the practice actually starts — not the default of writing a designed node. Volition graduates along the `chanda → adhimoksha` axis (want → committed); never reach for `attrs` to express urgency or priority (#979).
 
+**A volitional kriya belongs to a transformation.** A kriya recorded from volition — the user wants it to exist (or wants something gone), rather than from shabda («I know this is so») — is part of a qualitative shift the system is undergoing. Land it on the map: attach its driving vimarshas `anga` to the bianhua it serves; once anga-on-kriyas ships (nks-dev #997), the volitional kriya itself becomes anga in its directed modal state. Don't spawn a new bianhua for it spontaneously — existing forest first (`lens="bianhua"`); a new bianhua's name and telos are accepted by the user (assembly skill); unsure where it belongs → ask.
+
 ## Four phases of design (#405)
 
 Enter any phase based on graph maturity. Not waterfall — any phase can loop back.
@@ -111,8 +113,10 @@ DO:
   2. Each hint: scope of work, acceptance criteria, posed_to (volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979)
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
-  5. If the work is one qualitative transformation: name the bianhua and attach each
-     driving hint via anga → the impulse becomes part of 形, not a scattered list
+  5. If the work is one qualitative transformation: attach each driving hint via anga —
+     to an EXISTING bianhua first (lens="bianhua"); a new one only with user-accepted
+     name + telos (assembly skill), never per single vimarsha → the impulse becomes
+     part of 形, not a scattered list
 OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 

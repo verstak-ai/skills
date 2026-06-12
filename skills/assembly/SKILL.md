@@ -62,7 +62,7 @@ Every **active, free** vimarsha (not yet anga of any bianhua) gets one of four f
 
 | Fate | How | When |
 |---|---|---|
-| **anga → bianhua** | `nks_arrow(action="link", arrow_type="anga", source=<vimarsha>, target=<bianhua>)` | its resolution *drives* a transformation. The vimarsha keeps its own `vimarsha_of` — anga does not replace it. |
+| **anga → bianhua** | `nks_arrow(action="link", arrow_type="anga", source=<vimarsha>, target=<bianhua>)` | its resolution *drives* a transformation. The vimarsha keeps its own `vimarsha_of` — anga does not replace it. Try the **existing** forest first; unsure which transformation it drives — ask the user, don't guess and don't spawn a new bianhua for it. |
 | **supersede** | `supersedes` arrow on the replacement; old → volitive `visarjana` | a later question subsumes it |
 | **close (visarjana)** | `nks_update` volitive=`visarjana` | answered, or consciously dropped without answer |
 | **leave free** | nothing — but *consciously* | genuine open inquiry not part of any transformation underway |
@@ -82,6 +82,11 @@ Look at `top-level(scope)` kriyas — "what is really going on here". A wall of 
 `address`-class tensions (e.g. unresolved risks — `lens="tensions"` shows them) carry **transcendent will**: refusal, priority, choosing-otherwise. They are **not** the agent's to resolve. Collect them as an agenda and bring them to the Мыслепрактик. (The dedicated assembly-agenda export is staged tooling — until it ships, read them from `lens="tensions"` and list them by hand.)
 
 ### 5. Produce 形 — and arrive at understanding
+
+**Bianhua is the owner's interface.** Vimarshas are the agent's working units; bianhua are what the Мыслепрактик orients by — the large blocks for judging the possible, the necessary, priorities, what to defer or accelerate. Hence the creation discipline:
+
+- **Never create a bianhua for a single vimarsha.** One question is not a transformation. Locate first: `lens="bianhua"` (the forest) + `nks_semantic_search(node_type="bianhua", q=<the shift>)` → attach via anga to the transformation it drives. No confident fit → **ask the user** (AskUserQuestion) instead of spawning one.
+- **Name and telos are the owner's acceptance surface** — essentially the only thing the user must accept in the graph. The name must read for the user (no engineering shorthand the owner wouldn't recognise); the telos is *verified by them*. Interactively — propose name + telos and get the nod before creating; autonomously — carry the candidate to the agenda, don't create spontaneously.
 
 Assemble the map:
 
