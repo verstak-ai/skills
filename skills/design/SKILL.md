@@ -54,7 +54,7 @@ Actor: Проектирующий (#116). Consumes: Вопрошание пос�
 ### Phase 2: Forward weaving (#421)
 
 ```
-TRIGGER: path exists, not all entities serviced
+TRIGGER: path exists, not all phenomena serviced
 DO:
   1. Walk path left to right
   2. For each phenomenon on the path:
@@ -234,7 +234,7 @@ The realm edge is a topological fact, not a marker. A kriya fed by the outside w
 | Call = communication | `nks_look(node_id="386", realm="methodology")` |
 | Five risk questions | `nks_look(node_id="262", realm="methodology")` |
 | 正名 naming | `nks_look(node_id="72", realm="methodology")` |
-| Realm principles | `nks_look(node_id="332", realm="methodology")` |
+| Working principles (split nodes) | #441–#445 — `nks_look` the one you need (sense on arrows = #445) |
 | Estafeta concept | `nks_look(node_id="128", realm="methodology")` |
 | Crystallization | `nks_look(node_id="387", realm="methodology")` |
 | Lifecycle closure | `nks_look(node_id="389", realm="methodology")` |

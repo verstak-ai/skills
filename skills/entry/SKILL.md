@@ -63,7 +63,7 @@ The map is primary, seeds are remainder. Open work lives as anga-vimarshas on th
 If, while reading nodes for an answer, you notice a small fix that's clearly correct — a missing arrow, a stale phrasing already corrected by the conversation, a vimarsha the user just resolved — you may apply it inline using `nks_update` (node) or `nks_arrow(action="link")`, then mention briefly that you did so.
 
 Do **not** do silently:
-- Create new entities or kriyas.
+- Create new phenomena or kriyas.
 - Open new vimarshas about substantive conflicts.
 - Delete or rename anything.
 - Reconnect existing arrows.
