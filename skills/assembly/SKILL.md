@@ -38,7 +38,7 @@ When a decision carries **transcendent will** — a refusal, a priority, a choos
 
 形 is built from **bianhua** — qualitative transformations of the system (cross-holon, fractal, carrying a *telos*: "what the system becomes"). Two halves:
 
-- **anagata half — where we're going.** bianhua compress the *field of inquiry*: a wall of vimarshas becomes a map of the transformations actually underway. anga inward (what drives each), anantara between (ordering / critical path).
+- **anagata half — where we're going.** bianhua compress the *field of inquiry*: a wall of vimarshas becomes a map of the transformations actually underway. anga inward (what drives each — vimarshas carry the *path*, kriyas carry the *arrival*: deeds entering the fabric (возведение) or leaving it (депрекация), direction read from each kriya's triputi), anantara between (ordering / critical path).
 - **vartamana half — what's happening.** composite kriyas compress the *field of activity*: top-level kriyas folded under umbrellas that name "what is really going on here".
 
 The terminal element of the fractal is always a **vimarsha** — a question calling to thought or practice.
@@ -54,7 +54,7 @@ nks_orient(realm=<token>, lens="vimarshas", focus=<holon>)  → the field of inq
 nks_orient(realm=<token>, lens="tensions", verbose=true)    → structural health + address-class signals
 ```
 
-Read the field by *content*, not by labels (the pilot failure, #434.5: the agent worked from etiquettes). Use `nks_orient(lens="vimarshas")` grouping — scan → group → zoom → name — and `nks_search(anga_of=<seq>)` to see what already drives a bianhua.
+Read the field by *content*, not by labels (the pilot failure, #434.5: the agent worked from etiquettes). Use `nks_orient(lens="vimarshas")` grouping — scan → group → zoom → name — and `nks_search(anga_of=<seq>)` to see what already drives a bianhua — it surfaces kriya-carriers (deeds) alongside the vimarsha-drivers.
 
 ### 2. Triage the field of inquiry
 
