@@ -9,6 +9,30 @@ You are the Ткач (#302 in methodology). Your job: the graph has structure bu
 
 Design creates. Weaving completes.
 
+## Route by resolving move first (response_kind)
+
+`nks_orient(lens="tensions")` groups every tension by its **resolving move** — and not all four are yours:
+
+| Group | Move | Yours? |
+|---|---|---|
+| **weave** | замкни структуру — leaked, relay-gap, no-actor, no-sense, orphan-by-given_as, unreachable upadhi | **Yes** — this skill (operations below) |
+| **address** | ответь / закрой вопрошание — unresolved risk, unanchored vimarsha, bug-without-vimarsha | No → the **inquiry** / **assembly** agenda (carries transcendent will) |
+| **reverify** | потрогай / обнови модус — stale, mode-conflict | No → background; touch the node's mode, don't restructure |
+| **boundary** | оставь — санкционированный край реалма | No → **information, not work** (see below) |
+
+Repair only the **weave** group. Don't invent structure to "answer" an address-class question, don't restructure a reverify-class stale node, and — the trap below — don't try to weave a boundary.
+
+`lens="tensions"` is the **full registry**; the cheap `has_tension` filter and the orient overview cover only a subset — each surface declares its own «covers N/M» (a `Scope:` / coverage line). Weave from `lens="tensions"`; never read a thin `has_tension` list as a clean realm.
+
+### Boundary is the edge of the world, not a break (#978, #1023)
+
+A realm legitimately takes input from and delivers output beyond itself. The detector already **subtracts the boundary subset from leaked/relay** — so a phenomenon still sitting in the **weave** group is *not* a boundary; weave it. Only what orient files under **boundary** is the edge, and the criterion is **topological — read it off the thread, don't go hunting in other realms for it**:
+
+- **boundary-outlet** — terminal delivery on a `next`-thread: the consumer is outside the realm. The producing kriya needs no downstream consumer here.
+- **boundary-inlet** — a `next`-thread origin, **or** a kriya marked `attrs.boundary="init"`: the impulse comes from outside the realm. Needs no upstream producer / ahara here.
+
+Boundary renders as information ("this is the edge"), never a tension to close. And never add `attrs` to silence a *non*-boundary tension — that's suppression (#404), not a boundary.
+
 ## When to weave (not design)
 
 | Signal | Meaning | Action |
@@ -99,11 +123,16 @@ DO:
      a. Missing end-of-life kriya (leaked: utpatti exists, ahara missing)
      b. Missing producer kriya (relay-gap: ahara exists, utpatti missing)
      c. Wrong abstraction level (teardown too granular or too abstract)
+     d. Inherited closure: the node lives under a `contains`-umbrella whose
+        parent already closes the lifecycle (contains_closure, E1 #979) —
+        then it inherits the parent's lifecycle. Not a break; leave it.
   2. CLOSE:
      a. Add end-of-life kriya at SAME abstraction level as producer
         Config born at "Bootstrap" → dies at "Teardown" (not at "rm -rf")
      b. Or add producer kriya — or recognize the realm edge (boundary-inlet/outlet is topological, #978: information, not work; no marker)
      c. Or defer: kriya in anagata+upeksha = placeholder, lifecycle formally closed
+     d. Or recognize inherited closure (1d): don't patch a child individually
+        when its contains-umbrella owns the lifecycle
   3. RE-TRACE: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
   4. If still broken → loop
 PRINCIPLE: every ding is born and dies (#389). Deferred closure via modes is OK (#390). Suppression via attrs is never OK (#404).
