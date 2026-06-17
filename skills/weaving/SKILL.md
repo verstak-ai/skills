@@ -33,6 +33,10 @@ A realm legitimately takes input from and delivers output beyond itself. The det
 
 Boundary renders as information ("this is the edge"), never a tension to close. And never add `attrs` to silence a *non*-boundary tension — that's suppression (#404), not a boundary.
 
+### Carrier transitions are acts, not tensions (#438, #996)
+
+A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practice starts) and an *ascent in certainty* (`Kl→An→Pt→Pm`) are **legitimate weaving acts** (#156) — make them when the graph implies them; they are not tensions. Only **suspicious** transitions surface, and only as **reverify**-class: a `Warning` on write and a self-extinguishing `LocalCheck` (response_kind=reverify) in `nks_look` — resurrection (`atita→vartamana`, unexplained), `Pm→An/Kl` without a reverify event, death-without-being (`anagata→atita` skipping `vartamana`; kind-aware — a risk's `Ag→At` is legitimate realization). Resolve by touching the node's mode; never restructure, and never read it as a standing tension or a counter.
+
 ## When to weave (not design)
 
 | Signal | Meaning | Action |

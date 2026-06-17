@@ -178,6 +178,17 @@ CRITICAL PATTERN — agent tries to suppress tension:
   used to silence tensions → it's wrong. Record the anti-pattern.
 ```
 
+## Carrier canon — one liveness axis per род (#438)
+
+Modes are not free-form. Matrix #438 fixes, for every род (type × given_as × genre), **which single axis carries liveness/closedness** — every surface's resolved/active predicate reads that table, not per-genre `if`s. Set modes by the род's carrier when recording; when you *extend* methodology, extend the table, never a local exception.
+
+- **U1 — one carrier axis per род**, the rest qualify (vimarsha/risk → воля with `virodha` live; kriya/karta/phenomenon(ding,sachverhalt,vollzug) → онтика; bildung/sinn → эпистемика; grundsatz → воля held by `adhimoksha`).
+- **U2 — epistemics never closes** (except `badhita` for epistemic-carrier rods); it qualifies certainty, ascends `Kl→An→Pt→Pm`, is revised on drift (reverify, E4).
+- **U3 — `virodha` is polarized:** desired-resolution род → отказ = closed; feared-future / extant-defect → `virodha` constitutive & live; involvement (kriya/karta) → `virodha` = deprecation (live).
+- **U4 — `atita` asserts past *being*.** The unrealized is `anagata+visarjana`, not `atita`; `nashta` is irrecoverable loss; a risk's `Ag→At` is realization.
+- **U5 — `visarjana` is the universal volitional exit** (always closes; `visarjana→chanda` is a legitimate, logged re-opening).
+- **U6 — a node's volitional axis records the graph-holders' will toward it, not the recorded thing's own will** (a karta's own will lives in its motivation field; its volitive axis = involvement — `virodha` there = retiring the role).
+
 ## Lessons from experience
 
 These are patterns observed across multiple methodology sessions:

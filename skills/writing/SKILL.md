@@ -161,6 +161,16 @@ Every arrow carries a sense explaining WHY.
 
 Can't pick one → two questions tangled. Separate.
 
+## Starting triples & closure — carrier canon (#438)
+
+Each род (type × given_as × genre) has **one axis that carries liveness** (U1); the others only qualify. The `nks_add_*` factories print the **canonical STARTING TRIPUTI** for the род and `nks_look` glosses the carrier per node — **read them; don't stamp a divergent triple.** The trap the canon fixes: **`virodha` does NOT uniformly mean "closed" — it is polarized by род (U3):**
+
+- **risk** — `virodha` is the *live* mode: an active risk *stands* in virodha. It closes only via `visarjana` ∨ `addressed_by` ∨ `realized_as`, never by virodha itself.
+- **kriya / karta / phenomenon(vollzug)** — `virodha` = **депрекация**: a live tension "we want to retire this", not a closure. Closes at `atita` (kriya/karta also `nashta`) ∨ `visarjana`.
+- **samshaya / prati-paksha / hint** — here `virodha` *is* a closure (отказ).
+
+And projected work is born `anagata` in the *project* triad, never the "ready" `pramanita/vartamana/upeksha` (that lies the deed already runs) — the **design** skill owns those starting modes (#53).
+
 ## Batch ordering (nks_batch)
 
 1. Phenomena first
