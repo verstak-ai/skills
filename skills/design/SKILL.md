@@ -29,7 +29,7 @@ A projected practice is born **planned, not done**. Its triad is the *project* t
 
 **Transition to `vartamana` is a separate act of life** (движение 1 «проект → реализация», #53), performed when the practice actually starts — not the default of writing a designed node. Volition graduates along the `chanda → adhimoksha` axis (want → committed); never reach for `attrs` to express urgency or priority (#979).
 
-**A volitional kriya belongs to a transformation.** A kriya recorded from volition — the user wants it to exist (or wants something gone), rather than from shabda («I know this is so») — is part of a qualitative shift the system is undergoing. Land it on the map: attach its driving vimarshas `anga` to the bianhua it serves; once anga-on-kriyas ships (nks-dev #997), the volitional kriya itself becomes anga in its directed modal state. Don't spawn a new bianhua for it spontaneously — existing forest first (`lens="bianhua"`); a new bianhua's name and telos are accepted by the user (assembly skill); unsure where it belongs → ask.
+**A volitional kriya belongs to a transformation.** A kriya recorded from volition — the user wants it to exist (or wants something gone), rather than from shabda («I know this is so») — is part of a qualitative shift the system is undergoing. Land it on the map: its driving vimarshas attach `anga` to the bianhua (the *path*), **and the volitional kriya itself attaches `anga` too** (the *arrival* — kriya-anga shipped, #997). Read its direction from the kriya's own triputi, not a separate field: a **возведение** is a deed entering the fabric (ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`) — attach it while still `anagata`, it resolves once `vartamana`; a **депрекация** is a deed leaving (`vartamana→atita`, `virodha`), resolved at `atita`. The full kriya-anga grammar lives in the **writing** skill. Don't spawn a new bianhua for it spontaneously — existing forest first (`lens="bianhua"`); a new bianhua's name and telos are accepted by the user (assembly skill); unsure where it belongs → ask.
 
 ## Four phases of design (#405)
 
@@ -121,6 +121,9 @@ DO:
   3. Order hints: dependencies, what-blocks-what
   4. Cross-reference with existing open vimarshas
   5. If the work is one qualitative transformation: attach each driving hint via anga —
+     AND each volitional kriya itself as kriya-anga (the deed that arrives —
+     возведение/депрекация per its triputi, see §"A volitional kriya belongs to a
+     transformation") alongside the hints —
      to an EXISTING bianhua first (lens="bianhua"); a new one only with user-accepted
      name + telos (assembly skill), never per single vimarsha → the impulse becomes
      part of 形, not a scattered list
@@ -134,7 +137,7 @@ DO:
 OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
-anagata kriyas alone don't call to action. Vimarshas do. When the hints form a transformation, a **bianhua** (assembly skill) gathers them into a map the navigator reads — anga inward, anantara between — rather than a flat list of questions.
+anagata kriyas alone don't call to action. Vimarshas do. When the hints form a transformation, a **bianhua** (assembly skill) gathers them into a map the navigator reads — anga inward (the driving hints and the volitional kriyas they realize), anantara between — rather than a flat list of questions.
 
 ## Thread vs Estafeta (#412)
 
