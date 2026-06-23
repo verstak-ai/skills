@@ -87,7 +87,11 @@ The critical trap: **upeksha is not a default.** anagata + upeksha = "this will 
 - **Holon**: what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta**: motivation. nks_add_karta requires it as `motivation=`.
 
-Every description is **future-facing**: it states what IS — the resolved, the asked — not how it was discussed. No dates, no people's names (attribution lives in `attrs.posed_by`), no git refs (SHAs/branches/PRs), no DONE journals — history lives in `nks_history` and git. Done work changes the graph itself (modes, arrows, descriptions); it is not appended as a log.
+**Timelessness (#440) — a guard, not a nicety.** Every description states what IS — the resolved, the asked — never how it came to be discussed. The body is read *out of time*: a future agent meets it with no session around it, so a chronicle in the body is noise to everyone but the writer.
+
+- **Out of the body:** dates, session markers, people's names (attribution → `attrs.posed_by`), git refs (SHAs/branches/PRs), and DONE/changelog journals. History lives in `nks_history` and git; done work changes the graph *itself* — modes, arrows, descriptions — it is not appended as a log.
+- **Violation smells:** «теперь», «после того как», «в этой сессии», a date in prose, a «✅ сделано» tail, any narration of what was wrong *before*.
+- **Where time is legitimate:** a `phenomenon(given_as=sachverhalt)` — an incident/state — carries its timestamp in `attrs`, not the prose; `shabda` (quoted external testimony) is dated by its nature; a closed vimarsha reads as archive (its body froze at closure). Everywhere else: tenseless.
 
 ## Decision 5: Arrows
 
@@ -114,6 +118,7 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 ### Vimarsha
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
+- **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
 - A **hint is a pointer, not a payload** (methodology #131): it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.
@@ -177,13 +182,15 @@ And projected work is born `anagata` in the *project* triad, never the "ready" `
 2. Kriyas second (referencing phenomena)
 3. Cross-cutting arrows last
 
-### Inline-arrow form (workaround — bug #981 live)
+### Inline-arrow form
 
-Inline `arrows` on the factories currently has sharp edges (#981): an old key like `edge_type` is accepted then fails with `Invalid arrow type "undefined"` (it blames the value, not the unknown key); some forms leak a raw `Cannot read properties of undefined (reading 'trim')` TypeError. The canonical shape is the same as `arrow_link` — `{arrow_type, target, sense?, direction?}` — but until #981 ships, the **reliable** pattern is:
+Inline `arrows` on the factories take the same canonical shape as `arrow_link`, with the new node as the implicit source: `{arrow_type, target, sense?, direction?, quantifier?, attrs?, <modes>}`. Only `arrow_type` and `target` are required; `direction` flips the orientation when the new node is the *target* rather than the source. The factory **validates the form strictly** (#981): an unknown key — e.g. the pre-rename `edge_type` (#512) — is rejected with a named error pointing at `arrow_type`, and a missing `target` says so. No silent acceptance, no raw TypeError — you learn the form before the first write, not by decoding a stack trace.
 
-> Create the node **without** inline arrows, then add a separate `arrow_link` (with a `temp:N` ref to the just-created node) **in the same atomic batch**.
+Two patterns, both first-class:
+- **Inline `arrows`** — for edges that *originate at the new node* (a vimarsha's `vimarsha_of`, a phenomenon's `context`). Pass them in the create op.
+- **Separate `arrow_link` with `temp:N`** — for edges *between two nodes created in the same batch*, or pointing *into* the new node. Reference each created node by its 0-based `temp:N` index; a `temp:N` must point at a lower-indexed create op.
 
-`anga`/`anantara` on `nks_add_bianhua` are the exception — pass them as `anga=`/`anantara_after=` (their own params), not in `arrows`.
+`anga`/`anantara` on `nks_add_bianhua` are the exception — pass them as their own `anga=` / `anantara_after=` params, never in `arrows`.
 
 ## Scope
 
