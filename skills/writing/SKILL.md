@@ -79,13 +79,25 @@ The critical trap: **upeksha is not a default.** anagata + upeksha = "this will 
 
 🔥 for sachverhalt-incidents by convention.
 
-### Description
+### Description (the body)
 
-- **Kriya**: pariṇāma — "Before: X. After: Y." If it reads like a task list, rewrite.
-- **Phenomenon**: what it IS, and which kriyas consume / produce / condition it. If you can't name any such kriya, you don't yet know what you're writing.
-- **Vimarsha**: the question. What would count as an answer?
-- **Holon**: what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
-- **Karta**: motivation. nks_add_karta requires it as `motivation=`.
+The body is addressed by its **per-type name** on every surface — the name you *read* is the name you *write*, on create and update (#1128). `nks_look` renders it under that heading; the factories and `nks_update` / batch-update accept it under that name. Pass the per-type name **or** `description`, never both — a guard rejects double-passing.
+
+| Type | Body param | `nks_look` heading |
+|---|---|---|
+| bianhua | `telos` | TELOS |
+| kriya | `essence` | ESSENCE |
+| karta | `motivation` | MOTIVATION |
+| phenomenon · vimarsha · holon | `description` | DESCRIPTION |
+
+What goes in it, by type:
+
+- **Kriya** (`essence`): pariṇāma — "Before: X. After: Y." If it reads like a task list, rewrite.
+- **Phenomenon** (`description`): what it IS, and which kriyas consume / produce / condition it. If you can't name any such kriya, you don't yet know what you're writing.
+- **Vimarsha** (`description`): the question. What would count as an answer?
+- **Holon** (`description`): what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
+- **Karta** (`motivation`): what drives the role. nks_add_karta requires it.
+- **Bianhua** (`telos`): the destination quality — "система станет …" (see Decision 5).
 
 **Timelessness (#440) — a guard, not a nicety.** Every description states what IS — the resolved, the asked — never how it came to be discussed. The body is read *out of time*: a future agent meets it with no session around it, so a chronicle in the body is noise to everyone but the writer.
 
@@ -177,6 +189,10 @@ Each род (type × given_as × genre) has **one axis that carries liveness** (
 And projected work is born `anagata` in the *project* triad, never the "ready" `pramanita/vartamana/upeksha` (that lies the deed already runs) — the **design** skill owns those starting modes (#53).
 
 ## Batch ordering (nks_batch)
+
+**Load the factory schemas before a create-batch (#1003).** `nks_batch` wraps the `nks_add_*` factories but does **not** relax their discipline — every create op is validated against its factory's full schema. In a deferred-tool environment the batch loads without them, so composing a factory-create batch blind means learning each required param one `422` per round-trip. Before you batch: `tool_search` and read the schema of every `nks_add_*` you'll call. The **first** create of an unfamiliar node type is safer as a single factory call than buried in a megabatch — and don't pack heavy multi-paragraph descriptions into a megabatch.
+
+Order within the batch:
 
 1. Phenomena first
 2. Kriyas second (referencing phenomena)
