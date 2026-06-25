@@ -94,6 +94,12 @@ is these five rules:
 5. **No length target** — but a section that runs to paragraphs is almost always
    carrying rationale that belongs in NKS. Move it there.
 
+**Out of scope — orchestration mechanics.** `AGENTS.md` addresses one agent in
+one session. Build-gating chains, sub-agent push verification, model-routing,
+multi-lane coordination don't belong here — inlining them violates the density
+rule for the solo reader. Home: a dedicated orchestration/scheduler skill or the
+methodology realm; link if needed, don't inline.
+
 Worked example — same `## Code conventions` entry, bad (narrative) vs good
 (AI-first):
 - ❌ "We try to be careful about state because this is a demo and the store is
@@ -117,6 +123,13 @@ project is*: **Nature** (and, if not `production`, which principles are relaxed 
 why), **NKS realm name** (create if missing), **Stack**, **Quality gate**
 (propose strictest — Step 3). For an existing repo, infer these from the repo and
 the old config first, then confirm only what's ambiguous.
+
+Also settle **shared mutable build/test state**: does build or test read or
+mutate a shared resource — a database, a fixed port, a dev server, a global
+cache, a cloud sandbox? If yes, capture per-lane isolation (per-branch
+DB/schema, per-lane port, per-lane temp dir) as a gotcha: agents run branches
+concurrently in separate worktrees, and a shared resource corrupts across lanes.
+Skip when build/test has no shared mutable state.
 
 ### Step 2 — NKS bootstrap
 - Realm exists? If not: agree a name, then `nks_realm(action="create")`.
@@ -149,6 +162,11 @@ in a follow-up branch, not the bootstrap.
   conventions*.
 - **CI**: lint + typecheck + tests on every push, fails on warnings. Mandatory
   for `production`.
+- **CI parity**: any check that can *fail* must gate PRs, not just post-merge.
+  Audit the workflows for jobs scoped to push-`main`/release only (codegen,
+  schema/API-spec/docs generation, image or bundle build, migration check) — a
+  post-merge-only check lets two individually-green PRs break `main` after merge.
+  Tighten it to also run on PRs; record any gap you can't close now as a gotcha.
 
 Write commands into *Commands*, discipline into *Code conventions*.
 
@@ -208,6 +226,11 @@ copied prefix often won't match and silently does nothing.
   `.gitignore`. If `.claude/` is broadly ignored, add an explicit un-ignore:
   `!.claude/settings.json`. Verify with `git check-ignore -v
   .claude/settings.json .claude/settings.local.json`.
+- **Tracked secret/env files**: run `git ls-files '.env*' '*secret*' '*local*'`.
+  If a real env/secret file is tracked (not just an `.example`), warn in *Code
+  conventions*: never stage local edits — `git update-index --skip-worktree
+  <file>`, never `git add -A` / `commit -a` (an agent editing a tracked env file
+  otherwise leaks it into the PR).
 - Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`) holds
   only the prohibition stub. Classify each survivor before moving it: **project
   state** (decisions, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS;
