@@ -63,8 +63,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
 fragile spots, weak error handling, DRY/SOLID violations, repeated patterns,
-missing or useless tests, files over 150 lines. Fix in the **same branch** and
-push again, or state plainly that nothing surfaced. Don't fake findings.
+missing or useless tests, files over 150 lines or god-units mixing many concerns
+(split by concern; extract large inline test blocks to a sibling file). Fix in
+the **same branch** and push again, or state plainly that nothing surfaced. Don't
+fake findings.
 
 ### Branch discipline
 One branch through to its merge — commit follow-ups into it, don't chain new
@@ -135,7 +137,8 @@ exhaustive.>`
 - **Test discipline**: `<unit | unit+integration | +e2e; coverage threshold
   for production>`.
 - **Gotchas**: `<runtime traps types/linter miss — hook return shapes, async
-  races, env-specific behavior, library quirks. One paragraph each.>`
+  races, env-specific behavior, library quirks, CI-parity gaps, shared
+  build/test state, tracked secret/env files. One paragraph each.>`
 
 ## What to update when
 - `AGENTS.md` — commands, structure, conventions, or stack change.
