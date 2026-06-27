@@ -22,7 +22,8 @@
         "./skills/assembly",
         "./skills/integrity",
         "./skills/methodology-work",
-        "./skills/verstakify"
+        "./skills/verstakify",
+        "./skills/repo-roadmap"
       ]
     }
   ]
