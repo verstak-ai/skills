@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maintainer Roadmap</title>
+<style>
+/* ============================================================================
+   repo-roadmap — self-contained roadmap template. No external dependencies.
+   Theming: warm-neutral paper (light) / deep editorial (dark), OKLCH tokens.
+   ========================================================================== */
+:root{
+  color-scheme: light dark;
+  --hue: 75;            /* warm-neutral base */
+  --acc-h: 235;         /* link / primary accent */
+  --bg:        oklch(0.992 0.004 var(--hue));
+  --bg-sunk:   oklch(0.967 0.006 var(--hue));
+  --panel:     oklch(0.999 0.003 var(--hue));
+  --line:      oklch(0.90 0.008 var(--hue));
+  --line-soft: oklch(0.94 0.006 var(--hue));
+  --ink:       oklch(0.27 0.012 var(--hue));
+  --ink-2:     oklch(0.47 0.012 var(--hue));
+  --ink-3:     oklch(0.62 0.012 var(--hue));
+  --acc:       oklch(0.52 0.13 var(--acc-h));
+  --acc-soft:  oklch(0.52 0.13 var(--acc-h) / 0.10);
+  /* semantic status hues (badge tint + ink) */
+  --committed: 70;  --ready: 150;  --inflight: 245;  --deferred: var(--hue);
+  --pos: 150; --warn: 75; --neg: 25; --info: 245; --muted: var(--hue);
+  --radius: 10px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+  --shadow: 0 1px 2px oklch(0.27 0.02 var(--hue) / 0.05), 0 4px 16px oklch(0.27 0.02 var(--hue) / 0.04);
+}
+:root[data-theme="dark"], :root:not([data-theme]) { }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:        oklch(0.165 0.008 var(--hue));
+  --bg-sunk:   oklch(0.135 0.008 var(--hue));
+  --panel:     oklch(0.205 0.009 var(--hue));
+  --line:      oklch(0.30 0.010 var(--hue));
+  --line-soft: oklch(0.255 0.009 var(--hue));
+  --ink:       oklch(0.92 0.008 var(--hue));
+  --ink-2:     oklch(0.72 0.010 var(--hue));
+  --ink-3:     oklch(0.58 0.010 var(--hue));
+  --acc:       oklch(0.74 0.12 var(--acc-h));
+  --acc-soft:  oklch(0.74 0.12 var(--acc-h) / 0.14);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 6px 22px oklch(0 0 0 / 0.28);
+}}
+:root[data-theme="dark"]{
+  --bg:        oklch(0.165 0.008 var(--hue));
+  --bg-sunk:   oklch(0.135 0.008 var(--hue));
+  --panel:     oklch(0.205 0.009 var(--hue));
+  --line:      oklch(0.30 0.010 var(--hue));
+  --line-soft: oklch(0.255 0.009 var(--hue));
+  --ink:       oklch(0.92 0.008 var(--hue));
+  --ink-2:     oklch(0.72 0.010 var(--hue));
+  --ink-3:     oklch(0.58 0.010 var(--hue));
+  --acc:       oklch(0.74 0.12 var(--acc-h));
+  --acc-soft:  oklch(0.74 0.12 var(--acc-h) / 0.14);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 6px 22px oklch(0 0 0 / 0.28);
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; scroll-padding-top:5rem; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:15.5px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+a{ color:var(--acc); text-decoration:none; }
+a:hover{ text-decoration:underline; text-underline-offset:2px; }
+:focus-visible{ outline:2px solid var(--acc); outline-offset:2px; border-radius:4px; }
+code, .mono{ font-family:var(--mono); font-size:0.85em; }
+
+/* ---- top bar ---- */
+header.bar{
+  position:sticky; top:0; z-index:20; background:color-mix(in oklab, var(--bg) 86%, transparent);
+  backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--line);
+}
+.bar-in{ max-width:62rem; margin:0 auto; padding:.7rem 1.4rem; display:flex; align-items:center; gap:.9rem; flex-wrap:wrap; }
+.bar .repo{ font-weight:650; letter-spacing:-.01em; }
+.bar .repo a{ color:inherit; }
+.bar .ver{ font-family:var(--mono); font-size:.78rem; color:var(--ink-2); background:var(--bg-sunk); border:1px solid var(--line-soft); padding:.1rem .45rem; border-radius:6px; }
+.bar nav{ display:flex; gap:.15rem; margin-left:auto; flex-wrap:wrap; }
+.bar nav a{ color:var(--ink-2); font-size:.84rem; padding:.32rem .55rem; border-radius:7px; }
+.bar nav a:hover{ color:var(--ink); background:var(--bg-sunk); text-decoration:none; }
+.tgl{ border:1px solid var(--line); background:var(--panel); color:var(--ink-2); width:30px; height:30px; border-radius:8px; cursor:pointer; display:grid; place-items:center; font-size:.95rem; }
+.tgl:hover{ color:var(--ink); border-color:var(--ink-3); }
+
+/* ---- layout ---- */
+main{ max-width:62rem; margin:0 auto; padding:1.2rem 1.4rem 5rem; }
+section{ margin-top:2.9rem; }
+.eyebrow{ font-size:.74rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); font-weight:600; margin:0 0 .55rem; }
+h1.title{ font-size:1.9rem; line-height:1.15; letter-spacing:-.02em; margin:.3rem 0 .35rem; font-weight:700; }
+.tagline{ color:var(--ink-2); margin:.1rem 0 0; max-width:60ch; }
+h2{ font-size:1.18rem; letter-spacing:-.015em; margin:0 0 .25rem; font-weight:660; }
+.sec-sub{ color:var(--ink-3); font-size:.9rem; margin:.1rem 0 1.1rem; }
+.prose{ max-width:70ch; color:var(--ink-2); }
+
+/* ---- next moves ---- */
+.moves{ list-style:none; margin:1rem 0 0; padding:0; counter-reset:m; display:grid; gap:.6rem; }
+.moves li{ counter-increment:m; position:relative; padding:.85rem 1rem .85rem 3rem; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+.moves li::before{ content:counter(m); position:absolute; left:.85rem; top:.8rem; width:1.5rem; height:1.5rem; border-radius:50%; background:var(--acc-soft); color:var(--acc); font-size:.82rem; font-weight:700; display:grid; place-items:center; }
+
+/* ---- product ground ---- */
+.subsys{ display:grid; gap:.2rem; margin-top:.4rem; }
+.sub{ border-top:1px solid var(--line-soft); padding:.85rem 0; }
+.sub:first-child{ border-top:0; }
+.sub-h{ display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; }
+.sub-h b{ font-weight:640; font-size:1rem; }
+.caps{ list-style:none; margin:.5rem 0 0; padding:0; display:grid; gap:.3rem; }
+.caps li{ display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap; color:var(--ink-2); font-size:.92rem; }
+.caps li b{ color:var(--ink); font-weight:560; }
+.prim{ font-family:var(--mono); font-size:.74rem; color:var(--ink-3); background:var(--bg-sunk); border:1px solid var(--line-soft); padding:.05rem .4rem; border-radius:5px; white-space:nowrap; }
+.entities{ margin-top:1rem; display:flex; flex-wrap:wrap; gap:.4rem; }
+.ent{ font-size:.82rem; background:var(--bg-sunk); border:1px solid var(--line-soft); padding:.2rem .55rem; border-radius:7px; color:var(--ink-2); }
+.ent .mono{ color:var(--ink-3); }
+
+/* ---- estafeta flow ---- */
+.flow{ display:flex; align-items:stretch; gap:.4rem; margin-top:.6rem; overflow-x:auto; padding-bottom:.5rem; }
+.flow .step{ flex:1 1 0; min-width:120px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:.7rem .75rem; }
+.flow .step .k{ font-weight:600; font-size:.9rem; }
+.flow .step .p{ display:block; margin-top:.35rem; font-family:var(--mono); font-size:.7rem; color:var(--ink-3); word-break:break-all; }
+.flow .arr{ align-self:center; color:var(--ink-3); flex:0 0 auto; }
+@media (max-width:680px){ .flow{ flex-direction:column; } .flow .arr{ transform:rotate(90deg); } }
+
+/* ---- direction filter ---- */
+.filter{ display:inline-flex; gap:2px; background:var(--bg-sunk); border:1px solid var(--line); border-radius:9px; padding:2px; margin:.2rem 0 1rem; flex-wrap:wrap; }
+.filter button{ border:0; background:transparent; color:var(--ink-2); font:inherit; font-size:.82rem; padding:.3rem .7rem; border-radius:7px; cursor:pointer; }
+.filter button[aria-pressed="true"]{ background:var(--panel); color:var(--ink); box-shadow:var(--shadow); font-weight:560; }
+
+/* ---- direction cards ---- */
+.dir{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:.7rem; box-shadow:var(--shadow); overflow:hidden; }
+.dir > summary{ list-style:none; cursor:pointer; padding:.9rem 1.05rem; display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
+.dir > summary::-webkit-details-marker{ display:none; }
+.dir > summary:hover{ background:var(--bg-sunk); }
+.dir .chev{ color:var(--ink-3); transition:transform .18s cubic-bezier(.22,1,.36,1); margin-left:auto; }
+.dir[open] .chev{ transform:rotate(90deg); }
+.dir .did{ font-family:var(--mono); font-size:.74rem; color:var(--ink-3); }
+.dir .dname{ font-weight:640; letter-spacing:-.01em; }
+.dir .extends{ font-size:.78rem; color:var(--ink-3); }
+.dir .extends b{ color:var(--ink-2); font-weight:560; }
+.dir .body{ padding:.2rem 1.05rem 1.1rem; border-top:1px solid var(--line-soft); }
+.telos{ color:var(--ink); margin:.7rem 0 .9rem; font-size:.97rem; max-width:68ch; }
+.meta{ display:flex; flex-wrap:wrap; gap:.5rem 1.1rem; font-size:.85rem; color:var(--ink-2); margin-bottom:.6rem; }
+.meta .lbl{ color:var(--ink-3); }
+.anga{ font-style:italic; }
+
+/* drivers table */
+.drv{ width:100%; border-collapse:collapse; margin:.6rem 0 .2rem; font-size:.875rem; }
+.drv th{ text-align:left; font-weight:560; color:var(--ink-3); font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; padding:.3rem .5rem; border-bottom:1px solid var(--line); }
+.drv td{ padding:.45rem .5rem; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.drv tr:last-child td{ border-bottom:0; }
+.drv .ttl{ color:var(--ink); }
+.drv .ref{ font-family:var(--mono); font-size:.82rem; white-space:nowrap; }
+.drv .act{ color:var(--ink-2); font-size:.82rem; }
+.lst{ margin:.5rem 0 0; padding-left:1.1rem; color:var(--ink-2); font-size:.9rem; }
+.lst li{ margin:.15rem 0; }
+.note-h{ font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:600; margin:.9rem 0 .1rem; }
+
+/* ---- badges & chips ---- */
+.badge{ display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; font-weight:600; padding:.12rem .5rem; border-radius:999px; line-height:1.5; white-space:nowrap; }
+.badge::before{ content:""; width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.9; }
+.st{ background:oklch(0.6 0.12 var(--h) / 0.13); color:oklch(0.48 0.14 var(--h)); }
+:root[data-theme="dark"] .st{ color:oklch(0.78 0.13 var(--h)); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .st{ color:oklch(0.78 0.13 var(--h)); } }
+.st-committed{ --h:var(--committed); }
+.st-ready{ --h:var(--ready); }
+.st-in-flight{ --h:var(--inflight); }
+.st-deferred{ --h:var(--deferred); background:var(--bg-sunk); color:var(--ink-3); }
+.st-deferred::before{ opacity:.5; }
+.wt{ font-size:.7rem; font-weight:600; padding:.1rem .4rem; border-radius:5px; }
+.wt-high{ color:oklch(0.5 0.14 var(--pos)); background:oklch(0.6 0.12 var(--pos) / 0.12); }
+.wt-medium{ color:var(--ink-2); background:var(--bg-sunk); }
+.wt-low{ color:var(--ink-3); background:var(--bg-sunk); }
+.rd{ font-size:.7rem; font-weight:600; padding:.1rem .45rem; border-radius:5px; white-space:nowrap; }
+.rd-ready{ color:oklch(0.5 0.14 var(--pos)); background:oklch(0.6 0.12 var(--pos) / 0.12); }
+.rd-merged{ color:oklch(0.55 0.13 300); background:oklch(0.6 0.12 300 / 0.12); }
+.rd-conflicting{ color:oklch(0.55 0.16 var(--neg)); background:oklch(0.6 0.14 var(--neg) / 0.12); }
+.rd-ci, .rd-review{ color:oklch(0.55 0.13 var(--warn)); background:oklch(0.65 0.12 var(--warn) / 0.13); }
+.rd-draft{ color:var(--ink-3); background:var(--bg-sunk); }
+.rd-closed{ color:var(--ink-3); background:var(--bg-sunk); text-decoration:line-through; }
+.who{ display:inline-flex; align-items:center; gap:.3rem; font-size:.8rem; }
+.who .assoc{ font-size:.66rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-3); border:1px solid var(--line); border-radius:4px; padding:0 .25rem; }
+.who.maintainer .assoc{ color:var(--acc); border-color:color-mix(in oklab, var(--acc) 40%, var(--line)); }
+.karta{ display:inline-flex; align-items:center; gap:.35rem; }
+
+/* ---- signal audit table ---- */
+.tbl-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); }
+table.audit{ width:100%; border-collapse:collapse; font-size:.875rem; }
+table.audit th{ position:sticky; top:0; background:var(--bg-sunk); text-align:left; font-weight:560; color:var(--ink-2); font-size:.76rem; text-transform:uppercase; letter-spacing:.04em; padding:.5rem .7rem; border-bottom:1px solid var(--line); }
+table.audit td{ padding:.5rem .7rem; border-bottom:1px solid var(--line-soft); }
+table.audit tr:last-child td{ border-bottom:0; }
+table.audit .num{ text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap; }
+.disp{ font-size:.72rem; font-weight:600; padding:.1rem .45rem; border-radius:5px; }
+.disp-in{ color:var(--acc); background:var(--acc-soft); }
+.disp-deferred{ color:oklch(0.55 0.13 var(--warn)); background:oklch(0.65 0.12 var(--warn) / 0.13); }
+.disp-out{ color:var(--ink-3); background:var(--bg-sunk); }
+
+/* ---- reading of the field ---- */
+.field{ display:grid; gap:1.2rem; }
+@media (min-width:760px){ .field{ grid-template-columns:1fr 1fr; } .field .full{ grid-column:1 / -1; } }
+.panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.1rem; box-shadow:var(--shadow); }
+.panel h3{ margin:0 0 .6rem; font-size:.95rem; }
+.kartas{ list-style:none; margin:0; padding:0; display:grid; gap:.5rem; }
+.kartas li{ display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap; font-size:.9rem; color:var(--ink-2); }
+.fog{ list-style:none; margin:0; padding:0; display:grid; gap:.4rem; font-size:.88rem; }
+.fog li{ display:flex; align-items:baseline; gap:.5rem; }
+.fog .to{ color:var(--ink-3); }
+.srisk{ margin:0; padding:0; list-style:none; display:grid; gap:.55rem; }
+.srisk li b{ display:block; color:var(--ink); font-weight:560; font-size:.9rem; }
+.srisk li span{ color:var(--ink-2); font-size:.85rem; }
+
+footer{ max-width:62rem; margin:0 auto; padding:1.5rem 1.4rem 3rem; color:var(--ink-3); font-size:.8rem; border-top:1px solid var(--line-soft); margin-top:3rem; }
+footer .mono{ color:var(--ink-2); }
+</style>
+</head>
+<body>
+<h1 class="sr-only">Maintainer roadmap, rendered from an NKS reasoning graph.</h1>
+
+<header class="bar">
+  <div class="bar-in">
+    <span class="repo" id="bar-repo"></span>
+    <span class="ver" id="bar-ver"></span>
+    <nav aria-label="Sections">
+      <a href="#next">Next</a><a href="#product">Product</a><a href="#flow">How it works</a>
+      <a href="#directions">Directions</a><a href="#signal">Signal</a><a href="#field">Field</a>
+    </nav>
+    <button class="tgl" id="tgl" title="Toggle theme" aria-label="Toggle light/dark">◐</button>
+  </div>
+</header>
+
+<main id="app"><!-- rendered from ROADMAP --></main>
+
+<footer>
+  Generated <span id="ft-date" class="mono"></span> from an NKS reasoning graph ·
+  product ground verified, backlog held as hypotheses. Live state re-verified at render time.
+</footer>
+
+<script>
+/* ============================================================================
+   ROADMAP — the only thing the skill fills. Replace the object below with the
+   real data; the template renders it. Schema (all text is plain, auto-escaped):
+
+   repo, repoUrl, version, generated, tagline
+   nextMoves: [string]
+   product: { summary, subsystems:[{name, primitive, capabilities:[{name, primitive}]}],
+              entities:[{name, primitive}] }
+   estafeta: { name, steps:[{label, primitive}] }
+   directions: [{ id, name, status:'committed|ready|in-flight|deferred',
+                  extends, telos, karta, kartaKind:'maintainer|contributor|community',
+                  anga, unblocks:[string], risks:[string],
+                  drivers:[{ ref:Number, kind:'issue|pr', title, author, assoc,
+                             weight:'high|medium|low', state:'open|merged|closed|draft',
+                             readiness:'ready|conflicting|ci|review|draft|merged|closed|na',
+                             action }] }]
+   signalAudit: [{ ref, title, reactions:Number, comments:Number,
+                   disposition:'in:Dn|deferred|out-of-scope' }]
+   structuralRisks: [{ label, note }]
+   field: { kartas:[{name, kind, drives}], figureOnGround:[{dir, capability}] }
+   ========================================================================== */
+const ROADMAP = {
+  repo: "acme/hoardly",
+  repoUrl: "https://github.com/acme/hoardly",
+  version: "v0.32.0",
+  generated: "2026-06-27",
+  tagline: "A self-hostable read-it-later app: hoard links, notes and files; it crawls, AI-tags, full-text indexes, and reads them back.",
+  nextMoves: [
+    "Ship the 0.33.0 slice — start with the maintainer-authored, high-priority items: #2669 background reaping, #2660 agentic extraction, #2667 rule preview.",
+    "Review + merge the clean community PRs: #2887 (Reddit OAuth), #2785 (configurable temperature), #2804 (precrawled screenshots).",
+    "Decide the two big substrate PRs before they rot: rebase #2825 (Postgres) and un-draft #2488 (platform renderers)."
+  ],
+  product: {
+    summary: "Hoardly ingests a URL, note, or file, crawls and archives it, enriches it with AI tags and a summary, indexes it for full-text and semantic search, and serves it back through a web app, browser extension, mobile app, CLI, and an API.",
+    subsystems: [
+      { name:"Crawler & archival", primitive:"apps/workers/crawlerWorker.ts · CRAWLER_*",
+        capabilities:[
+          {name:"Automatic link crawl & metadata fetch", primitive:"crawlerWorker.ts"},
+          {name:"Full-page archival (link-rot protection)", primitive:"CRAWLER_FULL_PAGE_ARCHIVE"},
+          {name:"SSRF-hardened crawling", primitive:"CRAWLER_IP_VALIDATION_*"} ] },
+      { name:"AI inference", primitive:"packages/shared/inference.ts · INFERENCE_*",
+        capabilities:[
+          {name:"LLM auto-tagging & summarization", primitive:"inference/"},
+          {name:"Custom tagging prompts", primitive:"db customPrompts"} ] },
+      { name:"Search & indexing", primitive:"searchWorker.ts · vectorStore.ts",
+        capabilities:[
+          {name:"Full-text search over the library", primitive:"shared/search.ts"},
+          {name:"Saved-search (smart) lists", primitive:"db bookmarkLists(smart)"} ] },
+      { name:"Storage & backups", primitive:"packages/db/schema.ts · DATA_DIR",
+        capabilities:[
+          {name:"SQLite via Drizzle", primitive:"db/schema.ts"},
+          {name:"Scheduled & on-demand backups", primitive:"backupWorker.ts"} ] }
+    ],
+    entities: [
+      {name:"Bookmark", primitive:"db bookmarks"}, {name:"Tag", primitive:"db bookmarkTags"},
+      {name:"List", primitive:"db bookmarkLists"}, {name:"Highlight", primitive:"db highlights"},
+      {name:"User", primitive:"db user"}, {name:"Embedding", primitive:"vectorStore.ts"}
+    ]
+  },
+  estafeta: { name:"Bookmark lifecycle", steps:[
+    {label:"Capture", primitive:"trpc/bookmarks.ts"}, {label:"Crawl & archive", primitive:"crawlerWorker.ts"},
+    {label:"AI-enrich", primitive:"inference/"}, {label:"Index", primitive:"searchWorker.ts"},
+    {label:"Search & read", primitive:"apps/web reader"} ] },
+  directions: [
+    { id:"D5", name:"The 0.33.0 release ships", status:"committed",
+      extends:"cross-subsystem — the committed next-release milestone",
+      telos:"All 15 open 0.33.0 milestone issues close. The immediate, committed slice — it draws gating work from across D1–D4.",
+      karta:"Maintainer (mbassem)", kartaKind:"maintainer",
+      anga:"What is the smallest committed slice that ships a coherent release?",
+      drivers:[
+        {ref:2669, kind:"issue", title:"bug: removing accounts with many bookmarks locks the database (background reaping)", author:"mbassem", assoc:"COLLABORATOR", weight:"high", state:"open", readiness:"na", action:"gate the release"},
+        {ref:2660, kind:"issue", title:"feat: Agentic interaction improvements for search and content extraction", author:"mbassem", assoc:"COLLABORATOR", weight:"high", state:"open", readiness:"na", action:"gate the release"},
+        {ref:2864, kind:"pr", title:"Fix: screenshot previewer does not show scroll bar", author:"vrtxomega", assoc:"CONTRIBUTOR", weight:"medium", state:"open", readiness:"ready", action:"review + merge → closes #2817"} ],
+      risks:[], unblocks:["the 0.33.0 release"] },
+    { id:"D1", name:"Search becomes semantic and agent-shaped", status:"ready",
+      extends:"Search & indexing — today's full-text search plus the per-bookmark embedding vector",
+      telos:"Full-text search grows into embedding-based semantic similarity and an agent-shaped retrieval surface.",
+      karta:"Maintainer (mbassem)", kartaKind:"maintainer",
+      anga:"Can retrieval move from keyword to meaning on the embeddings already shipped?",
+      drivers:[
+        {ref:441, kind:"issue", title:"[Feature request] Self-hosted semantic search", author:"jojii", assoc:"NONE", weight:"high", state:"open", readiness:"na", action:"build on the merged embedding column"},
+        {ref:2857, kind:"pr", title:"Add bookmark embedding support", author:"mbassem", assoc:"COLLABORATOR", weight:"high", state:"merged", readiness:"merged", action:"shipped substrate"} ],
+      risks:["This direction is carried by committed work + merged substrate, not an open inquiry."], unblocks:["the chat assistant (D2)"] },
+    { id:"D3", name:"Crawler becomes anti-bot resilient", status:"in-flight",
+      extends:"Crawler & archival — one generic extraction path repeatedly broken by anti-bot defenses",
+      telos:"The generic path that breaks on blocking platforms reliably fetches them via platform-specific renderers.",
+      karta:"Mixed (mbassem + community)", kartaKind:"contributor",
+      anga:"How does archival stay reliable as platforms harden against crawlers?",
+      drivers:[
+        {ref:2885, kind:"issue", title:"[Crawler] Reddit crawling is now getting blocked", author:"mbassem", assoc:"COLLABORATOR", weight:"high", state:"open", readiness:"na", action:"anchor"},
+        {ref:2887, kind:"pr", title:"Reddit OAuth client-credentials flow", author:"kunal-r", assoc:"NONE", weight:"high", state:"open", readiness:"ready", action:"review + merge → fixes #2885"},
+        {ref:2488, kind:"pr", title:"Content quality assessment + platform renderers", author:"mbassem", assoc:"COLLABORATOR", weight:"high", state:"draft", readiness:"conflicting", action:"un-draft + rebase (cannot merge yet)"} ],
+      risks:["Reddit blocked (#2885); chrome 500 on host-header (#2576)."], unblocks:["reliable archival for the whole pipeline"] },
+    { id:"D4", name:"Storage becomes durable at scale", status:"ready",
+      extends:"Storage & backups — today SQLite-only, with an unbounded-memory worker",
+      telos:"SQLite-only + memory-leaking worker → an optional external Postgres backend and bounded memory under big imports.",
+      karta:"Community-requested, unowned", kartaKind:"community",
+      anga:"Can self-hosters run larger, multi-instance deployments?",
+      drivers:[
+        {ref:2344, kind:"issue", title:"[BUG] Memory leak (RAM usage continuously growing over time)", author:"nkkfs", assoc:"NONE", weight:"high", state:"open", readiness:"na", action:"resource-hardening, independent of Postgres"},
+        {ref:2825, kind:"pr", title:"Introduce Postgres support", author:"johnf", assoc:"NONE", weight:"high", state:"open", readiness:"conflicting", action:"rebase before merge (+7627/−1416)"} ],
+      risks:["The unbounded memory leak (#2344) bites SQLite too."], unblocks:["larger self-host deployments"] }
+  ],
+  signalAudit: [
+    {ref:1077, title:"Offline cache on Mobile app", reactions:51, comments:8, disposition:"deferred"},
+    {ref:414, title:"Bypassing cookie and GDPR banner", reactions:40, comments:63, disposition:"in:D3"},
+    {ref:1782, title:"Support for external databases (Postgres)", reactions:32, comments:5, disposition:"in:D4"},
+    {ref:2189, title:"Enhanced Prompt Customization for Advanced Tagging", reactions:28, comments:0, disposition:"in:D1"},
+    {ref:2344, title:"[BUG] Memory leak (with Pangolin)", reactions:7, comments:54, disposition:"in:D4"}
+  ],
+  structuralRisks: [
+    {label:"Dead-recipe capabilities", note:"OCR, RSS, webhooks, REST/SDK and MCP are shipped but have no producing flow in the graph — an under-anchored spine the AI/search directions lean on."},
+    {label:"Reader-view over-loaded", note:"The read-back step consumes more than any other; it is the single point most directions converge on."}
+  ],
+  field: {
+    kartas:[
+      {name:"Maintainer (mbassem)", kind:"maintainer", drives:"D5, D1, D3"},
+      {name:"Contributor community", kind:"contributor", drives:"D3 carriers, review-ready PRs"},
+      {name:"Community-requested", kind:"community", drives:"D4 (unowned — needs a champion)"}
+    ],
+    figureOnGround:[
+      {dir:"D1 Semantic search", capability:"Full-text search + embeddings"},
+      {dir:"D3 Anti-bot crawler", capability:"Automatic crawl & archival"},
+      {dir:"D4 Durable storage", capability:"SQLite via Drizzle"}
+    ]
+  }
+};
+
+/* ---------------------------------------------------------------- rendering */
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const R = ROADMAP, gh = ref => `${R.repoUrl}/issues/${ref}`;
+const ref = (n,k) => `<a class="ref" href="${gh(n)}" target="_blank" rel="noopener">${k==='pr'?'PR ':''}#${n}</a>`;
+const who = (login, assoc) => login
+  ? `<span class="who ${/OWNER|MEMBER|COLLABORATOR/.test(assoc||'')?'maintainer':''}"><a href="https://github.com/${esc(login)}" target="_blank" rel="noopener">${esc(login)}</a>${assoc?`<span class="assoc">${esc(assoc)}</span>`:''}</span>`
+  : '<span class="who"></span>';
+const statusLabel = {committed:"Committed", ready:"Ready", "in-flight":"In flight", deferred:"Deferred"};
+const stBadge = s => `<span class="badge st st-${s}">${statusLabel[s]||esc(s)}</span>`;
+const rdLabel = {ready:"ready",conflicting:"needs rebase",ci:"CI pending",review:"needs review",draft:"draft",merged:"merged",closed:"closed",na:""};
+const kartaIcon = {maintainer:"●",contributor:"◐",community:"○"};
+
+document.getElementById('bar-repo').innerHTML = `<a href="${R.repoUrl}" target="_blank" rel="noopener">${esc(R.repo)}</a>`;
+document.getElementById('bar-ver').textContent = R.version || "";
+document.getElementById('ft-date').textContent = R.generated || "";
+document.title = `${R.repo} — roadmap`;
+
+function rChips(items, cls, fn){ return (items||[]).map(fn).join(''); }
+
+const app = document.getElementById('app');
+app.innerHTML = `
+  <section id="next" style="margin-top:1.4rem">
+    <p class="eyebrow">Maintainer roadmap</p>
+    <h1 class="title">${esc(R.repo)}</h1>
+    <p class="tagline">${esc(R.tagline||"")}</p>
+    <ol class="moves" aria-label="Next moves">${(R.nextMoves||[]).map(m=>`<li>${linkRefs(m)}</li>`).join('')}</ol>
+  </section>
+
+  <section id="product">
+    <h2>What this product is today</h2>
+    <p class="sec-sub">The verified ground every direction transforms — each line cited to a real primitive.</p>
+    <p class="prose">${esc(R.product.summary||"")}</p>
+    <div class="subsys">${(R.product.subsystems||[]).map(s=>`
+      <div class="sub">
+        <div class="sub-h"><b>${esc(s.name)}</b> ${s.primitive?`<span class="prim">${esc(s.primitive)}</span>`:''}</div>
+        <ul class="caps">${(s.capabilities||[]).map(c=>`<li><b>${esc(c.name)}</b> ${c.primitive?`<span class="prim">${esc(c.primitive)}</span>`:''}</li>`).join('')}</ul>
+      </div>`).join('')}</div>
+    ${R.product.entities?.length?`<div class="entities">${R.product.entities.map(e=>`<span class="ent">${esc(e.name)}${e.primitive?` <span class="mono">${esc(e.primitive)}</span>`:''}</span>`).join('')}</div>`:''}
+  </section>
+
+  <section id="flow">
+    <h2>How it works today</h2>
+    <p class="sec-sub">${esc(R.estafeta?.name||"Core flow")} — the relay a single item travels, end to end.</p>
+    <div class="flow">${(R.estafeta?.steps||[]).map((s,i,a)=>`
+      <div class="step"><span class="k">${esc(s.label)}</span>${s.primitive?`<span class="p">${esc(s.primitive)}</span>`:''}</div>
+      ${i<a.length-1?'<span class="arr">→</span>':''}`).join('')}</div>
+  </section>
+
+  <section id="directions">
+    <h2>Directions</h2>
+    <p class="sec-sub">In dependency order. Each transforms a capability the product already ships.</p>
+    <div class="filter" role="group" aria-label="Filter directions">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="committed" aria-pressed="false">Committed</button>
+      <button data-f="ready" aria-pressed="false">Ready</button>
+      <button data-f="in-flight" aria-pressed="false">In flight</button>
+      <button data-f="deferred" aria-pressed="false">Deferred</button>
+    </div>
+    <div id="dirs">${(R.directions||[]).map(dirCard).join('')}</div>
+  </section>
+
+  <section id="signal">
+    <h2>Signal audit</h2>
+    <p class="sec-sub">The most-reacted and most-commented open issues, computed over the full set — each marked included, deferred, or out of scope.</p>
+    <div class="tbl-wrap"><table class="audit">
+      <thead><tr><th>Issue</th><th>Title</th><th class="num">👍</th><th class="num">💬</th><th>Disposition</th></tr></thead>
+      <tbody>${(R.signalAudit||[]).map(s=>`<tr>
+        <td>${ref(s.ref,'issue')}</td><td>${esc(s.title)}</td>
+        <td class="num">${s.reactions??''}</td><td class="num">${s.comments??''}</td>
+        <td>${dispBadge(s.disposition)}</td></tr>`).join('')}</tbody>
+    </table></div>
+  </section>
+
+  <section id="field">
+    <h2>Reading of the field</h2>
+    <p class="sec-sub">What the graph bought — the part a flat ticket list can't produce.</p>
+    <div class="field">
+      <div class="panel"><h3>Driving roles</h3>
+        <ul class="kartas">${(R.field?.kartas||[]).map(k=>`<li><span class="karta">${kartaIcon[k.kind]||'•'} <b>${esc(k.name)}</b></span> <span class="lbl" style="color:var(--ink-3)">drives ${esc(k.drives)}</span></li>`).join('')}</ul>
+      </div>
+      <div class="panel"><h3>Figure on ground</h3>
+        <ul class="fog">${(R.field?.figureOnGround||[]).map(f=>`<li><b>${esc(f.dir)}</b> <span class="to">extends</span> ${esc(f.capability)}</li>`).join('')}</ul>
+      </div>
+      <div class="panel full"><h3>Structural risks</h3>
+        <ul class="srisk">${(R.structuralRisks||[]).map(r=>`<li><b>${esc(r.label)}</b><span>${esc(r.note)}</span></li>`).join('')}</ul>
+      </div>
+    </div>
+  </section>`;
+
+function dirCard(d){
+  return `<details class="dir" data-status="${esc(d.status)}"${d.status==='committed'?' open':''}>
+    <summary>
+      ${stBadge(d.status)}
+      <span class="did">${esc(d.id)}</span>
+      <span class="dname">${esc(d.name)}</span>
+      <span class="chev">›</span>
+    </summary>
+    <div class="body">
+      <p class="extends"><b>Extends:</b> ${esc(d.extends)}</p>
+      <p class="telos">${esc(d.telos)}</p>
+      <div class="meta">
+        <span><span class="lbl">Driven by</span> ${esc(d.karta||'—')}</span>
+        ${d.anga?`<span class="anga"><span class="lbl">Question:</span> ${esc(d.anga)}</span>`:''}
+      </div>
+      ${d.drivers?.length?`<table class="drv">
+        <thead><tr><th>Ref</th><th>Title</th><th>Author</th><th>Weight</th><th>State</th><th>Action</th></tr></thead>
+        <tbody>${d.drivers.map(p=>`<tr>
+          <td class="ref">${ref(p.ref,p.kind)}</td>
+          <td class="ttl">${esc(p.title)}</td>
+          <td>${who(p.author,p.assoc)}</td>
+          <td><span class="wt wt-${esc(p.weight)}">${esc(p.weight)}</span></td>
+          <td>${p.readiness&&p.readiness!=='na'?`<span class="rd rd-${esc(p.readiness)}">${rdLabel[p.readiness]||esc(p.readiness)}</span>`:`<span class="rd rd-draft">${esc(p.state)}</span>`}</td>
+          <td class="act">${esc(p.action||'')}</td></tr>`).join('')}</tbody></table>`:''}
+      ${d.risks?.length?`<p class="note-h">Open risks</p><ul class="lst">${d.risks.map(r=>`<li>${linkRefs(r)}</li>`).join('')}</ul>`:''}
+      ${d.unblocks?.length?`<p class="note-h">Unblocks</p><ul class="lst">${d.unblocks.map(u=>`<li>${linkRefs(u)}</li>`).join('')}</ul>`:''}
+    </div>
+  </details>`;
+}
+function dispBadge(d){
+  if(!d) return '';
+  if(/^in:/.test(d)) return `<span class="disp disp-in">→ ${esc(d.slice(3))}</span>`;
+  if(d==='deferred') return '<span class="disp disp-deferred">deferred</span>';
+  return `<span class="disp disp-out">${esc(d)}</span>`;
+}
+/* turn "#123" inside free text into working links (after escaping) */
+function linkRefs(s){ return esc(s).replace(/#(\d+)/g, (m,n)=>`<a class="ref" href="${gh(n)}" target="_blank" rel="noopener">#${n}</a>`); }
+
+/* ---- filter + theme ---- */
+document.querySelector('.filter').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('.filter button').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  const f = b.dataset.f;
+  document.querySelectorAll('#dirs > .dir').forEach(d=>{ d.style.display = (f==='all'||d.dataset.status===f)?'':'none'; });
+});
+const tgl = document.getElementById('tgl'), root = document.documentElement;
+tgl.addEventListener('click', ()=>{
+  const cur = root.getAttribute('data-theme')
+    || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.setAttribute('data-theme', cur==='dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

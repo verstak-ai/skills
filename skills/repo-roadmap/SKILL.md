@@ -314,10 +314,16 @@ The roadmap **leads with the product, then the directions.** Three artifacts:
      Makes the selection cap auditable and the rankings reproducible — a reader sees
      nothing high-signal was silently dropped.
    - Open the whole file with a 3–5 line **"next 3 moves"**.
-3. **HTML** — `roadmap.html`: a self-contained local page (no external deps) — a
-   "what this is today" header band, then ordered direction cards each linking their
-   source issues/PRs + the capability extended, plus the dependency order. Write to
-   the chosen `--out` dir (default repo root).
+3. **HTML** — `roadmap.html`: **do NOT hand-write the page.** Copy the shipped
+   template `references/roadmap-template.html` and replace ONLY its `ROADMAP` data
+   object — the schema is documented at the top of the template's `<script>` (product
+   ground, estafeta, directions + drivers, signal-audit, structural risks, next-3-moves,
+   the field). The template renders the rest: consistent design, working `#ref` →
+   `<repoUrl>/issues/N` links (GitHub redirects issues↔PRs) and author chips, status +
+   PR-readiness badges, collapsible direction cards, a status filter, light/dark. It is
+   self-contained (zero external deps). Write the filled copy to the chosen `--out` dir
+   (default repo root). All `ROADMAP` text is plain and auto-escaped — paste verbatim
+   titles directly. Filling the data object is the whole HTML job; the design is fixed.
 
 Render the human-facing roadmap (md + html) in the **repo's primary language**
 (match the audience). Each cited item shows its verified author + weight; each
