@@ -124,6 +124,21 @@ h2{ font-size:1.18rem; letter-spacing:-.015em; margin:0 0 .25rem; font-weight:66
 .flow .arr{ align-self:center; color:var(--ink-3); flex:0 0 auto; }
 @media (max-width:680px){ .flow{ flex-direction:column; } .flow .arr{ transform:rotate(90deg); } }
 
+/* ---- cross-repo graph (SVG) ---- */
+#map .gv-wrap{ margin-top:.6rem; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); box-shadow:var(--shadow); padding:.8rem 1rem; overflow-x:auto; }
+#map svg{ width:100%; height:auto; display:block; min-width:680px; }
+.gv-band{ fill:var(--ink-3); font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+.gv-box-t{ fill:var(--ink); font-family:var(--mono); font-size:12px; font-weight:600; }
+.gv-box-s{ fill:var(--ink-2); font-family:var(--sans); font-size:11px; }
+.gv-edge{ stroke:var(--ink-3); stroke-width:1.4; }
+.gv-hinge-lbl{ fill:var(--ink-3); font-family:var(--sans); font-size:9.5px; }
+.gv-find-t{ fill:var(--ink); font-family:var(--sans); font-size:11px; font-weight:600; }
+.gv-find-s{ fill:var(--ink-2); font-family:var(--sans); font-size:10px; }
+.gv-dir-id{ fill:var(--ink-2); font-family:var(--mono); font-size:11px; font-weight:600; }
+.gv-dir-n{ fill:var(--ink); font-family:var(--sans); font-size:11px; font-weight:560; }
+.gv-dir-a{ fill:var(--ink-3); font-family:var(--mono); font-size:9.5px; }
+.gv-leg{ fill:var(--ink-2); font-family:var(--sans); font-size:11px; }
+
 /* ---- direction filter ---- */
 .filter{ display:inline-flex; gap:2px; background:var(--bg-sunk); border:1px solid var(--line); border-radius:9px; padding:2px; margin:.2rem 0 1rem; flex-wrap:wrap; }
 .filter button{ border:0; background:transparent; color:var(--ink-2); font:inherit; font-size:.82rem; padding:.3rem .7rem; border-radius:7px; cursor:pointer; }
@@ -138,6 +153,8 @@ h2{ font-size:1.18rem; letter-spacing:-.015em; margin:0 0 .25rem; font-weight:66
 .dir[open] .chev{ transform:rotate(90deg); }
 .dir .did{ font-family:var(--mono); font-size:.74rem; color:var(--ink-3); }
 .dir .dname{ font-weight:640; letter-spacing:-.01em; }
+.dir .drepos{ display:inline-flex; gap:.25rem; flex-wrap:wrap; }
+.dir .rchip{ font-family:var(--mono); font-size:.66rem; color:var(--ink-3); background:var(--surface-2,rgba(127,127,127,.12)); border:1px solid var(--line,rgba(127,127,127,.25)); border-radius:.45rem; padding:.02rem .3rem; white-space:nowrap; }
 .dir .extends{ font-size:.78rem; color:var(--ink-3); }
 .dir .extends b{ color:var(--ink-2); font-weight:560; }
 .dir .body{ padding:.2rem 1.05rem 1.1rem; border-top:1px solid var(--line-soft); }
@@ -223,7 +240,7 @@ footer .mono{ color:var(--ink-2); }
     <span class="repo" id="bar-repo"></span>
     <span class="ver" id="bar-ver"></span>
     <nav aria-label="Sections">
-      <a href="#next">Next</a><a href="#product">Product</a><a href="#flow">How it works</a>
+      <a href="#map">Map</a><a href="#next">Next</a><a href="#product">Product</a><a href="#flow">How it works</a>
       <a href="#directions">Directions</a><a href="#signal">Signal</a><a href="#field">Field</a>
     </nav>
     <button class="tgl" id="tgl" title="Toggle theme" aria-label="Toggle light/dark">◐</button>
@@ -243,20 +260,31 @@ footer .mono{ color:var(--ink-2); }
    real data; the template renders it. Schema (all text is plain, auto-escaped):
 
    repo, repoUrl, version, generated, tagline
+   repos: { '<key>':'https://github.com/<owner>/<repo>', ... }   // MULTI-REPO only —
+     a product spanning several repos. Set repos to the per-repo URL map, put repo:'<key>'
+     on every driver/signal ref, and write free-text refs as '<key>#45' (e.g. 'backend#45').
+     repoUrl then = the org/product URL (the bar link). Single-repo runs omit repos and use repoUrl.
+     Internal graph/NKS refs must use a non-repo prefix (e.g. 'NKS#1120') so they render as
+     plain text, never as a GitHub link.
    nextMoves: [string]
-   product: { summary, subsystems:[{name, primitive, capabilities:[{name, primitive}]}],
-              entities:[{name, primitive}] }
-   estafeta: { name, steps:[{label, primitive}] }
+   product: { summary, subsystems:[{name, repo, primitive, capabilities:[{name, primitive}]}],
+              entities:[{name, primitive}] }   // multi-repo: subsystem.repo names the source repo
+   estafeta: { name, steps:[{label, repo, primitive, hinge:Boolean}] }   // multi-repo: a cross-repo step names its repo.
+     hinge:true (or a label starting with '◆') marks a between-repo handoff phenomenon — the graph view draws it
+     as a small diamond BETWEEN the two repo boxes instead of a box (proof the repos are ONE product).
    directions: [{ id, name, status:'committed|ready|in-flight|deferred',
+                  repos:[string],   // multi-repo: the repo keys this direction touches
+                  after:[id]|string,   // optional: which direction(s) this one follows — shown as an 'after Dx' sublabel in the graph view
                   extends, telos, karta, kartaKind:'maintainer|contributor|community',
                   anga, unblocks:[string], risks:[string],
-                  drivers:[{ ref:Number, kind:'issue|pr', title, author, assoc,
+                  drivers:[{ ref:Number, repo, kind:'issue|pr', title, author, assoc,
                              weight:'high|medium|low', state:'open|merged|closed|draft',
                              readiness:'ready|conflicting|ci|review|draft|merged|closed|na',
                              action }] }]
-   signalAudit: [{ ref, title, reactions:Number, comments:Number,
+   signalAudit: [{ ref, repo, kind:'issue|pr', title, reactions:Number, comments:Number,
                    disposition:'in:Dn|deferred|out-of-scope' }]
-   structuralRisks: [{ label, note }]
+   structuralRisks: [{ label, note, seam:String }]   // seam (optional): the cross-repo seam this finding spans;
+     shown as the second line of the graph-view finding pill in place of the note.
    field: { kartas:[{name, kind, drives}], figureOnGround:[{dir, capability}] }
    ========================================================================== */
 const ROADMAP = {
@@ -368,8 +396,12 @@ const ROADMAP = {
 
 /* ---------------------------------------------------------------- rendering */
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const R = ROADMAP, gh = ref => `${R.repoUrl}/issues/${ref}`;
-const ref = (n,k) => `<a class="ref" href="${gh(n)}" target="_blank" rel="noopener">${k==='pr'?'PR ':''}#${n}</a>`;
+const R = ROADMAP;
+/* multi-repo aware: a driver/signal ref may carry repo:'<key>' resolved via R.repos[key];
+   single-repo runs omit repo and resolve via R.repoUrl (unchanged behaviour). */
+const repoUrlOf = repo => (repo && R.repos && R.repos[repo]) ? R.repos[repo] : R.repoUrl;
+const gh = (n, repo) => `${repoUrlOf(repo)}/issues/${n}`;
+const ref = (n,k,repo) => `<a class="ref" href="${gh(n,repo)}" target="_blank" rel="noopener">${k==='pr'?'PR ':''}${repo?esc(repo)+'#':'#'}${n}</a>`;
 const who = (login, assoc) => login
   ? `<span class="who ${/OWNER|MEMBER|COLLABORATOR/.test(assoc||'')?'maintainer':''}"><a href="https://github.com/${esc(login)}" target="_blank" rel="noopener">${esc(login)}</a>${assoc?`<span class="assoc">${esc(assoc)}</span>`:''}</span>`
   : '<span class="who"></span>';
@@ -385,9 +417,174 @@ document.title = `${R.repo} — roadmap`;
 
 function rChips(items, cls, fn){ return (items||[]).map(fn).join(''); }
 
+/* ---------------------------------------------- cross-repo graph (SVG) ----
+   Hand-rolled, zero-dep. Theme-safe: every fill is an oklch tint with an
+   oklch border and var(--ink) text, so it reads on both paper and near-black.
+   Renders from R.estafeta.steps / R.structuralRisks / R.directions / R.repos. */
+const GRAPH_HUES = [150, 75, 245, 300, 25, 190];
+function repoHueMap(R){
+  const m = {}; const keys = (R.repos && typeof R.repos==='object') ? Object.keys(R.repos) : [];
+  keys.forEach((k,i)=>{ m[k] = GRAPH_HUES[i % GRAPH_HUES.length]; });
+  return m;
+}
+function graphView(R){
+  const W = 1080, MX = 24;
+  const hues = repoHueMap(R);
+  const repoKeys = Object.keys(hues);
+  const isHinge = s => s && (s.hinge===true || (typeof s.label==='string' && s.label.trim().charCodeAt(0)===0x25C6 /* ◆ */));
+  const cleanLabel = l => String(l==null?'':l).replace(/^\s*◆\s*/, '');
+  const fillFor = h => `oklch(0.64 0.11 ${h} / 0.17)`;
+  const strokeFor = h => `oklch(0.58 0.13 ${h})`;
+  const clamp = (n,lo,hi) => Math.max(lo, Math.min(hi, n));
+  const cpw = (px, ppc) => Math.max(3, Math.floor(px / ppc));   // char budget for a pixel width
+  const txt = (x,y,cls,full,maxC,attrs='') => {                 // clip to width + hover <title> tooltip for the full text
+    const s = String(full==null?'':full).trim();
+    const c = (s.length<=maxC) ? s : s.slice(0, Math.max(1,maxC-1)).trimEnd()+'…';
+    const title = (c!==s) ? `<title>${esc(s)}</title>` : '';
+    return `<text x="${x}" y="${y}" class="${cls}"${attrs?' '+attrs:''}>${title}${esc(c)}</text>`;
+  };
+  let svg = '', y = 18;
+
+  /* ---- band 1: cross-repo spine ---- */
+  const steps = (R.estafeta && Array.isArray(R.estafeta.steps)) ? R.estafeta.steps : [];
+  const stages = steps.filter(s => !isHinge(s));
+  const hinges = steps.filter(s => isHinge(s));
+  if (stages.length){
+    svg += `<text x="${MX}" y="${y}" class="gv-band">The product, assembled — one item end to end across the repos</text>`;
+    y += 18;
+    const n = stages.length;
+    const boxH = 52;
+    const bw = clamp((W - 2*MX) / n - 14, 150, 210);
+    const slot = (W - 2*MX) / n;
+    const rowY = y;
+    const cy = rowY + boxH/2;
+    const xOf = i => MX + slot*i + (slot - bw)/2;
+    // arrows + hinges between stages first (under the boxes)
+    for (let i=0;i<n-1;i++){
+      const x1 = xOf(i)+bw, x2 = xOf(i+1);
+      svg += `<line x1="${x1}" y1="${cy}" x2="${x2}" y2="${cy}" class="gv-edge" marker-end="url(#gv-arrow)"/>`;
+      const h = hinges[i];
+      if (h){
+        const hx = (x1+x2)/2, d=7;
+        svg += txt(hx, cy-16, 'gv-hinge-lbl', cleanLabel(h.label), cpw((x2-x1)+30, 5.2), 'text-anchor="middle"');
+        svg += `<path d="M ${hx} ${cy-d} L ${hx+d} ${cy} L ${hx} ${cy+d} L ${hx-d} ${cy} Z" fill="var(--bg-sunk)" stroke="var(--line)" stroke-width="1.2"/>`;
+      }
+    }
+    const single = repoKeys.length === 0;          // single-repo: one neutral accent for all stages
+    const ACC_HUE = 235;
+    stages.forEach((s,i)=>{
+      const x = xOf(i), key = s.repo;
+      const h = (key!=null && hues[key]!=null) ? hues[key] : (single ? ACC_HUE : null);
+      const fill = h!=null ? fillFor(h) : 'var(--panel)';
+      const stroke = h!=null ? strokeFor(h) : 'var(--line)';
+      svg += `<rect x="${x}" y="${rowY}" width="${bw}" height="${boxH}" rx="9" fill="${fill}" stroke="${stroke}" stroke-width="1.3"/>`;
+      if (key!=null && hues[key]!=null){            // multi-repo box: repo key as title, step label as subtitle
+        svg += txt(x+11, rowY+20, 'gv-box-t', String(key), cpw(bw-22, 7.3));
+        svg += txt(x+11, rowY+38, 'gv-box-s', s.label, cpw(bw-22, 6.0));
+      } else {                                       // single-repo / repo-less step: label is the title
+        svg += txt(x+11, rowY+31, 'gv-box-t', s.label, cpw(bw-22, 7.3));
+      }
+    });
+    y = rowY + boxH + 34;
+  }
+
+  /* ---- band 2: findings strip ---- */
+  const risks = (Array.isArray(R.structuralRisks) ? R.structuralRisks : []).slice(0, 6);
+  if (risks.length){
+    svg += `<text x="${MX}" y="${y}" class="gv-band">Findings — what no single repo's tracker can see</text>`;
+    y += 16;
+    const perRow = 4;
+    const rows = Math.ceil(risks.length / perRow);
+    const pillH = 50, gap = 12;
+    const fH = 25, fHue = fillFor(25), fStroke = strokeFor(25);
+    for (let r=0;r<rows;r++){
+      const rowItems = risks.slice(r*perRow, r*perRow+perRow);
+      const cols = rowItems.length;
+      const pw = (W - 2*MX - gap*(perRow-1)) / perRow;
+      const rowY = y + r*(pillH+10);
+      rowItems.forEach((risk,i)=>{
+        const x = MX + i*(pw+gap);
+        svg += `<rect x="${x}" y="${rowY}" width="${pw}" height="${pillH}" rx="8" fill="${fHue}" stroke="${fStroke}" stroke-width="1.2"/>`;
+        svg += txt(x+10, rowY+19, 'gv-find-t', risk.label, cpw(pw-20, 6.0));
+        const sub = risk.seam || risk.note;
+        svg += txt(x+10, rowY+37, 'gv-find-s', sub, cpw(pw-20, 6.0));
+      });
+    }
+    y += rows*(pillH+10) + 22;
+  }
+
+  /* ---- band 3: directions ---- */
+  const dirs = (Array.isArray(R.directions) ? R.directions : []);
+  if (dirs.length){
+    svg += `<text x="${MX}" y="${y}" class="gv-band">Directions — where the product goes next</text>`;
+    y += 16;
+    const perRow = 5;
+    const rows = Math.ceil(dirs.length / perRow);
+    const boxH = 62, gap = 12;
+    const greenHues = {ready:true, committed:true};
+    for (let r=0;r<rows;r++){
+      const rowItems = dirs.slice(r*perRow, r*perRow+perRow);
+      const bw = (W - 2*MX - gap*(perRow-1)) / perRow;
+      const rowY = y + r*(boxH+12);
+      rowItems.forEach((d,i)=>{
+        const x = MX + i*(bw+gap);
+        const green = greenHues[d.status];
+        const fill = green ? fillFor(150) : 'var(--bg-sunk)';
+        const stroke = green ? strokeFor(150) : 'var(--line)';
+        svg += `<rect x="${x}" y="${rowY}" width="${bw}" height="${boxH}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>`;
+        svg += `<text x="${x+10}" y="${rowY+18}" class="gv-dir-id">${esc(d.id)}</text>`;
+        svg += txt(x+10, rowY+34, 'gv-dir-n', d.name, cpw(bw-20, 6.0));
+        // repo dots
+        const dr = Array.isArray(d.repos) ? d.repos : [];
+        dr.forEach((k,j)=>{
+          const dh = hues[k];
+          const cx = x+12 + j*13, cyd = rowY+48;
+          svg += `<circle cx="${cx}" cy="${cyd}" r="4" fill="${dh!=null?strokeFor(dh):'var(--ink-3)'}"/>`;
+        });
+        let after = '';
+        if (Array.isArray(d.after)) after = d.after.join(', ');
+        else if (typeof d.after === 'string') after = d.after;
+        if (after) svg += `<text x="${x+bw-9}" y="${rowY+boxH-7}" class="gv-dir-a" text-anchor="end">after ${esc(after)}</text>`;
+      });
+    }
+    y += rows*(boxH+12) + 22;
+  }
+
+  /* ---- band 4: legend ---- */
+  svg += `<text x="${MX}" y="${y}" class="gv-band">Legend</text>`;
+  y += 16;
+  let lx = MX;
+  const legend = [];
+  repoKeys.forEach(k => legend.push({label:k, hue:hues[k]}));
+  legend.push({label:'graph finding — in no issue tracker', hue:25});
+  legend.push({label:'ready now', hue:150});
+  legend.forEach(item=>{
+    const tw = 8 + String(item.label).length*6.4 + 18;
+    if (lx + tw > W - MX){ lx = MX; y += 22; }
+    svg += `<rect x="${lx}" y="${y-9}" width="12" height="12" rx="3" fill="${fillFor(item.hue)}" stroke="${strokeFor(item.hue)}" stroke-width="1.2"/>`;
+    svg += `<text x="${lx+18}" y="${y+1}" class="gv-leg">${esc(item.label)}</text>`;
+    lx += tw + 8;
+  });
+  y += 18;
+
+  const H = Math.ceil(y);
+  const defs = `<defs><marker id="gv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/></marker></defs>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cross-repo product graph">${defs}${svg}</svg>`;
+}
+
 const app = document.getElementById('app');
+const repoCount = (R.repos && typeof R.repos==='object') ? Object.keys(R.repos).length : 0;
+const mapHeading = repoCount
+  ? `The product, assembled across ${repoCount} repos`
+  : `The product, assembled across the codebase`;
 app.innerHTML = `
-  <section id="next" style="margin-top:1.4rem">
+  <section id="map" style="margin-top:1.4rem">
+    <h2>${esc(mapHeading)}</h2>
+    <p class="sec-sub">Lead with the assembled picture and what no single repo's tracker can see.</p>
+    <div class="gv-wrap">${graphView(R)}</div>
+  </section>
+
+  <section id="next">
     <p class="eyebrow">Maintainer roadmap</p>
     <h1 class="title">${esc(R.repo)}</h1>
     <p class="tagline">${esc(R.tagline||"")}</p>
@@ -433,7 +630,7 @@ app.innerHTML = `
     <div class="tbl-wrap"><table class="audit">
       <thead><tr><th>Issue</th><th>Title</th><th class="num">👍</th><th class="num">💬</th><th>Disposition</th></tr></thead>
       <tbody>${(R.signalAudit||[]).map(s=>`<tr>
-        <td>${ref(s.ref,'issue')}</td><td>${esc(s.title)}</td>
+        <td>${ref(s.ref,s.kind||'issue',s.repo)}</td><td>${esc(s.title)}</td>
         <td class="num">${s.reactions??''}</td><td class="num">${s.comments??''}</td>
         <td>${dispBadge(s.disposition)}</td></tr>`).join('')}</tbody>
     </table></div>
@@ -461,6 +658,7 @@ function dirCard(d){
       ${stBadge(d.status)}
       <span class="did">${esc(d.id)}</span>
       <span class="dname">${esc(d.name)}</span>
+      ${(d.repos&&d.repos.length)?`<span class="drepos">${d.repos.map(r=>`<span class="rchip">${esc(r)}</span>`).join('')}</span>`:''}
       <span class="chev">›</span>
     </summary>
     <div class="body">
@@ -473,7 +671,7 @@ function dirCard(d){
       ${d.drivers?.length?`<table class="drv">
         <thead><tr><th>Ref</th><th>Title</th><th>Author</th><th>Weight</th><th>State</th><th>Action</th></tr></thead>
         <tbody>${d.drivers.map(p=>`<tr>
-          <td class="ref">${ref(p.ref,p.kind)}</td>
+          <td class="ref">${ref(p.ref,p.kind,p.repo)}</td>
           <td class="ttl">${esc(p.title)}</td>
           <td>${who(p.author,p.assoc)}</td>
           <td><span class="wt wt-${esc(p.weight)}">${esc(p.weight)}</span></td>
@@ -491,7 +689,19 @@ function dispBadge(d){
   return `<span class="disp disp-out">${esc(d)}</span>`;
 }
 /* turn "#123" inside free text into working links (after escaping) */
-function linkRefs(s){ return esc(s).replace(/#(\d+)/g, (m,n)=>`<a class="ref" href="${gh(n)}" target="_blank" rel="noopener">#${n}</a>`); }
+/* free-text refs: qualified 'backend#45' links if 'backend' is a known R.repos key;
+   an unknown prefix (e.g. internal 'NKS#1120') is left as plain text — it is NOT a GitHub ref;
+   a bare '#45' links via R.repoUrl in single-repo mode, but is left plain in multi-repo mode (ambiguous). */
+function linkRefs(s){
+  return esc(s).replace(/([A-Za-z][\w.-]*)#(\d+)|#(\d+)/g, (m, repo, qn, bare) => {
+    if (repo){
+      return (R.repos && R.repos[repo])
+        ? `<a class="ref" href="${repoUrlOf(repo)}/issues/${qn}" target="_blank" rel="noopener">${esc(repo)}#${qn}</a>`
+        : m;
+    }
+    return R.repos ? m : `<a class="ref" href="${gh(bare)}" target="_blank" rel="noopener">#${bare}</a>`;
+  });
+}
 
 /* ---- filter + theme ---- */
 document.querySelector('.filter').addEventListener('click', e=>{
