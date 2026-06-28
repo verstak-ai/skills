@@ -138,6 +138,9 @@ h2{ font-size:1.18rem; letter-spacing:-.015em; margin:0 0 .25rem; font-weight:66
 .gv-dir-n{ fill:var(--ink); font-family:var(--sans); font-size:11px; font-weight:560; }
 .gv-dir-a{ fill:var(--ink-3); font-family:var(--mono); font-size:9.5px; }
 .gv-leg{ fill:var(--ink-2); font-family:var(--sans); font-size:11px; }
+.gv-clip{ cursor:help; }
+.gv-tip{ position:fixed; z-index:60; max-width:340px; pointer-events:none; opacity:0; transform:translateY(2px); transition:opacity .07s ease; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:.32rem .5rem; font:12px/1.45 var(--sans); }
+.gv-tip.on{ opacity:1; transform:none; }
 
 /* ---- direction filter ---- */
 .filter{ display:inline-flex; gap:2px; background:var(--bg-sunk); border:1px solid var(--line); border-radius:9px; padding:2px; margin:.2rem 0 1rem; flex-wrap:wrap; }
@@ -437,11 +440,11 @@ function graphView(R){
   const strokeFor = h => `oklch(0.58 0.13 ${h})`;
   const clamp = (n,lo,hi) => Math.max(lo, Math.min(hi, n));
   const cpw = (px, ppc) => Math.max(3, Math.floor(px / ppc));   // char budget for a pixel width
-  const txt = (x,y,cls,full,maxC,attrs='') => {                 // clip to width + hover <title> tooltip for the full text
+  const txt = (x,y,cls,full,maxC,attrs='') => {                 // clip to width; clipped labels carry data-full for a custom instant tooltip
     const s = String(full==null?'':full).trim();
     const c = (s.length<=maxC) ? s : s.slice(0, Math.max(1,maxC-1)).trimEnd()+'…';
-    const title = (c!==s) ? `<title>${esc(s)}</title>` : '';
-    return `<text x="${x}" y="${y}" class="${cls}"${attrs?' '+attrs:''}>${title}${esc(c)}</text>`;
+    const df = (c!==s) ? ` data-full="${esc(s)}"` : '';
+    return `<text x="${x}" y="${y}" class="${cls}${df?' gv-clip':''}"${df}${attrs?' '+attrs:''}>${esc(c)}</text>`;
   };
   let svg = '', y = 18;
 
@@ -716,6 +719,30 @@ tgl.addEventListener('click', ()=>{
     || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   root.setAttribute('data-theme', cur==='dark' ? 'light' : 'dark');
 });
+
+/* ---- graph-view tooltip (instant, styled — replaces the slow native SVG <title>) ---- */
+(function(){
+  const map = document.getElementById('map'); if(!map) return;
+  const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.setAttribute('role','tooltip');
+  document.body.appendChild(tip);
+  let cur = null;
+  const place = (cx, cy) => {
+    let x = cx + 14, y = cy + 16;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    if (x + w > innerWidth - 8)  x = cx - w - 14;
+    if (y + h > innerHeight - 8) y = cy - h - 14;
+    tip.style.left = Math.max(8, x) + 'px';
+    tip.style.top  = Math.max(8, y) + 'px';
+  };
+  map.addEventListener('mousemove', e => {
+    const t = e.target.closest && e.target.closest('[data-full]');
+    if (t){
+      if (t !== cur){ cur = t; tip.textContent = t.getAttribute('data-full'); tip.classList.add('on'); }
+      place(e.clientX, e.clientY);
+    } else if (cur){ cur = null; tip.classList.remove('on'); }
+  });
+  map.addEventListener('mouseleave', () => { cur = null; tip.classList.remove('on'); });
+})();
 </script>
 </body>
 </html>
