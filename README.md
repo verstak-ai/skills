@@ -15,6 +15,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **inquiry** | The life of a vimarsha — anchor, resolve, close, park, crystallize, attach to a bianhua. |
 | **assembly** | The 時-cycle ritual — discern the bianhua a realm is undergoing and produce 形, the assembly map. |
 | **integrity** | Wrap a bianhua in integrity — propagate a transformation's impact wavefront and surface what it touches. |
+| **intake** | Bring external word (шабда) into a realm — map form→type, mode by kind (#104), dedup, anchor, verify by пратьякша. Source-independent. |
 | **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` symlink), wire the NKS session rituals, set the quality gate. |
 | **repo-roadmap** | Build a product roadmap for a GitHub repo you maintain — model the product as a verified ground, harvest its issues + PRs, and assemble the directions it's actually under. Composes verstakify + assembly. |
