@@ -167,7 +167,7 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 | leaked | phenomenon has utpatti, no ahara | Add consuming kriya (end-of-life) or parked kriya (anagata+upeksha) |
 | relay-gap | phenomenon has ahara, no utpatti | Add producing kriya — or it's the realm edge (boundary_inlet, computed from thread topology #978; information, not work) |
 | orphan | phenomenon has no kriya arrows at all | Wire to a kriya (ahara/utpatti/upadhi) or delete if spurious |
-| no-actor | kriya without actor | Add actor arrow to karta |
+| no-actor | kriya without actor | Add actor arrow to karta — but apply the karta test first (writing): a machine with no motivation is a ⚙️ phenomenon (actor → upadhi), not a karta |
 | lifecycle | disconnected lifecycle segments | Thread via next, or trace to find the break |
 | unreachable | upadhi phenomenon not reachable via happens-before | Check producer is hb-before consumer |
 

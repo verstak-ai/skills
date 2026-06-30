@@ -38,6 +38,8 @@ A phenomenon does not exist on its own — it exists *for* a kriya (noema for no
 
 **Karta vs phenomenon(vollzug).** "Reviewer" with motivation → karta. "Review process" (method, no motivation of its own) → phenomenon(vollzug).
 
+**Machine masquerading as karta — THE KARTA TEST.** A scheduled worker, a cron job, an automated pipeline *runs* — but carries no motivation of its own. Test: can you address a vimarsha to it, expecting an answer? **No → it is not a karta.** Model it as a ⚙️ phenomenon; the would-be `actor` edge becomes `upadhi`. Only an address-able doer — a role you could pose a question to and await a reply — is a karta. (The factory's `manifested_as` forces this decision up front — see Decision 3.)
+
 **Holon vs phenomenon(sinn).** "📦 Auth contour" — what's inside, outside? Can't answer → probably phenomenon(sinn). Holons-as-folders are an anti-pattern.
 
 ## Decision 2: given_as (phenomenon only)
@@ -64,6 +66,19 @@ Three axes, each required. The tool descriptions on each factory already list en
 See `references/modes.md` for the self-check and stable triads.
 
 The critical trap: **upeksha is not a default.** anagata + upeksha = "this will exist in the future and I don't care." Almost always wrong for projected nodes. anagata + chanda or adhimoksha is more honest.
+
+### Karta also requires `manifested_as` — a 4th required field, karta-only (not a mode-axis)
+
+How the doer is manifested. Run THE KARTA TEST first (Decision 1) — if it isn't a karta at all, you never reach this choice. Then pick one:
+
+| `manifested_as` | 漢 | Who it is |
+|---|---|---|
+| **svatantra** | 主 | full, sovereign agency — the owner of a root holon |
+| **adhikarin** | 能 | delegated, authorised office-holder — concrete holons (admin, maintainer, reviewer) |
+| **pratibimba** | 象 | an image/model of a doer — **cannot** be a `posed_to` target |
+| **agantuka** | 客 | a real doer beyond the boundary (external user, upstream maintainer) |
+
+Only `svatantra`/`adhikarin` may `steward` a holon. **The trap:** surface-matching "autonomous-looking" automation to `svatantra`. Autonomy-of-execution (runs unattended, on a schedule) ≠ sovereign motivation — they are opposite axes. A cron job is the *least* sovereign thing in the realm: re-run the karta test and it falls out as a ⚙️ phenomenon, not a `svatantra` karta.
 
 ## Decision 4: Name and description
 
