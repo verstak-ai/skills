@@ -18,7 +18,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **intake** | Bring external word (шабда) into a realm — map form→type, mode by kind (#104), dedup, anchor, verify by пратьякша. Source-independent. |
 | **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` symlink), wire the NKS session rituals, set the quality gate. |
-| **repo-roadmap** | Build a product roadmap for a GitHub repo you maintain — model the product as a verified ground, harvest its issues + PRs, and assemble the directions it's actually under. Composes verstakify + intake + assembly. |
+| **product-roadmap** | Build a product roadmap for a product you maintain on GitHub — one repo or many (an org / repo-set treated as one product) — by modelling it as a verified ground, harvesting its issues + PRs, and assembling the directions it's actually under. Composes verstakify + intake + assembly. |
 
 ## Install
 

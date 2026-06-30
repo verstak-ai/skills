@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Use this skill to bring EXTERNAL WORD into an NKS realm — the agent-facing form of шабда-intake (methodology #165, Нить 4 «Внешнее слово»). Triggers: 'впусти внешнее слово', 'засей граф из issue/доков', 'внеси issue в граф', 'intake', 'ingest issues into the graph', 'seed the realm from docs/README/conversation', 'bring external word into NKS', 'shabda intake'. Source-INDEPENDENT: GitHub issues, README/ADR/TODO, source code, a conversation, an RFC — the source enters through an ADAPTER, the intake discipline is one. The discipline: map each external item's FORM to a node type, set its epistemic mode BY KIND of source (#104 — kalpita only for unverified claims, pratyakshita for what you observe directly), mark provenance source_kind=shabda, dedup before writing, anchor each node to its source (arose_from), then verify by pratyaksha and graduate the mode. Distinct from writing (one node from a distinction you already hold), verstakify (projects derived config — no duplication of NKS), and repo-roadmap (an applied skill that COMPOSES this layer with a GitHub adapter). Needs the nks_* MCP tools."
+description: "Use this skill to bring EXTERNAL WORD into an NKS realm — the agent-facing form of шабда-intake (methodology #165, Нить 4 «Внешнее слово»). Triggers: 'впусти внешнее слово', 'засей граф из issue/доков', 'внеси issue в граф', 'intake', 'ingest issues into the graph', 'seed the realm from docs/README/conversation', 'bring external word into NKS', 'shabda intake'. Source-INDEPENDENT: GitHub issues, README/ADR/TODO, source code, a conversation, an RFC — the source enters through an ADAPTER, the intake discipline is one. The discipline: map each external item's FORM to a node type, set its epistemic mode BY KIND of source (#104 — kalpita only for unverified claims, pratyakshita for what you observe directly), mark provenance source_kind=shabda, dedup before writing, anchor each node to its source (arose_from), then verify by pratyaksha and graduate the mode. Distinct from writing (one node from a distinction you already hold), verstakify (projects derived config — no duplication of NKS), and product-roadmap (an applied skill that COMPOSES this layer with a GitHub adapter). Needs the nks_* MCP tools."
 ---
 
 # NKS Intake
@@ -9,7 +9,7 @@ External word — an issue, a README, a chunk of source, a conversation, an RFC 
 
 The symptom this skill prevents (nks-dev #1158): external word dumped *en masse as facts* floods the realm with authoritative-looking garbage and false tensions, breaking «the graph is a tension with reality» (#403) and «systems grow, not get built» (#390).
 
-**Source-independence is the whole point.** The source is an *adapter*; the intake discipline below is one. `repo-roadmap` composes this layer with a GitHub adapter; a future verstakify-засев or a docs-intake composes it with another. Do not bake a source into the discipline.
+**Source-independence is the whole point.** The source is an *adapter*; the intake discipline below is one. `product-roadmap` composes this layer with a GitHub adapter; a future verstakify-засев or a docs-intake composes it with another. Do not bake a source into the discipline.
 
 ## The source adapter — its contract
 
@@ -90,7 +90,7 @@ Read the `CHECKS:` block each factory prints (orphan, missing anchor). A fresh i
 
 - **Not writing** — writing creates one node from a distinction *you already hold*; intake creates many from *external word*, with the шабда provenance and the сверка loop.
 - **Not verstakify** — verstakify projects *derived config* (the AGENTS.md audit, "no duplication of NKS"); intake brings in *content*. Different acts; verstakify may *compose* intake to offer засев at the end of bootstrap.
-- **Not repo-roadmap** — that is an *applied* skill (GitHub adapter + present-state ground modelling + assembly + render) that **composes** this layer; intake is the base, not the pipeline.
+- **Not product-roadmap** — that is an *applied* skill (GitHub adapter + present-state ground modelling + assembly + render) that **composes** this layer; intake is the base, not the pipeline.
 - **Not a renderer / not a modeller of the present-state ground** — those belong to the consumer.
 - **Not bound to GitHub** — issues are one adapter among many.
 
