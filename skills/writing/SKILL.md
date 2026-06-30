@@ -67,18 +67,9 @@ See `references/modes.md` for the self-check and stable triads.
 
 The critical trap: **upeksha is not a default.** anagata + upeksha = "this will exist in the future and I don't care." Almost always wrong for projected nodes. anagata + chanda or adhimoksha is more honest.
 
-### Karta also requires `manifested_as` — a 4th required field, karta-only (not a mode-axis)
+### Karta also requires `manifested_as` (4th required field, karta-only)
 
-How the doer is manifested. Run THE KARTA TEST first (Decision 1) — if it isn't a karta at all, you never reach this choice. Then pick one:
-
-| `manifested_as` | 漢 | Who it is |
-|---|---|---|
-| **svatantra** | 主 | full, sovereign agency — the owner of a root holon |
-| **adhikarin** | 能 | delegated, authorised office-holder — concrete holons (admin, maintainer, reviewer) |
-| **pratibimba** | 象 | an image/model of a doer — **cannot** be a `posed_to` target |
-| **agantuka** | 客 | a real doer beyond the boundary (external user, upstream maintainer) |
-
-Only `svatantra`/`adhikarin` may `steward` a holon. **The trap:** surface-matching "autonomous-looking" automation to `svatantra`. Autonomy-of-execution (runs unattended, on a schedule) ≠ sovereign motivation — they are opposite axes. A cron job is the *least* sovereign thing in the realm: re-run the karta test and it falls out as a ⚙️ phenomenon, not a `svatantra` karta.
+The factory description lists the four modes (`svatantra`/`adhikarin`/`pratibimba`/`agantuka`) and the test that picks among them — read it there, don't restate it (canon: methodology #460). The one trap the bare validation error won't surface: surface-matching "autonomous-looking" automation to `svatantra`. Autonomy-of-execution (runs unattended, on a schedule) ≠ sovereign motivation — opposite axes. A cron job is the *least* sovereign thing in the realm; re-run the karta test and it falls out as a ⚙️ phenomenon, not a `svatantra` karta.
 
 ## Decision 4: Name and description
 
@@ -220,6 +211,8 @@ Inline `arrows` on the factories take the same canonical shape as `arrow_link`, 
 Two patterns, both first-class:
 - **Inline `arrows`** — for edges that *originate at the new node* (a vimarsha's `vimarsha_of`, a phenomenon's `context`). Pass them in the create op.
 - **Separate `arrow_link` with `temp:N`** — for edges *between two nodes created in the same batch*, or pointing *into* the new node. Reference each created node by its 0-based `temp:N` index; a `temp:N` must point at a lower-indexed create op.
+
+**A kriya's constitutive `ahara`/`utpatti` must stay inline.** The factory validates each `add_kriya` against its *own* inline `arrows` at create time — a consume/produce edge deferred to a trailing `arrow_link` is not counted, and the kriya fails ("a kriya must declare ahara or utpatti"). Put `ahara`/`utpatti` in the create op's `arrows`: order the consumed/produced phenomenon earlier and reference it inline; if an inline same-batch (`temp:N`) reference is rejected, split into two batches (phenomenon first, then the kriya) rather than deferring the edge. Only genuinely cross-cutting edges (`next`, an `upadhi` to a pre-existing node) belong in trailing `arrow_link`s.
 
 `anga`/`anantara` on `nks_add_bianhua` are the exception — pass them as their own `anga=` / `anantara_after=` params, never in `arrows`.
 
