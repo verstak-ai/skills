@@ -237,8 +237,14 @@ the whole tracker; the cap is Step 3's). Issues/PRs are **external word**, not v
 truth — that is the whole reason for the shabda discipline (методология: впуск шабды #165 →
 сверка #157).
 
-intake's `form → type` table is the base map (bug → risk, feature → phenomenon or seed
-`kriya`, RFC → samshaya, stated fact → phenomenon). The roadmap adapter adds the **GitHub
+Use intake's `form → type` map for the shared shapes — bug → risk (a sachverhalt-incident
+if reproduced), RFC / design-discussion → samshaya, a stated fact about the system →
+phenomenon. **One deliberate divergence from intake's table:** a **feature-request /
+enhancement** lands here as a **phenomenon** (a *wanted capability*, given_as=sinn/bildung)
+or a seed **kriya** (anagata/chanda) — **not** intake's `bianhua`. In this pipeline the
+bianhua are discerned later by `assembly` (Step 6), so Step 5 seeds the *wanted capability*,
+not the transformation. intake's own note agrees: "a single wish is not a transformation —
+locate the existing bianhua first (assembly), don't spawn one per item." Plus the **GitHub
 PR forms** intake's table doesn't name:
 
 | Source item | Node |
