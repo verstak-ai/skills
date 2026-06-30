@@ -1,6 +1,6 @@
 ---
 name: repo-roadmap
-description: "Use this skill to build a product roadmap for a GitHub repository — or a multi-repo product (a whole org, or a set of repos that together form one product) — you maintain, derived from its issues and pull requests via an NKS reasoning graph. Triggers: 'roadmap from repo', 'build a roadmap from issues', 'roadmap from github', 'roadmap for my org', 'multi-repo roadmap', 'roadmap across repos', 'quick roadmap', 'roadmap teaser', 'собери роадмап из issues/PR', 'роадмап по продукту из нескольких репо', 'что в этом репо делать дальше', repo-roadmap. Role-play as the maintainer: treat a multi-repo product as ONE product (one focus holon, each repo a subsystem, the cross-repo flow as the spine); first model the current product (its subsystems, capabilities, and core flows) as a verified present-state ground, then harvest issues + PRs (weighting contributor signal over drive-by noise; for an empty backlog lean on the merged-PR trajectory, don't invent issues) as the backlog, write them into the graph as phenomena + risks (shabda intake), run assembly to discern the transformations underway, and render a figure-on-ground roadmap as graph + markdown + local HTML. Composes verstakify (understand the codebase) and assembly (discern directions). Needs the gh CLI and nks_* MCP tools."
+description: "Use this skill to build a product roadmap for a GitHub repository — or a multi-repo product (a whole org, or a set of repos that together form one product) — you maintain, derived from its issues and pull requests via an NKS reasoning graph. Triggers: 'roadmap from repo', 'build a roadmap from issues', 'roadmap from github', 'roadmap for my org', 'multi-repo roadmap', 'roadmap across repos', 'quick roadmap', 'roadmap teaser', 'собери роадмап из issues/PR', 'роадмап по продукту из нескольких репо', 'что в этом репо делать дальше', repo-roadmap. Role-play as the maintainer: treat a multi-repo product as ONE product (one focus holon, each repo a subsystem, the cross-repo flow as the spine); first model the current product (its subsystems, capabilities, and core flows) as a verified present-state ground, then harvest issues + PRs (weighting contributor signal over drive-by noise; for an empty backlog lean on the merged-PR trajectory, don't invent issues) as the backlog, write them into the graph as phenomena + risks (shabda intake), run assembly to discern the transformations underway, and render a figure-on-ground roadmap as graph + markdown + local HTML. Composes verstakify (understand the codebase), intake (shabda-intake the issues/PRs as claims not facts), and assembly (discern directions). Needs the gh CLI and nks_* MCP tools."
 ---
 
 # Repo Roadmap
@@ -18,9 +18,10 @@ harvest issues + PRs  →  weight by author  →  write to graph (shabda intake)
 assembly (figure-on-ground bianhua)  →  render roadmap (graph + markdown + HTML)
 ```
 
-This skill **composes** two others: `verstakify` (understand the codebase, set up
-the realm/holon) and `assembly` (discern the bianhua and produce 形). It adds the
-GitHub-harvest front and the roadmap-render back.
+This skill **composes** three others: `verstakify` (understand the codebase, set up
+the realm/holon), `intake` (the source-independent **shabda-intake** discipline — the
+spine of Step 5), and `assembly` (discern the bianhua and produce 形). It adds the
+GitHub-harvest front (the intake **adapter** — Steps 3–4) and the roadmap-render back.
 
 **Figure on ground.** A roadmap is only as good as the product understanding under
 it. Issues + PRs are the *delta* — what people want changed; on their own they read
@@ -222,28 +223,36 @@ demote duplicates, `wontfix`, bot authors (`*[bot]`), pure dependency bumps.
   these up corrupts the very author-weighting this skill relies on.
 
 ## Step 5 — Write to the backlog graph (shabda intake — selective, honest, deduped)
-This is the complement of Step 2: the backlog is `kalpita`/`shabda` (proposed),
-kept visibly distinct from the `vartamana` ground. Issues/PRs are **external word**,
-not verified truth. Land them as **shabda** (epistemic `kalpita`), never as
-established fact (methodology: впуск шабды #165 → сверка #157; risk of garbage
-import — nks-dev #1158). Before each write, **dedup** with `nks_semantic_search`
-(locate-before-write) — and check whether the item is really a *delta* on an
-existing capability you already seeded in Step 2, not a duplicate of the ground.
+This is the complement of Step 2: the backlog is `kalpita`/`shabda` (proposed), kept
+visibly distinct from the `vartamana` ground. **Run the `intake` skill over the harvested
+items** — Steps 3–4 are intake's GitHub **adapter** (they supply each item's content /
+form / provenance / authority). intake owns the source-independent spine, so **don't
+restate it here**: map each item's **form → node type**, set its **epistemic mode by
+kind** (#104 — `kalpita` for an unverified request/RFC, never a blanket stamp; the
+maintainer's own committed volition is *not* kalpita-to-verify — it lands at its volitive
+mode), mark `source_kind=shabda`, **dedup before writing** (`nks_semantic_search`,
+locate-before-write), **anchor each node to its source** (`arose_from` the issue/PR), then
+**verify by пратьякша and graduate the mode**, under the **selectivity cap** (#1158 — never
+the whole tracker; the cap is Step 3's). Issues/PRs are **external word**, not verified
+truth — that is the whole reason for the shabda discipline (методология: впуск шабды #165 →
+сверка #157).
 
-Map by kind (use `writing` skill discipline for type/modes/arrows):
+intake's `form → type` table is the base map (bug → risk, feature → phenomenon or seed
+`kriya`, RFC → samshaya, stated fact → phenomenon). The roadmap adapter adds the **GitHub
+PR forms** intake's table doesn't name:
 
 | Source item | Node |
 |---|---|
-| bug report | **risk vimarsha** (genre=risk) — or sachverhalt incident if reproduced |
-| feature request / enhancement | **phenomenon** (given_as=sinn/bildung) or a seed **kriya** (anagata/chanda) |
-| design discussion / RFC / open question | **samshaya vimarsha** |
 | merged contributor PR | **kriya** (deed done) or phenomenon it produced |
 | open contributor PR | **kriya** (anagata) — work in flight |
 | low-weight drive-by PR | skip, or low-priority phenomenon flagged as such |
 
-Carry the source ref (`#123`, author, weight) in attrs so the roadmap is
-traceable. Anchor each vimarsha (`vimarsha_of`) to the focus holon or the
-phenomenon it's about — anga alone doesn't make it findable.
+Carry the GitHub source ref (`#123`, author, weight) in `attrs` so the render stays
+traceable (intake's `arose_from` anchors the provenance node; this is the roadmap's
+render-trace). Anchor each vimarsha (`vimarsha_of`) to the focus holon or the phenomenon
+it's about — anga alone doesn't make it findable.
+
+**The roadmap-specific overlays `intake` does not carry — apply these on top of its spine:**
 
 **Anchor each backlog item to the subsystem it touches.** Link it (`context` /
 `vimarsha_of`) to the Step 2 **subsystem holon** or the existing capability it
@@ -601,6 +610,11 @@ the wow in minutes; depth is the full pipeline's job.
 
 ## Methodology / sibling skills
 - `verstakify` — codebase understanding + realm/holon bootstrap.
+- `intake` — the source-independent **shabda-intake** discipline = the spine of Step 5
+  (form→type, epistemic mode by kind #104, dedup, `arose_from` anchor, сверка by пратьякша,
+  selectivity #1158). Steps 3–4 are its GitHub **adapter**; the Step-5 overlays
+  (ground-delta, subsystem anchor, milestone modus, karta-as-actor) are what intake leaves
+  to this consumer.
 - `assembly` — the bianhua discernment ritual (the heart of Step 6).
 - `writing` — node type/modes/arrows discipline for Steps 2 and 5 (the `vartamana`
   ground, the `shabda` backlog, the `karta` actors, the `ahara` figure-on-ground links).
