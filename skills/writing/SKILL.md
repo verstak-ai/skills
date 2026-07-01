@@ -36,7 +36,7 @@ A phenomenon does not exist on its own — it exists *for* a kriya (noema for no
 
 **Kriya in phenomenon disguise.** "⚙️ Authentication flow" — if it transforms state, it's a kriya. A noun on a kriya is a smell, not a license.
 
-**Karta vs phenomenon.** The operational test (#460): *can you address a vimarsha to it and expect an answer?* Yes → karta ("Reviewer" with motivation). **No → not a karta**: a machine/worker/CI/renderer/cron has its own time but no motivation to answer — it's a **ding-phenomenon** (participates as `upadhi`, or an impersonal `actor` for back-compat, never a role). A method with no motivation of its own ("Review process") → phenomenon(vollzug); a theorist/author whose *quality* you cite → sinn/grundsatz phenomenon, entered via **intake** (shabda), not as a karta.
+**Karta vs phenomenon.** Gated by the operational test — *can you address a vimarsha to it and get an answer?* No → not a karta (a machine → ding-phenomenon; a theory/method/principle → sinn/vollzug/grundsatz). The full gate and the four karta kinds live in **Decision 2b**.
 
 **Holon vs phenomenon(sinn).** "📦 Auth contour" — what's inside, outside? Can't answer → probably phenomenon(sinn). Holons-as-folders are an anti-pattern.
 
@@ -57,19 +57,27 @@ How does this phenomenon give itself? See `references/given_as.md` for the full 
 
 ## Decision 2b: manifested_as (karta only)
 
-`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as for phenomena (#460). It answers *how this doer is present as the origin of action*, decided by the same operational test — **can you address a vimarsha to it and expect an answer, and on whose time?**
+`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as (#460). Run the gate first, then pick the kind.
+
+**Gate — can you address a vimarsha to this doer and get an answer?**
+- **No — it acts but can't answer** (cron, worker, CI, process): **not a karta.** Make a ding-phenomenon, wire it to a kriya as `upadhi`.
+- **No — it doesn't act, it stands as theory / method / principle** (Erikson, Nyāya, a how-to): **not a karta.** Make a sinn / vollzug / grundsatz phenomenon (entered via **intake**).
+- **Yes → karta.** Which kind?
 
 | The doer… | manifested_as | Example |
 |---|---|---|
-| owns the initiative — full 時-cycle, gives adhimoksha/virodha, the escalation point | **svatantra** 主 | owner / architect / seminar lead — stewards **root** holons |
-| is authorised, competent — own perspective, delegated impulse, answers vimarshas | **adhikarin** 能 | an agent responsible for a subsystem, a dev with a task — stewards **concrete** holons |
-| is a modelled image — actor on kriyas but its 時-cycle is *depicted*, **cannot answer** a posed vimarsha | **pratibimba** 象 | CJM-persona, narrative hero, a theoretical model-doer |
-| is a real doer beyond the boundary — own full cycle, **not synchronised**, answers on their own time | **agantuka** 客 | a counterparty you negotiate with, a regulator, a large client |
+| answers, and **decides itself** whether to act (gives adhimoksha/virodha) | **svatantra** 主 | product owner, architect — stewards **root** holons |
+| answers, but takes its **impulse from another** — discriminates and acts, doesn't originate | **adhikarin** 能 | nks-api dev, a Claude-agent responsible for a holon — stewards **concrete** holons |
+| **won't answer** — needed as actor on kriyas, its path is *modelled*, not lived | **pratibimba** 象 | CJM-persona, "the becoming self" |
+| answers, but **on its own time** — its 時-cycle isn't synced with the realm | **agantuka** 客 | regulator, external counterparty, the market |
+
+**Addressing by kind** (where a `posed_to` arrow may point): **主** — strategic questions ("do we take this?", "what's the priority?"); you don't assign it tasks, it assigns them. **能** — work questions and tasks; find the addressee by the `steward` arrow (who stewards the holon your question lives in); out of its scope → escalate to 主. **象** — **never** `posed_to`; use only as actor for path-modelling, decisions about its path go to the 主/能 who designs it. **客** — `posed_to` is allowed, but don't expect a fast answer; its actor-edges cross the boundary and tracing stops there by design.
 
 Traps:
-- **pratibimba can't be `posed_to`** — no one is home to answer; a posed vimarsha on an image is a tension. Route it to the 主/能 who owns the decision.
-- Only **svatantra / adhikarin** may `steward` a holon — an image or a guest does not answer for a boundary.
-- The **same external entity** may need two nodes: Stripe-as-webhook is a machine (ding-phenomenon); Stripe-as-counterparty (a manager answers) is an **agantuka** karta.
+- **A person's name is not a karta.** "Дмитрий" → "Product owner" — the role, not the person.
+- **One external entity is often two nodes**: Stripe-API (ding-phenomenon, a machine) and Stripe-account-manager (**agantuka** karta). Split by addressability.
+- **A modus (Сборщик, Ткач, Explorer) is a sub-karta via `group`, not a separate type** — `manifested_as` is inherited from the parent role.
+- Only **svatantra / adhikarin** may `steward` a holon; a `pratibimba` / `agantuka` does not answer for a boundary.
 
 ## Decision 3: Modes
 
@@ -151,7 +159,7 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 ### Vimarsha
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
-- `posed_to` → karta: the **inbox edge** (#460) — address the inquiry to a doer who can answer, so they can poll "my open questions". **Forbidden to a pratibimba** (an image can't answer). It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
+- `posed_to` → karta: the **inbox edge** (#460) — address the inquiry to a doer who can answer, so they can poll "my open questions" (`nks_search(posed_to=<karta>)`). **It is an arrow to a karta node, not a field** — create it inline (`arrows: [{arrow_type:"posed_to", target:<karta>}]`) or via `nks_arrow(action="link", arrow_type="posed_to", …)`. **Forbidden to a pratibimba** (an image can't answer). Choose the target per Decision 2b — the 能 who stewards the holon your question is in, the 主 for strategic scope. It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
 - **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.

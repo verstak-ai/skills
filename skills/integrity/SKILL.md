@@ -55,14 +55,16 @@ For each approved cluster:
 ```
 nks_add_vimarsha(genre="samshaya",
   name="<emoji> Затронуто ли <X> превращением «<bianhua>»?",
-  vimarsha_of=<first anchor>, posed_by=..., posed_to=...,
+  vimarsha_of=<first anchor>, posed_by=...,
   epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")
 → extra anchors: nks_arrow(action="link", arrow_type="vimarsha_of", ...)
 → nks_arrow(action="link", arrow_type="anga", source=<new>, target=<bianhua>,
    sense="фронт целостности: пока не отвечено, превращение не закрыто")
+→ optional: nks_arrow(action="link", arrow_type="posed_to", source=<new>, target=<steward-karta>,
+   sense="адресовано стюарду задетого контура")
 ```
 
-`posed_to` (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer, #460).
+The `posed_to` **arrow** (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer, #460).
 
 Description states: what the telos implies for these nodes, and **what counts as an answer** — «не затронуто» (close visarjana, with the reason recorded) or «затронуто» (design the adaptation — **design** skill; the new work `arose_from` this question).
 
