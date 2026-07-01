@@ -23,7 +23,8 @@
         "./skills/integrity",
         "./skills/intake",
         "./skills/methodology-work",
-        "./skills/verstakify"
+        "./skills/verstakify",
+        "./skills/product-roadmap"
       ]
     }
   ]
