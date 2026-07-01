@@ -114,7 +114,7 @@ TRIGGER: graph designed, all in anagata modes, no one is working on it
 CONDITION: only for graphs projecting external systems (not methodology, not CJM)
 DO:
   1. Create hint-vimarshas for implementors
-  2. Each hint: scope of work, acceptance criteria, posed_to (volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979),
+  2. Each hint: scope of work, acceptance criteria, a **`posed_to` arrow** (vimarsha→karta) to the doer who can answer — the **能** who stewards the contour (find via the `steward` arrow), the **主** for strategic scope; never a `pratibimba` image (#460); volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979),
      and an ANCHOR — vimarsha_of into the contour where the work lands (holon at minimum,
      the precise kriya/phenomenon when known): posed_to without an anchor is a lost hint —
      the addressee orients by holon and never sees it
@@ -167,7 +167,7 @@ vollzug/grundsatz → API rejects ahara/utpatti (422). See #372, #376.
 | leaked | phenomenon has utpatti, no ahara | Add consuming kriya (end-of-life) or parked kriya (anagata+upeksha) |
 | relay-gap | phenomenon has ahara, no utpatti | Add producing kriya — or it's the realm edge (boundary_inlet, computed from thread topology #978; information, not work) |
 | orphan | phenomenon has no kriya arrows at all | Wire to a kriya (ahara/utpatti/upadhi) or delete if spurious |
-| no-actor | kriya without actor | Add actor arrow to karta |
+| no-actor | kriya without actor | Add actor arrow to karta — but apply the karta test first (writing): a machine with no motivation is a ⚙️ phenomenon (actor → upadhi), not a karta |
 | lifecycle | disconnected lifecycle segments | Thread via next, or trace to find the break |
 | unreachable | upadhi phenomenon not reachable via happens-before | Check producer is hb-before consumer |
 

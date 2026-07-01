@@ -36,7 +36,7 @@ A phenomenon does not exist on its own — it exists *for* a kriya (noema for no
 
 **Kriya in phenomenon disguise.** "⚙️ Authentication flow" — if it transforms state, it's a kriya. A noun on a kriya is a smell, not a license.
 
-**Karta vs phenomenon(vollzug).** "Reviewer" with motivation → karta. "Review process" (method, no motivation of its own) → phenomenon(vollzug).
+**Karta vs phenomenon.** Gated by the operational test — *can you address a vimarsha to it and get an answer?* No → not a karta (a machine → ding-phenomenon; a theory/method/principle → sinn/vollzug/grundsatz). The full gate and the four karta kinds live in **Decision 2b**.
 
 **Holon vs phenomenon(sinn).** "📦 Auth contour" — what's inside, outside? Can't answer → probably phenomenon(sinn). Holons-as-folders are an anti-pattern.
 
@@ -54,6 +54,30 @@ How does this phenomenon give itself? See `references/given_as.md` for the full 
 | Principle — "this is how it must be"? | **grundsatz** 法 |
 
 **Critical:** vollzug/grundsatz cannot be ahara or utpatti — API 422. Applied via upadhi only.
+
+## Decision 2b: manifested_as (karta only)
+
+`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as (#460). Run the gate first, then pick the kind.
+
+**Gate — can you address a vimarsha to this doer and get an answer?**
+- **No — it acts but can't answer** (cron, worker, CI, process): **not a karta.** Make a ding-phenomenon, wire it to a kriya as `upadhi`.
+- **No — it doesn't act, it stands as theory / method / principle** (Erikson, Nyāya, a how-to): **not a karta.** Make a sinn / vollzug / grundsatz phenomenon (entered via **intake**).
+- **Yes → karta.** Which kind?
+
+| The doer… | manifested_as | Example |
+|---|---|---|
+| answers, and **decides itself** whether to act (gives adhimoksha/virodha) | **svatantra** 主 | product owner, architect — stewards **root** holons |
+| answers, but takes its **impulse from another** — discriminates and acts, doesn't originate | **adhikarin** 能 | nks-api dev, a Claude-agent responsible for a holon — stewards **concrete** holons |
+| **won't answer** — needed as actor on kriyas, its path is *modelled*, not lived | **pratibimba** 象 | CJM-persona, "the becoming self" |
+| answers, but **on its own time** — its 時-cycle isn't synced with the realm | **agantuka** 客 | regulator, external counterparty, the market |
+
+**Addressing by kind** (where a `posed_to` arrow may point): **主** — strategic questions ("do we take this?", "what's the priority?"); you don't assign it tasks, it assigns them. **能** — work questions and tasks; find the addressee by the `steward` arrow (who stewards the holon your question lives in); out of its scope → escalate to 主. **象** — **never** `posed_to`; use only as actor for path-modelling, decisions about its path go to the 主/能 who designs it. **客** — `posed_to` is allowed, but don't expect a fast answer; its actor-edges cross the boundary and tracing stops there by design.
+
+Traps:
+- **A person's name is not a karta.** "Дмитрий" → "Product owner" — the role, not the person.
+- **One external entity is often two nodes**: Stripe-API (ding-phenomenon, a machine) and Stripe-account-manager (**agantuka** karta). Split by addressability.
+- **A modus (Сборщик, Ткач, Explorer) is a sub-karta via `group`, not a separate type** — `manifested_as` is inherited from the parent role.
+- Only **svatantra / adhikarin** may `steward` a holon; a `pratibimba` / `agantuka` does not answer for a boundary.
 
 ## Decision 3: Modes
 
@@ -127,9 +151,15 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 - `derived_from`, `specifies` → phenomenon-to-phenomenon lineage.
 - Expectations depend on given_as — see `references/given_as.md`.
 
+### Karta
+
+- `steward` → holon: who answers for this boundary (#460). Only a **svatantra** (root holons) or **adhikarin** (concrete holons) karta may steward; a pratibimba / agantuka may not. An `adhikarin` acting with no `steward` edge is a warning — it works but answers for nothing.
+- `group` → senior karta (sub-role); `actor` is incoming — from every kriya this role performs.
+
 ### Vimarsha
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
+- `posed_to` → karta: the **inbox edge** (#460) — address the inquiry to a doer who can answer, so they can poll "my open questions" (`nks_search(posed_to=<karta>)`). **It is an arrow to a karta node, not a field** — create it inline (`arrows: [{arrow_type:"posed_to", target:<karta>}]`) or via `nks_arrow(action="link", arrow_type="posed_to", …)`. **Forbidden to a pratibimba** (an image can't answer). Choose the target per Decision 2b — the 能 who stewards the holon your question is in, the 主 for strategic scope. It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
 - **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
@@ -205,6 +235,8 @@ Inline `arrows` on the factories take the same canonical shape as `arrow_link`, 
 Two patterns, both first-class:
 - **Inline `arrows`** — for edges that *originate at the new node* (a vimarsha's `vimarsha_of`, a phenomenon's `context`). Pass them in the create op.
 - **Separate `arrow_link` with `temp:N`** — for edges *between two nodes created in the same batch*, or pointing *into* the new node. Reference each created node by its 0-based `temp:N` index; a `temp:N` must point at a lower-indexed create op.
+
+**A kriya's constitutive `ahara`/`utpatti` must stay inline.** The factory validates each `add_kriya` against its *own* inline `arrows` at create time — a consume/produce edge deferred to a trailing `arrow_link` is not counted, and the kriya fails ("a kriya must declare ahara or utpatti"). Put `ahara`/`utpatti` in the create op's `arrows`; when the consumed/produced phenomenon is created in the same batch, order it earlier and reference it inline by `temp:N` — inline arrows resolve `temp:N` just like `arrow_link` does. Only genuinely cross-cutting edges (`next`, an `upadhi` to a pre-existing node) belong in trailing `arrow_link`s.
 
 `anga`/`anantara` on `nks_add_bianhua` are the exception — pass them as their own `anga=` / `anantara_after=` params, never in `arrows`.
 
