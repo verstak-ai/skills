@@ -114,7 +114,7 @@ TRIGGER: graph designed, all in anagata modes, no one is working on it
 CONDITION: only for graphs projecting external systems (not methodology, not CJM)
 DO:
   1. Create hint-vimarshas for implementors
-  2. Each hint: scope of work, acceptance criteria, posed_to — the **karta** who can answer (svatantra/adhikarin/agantuka, never a `pratibimba` image, #460); volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979),
+  2. Each hint: scope of work, acceptance criteria, a **`posed_to` arrow** (vimarsha→karta) to the doer who can answer — the **能** who stewards the contour (find via the `steward` arrow), the **主** for strategic scope; never a `pratibimba` image (#460); volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair, #979),
      and an ANCHOR — vimarsha_of into the contour where the work lands (holon at minimum,
      the precise kriya/phenomenon when known): posed_to without an anchor is a lost hint —
      the addressee orients by holon and never sees it
