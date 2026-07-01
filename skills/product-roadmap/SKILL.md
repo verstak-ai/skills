@@ -40,8 +40,10 @@ driving kriya reaches the ground capability via `upadhi`/`context` — not a lit
 **estafeta** (each step consumes and produces typed phenomena); name the **`anga`**
 (the open question that drives each direction); let the graph's own **tensions**
 surface structural risks the backlog can't. The roadmap is a **snapshot of the
-present** — one moment, built now, not a cross-run journal. A roadmap that could have
-been a flat markdown list never used the graph.
+present** — one moment, built now, not a cross-run journal: re-running an **existing** realm
+**reads it and refreshes it in place** (locate-before-write, never a duplicate — Step 1), it
+does not rebuild from scratch or fork a second copy. A roadmap that could have been a flat
+markdown list never used the graph.
 
 **One repo, or a whole product (multi-repo).** The target may be a single repo *or a
 product spread across several repos* — a whole org, or a maintainer-named set
@@ -61,7 +63,8 @@ is an org or a repo-set, **confirm with the maintainer which repos are in the pr
   actual code structure (module/dir names, entry points, config surface), not just GitHub
   metadata — modeling the product from `gh` alone under-serves it. For a multi-repo
   product, clone every in-scope repo (private repos: `gh repo clone`, which carries auth).
-- nks_* MCP tools; a realm to write into (create + focus holon if absent).
+- nks_* MCP tools; a realm to write into — **reused and refreshed in place if it already
+  exists, proposed (not silently created) if absent** (Step 1's re-run contract).
 - Heavy steps (product-model, harvest, graph-writing, assembly, render) should run
   via subagents to conserve the main context.
 
@@ -69,9 +72,20 @@ is an org or a repo-set, **confirm with the maintainer which repos are in the pr
 - Identify the target — one `owner/repo`, **or the set of repos that form the product**
   (org or maintainer-named list) — and the product's boundary in one line. If multiple
   repos, confirm they are one product and which are in-scope (Scope note above).
-- Realm: create if missing (`nks_realm`); create **one focus holon** named after the
-  **product** (the boundary "what is this project"), `contains`-linked from root —
-  **one product holon even across many repos**, never one holon per repo.
+- **Realm — read-and-refresh, never blind-create (the re-run contract).** First check
+  whether a realm + focus holon for this product **already exist** (`nks_realm` to list;
+  `nks_orient` / `nks_semantic_search` to locate the product holon):
+  - **Exists → orient into it and treat this run as an incremental *refresh*, not a
+    rebuild.** Read the existing ground, backlog, and directions first; then **every write
+    downstream is locate-before-write** — update the node already there, add only what's
+    genuinely new, reconcile what went stale (Steps 2, 5, 6). The run still ends in a fresh
+    *snapshot*; the graph is kept current **in place**, never duplicated and never journaled.
+  - **Absent → propose creating it, don't auto-create.** Tell the maintainer no realm/holon
+    exists yet and offer to create one; create (`nks_realm` + the focus holon) only on their
+    go-ahead.
+  - Either way exactly **one focus holon** named after the **product** (the boundary "what is
+    this project"), `contains`-linked from root — **one product holon even across many repos**,
+    never one holon per repo.
 - A `verstakify`-style read sets up the realm/holon, but we never write `AGENTS.md`
   into a repo we only role-play owning. The deep codebase read — the product model —
   is its own step (Step 2).
@@ -81,6 +95,12 @@ Before the backlog, model **what the product IS today** — the verified ground 
 roadmap transforms. Skip this and the whole graph is `shabda`/`kalpita` (proposed,
 unverified) and the roadmap reads as triage. This sub-graph is the *figure-on-ground*
 foundation and the answer to "do you actually understand this product?"
+
+**On a refresh into an existing realm (Step 1's contract): locate-before-write.** Orient the
+ground already in the graph first (`nks_orient` / `nks_semantic_search`); for each subsystem /
+capability / core-flow **update the node that exists** — re-verify its cited primitive, refresh
+its mode — **add only the newly-shipped**, and mark what no longer ships. Never blind-create a
+second copy of ground you already modeled.
 
 **Read the sources of what EXISTS (verified, not proposed):**
 - **README + docs** — the product's own claim of what it does.
@@ -319,6 +339,11 @@ name + telos → anga the driving vimarshas → order with `anantara`. We play t
 owner, so accept names/teloi inline, but keep the discipline: a bianhua name must
 **read for a human owner**, telos is the *destination quality* ("проект станет …"),
 never create one for a single vimarsha, risks stay risks.
+
+**On a refresh, reconcile — don't re-discern from zero.** Read the bianhua already in the graph
+first; **update** the telos / anga / `anantara` order of directions that still hold, **add** a
+direction only for a genuinely new theme, and **close (`visarjana`)** the ones whose work has
+shipped. Never spawn a duplicate direction beside an existing one.
 
 - **Each direction names the existing capability it extends (figure on ground) — as a
   real arrow.** A bianhua transforms something real — tie its telos to the Step 2
@@ -581,6 +606,12 @@ partial run — a run that dies and ships nothing is the worst outcome.
   where a direction serves one (an admin console, a staff-onboarding flow), it must be modeled
   as an **active `adhikarin` (能)** the direction targets — never a passively-"served" party —
   and attributed to that runtime target, not filed under the end user.
+- **No re-run duplication (existing realm).** If this run refreshed an existing realm, the
+  ground / backlog / directions must have been **updated in place** (locate-before-write), not
+  re-seeded: `nks_semantic_search` a sample of subsystems, capabilities, and directions and
+  confirm each exists **exactly once**. A doubled subsystem holon or a twin direction means a
+  write skipped locate-before-write — merge or delete the duplicate. **Realm absent?** Confirm
+  you *proposed* creation and got a go-ahead, never silently created one.
 - **Top-signal survival self-check.** The absolute most-reacted and most-commented OPEN
   issues from the harvest must appear in the roadmap — selection → assembly → render can
   silently drop them. If one is intentionally deferred, the roadmap must say so; if it
@@ -652,6 +683,9 @@ the wow in minutes; depth is the full pipeline's job.
   (Step 2), not a backlog floating in a vacuum.
 - Not N separate single-repo roadmaps for a multi-repo product — it's ONE product
   roadmap (one focus holon, repos as subsystems, the cross-repo flow as the spine).
+- Not a graph-duplicator — re-running an **existing** realm **reads and refreshes it in place**
+  (locate-before-write), never re-seeding a second copy; a **missing** realm is **proposed**,
+  not silently created.
 
 ## Methodology / sibling skills
 - `verstakify` — codebase understanding + realm/holon bootstrap.
