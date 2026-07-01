@@ -36,9 +36,7 @@ A phenomenon does not exist on its own — it exists *for* a kriya (noema for no
 
 **Kriya in phenomenon disguise.** "⚙️ Authentication flow" — if it transforms state, it's a kriya. A noun on a kriya is a smell, not a license.
 
-**Karta vs phenomenon(vollzug).** "Reviewer" with motivation → karta. "Review process" (method, no motivation of its own) → phenomenon(vollzug).
-
-**Machine masquerading as karta — THE KARTA TEST.** A scheduled worker, a cron job, an automated pipeline *runs* — but carries no motivation of its own. Test: can you address a vimarsha to it, expecting an answer? **No → it is not a karta.** Model it as a ⚙️ phenomenon; the would-be `actor` edge becomes `upadhi`. Only an address-able doer — a role you could pose a question to and await a reply — is a karta. (The factory's `manifested_as` forces this decision up front — see Decision 3.)
+**Karta vs phenomenon.** The operational test (#460): *can you address a vimarsha to it and expect an answer?* Yes → karta ("Reviewer" with motivation). **No → not a karta**: a machine/worker/CI/renderer/cron has its own time but no motivation to answer — it's a **ding-phenomenon** (participates as `upadhi`, or an impersonal `actor` for back-compat, never a role). A method with no motivation of its own ("Review process") → phenomenon(vollzug); a theorist/author whose *quality* you cite → sinn/grundsatz phenomenon, entered via **intake** (shabda), not as a karta.
 
 **Holon vs phenomenon(sinn).** "📦 Auth contour" — what's inside, outside? Can't answer → probably phenomenon(sinn). Holons-as-folders are an anti-pattern.
 
@@ -57,6 +55,22 @@ How does this phenomenon give itself? See `references/given_as.md` for the full 
 
 **Critical:** vollzug/grundsatz cannot be ahara or utpatti — API 422. Applied via upadhi only.
 
+## Decision 2b: manifested_as (karta only)
+
+`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as for phenomena (#460). It answers *how this doer is present as the origin of action*, decided by the same operational test — **can you address a vimarsha to it and expect an answer, and on whose time?**
+
+| The doer… | manifested_as | Example |
+|---|---|---|
+| owns the initiative — full 時-cycle, gives adhimoksha/virodha, the escalation point | **svatantra** 主 | owner / architect / seminar lead — stewards **root** holons |
+| is authorised, competent — own perspective, delegated impulse, answers vimarshas | **adhikarin** 能 | an agent responsible for a subsystem, a dev with a task — stewards **concrete** holons |
+| is a modelled image — actor on kriyas but its 時-cycle is *depicted*, **cannot answer** a posed vimarsha | **pratibimba** 象 | CJM-persona, narrative hero, a theoretical model-doer |
+| is a real doer beyond the boundary — own full cycle, **not synchronised**, answers on their own time | **agantuka** 客 | a counterparty you negotiate with, a regulator, a large client |
+
+Traps:
+- **pratibimba can't be `posed_to`** — no one is home to answer; a posed vimarsha on an image is a tension. Route it to the 主/能 who owns the decision.
+- Only **svatantra / adhikarin** may `steward` a holon — an image or a guest does not answer for a boundary.
+- The **same external entity** may need two nodes: Stripe-as-webhook is a machine (ding-phenomenon); Stripe-as-counterparty (a manager answers) is an **agantuka** karta.
+
 ## Decision 3: Modes
 
 Three axes, each required. The tool descriptions on each factory already list enum values and contextual questions — read them. The principle here:
@@ -66,10 +80,6 @@ Three axes, each required. The tool descriptions on each factory already list en
 See `references/modes.md` for the self-check and stable triads.
 
 The critical trap: **upeksha is not a default.** anagata + upeksha = "this will exist in the future and I don't care." Almost always wrong for projected nodes. anagata + chanda or adhimoksha is more honest.
-
-### Karta also requires `manifested_as` (4th required field, karta-only)
-
-The factory description lists the four modes (`svatantra`/`adhikarin`/`pratibimba`/`agantuka`) and the test that picks among them — read it there, don't restate it (canon: methodology #460). The one trap the bare validation error won't surface: surface-matching "autonomous-looking" automation to `svatantra`. Autonomy-of-execution (runs unattended, on a schedule) ≠ sovereign motivation — opposite axes. A cron job is the *least* sovereign thing in the realm; re-run the karta test and it falls out as a ⚙️ phenomenon, not a `svatantra` karta.
 
 ## Decision 4: Name and description
 
@@ -133,9 +143,15 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 - `derived_from`, `specifies` → phenomenon-to-phenomenon lineage.
 - Expectations depend on given_as — see `references/given_as.md`.
 
+### Karta
+
+- `steward` → holon: who answers for this boundary (#460). Only a **svatantra** (root holons) or **adhikarin** (concrete holons) karta may steward; a pratibimba / agantuka may not. An `adhikarin` acting with no `steward` edge is a warning — it works but answers for nothing.
+- `group` → senior karta (sub-role); `actor` is incoming — from every kriya this role performs.
+
 ### Vimarsha
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
+- `posed_to` → karta: the **inbox edge** (#460) — address the inquiry to a doer who can answer, so they can poll "my open questions". **Forbidden to a pratibimba** (an image can't answer). It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
 - **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
