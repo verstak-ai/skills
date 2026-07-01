@@ -132,19 +132,24 @@ is" from "what's proposed".
 - **Scope: enough to anchor directions, not a full reverse-engineering.** The
   subsystems, the main domain entities, and the handful of core flows — not every
   function. Aim for a map a new maintainer recognizes as "yes, that's the product".
-- **Model the actors (`karta`), so deeds aren't actor-less.** Give the core-flow
-  kriyas a performer — the system's workers (or the end user) as a `karta` — which
-  resolves the *no-actor* tension those kriyas otherwise raise. Model the
-  **maintainer(s)** as a `karta` too (`nks_add_karta`, with motivation): the role
-  whose finite attention this roadmap serves. The author-weighting in Step 4 is really
-  a karta distinction (maintainer voice vs drive-by) — making the kartas graph-real is
-  the "own the product context" pitch made concrete, and lets Step 6 attribute each
-  direction to who drives it. **Two karta layers, kept distinct:** the **runtime actor**
-  of a core flow (worker fleet / user) vs the **development driver** of backlog work
-  (maintainer / contributor). They are NOT the same karta — a maintainer-authored PR's
-  kriya takes `actor` = the *maintainer* karta, not the worker fleet (Step 5). **A karta
-  with zero edges is theater** (a graph audit will flag it); wire it to the deeds it
-  drives or don't claim it owns anything.
+- **Model the actors, so deeds aren't actor-less — but run the karta test first
+  (writing/Decision 2b).** Only an *addressable* doer — one you could pose a vimarsha to
+  and get an answer — is a `karta`. The **end user** qualifies (`agantuka`: a real doer
+  beyond the boundary); an automated **worker fleet / CI / cron** does **not** — it's a
+  machine, so model it as a `⚙️ phenomenon` (wired as `upadhi`, or an impersonal `actor`
+  for back-compat), never a role. Making a machine a karta just to silence a *no-actor*
+  tension is the anti-pattern that tension is warning against. Model the **maintainer(s)**
+  as a `karta` — `nks_add_karta` requires `motivation` **and `manifested_as`** (#460): a
+  maintainer who owns direction is `svatantra`, one acting on a delegated scope is
+  `adhikarin`, a drive-by contributor is `agantuka`. The author-weighting in Step 4 is
+  really this karta distinction (maintainer voice vs drive-by) — making the kartas
+  graph-real is the "own the product context" pitch made concrete, and lets Step 6
+  attribute each direction to who drives it. **Two actor layers, kept distinct:** the
+  **runtime actor** of a core flow (the user as `agantuka`, or an impersonal machine
+  actor / phenomenon) vs the **development driver** of backlog work (maintainer /
+  contributor kartas). A maintainer-authored PR's kriya takes `actor` = the *maintainer*
+  karta, not the runtime worker. **A karta with zero edges is theater** (a graph audit
+  will flag it); wire it to the deeds it drives or don't claim it owns anything.
 - **Wire the core flows as an `ahara`/`utpatti` estafeta.** Each core-flow kriya
   *consumes* (`ahara`) the phenomena it reads and *produces* (`utpatti`) the phenomena
   it writes, sequenced with `next` — so the product's spine is a real relay in the
@@ -291,7 +296,7 @@ field as it stands **now**; never pre-transition a node to a future mode.
 
 **Give each backlog kriya its driving `karta` as `actor`.** An open PR / projected deed
 takes an `actor` edge to the karta who drives it — the verified author's maintainer or
-contributor karta (Step 2/4), never the runtime worker-fleet karta. This is what makes
+contributor karta (Step 2/4), never the runtime worker/user actor. This is what makes
 Step 6's "who owns this direction" a real graph edge instead of a prose label: a
 "maintainer-led" direction must trace to maintainer-`actor`'d kriyas, or it is theater.
 
@@ -538,10 +543,12 @@ partial run — a run that dies and ships nothing is the worst outcome.
   "merged/shipped" row; never tell the maintainer to "merge/rebase X" when X is a draft, or
   already merged, or `mergeable=true`. **Treat `mergeable=null` as unknown, not clean** —
   re-poll once; if still null, say "mergeability pending," never "clean/ready."
-- **No zero-edge karta.** Any `karta` you created must carry real `actor` edges to the deeds /
+- **No zero-edge karta; every karta carries `manifested_as`.** Any `karta` you created must carry real `actor` edges to the deeds /
   directions it drives — `nks_look` each and confirm. A karta with no edges (e.g. a contributor
   karta on a *solo*-maintainer product) is theater a graph audit flags: wire it, or drop it and
-  don't claim a "driving karta" the graph doesn't back.
+  don't claim a "driving karta" the graph doesn't back. And every karta needs `manifested_as`
+  (svatantra/adhikarin/agantuka) — if the "doer" is a worker/CI/cron that can't answer a vimarsha,
+  it's a `⚙️ phenomenon`, not a karta (#460).
 - **Top-signal survival self-check.** The absolute most-reacted and most-commented OPEN
   issues from the harvest must appear in the roadmap — selection → assembly → render can
   silently drop them. If one is intentionally deferred, the roadmap must say so; if it
