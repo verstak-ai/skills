@@ -132,16 +132,14 @@ is" from "what's proposed".
 - **Scope: enough to anchor directions, not a full reverse-engineering.** The
   subsystems, the main domain entities, and the handful of core flows — not every
   function. Aim for a map a new maintainer recognizes as "yes, that's the product".
-- **Model the actors, so deeds aren't actor-less — but run the karta test first
-  (writing/Decision 2b).** Only an *addressable* doer — one you could pose a vimarsha to
-  and get an answer — is a `karta`. The **end user** qualifies (`agantuka`: a real doer
-  beyond the boundary); an automated **worker fleet / CI / cron** does **not** — it's a
-  machine, so model it as a `⚙️ phenomenon` (wired as `upadhi`, or an impersonal `actor`
-  for back-compat), never a role. Making a machine a karta just to silence a *no-actor*
-  tension is the anti-pattern that tension is warning against. Model the **maintainer(s)**
-  as a `karta` — `nks_add_karta` requires `motivation` **and `manifested_as`** (#460): a
-  maintainer who owns direction is `svatantra`, one acting on a delegated scope is
-  `adhikarin`, a drive-by contributor is `agantuka`. The author-weighting in Step 4 is
+- **Model the actors, so deeds aren't actor-less — but gate on the karta test first
+  (writing/Decision 2b): only an *addressable* doer is a `karta`.** In roadmap terms: the
+  **end user** → `agantuka`; a **maintainer** who owns direction → `svatantra`, one on a
+  delegated scope → `adhikarin`; a **drive-by contributor** → `agantuka`. An automated
+  **worker fleet / CI / cron** is **not** a karta — it's a `⚙️ phenomenon` (`upadhi`, or an
+  impersonal `actor` for back-compat); making it one to silence the *no-actor* tension is
+  the anti-pattern that tension warns of. `nks_add_karta` needs `motivation` **and
+  `manifested_as`**. The author-weighting in Step 4 is
   really this karta distinction (maintainer voice vs drive-by) — making the kartas
   graph-real is the "own the product context" pitch made concrete, and lets Step 6
   attribute each direction to who drives it. **Two actor layers, kept distinct:** the
