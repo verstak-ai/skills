@@ -1,0 +1,26 @@
+name: Release Please
+
+# Automate releases from the Conventional Commit history. On every push to main,
+# release-please maintains a "release PR" that bumps the version (in version.txt,
+# .claude-plugin/plugin.json, and marketplace.json — see release-please-config.json)
+# and updates CHANGELOG.md. Merging that PR tags the release `vX.Y.Z` and cuts a
+# GitHub Release. A version bump is what makes `/plugin marketplace update` deliver
+# the new skills to installs, so the release IS the delivery mechanism.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

@@ -1,7 +1,4 @@
-.PHONY: build validate check-bundles check hooks release version
-
-# BUMP selects the semver segment for `make release` (override: make release BUMP=minor).
-BUMP ?= patch
+.PHONY: build validate check-bundles check hooks
 
 # Run the full CI gate locally: frontmatter contract + bundle sync.
 check: validate check-bundles
@@ -22,15 +19,3 @@ build:
 hooks:
 	@git config core.hooksPath .githooks
 	@echo "core.hooksPath -> .githooks"
-
-# Print the current plugin version.
-version:
-	@node scripts/bump-version.mjs --print
-
-# Cut a release: bump the plugin version, keeping .claude-plugin/plugin.json and
-# marketplace.json in lockstep (a version change is what makes installs update).
-#   make release                # patch bump (default)
-#   make release BUMP=minor     # or BUMP=major
-#   make release VERSION=2.0.0  # set an explicit version
-release:
-	@node scripts/bump-version.mjs $(if $(VERSION),$(VERSION),$(BUMP))

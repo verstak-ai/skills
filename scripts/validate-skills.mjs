@@ -165,15 +165,16 @@ if (manifest) {
 //    only refreshes when this string changes. So it must be present and valid
 //    semver, must NOT be duplicated in the marketplace plugin entry (plugin.json
 //    wins; a second copy silently drifts), and it mirrors marketplace
-//    metadata.version so there is a single "verstak version". `make release`
-//    bumps both together; this gate fails loudly if they ever diverge.
+//    metadata.version so there is a single "verstak version". release-please
+//    bumps both together (extra-files) on release; this gate fails loudly if they
+//    ever diverge, whoever touched them.
 const SEMVER = /^\d+\.\d+\.\d+$/;
 const pluginPath = join(root, ".claude-plugin", "plugin.json");
 let plugin = null;
 try {
   plugin = JSON.parse(readFileSync(pluginPath, "utf8"));
 } catch (e) {
-  fail(".claude-plugin/plugin.json", `could not read/parse (run 'make release' to bump the version): ${e.message}`);
+  fail(".claude-plugin/plugin.json", `could not read/parse: ${e.message}`);
 }
 if (plugin) {
   if (typeof plugin.version !== "string" || !SEMVER.test(plugin.version)) {
@@ -189,7 +190,7 @@ if (plugin) {
       }
     }
     if (manifest.metadata?.version !== plugin.version) {
-      fail("marketplace.json", `metadata.version (${JSON.stringify(manifest.metadata?.version)}) must mirror plugin.json version (${JSON.stringify(plugin.version)}) — run 'make release' to bump both`);
+      fail("marketplace.json", `metadata.version (${JSON.stringify(manifest.metadata?.version)}) must mirror plugin.json version (${JSON.stringify(plugin.version)}) — release-please bumps both together; keep them in sync`);
     }
   }
 }
