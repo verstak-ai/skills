@@ -62,6 +62,8 @@ nks_add_vimarsha(genre="samshaya",
    sense="фронт целостности: пока не отвечено, превращение не закрыто")
 ```
 
+`posed_to` (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer, #460).
+
 Description states: what the telos implies for these nodes, and **what counts as an answer** — «не затронуто» (close visarjana, with the reason recorded) or «затронуто» (design the adaptation — **design** skill; the new work `arose_from` this question).
 
 ### 6. Report
