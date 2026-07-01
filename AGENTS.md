@@ -59,15 +59,19 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 | Run the CI gate locally | `make check` (= `make validate` + `make check-bundles`) |
 | Validate skill frontmatter only | `make validate` (pure Node, no deps) |
 | Check committed bundles ↔ source | `make check-bundles` |
+| Print the current plugin version | `make version` |
+| Cut a release (bump the plugin version) | `make release` (patch; or `BUMP=minor`/`BUMP=major`, or `VERSION=X.Y.Z`) |
 
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. The only automated gate is **format**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source. Both run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
 
 ## Project structure
 - `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` mirrors the plugin version.
+- `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is the release source of truth (bump via `make release`, never by hand).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
-- `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
+- `scripts/validate-skills.mjs` (frontmatter contract + version contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
+- `scripts/bump-version.mjs` — the release bump (`make release`); swaps the version in `plugin.json` + `marketplace.json` in lockstep.
 - `README.md` — short human-facing pointer.
 - `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
 - `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
@@ -80,15 +84,18 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Terminology**: `phenomenon` for the typed primitive, `node` for the generic; `kriya`/`holon`/`karta`/`vimarsha` per the realm ontology. Don't reintroduce retired terms.
 - **Test discipline**: CI validates **format only** (`make check` — frontmatter parseability + bundle sync); it does not check substance. Substance review is still manual: read the diffed `SKILL.md` and confirm every tool name against the live surface. When adding/renaming a skill, the new dir must be listed in `marketplace.json` or `make validate` fails.
 - **Frontmatter must be parseable YAML.** `description` values are double-quoted; **escape any inner quote as `\"`** (an unescaped `"` terminates the scalar early — the exact bug `make validate` guards). Keep frontmatter flat and single-line — only `name` and `description` keys.
+- **The plugin version drives updates — bump it to release.** The version lives in `.claude-plugin/plugin.json` (Claude Code's highest-precedence source). An install only refreshes when that string *changes*: push new skills without bumping it and existing installs keep the cached copy, silently. So run `make release` (never hand-edit the field) — it bumps `plugin.json` and mirrors `marketplace.json`'s `metadata.version` in lockstep, and `make validate` fails if they drift, if the version isn't semver, or if a `version` sneaks into the marketplace plugin entry (`plugin.json` wins, so a duplicate there is a silent-drift trap).
 
 ## What to update when
 - `AGENTS.md` — repo conventions, structure, or the skill set change.
 - `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
 - NKS (`nks-dev`, #844) — every push: update the skill phenomena («Скилл <name>», vollzug under #844) to the shipped state, close resolved vimarshas.
+- `.claude-plugin/plugin.json` version — `make release` whenever you ship a user-facing change installs should pick up (updates flow only on a version change).
 
 ## Git workflow
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
 - **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **Releasing**: a change reaches installs only when the plugin version changes. Cut a release with `make release` (bumps `plugin.json` + `marketplace.json` together; commit as `chore: release vX.Y.Z`); after it merges to `main`, tag the merge commit `vX.Y.Z`. Users update via `/plugin marketplace update verstak-ai` → `/reload-plugins`. Batch several skill changes under one release rather than bumping per commit.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
