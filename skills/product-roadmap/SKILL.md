@@ -133,20 +133,34 @@ is" from "what's proposed".
   subsystems, the main domain entities, and the handful of core flows — not every
   function. Aim for a map a new maintainer recognizes as "yes, that's the product".
 - **Model the actors, so deeds aren't actor-less — but gate on the karta test first
-  (writing/Decision 2b): only an *addressable* doer is a `karta`.** In roadmap terms: the
-  **end user** → `agantuka`; a **maintainer** who owns direction → `svatantra`, one on a
-  delegated scope → `adhikarin`; a **drive-by contributor** → `agantuka`. An automated
+  (writing/Decision 2b): only an *addressable* doer is a `karta`.** In roadmap terms: an
+  **end user / external consumer** → `agantuka` (客, a doer *outside* the boundary); an
+  **internal operator** who runs the live system (admin, moderator, onboarding staff) →
+  `adhikarin` (能 — *responds and acts*: an active operator inside the boundary, never a
+  passively-"served" party); a **maintainer** who owns direction → `svatantra` (主), one on
+  a delegated dev scope → `adhikarin`; a **drive-by contributor** → `agantuka`. An automated
   **worker fleet / CI / cron** is **not** a karta — it's a `⚙️ phenomenon` (`upadhi`, or an
   impersonal `actor` for back-compat); making it one to silence the *no-actor* tension is
   the anti-pattern that tension warns of. `nks_add_karta` needs `motivation` **and
   `manifested_as`**. The author-weighting in Step 4 is
   really this karta distinction (maintainer voice vs drive-by) — making the kartas
   graph-real is the "own the product context" pitch made concrete, and lets Step 6
-  attribute each direction to who drives it. **Two actor layers, kept distinct:** the
-  **runtime actor** of a core flow (the user as `agantuka`, or an impersonal machine
-  actor / phenomenon) vs the **development driver** of backlog work (maintainer /
-  contributor kartas). A maintainer-authored PR's kriya takes `actor` = the *maintainer*
-  karta, not the runtime worker. **A karta with zero edges is theater** (a graph audit
+  attribute each direction to who drives it. **Two actor layers, kept distinct — and don't
+  let one swallow the other:** the **runtime-operator layer** (who acts on / is served by the
+  *live* system) vs the **development-driver layer** (who authors the *backlog* — commits,
+  issues, PRs). These are **different populations from different sources:** the dev-drivers are
+  all the Step 3–4 harvest can see (only people who touch GitHub); the runtime operators mostly
+  **never file an issue or open a PR**, so the harvest is blind to them — you model them from
+  the **product ground** (Step 2: the roles the code serves, admin/staff surfaces, the served
+  entities), not from the contributor graph. The runtime layer is itself often **two-sided** —
+  an **external consumer** (客 `agantuka`, outside the boundary) ⟷ an **internal operator**
+  (能 `adhikarin`, inside — active, a doer that *responds and acts*, never a passive "is
+  served"); an impersonal machine/CI is neither, it's a `⚙️ phenomenon`. Keep the layers
+  separate: a maintainer-authored PR's kriya takes `actor` = the *maintainer* (dev-driver)
+  karta; a core-flow kriya takes the runtime operator. **The trap is reading "who develops
+  this?" as "who has weight on this":** the narrower the contributor set (a solo project is the
+  extreme — dev-drivers = one 主), the more the real actor signal hides in the runtime layer the
+  harvest can't see. **A karta with zero edges is theater** (a graph audit
   will flag it); wire it to the deeds it drives or don't claim it owns anything.
 - **Wire the core flows as an `ahara`/`utpatti` estafeta.** Each core-flow kriya
   *consumes* (`ahara`) the phenomena it reads and *produces* (`utpatti`) the phenomena
@@ -332,14 +346,23 @@ never create one for a single vimarsha, risks stay risks.
   highest-value structural risk** — a capability in one repo with no backing flow in
   another, a pipeline output nothing downstream consumes, a deploy gap in ops — because it
   is exactly what no single repo's view can surface.
-- **Attribute each direction to its driving `karta`.** Name who carries it —
-  maintainer-led & committed vs contributor-led & needs-review vs community-requested &
-  unowned — using the Step 2/4 kartas. A solo-maintainer roadmap is, at bottom, about
-  that karta's finite attention; making ownership explicit is the whole point. **Make it
-  a graph fact, not a label:** the direction's driving (`anga`) kriyas must carry
-  `actor` = that karta. A "maintainer-led" direction with no `actor` edge from the
-  maintainer karta is theater — a zero-edge orphan karta is exactly what a graph audit
-  flags; wire the ownership or downgrade it to "inferred from author attrs."
+- **Attribute each direction on two axes — its *driver* and its *runtime target*.** The
+  **driver** (who carries it: maintainer-led & committed vs contributor-led & needs-review vs
+  community-requested & unowned — the Step 2/4 kartas) is one axis; **whom the changed system
+  serves at runtime** is the other — an **external consumer** (客 `agantuka`) or an **internal
+  operator** (能 `adhikarin`: admin, moderator, onboarding staff). The driver comes from the
+  harvest (who authored the work); the runtime target comes from the product ground (whom the
+  changed capability serves) — **don't collapse the second into the first: expect operator-facing
+  directions** (an admin console, a staff-onboarding flow) alongside the consumer-facing ones —
+  model the internal operator as the active 能 the direction serves, never a passively-"served"
+  beneficiary, and don't file every direction under the end user. The narrower the contributor
+  set (a solo maintainer being the extreme), the more the driver axis flattens and the runtime
+  target becomes the axis on which directions actually *differ*. A roadmap is, at bottom, about
+  the driver's finite attention; making ownership explicit is the whole point. **Make it a graph
+  fact, not a label:** the direction's driving (`anga`) kriyas must carry `actor` = the driver karta. A
+  "maintainer-led" direction with no `actor` edge from the maintainer karta is theater — a
+  zero-edge orphan karta is exactly what a graph audit flags; wire the ownership or downgrade
+  it to "inferred from author attrs."
 - **A coherent high-signal theme earns a direction even with no committed work.** Don't
   drop the **most-reacted / most-commented** open issues just because they aren't
   milestoned — the top community demand is exactly roadmap signal. If you deliberately
@@ -402,11 +425,14 @@ artifacts:
      AI-tag → search → read) as a comprehension proof: the product's spine in one walk.
    - **The directions** in `anantara` order; per direction: the capability it
      extends (figure on ground), telos, the driving issues/PRs (verbatim titles +
-     `#refs` + author weight), the **driving karta** (who owns it), the **`anga`** (the
+     `#refs` + author weight), the **driving karta** (who owns it) **and whom it serves at
+     runtime** (external consumer 客 vs internal operator 能), the **`anga`** (the
      open question/risk driving the change), open risks, what it unblocks.
    - **"Reading of the field" (methodology view)** — a short closing section that makes
      the graph's leverage visible: the **driving `karta`s** (who owns/drives each
-     direction), the **structural risks** from the tensions lens, and the
+     direction — **and whom each serves at runtime**: external consumer 客 vs internal
+     operator 能, the active operators the operator-facing directions target), the
+     **structural risks** from the tensions lens, and the
      **figure-on-ground map** (each direction → the capability it consumes via `ahara`).
      The product understanding the graph bought, in one view — the part a flat list
      can't produce. **Write it for the maintainer, not the methodologist** — gloss each
@@ -547,6 +573,14 @@ partial run — a run that dies and ships nothing is the worst outcome.
   don't claim a "driving karta" the graph doesn't back. And every karta needs `manifested_as`
   (svatantra/adhikarin/agantuka) — if the "doer" is a worker/CI/cron that can't answer a vimarsha,
   it's a `⚙️ phenomenon`, not a karta (#460).
+- **Runtime-operator layer not collapsed.** The harvest only ever surfaces contributors
+  (committers / issue-authors) — the dev-driver layer. If the roadmap's actors are *only* those
+  contributors + a generic end-user, you modeled actors from the contributor graph alone and
+  flattened the runtime layer (a solo product, drivers = one person, is where this bites
+  hardest). Check the **product ground** for **internal operators** (admin / moderator / staff):
+  where a direction serves one (an admin console, a staff-onboarding flow), it must be modeled
+  as an **active `adhikarin` (能)** the direction targets — never a passively-"served" party —
+  and attributed to that runtime target, not filed under the end user.
 - **Top-signal survival self-check.** The absolute most-reacted and most-commented OPEN
   issues from the harvest must appear in the roadmap — selection → assembly → render can
   silently drop them. If one is intentionally deferred, the roadmap must say so; if it
