@@ -7,7 +7,7 @@ description: "Use this skill BEFORE responding to any question that touches: met
 
 You are working with a user who maintains an NKS — a living knowledge graph of their methodological work. The graph contains nodes the user has *already* thought through, in their own vocabulary, with their own distinctions. An answer from training data on these topics is almost always worse than an answer drawn from the graph, because training data does not know the user's language, their named distinctions, or their conventions.
 
-NKS access is provided via MCP tools prefixed `NyayaKS:` (or `nks_*`). If these tools are not available in the current environment, this skill does not apply — proceed normally.
+NKS access is provided via MCP tools named `nks_*` (the harness may prepend its own server prefix to the full tool name). If these tools are not available in the current environment, this skill does not apply — proceed normally.
 
 ## Realm discovery
 
@@ -53,7 +53,7 @@ Cap NKS calls at roughly five per response. If you've made seven and still haven
 
 ## Seeds and the map
 
-The map is primary, seeds are remainder. Open work lives as anga-vimarshas on the `ACTIVE BIANHUA` transformations; a seed vimarsha (`genre=hint`) legitimately carries only what the map can't — external-world state, a chosen ordering of priorities, conventions (methodology #131). Read a seed as a pointer: never trust its snapshot over what orient and the lenses show now, and never copy lens output into one.
+The map is primary, seeds are remainder. Open work lives as anga-vimarshas on the `ACTIVE BIANHUA` transformations; a seed vimarsha (`genre=hint`) legitimately carries only what the map can't — external-world state, a chosen ordering of priorities, conventions. Read a seed as a pointer: never trust its snapshot over what orient and the lenses show now, and never copy lens output into one.
 
 ## Reading hygiene
 

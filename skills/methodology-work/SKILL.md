@@ -19,7 +19,7 @@ This is not design. This is not weaving. This is the methodology describing itse
 3. Read the map: the ACTIVE BIANHUA section of orient (lens="bianhua" for the
    full forest) — open work lives there as anga-vimarshas. A seed vimarsha, if
    one exists, is only a pointer to what the map doesn't carry.
-4. Read working principles — the split principle nodes #441–#445
+4. Read the working principles — they are among the key:true landmarks
    (nks_look the ones your task touches)
 ```
 
@@ -37,7 +37,7 @@ Do NOT write from training data. The realm has its own vocabulary, its own disti
 
 ## Types of methodology work
 
-> The realm now carries a sixth node type — **bianhua** (变化), a qualitative transformation of the system (methodology #432). It is an *assembly-level* primitive (the **assembly** skill), not a routine methodology write: you rarely create one here, but recognise it when reading 形. The five kinds of work below remain the methodology-recording acts.
+> The realm now carries a sixth node type — **bianhua** (变化), a qualitative transformation of the system. It is an *assembly-level* primitive (the **assembly** skill), not a routine methodology write: you rarely create one here, but recognise it when reading 形. The five kinds of work below remain the methodology-recording acts.
 
 ### 1. Recording a principle (grundsatz)
 
@@ -59,7 +59,7 @@ DO:
   4. Write description: what it IS, what it PREVENTS, what the anti-pattern looks like
   5. Wire upadhi arrows FROM kriyas that apply this principle TO the new grundsatz
      Every arrow carries sense: "why this principle matters HERE"
-  6. Context arrow to appropriate holon (usually 行 Воплощение #179)
+  6. Context arrow to appropriate holon (usually 行 Воплощение)
   7. re-nks_look — CHECKS: block clean after wiring? (the create self-validated; this re-check is for the arrows you just added)
 
 DESCRIPTION FORMAT:
@@ -80,7 +80,7 @@ SIGNALS:
 
 DO:
   1. Search methodology for existing coverage (nks_search + nks_semantic_search — keyword + conceptual)
-  2. Name as verbal noun (正名 #72): "Замыкание жизненного цикла", not "Close lifecycle"
+  2. Name as verbal noun (正名): "Замыкание жизненного цикла", not "Close lifecycle"
   3. Identify actor: which karta performs this? (must exist in methodology)
   4. Identify ahara: what does this kriya consume? Must be a sachverhalt or ding.
   5. Identify utpatti: what does this kriya produce? Must be a sachverhalt or ding.
@@ -143,7 +143,7 @@ SIGNALS:
   - Gap between two kriyas where something should happen
 
 DO:
-  1. nks_orient(lens="trace", focus=<thread phenomenon>) (#337-#343, #399) → see current shape
+  1. nks_orient(lens="trace", focus=<thread phenomenon>) → see current shape
   2. Identify the gap: which transition is missing?
   3. Create intervening kriya with ahara/utpatti/actor
   4. Wire next arrows with praśna (question-needles)
@@ -178,9 +178,9 @@ CRITICAL PATTERN — agent tries to suppress tension:
   used to silence tensions → it's wrong. Record the anti-pattern.
 ```
 
-## Carrier canon — one liveness axis per род (#438)
+## Carrier canon — one liveness axis per род
 
-Modes are not free-form. Matrix #438 fixes, for every род (type × given_as × genre), **which single axis carries liveness/closedness** — every surface's resolved/active predicate reads that table, not per-genre `if`s. Set modes by the род's carrier when recording; when you *extend* methodology, extend the table, never a local exception.
+Modes are not free-form. The carrier matrix fixes, for every род (type × given_as × genre), **which single axis carries liveness/closedness** — every surface's resolved/active predicate reads that table, not per-genre `if`s. Set modes by the род's carrier when recording; when you *extend* methodology, extend the table, never a local exception.
 
 - **U1 — one carrier axis per род**, the rest qualify (vimarsha/risk → воля with `virodha` live; kriya/karta/phenomenon(ding,sachverhalt,vollzug) → онтика; bildung/sinn → эпистемика; grundsatz → воля held by `adhimoksha`).
 - **U2 — epistemics never closes** (except `badhita` for epistemic-carrier rods); it qualifies certainty, ascends `Kl→An→Pt→Pm`, is revised on drift (reverify, E4).
@@ -198,11 +198,11 @@ These are patterns observed across multiple methodology sessions:
 When the user says "нет, это не так" — they're not giving feedback, they're revealing a principle. Ask: is this correction LOCAL (fix this node) or GENERAL (this applies everywhere)? If general → record as grundsatz.
 
 Examples from real sessions:
-- "All ding must be consumed" → #389 (lifecycle closure, no exceptions)
-- "Don't confuse thread and estafeta" → #412 (distinction)
-- "Complex systems can only grow" → #390 (deferred depth is normal)
-- "Tension is always truthful" → #404 (never suppress)
-- "Graph is not reality, it's tension with reality" → #403
+- "All ding must be consumed" → the lifecycle-closure grundsatz (no exceptions)
+- "Don't confuse thread and estafeta" → the thread ≠ estafeta distinction
+- "Complex systems can only grow" → deferred depth is normal
+- "Tension is always truthful" → never suppress
+- "Graph is not reality, it's tension with reality" → a key grundsatz
 
 ### The utpatti test
 
@@ -218,11 +218,11 @@ ahara = the phenomenon is CONSUMED. Not "read", not "referenced" — destroyed. 
 
 When you distinguish subtypes of a sachverhalt (risk-вопрошание vs hint-вопрошание), create children under the parent via contains. The parent remains the umbrella. Trace inherits from parent to children — lifecycle of a child is covered by the parent's consumers.
 
-Example: #141 (Вопрошание поставлено) contains #400 (Risk), #401 (Hint), #407-#411 (other genres).
+Example: «Вопрошание поставлено» contains its genre-children (Risk, Hint, and the rest).
 
 ### The right boundary of a realm
 
-#146 (Задача разрешена) is the right boundary of methodology. Many kriyas produce it. When a new terminal sachverhalt seems "leaked" — check if it's a child of #146 via contains. If yes, it inherits #146's consumers and lifecycle closes.
+«Задача разрешена» is the right boundary of methodology. Many kriyas produce it. When a new terminal sachverhalt seems "leaked" — check if it's a contains-child of that umbrella. If yes, it inherits the umbrella's consumers and lifecycle closes.
 
 ### Re-orient after mutations
 
@@ -233,7 +233,7 @@ After creating 5+ nodes, call nks_orient again. Your mental model drifts from th
 At the end of a session the graph itself must carry the state forward — not a seed:
 - Completed work changes the graph: update modes, descriptions, arrows of the nodes you touched.
 - Open work lives on the map: vimarshas attached via `anga` to the bianhua they drive.
-- A seed vimarsha is the exception, not the ritual (methodology #131). Leave one ONLY for what the graph cannot carry — external-world state (a deploy in flight, an agreement made in chat), a chosen ordering of priorities, a convention not yet crystallized. Pointer, not payload: no restating what orient/lenses show, no DONE blocks, no dates, no names, no git refs, no context-recovery instructions. Edit an existing seed in place rather than spawning a vol2; close it (visarjana) once its content has grown into the graph.
+- A seed vimarsha is the exception, not the ritual. Leave one ONLY for what the graph cannot carry — external-world state (a deploy in flight, an agreement made in chat), a chosen ordering of priorities, a convention not yet crystallized. Pointer, not payload: no restating what orient/lenses show, no DONE blocks, no dates, no names, no git refs, no context-recovery instructions. Edit an existing seed in place rather than spawning a vol2; close it (visarjana) once its content has grown into the graph.
 
 ## Holons of methodology
 
@@ -246,21 +246,23 @@ At the end of a session the graph itself must carry the state forward — not a 
 | 忠 Верность | zhōng | Maintaining form | Ongoing commitments |
 | 忘 Пост-забвение | wàng | Releasing form | Retired forms, scars |
 
-Most methodology work happens in 行 Воплощение (#179). Context arrows for new phenomena usually point here.
+Most methodology work happens in 行 Воплощение. Context arrows for new phenomena usually point here.
 
 ## Key nodes to know
 
-| # | Name | What it is |
-|---|---|---|
-| 111 | Мыслепрактик | Root karta — encompasses all roles |
-| 128 | Эстафета | Phenomenon lifecycle concept |
-| 129 | Натяжение | Structural tension concept |
-| 441–445 | Working principles | Split principle nodes: utpatti учит · справочных типов нет · 理 узор · различение среды · sense на стрелках |
-| 389 | Lifecycle closure | Every ding born and dies |
-| 390 | System growth | Can only grow, not be built whole |
-| 403 | Graph = tension | Not reality — tension with reality |
-| 405 | Four phases | Backward → forward → whole → impulse |
-| 412 | Thread ≠ estafeta | Critical distinction |
+The landmarks (`attrs.key=true`) carry the load-bearing canon — find them via the key:true search from «Before you touch anything», by name:
+
+| Name | What it is |
+|---|---|
+| Мыслепрактик | Root karta — encompasses all roles |
+| Эстафета | Phenomenon lifecycle concept |
+| Натяжение | Structural tension concept |
+| Working principles | Split principle nodes: utpatti учит · справочных типов нет · 理 узор · различение среды · sense на стрелках |
+| Lifecycle closure | Every ding born and dies |
+| System growth | Can only grow, not be built whole |
+| Graph = tension | Not reality — tension with reality |
+| Four phases | Backward → forward → whole → impulse |
+| Thread ≠ estafeta | Critical distinction |
 
 ## What NOT to do
 
@@ -268,8 +270,8 @@ Most methodology work happens in 行 Воплощение (#179). Context arrows
 - Don't create nodes without arrows. Orphans are invisible.
 - Don't merge grundsatz and vollzug. WHY ≠ HOW.
 - Don't suppress tensions. Close structure.
-- Don't encode **population expectations** ("top-level kriyas should be few and essential") as tension detectors. Detector grammar is node-grained; a population pattern is invisible to it by design (the *граница рода*, #979). Such expectations belong in the **assembly** agenda, not in counter-detectors (#435).
+- Don't encode **population expectations** ("top-level kriyas should be few and essential") as tension detectors. Detector grammar is node-grained; a population pattern is invisible to it by design (the *граница рода*). Such expectations belong in the **assembly** agenda, not in counter-detectors.
 - Don't write description as procedure. pariṇāma = qualitative transition.
 - Don't ignore the CHECKS: block — it prints on every create and on re-look after edits.
-- Don't leave payload seeds at session end — the graph carries the state; a thin seed only for what the graph can't hold (methodology #131).
+- Don't leave payload seeds at session end — the graph carries the state; a thin seed only for what the graph can't hold.
 - Don't rush. "Не спеши" — the most common correction.

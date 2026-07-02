@@ -265,14 +265,13 @@ visibly distinct from the `vartamana` ground. **Run the `intake` skill over the 
 items** — Steps 3–4 are intake's GitHub **adapter** (they supply each item's content /
 form / provenance / authority). intake owns the source-independent spine, so **don't
 restate it here**: map each item's **form → node type**, set its **epistemic mode by
-kind** (#104 — `kalpita` for an unverified request/RFC, never a blanket stamp; the
+kind** (`kalpita` for an unverified request/RFC, never a blanket stamp; the
 maintainer's own committed volition is *not* kalpita-to-verify — it lands at its volitive
 mode), mark `source_kind=shabda`, **dedup before writing** (`nks_semantic_search`,
 locate-before-write), **anchor each node to its source** (`arose_from` the issue/PR), then
-**verify by пратьякша and graduate the mode**, under the **selectivity cap** (#1158 — never
+**verify by пратьякша and graduate the mode**, under the **selectivity cap** (never
 the whole tracker; the cap is Step 3's). Issues/PRs are **external word**, not verified
-truth — that is the whole reason for the shabda discipline (методология: впуск шабды #165 →
-сверка #157).
+truth — that is the whole reason for the shabda discipline (впуск шабды → сверка).
 
 Use intake's `form → type` map for the shared shapes — bug → risk (a sachverhalt-incident
 if reproduced), RFC / design-discussion → samshaya, a stated fact about the system →
@@ -597,7 +596,7 @@ partial run — a run that dies and ships nothing is the worst outcome.
   karta on a *solo*-maintainer product) is theater a graph audit flags: wire it, or drop it and
   don't claim a "driving karta" the graph doesn't back. And every karta needs `manifested_as`
   (svatantra/adhikarin/agantuka) — if the "doer" is a worker/CI/cron that can't answer a vimarsha,
-  it's a `⚙️ phenomenon`, not a karta (#460).
+  it's a `⚙️ phenomenon`, not a karta.
 - **Runtime-operator layer not collapsed.** The harvest only ever surfaces contributors
   (committers / issue-authors) — the dev-driver layer. If the roadmap's actors are *only* those
   contributors + a generic end-user, you modeled actors from the contributor graph alone and
@@ -690,13 +689,11 @@ the wow in minutes; depth is the full pipeline's job.
 ## Methodology / sibling skills
 - `verstakify` — codebase understanding + realm/holon bootstrap.
 - `intake` — the source-independent **shabda-intake** discipline = the spine of Step 5
-  (form→type, epistemic mode by kind #104, dedup, `arose_from` anchor, сверка by пратьякша,
-  selectivity #1158). Steps 3–4 are its GitHub **adapter**; the Step-5 overlays
+  (form→type, epistemic mode by kind, dedup, `arose_from` anchor, сверка by пратьякша,
+  the selectivity cap). Steps 3–4 are its GitHub **adapter**; the Step-5 overlays
   (ground-delta, subsystem anchor, milestone modus, karta-as-actor) are what intake leaves
   to this consumer.
 - `assembly` — the bianhua discernment ritual (the heart of Step 6).
 - `writing` — node type/modes/arrows discipline for Steps 2 and 5 (the `vartamana`
   ground, the `shabda` backlog, the `karta` actors, the `ahara` figure-on-ground links).
 - `weaving` — the tensions lens (Step 6 structural risks).
-- External-word pattern: methodology #165 (впуск шабды) → #157 (сверка); nks-dev
-  direction #1157/#1158/#1159 (onboarding seeds the graph from issues).
