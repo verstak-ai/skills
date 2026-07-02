@@ -131,6 +131,17 @@ DB/schema, per-lane port, per-lane temp dir) as a gotcha: agents run branches
 concurrently in separate worktrees, and a shared resource corrupts across lanes.
 Skip when build/test has no shared mutable state.
 
+Also settle **workflow-suite coexistence** (only when a coercive workflow suite
+is detected — its skills appear in the skills list, or its dir exists in the
+plugin cache, e.g. `~/.claude/plugins/`; today that means superpowers): tell
+the user what was found and settle the mode:
+1. **Full interop** (recommended) — AGENTS.md gets the interop subsection
+   (from this skill's `references/superpowers-interop.md`) + the spec-write
+   hook (Step 4);
+2. **Prose-only** — the subsection, no spec-write hook;
+3. **Skip** — no coexistence text (not recommended; note the risk: design
+   sessions led by the suite won't persist to the realm by default).
+
 ### Step 2 — NKS bootstrap
 - Realm exists? If not: agree a name, then `nks_realm(action="create")`.
 - If the project has structure beyond the realm itself, a focus holon exists
@@ -171,14 +182,23 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
-Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
-agent on every clone needs them). Generate the JSON for *this* project — write it
-yourself:
+Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
+agent on every clone needs them). **Merge, never overwrite:** other suites may
+already own entries in this file — add yours alongside theirs in the same
+arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
+*this* project — write it yourself:
 - **`SessionStart`** → reminder to orient in NKS before acting (skill `entry`),
   naming *this* realm slug and focus holon.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
   push`, reminder to update NKS (match reality + advance the bianhua map:
-  close resolved vimarshas) and run the after-green-push self-review.
+  close resolved vimarshas), run the after-green-push self-review, and:
+  uningested design/spec docs on this branch → intake them (`intake` skill,
+  then `design`) before closing.
+- **`PostToolUse`** with `"matcher": "Write|Edit"` → the **spec-write hook**:
+  when the written file path looks like a design/spec doc, reminder that the
+  file is a draft view — the graph is the design record. Exact JSON below,
+  after the push-hook gating note; same envelope style, gated on
+  `.tool_input.file_path` the way the push hook gates on the command text.
 
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`) is the
@@ -195,8 +215,20 @@ validation) — a known false-positive. Harmless for a non-blocking reminder, so
 ship it as-is; just never promote this text-match to anything that gates work. To
 cut the noise, also branch on `.tool_response` so the reminder fires only when
 the push actually ran.
-Self-check: both hooks present; `SessionStart` names the real realm slug + focus
-holon, not a placeholder.
+
+The spec-write hook, same gating style (wide behavioral glob; false positives
+are harmless for a non-blocking reminder — never promote it to anything that
+gates work):
+```json
+{ "matcher": "Write|Edit", "hooks": [ { "type": "command",
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '(^|/)specs/[^/]+\\.md$|(^|/)docs/.*design[^/]*\\.md$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A design draft was written; per AGENTS.md this file is a draft view — the graph is the design record. Intake it (intake skill, then design skill) in this session — do not defer to a push.\"}}' || true" } ] }
+```
+This entry merges into the same `PostToolUse` array as the git-push hook — a
+sibling object, not a replacement.
+
+Self-check: all three hooks present; `SessionStart` names the real realm slug +
+focus holon, not a placeholder; no pre-existing hook entry from another suite
+was dropped by the merge.
 
 Heads-up: writing `.claude/settings.json` may be flagged by the harness as
 self-modification and require explicit approval — surface the write for
@@ -258,6 +290,14 @@ copied prefix often won't match and silently does nothing.
   new section. End with `AGENTS.md` as the one file + `CLAUDE.md` as the symlink —
   if a *regular-file* `CLAUDE.md` exists, replace it with the symlink after
   folding its content in. One source per concern — no duplicate sections.
+- If Step 1 settled full interop or prose-only: render the
+  `### Workflow-suite interop (superpowers)` subsection at the end of
+  `## Session lifecycle`, taking the section text from this skill's
+  `references/superpowers-interop.md` (deployable part only — the maintainers'
+  re-verify checklist stays in the reference). Stamp it with the plain trailing
+  line `*(interop verified against superpowers@<version> — re-check on suite
+  upgrade)*`. On refresh runs, audit the subsection like any other AGENTS.md
+  concern: source of truth = the reference file + the installed suite version.
 - **Verify pass (co-equal with the density pass):** re-check every *derived* line
   against its source from the map — **whole-artifact, not just the lines you
   touched.** The most dangerous errors sit in untouched, settled-looking lines
