@@ -52,7 +52,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     keep open work attached via `anga` to the bianhua it drives. A thin
     `genre=hint` seed is left only for what the graph can't carry —
     external-world state, chosen priorities; pointer, not payload
-    (methodology #131) — never by default.
+    — never by default.
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).

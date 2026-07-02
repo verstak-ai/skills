@@ -30,9 +30,3 @@ Read your three modes back as a sentence:
 ## Forbidden
 
 API rejects: `badhita + vartamana`, `vikalpa + chanda`, `nashta + chanda`.
-
-## Lookups
-
-- Trīpuṭī foundation: `nks_look(node_id="14", realm="methodology")`
-- Stable & forbidden combos: `nks_look(node_id="29", realm="methodology")`
-- Example triads: `nks_look(node_id="53", realm="methodology")`
