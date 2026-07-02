@@ -1,16 +1,17 @@
 ---
 name: integrity
-description: "Use this skill right after a bianhua is created (telos accepted by the owner) or when the user asks to check a transformation's integrity or impact: 'проверь бяньхуа на целостность', 'что затронет это превращение', 'обвяжи превращение', 'кого заденет', 'integrity check', 'impact analysis'. It propagates the telos through the graph's semantic closures — estafetas (lens=trace), next-threads, contains-subtrees, upadhi-consumers — finds kriyas/phenomena/holons implicated in the holistic change but not yet attached to the bianhua, and, after the user approves the candidate list, poses clustered samshaya-vimarshas («затронуто ли это?») anchored to the affected nodes with anga to the bianhua. Distinct from assembly (discerns the map from the field) and design (builds paths from goals): integrity walks outward from a declared telos and makes the wavefront of the change visible. Needs the nks_* MCP tools."
+description: "Use this skill right after a bianhua is created (telos accepted by the owner), when the user asks to check a transformation's integrity or impact — 'проверь бяньхуа на целостность', 'что затронет это превращение', 'обвяжи превращение', 'кого заденет', 'integrity check', 'impact analysis' — or when a prose artifact claims graph-backed leverage and must be verified against the graph: 'подкреплено ли это графом', 'не театр ли', 'claim audit', 'сверь роадмап/отчёт с графом'. Forward: propagates the telos through the graph's semantic closures — estafetas (lens=trace), next-threads, contains-subtrees, upadhi-consumers — finds kriyas/phenomena/holons implicated in the holistic change but not yet attached to the bianhua, and, after the user approves the candidate list, poses clustered samshaya-vimarshas («затронуто ли это?») anchored to the affected nodes with anga to the bianhua. Reverse (claim-audit): extracts the artifact's structural claims and verifies each is carried by real edges, reporting claimed-but-unwired. Distinct from assembly (discerns the map from the field) and design (builds paths from goals). Needs the nks_* MCP tools."
 ---
 
 # NKS Integrity — обвязка превращения
 
-A bianhua is a HOLISTIC change — cross-holon by definition (methodology #432). Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «а не затронуто ли это? проведите дизайн» — so the transformation cannot honestly close while its impact is unexamined.
+A bianhua is a HOLISTIC change — cross-holon by definition. Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «а не затронуто ли это? проведите дизайн» — so the transformation cannot honestly close while its impact is unexamined.
 
-Two entries, one protocol:
+Three entries:
 
-- a bianhua was just created and its telos accepted by the owner (assembly step 5 and design Phase 4 hand off here);
-- the user asks to check an existing bianhua for integrity / impact.
+- a bianhua was just created and its telos accepted by the owner (assembly step 5 and design Phase 4 hand off here) — the forward protocol below;
+- the user asks to check an existing bianhua for integrity / impact — the same forward protocol;
+- a prose artifact claims graph-backed leverage and must be verified — the **claim-audit** mode (Mode 3 below).
 
 ## Protocol
 
@@ -64,13 +65,23 @@ nks_add_vimarsha(genre="samshaya",
    sense="адресовано стюарду задетого контура")
 ```
 
-The `posed_to` **arrow** (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer, #460).
+The `posed_to` **arrow** (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer).
 
 Description states: what the telos implies for these nodes, and **what counts as an answer** — «не затронуто» (close visarjana, with the reason recorded) or «затронуто» (design the adaptation — **design** skill; the new work `arose_from` this question).
 
 ### 6. Report
 
 `nks_orient(lens="bianhua", focus=<seq>)` — the drivers now include the integrity front. Tell the user what was attached and what was consciously left out.
+
+## Mode 3 — claim-audit: подкреплено ли заявленное графом
+
+The forward pass asks «что затронет превращение?». The reverse pass asks the mirror question: **несёт ли граф то, что утверждает проза?** Run it whenever an artifact *claims* graph-backed leverage — a rendered roadmap, a report, a summary, a telos citing capabilities: «направление D ведёт karta X», «D вырастает из способности Y», «поток A питает B», «риск закрыт». Node-grained detectors cannot catch this failure: each node is individually legal; the lie lives in the mismatch between text and structure.
+
+1. **Extract the claims.** From the artifact, list every statement that asserts structure: ownership (a karta drives/owns X), figure-on-ground (a direction extends a capability), flow (A produces what B consumes), risk coverage («mitigated by…»), anchoring («tracked in the graph»).
+2. **Verify each claim read-only.** Ownership → the karta carries real `actor`/`steward` edges to the named deeds (`nks_look`; a zero-edge karta is theater). Extension → a driving kriya reaches the capability via `upadhi`/`context` (`lens="topology"`). Flow → the estafeta exists (`lens="trace"`). Coverage → the risk carries `addressed_by` or a conscious-acceptance mode. Anchoring → the vimarsha has `vimarsha_of` into the claimed contour.
+3. **Report claimed-but-unwired, pair by pair.** Each unbacked claim gets one of two fates, chosen with the owner: **wire it** (the claim was true but unrecorded — hand the missing edges to weaving) or **weaken the prose** (the claim was theater — the artifact overstates the graph). Never leave prose overstating the graph, and never wire edges solely to make prose true.
+
+The audit itself writes nothing; it produces the claims × verdicts table. Same acceptance discipline as the wavefront: the owner picks each fate.
 
 ## Noise discipline
 
