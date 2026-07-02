@@ -17,7 +17,7 @@ Design creates. Weaving completes.
 |---|---|---|
 | **weave** | замкни структуру — leaked, relay-gap, no-actor, no-sense, orphan-by-given_as, unreachable upadhi | **Yes** — this skill (operations below) |
 | **address** | ответь / закрой вопрошание — unresolved risk, unanchored vimarsha, bug-without-vimarsha | No → the **inquiry** / **assembly** agenda (carries transcendent will) |
-| **reverify** | потрогай / обнови модус — stale, mode-conflict | No → background; touch the node's mode, don't restructure |
+| **reverify** | потрогай / обнови модус — stale, mode-conflict | No → background, or the reader on the spot (confirm-touch / release / doubt); touch the node's mode, don't restructure |
 | **boundary** | оставь — санкционированный край реалма | No → **information, not work** (see below) |
 
 Repair only the **weave** group. Don't invent structure to "answer" an address-class question, don't restructure a reverify-class stale node, and — the trap below — don't try to weave a boundary.

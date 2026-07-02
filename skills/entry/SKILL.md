@@ -64,6 +64,8 @@ The map is primary, seeds are remainder. Open work lives as anga-vimarshas on th
 
 If, while reading nodes for an answer, you notice a small fix that's clearly correct — a missing arrow, a stale phrasing already corrected by the conversation, a vimarsha the user just resolved — you may apply it inline using `nks_update` (node) or `nks_arrow(action="link")`, then mention briefly that you did so.
 
+**A stale-flagged node you are already reading is yours to digest on the spot.** One cheap check — does its claim still hold? (an `attrs.breaks_if` condition, when present, makes this a single move) — then: confirm (touch the epistemic mode), release (`visarjana` with the reason), or pose the doubt. Don't step past a rotten node you noticed: the reader is the cheapest agent of forgetting.
+
 Do **not** do silently:
 - Create new phenomena or kriyas.
 - Open new vimarshas about substantive conflicts.

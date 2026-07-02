@@ -124,6 +124,10 @@ why), **NKS realm name** (create if missing), **Stack**, **Quality gate**
 (propose strictest — Step 3). For an existing repo, infer these from the repo and
 the old config first, then confirm only what's ambiguous.
 
+Also settle **who owns direction**: the realm's owner as a svatantra (主)
+karta — created in Step 2 if missing. Out-of-mandate questions will be posed to
+it as graph vimarshas (`posed_to`), not chat-only asks.
+
 Also settle **shared mutable build/test state**: does build or test read or
 mutate a shared resource — a database, a fixed port, a dev server, a global
 cache, a cloud sandbox? If yes, capture per-lane isolation (per-branch
@@ -137,6 +141,14 @@ Skip when build/test has no shared mutable state.
   (named after the project's boundary, `contains`-linked from the realm root),
   and its `#seq` goes into *What this project is*. Design the boundary with the
   `design` skill, create with `nks_add_holon`.
+- **The doer becomes a steward.** Create the repo's agent karta
+  (`nks_add_karta`, `manifested_as=adhikarin`, motivation distilled from the
+  Production statement) and draw its `steward` edge to the focus holon — an
+  adhikarin without a steward edge is a live warning ("acts but answers for
+  nothing"). Create the owner's svatantra karta if Step 1 found none. Record
+  both seqs in *What this project is*. An agent can always re-find its kartas
+  via `nks_admin(action="my_kartas")` — the doc slot is the fast path, not the
+  only one.
 
 ### Step 3 — Quality gate (propose strictest, user confirms)
 For each: propose the strictest sensible option for the stack, a one-line
@@ -175,10 +187,16 @@ Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them). Generate the JSON for *this* project — write it
 yourself:
 - **`SessionStart`** → reminder to orient in NKS before acting (skill `entry`),
-  naming *this* realm slug and focus holon.
+  naming *this* realm slug, focus holon **and agent karta**: open the doer's
+  agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
+  vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
   push`, reminder to update NKS (match reality + advance the bianhua map:
-  close resolved vimarshas) and run the after-green-push self-review.
+  close resolved vimarshas), **sweep the shipped contour** (flip the modes of
+  every designed node the push realized — the whole contour, not only the nodes
+  you touched — and close the design vimarshas the ship settled), **sweep the
+  inbox** (visarjana the `posed_to` questions the work answered), and run the
+  after-green-push self-review.
 
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`) is the
@@ -195,8 +213,8 @@ validation) — a known false-positive. Harmless for a non-blocking reminder, so
 ship it as-is; just never promote this text-match to anything that gates work. To
 cut the noise, also branch on `.tool_response` so the reminder fires only when
 the push actually ran.
-Self-check: both hooks present; `SessionStart` names the real realm slug + focus
-holon, not a placeholder.
+Self-check: both hooks present; `SessionStart` names the real realm slug, focus
+holon and agent-karta seq, not placeholders.
 
 Heads-up: writing `.claude/settings.json` may be flagged by the harness as
 self-modification and require explicit approval — surface the write for
@@ -213,8 +231,10 @@ Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
 
 Never pre-grant in either layer (ask per-use): `rm`, `git reset --hard`, `git
 push --force`, `git branch -D`; `nks_delete_node` / `nks_arrow(action="delete")` /
-`nks_history(action="revert"|"invert")`; `nks_realm(action="create"|"delete")` /
-`nks_admin`; and bash `cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail`
+`nks_history(action="revert"|"invert")`; `nks_realm(action="create"|"delete")`;
+`nks_admin` membership/ownership actions and `add_webhook`/`remove_webhook`
+(its read-only `my_kartas` / `whoami` / `list_webhooks` / `my_usage` may sit in
+the team allow-list); and bash `cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail`
 (Read/Glob/Grep/Edit cover those).
 
 The NKS MCP server prefix is environment-specific — confirm the real tool names
@@ -274,3 +294,7 @@ copied prefix often won't match and silently does nothing.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
+- **Pass the baton.** End the bootstrap by offering the first visible value —
+  a quick roadmap teaser (`product-roadmap` skill, quick mode) over the freshly
+  bootstrapped repo. The newcomer's first wow should not wait for them to guess
+  the next prompt.
