@@ -185,6 +185,7 @@ Every arrow carries a sense explaining WHY.
 1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` arrow to a holon does NOT clear it. Wire it to a kriya.
 2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
 3. **Kriya**: actor, ahara, utpatti phenomena all exist?
+4. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*: if the new node supersedes an existing one, draw `supersedes` new→old, migrate the old node's load (`key:true`, anchors, upadhi consumers that should move), and close it (`visarjana`). A successor that doesn't release its predecessor leaves a live duplicate canon — the forward wave updates references and strands the old node under the retired term.
 
 ## Operational reminders
 

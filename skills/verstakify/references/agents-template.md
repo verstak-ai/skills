@@ -8,6 +8,11 @@
 - **NKS realm**: `<slug>` — every session starts with `nks_orient` here.
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
+- **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
+  Your inbox: `nks_orient(focus="<seq>")` at session start (self-locate
+  fallback: `nks_admin(action="my_kartas")`).
+- **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
+  here as `posed_to` vimarshas.
 - **Stack**: `<language + primary frameworks, one line>`.
 - **Production statement**: `<one paragraph: what ships, to whom, where, cost
   of breakage. Sandbox/research: state that breakage is cheap, what the
@@ -41,8 +46,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   is*, focus holon if set; orient by the ACTIVE BIANHUA map (`lens="bianhua"`
   for the forest) — open work lives as anga-vimarshas on transformations; a
   `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The
-  `entry` skill runs the protocol.
-- **Every push → update NKS.** Two moves, both required:
+  `entry` skill runs the protocol. Then open your agenda:
+  `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
+  your inbox; pick up or explicitly defer each before starting repo work.
+- **Every push → update NKS.** Four moves, all required:
   - **Match reality.** Record what positions the change in the target system:
     architecture, module APIs, supply/delivery, user experience, integration
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
@@ -53,6 +60,13 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     `genre=hint` seed is left only for what the graph can't carry —
     external-world state, chosen priorities; pointer, not payload
     — never by default.
+
+  - **Sweep the shipped contour.** A push that realizes designed nodes flips
+    their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
+    designed contour — not only the nodes you happened to touch — and closes
+    the design vimarshas the ship settled.
+  - **Sweep the inbox.** Close (visarjana) the `posed_to` questions your work
+    answered; park or group the stale ones.
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
@@ -84,7 +98,9 @@ branches before it merges. After the branch merges (however this project merges
    *what's* unclear, not just "which option". Surface competing
    interpretations; push back when a simpler approach or false premise is
    visible. Check repo + NKS before writing; fetch, don't recall. Hit the
-   live system before trusting a type, a name, or a doc.
+   live system before trusting a type, a name, or a doc. Out-of-boundary or
+   authority-exceeding questions become vimarshas `posed_to` the owner's 主
+   karta — not silent decisions, not chat-only asks.
 2. **Simplicity first.** Minimum code for the task. No speculative features, no
    abstractions for single-use code, no error handling for impossible cases.
    Validate at boundaries; trust internal invariants. 200 lines that could be
