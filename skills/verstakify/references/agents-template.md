@@ -31,12 +31,18 @@ machine or with another agent.
   in the repo; link to the vimarsha or holon.
 - **Fetch state; never reconstruct it from memory.** No source for a "we
   decided…"? Stop and read NKS or the repo before acting.
-- **Local project-memory dir holds exactly one file**: a stub that (a) forbids
-  using local project memory and (b) points to the repo files + NKS realm
-  where project state actually lives. Anything else found there → move to its
-  real home (AGENTS.md / HANDOVER.md / NKS), reset the stub.
-- Global *user* preferences (language, working style) are agent-scoped and
-  persist separately — this rule is about *project* state.
+- **Memory write-gate.** The harness's own memory instruction invites a
+  `project` memory category — overridden here: before saving any memory,
+  classify the fact. Project fact (system property, decision, constraint,
+  gotcha) → repo/NKS; memory keeps at most a one-line pointer.
+  Agent/user-scoped (working style, preferences, language) → memory, as
+  designed. Dual-nature facts are the trap: "X works only in prod" *felt* as
+  "how I should test X" is still a project fact — split it (fact → repo/NKS,
+  pointer → memory).
+- The memory index (`MEMORY.md`), loaded every session, opens with this gate
+  as its first line — the rule must meet the save-instinct at write time, not
+  sit only in this file. Project facts already accumulated in memory → move
+  to their real home (AGENTS.md / HANDOVER.md / NKS), leave pointers.
 
 ## Session lifecycle
 NKS = the work (structure, open questions, what's next). Git = how it got here

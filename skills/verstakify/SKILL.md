@@ -251,14 +251,16 @@ copied prefix often won't match and silently does nothing.
   conventions*: never stage local edits — `git update-index --skip-worktree
   <file>`, never `git add -A` / `commit -a` (an agent editing a tracked env file
   otherwise leaks it into the PR).
-- Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`) holds
-  only the prohibition stub. Classify each survivor before moving it: **project
-  state** (decisions, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS;
-  **user/agent-scoped preferences** (working style, language) are *not* project
-  state — they persist separately by design (see *Persistence rules*), so leave
-  them where they live, don't force them into the stub. Then write/refresh the
-  stub: forbid using local project memory, point at the repo files + NKS realm
-  where state lives (reason: reproducibility + multi-machine work).
+- Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`):
+  audit it. Classify each file: **project state** (decisions, constraints,
+  branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS, leave at most a
+  one-line pointer; **user/agent-scoped preferences** (working style,
+  language) stay — they persist there by design (see *Persistence rules*).
+  Then install the write-gate: the first line of the memory index
+  (`MEMORY.md`) states the gate from *Persistence rules* — project facts →
+  repo/NKS, memory keeps pointers; the harness's `project` memory category
+  is overridden. The index is loaded every session, so the gate meets the
+  save-instinct at write time (reason: reproducibility + multi-machine work).
 - *Stack*, *Commands*, *Project structure*, *Code conventions* hold real content
   proportional to maturity. Empty is fine day one; `TBD` is not.
 - `HANDOVER.md` exists only if feature-branch work is in flight.
