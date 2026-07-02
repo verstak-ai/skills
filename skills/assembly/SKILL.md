@@ -1,6 +1,6 @@
 ---
 name: assembly
-description: "Use this skill to assemble a realm — the central ritual of the 時-cycle: discern the pattern over a whole field of inquiry and activity and produce 形, the assembly map. Triggers: 'собери реалм', 'сборка', 'пересборка', 'что здесь происходит по сути', 'триаж вимарш', 'повестка', 'состояние реалма целиком', 'assemble the realm', 'what's really going on here', 'reassemble', 'map the transformations'. Also use when entry/orient shows a large ungrouped field — many free vimarshas, a wall of top-level kriyas. Distinct from weaving (semantic repair of existing structure) and design (building paths from goals): assembly discerns the pattern over the field and produces 形, the map of bianhua the system is actually undergoing. Needs the nks_* MCP tools, especially nks_add_bianhua and lens=\"bianhua\"."
+description: "Use this skill to assemble a realm — the central ritual of the 時-cycle: discern the pattern over a whole field of inquiry and activity and produce 形, the assembly map. Triggers: 'собери реалм', 'сборка', 'пересборка', 'что здесь происходит по сути', 'повестка', 'состояние реалма целиком', 'assemble the realm', 'what's really going on here', 'reassemble', 'map the transformations'. Also use when entry/orient shows a large ungrouped field — many free vimarshas, a wall of top-level kriyas. Distinct from weaving (semantic repair of existing structure), design (building paths from goals), and inquiry (the per-vimarsha lifecycle work): assembly discerns the pattern over the field and produces 形, the map of bianhua the system is actually undergoing. Needs the nks_* MCP tools, especially nks_add_bianhua and lens=\"bianhua\"."
 ---
 
 # NKS Assembly
@@ -21,7 +21,7 @@ Assembly is the expensive 行-ritual of a recurring cycle, not a one-off:
 元→意 reassembly — cheaper than the first: recipe (optics) + basis (nodes+versions) replay
 ```
 
-You produce and refresh 形. You do **not** decide *when* to reassemble — that is the Мыслепрактик's call (see Roles).
+You produce and refresh 形. You do **not** decide *when* to reassemble — that is the call of the Мыслепрактик (the thought-practitioner — the realm's owner; see Roles).
 
 ## Roles — know your boundary
 
@@ -29,8 +29,8 @@ You produce and refresh 形. You do **not** decide *when* to reassemble — that
 |---|---|---|
 | **Мыслепрактик** | "not to drown, to see the whole" | Holds transcendent will. Provokes assembly, validates 形, decides when to reassemble. The only one who says *why*, *"yes, it grasps it"*, *"the map lies"*, *"again"*. |
 | **Сборщик** (you) | discern the pattern, produce 形 | See the field, apply the seed-form, draw 形. **Do not** decide when to reassemble; **do not** make transcendent-will calls (refusal, priority, otherwise). |
-| **Штурман** | "where do I apply effort right now" | Reads 形, picks a focus, enters the graph via orient, works, returns feedback. |
-| **Координатор** | "synchronise people" | 形 as the shared language: "who moves which bianhua?" |
+| **Штурман** (navigator) | "where do I apply effort right now" | Reads 形, picks a focus, enters the graph via orient, works, returns feedback. |
+| **Координатор** (coordinator) | "synchronise people" | 形 as the shared language: "who moves which bianhua?" |
 
 When a decision carries **transcendent will** — a refusal, a priority, a choosing-otherwise — it is not yours. Name it and carry it to the Мыслепрактик's agenda. Don't resolve it to keep the ritual moving.
 
@@ -58,16 +58,7 @@ Read the field by *content*, not by labels (the pilot failure: the agent worked 
 
 ### 2. Triage the field of inquiry
 
-Every **active, free** vimarsha (not yet anga of any bianhua) gets one of four fates:
-
-| Fate | How | When |
-|---|---|---|
-| **anga → bianhua** | `nks_arrow(action="link", arrow_type="anga", source=<vimarsha>, target=<bianhua>)` | its resolution *drives* a transformation. The vimarsha keeps its own `vimarsha_of` — anga does not replace it. Try the **existing** forest first; unsure which transformation it drives — ask the user, don't guess and don't spawn a new bianhua for it. |
-| **supersede** | `supersedes` arrow on the replacement; old → volitive `visarjana` | a later question subsumes it |
-| **close (visarjana)** | `nks_update` volitive=`visarjana` | answered, or consciously dropped without answer |
-| **leave free** | nothing — but *consciously* | genuine open inquiry not part of any transformation underway |
-
-The full grammar of *how* each genre resolves and the three lifecycle outcomes (resolution / death / crystallization) live in the **inquiry** skill — use it for the per-vimarsha work; assembly is the field-level pass that decides each one's place in 形.
+Every **active, free** vimarsha (not yet anga of any bianhua) gets exactly one fate: **anga** to the transformation its resolution drives, **supersede**, **close**, or **consciously left free**. The moves themselves — how each genre resolves, the three lifecycle outcomes, park vs close — are the **inquiry** skill's; use it for every per-vimarsha act. Assembly adds only the field-level rules: try the **existing** forest first (unsure which transformation a vimarsha drives — ask the user, never guess and never spawn a bianhua for it), and an anga-attached vimarsha keeps its own `vimarsha_of`.
 
 ### 3. Population inspection of activity → composites
 
@@ -90,8 +81,8 @@ Look at `top-level(scope)` kriyas — "what is really going on here". A wall of 
 
 Assemble the map:
 
-- **Create / refresh bianhua** for each transformation the field reveals: `nks_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisite bianhua>)`. Write `telos` as the *destination quality* ("система станет …"), never "what this is". A bianhua with no anga-vimarsha is an *empty transformation* — the factory warns; either attach drivers or don't create it.
-- **Run the integrity pass on each newly accepted bianhua** (**integrity** skill): propagate the telos through the graph's closures and mark the wavefront of affected-but-unattached nodes with «затронуто ли?» samshayas anga'd to the transformation.
+- **Create / refresh bianhua** for each transformation the field reveals: `nks_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisite bianhua>)`. Write `telos` as the *destination quality* ("the system becomes …"), never "what this is". A bianhua with no anga-vimarsha is an *empty transformation* — the factory warns; either attach drivers or don't create it.
+- **Run the integrity pass on each newly accepted bianhua** (**integrity** skill): propagate the telos through the graph's closures and mark the wavefront of affected-but-unattached nodes with «is this affected?» samshayas anga'd to the transformation.
 - **Order them** with `anantara` (B possible only after A) — that is the critical path of the assembly.
 - **Fix bildung-realizations.** A session must arrive at *understandings*, not only spawn new vimarshas (shared with the inquiry skill). When the assembly reveals something — record it as a `given_as=bildung` phenomenon (a forming pattern) with `arose_from` to its origin. No bildung output ⇒ the assembly didn't land.
 

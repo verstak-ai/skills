@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Use this skill to bring EXTERNAL WORD into an NKS realm — the agent-facing form of шабда-intake (Нить 4 «Внешнее слово»). Triggers: 'впусти внешнее слово', 'засей граф из issue/доков', 'внеси issue в граф', 'intake', 'ingest issues into the graph', 'seed the realm from docs/README/conversation', 'bring external word into NKS', 'shabda intake'. Source-INDEPENDENT: GitHub issues, README/ADR/TODO, source code, a conversation, an RFC — the source enters through an ADAPTER, the intake discipline is one. The discipline: map each external item's FORM to a node type, set its epistemic mode BY KIND of source (kalpita only for unverified claims, pratyakshita for what you observe directly), mark provenance source_kind=shabda, dedup before writing, anchor each node to its source (arose_from), then verify by pratyaksha and graduate the mode. Distinct from writing (one node from a distinction you already hold), verstakify (projects derived config — no duplication of NKS), and product-roadmap (an applied skill that COMPOSES this layer with a GitHub adapter). Needs the nks_* MCP tools."
+description: "Use this skill to bring EXTERNAL WORD into an NKS realm — the agent-facing shabda-intake (Нить 4 «Внешнее слово»). Triggers: 'впусти внешнее слово', 'засей граф из issue/доков', 'внеси issue в граф', 'intake', 'ingest issues into the graph', 'seed the realm from docs/README/conversation', 'bring external word into NKS', 'shabda intake'. Source-INDEPENDENT: issues, docs, source code, a conversation enter through an ADAPTER; the discipline is one — map each item's FORM to a node type, set the epistemic mode BY KIND of source (kalpita only for unverified claims), mark provenance source_kind=shabda, dedup before writing, anchor each node to its source (arose_from), then verify by pratyaksha and graduate the mode. Distinct from writing (one node from a distinction you already hold), verstakify (projects derived config), and product-roadmap (an applied skill that COMPOSES this layer with a GitHub adapter). Needs the nks_* MCP tools."
 ---
 
 # NKS Intake
@@ -9,7 +9,7 @@ External word — an issue, a README, a chunk of source, a conversation, an RFC 
 
 The symptom this skill prevents: external word dumped *en masse as facts* floods the realm with authoritative-looking garbage and false tensions, breaking «the graph is a tension with reality» and «systems grow, not get built».
 
-**Source-independence is the whole point.** The source is an *adapter*; the intake discipline below is one. `product-roadmap` composes this layer with a GitHub adapter; a future verstakify-засев or a docs-intake composes it with another. Do not bake a source into the discipline.
+**Source-independence is the whole point.** The source is an *adapter*; the intake discipline below is one. `product-roadmap` composes this layer with a GitHub adapter; a future verstakify seeding or a docs-intake composes it with another. Do not bake a source into the discipline.
 
 ## The source adapter — its contract
 
@@ -29,7 +29,7 @@ External word is heterogeneous; one item is not one node-shape. Map by **form**,
 | External form | Node | Note |
 |---|---|---|
 | bug / breakage report | `risk` vimarsha, or a 🔥 sachverhalt-incident if it already fired | a report is a claim that something is wrong |
-| feature / plan / direction | `bianhua` ("X станет Y") + driving vimarshas — **or** a `kriya` (anagata/chanda) if it's one deed | a single wish is not a transformation — locate the existing bianhua first (assembly), don't spawn one per item |
+| feature / plan / direction | `bianhua` ("X becomes Y") + driving vimarshas — **or** a `kriya` (anagata/chanda) if it's one deed | a single wish is not a transformation — locate the existing bianhua first (assembly), don't spawn one per item |
 | RFC / design-discussion / open question | `samshaya` vimarsha | the question is the node |
 | stated fact about the system | `phenomenon` (given_as by what it is) | subject to пратьякша before it's asserted |
 | labels / tags | a hint to genre/holon, not a node | routing signal |
@@ -50,8 +50,8 @@ This is the move agents get wrong. **`source_kind=shabda` is provenance** (this 
 
 Two consequences:
 
-- **The owner's volition is not shabda-to-verify.** When the external word is a *decision, goal, or telos* from the realm's owner (the āpta for their own intent), it does not enter `kalpita` awaiting проверка — it lands at its **volitive** mode (`chanda`/`adhimoksha`), witnessed (`pratyakshita`). Only assertions *about a state of the world* take the kalpita-until-pratyaksha path.
-- **`kalpita` is never permanent.** It is the entry state of the шабда→сверка→тезис thread; step 4 graduates it.
+- **The owner's volition is not shabda-to-verify.** When the external word is a *decision, goal, or telos* from the realm's owner (the āpta for their own intent), it does not enter `kalpita` awaiting verification — it lands at its **volitive** mode (`chanda`/`adhimoksha`), witnessed (`pratyakshita`). Only assertions *about a state of the world* take the kalpita-until-pratyaksha path.
+- **`kalpita` is never permanent.** It is the entry state of the шабда→сверка→тезис (word → check → thesis) thread; step 4 graduates it.
 
 Model the node accordingly: `attrs.source_kind="shabda"`, the given_as the content warrants, the epistemic mode from the table.
 

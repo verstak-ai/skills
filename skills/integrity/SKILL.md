@@ -1,11 +1,11 @@
 ---
 name: integrity
-description: "Use this skill right after a bianhua is created (telos accepted by the owner), when the user asks to check a transformation's integrity or impact — 'проверь бяньхуа на целостность', 'что затронет это превращение', 'обвяжи превращение', 'кого заденет', 'integrity check', 'impact analysis' — or when a prose artifact claims graph-backed leverage and must be verified against the graph: 'подкреплено ли это графом', 'не театр ли', 'claim audit', 'сверь роадмап/отчёт с графом'. Forward: propagates the telos through the graph's semantic closures — estafetas (lens=trace), next-threads, contains-subtrees, upadhi-consumers — finds kriyas/phenomena/holons implicated in the holistic change but not yet attached to the bianhua, and, after the user approves the candidate list, poses clustered samshaya-vimarshas («затронуто ли это?») anchored to the affected nodes with anga to the bianhua. Reverse (claim-audit): extracts the artifact's structural claims and verifies each is carried by real edges, reporting claimed-but-unwired. Distinct from assembly (discerns the map from the field) and design (builds paths from goals). Needs the nks_* MCP tools."
+description: "Use this skill for a transformation's integrity — right after a bianhua is created (telos accepted by the owner) or on request: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь бяньхуа на целостность', 'что затронет это превращение', 'кого заденет' — and for the reverse claim-audit when a prose artifact claims graph-backed leverage: 'is this backed by the graph', 'claim audit', 'подкреплено ли графом', 'не театр ли'. Forward: propagates the telos through the graph's closures and, after owner approval, poses clustered «is this affected?» samshayas anchored to the wavefront with anga to the bianhua. Reverse: extracts the artifact's structural claims and verifies each is carried by real edges, reporting claimed-but-unwired. Distinct from assembly (map from the field) and design (paths from goals). Needs the nks_* MCP tools."
 ---
 
-# NKS Integrity — обвязка превращения
+# NKS Integrity — the transformation's wavefront
 
-A bianhua is a HOLISTIC change — cross-holon by definition. Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «а не затронуто ли это? проведите дизайн» — so the transformation cannot honestly close while its impact is unexamined.
+A bianhua is a HOLISTIC change — cross-holon by definition. Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «is this affected? design the adaptation» — so the transformation cannot honestly close while its impact is unexamined.
 
 Three entries:
 
@@ -39,7 +39,7 @@ Collect pairs `(node, why-implicated)` — the justification is load-bearing, it
 ### 3. Subtract the already-covered (idempotency)
 
 - anchors of the bianhua's existing anga-vimarshas — already in the field;
-- nodes already under a prior «затронуто ли …?» samshaya of this bianhua (`nks_search(q="", anga_of=<bianhua>)` and read the anchors).
+- nodes already under a prior «is … affected?» samshaya of this bianhua (`nks_search(q="", anga_of=<bianhua>)` and read the anchors).
 
 A re-run of the integrity pass adds only the **new** wavefront — it never duplicates questions.
 
@@ -55,27 +55,27 @@ For each approved cluster:
 
 ```
 nks_add_vimarsha(genre="samshaya",
-  name="<emoji> Затронуто ли <X> превращением «<bianhua>»?",
+  name="<emoji> Is <X> affected by transformation «<bianhua>»?",   # pose in the realm's language
   vimarsha_of=<first anchor>, posed_by=...,
   epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")
 → extra anchors: nks_arrow(action="link", arrow_type="vimarsha_of", ...)
 → nks_arrow(action="link", arrow_type="anga", source=<new>, target=<bianhua>,
-   sense="фронт целостности: пока не отвечено, превращение не закрыто")
+   sense="integrity front: the transformation cannot close until answered")
 → optional: nks_arrow(action="link", arrow_type="posed_to", source=<new>, target=<steward-karta>,
-   sense="адресовано стюарду задетого контура")
+   sense="addressed to the steward of the affected contour")
 ```
 
 The `posed_to` **arrow** (optional) addresses the question to the **karta** who stewards the affected contour — a svatantra/adhikarin who can answer; never a `pratibimba` (an image can't answer).
 
-Description states: what the telos implies for these nodes, and **what counts as an answer** — «не затронуто» (close visarjana, with the reason recorded) or «затронуто» (design the adaptation — **design** skill; the new work `arose_from` this question).
+Description states: what the telos implies for these nodes, and **what counts as an answer** — «not affected» (close visarjana, with the reason recorded) or «affected» (design the adaptation — **design** skill; the new work `arose_from` this question).
 
 ### 6. Report
 
 `nks_orient(lens="bianhua", focus=<seq>)` — the drivers now include the integrity front. Tell the user what was attached and what was consciously left out.
 
-## Mode 3 — claim-audit: подкреплено ли заявленное графом
+## Mode 3 — claim-audit: is the claimed carried by the graph
 
-The forward pass asks «что затронет превращение?». The reverse pass asks the mirror question: **несёт ли граф то, что утверждает проза?** Run it whenever an artifact *claims* graph-backed leverage — a rendered roadmap, a report, a summary, a telos citing capabilities: «направление D ведёт karta X», «D вырастает из способности Y», «поток A питает B», «риск закрыт». Node-grained detectors cannot catch this failure: each node is individually legal; the lie lives in the mismatch between text and structure.
+The forward pass asks "what will the transformation touch?". The reverse pass asks the mirror question: **does the graph carry what the prose claims?** Run it whenever an artifact *claims* graph-backed leverage — a rendered roadmap, a report, a summary, a telos citing capabilities: «direction D is driven by karta X», «D grows out of capability Y», «flow A feeds B», «the risk is covered». Node-grained detectors cannot catch this failure: each node is individually legal; the lie lives in the mismatch between text and structure.
 
 1. **Extract the claims.** From the artifact, list every statement that asserts structure: ownership (a karta drives/owns X), figure-on-ground (a direction extends a capability), flow (A produces what B consumes), risk coverage («mitigated by…»), anchoring («tracked in the graph»).
 2. **Verify each claim read-only.** Ownership → the karta carries real `actor`/`steward` edges to the named deeds (`nks_look`; a zero-edge karta is theater). Extension → a driving kriya reaches the capability via `upadhi`/`context` (`lens="topology"`). Flow → the estafeta exists (`lens="trace"`). Coverage → the risk carries `addressed_by` or a conscious-acceptance mode. Anchoring → the vimarsha has `vimarsha_of` into the claimed contour.
@@ -92,6 +92,6 @@ The audit itself writes nothing; it produces the claims × verdicts table. Same 
 ## What it is NOT
 
 - **Not assembly** — assembly discerns the map from the field; integrity walks outward from one declared telos.
-- **Not design** — integrity poses the «затронуто ли?» questions; clusters answered «затронуто» are handed to design.
+- **Not design** — integrity poses the «is this affected?» questions; clusters answered «affected» are handed to design.
 - **Not weaving** — it does not repair structure; it marks where structure will have to move.
 - **Not a tension detector** — it runs from a telos, not from structural signals.

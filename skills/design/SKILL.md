@@ -18,18 +18,9 @@ The graph IS the spec. If it's not in the graph, it doesn't exist.
 
 ## Starting modes for projected work
 
-A projected practice is born **planned, not done**. Its triad is the *project* triad — never the "ready" one. Stamping a designed-but-nonexistent kriya/phenomenon as `pramanita/vartamana/upeksha` lies about both its ontic state (it isn't running) and its epistemic state (it isn't verified), and the lie cascades: false `vartamana` breaks the sunset section, succession, kriya-anga (a возведение falsely reads as an already-arrived, resolved constituent — the bianhua's progress lies), and carrier predicates. (The harm is the *lie*, not completion: a genuinely done kriya can be anga — see §"A volitional kriya belongs to a transformation".)
+A projected practice is born **planned, not done**: anumita/anagata/chanda (a settled plan you commit to — adhimoksha; deferred "needed, not now" — anagata+upeksha). Only something observed already running is Pt/Va/Up. Stamping a designed-but-nonexistent node as "ready" (`pramanita/vartamana/upeksha`) lies about both its ontic and epistemic state, and the lie cascades through sunset, succession, kriya-anga, and carrier predicates. **Transition to `vartamana` is a separate act of life**, performed when the practice actually starts. Volition graduates along `chanda → adhimoksha`; never reach for `attrs` to express urgency or priority. The full starting-triple and closure canon is the **writing** skill's — consult it at every write; don't re-derive it here.
 
-| You are recording | Epistemic | Ontic | Volition | Triad |
-|---|---|---|---|---|
-| A planned kriya/phenomenon to build | anumita | anagata | chanda | проект |
-| A settled plan you commit to | anumita | anagata | adhimoksha | зрелый проект |
-| Deferred — "needed, not now" | anumita | anagata | upeksha | (parked) |
-| Something observed already running | pratyakshita | vartamana | upeksha | наблюдение |
-
-**Transition to `vartamana` is a separate act of life** (движение 1 «проект → реализация»), performed when the practice actually starts — not the default of writing a designed node. Volition graduates along the `chanda → adhimoksha` axis (want → committed); never reach for `attrs` to express urgency or priority.
-
-**A volitional kriya belongs to a transformation.** A kriya recorded from volition — the user wants it to exist (or wants something gone), rather than from shabda («I know this is so») — is part of a qualitative shift the system is undergoing. Land it on the map: its driving vimarshas attach `anga` to the bianhua (the *path*), **and the volitional kriya itself attaches `anga` too** (the *arrival* — kriya-anga shipped). Read its direction from the kriya's own triputi, not a separate field: a **возведение** is a deed entering the fabric (ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`) — attach it while still `anagata`, it resolves once `vartamana`; a **депрекация** is a deed leaving (`vartamana→atita`, `virodha`), resolved at `atita`. The full kriya-anga grammar lives in the **writing** skill. And a **ready (completed) kriya can be anga too** — a deed done doesn't leave the map: the bianhua doubles as a *reading of the field of kriyas*, where through it each deed shows which transformation it served and why it was created. Membership records purpose, not only pending movement (отдача долга). Don't spawn a new bianhua for it spontaneously — existing forest first (`lens="bianhua"`); a new bianhua's name and telos are accepted by the user (assembly skill); unsure where it belongs → ask.
+**A volitional kriya belongs to a transformation.** A kriya recorded from volition — the user wants it to exist (or wants something gone), rather than from shabda («I know this is so») — is part of a qualitative shift the system is undergoing. Land it on the map: its driving vimarshas attach `anga` to the bianhua (the *path*), **and the volitional kriya itself attaches `anga` too** (the *arrival* — kriya-anga shipped). Read its direction from the kriya's own triputi, not a separate field: a **возведение** is a deed entering the fabric (ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`) — attach it while still `anagata`, it resolves once `vartamana`; a **депрекация** is a deed leaving (`vartamana→atita`, `virodha`), resolved at `atita`. The full kriya-anga grammar lives in the **writing** skill. And a **ready (completed) kriya can be anga too** — a deed done doesn't leave the map: the bianhua doubles as a *reading of the field of kriyas*, where through it each deed shows which transformation it served and why it was created. Membership records purpose, not only pending movement (отдача долга — the debt repaid). Don't spawn a new bianhua for it spontaneously — existing forest first (`lens="bianhua"`); a new bianhua's name and telos are accepted by the user (assembly skill); unsure where it belongs → ask.
 
 ## Four phases of design
 
@@ -51,7 +42,7 @@ OUTPUT: path of kriyas from inlet to goal
 NEXT: → Phase 2 (forward weaving)
 ```
 
-Actor: Проектирующий. Consumes: Вопрошание поставлено. Produces: Путь построен.
+Actor: the Designer role. Consumes: a posed inquiry. Produces: a built path.
 
 ### Phase 2: Forward weaving
 
@@ -75,7 +66,7 @@ OUTPUT: tensions discovered, lifecycles closed
 NEXT: → Phase 3 (risk analysis) or → lifecycle closure if broken
 ```
 
-Actor: Ткач. Consumes: Путь построен. Produces: Натяжение замечено, Lifecycle замкнут.
+Actor: the Weaver role. Consumes: a built path. Produces: noticed tensions, closed lifecycles.
 
 ### Phase 3: Risk analysis + mitigation
 
@@ -127,13 +118,13 @@ DO:
      to an EXISTING bianhua first (lens="bianhua"); a new one only with user-accepted
      name + telos (assembly skill), never per single vimarsha → the impulse becomes
      part of 形, not a scattered list
-  6. Stage the flow: when delivery is staged (e.g. тестовая → промежуточная → полная),
+  6. Stage the flow: when delivery is staged (e.g. test → staging → full),
      each stage is a sub-bianhua anga'd into the ONE delivery bianhua, ordered by
      anantara (what can start only after what); each stage gathers its own driving
      hints via anga. The canonical result of right-to-left design is this one bianhua
      with an anantara-ordered flow of stages — the owner reads it as the release plan
   7. On a newly accepted bianhua: run the integrity pass (integrity skill) — the
-     wavefront of affected-but-unattached nodes gets its «затронуто ли?» questions
+     wavefront of affected-but-unattached nodes gets its «is this affected?» questions
 OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
@@ -152,7 +143,7 @@ Never confuse. A chain of sachverhalts is an estafeta. A sequence of kriyas is a
 
 ## Lifecycle closure
 
-Broken lifecycles surfaced during design (lens="trace" broken, leaked, relay-gap) are repaired by the **weaving** skill, Operation 5 (Нить 8): birth and death at the same abstraction level; deferred closure via anagata+upeksha is OK. Don't re-derive the procedure here.
+Broken lifecycles surfaced during design (lens="trace" broken, leaked, relay-gap) are repaired by the **weaving** skill, Operation 5: birth and death at the same abstraction level; deferred closure via anagata+upeksha is OK. Don't re-derive the procedure here.
 
 ## given_as — arrow legality
 
@@ -176,7 +167,7 @@ vollzug/grundsatz → API rejects ahara/utpatti (422).
 HTTP endpoints → kriyas, not text descriptions:
 1. Root sinn container (e.g. "API URL") — contains all endpoint phenomena
 2. Endpoint phenomenon = sachverhalt (HTTP request). attrs: method, path
-3. Kriya "Обслуживание GET /path" — ahara ← endpoint phenomenon, utpatti → response phenomenon, actor → API client
+3. Kriya "Serving GET /path" — ahara ← endpoint phenomenon, utpatti → response phenomenon, actor → API client
 4. Next arrows: caller → endpoint kriya → renderer
 
 ## Write mechanics → writing skill

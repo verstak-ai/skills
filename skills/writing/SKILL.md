@@ -121,12 +121,12 @@ What goes in it, by type:
 - **Vimarsha** (`description`): the question. What would count as an answer?
 - **Holon** (`description`): what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta** (`motivation`): what drives the role. nks_add_karta requires it.
-- **Bianhua** (`telos`): the destination quality — "система станет …" (see Decision 5).
+- **Bianhua** (`telos`): the destination quality — "the system becomes …" (see Decision 5).
 
 **Timelessness — a guard, not a nicety.** Every description states what IS — the resolved, the asked — never how it came to be discussed. The body is read *out of time*: a future agent meets it with no session around it, so a chronicle in the body is noise to everyone but the writer.
 
 - **Out of the body:** dates, session markers, people's names (attribution → `attrs.posed_by`), git refs (SHAs/branches/PRs), and DONE/changelog journals. History lives in `nks_history` and git; done work changes the graph *itself* — modes, arrows, descriptions — it is not appended as a log.
-- **Violation smells:** «теперь», «после того как», «в этой сессии», a date in prose, a «✅ сделано» tail, any narration of what was wrong *before*.
+- **Violation smells:** "now" / «теперь», "after we…" / «после того как», "in this session", a date in prose, a «✅ done» tail, any narration of what was wrong *before*.
 - **Where time is legitimate:** a `phenomenon(given_as=sachverhalt)` — an incident/state — carries its timestamp in `attrs`, not the prose; `shabda` (quoted external testimony) is dated by its nature; a closed vimarsha reads as archive (its body froze at closure). Everywhere else: tenseless.
 
 ## Decision 5: Arrows
@@ -160,7 +160,7 @@ Realm boundary is topological: a kriya at the realm edge is legal without ahara 
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
 - `posed_to` → karta: the **inbox edge** — address the inquiry to a doer who can answer, so they can poll "my open questions" (`nks_search(posed_to=<karta>)`). **It is an arrow to a karta node, not a field** — create it inline (`arrows: [{arrow_type:"posed_to", target:<karta>}]`) or via `nks_arrow(action="link", arrow_type="posed_to", …)`. **Forbidden to a pratibimba** (an image can't answer). Choose the target per Decision 2b — the 能 who stewards the holon your question is in, the 主 for strategic scope. It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
-- **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
+- **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «about WHAT is the doubt?» (→ `vimarsha_of`), then «which becoming does the answer drive?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
 - A **hint is a pointer, not a payload**: it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.
@@ -168,9 +168,9 @@ Realm boundary is topological: a kriya at the realm edge is legal without ahara 
 ### Bianhua
 
 - `anga` (part→whole): a constituent → the bianhua it *drives*. Three carrier kinds — a **vimarsha**, a **sub-bianhua**, or a **kriya**. Pass `anga=<refs>` on `nks_add_bianhua`, or `nks_arrow(action="link", arrow_type="anga", source=<ref>, target=<bianhua>)` later. The carrier keeps its own anchoring (a vimarsha its `vimarsha_of`) — anga is additional. A bianhua with zero anga is an *empty transformation* — the factory warns. Acyclic tree: one anga-parent per source.
-- **kriya as anga-carrier**: a vimarsha-anga carries the *path* (a question whose resolution moves the change); a kriya-anga carries the *arrival* — the deed that itself constitutes the transformation. Two readings, **inferred from the kriya's own triputi, never a separate field** (there is no `anga_kind`): a **возведение** is a deed entering the fabric (kriya ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`); a **депрекация** is a deed leaving it (`vartamana→atita`, `virodha`). **A completed kriya still links** — finishing the deed is the debt paid (отдача долга), not a block; no 422 on a done carrier. Each kriya-anga counts toward the bianhua's progress, its `resolved` read from the carrier's triputi.
+- **kriya as anga-carrier**: a vimarsha-anga carries the *path* (a question whose resolution moves the change); a kriya-anga carries the *arrival* — the deed that itself constitutes the transformation. Two readings, **inferred from the kriya's own triputi, never a separate field** (there is no `anga_kind`): a **возведение** is a deed entering the fabric (kriya ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`); a **депрекация** is a deed leaving it (`vartamana→atita`, `virodha`). **A completed kriya still links** — finishing the deed is the debt repaid (отдача долга), not a block; no 422 on a done carrier. Each kriya-anga counts toward the bianhua's progress, its `resolved` read from the carrier's triputi.
 - `anantara` (ordering): bianhua → the bianhua that must complete first. `anantara_after=<refs>`. Acyclic; sets the critical path.
-- `telos` is the description: write the *destination quality* ("система станет …"), rendered as `TELOS:` in `nks_look`. No given_as, no `context`, no ahara/utpatti/upadhi on a bianhua (422). The lifecycle and field work belong to the **inquiry** and **assembly** skills.
+- `telos` is the description: write the *destination quality* ("the system becomes …"), rendered as `TELOS:` in `nks_look`. No given_as, no `context`, no ahara/utpatti/upadhi on a bianhua (422). The lifecycle and field work belong to the **inquiry** and **assembly** skills.
 
 ### Sense on arrows
 
@@ -213,8 +213,8 @@ Can't pick one → two questions tangled. Separate.
 Each род (type × given_as × genre) has **one axis that carries liveness** (U1); the others only qualify. The `nks_add_*` factories print the **canonical STARTING TRIPUTI** for the род and `nks_look` glosses the carrier per node — **read them; don't stamp a divergent triple.** The trap the canon fixes: **`virodha` does NOT uniformly mean "closed" — it is polarized by род (U3):**
 
 - **risk** — `virodha` is the *live* mode: an active risk *stands* in virodha. It closes only via `visarjana` ∨ `addressed_by` ∨ `realized_as`, never by virodha itself.
-- **kriya / karta / phenomenon(vollzug)** — `virodha` = **депрекация**: a live tension "we want to retire this", not a closure. Closes at `atita` (kriya/karta also `nashta`) ∨ `visarjana`.
-- **samshaya / prati-paksha / hint** — here `virodha` *is* a closure (отказ).
+- **kriya / karta / phenomenon(vollzug)** — `virodha` = **депрекация** (deprecation): a live tension "we want to retire this", not a closure. Closes at `atita` (kriya/karta also `nashta`) ∨ `visarjana`.
+- **samshaya / prati-paksha / hint** — here `virodha` *is* a closure (отказ — refusal).
 
 And projected work is born `anagata` in the *project* triad, never the "ready" `pramanita/vartamana/upeksha` (that lies the deed already runs) — the **design** skill owns those starting modes.
 
