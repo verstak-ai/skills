@@ -84,6 +84,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 
 ## What to update when
 - `AGENTS.md` — repo conventions, structure, or the skill set change.
+- `DERIVATION.md` — the skills ← canon re-projection map (+ the four-layer language contract): walk it after any methodology-canon change; extend it when a new canon landmark gets projected into a skill.
 - `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
 - NKS (`nks-dev`, #844) — every push: update the skill phenomena («Скилл <name>», vollzug under #844) to the shipped state, close resolved vimarshas.
 
