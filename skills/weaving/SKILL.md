@@ -5,7 +5,7 @@ description: "Use this skill when doing semantic work on an existing NKS graph: 
 
 # NKS Weaving
 
-You are the Ткач (#302 in methodology). Your job: the graph has structure but lacks semantic completeness. You read, discover breaks, and repair — not by inventing new paths, but by finding connections that were implied but never made explicit.
+You are the Ткач. Your job: the graph has structure but lacks semantic completeness. You read, discover breaks, and repair — not by inventing new paths, but by finding connections that were implied but never made explicit.
 
 Design creates. Weaving completes.
 
@@ -17,33 +17,33 @@ Design creates. Weaving completes.
 |---|---|---|
 | **weave** | замкни структуру — leaked, relay-gap, no-actor, no-sense, orphan-by-given_as, unreachable upadhi | **Yes** — this skill (operations below) |
 | **address** | ответь / закрой вопрошание — unresolved risk, unanchored vimarsha, bug-without-vimarsha | No → the **inquiry** / **assembly** agenda (carries transcendent will) |
-| **reverify** | потрогай / обнови модус — stale, mode-conflict | No → background; touch the node's mode, don't restructure |
+| **reverify** | потрогай / обнови модус — stale, mode-conflict | No → background, or the reader on the spot (confirm-touch / release / doubt); touch the node's mode, don't restructure |
 | **boundary** | оставь — санкционированный край реалма | No → **information, not work** (see below) |
 
 Repair only the **weave** group. Don't invent structure to "answer" an address-class question, don't restructure a reverify-class stale node, and — the trap below — don't try to weave a boundary.
 
 `lens="tensions"` is the **full registry**; the cheap `has_tension` filter and the orient overview cover only a subset — each surface declares its own «covers N/M» (a `Scope:` / coverage line). Weave from `lens="tensions"`; never read a thin `has_tension` list as a clean realm.
 
-### Boundary is the edge of the world, not a break (#978, #1023)
+### Boundary is the edge of the world, not a break
 
 A realm legitimately takes input from and delivers output beyond itself. The detector already **subtracts the boundary subset from leaked/relay** — so a phenomenon still sitting in the **weave** group is *not* a boundary; weave it. Only what orient files under **boundary** is the edge, and the criterion is **topological — read it off the thread, don't go hunting in other realms for it**:
 
 - **boundary-outlet** — terminal delivery on a `next`-thread: the consumer is outside the realm. The producing kriya needs no downstream consumer here.
 - **boundary-inlet** — a `next`-thread origin, **or** a kriya marked `attrs.boundary="init"`: the impulse comes from outside the realm. Needs no upstream producer / ahara here.
 
-Boundary renders as information ("this is the edge"), never a tension to close. And never add `attrs` to silence a *non*-boundary tension — that's suppression (#404), not a boundary.
+Boundary renders as information ("this is the edge"), never a tension to close. And never add `attrs` to silence a *non*-boundary tension — that's suppression, not a boundary.
 
-### Carrier transitions are acts, not tensions (#438, #996)
+### Carrier transitions are acts, not tensions
 
-A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practice starts) and an *ascent in certainty* (`Kl→An→Pt→Pm`) are **legitimate weaving acts** (#156) — make them when the graph implies them; they are not tensions. Only **suspicious** transitions surface, and only as **reverify**-class: a `Warning` on write and a self-extinguishing `LocalCheck` (response_kind=reverify) in `nks_look` — resurrection (`atita→vartamana`, unexplained), `Pm→An/Kl` without a reverify event, death-without-being (`anagata→atita` skipping `vartamana`; kind-aware — a risk's `Ag→At` is legitimate realization). Resolve by touching the node's mode; never restructure, and never read it as a standing tension or a counter.
+A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practice starts) and an *ascent in certainty* (`Kl→An→Pt→Pm`) are **legitimate weaving acts** — make them when the graph implies them; they are not tensions. Only **suspicious** transitions surface, and only as **reverify**-class: a `Warning` on write and a self-extinguishing `LocalCheck` (response_kind=reverify) in `nks_look` — resurrection (`atita→vartamana`, unexplained), `Pm→An/Kl` without a reverify event, death-without-being (`anagata→atita` skipping `vartamana`; kind-aware — a risk's `Ag→At` is legitimate realization). Resolve by touching the node's mode; never restructure, and never read it as a standing tension or a counter.
 
 ## When to weave (not design)
 
 | Signal | Meaning | Action |
 |---|---|---|
 | `lens="tensions"` shows leaked | Phenomenon has utpatti, no ahara | → Close lifecycle |
-| `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer — or it's the realm edge (boundary-inlet, computed from thread topology #978: information, not work) |
-| ENTRY KRIYAS in orient looks bloated | Kriyas missing their ahara wiring | → Wire ahara arrows (true inlets render as boundary-inlet, #978 — no marker needed) |
+| `lens="tensions"` shows relay-gap | Phenomenon has ahara, no utpatti | → Add producer — or it's the realm edge (boundary-inlet, computed from thread topology: information, not work) |
+| ENTRY KRIYAS in orient looks bloated | Kriyas missing their ahara wiring | → Wire ahara arrows (true inlets render as boundary-inlet — no marker needed) |
 | Arrow without sense | Mute connection | → Write sense |
 | Kriya with 2 actor arrows | Hidden double kriya | → Split |
 | Phenomenon was one, now two | Stale arrows | → Reconnect |
@@ -51,7 +51,7 @@ A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practic
 
 ## Core operations
 
-### 1. Estafeta priming (#417)
+### 1. Estafeta priming
 
 ```
 TRIGGER: lens="trace" shows broken lifecycle OR lens="tensions" shows leaked/relay-gap
@@ -65,7 +65,7 @@ DO:
 ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
 
-### 2. Sense writing (#418)
+### 2. Sense writing
 
 ```
 TRIGGER: arrow has no sense, or sense duplicates target name
@@ -85,7 +85,7 @@ DO:
 SIGNAL of bad sense: it says the same thing as the target phenomenon's name
 ```
 
-### 3. Double kriya decomposition (#419)
+### 3. Double kriya decomposition
 
 ```
 TRIGGER: kriya has 2+ actor arrows, or description implies two actors with different motivations
@@ -101,10 +101,10 @@ DO:
   4. Move arrows from original to appropriate child
   5. Delete or visarjana the original
   6. read the CHECKS: block each create response prints (factories self-validate) — both new kriyas clean?
-BASIS: methodology #386 — call = communication, not nesting (π-calculus scope extrusion)
+BASIS: call = communication, not nesting (π-calculus scope extrusion)
 ```
 
-### 4. Distinction reconnection (#420)
+### 4. Distinction reconnection
 
 ```
 TRIGGER: phenomenon was one, now distinguished into two (or more). Old arrows point at the undistinguished whole.
@@ -117,29 +117,29 @@ DO:
   5. nks_look on affected kriyas — check the CHECKS: block (reconnect is an edit, so re-look)
 ```
 
-### 5. Lifecycle closure (#397 → #398)
+### 5. Lifecycle closure
 
 ```
 TRIGGER: lens="trace" shows broken lifecycle on phenomenon
-PATH: trace → diagnose (#397) → close (#398) → re-trace
+PATH: trace → diagnose → close → re-trace
 DO:
   1. DIAGNOSE nature of break:
      a. Missing end-of-life kriya (leaked: utpatti exists, ahara missing)
      b. Missing producer kriya (relay-gap: ahara exists, utpatti missing)
      c. Wrong abstraction level (teardown too granular or too abstract)
      d. Inherited closure: the node lives under a `contains`-umbrella whose
-        parent already closes the lifecycle (contains_closure, E1 #979) —
+        parent already closes the lifecycle (contains_closure, E1) —
         then it inherits the parent's lifecycle. Not a break; leave it.
   2. CLOSE:
      a. Add end-of-life kriya at SAME abstraction level as producer
         Config born at "Bootstrap" → dies at "Teardown" (not at "rm -rf")
-     b. Or add producer kriya — or recognize the realm edge (boundary-inlet/outlet is topological, #978: information, not work; no marker)
+     b. Or add producer kriya — or recognize the realm edge (boundary-inlet/outlet is topological: information, not work; no marker)
      c. Or defer: kriya in anagata+upeksha = placeholder, lifecycle formally closed
      d. Or recognize inherited closure (1d): don't patch a child individually
         when its contains-umbrella owns the lifecycle
   3. RE-TRACE: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
   4. If still broken → loop
-PRINCIPLE: every ding is born and dies (#389). Deferred closure via modes is OK (#390). Suppression via attrs is never OK (#404).
+PRINCIPLE: every ding is born and dies. Deferred closure via modes is OK. Suppression via attrs is never OK.
 ```
 
 ## Decision tree: which operation?
@@ -175,18 +175,18 @@ no structural tension but graph feels incomplete?
 
 ## Weaving in context of design (Phase 2)
 
-When weaving as Phase 2 of design (#421):
+When weaving as Phase 2 of design:
 1. Walk the path built by backward chaining (Phase 1)
 2. For each phenomenon: lifecycle closed? → if not, Operation 5
 3. For each kriya: one actor? sense on arrows? → Operations 2, 3
 4. For each distinction made during walk: old arrows correct? → Operation 4
-5. When path is woven → next to Phase 3 (risk analysis, #161)
+5. When path is woven → next to Phase 3 (risk analysis)
 
 But weaving is NOT only Phase 2. Enter from:
-- Tracing (#162): trace showed broken → Operation 1 or 5
-- Tension (#158): structural problem → decision tree above
-- Shabda intake (#165): external input revealed distinction → Operation 4
-- Refinement (#366): accumulated vimarshas need structural response → any operation
+- Tracing: trace showed broken → Operation 1 or 5
+- Tension: structural problem → decision tree above
+- Shabda intake: external input revealed distinction → Operation 4
+- Refinement: accumulated vimarshas need structural response → any operation
 
 ## Rhythm
 
@@ -200,23 +200,7 @@ But weaving is NOT only Phase 2. Enter from:
 
 - NOT inventing new paths (that's design, Phase 1)
 - NOT risk analysis (that's Phase 3)
-- NOT creating vimarshas about what to build (that's questioning, #151)
+- NOT creating vimarshas about what to build (that's questioning)
 - NOT suppressing tensions (that's never OK)
 
 Weaving DISCOVERS connections that were implied but not explicit. The Ткач reads the graph semantically — not just structure, but meaning — and makes the implicit explicit. When the other end of an implied connection isn't in view, **`nks_semantic_search(q=<the concept>)`** finds the node that belongs there by meaning — where tension-walking and keyword search won't surface it.
-
-## Methodology lookups
-
-| Question | Node |
-|---|---|
-| Estafeta concept | `nks_look(node_id="128", realm="methodology")` |
-| Thread ≠ estafeta | `nks_look(node_id="412", realm="methodology")` |
-| Lifecycle closure principle | `nks_look(node_id="389", realm="methodology")` |
-| System growth (defer OK) | `nks_look(node_id="390", realm="methodology")` |
-| Tensions = truthful signal | `nks_look(node_id="404", realm="methodology")` |
-| Call = communication #386 | `nks_look(node_id="386", realm="methodology")` |
-| Sense on arrows principle | `nks_look(node_id="445", realm="methodology")` |
-| Graph = tension with reality | `nks_look(node_id="403", realm="methodology")` |
-| Weaving as Phase 2 | `nks_look(node_id="421", realm="methodology")` |
-| Weaving vimarsha (origin) | `nks_look(node_id="290", realm="methodology")` |
-| Ткач karta | `nks_look(node_id="302", realm="methodology")` |

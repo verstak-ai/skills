@@ -13,7 +13,7 @@ Five decisions, in order. Do not skip ahead.
 
 Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing into before the first call.
 
-**Cross-realm arrows do not work.** `nks_arrow(action="link", source="739", target="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong arrow. For cross-realm references, use text in the sense ("see methodology #29") — never arrows.
+**Cross-realm arrows do not work.** `nks_arrow(action="link", source="739", target="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong arrow. For cross-realm references, use text in the sense ("see <realm> #29") — never arrows.
 
 ## Decision 1: What type of node?
 
@@ -28,7 +28,7 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 
 **bianhua is an assembly-level type, not a routine write** — the **assembly** skill's work. Test: "the system will be X, which it isn't yet" — can't say it → not a bianhua. Never for a single vimarsha: locate the existing transformation first (`lens="bianhua"`, `nks_semantic_search(node_type="bianhua")`); unsure → ask the user. Vimarshas the agent writes for itself; **bianhua are the owner's interface** — the name must read for the user, the telos is verified by them. See Decision 5 for its arrows.
 
-A phenomenon does not exist on its own — it exists *for* a kriya (noema for noesis, methodology #18). If no kriya consumes, produces, or conditions it, you are about to write an orphan.
+A phenomenon does not exist on its own — it exists *for* a kriya (noema for noesis). If no kriya consumes, produces, or conditions it, you are about to write an orphan.
 
 ### Traps
 
@@ -57,7 +57,7 @@ How does this phenomenon give itself? See `references/given_as.md` for the full 
 
 ## Decision 2b: manifested_as (karta only)
 
-`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as (#460). Run the gate first, then pick the kind.
+`manifested_as` is **required on every karta** — the mode-of-manifestation (āvirbhāva), parallel to given_as. Run the gate first, then pick the kind.
 
 **Gate — can you address a vimarsha to this doer and get an answer?**
 - **No — it acts but can't answer** (cron, worker, CI, process): **not a karta.** Make a ding-phenomenon, wire it to a kriya as `upadhi`.
@@ -105,7 +105,7 @@ The critical trap: **upeksha is not a default.** anagata + upeksha = "this will 
 
 ### Description (the body)
 
-The body is addressed by its **per-type name** on every surface — the name you *read* is the name you *write*, on create and update (#1128). `nks_look` renders it under that heading; the factories and `nks_update` / batch-update accept it under that name. Pass the per-type name **or** `description`, never both — a guard rejects double-passing.
+The body is addressed by its **per-type name** on every surface — the name you *read* is the name you *write*, on create and update. `nks_look` renders it under that heading; the factories and `nks_update` / batch-update accept it under that name. Pass the per-type name **or** `description`, never both — a guard rejects double-passing.
 
 | Type | Body param | `nks_look` heading |
 |---|---|---|
@@ -121,12 +121,12 @@ What goes in it, by type:
 - **Vimarsha** (`description`): the question. What would count as an answer?
 - **Holon** (`description`): what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta** (`motivation`): what drives the role. nks_add_karta requires it.
-- **Bianhua** (`telos`): the destination quality — "система станет …" (see Decision 5).
+- **Bianhua** (`telos`): the destination quality — "the system becomes …" (see Decision 5).
 
-**Timelessness (#440) — a guard, not a nicety.** Every description states what IS — the resolved, the asked — never how it came to be discussed. The body is read *out of time*: a future agent meets it with no session around it, so a chronicle in the body is noise to everyone but the writer.
+**Timelessness — a guard, not a nicety.** Every description states what IS — the resolved, the asked — never how it came to be discussed. The body is read *out of time*: a future agent meets it with no session around it, so a chronicle in the body is noise to everyone but the writer.
 
 - **Out of the body:** dates, session markers, people's names (attribution → `attrs.posed_by`), git refs (SHAs/branches/PRs), and DONE/changelog journals. History lives in `nks_history` and git; done work changes the graph *itself* — modes, arrows, descriptions — it is not appended as a log.
-- **Violation smells:** «теперь», «после того как», «в этой сессии», a date in prose, a «✅ сделано» tail, any narration of what was wrong *before*.
+- **Violation smells:** "now" / «теперь», "after we…" / «после того как», "in this session", a date in prose, a «✅ done» tail, any narration of what was wrong *before*.
 - **Where time is legitimate:** a `phenomenon(given_as=sachverhalt)` — an incident/state — carries its timestamp in `attrs`, not the prose; `shabda` (quoted external testimony) is dated by its nature; a closed vimarsha reads as archive (its body froze at closure). Everywhere else: tenseless.
 
 ## Decision 5: Arrows
@@ -139,11 +139,11 @@ Arrowless = orphan = invisible.
 2. **Produces?** → `utpatti` to phenomenon. Can't name utpatti? Stop — you don't understand the kriya.
 3. **Who acts?** → `actor` to karta.
 4. **Context?** → `upadhi` to phenomenon. `attrs.mutable=true` if modified.
-5. **Belongs to what?** → search for a candidate parent kriya before writing top-level (locate-before-write). `nks_semantic_search(q=<what this kriya is part of>)`; on a real hit, pass `parent_id=<seq>` (creates a `contains` edge from parent). **No coercion** — a wrong parent is worse than none (#435); when you can't honestly name the umbrella, stay top-level consciously. The most compressing axis is the one factories never forced — ask it yourself.
+5. **Belongs to what?** → search for a candidate parent kriya before writing top-level (locate-before-write). `nks_semantic_search(q=<what this kriya is part of>)`; on a real hit, pass `parent_id=<seq>` (creates a `contains` edge from parent). **No coercion** — a wrong parent is worse than none; when you can't honestly name the umbrella, stay top-level consciously. The most compressing axis is the one factories never forced — ask it yourself.
 
 Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
-Realm boundary is topological (#978): a kriya at the realm edge is legal without ahara — no detector demands it, no marker waives it. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, never as a tension-silencer.
+Realm boundary is topological: a kriya at the realm edge is legal without ahara — no detector demands it, no marker waives it. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, never as a tension-silencer.
 
 ### Phenomenon
 
@@ -153,24 +153,24 @@ Realm boundary is topological (#978): a kriya at the realm edge is legal without
 
 ### Karta
 
-- `steward` → holon: who answers for this boundary (#460). Only a **svatantra** (root holons) or **adhikarin** (concrete holons) karta may steward; a pratibimba / agantuka may not. An `adhikarin` acting with no `steward` edge is a warning — it works but answers for nothing.
+- `steward` → holon: who answers for this boundary. Only a **svatantra** (root holons) or **adhikarin** (concrete holons) karta may steward; a pratibimba / agantuka may not. An `adhikarin` acting with no `steward` edge is a warning — it works but answers for nothing.
 - `group` → senior karta (sub-role); `actor` is incoming — from every kriya this role performs.
 
 ### Vimarsha
 
 - `vimarsha_of` → node(s) this question is about. **Anchor every vimarsha — one carrying an expectation (`posed_to`, anga to a bianhua) doubly so**: agents discover work by orienting on a holon, and neither anga nor posed_to scopes the vimarsha into anyone's contour — unanchored, it is invisible to the addressee and will never be done. Minimum — the holon where the expected work lives; better — the precise phenomenon/kriya within it.
-- `posed_to` → karta: the **inbox edge** (#460) — address the inquiry to a doer who can answer, so they can poll "my open questions" (`nks_search(posed_to=<karta>)`). **It is an arrow to a karta node, not a field** — create it inline (`arrows: [{arrow_type:"posed_to", target:<karta>}]`) or via `nks_arrow(action="link", arrow_type="posed_to", …)`. **Forbidden to a pratibimba** (an image can't answer). Choose the target per Decision 2b — the 能 who stewards the holon your question is in, the 主 for strategic scope. It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
-- **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «про ЧТО сомнение?» (→ `vimarsha_of`), then «какую перемену двигает ответ?» (→ `anga`). One vimarsha legitimately carries both.
+- `posed_to` → karta: the **inbox edge** — address the inquiry to a doer who can answer, so they can poll "my open questions" (`nks_search(posed_to=<karta>)`). **It is an arrow to a karta node, not a field** — create it inline (`arrows: [{arrow_type:"posed_to", target:<karta>}]`) or via `nks_arrow(action="link", arrow_type="posed_to", …)`. **Forbidden to a pratibimba** (an image can't answer). Choose the target per Decision 2b — the 能 who stewards the holon your question is in, the 主 for strategic scope. It does not replace `vimarsha_of`: the inbox edge alone places the question in no one's holon-orientation.
+- **`vimarsha_of` (о ЧЁМ) vs `anga` (куда двигаю) — don't collapse them.** `vimarsha_of` names the *subject*: the present, as-is node the doubt is *about*. `anga` names the *becoming* the answer drives: the bianhua, the future telos. The trap is the pull toward the answer — dropping the **actor** or the **work's destination** into `vimarsha_of` when they belong on `anga`. Meta-move: answer two questions separately — «about WHAT is the doubt?» (→ `vimarsha_of`), then «which becoming does the answer drive?» (→ `anga`). One vimarsha legitimately carries both.
 - `arose_from` → observation origin.
 - Genre determines lifecycle: risk → may `realized_as` sachverhalt. hint → read and close.
-- A **hint is a pointer, not a payload** (methodology #131): it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.
+- A **hint is a pointer, not a payload**: it carries only what orient and the lenses can't show — external-world state, chosen priorities, conventions. Work-in-flight belongs on the bianhua map via `anga`, not in a seed.
 
 ### Bianhua
 
 - `anga` (part→whole): a constituent → the bianhua it *drives*. Three carrier kinds — a **vimarsha**, a **sub-bianhua**, or a **kriya**. Pass `anga=<refs>` on `nks_add_bianhua`, or `nks_arrow(action="link", arrow_type="anga", source=<ref>, target=<bianhua>)` later. The carrier keeps its own anchoring (a vimarsha its `vimarsha_of`) — anga is additional. A bianhua with zero anga is an *empty transformation* — the factory warns. Acyclic tree: one anga-parent per source.
-- **kriya as anga-carrier**: a vimarsha-anga carries the *path* (a question whose resolution moves the change); a kriya-anga carries the *arrival* — the deed that itself constitutes the transformation. Two readings, **inferred from the kriya's own triputi, never a separate field** (there is no `anga_kind`): a **возведение** is a deed entering the fabric (kriya ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`); a **депрекация** is a deed leaving it (`vartamana→atita`, `virodha`). **A completed kriya still links** — finishing the deed is the debt paid (отдача долга), not a block; no 422 on a done carrier. Each kriya-anga counts toward the bianhua's progress, its `resolved` read from the carrier's triputi.
+- **kriya as anga-carrier**: a vimarsha-anga carries the *path* (a question whose resolution moves the change); a kriya-anga carries the *arrival* — the deed that itself constitutes the transformation. Two readings, **inferred from the kriya's own triputi, never a separate field** (there is no `anga_kind`): a **возведение** is a deed entering the fabric (kriya ontic `anagata→vartamana`, volitive `chanda`/`adhimoksha`); a **депрекация** is a deed leaving it (`vartamana→atita`, `virodha`). **A completed kriya still links** — finishing the deed is the debt repaid (отдача долга), not a block; no 422 on a done carrier. Each kriya-anga counts toward the bianhua's progress, its `resolved` read from the carrier's triputi.
 - `anantara` (ordering): bianhua → the bianhua that must complete first. `anantara_after=<refs>`. Acyclic; sets the critical path.
-- `telos` is the description: write the *destination quality* ("система станет …"), rendered as `TELOS:` in `nks_look`. No given_as, no `context`, no ahara/utpatti/upadhi on a bianhua (422). The lifecycle and field work belong to the **inquiry** and **assembly** skills.
+- `telos` is the description: write the *destination quality* ("the system becomes …"), rendered as `TELOS:` in `nks_look`. No given_as, no `context`, no ahara/utpatti/upadhi on a bianhua (422). The lifecycle and field work belong to the **inquiry** and **assembly** skills.
 
 ### Sense on arrows
 
@@ -185,6 +185,7 @@ Every arrow carries a sense explaining WHY.
 1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` arrow to a holon does NOT clear it. Wire it to a kriya.
 2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
 3. **Kriya**: actor, ahara, utpatti phenomena all exist?
+4. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*: if the new node supersedes an existing one, draw `supersedes` new→old, migrate the old node's load (`key:true`, anchors, upadhi consumers that should move), and close it (`visarjana`). A successor that doesn't release its predecessor leaves a live duplicate canon — the forward wave updates references and strands the old node under the retired term.
 
 ## Operational reminders
 
@@ -208,19 +209,19 @@ Every arrow carries a sense explaining WHY.
 
 Can't pick one → two questions tangled. Separate.
 
-## Starting triples & closure — carrier canon (#438)
+## Starting triples & closure — carrier canon
 
 Each род (type × given_as × genre) has **one axis that carries liveness** (U1); the others only qualify. The `nks_add_*` factories print the **canonical STARTING TRIPUTI** for the род and `nks_look` glosses the carrier per node — **read them; don't stamp a divergent triple.** The trap the canon fixes: **`virodha` does NOT uniformly mean "closed" — it is polarized by род (U3):**
 
 - **risk** — `virodha` is the *live* mode: an active risk *stands* in virodha. It closes only via `visarjana` ∨ `addressed_by` ∨ `realized_as`, never by virodha itself.
-- **kriya / karta / phenomenon(vollzug)** — `virodha` = **депрекация**: a live tension "we want to retire this", not a closure. Closes at `atita` (kriya/karta also `nashta`) ∨ `visarjana`.
-- **samshaya / prati-paksha / hint** — here `virodha` *is* a closure (отказ).
+- **kriya / karta / phenomenon(vollzug)** — `virodha` = **депрекация** (deprecation): a live tension "we want to retire this", not a closure. Closes at `atita` (kriya/karta also `nashta`) ∨ `visarjana`.
+- **samshaya / prati-paksha / hint** — here `virodha` *is* a closure (отказ — refusal).
 
-And projected work is born `anagata` in the *project* triad, never the "ready" `pramanita/vartamana/upeksha` (that lies the deed already runs) — the **design** skill owns those starting modes (#53).
+And projected work is born `anagata` in the *project* triad, never the "ready" `pramanita/vartamana/upeksha` (that lies the deed already runs) — the **design** skill owns those starting modes.
 
 ## Batch ordering (nks_batch)
 
-**Load the factory schemas before a create-batch (#1003).** `nks_batch` wraps the `nks_add_*` factories but does **not** relax their discipline — every create op is validated against its factory's full schema. In a deferred-tool environment the batch loads without them, so composing a factory-create batch blind means learning each required param one `422` per round-trip. Before you batch: `tool_search` and read the schema of every `nks_add_*` you'll call. The **first** create of an unfamiliar node type is safer as a single factory call than buried in a megabatch — and don't pack heavy multi-paragraph descriptions into a megabatch.
+**Load the factory schemas before a create-batch.** `nks_batch` wraps the `nks_add_*` factories but does **not** relax their discipline — every create op is validated against its factory's full schema. In a deferred-tool environment the batch loads without them, so composing a factory-create batch blind means learning each required param one `422` per round-trip. Before you batch: `tool_search` and read the schema of every `nks_add_*` you'll call. The **first** create of an unfamiliar node type is safer as a single factory call than buried in a megabatch — and don't pack heavy multi-paragraph descriptions into a megabatch.
 
 Order within the batch:
 
@@ -230,7 +231,7 @@ Order within the batch:
 
 ### Inline-arrow form
 
-Inline `arrows` on the factories take the same canonical shape as `arrow_link`, with the new node as the implicit source: `{arrow_type, target, sense?, direction?, quantifier?, attrs?, <modes>}`. Only `arrow_type` and `target` are required; `direction` flips the orientation when the new node is the *target* rather than the source. The factory **validates the form strictly** (#981): an unknown key — e.g. the pre-rename `edge_type` (#512) — is rejected with a named error pointing at `arrow_type`, and a missing `target` says so. No silent acceptance, no raw TypeError — you learn the form before the first write, not by decoding a stack trace.
+Inline `arrows` on the factories take the same canonical shape as `arrow_link`, with the new node as the implicit source: `{arrow_type, target, sense?, direction?, quantifier?, attrs?, <modes>}`. Only `arrow_type` and `target` are required; `direction` flips the orientation when the new node is the *target* rather than the source. The factory **validates the form strictly**: an unknown key — e.g. the pre-rename `edge_type` — is rejected with a named error pointing at `arrow_type`, and a missing `target` says so. No silent acceptance, no raw TypeError — you learn the form before the first write, not by decoding a stack trace.
 
 Two patterns, both first-class:
 - **Inline `arrows`** — for edges that *originate at the new node* (a vimarsha's `vimarsha_of`, a phenomenon's `context`). Pass them in the create op.

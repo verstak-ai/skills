@@ -22,7 +22,7 @@ Principle — "this is how it must be"? (rule, norm, invariant)
   → grundsatz 法
 ```
 
-## Arrow expectations (methodology #376)
+## Arrow expectations
 
 | given_as | Expected | Forbidden |
 |---|---|---|
@@ -41,10 +41,4 @@ Principle — "this is how it must be"? (rule, norm, invariant)
 
 **vollzug vs grundsatz**: vollzug = HOW. grundsatz = WHY.
 
-**sachverhalt as incident**: modes pratyakshita/atita/virodha = something bad happened. Use 🔥 emoji. See methodology #23.
-
-## Lookups
-
-- Full descriptions: `nks_look(node_id="372", realm="methodology")`
-- Arrow × given_as matrix: `nks_look(node_id="376", realm="methodology")`
-- Incident pattern: `nks_look(node_id="23", realm="methodology")`
+**sachverhalt as incident**: modes pratyakshita/atita/virodha = something bad happened. Use 🔥 emoji.
