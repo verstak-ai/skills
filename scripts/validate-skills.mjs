@@ -135,8 +135,13 @@ for (const name of skillNames.sort()) validateSkill(name);
 
 // 2. Cross-check the plugin marketplace manifest against the skill dirs.
 const manifestPath = join(root, ".claude-plugin", "marketplace.json");
+let manifest = null;
 try {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+} catch (e) {
+  fail(".claude-plugin/marketplace.json", `could not read/parse: ${e.message}`);
+}
+if (manifest) {
   const listed = new Set();
   for (const plugin of manifest.plugins ?? []) {
     for (const ref of plugin.skills ?? []) {
@@ -152,8 +157,42 @@ try {
       fail("marketplace.json", `skills/${name}/ exists but is not listed in any plugin's \`skills\``);
     }
   }
+}
+
+// 3. Validate the plugin manifest + release-version contract.
+//    The plugin version lives in .claude-plugin/plugin.json — Claude Code's
+//    highest-precedence version source — and drives update detection: an install
+//    only refreshes when this string changes. So it must be present and valid
+//    semver, must NOT be duplicated in the marketplace plugin entry (plugin.json
+//    wins; a second copy silently drifts), and it mirrors marketplace
+//    metadata.version so there is a single "verstak version". release-please
+//    bumps both together (extra-files) on release; this gate fails loudly if they
+//    ever diverge, whoever touched them.
+const SEMVER = /^\d+\.\d+\.\d+$/;
+const pluginPath = join(root, ".claude-plugin", "plugin.json");
+let plugin = null;
+try {
+  plugin = JSON.parse(readFileSync(pluginPath, "utf8"));
 } catch (e) {
-  fail(".claude-plugin/marketplace.json", `could not read/parse: ${e.message}`);
+  fail(".claude-plugin/plugin.json", `could not read/parse: ${e.message}`);
+}
+if (plugin) {
+  if (typeof plugin.version !== "string" || !SEMVER.test(plugin.version)) {
+    fail("plugin.json", `\`version\` must be semver X.Y.Z, got ${JSON.stringify(plugin.version)}`);
+  }
+  if (manifest) {
+    if (!(manifest.plugins ?? []).some((p) => p.name === plugin.name)) {
+      fail("plugin.json", `\`name\` (${JSON.stringify(plugin.name)}) matches no plugin in marketplace.json`);
+    }
+    for (const p of manifest.plugins ?? []) {
+      if ("version" in p) {
+        fail("marketplace.json", `plugin \`${p.name}\` carries its own \`version\` — keep the version only in plugin.json (it takes precedence; a duplicate drifts)`);
+      }
+    }
+    if (manifest.metadata?.version !== plugin.version) {
+      fail("marketplace.json", `metadata.version (${JSON.stringify(manifest.metadata?.version)}) must mirror plugin.json version (${JSON.stringify(plugin.version)}) — release-please bumps both together; keep them in sync`);
+    }
+  }
 }
 
 // Report.
@@ -163,4 +202,5 @@ if (errors.length > 0) {
   console.error("");
   process.exit(1);
 }
-console.log(`✓ ${skillNames.length} skills valid: ${skillNames.sort().join(", ")}`);
+const vtag = plugin?.version ? `verstak v${plugin.version} — ` : "";
+console.log(`✓ ${vtag}${skillNames.length} skills valid: ${skillNames.sort().join(", ")}`);

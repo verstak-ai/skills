@@ -5,7 +5,7 @@ Agent-facing NKS skill bundles (Claude Code skills), including `verstakify` — 
 - **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: content is prose + methodology, so there are no behavioural tests. The gates are (1) human review of the `SKILL.md` diff plus the skills' own discipline and (2) a lightweight CI that validates the frontmatter contract and bundle sync (`make check`). Breakage is otherwise silent, not loud (see Production statement) — CI catches the one mechanical class (malformed frontmatter / drifted bundles).
 - **NKS realm**: `nks-dev` — every session starts with `nks_orient` here.
 - **Focus holon**: `#844 «📦 verstak-ai/skills (скиллы агента)»`.
-- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`). No runtime, no dependencies; CI is a dependency-free format gate (pure Node + bash) — see `.github/workflows/ci.yml`.
+- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), versioned by semver in `.claude-plugin/plugin.json`. No runtime, no dependencies; the CI format gate stays dependency-free (pure Node + bash, `.github/workflows/ci.yml`). Releases are automated by the one third-party Action — release-please (`.github/workflows/release-please.yml`).
 - **Production statement**: skills install into agents' `~/.claude/skills/` and shape how every agent works with NKS. A wrong instruction — e.g. a reference to a tool that nks-mcp has dropped — silently degrades every agent that loads the skill; there is no crash, only methodology drift. The consumer is the agent, not a human user. Keeping skills in sync with the nks-mcp tool surface is the core maintenance obligation.
 
 ## Persistence rules
@@ -60,14 +60,18 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 | Validate skill frontmatter only | `make validate` (pure Node, no deps) |
 | Check committed bundles ↔ source | `make check-bundles` |
 
+Releases are automated (release-please) — there is no local release command; see **Git workflow → Releasing**.
+
 The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. The only automated gate is **format**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source. Both run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
 
 ## Project structure
 - `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `methodology-work`, `verstakify`); `references/*.md` optional (`verstakify` ships `references/agents-template.md`).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` mirrors the plugin version.
+- `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is what Claude Code reads to detect updates (bumped by release-please, never by hand).
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
-- `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
+- `scripts/validate-skills.mjs` (frontmatter contract + version contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
+- `release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml` — release automation. `CHANGELOG.md` + `version.txt` are release-please's outputs (`version.txt` is its `simple`-strategy bookkeeping — the authoritative version is `plugin.json`; all three move together on release).
 - `README.md` — short human-facing pointer.
 - `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
 - `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
@@ -80,15 +84,18 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Terminology**: `phenomenon` for the typed primitive, `node` for the generic; `kriya`/`holon`/`karta`/`vimarsha` per the realm ontology. Don't reintroduce retired terms.
 - **Test discipline**: CI validates **format only** (`make check` — frontmatter parseability + bundle sync); it does not check substance. Substance review is still manual: read the diffed `SKILL.md` and confirm every tool name against the live surface. When adding/renaming a skill, the new dir must be listed in `marketplace.json` or `make validate` fails.
 - **Frontmatter must be parseable YAML.** `description` values are double-quoted; **escape any inner quote as `\"`** (an unescaped `"` terminates the scalar early — the exact bug `make validate` guards). Keep frontmatter flat and single-line — only `name` and `description` keys.
+- **The plugin version drives updates — release-please owns it.** The version lives in `.claude-plugin/plugin.json` (Claude Code's highest-precedence source); an install only refreshes when that string *changes*, so shipping skills without a bump silently strands every install on the cached copy. Don't hand-edit the version anywhere — release-please computes it from the Conventional Commit history and bumps `version.txt`, `plugin.json`, and `marketplace.json`'s `metadata.version` together in its release PR. `make validate` still guards the invariant: `plugin.json` ↔ `marketplace.json` in sync, semver, and no stray `version` in the marketplace plugin entry (`plugin.json` wins, so a duplicate there is a silent-drift trap).
 
 ## What to update when
 - `AGENTS.md` — repo conventions, structure, or the skill set change.
 - `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
 - NKS (`nks-dev`, #844) — every push: update the skill phenomena («Скилл <name>», vollzug under #844) to the shipped state, close resolved vimarshas.
+- Releases — nothing manual: a `feat:`/`fix:` commit merged to `main` makes release-please open/refresh a release PR; merging that PR ships the version bump. `chore:`/`docs:` don't trigger a release, so a user-facing skill change must land under `feat:`/`fix:` to reach installs.
 
 ## Git workflow
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
 - **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **Releasing (automated)**: releases run on Conventional Commits via release-please — no manual bump, no manual tag. Merging `feat:`/`fix:` commits to `main` makes release-please open/refresh a **release PR** that bumps the version (`version.txt` + `plugin.json` + `marketplace.json`) and updates `CHANGELOG.md`; merging that release PR tags `vX.Y.Z` and cuts a GitHub Release. A skill change reaches installs only once its release PR is merged — batch changes, then ship the release PR. Users update via `/plugin marketplace update verstak-ai` → `/reload-plugins`.
 - **Never** `--force` or `git reset --hard` without explicit instruction.

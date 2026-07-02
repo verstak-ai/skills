@@ -73,3 +73,4 @@ unzip design.skill -d ~/.claude/skills/
 - `*.skill` — committed **derived** bundles. Never hand-edit; run `make build` (or just commit
   with the hook enabled via `make hooks`, which rebuilds them on every commit).
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest.
+- `.claude-plugin/plugin.json` — the plugin manifest. Its `version` (semver) is bumped automatically by [release-please](https://github.com/googleapis/release-please) from the Conventional Commit history, and that bump is what makes `/plugin marketplace update` deliver the new version to installs.
