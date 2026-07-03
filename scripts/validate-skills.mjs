@@ -150,23 +150,21 @@ const skillNames = readdirSync(skillsDir).filter((n) =>
 if (skillNames.length === 0) fail("skills/", "no skill directories found");
 for (const name of skillNames.sort()) validateSkill(name);
 
-// 2. Cross-check the plugin marketplace manifest against the skill dirs.
+// 2. Component-list guard: the skill set ships by plugin auto-discovery from
+//    skills/ — the tree is the single source of truth. A `skills` (or any
+//    component) list in a manifest re-introduces a second copy of that truth:
+//    it drifts (a forgotten entry or typo'd path breaks install for every
+//    plugin user) and, next to plugin.json, is exactly the "conflicting
+//    manifests" plugin error. Fail loudly if a list creeps back in.
+const COMPONENT_KEYS = ["skills", "commands", "agents", "hooks", "mcpServers"];
 const manifestPath = join(root, ".claude-plugin", "marketplace.json");
 try {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  const listed = new Set();
   for (const plugin of manifest.plugins ?? []) {
-    for (const ref of plugin.skills ?? []) {
-      const rel = ref.replace(/^\.\//, "").replace(/^skills\//, "");
-      listed.add(rel);
-      if (!skillNames.includes(rel)) {
-        fail("marketplace.json", `lists skill \`${ref}\` but skills/${rel}/ does not exist`);
+    for (const key of COMPONENT_KEYS) {
+      if (key in plugin) {
+        fail("marketplace.json", `plugin \`${plugin.name}\` carries a \`${key}\` list — components ship by auto-discovery from skills/; remove it (a second copy of the truth drifts)`);
       }
-    }
-  }
-  for (const name of skillNames) {
-    if (!listed.has(name)) {
-      fail("marketplace.json", `skills/${name}/ exists but is not listed in any plugin's \`skills\``);
     }
   }
 } catch (e) {
@@ -185,6 +183,11 @@ try {
   const plugin = JSON.parse(readFileSync(pluginPath, "utf8"));
   if (!/^\d+\.\d+\.\d+$/.test(plugin.version ?? "")) {
     fail("plugin.json", `\`version\` must be semver X.Y.Z, got ${JSON.stringify(plugin.version)}`);
+  }
+  for (const key of COMPONENT_KEYS) {
+    if (key in plugin) {
+      fail("plugin.json", `carries a \`${key}\` list — components ship by auto-discovery from skills/; keep plugin.json metadata-only`);
+    }
   }
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   if (!(manifest.plugins ?? []).some((p) => p.name === plugin.name)) {
