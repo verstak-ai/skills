@@ -64,7 +64,10 @@ publish without it.
 - nks_* MCP tools; a realm per the re-run contract above.
 - Run heavy steps (product model, harvest, graph writes, assembly, render) via
   subagents; hand results between steps as **files on disk** and return short
-  confirmations + paths — large returns drop the connection.
+  confirmations + paths — large returns drop the connection. Verify a
+  subagent's step against the artifact it produced (files, graph nodes), not
+  its report; and never run two graph-writing subagents over one realm in
+  parallel — same-named creates collide or dedup across lanes.
 
 ## Step 1 — Frame and bootstrap
 

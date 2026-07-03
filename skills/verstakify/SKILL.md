@@ -51,7 +51,7 @@ against its source of truth and classify it**:
 Run this per concern using the source map below. "Fresh repo" is just
 *everything absent*; a mature repo is a mix — and most dangerous when
 *mostly-correct*, because the few stale lines hide among trusted ones (this is
-why the verify pass is whole-artifact, Step 7). For authored slots with no
+why the verify pass is whole-artifact, Step 8). For authored slots with no
 checkable source, *absent* → ask the user; never invent.
 
 ### Source of truth per concern
@@ -77,7 +77,7 @@ preserve it, only sanity-check it against the code.
 
 `AGENTS.md` is read *every session*, so it must be both **dense** and **true** —
 co-equal, not form-first. Accuracy is operationalized above (audit/classify each
-concern against the source map) and below (verify pass, Step 7). The density half
+concern against the source map) and below (verify pass, Step 8). The density half
 is these five rules:
 1. **Imperative, addressed to the agent.** "Orient before coding," not "the
    agent should orient."
@@ -197,7 +197,7 @@ Write commands into *Commands*, discipline into *Code conventions*.
 Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them), plus a conditional fourth — the spec-write
 hook — **only when the Step-1 coexistence settle chose full interop** (the
-settled mode is recorded in the AGENTS.md interop stamp, Step 7; no subsection
+settled mode is recorded in the AGENTS.md interop stamp, Step 8; no subsection
 = no settle = three hooks). **Merge, never overwrite:** other suites may
 already own entries in this file — add yours alongside theirs in the same
 arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
@@ -317,7 +317,32 @@ copied prefix often won't match and silently does nothing.
 - `HANDOVER.md` exists only if feature-branch work is in flight.
 - `README.md` is short, human-facing, and doesn't duplicate AGENTS.md.
 
-### Step 7 — Finalize
+### Step 7 — Subagent delegation roles
+Project the delegation doctrine as **named role agents**, not as AGENTS.md
+prose (orchestration mechanics stay out of AGENTS.md — the output contract
+above). Doctrine + file templates: `references/delegation.md` (relative to
+this skill).
+- Always: `.claude/agents/reader.md` (cheap-tier recon) and
+  `.claude/agents/worker.md` (mid-tier brief execution), model aliases
+  `haiku`/`sonnet`.
+- When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
+  the user says so): `.opencode/agents/reader.md` + `worker.md`,
+  `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent
+  inherits the invoking agent's expensive model, so the pin is the point.
+  Resolve current `provider/model-id`s from the user's setup; never hardcode
+  from the reference.
+- The `description` fields are the delivery channel — they sit in the
+  agent/task tool list every session, so the routing trigger fires without any
+  skill load. Keep them trigger-shaped: when to use, what comes back, what NOT
+  to trust it with.
+- Judgment work (design, review, synthesis) gets no role file — it stays with
+  the session model or a per-call top-tier override where the platform
+  supports it.
+- Self-check: role files parse (frontmatter); pinned models exist in the
+  user's setup; AGENTS.md carries **no** inlined delegation doctrine (a
+  pointer at most).
+
+### Step 8 — Finalize
 - Write the filled body to **`AGENTS.md`**, then create the Claude Code pointer:
   a one-line `CLAUDE.md` whose entire content is `@AGENTS.md` (no backticks in
   the file — a code span suppresses the import). This is the docs-recommended
