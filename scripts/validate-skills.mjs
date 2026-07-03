@@ -24,6 +24,8 @@ const REQUIRED_KEYS = ["name", "description"];
 
 const errors = [];
 const fail = (where, msg) => errors.push(`${where}: ${msg}`);
+const warnings = [];
+const warn = (where, msg) => warnings.push(`${where}: ${msg}`);
 
 // Validate a single-line YAML flow scalar (the part after "key: ").
 // Returns null if ok, or an error string. This is where the unescaped-quote
@@ -118,6 +120,21 @@ function validateSkill(name) {
     if (key === "description") {
       const unquoted = value.replace(/^"([\s\S]*)"$/, "$1").replace(/^'([\s\S]*)'$/, "$1");
       if (unquoted.trim().length === 0) fail(where, "`description` must be non-empty");
+      // The agentskills spec caps description at 1024 — "characters" per the
+      // docs, but byte-counting implementations (OpenCode) truncate or reject
+      // at 1024 UTF-8 BYTES, and our descriptions are part-Cyrillic (2
+      // bytes/char). Gate on the RENDERED value's bytes (what a YAML parser
+      // hands the harness); warn from 900 so there is headroom before the
+      // cliff instead of a surprise at it.
+      let rendered = unquoted;
+      if (value[0] === '"') rendered = unquoted.replace(/\\(["\\])/g, "$1");
+      else if (value[0] === "'") rendered = unquoted.replace(/''/g, "'");
+      const bytes = Buffer.byteLength(rendered, "utf8");
+      if (bytes > 1024) {
+        fail(where, `\`description\` is ${bytes} UTF-8 bytes — over the 1024-byte cliff (byte-counting harnesses truncate or reject it)`);
+      } else if (bytes > 900) {
+        warn(where, `\`description\` is ${bytes} UTF-8 bytes — inside the 1024-byte cliff's blast radius; keep ≤900 for headroom`);
+      }
     }
   }
 
@@ -186,6 +203,11 @@ try {
 }
 
 // Report.
+if (warnings.length > 0) {
+  console.warn(`⚠ ${warnings.length} warning${warnings.length === 1 ? "" : "s"} (non-fatal):`);
+  for (const w of warnings) console.warn(`  • ${w}`);
+  console.warn("");
+}
 if (errors.length > 0) {
   console.error(`✗ skill validation failed (${errors.length} problem${errors.length === 1 ? "" : "s"}):\n`);
   for (const e of errors) console.error(`  • ${e}`);
