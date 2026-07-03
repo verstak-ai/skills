@@ -38,10 +38,10 @@ Don't orient for:
 If an installed workflow suite requires skill invocation before any response,
 orient is not in conflict: reading the realm is how this environment gathers
 context — memory-fetch, not a response or an implementation action. The suite's
-own precedence rule ("User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc,
-direct requests) take precedence over skills") ratifies the AGENTS.md
-orient-first ritual. Orient first, then follow the suite's process skills for
-execution.
+own precedence rule (e.g. superpowers: "user instructions always take
+precedence", with explicit user instructions — CLAUDE.md, GEMINI.md, AGENTS.md,
+direct requests — ranked highest priority) ratifies the AGENTS.md orient-first
+ritual. Orient first, then follow the suite's process skills for execution.
 
 ## What "answering from the graph" means
 

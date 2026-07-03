@@ -194,8 +194,11 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
-Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
-agent on every clone needs them). **Merge, never overwrite:** other suites may
+Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
+agent on every clone needs them), plus a conditional third — the spec-write
+hook — **only when the Step-1 coexistence settle chose full interop** (the
+settled mode is recorded in the AGENTS.md interop stamp, Step 7; no subsection
+= no settle = two hooks). **Merge, never overwrite:** other suites may
 already own entries in this file — add yours alongside theirs in the same
 arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
 *this* project — write it yourself:
@@ -211,9 +214,10 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   inbox** (visarjana the `posed_to` questions the work answered), run the
   after-green-push self-review, and: uningested design/spec docs on this
   branch → intake them (`intake` skill, then `design`) before closing.
-- **`PostToolUse`** with `"matcher": "Write|Edit"` → the **spec-write hook**:
-  when the written file path looks like a design/spec doc, reminder that the
-  file is a draft view — the graph is the design record. Exact JSON below,
+- **`PostToolUse`** with `"matcher": "Write|Edit"` → the **spec-write hook**
+  (full-interop mode only): when the written file path looks like a design/spec
+  doc, reminder that the file is a draft view — the graph is the design record.
+  Exact JSON below,
   after the push-hook gating note; same envelope style, gated on
   `.tool_input.file_path` the way the push hook gates on the command text.
 
@@ -243,9 +247,11 @@ gates work):
 This entry merges into the same `PostToolUse` array as the git-push hook — a
 sibling object, not a replacement.
 
-Self-check: all three hooks present; `SessionStart` names the real realm slug,
-focus holon and agent-karta seq, not placeholders; no pre-existing hook entry
-from another suite was dropped by the merge.
+Self-check: both base hooks present, and the spec-write hook present **iff**
+the AGENTS.md interop stamp says `full` (absent stamp or `prose-only` → it must
+NOT be wired — don't re-add it on refresh); `SessionStart` names the real realm
+slug, focus holon and agent-karta seq, not placeholders; no pre-existing hook
+entry from another suite was dropped by the merge.
 
 Heads-up: writing `.claude/settings.json` may be flagged by the harness as
 self-modification and require explicit approval — surface the write for
@@ -314,8 +320,9 @@ copied prefix often won't match and silently does nothing.
   `## Session lifecycle`, taking the section text from this skill's
   `references/superpowers-interop.md` (deployable part only — the maintainers'
   re-verify checklist stays in the reference). Stamp it with the plain trailing
-  line `*(interop verified against superpowers@<version> — re-check on suite
-  upgrade)*`. On refresh runs, audit the subsection like any other AGENTS.md
+  line `*(interop: <full|prose-only> — verified against superpowers@<version> —
+  re-check on suite upgrade)*` — the stamp records the settled mode; Step 4 and
+  refresh runs read it. On refresh runs, audit the subsection like any other AGENTS.md
   concern: source of truth = the reference file + the installed suite version.
 - **Verify pass (co-equal with the density pass):** re-check every *derived* line
   against its source from the map — **whole-artifact, not just the lines you

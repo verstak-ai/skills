@@ -87,9 +87,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   them on a future push/commit.
 - **Hooks merge.** `.claude/settings.json` hooks from different suites coexist —
   add alongside, never overwrite another suite's entries.
-- A `SessionStart` hook, a post-`git push` hook, and a spec-write reminder hook
-  in `.claude/settings.json` (committed) automate these reminders — verify all
-  three wired.
+- A `SessionStart` hook and a post-`git push` hook in `.claude/settings.json`
+  (committed) automate these reminders — verify both wired. Where the interop
+  stamp below says `full`, a third spec-write reminder hook rides along —
+  verify it too; otherwise it must not be wired.
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,

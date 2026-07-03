@@ -1,6 +1,6 @@
 ---
 name: design
-description: "Use this skill when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or when the user says to 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at decision moments — 'we chose X', 'we decided', 'запиши решение', 'зафиксируй архитектуру', 'persist this design', 'so it survives the session' — and right after any brainstorming or elicitation session has produced a design or spec: the graph is where it becomes the record. Also use when entry has triggered and the conversation turns from reading to building — the user shifts from 'what do we know?' to 'what should we build?'. Use this skill even for seemingly simple design tasks if NKS MCP tools are available — the graph prevents losing decisions, questions, and risks."
+description: "Use this skill when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or when the user says to 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at decision moments — 'we chose X', 'we decided', 'persist this design' — and right after any brainstorming or elicitation session has produced a design or spec: the graph is where it becomes the record. Also use when entry has triggered and the conversation turns from reading to building — the user shifts from 'what do we know?' to 'what should we build?'. Use this skill even for seemingly simple design tasks if NKS MCP tools are available — the graph prevents losing decisions, questions, and risks."
 ---
 
 # NKS Design
@@ -14,8 +14,7 @@ front-end. Its spec file is a draft view: intake it (`intake` skill), then wire
 it here. Persisting the result is memory-work, not implementation —
 implementation hard-gates (e.g. superpowers brainstorming's) don't apply to it.
 The design isn't done until its decisions, risks, and lifecycle are in the
-graph. Where the spec-write hook is wired, it fires as the draft lands —
-follow it here.
+graph.
 
 ## Principles (always active)
 

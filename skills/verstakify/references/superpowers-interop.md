@@ -10,9 +10,10 @@ below; the re-verify checklist after it stays here — never deployed.
 
 ```markdown
 ### Workflow-suite interop (superpowers)
-Superpowers ratifies this contract itself: "User instructions (CLAUDE.md,
-AGENTS.md, GEMINI.md, etc, direct requests) take precedence over skills"
-(using-superpowers); "(User preferences for spec location override this
+Superpowers ratifies this contract itself: "user instructions always take
+precedence", with "User's explicit instructions (CLAUDE.md, GEMINI.md,
+AGENTS.md, direct requests)" ranked highest priority (using-superpowers,
+Instruction Priority); "(User preferences for spec location override this
 default)" (brainstorming). AGENTS.md is user instructions — everything below
 is inside superpowers' own rules, not an exception to them.
 - **Do run brainstorming for creative work** — its socratic elicitation is
@@ -30,12 +31,14 @@ is inside superpowers' own rules, not an exception to them.
   Decisions born mid-implementation still land as graph nodes before the
   session ends — never deferred to a future push.
 
-*(interop verified against superpowers@6.0.3 — re-check on suite upgrade)*
+*(interop: <mode> — verified against superpowers@<version> — re-check on
+suite upgrade)*
 ```
 
 Stamp the deployed line with the actually installed version
-(`superpowers@<version>`); keep it a plain line — the finalize step strips
-HTML comments.
+(`superpowers@<version>`) and the mode the Step-1 settle chose (`full` /
+`prose-only`) — the stamp is where the settled mode is recorded; keep it a
+plain line — the finalize step strips HTML comments.
 
 ## Re-verify checklist (maintainers only — on a superpowers upgrade)
 
@@ -44,4 +47,9 @@ Grep the installed plugin cache for:
    for spec location override this default)";
 2. the skills cited still named `using-superpowers`, `brainstorming`;
 3. the gate phrasings unchanged: HARD-GATE "take any implementation action"
-   and the handoff "writing-plans is the next step".
+   and the handoff "writing-plans is the next step";
+4. the precedence clauses unchanged: "user instructions always take
+   precedence" and the "User's explicit instructions (CLAUDE.md, GEMINI.md,
+   AGENTS.md, direct requests)" priority item (using-superpowers, Instruction
+   Priority) — also quoted in `skills/entry/SKILL.md` (Coexistence section);
+   update both.
