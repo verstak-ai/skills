@@ -183,7 +183,7 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
-Two hooks in `.claude/settings.json` (committed — project-wide rituals, every
+Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them). Generate the JSON for *this* project — write it
 yourself:
 - **`SessionStart`** → reminder to orient in NKS before acting (skill `entry`),
@@ -197,6 +197,12 @@ yourself:
   you touched — and close the design vimarshas the ship settled), **sweep the
   inbox** (visarjana the `posed_to` questions the work answered), and run the
   after-green-push self-review.
+- **`PostToolUse`** with `"matcher": "Write|Edit"` → the **memory-write hook**:
+  when the written file path is inside the local project-memory dir, reminder
+  to run the write-gate (classify: project fact → repo/NKS, memory keeps a
+  pointer). This is the third layer of the gate — it fires at the exact moment
+  the save-instinct does, when both AGENTS.md and the `MEMORY.md` gate line
+  are far behind in the context. Exact JSON below.
 
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`) is the
@@ -213,8 +219,19 @@ validation) — a known false-positive. Harmless for a non-blocking reminder, so
 ship it as-is; just never promote this text-match to anything that gates work. To
 cut the noise, also branch on `.tool_response` so the reminder fires only when
 the push actually ran.
-Self-check: both hooks present; `SessionStart` names the real realm slug, focus
-holon and agent-karta seq, not placeholders.
+
+The memory-write hook, same envelope style — the path is unambiguous
+(`.claude/projects/<encoded>/memory/`), so false positives are near zero and
+memory writes are rare, so it never spams:
+```json
+{ "matcher": "Write|Edit", "hooks": [ { "type": "command",
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '\\.claude/projects/[^/]+/memory/[^/]+\\.md$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Memory write — run the gate (AGENTS.md, Persistence rules): a project fact (system property, decision, constraint, gotcha) belongs in repo/NKS, memory keeps at most a one-line pointer; agent/user-scoped style stays here. Dual-nature facts split: fact → repo/NKS, pointer → memory.\"}}' || true" } ] }
+```
+This entry merges into the same `PostToolUse` array as the git-push hook — a
+sibling object, not a replacement.
+
+Self-check: all three hooks present; `SessionStart` names the real realm slug,
+focus holon and agent-karta seq, not placeholders.
 
 Heads-up: writing `.claude/settings.json` may be flagged by the harness as
 self-modification and require explicit approval — surface the write for
@@ -251,14 +268,18 @@ copied prefix often won't match and silently does nothing.
   conventions*: never stage local edits — `git update-index --skip-worktree
   <file>`, never `git add -A` / `commit -a` (an agent editing a tracked env file
   otherwise leaks it into the PR).
-- Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`) holds
-  only the prohibition stub. Classify each survivor before moving it: **project
-  state** (decisions, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS;
-  **user/agent-scoped preferences** (working style, language) are *not* project
-  state — they persist separately by design (see *Persistence rules*), so leave
-  them where they live, don't force them into the stub. Then write/refresh the
-  stub: forbid using local project memory, point at the repo files + NKS realm
-  where state lives (reason: reproducibility + multi-machine work).
+- Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`):
+  audit it. Classify each file: **project state** (decisions, constraints,
+  branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS, leave at most a
+  one-line pointer; **user/agent-scoped preferences** (working style,
+  language) stay — they persist there by design (see *Persistence rules*).
+  Then install the write-gate: the first line of the memory index
+  (`MEMORY.md`) states the gate from *Persistence rules* — project facts →
+  repo/NKS, memory keeps pointers; the harness's `project` memory category
+  is overridden. Mark the line permanent (consolidation passes must not prune
+  it). The index is loaded every session, so the gate meets the save-instinct
+  at write time; the memory-write hook (Step 4) repeats it at the moment of
+  the write (reason: reproducibility + multi-machine work).
 - *Stack*, *Commands*, *Project structure*, *Code conventions* hold real content
   proportional to maturity. Empty is fine day one; `TBD` is not.
 - `HANDOVER.md` exists only if feature-branch work is in flight.
