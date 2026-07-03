@@ -1,8 +1,10 @@
 # verstak setup (agent-executable)
 
 You are a coding agent setting up **verstak** for your user. Execute the steps below
-autonomously, in order. The only thing you ask the user for is their **graph token** —
-never invent, guess, or reuse one. Report the result of each step.
+autonomously, in order — the graph server authenticates via **OAuth** (browser login),
+so on the default path you ask the user for nothing. Only the headless/no-OAuth
+fallback needs their **graph token** — never invent, guess, or reuse one. Report the
+result of each step.
 
 verstak is two parts:
 
@@ -36,49 +38,49 @@ Add `--agent codex` (or `-a cursor`, …) to target a specific harness explicitl
 
 ## 2. Connect the graph server
 
-Ask the user for their graph token (it comes with the early-access invite). Do not
-proceed with a made-up value; a wrong token fails on first contact with the server.
+The server speaks **OAuth**: an interactive harness pointed at the URL opens a browser
+login on first contact — no pre-shared token, nothing to paste.
 
 <!-- Interim endpoint (owner-confirmed): nks.lab.mirari.ru is the live server today.
      It moves to the public domains (mcp.verstak.ai / mcp.mirari.ru) as production
      deploys land — this file is the single place to update. -->
 
-> **Claude Code + plugin shortcut:** the `verstak` plugin bundles this MCP server
-> (`.mcp.json` in the plugin root) — if you installed the plugin in step 1, just make
-> sure `VERSTAK_TOKEN` is exported in your environment and skip the `claude mcp add`
-> command below; the server connects on next session start.
+> **Claude Code + plugin (step 1): nothing to configure.** The plugin bundles this
+> server (`.mcp.json` in the plugin root); the first `nks_*` call (or `/mcp`) opens
+> the OAuth login. Skip the rest of this step.
 
-**Claude Code:**
+**Claude Code without the plugin:**
 
 ```sh
-claude mcp add --transport http nks https://nks.lab.mirari.ru/mcp \
-  --header "Authorization: Bearer $VERSTAK_TOKEN"
+claude mcp add --transport http nks https://nks.lab.mirari.ru/mcp
 ```
 
 **Cursor** — merge into `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
 
 ```json
-{ "mcpServers": { "nks": {
-    "url": "https://nks.lab.mirari.ru/mcp",
-    "headers": { "Authorization": "Bearer ${VERSTAK_TOKEN}" } } } }
+{ "mcpServers": { "nks": { "url": "https://nks.lab.mirari.ru/mcp" } } }
 ```
 
-**Codex** — add to `~/.codex/config.toml`:
+OAuth login triggers on first use in both.
 
-```toml
-[mcp_servers.nks]
-url = "https://nks.lab.mirari.ru/mcp"
-bearer_token_env_var = "VERSTAK_TOKEN"
-```
-
-**Any other agent:**
+**Fallback — headless agents and harnesses without MCP-OAuth support** (Codex-style
+configs, CI, autonomous VMs): use a personal access token instead. Ask the user for
+it (it comes with the early-access invite) — never invent one — and pass it as a
+Bearer header, e.g.:
 
 ```sh
 npx add-mcp https://nks.lab.mirari.ru/mcp --header "Authorization: Bearer ${VERSTAK_TOKEN}"
 ```
 
+```toml
+# Codex ~/.codex/config.toml
+[mcp_servers.nks]
+url = "https://nks.lab.mirari.ru/mcp"
+bearer_token_env_var = "VERSTAK_TOKEN"
+```
+
 Store the token where your harness expects env vars; do not hard-code it into files
-that get committed.
+that get committed. The token never goes into the URL.
 
 ## 3. Restart
 
@@ -94,7 +96,9 @@ and seeds the graph with the structure the codebase already shows.
 
 ## Troubleshooting
 
-- **401 / auth error** → the token is wrong or expired. Re-ask the user; do not retry
+- **401 / auth error** → on the OAuth path, re-run the login (`/mcp` → authenticate,
+  or restart the session). On the token fallback the token is wrong or expired —
+  re-ask the user; do not retry
   with variations.
 - **`nks_*` tools not visible** → the MCP config loads on session start: restart the
   session (or reload MCP config) and verify again.
