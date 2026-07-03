@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Agent-facing NKS (Nyāya Knowledge System) methodology skills.",
-    "version": "1.4.0"
+    "version": "1.4.1"
   },
   "plugins": [
     {
