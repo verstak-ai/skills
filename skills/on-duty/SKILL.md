@@ -1,9 +1,9 @@
 ---
-name: inbox
-description: "Use this skill to run the inbox-driven duty cycle in a verstakified repo — autonomous work from the doer's agenda. Triggers: 'разгребай инбокс', 'разбери инбокс', 'sweep the inbox', 'work the inbox', 'inbox loop', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Also scopes to one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua' — the queue becomes its open anga, arrival is proposed to the owner. Loop: orient → agenda → pick workable vimarshas → work per repo ritual (commit, push, PR) → wire dependencies into other doers' inboxes → weave the wake → wait (webhook or ≤30-min re-check) → escalate transcendent will to the owner. Composes entry, inquiry, writing, weaving; the graph is the durable state between wakes. Needs the nks_* MCP tools and a verstakified AGENTS.md."
+name: on-duty
+description: "Use this skill to stand watch — the agent's duty cycle in a verstakified repo, autonomous work from the doer's inbox agenda. Triggers: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Also scopes to one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua' — the queue becomes its open anga, arrival is proposed to the owner. Loop: orient → agenda → pick workable vimarshas → work per repo ritual (commit, push, PR) → wire dependencies into other doers' inboxes → weave the wake → wait (webhook or ≤30-min re-check) → escalate transcendent will to the owner. Composes entry, inquiry, writing, weaving; the graph is the durable state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
-# NKS Inbox — the duty cycle
+# NKS On-Duty — the watch
 
 An agent in a verstakified repo has an identity: the **agent karta** named in AGENTS.md, steward of the repo's contour. Its inbox — incoming `posed_to` vimarshas on that karta — is where other doers (human and agent) put work that expects *this* doer to act. This skill is the closed loop that drains it: take what is workable, ship it, wire the relay to whoever depends on it, wait consciously, repeat.
 
@@ -41,7 +41,7 @@ When the user names a transformation — "продвигай bianhua #N чере
 
 ## 2 · Work
 
-Each vimarsha names its own flow — follow *it*, not a generic one: a code defect → fix + tests per the AGENTS.md gates; a question → answer it (**inquiry**: `addressed_by`, close); a design ask → the **design** skill; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits — all from AGENTS.md. Commit, push; open the PR when the repo's flow says PR. Never merge your own PR unless AGENTS.md explicitly sanctions it.
+Each vimarsha names its own flow — follow *it*, not a generic one: a code defect → fix + tests per the AGENTS.md gates; a question → answer it (**inquiry**: `addressed_by`, close); a design ask → the **design** skill; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits — all from AGENTS.md. Commit, push; open the PR when the repo's flow says PR. Never merge your own PR unless AGENTS.md explicitly sanctions it. A PR awaiting review is a git-surface expectation — do **not** mirror it as a vimarsha to the owner; only when the un-merged branch blocks another doer's anga does the relay vimarsha say so.
 
 ## 3 · Integrate locally
 
@@ -79,7 +79,7 @@ Genuinely waiting on another doer:
 |---|---|
 | A webhook can wake you (e.g. a karta webhook on your inbox) | **verify it is actually armed** (list/inspect — don't assume), then sleep until fired; arm a bounded fallback re-check too if the harness allows — a webhook whose sender died sleeps forever |
 | Timers only | sleep the time you would honestly give the other side for its integration part — **never more than 30 minutes** — then re-enter at step 0 |
-| Neither (interactive session, no timer) | report state to the user and end the turn — the graph holds; the next "разгребай инбокс" re-enters cleanly |
+| Neither (interactive session, no timer) | report state to the user and end the turn — the graph holds; the next watch ("заступай на вахту") re-enters cleanly |
 
 Waking up = **step 0 again** (orient → agenda), never "resume from memory": the world moved while you slept.
 
@@ -95,7 +95,7 @@ Waking up = **step 0 again** (orient → agenda), never "resume from memory": th
 - **A direct user instruction interrupts the loop.** The inbox serves the user, not the other way around.
 - **Report at every pause**: what was swept, what shipped, what waits on whom, what was escalated.
 
-## What inbox is NOT
+## What on-duty is NOT
 
 - Not **assembly** (the realm-wide pass) and not bare **inquiry** — it composes inquiry per item and adds the repo work, the relay, and the wait.
 - Not a mandate expander: the inbox says what is *asked*; the stewarded contour says what is *yours*.
