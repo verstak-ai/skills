@@ -39,12 +39,19 @@ Add `--agent codex` (or `-a cursor`, …) to target a specific harness explicitl
 Ask the user for their graph token (it comes with the early-access invite). Do not
 proceed with a made-up value; a wrong token fails on first contact with the server.
 
-<!-- TODO(owner): confirm the public MCP URL + auth header shape before merging -->
+<!-- Interim endpoint (owner-confirmed): nks.lab.mirari.ru is the live server today.
+     It moves to the public domains (mcp.verstak.ai / mcp.mirari.ru) as production
+     deploys land — this file is the single place to update. -->
+
+> **Claude Code + plugin shortcut:** the `verstak` plugin bundles this MCP server
+> (`.mcp.json` in the plugin root) — if you installed the plugin in step 1, just make
+> sure `VERSTAK_TOKEN` is exported in your environment and skip the `claude mcp add`
+> command below; the server connects on next session start.
 
 **Claude Code:**
 
 ```sh
-claude mcp add --transport http nks https://mcp.verstak.ai/mcp \
+claude mcp add --transport http nks https://nks.lab.mirari.ru/mcp \
   --header "Authorization: Bearer $VERSTAK_TOKEN"
 ```
 
@@ -52,7 +59,7 @@ claude mcp add --transport http nks https://mcp.verstak.ai/mcp \
 
 ```json
 { "mcpServers": { "nks": {
-    "url": "https://mcp.verstak.ai/mcp",
+    "url": "https://nks.lab.mirari.ru/mcp",
     "headers": { "Authorization": "Bearer ${VERSTAK_TOKEN}" } } } }
 ```
 
@@ -60,14 +67,14 @@ claude mcp add --transport http nks https://mcp.verstak.ai/mcp \
 
 ```toml
 [mcp_servers.nks]
-url = "https://mcp.verstak.ai/mcp"
+url = "https://nks.lab.mirari.ru/mcp"
 bearer_token_env_var = "VERSTAK_TOKEN"
 ```
 
 **Any other agent:**
 
 ```sh
-npx add-mcp https://mcp.verstak.ai/mcp --header "Authorization: Bearer ${VERSTAK_TOKEN}"
+npx add-mcp https://nks.lab.mirari.ru/mcp --header "Authorization: Bearer ${VERSTAK_TOKEN}"
 ```
 
 Store the token where your harness expects env vars; do not hard-code it into files
