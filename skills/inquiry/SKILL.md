@@ -18,6 +18,8 @@ An unanchored vimarsha is an **invisible** vimarsha — it surfaces in no `lens=
 
 A vimarsha carrying an **expectation** (a `posed_to` arrow to a karta, anga to a bianhua) needs the anchor doubly: agents discover work by orienting on a *holon*, and neither `anga` nor `posed_to` scopes a vimarsha into anyone's contour — without `vimarsha_of` into the addressee's territory it is invisible there and will never be done. Minimum anchor — the holon where the expected work lives; better — the precise phenomenon or kriya within it. (The `unanchored` detector fires post-hoc; don't rely on it — anchor at posing time.) `posed_to` is the live **inbox edge** to a karta — so an addressee can poll "my open questions"; forbidden to a `pratibimba` (an image can't answer), and it never substitutes for `vimarsha_of`.
 
+The mirror failure is just as real: `vimarsha_of` **without** `posed_to` on a question that *expects another doer to act* — anchored, visible in the territory, in no one's inbox; a delegation degraded to a note-into-the-void. If you expect someone to act, name them: the 能 who stewards the holon where the work lives (**writing** Decision 2b — find it via the `steward` arrow or `nks_search(q="", node_type="karta")`, never from orient's root-kartas showcase), never a `pratibimba`.
+
 If you find a dangling vimarsha (orient flags them), the first move is almost always to anchor it, then triage.
 
 ## 2. The lifecycle — three outcomes

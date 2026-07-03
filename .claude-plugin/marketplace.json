@@ -12,7 +12,7 @@
       "name": "verstak",
       "description": "NKS methodology skills — orient, write, design, and weave an NKS graph through the nks_* MCP tools.",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "skills": [
         "./skills/entry",
         "./skills/writing",
