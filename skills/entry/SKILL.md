@@ -33,6 +33,16 @@ Don't orient for:
 - Casual conversation, greetings, clarifying questions inside an already-oriented thread.
 - Questions where the user explicitly wants an outside perspective ("forget my notes for a moment").
 
+## Coexistence with workflow suites
+
+If an installed workflow suite requires skill invocation before any response,
+orient is not in conflict: reading the realm is how this environment gathers
+context — memory-fetch, not a response or an implementation action. The suite's
+own precedence rule (e.g. superpowers: "user instructions always take
+precedence", with explicit user instructions — CLAUDE.md, GEMINI.md, AGENTS.md,
+direct requests — ranked highest priority) ratifies the AGENTS.md orient-first
+ritual. Orient first, then follow the suite's process skills for execution.
+
 ## What "answering from the graph" means
 
 Not paraphrasing one node. The pattern is: cite relevant nodes with seq numbers, but **synthesize** for the specific question. If the question requires something the graph doesn't have, say so plainly: "the realm has #N on X, but for your question this isn't enough" — and offer to either open a `samshaya` vimarsha (a recorded open inquiry) or work it through in chat.

@@ -31,6 +31,8 @@ machine or with another agent.
   in the repo; link to the vimarsha or holon.
 - **Fetch state; never reconstruct it from memory.** No source for a "we
   decided…"? Stop and read NKS or the repo before acting.
+- **External design/spec files are drafts to intake**, not the record — the
+  graph holds the decisions; any such file is a view of them.
 - **Memory write-gate.** The harness's own memory instruction invites a
   `project` memory category — overridden here: before saving any memory,
   classify the fact. Project fact (system property, decision, constraint,
@@ -79,9 +81,25 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
+- **Design completion criterion:** a design is not *done* until its decisions,
+  risks, and lifecycle are in the realm — whichever skill elicited it.
+  Persisting to the graph is memory-work, not implementation, so design-phase
+  gates on implementation don't apply to it. A design/spec file another suite
+  writes is a draft view — intake it **in the same session** (never defer graph
+  landing to a future push). Working autonomously (owner absent): still land
+  decisions and risks now; propose the transformation (bianhua) with its telos
+  marked for owner confirmation rather than skipping it.
+- **Execution suites lead execution.** Planning, TDD, debugging, verification,
+  review and their kin belong to whatever execution suite is installed; NKS
+  carries the memory/design plane only. Decisions and risks born during
+  execution still land in the realm **before the session ends** — never gate
+  them on a future push/commit.
+- **Hooks merge.** `.claude/settings.json` hooks from different suites coexist —
+  add alongside, never overwrite another suite's entries.
 - A `SessionStart` hook, a post-`git push` hook, and a memory-write hook in
   `.claude/settings.json` (committed) automate these reminders — verify all
-  three wired.
+  three wired. Where the interop stamp below says `full`, a fourth spec-write
+  reminder hook rides along — verify it too; otherwise it must not be wired.
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
