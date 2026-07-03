@@ -1,7 +1,7 @@
 # Superpowers interop — canonical template
 
 Canonical template for the `### Workflow-suite interop (superpowers)`
-subsection that verstakify Step 7 projects into a target repo's `AGENTS.md`
+subsection that verstakify Step 8 projects into a target repo's `AGENTS.md`
 (at the end of `## Session lifecycle`), when superpowers is detected and the
 user opted in at the Step-1 settle. The deployable section is the fenced block
 below; the re-verify checklist after it stays here — never deployed.

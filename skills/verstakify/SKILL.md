@@ -98,7 +98,9 @@ is these five rules:
 one session. Build-gating chains, sub-agent push verification, model-routing,
 multi-lane coordination don't belong here — inlining them violates the density
 rule for the solo reader. Home: a dedicated orchestration/scheduler skill or the
-methodology realm; link if needed, don't inline.
+methodology realm — except the sub-agent delegation slice, which this skill
+projects as role files (Step 7, `references/delegation.md`), never as AGENTS.md
+prose. Link if needed, don't inline.
 
 Worked example — same `## Code conventions` entry, bad (narrative) vs good
 (AI-first):
@@ -328,9 +330,9 @@ this skill).
 - When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
   the user says so): `.opencode/agents/reader.md` + `worker.md`,
   `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent
-  inherits the invoking agent's expensive model, so the pin is the point.
-  Resolve current `provider/model-id`s from the user's setup; never hardcode
-  from the reference.
+  inherits the invoking primary's model, so the pin is the point. Resolve
+  current `provider/model-id`s from the user's setup (ask, or read
+  `opencode.json` / the global config); never hardcode from the reference.
 - The `description` fields are the delivery channel — they sit in the
   agent/task tool list every session, so the routing trigger fires without any
   skill load. Keep them trigger-shaped: when to use, what comes back, what NOT
