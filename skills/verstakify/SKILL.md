@@ -1,6 +1,6 @@
 ---
 name: verstakify
-description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, permissions, CLAUDE.md pointer — @AGENTS.md import, Windows-safe). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
+description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, memory guard, CLAUDE.md pointer — @AGENTS.md import, Windows-safe). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
 ---
 
 # Verstakify
@@ -51,7 +51,7 @@ against its source of truth and classify it**:
 Run this per concern using the source map below. "Fresh repo" is just
 *everything absent*; a mature repo is a mix — and most dangerous when
 *mostly-correct*, because the few stale lines hide among trusted ones (this is
-why the verify pass is whole-artifact, Step 8). For authored slots with no
+why the verify pass is whole-artifact, Step 7). For authored slots with no
 checkable source, *absent* → ask the user; never invent.
 
 ### Source of truth per concern
@@ -77,7 +77,7 @@ preserve it, only sanity-check it against the code.
 
 `AGENTS.md` is read *every session*, so it must be both **dense** and **true** —
 co-equal, not form-first. Accuracy is operationalized above (audit/classify each
-concern against the source map) and below (verify pass, Step 8). The density half
+concern against the source map) and below (verify pass, Step 7). The density half
 is these five rules:
 1. **Imperative, addressed to the agent.** "Orient before coding," not "the
    agent should orient."
@@ -99,7 +99,7 @@ one session. Build-gating chains, sub-agent push verification, model-routing,
 multi-lane coordination don't belong here — inlining them violates the density
 rule for the solo reader. Home: a dedicated orchestration/scheduler skill or the
 methodology realm — except the sub-agent delegation slice, which this skill
-projects as role files (Step 7, `references/delegation.md`), never as AGENTS.md
+projects as role files (Step 6, `references/delegation.md`), never as AGENTS.md
 prose. Link if needed, don't inline.
 
 Worked example — same `## Code conventions` entry, bad (narrative) vs good
@@ -199,7 +199,7 @@ Write commands into *Commands*, discipline into *Code conventions*.
 Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them), plus a conditional fourth — the spec-write
 hook — **only when the Step-1 coexistence settle chose full interop** (the
-settled mode is recorded in the AGENTS.md interop stamp, Step 8; no subsection
+settled mode is recorded in the AGENTS.md interop stamp, Step 7; no subsection
 = no settle = three hooks). **Merge, never overwrite:** other suites may
 already own entries in this file — add yours alongside theirs in the same
 arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
@@ -216,12 +216,14 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   inbox** (visarjana the `posed_to` questions the work answered), run the
   after-green-push self-review, and: uningested design/spec docs on this
   branch → intake them (`intake` skill, then `design`) before closing.
-- **`PostToolUse`** with `"matcher": "Write|Edit"` → the **memory-write hook**:
-  when the written file path is inside the local project-memory dir, reminder
-  to run the write-gate (classify: project fact → repo/NKS, memory keeps a
-  pointer). This is the third layer of the gate — it fires at the exact moment
-  the save-instinct does, when both AGENTS.md and the `MEMORY.md` gate line
-  are far behind in the context. Exact JSON below.
+- **`PreToolUse`** with `"matcher": "Write|Edit|MultiEdit"` → the **memory-guard
+  hook**: when the target path is inside the local project-memory dir, **block
+  the write** (exit 2, routing message on stderr) — project state lives in the
+  repo or the graph, never in local agent memory; the dir stays frozen at its
+  prohibition stub (Step 5). Blocking is safe here: the path is unambiguous and
+  legitimate writes there are zero by policy. It fires at the exact moment the
+  save-instinct does, when AGENTS.md is far behind in the context. Exact JSON
+  below.
 - **`PostToolUse`** with `"matcher": "Write|Edit"` → the **spec-write hook**
   (full-interop mode only): when the written file path looks like a design/spec
   doc, reminder that the file is a draft view — the graph is the design record.
@@ -244,13 +246,16 @@ ship it as-is; just never promote this text-match to anything that gates work. T
 cut the noise, also branch on `.tool_response` so the reminder fires only when
 the push actually ran.
 
-The memory-write hook, same envelope style — the path is unambiguous
-(`.claude/projects/<encoded>/memory/`), so false positives are near zero and
-memory writes are rare, so it never spams:
+The memory-guard hook — unlike the reminders it **blocks**: a `PreToolUse`
+command that exits 2 stops the tool call and hands Claude the stderr message.
+The path is unambiguous (`.claude/projects/<encoded>/memory/`), so false
+positives are near zero:
 ```json
-{ "matcher": "Write|Edit", "hooks": [ { "type": "command",
-  "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '\\.claude/projects/[^/]+/memory/[^/]+\\.md$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Memory write — run the gate (AGENTS.md, Persistence rules): a project fact (system property, decision, constraint, gotcha) belongs in repo/NKS, memory keeps at most a one-line pointer; agent/user-scoped style stays here. Dual-nature facts split: fact → repo/NKS, pointer → memory.\"}}' || true" } ] }
+{ "matcher": "Write|Edit|MultiEdit", "hooks": [ { "type": "command",
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden for project state (AGENTS.md, Persistence rules). Route the fact to AGENTS.md (repo conventions, code/git facts) or a hint vimarsha in the project realm (graph). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
 ```
+This entry goes under `"PreToolUse"` — its own event array, not the
+`PostToolUse` one.
 The spec-write hook (full-interop only), same gating style — a wide behavioral
 glob; false positives are harmless for a non-blocking reminder, never promote
 it to anything that gates work:
@@ -258,8 +263,9 @@ it to anything that gates work:
 { "matcher": "Write|Edit", "hooks": [ { "type": "command",
   "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '(^|/)specs/[^/]+\\.md$|(^|/)docs/.*design[^/]*\\.md$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A design draft was written; per AGENTS.md this file is a draft view — the graph is the design record. Intake it (intake skill, then design skill) in this session — do not defer to a push.\"}}' || true" } ] }
 ```
-These entries merge into the same `PostToolUse` array as the git-push hook —
-sibling objects, not replacements.
+The spec-write entry merges into the same `PostToolUse` array as the git-push
+hook — sibling objects, not replacements; the memory guard lives in its own
+`PreToolUse` array.
 
 Self-check: all three base hooks present, and the spec-write hook present
 **iff** the AGENTS.md interop stamp says `full` (absent stamp or `prose-only` →
@@ -271,28 +277,7 @@ Heads-up: writing `.claude/settings.json` may be flagged by the harness as
 self-modification and require explicit approval — surface the write for
 confirmation rather than assuming it lands silently.
 
-### Step 5 — Permissions allow-list (optional)
-Two layers, both shaped `"permissions": { "allow": [...] }`, merged alongside
-`hooks` (don't overwrite):
-- **Team base** in `.claude/settings.json` (committed, same file as the hooks):
-  the repetitive *safe* commands this project actually uses — NKS read/write MCP
-  tools and the NKS skills, non-destructive `git`, the stack's build/test/lint.
-- **Personal extensions** in `.claude/settings.local.json` (gitignored — Step
-  6): machine- or agent-specific; extend ad-hoc.
-
-Never pre-grant in either layer (ask per-use): `rm`, `git reset --hard`, `git
-push --force`, `git branch -D`; `nks_delete_node` / `nks_arrow(action="delete")` /
-`nks_history(action="revert"|"invert")`; `nks_realm(action="create"|"delete")`;
-`nks_admin` membership/ownership actions and `add_webhook`/`remove_webhook`
-(its read-only `my_kartas` / `whoami` / `list_webhooks` / `my_usage` may sit in
-the team allow-list); and bash `cat`/`find`/`grep`/`ls`/`sed`/`awk`/`head`/`tail`
-(Read/Glob/Grep/Edit cover those).
-
-The NKS MCP server prefix is environment-specific — confirm the real tool names
-(`nks_realm(action="list")`) before hard-coding any `mcp__…__nks_*` entry; a
-copied prefix often won't match and silently does nothing.
-
-### Step 6 — Repo hygiene
+### Step 5 — Repo hygiene
 - Commit `.claude/settings.json`; ignore `.claude/settings.local.json` via
   `.gitignore`. If `.claude/` is broadly ignored, add an explicit un-ignore:
   `!.claude/settings.json`. Verify with `git check-ignore -v
@@ -303,23 +288,21 @@ copied prefix often won't match and silently does nothing.
   <file>`, never `git add -A` / `commit -a` (an agent editing a tracked env file
   otherwise leaks it into the PR).
 - Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`):
-  audit it. Classify each file: **project state** (decisions, constraints,
-  branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS, leave at most a
-  one-line pointer; **user/agent-scoped preferences** (working style,
-  language) stay — they persist there by design (see *Persistence rules*).
-  Then install the write-gate: the first line of the memory index
-  (`MEMORY.md`) states the gate from *Persistence rules* — project facts →
-  repo/NKS, memory keeps pointers; the harness's `project` memory category
-  is overridden. Mark the line permanent (consolidation passes must not prune
-  it). The index is loaded every session, so the gate meets the save-instinct
-  at write time; the memory-write hook (Step 4) repeats it at the moment of
-  the write (reason: reproducibility + multi-machine work).
+  audit and **evacuate** it. Project state (decisions, constraints, branch
+  state, gotchas) → AGENTS.md / HANDOVER.md / NKS; user/agent-scoped
+  preferences (working style, language) → the user's global memory, not the
+  project dir. Then freeze the dir: `MEMORY.md` becomes a one-line
+  prohibition stub («project state lives in the repo or the graph — see
+  AGENTS.md, Persistence rules»), and the memory-guard hook (Step 4) blocks
+  any further write at the moment the save-instinct fires. Reason:
+  reproducibility + multi-machine, multi-agent work — local memory is
+  invisible to every other agent and machine.
 - *Stack*, *Commands*, *Project structure*, *Code conventions* hold real content
   proportional to maturity. Empty is fine day one; `TBD` is not.
 - `HANDOVER.md` exists only if feature-branch work is in flight.
 - `README.md` is short, human-facing, and doesn't duplicate AGENTS.md.
 
-### Step 7 — Subagent delegation roles
+### Step 6 — Subagent delegation roles
 Project the delegation doctrine as **named role agents**, not as AGENTS.md
 prose (orchestration mechanics stay out of AGENTS.md — the output contract
 above). Doctrine + file templates: `references/delegation.md` (relative to
@@ -340,11 +323,14 @@ this skill).
 - Judgment work (design, review, synthesis) gets no role file — it stays with
   the session model or a per-call top-tier override where the platform
   supports it.
+- **Merge, never overwrite**: a same-named `reader`/`worker` agent file from
+  another suite may already exist — fold your body/description in or rename
+  yours (`verstak-reader`); the same rule the hooks merge follows.
 - Self-check: role files parse (frontmatter); pinned models exist in the
   user's setup; AGENTS.md carries **no** inlined delegation doctrine (a
-  pointer at most).
+  pointer at most); no pre-existing agent file was overwritten.
 
-### Step 8 — Finalize
+### Step 7 — Finalize
 - Write the filled body to **`AGENTS.md`**, then create the Claude Code pointer:
   a one-line `CLAUDE.md` whose entire content is `@AGENTS.md` (no backticks in
   the file — a code span suppresses the import). This is the docs-recommended
