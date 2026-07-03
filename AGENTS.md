@@ -5,7 +5,7 @@ Agent-facing NKS skill bundles (Claude Code skills), including `verstakify` — 
 - **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: content is prose + methodology, so there are no behavioural tests. The gates are (1) human review of the `SKILL.md` diff plus the skills' own discipline and (2) a lightweight CI that validates the frontmatter contract and bundle sync (`make check`). Breakage is otherwise silent, not loud (see Production statement) — CI catches the one mechanical class (malformed frontmatter / drifted bundles).
 - **NKS realm**: `nks-dev` — every session starts with `nks_orient` here.
 - **Focus holon**: `#844 «📦 verstak-ai/skills (скиллы агента)»`.
-- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`). No runtime, no dependencies; CI is a dependency-free format gate (pure Node + bash) — see `.github/workflows/ci.yml`.
+- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), versioned by semver in `.claude-plugin/plugin.json` — bumped **automatically on every merge to `main`** (feat→minor, feat!/BREAKING→major, else patch; `.github/workflows/version-bump.yml`, never by hand). No runtime, no dependencies; CI is a dependency-free format gate (pure Node + bash) — see `.github/workflows/ci.yml`.
 - **Production statement**: skills install into agents' `~/.claude/skills/` and shape how every agent works with NKS. A wrong instruction — e.g. a reference to a tool that nks-mcp has dropped — silently degrades every agent that loads the skill; there is no crash, only methodology drift. The consumer is the agent, not a human user. Keeping skills in sync with the nks-mcp tool surface is the core maintenance obligation.
 
 ## Persistence rules
@@ -65,7 +65,9 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 ## Project structure
 - `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `intake`, `methodology-work`, `verstakify`, `product-roadmap`); `references/*` optional (`verstakify`, `writing`, `product-roadmap` ship them).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` mirrors the plugin version.
+- `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is what Claude Code reads to deliver updates (bumped by `version-bump.yml` on every merge, never by hand).
+- `scripts/bump-version.mjs` + `.github/workflows/version-bump.yml` — the automatic per-merge version bump + `vX.Y.Z` tag.
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
 - `README.md` — short human-facing pointer.
