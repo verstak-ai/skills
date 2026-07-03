@@ -15,6 +15,8 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 1. **`nks_realm(action="list")`** — see what's available. The user typically signals which realm is in play by topic, by name, or by explicit mention. If the realm is unambiguous from context, skip to step 2. If unclear and the question is non-trivial, briefly ask which realm to enter.
 
+   **Realm ≠ repo.** A realm commonly models a whole system across several repositories — each repo a holon, each repo's developer role a sub-karta, in one graph. Working in repo X and needing to reach the code, roles, or questions of repo Y does not mean switching realms: look for Y's holon and roles inside the current realm first. Not finding a realm named after a repo is not a gap — it is the signal you are already in the right realm.
+
 2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, **active bianhua** (transformations underway — shown right after the root holons, the map of where the realm is going), entry/exit kriyas, active vimarshas, tensions. No full descriptions. A realm with a populated `ACTIVE BIANHUA` section reads as a map, not a wall — read it first.
 
 3. **`nks_search(q=<key term from the question>, realm=<token>)`** — full-text (keyword) over names + descriptions: what does the graph already know on this topic? Cite found nodes with their seq numbers (`#42`). Keyword only matches the words the author happened to use.
@@ -68,6 +70,7 @@ The map is primary, seeds are remainder. Open work lives as anga-vimarshas on th
 ## Reading hygiene
 
 - When reporting "what's open / what remains", exclude volitive `visarjana` (released) and `virodha` (rejected) — the mode badge is authoritative, not the node's name. orient's active sections pre-filter; raw `nks_search`/`nks_look` output does not.
+- **orient lists are a showcase with a declared scope, not the inventory.** ROOT KARTAS shows root roles only (sub-roles fold into "· N sub"); kriya lists declare a "+N quiet" remainder. Never pick an addressee or conclude "no such node" from an orient list — one `nks_search(q="", node_type=...)` returns the actual set.
 - Emojis on nodes are the author's voice — don't "fix" them.
 
 ## Light writing as a side effect of reading
