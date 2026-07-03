@@ -1,6 +1,6 @@
 ---
 name: verstakify
-description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, permissions, CLAUDE.md symlink). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
+description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, permissions, CLAUDE.md pointer — @AGENTS.md import, Windows-safe). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
 ---
 
 # Verstakify
@@ -318,19 +318,25 @@ copied prefix often won't match and silently does nothing.
 - `README.md` is short, human-facing, and doesn't duplicate AGENTS.md.
 
 ### Step 7 — Finalize
-- Write the filled body to **`AGENTS.md`**, then create the Claude Code compat
-  symlink: `ln -s AGENTS.md CLAUDE.md`; verify with `readlink CLAUDE.md`.
-  (`AGENTS.md` is the vendor-neutral canonical name; Claude Code reads
-  `CLAUDE.md` and follows symlinks.)
+- Write the filled body to **`AGENTS.md`**, then create the Claude Code pointer:
+  a one-line `CLAUDE.md` whose entire content is `@AGENTS.md` (no backticks in
+  the file — a code span suppresses the import). This is the docs-recommended
+  import: expanded at launch, identical to inline content, and it works
+  everywhere — Windows checkouts get plain text where a symlink would break
+  (`core.symlinks=false` is the default there). An existing
+  `ln -s AGENTS.md CLAUDE.md` symlink is an acceptable POSIX equivalent — don't
+  churn it. (`AGENTS.md` is the vendor-neutral canonical name; Claude Code reads
+  `CLAUDE.md`, not `AGENTS.md`.)
 - **Legacy config already present** (the common case): use the skeleton as the
   frame and fold existing content in *by line kind* — re-project derived facts
   from their source (don't carry a stale version, command, or path forward just
   because it was written down) but preserve authored judgment (gotchas,
   why-clauses, nature) that has no checkable source, sanity-checking it against
   the code. Project-specific content with no slot moves to *Code conventions* or a
-  new section. End with `AGENTS.md` as the one file + `CLAUDE.md` as the symlink —
-  if a *regular-file* `CLAUDE.md` exists, replace it with the symlink after
-  folding its content in. One source per concern — no duplicate sections.
+  new section. End with `AGENTS.md` as the one file + `CLAUDE.md` as the pointer
+  (the `@AGENTS.md` import, or a pre-existing symlink) — if a *content-bearing*
+  `CLAUDE.md` exists, fold its content into `AGENTS.md` and replace the file
+  with the pointer. One source per concern — no duplicate sections.
 - If Step 1 settled full interop or prose-only: render the
   `### Workflow-suite interop (superpowers)` subsection at the end of
   `## Session lifecycle`, taking the section text from this skill's
