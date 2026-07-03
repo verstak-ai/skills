@@ -156,6 +156,35 @@ try {
   fail(".claude-plugin/marketplace.json", `could not read/parse: ${e.message}`);
 }
 
+// 3. Version contract: .claude-plugin/plugin.json is Claude Code's
+//    highest-precedence version source — an install refreshes only when this
+//    string changes. It must be valid semver, never duplicated in the
+//    marketplace plugin entry (plugin.json wins; a second copy silently
+//    drifts), and mirrored in marketplace metadata.version so there is one
+//    "verstak version". The bump workflow moves both together; this gate
+//    fails loudly if they ever diverge.
+const pluginPath = join(root, ".claude-plugin", "plugin.json");
+try {
+  const plugin = JSON.parse(readFileSync(pluginPath, "utf8"));
+  if (!/^\d+\.\d+\.\d+$/.test(plugin.version ?? "")) {
+    fail("plugin.json", `\`version\` must be semver X.Y.Z, got ${JSON.stringify(plugin.version)}`);
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  if (!(manifest.plugins ?? []).some((p) => p.name === plugin.name)) {
+    fail("plugin.json", `\`name\` (${JSON.stringify(plugin.name)}) matches no plugin in marketplace.json`);
+  }
+  for (const p of manifest.plugins ?? []) {
+    if ("version" in p) {
+      fail("marketplace.json", `plugin \`${p.name}\` carries its own \`version\` — keep it only in plugin.json (it takes precedence; a duplicate drifts)`);
+    }
+  }
+  if (manifest.metadata?.version !== plugin.version) {
+    fail("marketplace.json", `metadata.version (${JSON.stringify(manifest.metadata?.version)}) must mirror plugin.json (${plugin.version})`);
+  }
+} catch (e) {
+  fail(".claude-plugin/plugin.json", `could not read/parse: ${e.message}`);
+}
+
 // Report.
 if (errors.length > 0) {
   console.error(`✗ skill validation failed (${errors.length} problem${errors.length === 1 ? "" : "s"}):\n`);
