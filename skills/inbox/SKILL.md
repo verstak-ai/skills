@@ -1,6 +1,6 @@
 ---
 name: inbox
-description: "Use this skill to run the inbox-driven duty cycle in a verstakified repo — autonomous work from the doer's agenda. Triggers: 'разгребай инбокс', 'разбери инбокс', 'работай по инбоксу', 'sweep the inbox', 'work the inbox', 'inbox loop', 'duty cycle', or an autonomous session start in a repo whose AGENTS.md names an agent karta. Loop: orient → open the agenda → pick workable vimarshas → work each per its own flow (commit, push, PR per repo ritual) → wire dependencies into other doers' inboxes → wait via webhook or bounded re-check → close what resolved, escalate transcendent-will questions to the owner. Composes entry, inquiry, writing; the graph is the durable state between wakes. Needs the nks_* MCP tools and a verstakified AGENTS.md."
+description: "Use this skill to run the inbox-driven duty cycle in a verstakified repo — autonomous work from the doer's agenda. Triggers: 'разгребай инбокс', 'разбери инбокс', 'sweep the inbox', 'work the inbox', 'inbox loop', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Also scopes to one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua' — the queue becomes its open anga, arrival is proposed to the owner. Loop: orient → agenda → pick workable vimarshas → work per repo ritual (commit, push, PR) → wire dependencies into other doers' inboxes → weave the wake → wait (webhook or ≤30-min re-check) → escalate transcendent will to the owner. Composes entry, inquiry, writing, weaving; the graph is the durable state between wakes. Needs the nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS Inbox — the duty cycle
@@ -29,6 +29,16 @@ Order: items that **unblock another doer first** (someone's inbox waits on you �
 
 Work **one coherent cluster at a time**: vimarshas that touch the same files/contour ride one branch and one PR; unrelated ones wait for the next turn of the loop.
 
+## 1b · Mode: driving a bianhua
+
+When the user names a transformation — "продвигай bianhua #N через инбокс", "доведи превращение" — the same loop runs scoped to its **arrival**:
+
+- **Map first**: `nks_orient(lens="bianhua", focus=<N>)` — telos, anga drivers with resolved marks, touched holons. Check the forest for `anantara`: an open predecessor means this bianhua is blocked — surface that instead of pushing work into it.
+- **The queue is the anga.** Your picks: open anga of N in your mandate — `nks_search(q="", posed_to=<your-karta>, anga_of=<N>)` (the filters combine), then the unassigned remainder. The mode's core invariant: **no open anga without an inbox** — an anga living in another doer's contour gets a relay vimarsha (anchored, `posed_to`, "Answered when:") into *their* inbox; an unassigned anga in your contour you take.
+- **Work raises new drivers**: a question that must be answered for this telos → pose it and anga-attach it (writing); it joins the queue at once.
+- **Exit changes**: the cycle ends at arrival — every anga discharged or consciously parked/escalated, integration merged and verified. The bianhua's own closure is the **owner's acceptance**: propose it with the evidence (map at N/N, integration green); never close it yourself.
+- Report progress each tact from the map's resolved count.
+
 ## 2 · Work
 
 Each vimarsha names its own flow — follow *it*, not a generic one: a code defect → fix + tests per the AGENTS.md gates; a question → answer it (**inquiry**: `addressed_by`, close); a design ask → the **design** skill; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits — all from AGENTS.md. Commit, push; open the PR when the repo's flow says PR. Never merge your own PR unless AGENTS.md explicitly sanctions it.
@@ -45,9 +55,14 @@ The step most loops forget — and the reason the graph sits between agents at a
 - **Upstream** — you depend on someone: make sure a *current* vimarsha sits in the blocker's inbox stating (a) exactly what you need and (b) what counts as an answer. An explicit **"Answered when: …"** line in the description is what lets the other agent recognize it can discharge you.
 - Both directions follow **writing** discipline: anchor (`vimarsha_of` into the addressee's territory) **and** inbox edge (`posed_to`, found via the `steward` arrow — never from the orient showcase). One without the other is invisible.
 
+### Integration merges — only when granted
+
+Merging is off by default (step 2). When the user or AGENTS.md **explicitly grants merge rights** for the integration, the merge order is **agreed through inboxes, never guessed**: the chain of relay vimarshas *is* the order — each states whose part lands first ("Answered when: upstream branch merged, integration green"). Merge your branch only when your upstream vimarsha is discharged; then update the downstream doer's vimarsha with the delta ("merged, integration green" — states of the world, never SHAs/branch names in nodes) so their turn arrives. Across whole transformations the same ordering is `anantara`.
+
 ## 5 · Close
 
 - Every resolved vimarsha leaves by an **inquiry** door: `addressed_by` → `visarjana`; crystallize what became standing knowledge. Never leave answered-but-open items — a swept inbox that is not closed re-litigates itself next session.
+- **Weave the wake.** Every tact ends with a weaving pass over what it touched: `nks_orient(lens="tensions", focus=<touched holon>)` — close the lifecycles the change opened, write sense on new arrows, reconnect what a new distinction moved (the **weaving** skill). Weave-class tensions are yours to fix before sleeping; address-class go to the agenda. A tact that ships code but leaves the graph torn is not closed.
 - Run the repo's push→NKS ritual (phenomena to shipped state, map advanced) per AGENTS.md.
 
 ## 6 · Escalate
@@ -74,6 +89,8 @@ Waking up = **step 0 again** (orient → agenda), never "resume from memory": th
 - **Updates are deltas**, never bare pings.
 - **Every expectation is a vimarsha** — anchored, `posed_to`, with "Answered when:". No side-channel dependencies.
 - **One cluster in flight.** No multi-front sprawl inside one loop turn.
+- **In bianhua mode, no open anga without an inbox** — assignment is visible in the graph, arrival is proposed to the owner, never self-declared.
+- **Every tact weaves its wake** before the loop sleeps or ends.
 - **Repo ritual is law.** Gates, branches, PR rules from AGENTS.md; never `--force`; never merge your own PRs without sanction.
 - **A direct user instruction interrupts the loop.** The inbox serves the user, not the other way around.
 - **Report at every pause**: what was swept, what shipped, what waits on whom, what was escalated.
