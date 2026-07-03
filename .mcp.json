@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "nks": {
+      "type": "http",
+      "url": "https://nks.lab.mirari.ru/mcp",
+      "headers": {
+        "Authorization": "Bearer ${VERSTAK_TOKEN}"
+      }
+    }
+  }
+}
