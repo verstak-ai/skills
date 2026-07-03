@@ -41,8 +41,11 @@ machine or with another agent.
   pointer → memory).
 - The memory index (`MEMORY.md`), loaded every session, opens with this gate
   as its first line — the rule must meet the save-instinct at write time, not
-  sit only in this file. Project facts already accumulated in memory → move
-  to their real home (AGENTS.md / HANDOVER.md / NKS), leave pointers.
+  sit only in this file. The gate line is permanent: memory-consolidation
+  passes never prune it. Project facts already accumulated in memory → move
+  to their real home (AGENTS.md / HANDOVER.md / NKS), leave pointers. A
+  memory-write hook (see hooks below) repeats the gate at the moment of the
+  write itself.
 
 ## Session lifecycle
 NKS = the work (structure, open questions, what's next). Git = how it got here
@@ -76,9 +79,9 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
-- A `SessionStart` hook and a post-`git push` hook in
-  `.claude/settings.json` (committed) automate these reminders — verify both
-  wired.
+- A `SessionStart` hook, a post-`git push` hook, and a memory-write hook in
+  `.claude/settings.json` (committed) automate these reminders — verify all
+  three wired.
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
