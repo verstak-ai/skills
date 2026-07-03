@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "nks": {
+      "type": "http",
+      "url": "https://nks.lab.mirari.ru/mcp"
+    }
+  }
+}

@@ -23,6 +23,18 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 
 ## Install
 
+### Fastest: hand the setup to your agent
+
+Paste this prompt into the agent you already run (Claude Code, Cursor, Codex):
+
+```
+Set up verstak for me: fetch https://raw.githubusercontent.com/verstak-ai/skills/main/SETUP.md
+and execute all steps autonomously, asking me for my token when needed.
+```
+
+[`SETUP.md`](SETUP.md) is the agent-executable installer — plain markdown, read it first
+if you like. Manual paths below.
+
 ### Claude Code plugin (recommended)
 
 ```sh
