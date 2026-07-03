@@ -1,0 +1,37 @@
+name: Version bump on merge
+
+# Every merge to main bumps the plugin version in .claude-plugin/plugin.json —
+# the string Claude Code watches to deliver plugin updates — plus its mirror in
+# marketplace.json metadata.version, then tags vX.Y.Z. Conventional Commits set
+# the size: feat → minor, feat!/BREAKING CHANGE → major, else patch. No release
+# PRs, no release-please; the bump commit (chore(release): …) is skipped so the
+# workflow never re-triggers itself.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: bump
+        name: Compute and write the new version
+        run: |
+          MSG="$(git log -1 --pretty=%s)"
+          case "$MSG" in "chore(release):"*) echo "release commit — skip"; exit 0;; esac
+          V="$(node scripts/bump-version.mjs "$MSG")"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+      - name: Commit and tag
+        if: steps.bump.outputs.version != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+          git commit -m "chore(release): v${{ steps.bump.outputs.version }}"
+          git tag "v${{ steps.bump.outputs.version }}"
+          git push origin main --follow-tags
