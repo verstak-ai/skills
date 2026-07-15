@@ -1,6 +1,6 @@
 ---
 name: integrity
-description: "Use for transformation integrity, impact analysis, graph-backed claim audit, and reality audit before saying verified/done. Triggers: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'claim audit', 'не театр ли', 'reality check', 'acceptance review', 'проверено ли в реальности'. Tests frozen claims at public boundaries with falsifiers and fresh independent evidence. Distinct from assembly/design; needs nks_* tools."
+description: "Use for transformation integrity, impact analysis, graph-backed claim audit, and reality audit before reporting any behavior-changing implementation as verified/done — even when the user did not explicitly ask for an audit. Triggers: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'claim audit', 'не театр ли', 'reality check', 'acceptance review', 'проверено ли в реальности'. Tests frozen claims at public boundaries with falsifiers and fresh independent evidence. Distinct from assembly/design; needs nks_* tools."
 ---
 
 # NKS Integrity — the transformation's wavefront
@@ -107,6 +107,11 @@ Contract precedence is: latest owner correction → accepted requirement/specifi
 
 Run one narrow acceptance probe per required claim before broad regression suites. Prefer, in order: an existing/upstream/contract test at the canonical path; reproduction through the exact public runtime boundary; differential behavior against a trusted implementation or documented compatibility surface; a cold verifier's test derived from the frozen acceptance claim before reading the patch. Inspect callable/import reachability, representation shape, defaults, and state/history — not only a happy-path value. A broad green suite does not cover a claim whose exact boundary was never exercised.
 
+**Normative examples are executable claims.** When the accepted source gives an exact output,
+ordering, error path, serialization, or command example, reproduce that example verbatim at the
+public boundary. Each such example is its own falsifier; a simpler representative case does not
+discharge it. In particular, a two-node cycle does not verify a specified three-node traversal.
+
 A test authored from the same implementation hypothesis is useful evidence, but it cannot be the **only** independent evidence for a release-level claim: it can encode the same wrong API or config shape and pass. A passing structural `CHECKS:` block or clean tension lens is evidence only for graph integrity.
 
 **Protect the tail for reality.** The last model/tool budget belongs to running the newly changed
@@ -130,6 +135,10 @@ Decompose blockers by boundary. A missing downstream repository or incompatible 
 ### 4. Propagate invalidation, not confidence prose
 
 A correction or contradicted dependency returns affected claims to `provisional` until fresh evidence is rerun. First audit read-only; then use **writing/inquiry** discipline to downgrade any affected behavioral `pramanita`, and reopen or pose one anchored reverify vimarsha when the uncertainty must survive the session. Store the contract, dependency, contradiction, and evidence pointer that change the next actor's decision — never copy test logs into NKS.
+
+A contradicted claim stays contradicted until the same falsifier (or a strictly stronger one) passes
+after a relevant change. A later green carry-over subset that omits the failing case is absence of
+observation, not evidence of repair; report the subset's coverage explicitly.
 
 Required work can close only when every required claim is `verified` or the owner consciously accepts a named exception. `provisional`, `contradicted`, and `blocked` are truthful handoff states, not synonyms for done.
 
