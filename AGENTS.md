@@ -73,6 +73,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
 - `README.md` — short human-facing pointer.
+- `BENCHMARKS.md` — benchmark protocol, calibration evidence, process reflection, and the next transfer gate; negative results stay visible.
 - `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
 - `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
 

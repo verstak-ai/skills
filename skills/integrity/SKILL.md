@@ -1,17 +1,18 @@
 ---
 name: integrity
-description: "Use this skill for a transformation's integrity — right after a bianhua is created (telos accepted by the owner) or on request: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь бяньхуа на целостность', 'что затронет это превращение', 'кого заденет' — and for the reverse claim-audit when a prose artifact claims graph-backed leverage: 'is this backed by the graph', 'claim audit', 'подкреплено ли графом', 'не театр ли'. Forward: propagate the telos, pose clustered «is this affected?» samshayas on the wavefront. Reverse: verify each structural claim is carried by real edges, report claimed-but-unwired. Distinct from assembly (map from the field) and design (paths from goals). Needs the nks_* MCP tools."
+description: "Use this skill for a transformation's integrity — after a bianhua is accepted or on 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность' — for graph-backed prose claim audits ('is this backed by the graph', 'claim audit', 'не театр ли'), and for reality audits before behavioral claims become 'verified', 'done', 'integration green', or 'no work remains' ('reality check', 'acceptance review', 'проверено ли в реальности'). Forward: propagate a telos. Claim audit: verify prose against real edges. Reality audit: require an observable contract, public boundary, falsifier, and fresh independent evidence; corrections invalidate dependent claims until reverified. Distinct from assembly (map from the field) and design (paths from goals). Needs the nks_* MCP tools."
 ---
 
 # NKS Integrity — the transformation's wavefront
 
 A bianhua is a HOLISTIC change — cross-holon by definition. Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «is this affected? design the adaptation» — so the transformation cannot honestly close while its impact is unexamined.
 
-Three entries:
+Four entries:
 
 - a bianhua was just created and its telos accepted by the owner (assembly step 5 and design Phase 4 hand off here) — the forward protocol below;
 - the user asks to check an existing bianhua for integrity / impact — the same forward protocol;
 - a prose artifact claims graph-backed leverage and must be verified — the **claim-audit** mode (Mode 3 below).
+- a behavioral claim is about to become `verified` / `pramanita`, close work, or survive a changed requirement — the **reality-audit** mode (Mode 4 below).
 
 ## Protocol
 
@@ -83,6 +84,48 @@ The forward pass asks "what will the transformation touch?". The reverse pass as
 
 The audit itself writes nothing; it produces the claims × verdicts table. Same acceptance discipline as the wavefront: the owner picks each fate.
 
+## Mode 4 — reality-audit: is the graph-backed claim carried by reality
+
+Graph integrity says the representation is coherent. Claim integrity says prose matches the graph. Neither says the implementation behaves correctly. Run this mode before saying `verified`, `done`, `integration green`, or `no work remains`; before assigning `pramanita` to a behavioral claim; and after a requirement correction that can invalidate prior evidence.
+
+### 1. Freeze the claims before reading the implementation report
+
+Extract the load-bearing behavioral claims from the accepted requirement, design hint, public compatibility surface, or owner correction — not from the implementor's summary. For each required claim record:
+
+| Field | Required question |
+|---|---|
+| Claim | What exactly is asserted, in the accepted source's words? |
+| Observable | What behavior would an observer see? |
+| Public boundary | Through which exact exported symbol, API, UI, config/schema shape, protocol, or runtime surface? |
+| Falsifier | What concrete case would prove the claim false? |
+| Independent evidence | What evidence was derived independently of the implementation hypothesis? |
+| Freshness | Was it reproduced after the latest relevant correction/change? |
+
+Contract precedence is: latest owner correction → accepted requirement/specification → established public API, schema, and canonical tests in the target version → implementor relay. The relay is a hypothesis about fulfillment, never the source of the contract. When prose leaves the exact representation ambiguous, inspect the nearest established convention before inventing a symbol, config shape, or import path.
+
+### 2. Try to falsify at the boundary
+
+Run one narrow acceptance probe per required claim before broad regression suites. Prefer, in order: an existing/upstream/contract test at the canonical path; reproduction through the exact public runtime boundary; differential behavior against a trusted implementation or documented compatibility surface; a cold verifier's test derived from the frozen acceptance claim before reading the patch. Inspect callable/import reachability, representation shape, defaults, and state/history — not only a happy-path value. A broad green suite does not cover a claim whose exact boundary was never exercised.
+
+A test authored from the same implementation hypothesis is useful evidence, but it cannot be the **only** independent evidence for a release-level claim: it can encode the same wrong API or config shape and pass. A passing structural `CHECKS:` block or clean tension lens is evidence only for graph integrity.
+
+### 3. Give each claim one verdict
+
+- **verified** — the observable holds at its public boundary, the falsifier was attempted, and independent evidence is fresh;
+- **provisional** — partial or same-author evidence supports it, but independence/boundary/freshness is missing;
+- **contradicted** — a reproduced counterexample falsifies it;
+- **blocked** — the required evidence surface is unavailable; name the literal blocker and the smallest affected claim.
+
+Report the compact claims × verdicts table with evidence pointers, not raw logs. Structural cleanliness is a separate line and never upgrades a behavioral verdict.
+
+Decompose blockers by boundary. A missing downstream repository or incompatible integration environment blocks only that downstream integration claim; it does not waive an explicitly required local provider, utility, public export, config/schema shape, or caller contract that can still be implemented and tested in the current artifact. Verify the reachable half and leave only the genuinely unreachable half blocked.
+
+### 4. Propagate invalidation, not confidence prose
+
+A correction or contradicted dependency returns affected claims to `provisional` until fresh evidence is rerun. First audit read-only; then use **writing/inquiry** discipline to downgrade any affected behavioral `pramanita`, and reopen or pose one anchored reverify vimarsha when the uncertainty must survive the session. Store the contract, dependency, contradiction, and evidence pointer that change the next actor's decision — never copy test logs into NKS.
+
+Required work can close only when every required claim is `verified` or the owner consciously accepts a named exception. `provisional`, `contradicted`, and `blocked` are truthful handoff states, not synonyms for done.
+
 ## Noise discipline
 
 - One samshaya per cluster, not per node; a justification in every description — a question whose reader can't name the next move is noise by definition.
@@ -95,3 +138,4 @@ The audit itself writes nothing; it produces the claims × verdicts table. Same 
 - **Not design** — integrity poses the «is this affected?» questions; clusters answered «affected» are handed to design.
 - **Not weaving** — it does not repair structure; it marks where structure will have to move.
 - **Not a tension detector** — it runs from a telos, not from structural signals.
+- **Not an execution suite** — it selects and judges evidence; project tests, runtimes, and debugging workflows produce that evidence.

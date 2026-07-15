@@ -1,6 +1,6 @@
 ---
 name: on-duty
-description: "Use this skill to stand watch — the agent's duty cycle in a verstakified repo, autonomous work from the doer's inbox agenda. Triggers: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Also scopes to one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua' — the queue becomes its open anga, arrival is proposed to the owner. Loop: orient → agenda → pick workable vimarshas → work per repo ritual (commit, push, PR) → wire dependencies into other doers' inboxes → weave the wake → wait (webhook or ≤30-min re-check) → escalate transcendent will to the owner. Composes entry, inquiry, writing, weaving; the graph is the durable state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, writing, and weaving; NKS is durable state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
@@ -36,7 +36,7 @@ When the user names a transformation — "продвигай bianhua #N чере
 - **Map first**: `nks_orient(lens="bianhua", focus=<N>)` — telos, anga drivers with resolved marks, touched holons. Check the forest for `anantara`: an open predecessor means this bianhua is blocked — surface that instead of pushing work into it.
 - **The queue is the anga.** Your picks: open anga of N in your mandate — `nks_search(q="", posed_to=<your-karta>, anga_of=<N>)` (the filters combine), then the unassigned remainder. The mode's core invariant: **no open anga without an inbox** — an anga living in another doer's contour gets a relay vimarsha (anchored, `posed_to`, "Answered when:") into *their* inbox; an unassigned anga in your contour you take.
 - **Work raises new drivers**: a question that must be answered for this telos → pose it and anga-attach it (writing); it joins the queue at once.
-- **Exit changes**: the cycle ends at arrival — every anga discharged or consciously parked/escalated, integration merged and verified. The bianhua's own closure is the **owner's acceptance**: propose it with the evidence (map at N/N, integration green); never close it yourself.
+- **Exit changes**: the cycle ends at arrival — every anga discharged or consciously parked/escalated, integration merged, and every required behavioral claim reality-audited. The bianhua's own closure is the **owner's acceptance**: propose it with the claim-verdict evidence; map N/N and integration green are inputs, never a correctness verdict. Never close it yourself.
 - Report progress each tact from the map's resolved count.
 
 ## 2 · Work
@@ -47,11 +47,13 @@ Each vimarsha names its own flow — follow *it*, not a generic one: a code defe
 
 If AGENTS.md documents a local integration surface (dev backend, preview server, a make target) — restart or rebuild it and verify the change actually runs; the loop's claim is "shipped and running", not "pushed". Only what AGENTS.md documents: never invent restarts, never touch shared or production surfaces from this loop.
 
+Before closing or relaying `verified`, run the **integrity** reality-audit over the accepted requirements/hints. Freeze claims independently of the implementor report; check their public boundaries, falsifiers, and fresh evidence. A correction invalidates affected claims and their dependents until rerun. Required `provisional`, `contradicted`, or `blocked` claims keep the work open unless the owner consciously accepts the exception.
+
 ## 4 · Wire the relay
 
 The step most loops forget — and the reason the graph sits between agents at all:
 
-- **Downstream** — another doer depends on what you shipped: make the change land in *their* inbox. Either a new vimarsha (anchored in their contour, `posed_to` their karta) or an **update to the vimarsha they already watch**. An update is a **delta, not a ping**: state what changed and what is now possible. A content-free "ping" invites ping-pong livelock.
+- **Downstream** — another doer depends on what you shipped: make the change land in *their* inbox. Either a new vimarsha (anchored in their contour, `posed_to` their karta) or an **update to the vimarsha they already watch**. An update is a **decision delta, not a ping or work log**: changed claim/verdict, evidence pointer, and what is now possible. Do not duplicate the graph, relay, and final report. A content-free "ping" invites ping-pong livelock.
 - **Upstream** — you depend on someone: make sure a *current* vimarsha sits in the blocker's inbox stating (a) exactly what you need and (b) what counts as an answer. An explicit **"Answered when: …"** line in the description is what lets the other agent recognize it can discharge you.
 - Both directions follow **writing** discipline: anchor (`vimarsha_of` into the addressee's territory) **and** inbox edge (`posed_to`, found via the `steward` arrow — never from the orient showcase). One without the other is invisible.
 

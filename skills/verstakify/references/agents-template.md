@@ -5,7 +5,9 @@
 - **Nature**: `<production | research | sandbox | one-off | library>`. If not
   `production`, list which working principles are relaxed and why. No explicit
   relaxation = full production discipline (agents lean lenient by default).
-- **NKS realm**: `<slug>` — every session starts with `nks_orient` here.
+- **NKS realm**: `<canonical owner/slug or UUID>` — every session starts with
+  `nks_orient` here. Never persist a listing-local `rN` short alias; on first
+  orient, verify the returned `REALM:` header before any graph write.
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
@@ -140,7 +142,11 @@ branches before it merges. After the branch merges (however this project merges
    state plan as `step → verify` pairs, loop until each passes. Runtimes (UI,
    service, integration): verify in the real environment (browser, real API,
    downstream system), not just unit tests. Close vimarshas your change
-   resolves (`visarjana`).
+   resolves (`visarjana`). Before claiming `verified`, `done`, `integration
+   green`, or `no work remains`, run the `integrity` reality-audit: freeze each
+   required claim, name its observable behavior, public boundary, falsifier,
+   and fresh independent evidence. A clean graph or same-author test alone is
+   not a release verdict; unavailable evidence stays `provisional`/`blocked`.
 5. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
@@ -179,6 +185,9 @@ exhaustive.>`
 - `<naming / import style / forbidden patterns + why-forbidden>`
 - **Test discipline**: `<unit | unit+integration | +e2e; coverage threshold
   for production>`.
+- **Verification surfaces**: `<public API/UI/config/runtime boundary for each
+  load-bearing behavior; canonical command or environment; honest fallback and
+  literal blocker when unavailable>`.
 - **Gotchas**: `<runtime traps types/linter miss — hook return shapes, async
   races, env-specific behavior, library quirks, CI-parity gaps, shared
   build/test state, tracked secret/env files. One paragraph each.>`

@@ -15,6 +15,8 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 1. **`nks_realm(action="list")`** — see what's available. The user typically signals which realm is in play by topic, by name, or by explicit mention. If the realm is unambiguous from context, skip to step 2. If unclear and the question is non-trivial, briefly ask which realm to enter.
 
+   **Use a canonical realm identity.** In a multi-owner listing, persist and hand off the exact `owner/slug` shown by the listing, or the UUID. A short alias such as `r17` is accepted as a convenience by the tool surface, but is not a durable cross-agent identity: do not infer it, copy it into AGENTS.md, or treat the same-looking alias from another listing as the same realm. On the first orient, verify the returned `REALM:` header names the intended realm. A mismatch or an unexpectedly empty graph is a stop signal: relist and resolve the canonical identity before any write.
+
    **Realm ≠ repo.** A realm commonly models a whole system across several repositories — each repo a holon, each repo's developer role a sub-karta, in one graph. Working in repo X and needing to reach the code, roles, or questions of repo Y does not mean switching realms: look for Y's holon and roles inside the current realm first. Not finding a realm named after a repo is not a gap — it is the signal you are already in the right realm.
 
 2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, **active bianhua** (transformations underway — shown right after the root holons, the map of where the realm is going), entry/exit kriyas, active vimarshas, tensions. No full descriptions. A realm with a populated `ACTIVE BIANHUA` section reads as a map, not a wall — read it first.
@@ -61,7 +63,15 @@ Once inside the graph, navigate **by tension**, not by keyword. Each node has ne
 
 When you open `lens="tensions"`, tensions come **grouped by resolving move** (response_kind), not as a flat list: **weave** (замкни структуру), **address** (ответь / закрой вопрошание), **reverify** (потрогай / обнови модус), **boundary** (санкционированный край — информация, не работа). The group says *who* acts — weave → the **weaving** skill; address → the **inquiry** / **assembly** agenda; reverify → background; boundary → leave it, it's the realm edge. Each surface also declares its **scope / coverage** (a `Scope:` line, «covers N/M detectors») — the cheap `has_tension` filter and the orient overview cover only a subset; `lens="tensions"` is the full registry. Read the declaration: a thin list is not proof of a clean realm.
 
-Cap NKS calls at roughly five per response. If you've made seven and still haven't synthesized — stop, answer from what you have, flag the gap.
+**A clean tension surface means structurally clean only.** It says nothing about implementation correctness, public API compatibility, or whether tests pass. Behavioral closure belongs to the **integrity** reality-audit.
+
+## Cold-role decision budget
+
+Before the first repository-facing implementation or verification action, spend at most five NKS calls: orient the focus, open the karta agenda when one exists, then only the search/look needed for that action. Stop earlier when the graph has answered it. A cold role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`, verifier→`integrity` — not the whole suite.
+
+An empty realm is not permission to model the whole assignment before touching the artifact. Bootstrap only the minimum durable handoff contour: the focus boundary, accountable roles, accepted decisions/corrections, and unresolved cross-role questions. Keep that bootstrap to one batch and at most eight nodes unless the task itself requires a richer topology; grow it from witnessed work, not imagined completeness.
+
+After the first action, every extra call must answer a named uncertainty that can change implementation, verification, or handoff. Do not tour the realm, re-read facts already present in the checked artifact, or copy the same state into NKS, relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta. If seven calls pass without a changed decision, stop and synthesize or name the gap.
 
 ## Seeds and the map
 

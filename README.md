@@ -21,6 +21,9 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` pointer: `@AGENTS.md` import, Windows-safe), wire the NKS session rituals, set the quality gate. |
 | **product-roadmap** | Build a product roadmap for a product you maintain on GitHub — one repo or many (an org / repo-set treated as one product) — by modelling it as a verified ground, harvesting its issues + PRs, and assembling the directions it's actually under. Composes verstakify + intake + assembly. |
 
+The current benchmark protocol, completed calibration runs, negative results, and transfer gate are
+recorded in [`BENCHMARKS.md`](BENCHMARKS.md).
+
 ## Install
 
 ### Fastest: hand the setup to your agent
