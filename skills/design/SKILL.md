@@ -1,11 +1,19 @@
 ---
 name: design
-description: "Use when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at decision moments — 'we chose X', 'we decided', 'persist this design' — and right after a brainstorming/elicitation session produced a design or spec: the graph is where it becomes the record. Also use when the conversation turns from reading to building ('what should we build?'). Use even for seemingly simple design tasks — the graph prevents losing decisions, questions, and risks."
+description: "Use when the user asks to design, architect, or choose the structure/lifecycle of a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at real decision moments — 'we chose X', 'we decided', 'persist this design' — and after elicitation produced an accepted design/spec. Do not use for implementing an already accepted concrete spec, routine bug fixes, repository inspection, or ordinary coding where no structural choice is open."
 ---
 
 # NKS Design
 
 The graph is the durable projection of the spec. A decision or risk absent from it is not durable; behavior present only in it is not verified. External sources, public boundaries, and runtime evidence remain the truth surfaces against which the projection is tested.
+
+## Routing boundary
+
+Design begins where a structural choice is genuinely open: competing paths, lifecycle, ownership,
+public boundary, dependency direction, or a decision that must survive the session. A concrete
+accepted implementation request does not become design work merely because code must be written.
+Implement it under the repository's normal workflow; use `writing` only if the work reveals a
+novel durable correction, dependency, boundary, or open question worth handing to a later actor.
 
 ## Interop: elicitation suites (e.g. superpowers brainstorming)
 
