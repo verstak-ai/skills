@@ -15,6 +15,21 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 
 **Cross-realm arrows do not work.** `nks_arrow(action="link", source="739", target="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong arrow. For cross-realm references, use text in the sense ("see <realm> #29") — never arrows.
 
+### Reader-and-use novelty gate
+
+Before every create or semantic update, name:
+
+1. the later role/session expected to retrieve this state;
+2. the concrete decision, answer, verification, or handoff that retrieval can change;
+3. what is new relative to the accepted requirement, repository, relay, and existing graph.
+
+If any answer is missing, do not write. Requirement bullets already available to the next role are
+not new knowledge; neither are work logs, test transcripts, or a prose copy of repository state.
+Store only a durable decision delta: an accepted correction, contradiction, dependency, evidence
+verdict, ownership boundary, or open question whose loss would change later action. Reference the
+source instead of transcribing it. The practical test is strict: **write a node only when an
+identified future reader is expected to use it for reasoning or action.**
+
 ## Decision 1: What type of node?
 
 | If it… | Type | Tool |

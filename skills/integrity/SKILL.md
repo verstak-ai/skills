@@ -1,6 +1,6 @@
 ---
 name: integrity
-description: "Use this skill for a transformation's integrity — after a bianhua is accepted or on 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность' — for graph-backed prose claim audits ('is this backed by the graph', 'claim audit', 'не театр ли'), and for reality audits before behavioral claims become 'verified', 'done', 'integration green', or 'no work remains' ('reality check', 'acceptance review', 'проверено ли в реальности'). Forward: propagate a telos. Claim audit: verify prose against real edges. Reality audit: require an observable contract, public boundary, falsifier, and fresh independent evidence; corrections invalidate dependent claims until reverified. Distinct from assembly (map from the field) and design (paths from goals). Needs the nks_* MCP tools."
+description: "Use for transformation integrity, impact analysis, graph-backed claim audit, and reality audit before saying verified/done. Triggers: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'claim audit', 'не театр ли', 'reality check', 'acceptance review', 'проверено ли в реальности'. Tests frozen claims at public boundaries with falsifiers and fresh independent evidence. Distinct from assembly/design; needs nks_* tools."
 ---
 
 # NKS Integrity — the transformation's wavefront
@@ -108,6 +108,12 @@ Contract precedence is: latest owner correction → accepted requirement/specifi
 Run one narrow acceptance probe per required claim before broad regression suites. Prefer, in order: an existing/upstream/contract test at the canonical path; reproduction through the exact public runtime boundary; differential behavior against a trusted implementation or documented compatibility surface; a cold verifier's test derived from the frozen acceptance claim before reading the patch. Inspect callable/import reachability, representation shape, defaults, and state/history — not only a happy-path value. A broad green suite does not cover a claim whose exact boundary was never exercised.
 
 A test authored from the same implementation hypothesis is useful evidence, but it cannot be the **only** independent evidence for a release-level claim: it can encode the same wrong API or config shape and pass. A passing structural `CHECKS:` block or clean tension lens is evidence only for graph integrity.
+
+**Protect the tail for reality.** After the final material artifact change, run its narrow new-path
+probe before any nonessential graph read/write or broad cleanup. If time/context permits only one
+more action, test the changed public boundary; do not spend the tail re-closing graph nodes. One
+batched decision-delta handoff may follow the evidence. Without a fresh post-change probe, the
+claim remains provisional regardless of how clean the graph is.
 
 ### 3. Give each claim one verdict
 

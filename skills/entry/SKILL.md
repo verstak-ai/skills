@@ -73,6 +73,28 @@ An empty realm is not permission to model the whole assignment before touching t
 
 After the first action, every extra call must answer a named uncertainty that can change implementation, verification, or handoff. Do not tour the realm, re-read facts already present in the checked artifact, or copy the same state into NKS, relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta. If seven calls pass without a changed decision, stop and synthesize or name the gap.
 
+This is a guardrail, not enforcement: a prose budget cannot prevent an agent from spending more
+round trips. When the host or MCP exposes a call counter/budget, obey that harder boundary. Report
+actual NKS calls and failures in benchmarked or cost-sensitive work; never claim the budget held
+from the instruction alone.
+
+## Tool-error circuit breaker
+
+Do not turn a recoverable NKS error into a retry storm or a second graph:
+
+- `409 Resource already exists` — do not create again. Search/list, resolve the existing object,
+  and continue from it.
+- `400 Unknown realm reference` or an unexpectedly empty orient — stop all writes, relist, select
+  the exact listed `owner/slug` or UUID, and verify the `REALM:` header. Never fall back to a short
+  alias or create a replacement realm.
+- `422` on a node/arrow — do not mutate a different type until something sticks. Read the live
+  factory schema or `nks_arrow(realm="?")`, correct the invalid operation once, and preserve the
+  original semantic intent.
+
+After the same error class repeats twice, or after three NKS failures in one task phase, stop graph
+writes for that phase. Continue reachable artifact work and verification; hand off the literal
+error and the unwritten decision as a provisional gap. Graph closure never outranks the artifact.
+
 ## Seeds and the map
 
 The map is primary, seeds are remainder. Open work lives as anga-vimarshas on the `ACTIVE BIANHUA` transformations; a seed vimarsha (`genre=hint`) legitimately carries only what the map can't — external-world state, a chosen ordering of priorities, conventions. Read a seed as a pointer: never trust its snapshot over what orient and the lenses show now, and never copy lens output into one.

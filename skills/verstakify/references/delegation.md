@@ -23,7 +23,9 @@ Split work by **role**, not by size. Four roles, three model tiers:
 The orchestrator keeps the user dialogue, decisions, orchestration, and edits
 that need conversation context.
 
-Rules — grounded in a 5-task benchmark across tiers, not guesswork:
+Rules 1–8 are grounded in a five-task model-tier benchmark. Rules 9–12 are general acceptance and
+cost invariants exposed by later multi-session/multi-role calibration; they still require unseen
+transfer validation:
 
 1. **Cheap tier only where errors are cheap or the output is verified
    downstream.** Measured failure modes: wrong exact counts, wrong extracted
@@ -68,6 +70,12 @@ Rules — grounded in a 5-task benchmark across tiers, not guesswork:
     integration claim, not a reachable provider/API/config contract in the
     current artifact. Implement and verify the reachable half; report the
     downstream half with the literal environmental blocker.
+12. **Pay for a cold verifier only where independence can change acceptance.**
+    Freeze a compact set of load-bearing claims; do not send routine lint,
+    mechanical checks, or an already-verified no-harm task to a top-tier role.
+    Measure verifier input, output, calls, and wall time separately. If those
+    cannot be measured, the quality verdict may stand but the efficiency claim
+    is provisional.
 
 ## Projection — what verstakify generates
 
