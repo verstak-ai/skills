@@ -28,16 +28,16 @@ A vimarsha is *live* while it holds an open tension. It leaves the live field by
 
 | Outcome | What happens | How |
 |---|---|---|
-| **Resolution** | the question is answered; a node addresses it | `addressed_by` arrow (vimarsha → resolving node) + volitive `visarjana` |
+| **Resolution** | the question is answered by an acting/deciding graph node | `addressed_by` arrow (vimarsha → kriya, karta, or vimarsha) + volitive `visarjana` |
 | **Death** | consciously dropped *without* an answer — it was wrong, moot, or superseded | volitive `visarjana`, with a reasoning line saying *why* it dies unanswered |
-| **Crystallization** | the insight becomes a standing form | a `given_as` phenomenon `arose_from` the vimarsha — the question hardens into a grundsatz / sinn / bildung |
+| **Crystallization** | the insight becomes a standing form | a `given_as` phenomenon `arose_from` the vimarsha, then volitive `visarjana` once the form faithfully carries it |
 
 Plus two non-terminal moves:
 
 - **Supersede** — a later question subsumes this one: `supersedes` arrow on the replacement, old → `visarjana`.
 - **Park** — needed, not now: volitive `upeksha`, set **consciously**. Park is a *mode*, never `attrs.parked=true` (suppression is an anti-pattern).
 
-> All of these are **modes and arrows**, never attrs. `nks_update(... volitive_mode=...)` to move the mode; `nks_arrow(action="link", ...)` for addressed_by / supersedes / arose_from. Every mutation needs `basis_version` from a fresh `nks_look`.
+> All of these are **modes and arrows**, never attrs. `nks_update(... volitive_mode=...)` moves the mode; `nks_arrow(action="link", ...)` creates addressed_by / supersedes / arose_from. The live arrow matrix permits `addressed_by` only to a kriya, karta, or vimarsha — never to a phenomenon. A standing-form answer is crystallization: phenomenon `arose_from` vimarsha, then close the vimarsha without inventing an addressed_by edge. Re-check `nks_arrow(realm="?")` before teaching or automating another target shape. Every update/delete/reconnect mutation needs the edge or node `basis_version` from a fresh `nks_look`; a new link does not.
 
 ## 3. Genre sets the character of resolution
 
