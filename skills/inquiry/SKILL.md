@@ -1,6 +1,6 @@
 ---
 name: inquiry
-description: "Use this skill for the LIFE of a vimarsha and work with the FIELD of inquiry — not posing one (that's writing), but moving it through its lifecycle: anchoring, resolving, closing, parking, superseding, crystallizing, or attaching it to a bianhua. Triggers: 'разбери вимарши', 'поле вопрошания', 'закрой вимаршу', 'запаркуй вимаршу', 'разреши вопрошание', 'триаж вимарш', 'work the field of inquiry', 'close/park this vimarsha', 'resolve the question', a high dangling-vimarsha count in orient, or session close. Distinct from writing (which poses a vimarsha — genre, name-question) and from assembly (the realm-wide field pass): this skill is the per-vimarsha and field work of carrying questions to a resolution. Needs the nks_* MCP tools."
+description: "Use this skill for the LIFE of a vimarsha and work with the FIELD of inquiry — not posing one (that's writing), but moving it through its lifecycle: anchoring, resolving, closing, parking, superseding, crystallizing, or attaching it to a bianhua. Triggers: 'разбери вимарши', 'поле вопрошания', 'закрой вимаршу', 'запаркуй вимаршу', 'разреши вопрошание', 'триаж вимарш', 'work the field of inquiry', 'close/park this vimarsha', 'resolve the question', or a high dangling-vimarsha count in orient. Distinct from writing (which poses a vimarsha — genre, name-question) and from assembly (the realm-wide field pass): this skill is the per-vimarsha and field work of carrying questions to a resolution. Needs the nks_* MCP tools."
 ---
 
 # NKS Inquiry
@@ -38,6 +38,15 @@ Plus two non-terminal moves:
 - **Park** — needed, not now: volitive `upeksha`, set **consciously**. Park is a *mode*, never `attrs.parked=true` (suppression is an anti-pattern).
 
 > All of these are **modes and arrows**, never attrs. `nks_update(... volitive_mode=...)` moves the mode; `nks_arrow(action="link", ...)` creates addressed_by / supersedes / arose_from. The live arrow matrix permits `addressed_by` only to a kriya, karta, or vimarsha — never to a phenomenon. A standing-form answer is crystallization: phenomenon `arose_from` vimarsha, then close the vimarsha without inventing an addressed_by edge. Re-check `nks_arrow(realm="?")` before teaching or automating another target shape. Every update/delete/reconnect mutation needs the edge or node `basis_version` from a fresh `nks_look`; a new link does not.
+
+When closure changes more than one member of the terminal triputi, send the final epistemic, ontic,
+and volitive modes together in one `nks_update` with one fresh `basis_version`. Do not walk a node
+through ceremonial intermediate updates such as `vartamana` and then `atita`. Create any required
+answer edge/form first, then perform at most that one terminal node update.
+
+Do not run a field-wide inquiry sweep merely because an implementation round is ending. Re-run the
+affected old requirements' tests in the artifact; then, if a durable decision changed, make at
+most one terminal batched graph handoff. Inquiry hygiene never consumes the verification tail.
 
 ## 3. Genre sets the character of resolution
 

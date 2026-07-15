@@ -36,6 +36,8 @@ Don't orient for:
 - Questions about tooling itself (Claude, plugins, the NKS schema).
 - Casual conversation, greetings, clarifying questions inside an already-oriented thread.
 - Questions where the user explicitly wants an outside perspective ("forget my notes for a moment").
+- A realm you seeded in this same session when it can only return your own just-written notes and
+  no later role/session needs them. Re-reading self-authored transcription is not memory recovery.
 
 ## Coexistence with workflow suites
 
@@ -69,9 +71,19 @@ When you open `lens="tensions"`, tensions come **grouped by resolving move** (re
 
 Before the first repository-facing implementation or verification action, spend at most five NKS calls: orient the focus, open the karta agenda when one exists, then only the search/look needed for that action. Stop earlier when the graph has answered it. A cold role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`, verifier→`integrity` — not the whole suite.
 
-An empty realm is not permission to model the whole assignment before touching the artifact. Bootstrap only the minimum durable handoff contour: the focus boundary, accountable roles, accepted decisions/corrections, and unresolved cross-role questions. Keep that bootstrap to one batch and at most eight nodes unless the task itself requires a richer topology; grow it from witnessed work, not imagined completeness.
+An empty realm is not permission to model the whole assignment before touching the artifact. Model
+only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
+decisions/corrections, and unresolved cross-role questions. Keep that bootstrap to one batch and at
+most eight nodes unless the task itself requires a richer topology; grow it from witnessed work,
+not imagined completeness.
 
 After the first action, every extra call must answer a named uncertainty that can change implementation, verification, or handoff. Do not tour the realm, re-read facts already present in the checked artifact, or copy the same state into NKS, relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta. If seven calls pass without a changed decision, stop and synthesize or name the gap.
+
+Keep graph work subordinate to artifact work inside each implementation phase. Count NKS calls
+against artifact-changing edits plus test/probe actions. If NKS calls become greater than or equal
+to that artifact-action count after the first repository action, stop graph calls until another
+edit or probe advances reality. This ratio is a local circuit breaker, not permission to inflate
+shell commands or split one edit into noise.
 
 This is a guardrail, not enforcement: a prose budget cannot prevent an agent from spending more
 round trips. When the host or MCP exposes a call counter/budget, obey that harder boundary. Report

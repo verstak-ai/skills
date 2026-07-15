@@ -23,6 +23,9 @@ Before every create or semantic update, name:
 2. the concrete decision, answer, verification, or handoff that retrieval can change;
 3. what is new relative to the accepted requirement, repository, relay, and existing graph.
 
+Model only what is load-bearing across rounds. A requirement is not graph-worthy merely because it
+exists; its durable correction, dependency, ownership boundary, or unresolved ambiguity may be.
+
 If any answer is missing, do not write. Requirement bullets already available to the next role are
 not new knowledge; neither are work logs, test transcripts, or a prose copy of repository state.
 Store only a durable decision delta: an accepted correction, contradiction, dependency, evidence

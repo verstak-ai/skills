@@ -109,11 +109,12 @@ Run one narrow acceptance probe per required claim before broad regression suite
 
 A test authored from the same implementation hypothesis is useful evidence, but it cannot be the **only** independent evidence for a release-level claim: it can encode the same wrong API or config shape and pass. A passing structural `CHECKS:` block or clean tension lens is evidence only for graph integrity.
 
-**Protect the tail for reality.** After the final material artifact change, run its narrow new-path
-probe before any nonessential graph read/write or broad cleanup. If time/context permits only one
-more action, test the changed public boundary; do not spend the tail re-closing graph nodes. One
-batched decision-delta handoff may follow the evidence. Without a fresh post-change probe, the
-claim remains provisional regardless of how clean the graph is.
+**Protect the tail for reality.** The last model/tool budget belongs to running the newly changed
+path. After the final material artifact change, run its narrow public-boundary probe before any
+nonessential graph read/write or broad cleanup. If more budget remains, re-run the old-requirement
+tests most exposed by the changed shared code; this code-level regression sweep is graded work,
+not a graph walk. At most one terminal batched graph update may follow the evidence. Without a fresh
+post-change probe, the claim remains provisional regardless of how clean the graph is.
 
 ### 3. Give each claim one verdict
 

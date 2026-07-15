@@ -93,6 +93,8 @@ Each task/condition must pass a machine-readable preflight:
 7. pre-register run IDs, primary metric, invalidation rules, and allowed repair/retry policy;
 8. verify cost collection for uncached input, output, wall time, NKS calls/failures, and time to first
    artifact-facing action; attribute reality-audit and cold-verifier calls/tokens/wall separately.
+9. score failures by requirement origin: new-requirement correctness, regression of a requirement
+   that previously passed, and persistence/cascade of an already-failing requirement are distinct.
 
 A failed preflight invalidates the run before its score is seen.
 
@@ -189,6 +191,8 @@ The final claim requires all of the following:
   portfolio; equal score with lower cost is useful but does not prove better task performance;
 - positive mean uplift on at least two of Sol/Terra/Luna and no material collapse on the third;
 - correction survival and false-verification rates improve on the tracks designed to test them;
+- old-requirement regressions and new-requirement failures are reported separately; an
+  anti-regression win cannot conceal a larger loss on current-round correctness;
 - the concurrent-team track beats an equivalent message/file coordination baseline on task quality
   or conflict/correction recovery, not merely on graph activity;
 - no material regression on the single-session/no-harm track;
@@ -278,11 +282,25 @@ verifier sanitization were independently inspected.
 
 This is precisely a setting where Verstak should have leverage: a new context must recover prior
 requirements and corrections while the workspace alone exposes only their implementation residue.
-The old protocol did not realize that leverage. It over-modelled the assignment before acting and
-reconstructed requirements instead of preserving only the cross-session decision delta. Even when
-both conditions were perfect, Verstak consumed roughly 3–4 times the input and more wall time. This
-is direct evidence of a skill/protocol failure and the reason for a cold-role decision budget, a
-small empty-realm bootstrap, and decision-delta relays rather than duplicated work logs.
+Final line-by-line forensics partly rehabilitates the mechanism: on the 13-round migration task the
+graph-backed run preserved every requirement that had previously passed, while control regressed a
+round-1 output contract after the unrelated round-12 `compare` change. The treatment still lost
+overall because it failed more current-round semantics and spent roughly 3–4 times the input.
+
+The cumulative verifier exposes requirement origin. Counting failed cases at their origin round as
+**new**, and failures of an origin that had previously passed as **regressions**, gives:
+
+| Migration condition | New-requirement failed-case observations | Old-requirement regression observations | Distinct previously-passing origins regressed |
+|---|---:|---:|---:|
+| Native control | 3 | 2 | 1 |
+| Earlier Verstak | 13 | 0 | 0 |
+
+The two control regression observations are the same round-1 `stats` contract failing in rounds 12
+and 13, so the distinct regression count is one. The Verstak failures are concentrated in new
+semantics; the round-11 defect also influenced the next feature, a cascade that a pure origin count
+does not express. Thus the measured mechanism is **regression safety bought at a price larger than
+its correctness benefit**. The target is to retain that zero-regression property while removing
+graph ceremony and returning the final budget to the changed path, not to remove persistence.
 
 #### Independent trajectory forensics
 
@@ -293,8 +311,9 @@ and trajectory paths are attached to a reproducible manifest:
 - 63–75% of tool calls in inspected ON rounds were graph operations, while graph payload text was
   under 0.5% of billed input; discrete model/tool round trips, not stored prose size, dominated cost;
 - graph writes preceded repository reading and mostly transcribed task bullets; no inspected
-  engineering decision was retrieved from the graph, so causality was `artifact → graph`, never
-  `graph → changed decision`;
+  engineering decision was directly attributed to a retrieval, although the zero-regression
+  result is behavioral evidence that the persisted requirement model affected the run;
+  decision-level causality remains uninstrumented rather than disproven;
 - repeated read-modify-write closure churn edited the same node three or four times;
 - after one late implementation fix, the agent spent 19 graph calls and did not exercise the new
   path, then reported realm-backed verification despite the surviving behavioral defect;
@@ -361,6 +380,7 @@ separate fields. A prose instruction is never credited as a realized optimizatio
 | Short realm aliases sometimes resolved to a new empty realm | NKS service/schema | Skills require owner/slug or UUID plus header verification; service defect remains open | Cold role using the declared canonical ID always sees the seeded sentinel |
 | Graph closure passed while public behavior was wrong | Skills + methodology boundary | Added reality-audit and independent falsification contracts | Verifier rejects a coherent graph with an injected public-boundary defect |
 | Graph activity cost 3–4× input on perfect tasks | Skills/routing + orchestration | Added decision budget, empty-realm cap, and decision-delta relay | First artifact action is earlier and median overhead stays within the gate |
+| Graph prevented old regressions but lost new semantics | Skills/routing + measurement | Preserve load-bearing cross-round state; spend the tail on the new path; report old/new failures separately | Treatment keeps regression advantage while new-requirement correctness reaches baseline parity or better |
 | Existing prose call cap was ignored | Host/orchestration + NKS MCP + skills | Keep a novelty/circuit-breaker guardrail, but open enforcement and compact-response work items | Observed per-phase calls obey a registered counter; no claim relies on prompt compliance alone |
 | Missing downstream checkout blocked reachable work | Skills/integrity | Added smallest-claim blocker scope | Agent completes the reachable half while leaving only the exact integration claim blocked |
 | Single-session and multi-session evidence were conflated | Benchmark/reporting | Report every track by actual invocation/session topology | Manifest/session audit and prose classification agree for every row |
@@ -374,8 +394,10 @@ separate fields. A prose instruction is never credited as a realized optimizatio
 | Worker and tests shared the same wrong API hypothesis | `integrity` and verifier role require a falsifier and independent evidence; one narrow probe per claim | Wrong exports, defaults, and representation shapes fail early | Cold verifier catches injected boundary traps |
 | A missing downstream checkout blocked all work | Smallest-claim blocker rule in `integrity` and delegation doctrine | Reachable provider/API/config work continues while integration remains honestly blocked | Mixed reachable/unreachable task completes the reachable half |
 | Agents replayed the graph instead of acting | `entry` limits pre-action NKS work to five calls and an empty-realm bootstrap to one batch / eight nodes | Lower overhead and faster first repository action | Current skills reduce input/NKS calls without losing handoff fidelity |
+| NKS work outnumbered edits and probes | `entry` stops graph work when calls reach the artifact edit+test count; freshly self-seeded realms are not re-read | Graph remains subordinate to implementation and verification | Per-round NKS calls stay below artifact-changing plus test/probe actions |
 | Task bullets became graph busywork | `writing` requires an identified future reader, changed decision, and novel durable delta before any write | Instruction transcription disappears; graph state exists only where later retrieval can change action | Unseen trajectory shows at least one graph-derived decision and no requirement-copy nodes |
 | Late graph closure displaced the final test | `integrity` protects the post-change tail for a fresh narrow boundary probe before graph cleanup | A last material fix is exercised before closure; otherwise verdict stays provisional | Injected late correction is tested and survives the next round |
+| Terminal lifecycle churn updated one node repeatedly | `inquiry` sends the terminal triputi in one update and forbids end-of-round field sweeps | Closure costs at most one terminal node update after code evidence | No `vartamana→atita` update walk and no graph action displaces the final probe |
 | NKS errors caused recreate/retry churn | `entry` handles 409/400/422 and stops graph writes after repeated failures without stopping artifact work | No duplicate realm/model and bounded failed-call cost | Fault-injected tool run recovers or degrades to an explicit provisional handoff |
 | Realm short aliases drifted across agent contexts | `entry` and the bootstrap template require canonical owner/slug or UUID and header verification | Cold roles orient to the same graph before writing | Multi-agent run has no wrong/empty-realm writes |
 | Relays copied work logs and caused rereading | `entry` and `on-duty` require a decision delta: changed claim/verdict, evidence pointer, next possibility | Later roles recover what changed without replaying all prose | Handoff questions are answered with fewer calls/tokens |
