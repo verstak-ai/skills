@@ -37,6 +37,20 @@ Two more sync obligations live outside this table:
 - **superpowers → interop section** — `skills/verstakify/references/superpowers-interop.md`
   carries its own re-verify checklist.
 
+## Calibration-derived sections (no canon landmark)
+
+Not everything in `skills/` projects from the methodology realm. The
+`reality-audit` skill (whole) and the calibration-derived sections — `entry` →
+«Cold-role decision budget» / «Tool-error circuit breaker», `inquiry` →
+terminal-triputi closure, `writing` → step 5 (graph checks ≠ reality evidence),
+`on-duty` → repo/graph durable-state split, delegation rules 9–12 — derive from
+the 2026-07 multi-session / multi-role benchmark calibration, not from a canon
+landmark. The evidence doc lives outside this repo. There is no seq to
+re-project from: re-verify these sections against the next transfer-run
+evidence instead. If the methodology realm later canonizes a reality-audit /
+pramana-discipline landmark, move them into the table above as ordinary
+projected rows.
+
 ## Language contract (four layers, en-first product)
 
 | Layer | Language | Owner |
