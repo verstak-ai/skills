@@ -44,6 +44,12 @@ can receive — for example zero bytes versus a blank/whitespace record, an empt
 missing field, or an omitted flag versus its explicit default. Probe every representation whose
 behavior the accepted wording equates; one member does not stand in for the class.
 
+For a minimum, maximum, threshold, window, count, or version gate, exercise the accepted boundary
+itself plus the nearest value on each side that has different behavior. If a default supplies that
+boundary, test the omitted default as well as an explicit value. When the new path reuses a parser,
+validator, or helper from a stricter sibling path, verify the helper's preconditions independently:
+an inherited guard must not reject input that the new public contract accepts.
+
 Name the canonical path before the probe. A `/tmp` build, `go run`, local script, mock-only call, or
 unit test that bypasses the public boundary is provisional unless that is the exact public
 deliverable. Authorship is not the deciding factor: a newly written black-box test may verify a
