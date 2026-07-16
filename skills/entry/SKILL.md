@@ -87,6 +87,10 @@ not imagined completeness.
 
 After the first action, every extra call must answer a named uncertainty that can change implementation, verification, or handoff. Do not tour the realm, re-read facts already present in the checked artifact, or copy the same state into NKS, relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta. If seven calls pass without a changed decision, stop and synthesize or name the gap.
 
+Tool discovery is part of this budget. In a deferred-tool environment, resolve only the exact next
+tool/schema by name. Never dump the full tool catalog or every `nks_*` description merely to find
+`nks_orient`, `nks_look`, or one factory; select the exact entry before loading its description.
+
 Keep graph work subordinate to artifact work inside each implementation phase. Count NKS calls
 against artifact-changing edits plus test/probe actions. If NKS calls become greater than or equal
 to that artifact-action count after the first repository action, stop graph calls until another
