@@ -33,6 +33,13 @@ verdict, ownership boundary, or open question whose loss would change later acti
 source instead of transcribing it. The practical test is strict: **write a node only when an
 identified future reader is expected to use it for reasoning or action.**
 
+Apply the one-command reconstruction test: if that future reader can recover the whole proposed
+content with one search/read of the accepted spec, code, test, or relay, skip the write. Feature
+existence, public output shape, and implemented algorithm are still repository state even when a
+later maintainer should preserve them. The graph earns its cost only for the rationale or relation
+the artifact does not encode — why a correction overrides the old rule, which cross-artifact
+dependency constrains a choice, who owns the boundary, or what remains genuinely unresolved.
+
 ## Decision 1: What type of node?
 
 | If it… | Type | Tool |
