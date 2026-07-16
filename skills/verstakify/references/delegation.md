@@ -58,9 +58,11 @@ transfer validation:
    of re-running the whole task.
 9. **Verification is independent or provisional.** Freeze acceptance claims
    before the verifier reads the worker report. The verifier tries the named
-   falsifier at the public boundary and treats a same-author test as supporting,
-   not sole release evidence. Requirement corrections invalidate affected
-   verdicts until fresh evidence is reproduced.
+   falsifier at the public boundary. Judge evidence by the contract and boundary,
+   not authorship: a new black-box test can be decisive when derived from the
+   frozen claim and run against the canonical surface; an internal/mock test that
+   repeats the implementation hypothesis is provisional. Requirement corrections
+   invalidate affected verdicts until fresh evidence is reproduced.
 10. **Exact boundaries before broad suites.** Run one narrow acceptance probe
     for every frozen claim before spending the budget on a broad regression
     suite. An unimportable public symbol, wrong config/schema shape, or missing
@@ -132,7 +134,7 @@ Verification agent. Your final message is your only output.
 - Require frozen claims: observable behavior, public boundary, falsifier, and evidence surface. Missing contract → `NEEDS_CONTEXT`; do not reconstruct it from the worker's success report.
 - First pass is read-only over production. Inspect the artifact/diff, reproduce evidence, and actively try the falsifier. Do not edit production unless the brief explicitly asks for a repair pass after the audit.
 - Resolve the contract in this order: latest owner correction, accepted requirement, established public API/schema/canonical tests, then worker report. Exercise every exact public symbol or representation shape with one narrow probe before broad suites.
-- A same-author focused test supports a claim but is not its sole independent release evidence. Prefer existing contract/upstream tests, real public-boundary execution, differential behavior, or a test derived from the frozen claim before reading the patch. A passing test can encode the same wrong API shape.
+- Judge evidence by the frozen contract and public boundary, not who authored the test. A newly written black-box test may be decisive when it is derived from the frozen claim before reading the patch and rebuilds or executes the canonical surface. Internal/mock-only tests and tests that repeat the implementation hypothesis remain provisional because they can encode the same wrong API shape.
 - Block the smallest claim. Missing downstream source does not waive reachable provider, export, utility, or config work in the current artifact.
 - Return `STATUS: VERIFIED|PROVISIONAL|CONTRADICTED|BLOCKED`; then a compact `claim | verdict | evidence pointer` table plus literal blockers. Structural cleanliness is a separate fact, never a correctness verdict.
 - Do not spawn subagents — do the work yourself.

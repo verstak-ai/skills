@@ -6,8 +6,8 @@ description: "Use after the final material change of a behavior-changing impleme
 # Reality Audit — spend the tail on the thing that ships
 
 Implementation evidence is easy to collect from the wrong surface: a scratch binary, `go run`, a
-same-author unit test, or plausible printed output. This skill is the short terminal protocol that
-decides whether the behavior that will actually ship has been exercised.
+unit test that bypasses the public boundary, or plausible printed output. This skill is the short
+terminal protocol that decides whether the behavior that will actually ship has been exercised.
 
 Load it **after the final material implementation change**, before saying `verified`, `done`,
 `green`, or `no work remains`. Also load it after an owner correction or a reproduced falsifier has
