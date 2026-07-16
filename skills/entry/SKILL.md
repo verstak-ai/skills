@@ -79,6 +79,15 @@ zero calls before the first artifact action. Stop earlier when the graph has ans
 role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`,
 behavioral verifier→`reality-audit`, graph-claim auditor→`integrity` — not the whole suite.
 
+An accepted relay that explicitly says an earlier independent cold role left a graph node or
+decision for the current role is prior graph state, even when the relay paraphrases it. Before the
+first action that boundary could change, perform exactly one targeted receipt: `nks_look` when the
+node id is supplied, otherwise the narrowest orient/search that can recover it. Then record one of
+two outcomes in the working handoff: the retrieved delta changed a named action, or artifact
+evidence made it redundant/incorrect and the role rejected it. Do not silently skip the read, and
+do not reward it merely for existing. A receipt with no changed action is measured overhead; a
+relay copy of the same content is not independent memory value.
+
 An empty realm is not permission to model the whole assignment before touching the artifact. Model
 only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
 decisions/corrections, and unresolved cross-role questions. Keep that bootstrap to one batch and at

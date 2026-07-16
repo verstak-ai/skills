@@ -1,6 +1,6 @@
 ---
 name: reality-audit
-description: "Use after the final material change of a behavior-changing implementation, before reporting verified/done/green, and after requirement corrections or prior falsifier failures. Triggers: 'reality audit', 'acceptance check', 'prove it works', 'verify the canonical artifact', 'проверка реальностью', 'проверь канонический артефакт', 'точно работает'. Verify the exact public deliverable with executable falsifiers; scratch artifacts and print-only observations are provisional. No NKS access required."
+description: "Use after the final material change of a behavior-changing implementation, before reporting verified/done/green, after requirement corrections or prior falsifier failures, and whenever a test/tool command returned nonzero or mixed pass/fail output must be summarized. Triggers: 'reality audit', 'acceptance check', 'prove it works', 'verify the canonical artifact', 'tests passed', 'проверка реальностью', 'проверь канонический артефакт', 'точно работает'. Verify the exact public deliverable with executable falsifiers; scratch artifacts and print-only observations are provisional. No NKS access required."
 ---
 
 # Reality Audit — spend the tail on the thing that ships
@@ -85,6 +85,15 @@ Make combined terminal evidence fail closed from its first command (`set -euo pi
 platform equivalent). Do not let later cleanup, status printing, or an unrelated success turn a
 failed or short-circuited build/probe into a zero exit. When a failure code is itself expected,
 capture and assert it locally, then restore fail-closed execution for the remaining evidence.
+
+Treat the recorded command status as authoritative. If a test or aggregate evidence command exits
+nonzero, its claim is not verified even when stdout contains green subtests, `passed` lines, or a
+later successful compile/diff check. Read the actual exit code from the tool result; do not infer it
+from selected output. A wrapper that deliberately runs every subgroup must accumulate failures and
+exit nonzero when any required subgroup fails. Before the final narration, reconcile every
+`passed`/`green` claim with the recorded exit status and the failing subgroup summary. A later
+unrelated zero cannot erase an earlier nonzero falsifier; only a rerun of that case, or a strictly
+stronger one, can.
 
 ## 4. Give one truthful verdict per claim
 
