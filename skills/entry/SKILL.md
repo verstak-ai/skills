@@ -38,6 +38,10 @@ Don't orient for:
 - Questions where the user explicitly wants an outside perspective ("forget my notes for a moment").
 - A realm you seeded in this same session when it can only return your own just-written notes and
   no later role/session needs them. Re-reading self-authored transcription is not memory recovery.
+- A precreated but still-empty run/role realm with no state from an earlier independent session.
+  Start from the artifact; enter only after artifact-facing work establishes a load-bearing
+  decision, dependency, correction, or question for a later cold reader. A future reader does not
+  make an empty orient useful to the first writer.
 
 ## Coexistence with workflow suites
 
@@ -69,7 +73,12 @@ When you open `lens="tensions"`, tensions come **grouped by resolving move** (re
 
 ## Cold-role decision budget
 
-Before the first repository-facing implementation or verification action, spend at most five NKS calls: orient the focus, open the karta agenda when one exists, then only the search/look needed for that action. Stop earlier when the graph has answered it. A cold role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`, verifier→`integrity` — not the whole suite.
+When prior graph state can affect the first repository-facing implementation or verification
+action, spend at most five NKS calls before it: orient the focus, open the karta agenda when one
+exists, then only the search/look needed for that action. With no prior independent state, spend
+zero calls before the first artifact action. Stop earlier when the graph has answered it. A cold
+role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`,
+verifier→`integrity` — not the whole suite.
 
 An empty realm is not permission to model the whole assignment before touching the artifact. Model
 only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
