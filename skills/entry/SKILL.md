@@ -77,7 +77,7 @@ action, spend at most five NKS calls before it: orient the focus, open the karta
 exists, then only the search/look needed for that action. With no prior independent state, spend
 zero calls before the first artifact action. Stop earlier when the graph has answered it. A cold
 role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`,
-verifier→`integrity` — not the whole suite.
+behavioral verifier→`reality-audit`, graph-claim auditor→`integrity` — not the whole suite.
 
 An empty realm is not permission to model the whole assignment before touching the artifact. Model
 only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
