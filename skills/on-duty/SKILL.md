@@ -94,7 +94,9 @@ Waking up = **step 0 again** (orient → agenda), never "resume from memory": th
 - **Repo and graph carry different durable state.** Every exit leaves both consistent; a dead
   session resumes from the inbox plus artifact, without reconstructable repo facts copied into NKS.
 - **Updates are deltas**, never bare pings.
-- **Every expectation is a vimarsha** — anchored, `posed_to`, with "Answered when:". No side-channel dependencies.
+- **Every non-reconstructable cross-doer expectation that must survive a wake is a vimarsha** —
+  anchored, `posed_to`, with "Answered when:". Routine artifact requirements stay in the accepted
+  spec or relay; no side-channel dependencies.
 - **One cluster in flight.** No multi-front sprawl inside one loop turn.
 - **In bianhua mode, no open anga without an inbox** — assignment is visible in the graph, arrival is proposed to the owner, never self-declared.
 - **Every tact weaves its wake** before the loop sleeps or ends.
@@ -112,4 +114,5 @@ Waking up = **step 0 again** (orient → agenda), never "resume from memory": th
 
 - From a cold session, the loop reaches "inbox drained, or every remaining item consciously waiting / escalated / skipped-with-reason" without human input.
 - Every wait is represented in the graph — an updated vimarsha in someone's inbox — *before* the agent sleeps.
-- A second agent reading only the graph can tell what this agent shipped, what it waits for, and what it asks.
+- A second agent reading the graph plus its artifact pointers can recover the changed decision,
+  what is now possible, what this agent waits for, and what it asks without a progress diary.
