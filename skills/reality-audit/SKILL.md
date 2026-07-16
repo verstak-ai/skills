@@ -63,6 +63,11 @@ perform at most one terminal update, and only when a durable correction or contr
 change a later agent's decision. If memory calls equal or exceed code-edit plus test commands, stop
 modelling and return to the artifact.
 
+Make combined terminal evidence fail closed from its first command (`set -euo pipefail` or the
+platform equivalent). Do not let later cleanup, status printing, or an unrelated success turn a
+failed or short-circuited build/probe into a zero exit. When a failure code is itself expected,
+capture and assert it locally, then restore fail-closed execution for the remaining evidence.
+
 ## 4. Give one truthful verdict per claim
 
 - **verified** — the fresh canonical surface produced the required observable and the executable
