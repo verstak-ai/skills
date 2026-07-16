@@ -46,12 +46,11 @@ Don't orient for:
 ## Coexistence with workflow suites
 
 If an installed workflow suite requires skill invocation before any response,
-orient is not in conflict: reading the realm is how this environment gathers
-context — memory-fetch, not a response or an implementation action. The suite's
-own precedence rule (e.g. superpowers: "user instructions always take
-precedence", with explicit user instructions — CLAUDE.md, GEMINI.md, AGENTS.md,
-direct requests — ranked highest priority) ratifies the AGENTS.md orient-first
-ritual. Orient first, then follow the suite's process skills for execution.
+loading `entry` is not in conflict: reading the realm is memory-fetch, not a
+response or an implementation action. When AGENTS.md explicitly requires
+orient-first and none of the exclusions above applies, orient first, then follow
+the suite's process skills for execution. When AGENTS.md postpones graph work or
+the realm is new and empty, obey that boundary and start from the artifact.
 
 ## What "answering from the graph" means
 
@@ -69,7 +68,7 @@ Once inside the graph, navigate **by tension**, not by keyword. Each node has ne
 
 When you open `lens="tensions"`, tensions come **grouped by resolving move** (response_kind), not as a flat list: **weave** (замкни структуру), **address** (ответь / закрой вопрошание), **reverify** (потрогай / обнови модус), **boundary** (санкционированный край — информация, не работа). The group says *who* acts — weave → the **weaving** skill; address → the **inquiry** / **assembly** agenda; reverify → background; boundary → leave it, it's the realm edge. Each surface also declares its **scope / coverage** (a `Scope:` line, «covers N/M detectors») — the cheap `has_tension` filter and the orient overview cover only a subset; `lens="tensions"` is the full registry. Read the declaration: a thin list is not proof of a clean realm.
 
-**A clean tension surface means structurally clean only.** It says nothing about implementation correctness, public API compatibility, or whether tests pass. Behavioral closure belongs to the **integrity** reality-audit.
+**A clean tension surface means structurally clean only.** It says nothing about implementation correctness, public API compatibility, or whether tests pass. Behavioral closure belongs to the separate **reality-audit** skill.
 
 ## Cold-role decision budget
 

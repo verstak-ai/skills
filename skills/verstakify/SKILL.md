@@ -209,13 +209,13 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
   vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS (match reality + advance the bianhua map:
-  close resolved vimarshas), **sweep the shipped contour** (flip the modes of
-  every designed node the push realized — the whole contour, not only the nodes
-  you touched — and close the design vimarshas the ship settled), **sweep the
-  inbox** (visarjana the `posed_to` questions the work answered), run the
-  after-green-push self-review, and: uningested design/spec docs on this
-  branch → intake them (`intake` skill, then `design`) before closing.
+  push`, reminder to update NKS only from fresh artifact evidence: confirm the
+  canonical changed path and exposed old requirements were exercised, then
+  advance the bianhua map, close only the settled vimarshas/inbox questions,
+  and make at most one terminal update per load-bearing designed node. No
+  field-wide ceremonial sweep. Also run the after-green-push self-review, and:
+  uningested design/spec docs on this branch → intake them (`intake` skill,
+  then `design`) before closing.
 - **`PreToolUse`** with `"matcher": "Write|Edit|MultiEdit"` → the **memory-guard
   hook**: when the target path is inside the local project-memory dir, **block
   the write** (exit 2, routing message on stderr) — project state lives in the

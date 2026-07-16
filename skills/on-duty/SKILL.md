@@ -1,6 +1,6 @@
 ---
 name: on-duty
-description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, writing, and weaving; NKS is durable state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, reality-audit, writing, and weaving; NKS is durable state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
@@ -47,7 +47,7 @@ Each vimarsha names its own flow — follow *it*, not a generic one: a code defe
 
 If AGENTS.md documents a local integration surface (dev backend, preview server, a make target) — restart or rebuild it and verify the change actually runs; the loop's claim is "shipped and running", not "pushed". Only what AGENTS.md documents: never invent restarts, never touch shared or production surfaces from this loop.
 
-Before closing or relaying `verified`, run the **integrity** reality-audit over the accepted requirements/hints. Freeze claims independently of the implementor report; check their public boundaries, falsifiers, and fresh evidence. A correction invalidates affected claims and their dependents until rerun. Required `provisional`, `contradicted`, or `blocked` claims keep the work open unless the owner consciously accepts the exception.
+Before closing or relaying `verified`, run the separate **reality-audit** skill over the accepted requirements/hints. Freeze claims independently of the implementor report; check their public boundaries, falsifiers, and fresh evidence. A correction invalidates affected claims and their dependents until rerun. Required `provisional`, `contradicted`, or `blocked` claims keep the work open unless the owner consciously accepts the exception.
 
 ## 4 · Wire the relay
 

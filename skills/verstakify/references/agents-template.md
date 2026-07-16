@@ -63,7 +63,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
 - **Every push → update NKS.** Four moves, all required:
-  - **Match reality.** Record what positions the change in the target system:
+  - **Match reality.** First confirm the fresh canonical changed path and the
+    exposed old requirements were exercised in the artifact. If that evidence
+    is missing or contradicted, do not upgrade or close graph claims. Record
+    only what positions the change in the target system:
     architecture, module APIs, supply/delivery, user experience, integration
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
     refactors with no outside impact, commands, file moves — stay in git, not
@@ -74,12 +77,12 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     external-world state, chosen priorities; pointer, not payload
     — never by default.
 
-  - **Sweep the shipped contour.** A push that realizes designed nodes flips
-    their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
-    designed contour — not only the nodes you happened to touch — and closes
-    the design vimarshas the ship settled.
-  - **Sweep the inbox.** Close (visarjana) the `posed_to` questions your work
-    answered; park or group the stale ones.
+  - **Update the evidenced contour.** For each load-bearing designed node the
+    executable evidence actually realized, make at most one terminal update
+    carrying its final modes. Do not walk ceremonial intermediate modes and do
+    not sweep unrelated nodes merely because a round ended.
+  - **Work the inbox.** Close (visarjana) only the `posed_to` questions the
+    work and evidence answered; park or group the stale ones.
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
@@ -143,7 +146,7 @@ branches before it merges. After the branch merges (however this project merges
    service, integration): verify in the real environment (browser, real API,
    downstream system), not just unit tests. Close vimarshas your change
    resolves (`visarjana`). Before claiming `verified`, `done`, `integration
-   green`, or `no work remains`, run the `integrity` reality-audit: freeze each
+   green`, or `no work remains`, run the `reality-audit` skill: freeze each
    required claim, name its observable behavior, public boundary, falsifier,
    and fresh independent evidence. A clean graph or same-author test alone is
    not a release verdict; unavailable evidence stays `provisional`/`blocked`.
