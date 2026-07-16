@@ -14,6 +14,13 @@ Load it **after the final material implementation change**, before saying `verif
 invalidated earlier evidence. Do not load it at task entry and do not interrupt implementation with
 graph modelling merely to prepare for this audit.
 
+**Proportionality.** When the change alters no public contract — no new or changed exported
+symbol, output format, config/schema shape, or documented behavior — the ladder collapses to
+steps 1–2 on the touched path: rebuild the canonical deliverable, exercise the changed path once
+with an asserted expectation, record the command and its exit status in one line. The full
+claims-table protocol is priced for behavior-changing work; do not pay it for a typo-class fix.
+If in doubt whether a contract changed, it did.
+
 ## 1. Freeze only the load-bearing claims
 
 Read the accepted source, not the implementor's completion summary. Contract precedence is:
@@ -73,27 +80,26 @@ After the final material change, in this order:
 
 Any material artifact change after step 1 invalidates the tail: rebuild the canonical deliverable
 and repeat the affected probes. Never let cleanup, graph work, or narration consume the budget
-needed for the new-path probe. If NKS or another memory layer is available, evidence comes first;
-freeze the claim verdicts and finish all material artifact changes before the memory write. Perform
-at most one terminal update, and only when a durable correction or contradiction will change a
-later agent's decision. A later material patch means that update was premature: its behavioral
-confidence is provisional until the affected public evidence is rerun and the node is reverified.
-Do not use the graph as mid-audit scratch. If memory calls equal or exceed code-edit plus test
-commands, stop modelling and return to the artifact.
+needed for the new-path probe.
 
-Make combined terminal evidence fail closed from its first command (`set -euo pipefail` or the
-platform equivalent). Do not let later cleanup, status printing, or an unrelated success turn a
-failed or short-circuited build/probe into a zero exit. When a failure code is itself expected,
-capture and assert it locally, then restore fail-closed execution for the remaining evidence.
+If NKS or another memory layer is available, evidence comes first: freeze the claim verdicts and
+finish all material artifact changes before the memory write; then perform at most one terminal
+update, and only when a durable correction or contradiction will change a later agent's decision.
+A later material patch means that update was premature — its behavioral confidence is provisional
+until the affected public evidence is rerun and the node reverified. Do not use the graph as
+mid-audit scratch; if memory calls reach your code-edit plus test count, stop modelling and return
+to the artifact.
 
-Treat the recorded command status as authoritative. If a test or aggregate evidence command exits
-nonzero, its claim is not verified even when stdout contains green subtests, `passed` lines, or a
-later successful compile/diff check. Read the actual exit code from the tool result; do not infer it
-from selected output. A wrapper that deliberately runs every subgroup must accumulate failures and
-exit nonzero when any required subgroup fails. Before the final narration, reconcile every
-`passed`/`green` claim with the recorded exit status and the failing subgroup summary. A later
-unrelated zero cannot erase an earlier nonzero falsifier; only a rerun of that case, or a strictly
-stronger one, can.
+**Exit status is the verdict** (the canonical statement — `writing` points here). Make combined
+terminal evidence fail closed from its first command (`set -euo pipefail` or the platform
+equivalent); when a failure code is itself expected, capture and assert it locally, then restore
+fail-closed execution. A claim is not verified while its evidence command exits nonzero: green
+subtests, `passed` lines in stdout, or a later unrelated zero do not override the recorded exit
+code — read it from the tool result, never infer it from selected output — and only a rerun of the
+same case (or a strictly stronger one) against the fresh canonical deliverable can. A wrapper that
+deliberately runs every subgroup must accumulate failures and exit nonzero when any required
+subgroup fails. Before the final narration, reconcile every `passed`/`green` claim with the
+recorded exit statuses and the failing subgroup summary.
 
 ## 4. Give one truthful verdict per claim
 

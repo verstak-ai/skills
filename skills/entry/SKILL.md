@@ -75,18 +75,20 @@ When you open `lens="tensions"`, tensions come **grouped by resolving move** (re
 When prior graph state can affect the first repository-facing implementation or verification
 action, spend at most five NKS calls before it: orient the focus, open the karta agenda when one
 exists, then only the search/look needed for that action. With no prior independent state, spend
-zero calls before the first artifact action. Stop earlier when the graph has answered it. A cold
-role loads `entry` plus the one role skill it needs next — architect→`design`, writer→`writing`,
-behavioral verifier→`reality-audit`, graph-claim auditor→`integrity` — not the whole suite.
+zero calls before the first artifact action. Stop earlier when the graph has answered it. Tool
+discovery counts against this budget: in a deferred-tool environment resolve only the exact next
+tool/schema by name — never dump the catalog or every `nks_*` description to find `nks_orient` or
+one factory. A cold role loads `entry` plus the one role skill it needs next — architect→`design`,
+writer→`writing`, behavioral verifier→`reality-audit`, graph-claim auditor→`integrity` — not the
+whole suite.
 
-An accepted relay that explicitly says an earlier independent cold role left a graph node or
-decision for the current role is prior graph state, even when the relay paraphrases it. Before the
-first action that boundary could change, perform exactly one targeted receipt: `nks_look` when the
-node id is supplied, otherwise the narrowest orient/search that can recover it. Then record one of
-two outcomes in the working handoff: the retrieved delta changed a named action, or artifact
-evidence made it redundant/incorrect and the role rejected it. Do not silently skip the read, and
-do not reward it merely for existing. A receipt with no changed action is measured overhead; a
-relay copy of the same content is not independent memory value.
+A relay that names a graph node or decision left by an earlier independent role IS prior graph
+state, even paraphrased. Before the first action it could change, perform exactly one targeted
+receipt (`nks_look` on a supplied id, otherwise the narrowest orient/search that can recover it)
+and record one of two outcomes in the working handoff: the retrieved delta changed a named action,
+or artifact evidence made it redundant and the role rejected it. Never silently skip the read; a
+receipt with no changed action is measured overhead, and a relay copy of the same content is not
+independent memory value.
 
 An empty realm is not permission to model the whole assignment before touching the artifact. Model
 only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
@@ -94,22 +96,17 @@ decisions/corrections, and unresolved cross-role questions. Keep that bootstrap 
 most eight nodes unless the task itself requires a richer topology; grow it from witnessed work,
 not imagined completeness.
 
-After the first action, every extra call must answer a named uncertainty that can change implementation, verification, or handoff. Do not tour the realm, re-read facts already present in the checked artifact, or copy the same state into NKS, relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta. If seven calls pass without a changed decision, stop and synthesize or name the gap.
-
-Tool discovery is part of this budget. In a deferred-tool environment, resolve only the exact next
-tool/schema by name. Never dump the full tool catalog or every `nks_*` description merely to find
-`nks_orient`, `nks_look`, or one factory; select the exact entry before loading its description.
-
-Keep graph work subordinate to artifact work inside each implementation phase. Count NKS calls
-against artifact-changing edits plus test/probe actions. If NKS calls become greater than or equal
-to that artifact-action count after the first repository action, stop graph calls until another
-edit or probe advances reality. This ratio is a local circuit breaker, not permission to inflate
-shell commands or split one edit into noise.
-
-This is a guardrail, not enforcement: a prose budget cannot prevent an agent from spending more
-round trips. When the host or MCP exposes a call counter/budget, obey that harder boundary. Report
-actual NKS calls and failures in benchmarked or cost-sensitive work; never claim the budget held
-from the instruction alone.
+After the first action, graph work stays subordinate to artifact work: every extra call must answer
+a named uncertainty that can change implementation, verification, or handoff — no realm tours, no
+re-reading facts already present in the checked artifact, no copying the same state into NKS,
+relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta.
+Two local circuit breakers: if NKS calls reach the count of artifact-changing edits plus test/probe
+actions, stop graph calls until another edit or probe advances reality (the ratio is not permission
+to inflate shell commands or split one edit into noise); if seven calls pass without a changed
+decision, stop and synthesize or name the gap. All of this is a guardrail, not enforcement — a
+prose budget cannot prevent extra round trips. When the host or MCP exposes a call counter/budget,
+obey that harder boundary, and in benchmarked or cost-sensitive work report actual NKS calls and
+failures; never claim the budget held from the instruction alone.
 
 ## Tool-error circuit breaker
 
