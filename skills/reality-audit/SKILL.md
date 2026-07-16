@@ -38,6 +38,12 @@ For each claim, write one compact row:
 | Observable | What should an external observer see? |
 | Executable falsifier | Which command, request, assertion, or test would prove the claim false? |
 
+Treat boundary words as equivalence classes, not one convenient fixture. For `empty`, `none`,
+`missing`, `malformed`, or `default`, enumerate the distinct representations the public parser
+can receive — for example zero bytes versus a blank/whitespace record, an empty array versus a
+missing field, or an omitted flag versus its explicit default. Probe every representation whose
+behavior the accepted wording equates; one member does not stand in for the class.
+
 Name the canonical path before the probe. A `/tmp` build, `go run`, local script, mock-only call, or
 unit test that bypasses the public boundary is provisional unless that is the exact public
 deliverable. Authorship is not the deciding factor: a newly written black-box test may verify a
@@ -62,9 +68,12 @@ After the final material change, in this order:
 Any material artifact change after step 1 invalidates the tail: rebuild the canonical deliverable
 and repeat the affected probes. Never let cleanup, graph work, or narration consume the budget
 needed for the new-path probe. If NKS or another memory layer is available, evidence comes first;
-perform at most one terminal update, and only when a durable correction or contradiction will
-change a later agent's decision. If memory calls equal or exceed code-edit plus test commands, stop
-modelling and return to the artifact.
+freeze the claim verdicts and finish all material artifact changes before the memory write. Perform
+at most one terminal update, and only when a durable correction or contradiction will change a
+later agent's decision. A later material patch means that update was premature: its behavioral
+confidence is provisional until the affected public evidence is rerun and the node is reverified.
+Do not use the graph as mid-audit scratch. If memory calls equal or exceed code-edit plus test
+commands, stop modelling and return to the artifact.
 
 Make combined terminal evidence fail closed from its first command (`set -euo pipefail` or the
 platform equivalent). Do not let later cleanup, status printing, or an unrelated success turn a
