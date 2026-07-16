@@ -148,8 +148,9 @@ branches before it merges. After the branch merges (however this project merges
    resolves (`visarjana`). Before claiming `verified`, `done`, `integration
    green`, or `no work remains`, run the `reality-audit` skill: freeze each
    required claim, name its observable behavior, public boundary, falsifier,
-   and fresh independent evidence. A clean graph or same-author test alone is
-   not a release verdict; unavailable evidence stays `provisional`/`blocked`.
+   and fresh independently observable evidence. A clean graph or an
+   internal/mock-only test that misses the canonical public boundary is not a
+   release verdict; unavailable evidence stays `provisional`/`blocked`.
 5. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query

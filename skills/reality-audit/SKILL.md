@@ -39,10 +39,13 @@ For each claim, write one compact row:
 | Executable falsifier | Which command, request, assertion, or test would prove the claim false? |
 
 Name the canonical path before the probe. A `/tmp` build, `go run`, local script, mock-only call, or
-same-author unit test is provisional unless that is the exact public deliverable. When multiple
-artifacts can be invoked, compare path plus freshness (`mtime`, digest, version, or build marker)
-and prove which one the verifier executes. Printed output is observation, not a pass, unless an
-executable assertion checks the expected value and exit status.
+unit test that bypasses the public boundary is provisional unless that is the exact public
+deliverable. Authorship is not the deciding factor: a newly written black-box test may verify a
+claim when it rebuilds and executes the canonical surface with the exact falsifier; a same-author
+mock or internal-only test may not. When multiple artifacts can be invoked, compare path plus
+freshness (`mtime`, digest, version, or build marker) and prove which one the verifier executes.
+Printed output is observation, not a pass, unless an executable assertion checks the expected value
+and exit status.
 
 ## 3. Run the terminal evidence ladder
 
@@ -72,8 +75,8 @@ capture and assert it locally, then restore fail-closed execution for the remain
 
 - **verified** — the fresh canonical surface produced the required observable and the executable
   falsifier was attempted successfully;
-- **provisional** — evidence exists, but it is scratch-only, same-author-only, print-only, stale, or
-  misses the exact public boundary;
+- **provisional** — evidence exists, but it is scratch-only, mock/internal-only, print-only, stale,
+  or misses the exact public boundary;
 - **contradicted** — a reproduced counterexample still fails;
 - **blocked** — the evidence surface is unavailable; quote the literal blocker and name only the
   claim it prevents checking.
