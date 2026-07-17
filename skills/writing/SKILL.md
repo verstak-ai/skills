@@ -30,11 +30,15 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 
 A phenomenon does not exist on its own — it exists *for* a kriya (noema for noesis). If no kriya consumes, produces, or conditions it, you are about to write an orphan.
 
+**A method is half a node.** `vollzug` 行 *is* conduct — a way of acting, reified into a noun. The reification is legal, and it is exactly where activity hides: a method-phenomenon whose `description` narrates the protocol is legal, `CHECKS`-clean, and carries **zero tension** — no detector can tell a modeled method from a narrated one, because absence of a model is invisible from inside the model. So a vollzug (and a grundsatz) obliges you: **name the kriya that runs it**, and if the method has phases, they are `contains`-children of *that kriya* — never prose in the phenomenon's description. One-line test: does the description carry an arrow, a numbered step, or the word "then"? You are narrating an activity. Model it.
+
 ### Traps
 
 **Phenomenon in kriya disguise.** "Token creation" is the act. "⚙️ Access token" is what the act produces. Test: does the name carry a before/after? → kriya. Does it name what *stands* through that before/after? → phenomenon.
 
 **Kriya in phenomenon disguise.** "⚙️ Authentication flow" — if it transforms state, it's a kriya. A noun on a kriya is a smell, not a license.
+
+**Activity reified into a method-noun.** The subtlest trap, because the type is *right*: a skill, a recipe, an idiom really is a vollzug phenomenon. The error is stopping there — parking the protocol in its description instead of modeling the kriya that runs it and the steps it runs through. Unlike the two traps above, nothing here looks wrong: the name is a proper noun, the given_as is correct, the node validates. Test: if the description tells you *how to do it*, the doing belongs in a kriya. The phenomenon **names** the method; it never **replaces** it.
 
 **Karta vs phenomenon.** Gated by the operational test — *can you address a vimarsha to it and get an answer?* No → not a karta (a machine → ding-phenomenon; a theory/method/principle → sinn/vollzug/grundsatz). The full gate and the four karta kinds live in **Decision 2b**.
 
@@ -135,13 +139,17 @@ What goes in it, by type:
 
 Arrowless = orphan = invisible.
 
-### Kriya (four questions)
+### Kriya (six questions)
 
 1. **Consumes?** → `ahara` to phenomenon. ahara = DESTRUCTION. Just read → upadhi.
 2. **Produces?** → `utpatti` to phenomenon. Can't name utpatti? Stop — you don't understand the kriya.
 3. **Who acts?** → `actor` to karta.
 4. **Context?** → `upadhi` to phenomenon. `attrs.mutable=true` if modified.
 5. **Belongs to what?** → search for a candidate parent kriya before writing top-level (locate-before-write). `nks_semantic_search(q=<what this kriya is part of>)`; on a real hit, pass `parent_id=<seq>` (creates a `contains` edge from parent). **No coercion** — a wrong parent is worse than none; when you can't honestly name the umbrella, stay top-level consciously. The most compressing axis is the one factories never forced — ask it yourself.
+
+6. **Made of what steps?** → `contains` to sub-kriyas. If the pariṇāma names phases — "through five decisions", "four phases", a `→` chain — those phases are children: one sub-kriya each, with its own pariṇāma, ahara/utpatti, actor. **Can't name the steps? Stop — you have a label, not a model of the activity.** This is the mirror of question 2: utpatti proves you understand *what the kriya does*; the steps prove you understand *how it unfolds*. Question 5 decomposes upward (whose part am I?), this one downward (what am I made of?) — 5 without 6 leaves a black box neatly filed under a parent. A leaf kriya is legitimate: a single tool call has no phases. A kriya whose body *promises* phases and contains none is not a leaf — it's a narration.
+
+A phase whose actor is **not** the actor of the parent — an owner accepting a telos, a goal, a gate — is its own kriya, not a bullet in the parent's body: one kriya, one actor (see the decomposition rule in **weaving**).
 
 Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
@@ -186,8 +194,9 @@ Every arrow carries a sense explaining WHY.
 
 1. **Read the `CHECKS:` block the create response prints.** The factory self-validates — no separate call needed. Clean? Move on. Fix warnings first. Note: `not_orphan` on a fresh phenomenon is expected until a kriya picks it up (ahara/utpatti/upadhi) — a `context` arrow to a holon does NOT clear it. Wire it to a kriya. **A nudge in the response is a work item, not an FYI**: "Not attached to any transformation — check the map" means run the check it names (`lens="bianhua"`) and either attach or surface the decision to the user explicitly — never relay the line in passing and move on.
 2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
-3. **Kriya**: actor, ahara, utpatti phenomena all exist?
-4. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*: if the new node supersedes an existing one, draw `supersedes` new→old, migrate the old node's load (`key:true`, anchors, upadhi consumers that should move), and close it (`visarjana`). A successor that doesn't release its predecessor leaves a live duplicate canon — the forward wave updates references and strands the old node under the retired term.
+3. **Kriya**: actor, ahara, utpatti phenomena all exist? And — if the pariṇāma names phases — are they `contains`-children, or still prose? `nks_look` renders them as `HOW`; an empty `HOW` under a body that promises steps is a black box, and it is silent: nothing will flag it for you.
+4. **Method phenomenon (vollzug / grundsatz)**: does a kriya apply it via `upadhi`, and are that kriya's steps modeled? A method nobody runs is a dead recipe; a method whose running isn't decomposed is a description pretending to be a model.
+5. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*: if the new node supersedes an existing one, draw `supersedes` new→old, migrate the old node's load (`key:true`, anchors, upadhi consumers that should move), and close it (`visarjana`). A successor that doesn't release its predecessor leaves a live duplicate canon — the forward wave updates references and strands the old node under the retired term.
 
 ## Operational reminders
 
