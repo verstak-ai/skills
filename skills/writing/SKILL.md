@@ -40,6 +40,10 @@ A phenomenon does not exist on its own — it exists *for* a kriya (noema for no
 
 **Activity reified into a method-noun.** The subtlest trap, because the type is *right*: a skill, a recipe, an idiom really is a vollzug phenomenon. The error is stopping there — parking the protocol in its description instead of modeling the kriya that runs it and the steps it runs through. Unlike the two traps above, nothing here looks wrong: the name is a proper noun, the given_as is correct, the node validates. Test: if the description tells you *how to do it*, the doing belongs in a kriya. The phenomenon **names** the method; it never **replaces** it.
 
+**Task in kriya disguise.** The mirror of the trap above — read them as a pair. Not everything that *gets done* is a kriya. "Build the API", "Integrate Authentik" are project activities: one-off, no repeating estafeta, a different ahara/utpatti every run. Test: imagine it performed many times — same ahara and same utpatti each time? → kriya. Different each time? → a task, and it lives in a tracker, not here. The kriyas *inside* it are real: "Serving an HTTP request" (ahara request, utpatti response, actor API server) repeats on every request.
+
+Together the last two traps hold the kriya boundary from both sides: **not everything done is a kriya, but everything that is a kriya must be modeled as one — never narrated inside a phenomenon.** Over-correcting either way costs the same: tasks masquerading as kriyas, or activity flattened into nouns.
+
 **Karta vs phenomenon.** Gated by the operational test — *can you address a vimarsha to it and get an answer?* No → not a karta (a machine → ding-phenomenon; a theory/method/principle → sinn/vollzug/grundsatz). The full gate and the four karta kinds live in **Decision 2b**.
 
 **Holon vs phenomenon(sinn).** "📦 Auth contour" — what's inside, outside? Can't answer → probably phenomenon(sinn). Holons-as-folders are an anti-pattern.
