@@ -160,7 +160,7 @@ the user what was found and settle the mode:
   adhikarin without a steward edge is a live warning ("acts but answers for
   nothing"). Create the owner's svatantra karta if Step 1 found none. Record
   both seqs in *What this project is*. An agent can always re-find its kartas
-  via `nks_admin(action="my_kartas")` — the doc slot is the fast path, not the
+  via `nks_me(action="kartas")` — the doc slot is the fast path, not the
   only one.
 
 ### Step 3 — Quality gate (propose strictest, user confirms)
@@ -209,13 +209,13 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
   vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS (match reality + advance the bianhua map:
-  close resolved vimarshas), **sweep the shipped contour** (flip the modes of
-  every designed node the push realized — the whole contour, not only the nodes
-  you touched — and close the design vimarshas the ship settled), **sweep the
-  inbox** (visarjana the `posed_to` questions the work answered), run the
-  after-green-push self-review, and: uningested design/spec docs on this
-  branch → intake them (`intake` skill, then `design`) before closing.
+  push`, reminder to update NKS only from fresh artifact evidence: confirm the
+  canonical changed path and exposed old requirements were exercised, then
+  advance the bianhua map, close only the settled vimarshas/inbox questions,
+  and make at most one terminal update per load-bearing designed node. No
+  field-wide ceremonial sweep. Also run the after-green-push self-review, and:
+  uningested design/spec docs on this branch → intake them (`intake` skill,
+  then `design`) before closing.
 - **`PreToolUse`** with `"matcher": "Write|Edit|MultiEdit"` → the **memory-guard
   hook**: when the target path is inside the local project-memory dir, **block
   the write** (exit 2, routing message on stderr) — project state lives in the
@@ -307,11 +307,13 @@ Project the delegation doctrine as **named role agents**, not as AGENTS.md
 prose (orchestration mechanics stay out of AGENTS.md — the output contract
 above). Doctrine + file templates: `references/delegation.md` (relative to
 this skill).
-- Always: `.claude/agents/reader.md` (cheap-tier recon) and
-  `.claude/agents/worker.md` (mid-tier brief execution), model aliases
-  `haiku`/`sonnet`.
+- Always: `.claude/agents/reader.md` (cheap-tier recon),
+  `.claude/agents/worker.md` (mid-tier brief execution), and
+  `.claude/agents/verifier.md` (cold falsification-first acceptance audit).
+  Use stable aliases for reader/worker (`haiku`/`sonnet`); resolve a supported
+  top/session model for verifier rather than inheriting a cheap tier.
 - When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
-  the user says so): `.opencode/agents/reader.md` + `worker.md`,
+  the user says so): `.opencode/agents/reader.md` + `worker.md` + `verifier.md`,
   `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent
   inherits the invoking primary's model, so the pin is the point. Resolve
   current `provider/model-id`s from the user's setup (ask, or read
@@ -320,10 +322,14 @@ this skill).
   agent/task tool list every session, so the routing trigger fires without any
   skill load. Keep them trigger-shaped: when to use, what comes back, what NOT
   to trust it with.
-- Judgment work (design, review, synthesis) gets no role file — it stays with
-  the session model or a per-call top-tier override where the platform
-  supports it.
-- **Merge, never overwrite**: a same-named `reader`/`worker` agent file from
+- Open-ended judgment (design, synthesis, exploratory review) gets no role
+  file — it stays with the session model or a per-call top-tier override.
+  `verifier` is the narrow exception: frozen claims and a falsification-first
+  return contract make acceptance review delegable without delegating judgment
+  about what the product should mean. It is also an expensive role: use it
+  only for load-bearing claims where independent falsification can change
+  acceptance.
+- **Merge, never overwrite**: a same-named `reader`/`worker`/`verifier` agent file from
   another suite may already exist — fold your body/description in or rename
   yours (`verstak-reader`); the same rule the hooks merge follows.
 - Self-check: role files parse (frontmatter); pinned models exist in the

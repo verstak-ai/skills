@@ -11,18 +11,21 @@ load.
 
 ## Doctrine (platform-neutral)
 
-Split work by **role**, not by size. Three roles, three model tiers:
+Split work by **role**, not by size. Four roles, three model tiers:
 
 | Role | Tier | Good for | Returns to the orchestrator (main session) |
 |---|---|---|---|
 | `reader` | cheap (Haiku-class) | breadth-first recon: locate, shortlist candidates, digest with error tolerance | leads + pointers (`file:line`), ≤12 lines |
 | `worker` | mid (Sonnet-class) | mechanical execution of a self-contained brief: transforms, inventories, structured writes | status + artifact paths |
+| `verifier` | top / session model | cold, falsification-first audit of frozen behavioral claims at their public boundaries | claims × verdicts + evidence pointers |
 | judgment | top / session model | design, review, synthesis — anything the orchestrator acts on directly | conclusion + reasoning |
 
 The orchestrator keeps the user dialogue, decisions, orchestration, and edits
 that need conversation context.
 
-Rules — grounded in a 5-task benchmark across tiers, not guesswork:
+Rules 1–8 are grounded in a five-task model-tier benchmark. Rules 9–11 project the reality-audit
+acceptance discipline — independent falsification at the public boundary, actor separation between
+implementer and verifier — not measured benchmark results:
 
 1. **Cheap tier only where errors are cheap or the output is verified
    downstream.** Measured failure modes: wrong exact counts, wrong extracted
@@ -53,6 +56,22 @@ Rules — grounded in a 5-task benchmark across tiers, not guesswork:
 8. **Spot-check every return.** A stopped agent sometimes returns a non-answer
    ("waiting for background work") — resume it with a pointed message instead
    of re-running the whole task.
+9. **Verification is independent or provisional.** Freeze acceptance claims
+   before the verifier reads the worker report. The verifier tries the named
+   falsifier at the public boundary. Judge evidence by the contract and boundary,
+   not authorship: a new black-box test can be decisive when derived from the
+   frozen claim and run against the canonical surface; an internal/mock test that
+   repeats the implementation hypothesis is provisional. Requirement corrections
+   invalidate affected verdicts until fresh evidence is reproduced.
+10. **Exact boundaries before broad suites.** Run one narrow acceptance probe
+    for every frozen claim before spending the budget on a broad regression
+    suite. An unimportable public symbol, wrong config/schema shape, or missing
+    default registration is a contradicted claim even when author-written and
+    adjacent tests are green.
+11. **Block the smallest claim.** A missing downstream checkout blocks its
+    integration claim, not a reachable provider/API/config contract in the
+    current artifact. Implement and verify the reachable half; report the
+    downstream half with the literal environmental blocker.
 
 ## Projection — what verstakify generates
 
@@ -65,7 +84,7 @@ The fenced blocks below are the deployed artifacts; surrounding prose is
 guidance. Keep every `description` trigger-shaped and under ~500 characters —
 it is the routing surface.
 
-### Claude Code — `.claude/agents/reader.md`, `.claude/agents/worker.md`
+### Claude Code — `.claude/agents/reader.md`, `.claude/agents/worker.md`, `.claude/agents/verifier.md`
 
 Model aliases (`haiku`, `sonnet`) are stable platform vocabulary — use them,
 not dated model ids.
@@ -98,7 +117,24 @@ Execution agent for briefs. Your final message is your only output.
 - If the brief conflicts with reality, follow reality and flag it in the return.
 ```
 
-### OpenCode — `.opencode/agents/reader.md`, `.opencode/agents/worker.md`
+```markdown
+---
+name: verifier
+description: Cold falsification-first review of completed work — verify frozen behavioral claims at public API/UI/config/runtime boundaries with fresh independent evidence. Use before accepting done, integration green, or no work remains. Returns claim verdicts and evidence pointers; not for planning or routine implementation.
+model: <top/session model supported by the platform>
+---
+
+Verification agent. Your final message is your only output.
+- Require frozen claims: observable behavior, public boundary, falsifier, and evidence surface. Missing contract → `NEEDS_CONTEXT`; do not reconstruct it from the worker's success report.
+- First pass is read-only over production. Inspect the artifact/diff, reproduce evidence, and actively try the falsifier. Do not edit production unless the brief explicitly asks for a repair pass after the audit.
+- Resolve the contract in this order: latest owner correction, accepted requirement, established public API/schema/canonical tests, then worker report. Exercise every exact public symbol or representation shape with one narrow probe before broad suites.
+- Judge evidence by the frozen contract and public boundary, not who authored the test. A newly written black-box test may be decisive when it is derived from the frozen claim before reading the patch and rebuilds or executes the canonical surface. Internal/mock-only tests and tests that repeat the implementation hypothesis remain provisional because they can encode the same wrong API shape.
+- Block the smallest claim. Missing downstream source does not waive reachable provider, export, utility, or config work in the current artifact.
+- Return `STATUS: VERIFIED|PROVISIONAL|CONTRADICTED|BLOCKED`; then a compact `claim | verdict | evidence pointer` table plus literal blockers. Structural cleanliness is a separate fact, never a correctness verdict.
+- Do not spawn subagents — do the work yourself.
+```
+
+### OpenCode — `.opencode/agents/reader.md`, `.opencode/agents/worker.md`, `.opencode/agents/verifier.md`
 
 Same bodies — reuse them verbatim; only the frontmatter differs. **The model
 pin is the point**: an unpinned OpenCode subagent inherits the invoking
@@ -116,8 +152,9 @@ model: <provider/cheap-tier-id — resolve at projection time>
 <same body>
 ```
 
-`worker.md`: same shape, `model: <provider/mid-tier-id>`. The calling agent
-invokes via the task tool; `@reader` / `@worker` is the human's affordance.
+`worker.md`: same shape, `model: <provider/mid-tier-id>`. `verifier.md`: same
+body as above, `model: <provider/top-tier-id>`. The calling agent invokes via
+the task tool; `@reader` / `@worker` / `@verifier` is the human's affordance.
 
 ## Maintainer notes (not deployed)
 
@@ -130,12 +167,15 @@ invokes via the task tool; `@reader` / `@worker` is the human's affordance.
 - Delivery rationale: the `description` field is the only channel in context
   every session on both platforms. Skill bodies load on demand and agents
   don't reflexively load them — the agent files sidestep that failure mode.
-- `reader` / `worker` are deliberately bare, generic names and may collide
+- `reader` / `worker` / `verifier` are deliberately bare, generic names and may collide
   with same-named user-level agents — accepted trade-off (mirror of the bare
   skill-name convention); rename per-repo if a collision bites.
-- The measured benchmark behind the rules: 5 verifiable tasks (repo search,
+- The measured benchmark behind **rules 1–8 only**: 5 verifiable tasks (repo search,
   mechanical JSON extraction, graph orientation via MCP, convention review
   with planted violations, graph writes by brief) × cheap/mid/top tiers,
   ground truth prepared up front. Measured: review recall 3/6 → 5/6 → 6/6 by
   tier; cheap tier correct on MCP orientation but wrong on counts, field
-  extraction, and its own write report.
+  extraction, and its own write report. Rules 9–11 are **not** backed by this
+  run — they project the reality-audit discipline (independent falsification at
+  the public boundary; actor separation between implementer and verifier), not
+  measured benchmark results; no numbers are cited for them.

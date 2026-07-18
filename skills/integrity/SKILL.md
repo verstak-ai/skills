@@ -1,6 +1,6 @@
 ---
 name: integrity
-description: "Use this skill for a transformation's integrity — right after a bianhua is created (telos accepted by the owner) or on request: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь бяньхуа на целостность', 'что затронет это превращение', 'кого заденет' — and for the reverse claim-audit when a prose artifact claims graph-backed leverage: 'is this backed by the graph', 'claim audit', 'подкреплено ли графом', 'не театр ли'. Forward: propagate the telos, pose clustered «is this affected?» samshayas on the wavefront. Reverse: verify each structural claim is carried by real edges, report claimed-but-unwired. Distinct from assembly (map from the field) and design (paths from goals). Needs the nks_* MCP tools."
+description: "Use for a transformation's graph integrity or a reverse audit of prose that claims graph-backed leverage. Triggers: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'что затронет это превращение', 'claim audit', 'подкреплено ли графом', 'не театр ли'. Propagates a bianhua's impact wavefront or checks prose claims against actual graph edges. Distinct from behavioral verification, which uses reality-audit; needs nks_* tools."
 ---
 
 # NKS Integrity — the transformation's wavefront
@@ -11,7 +11,7 @@ Three entries:
 
 - a bianhua was just created and its telos accepted by the owner (assembly step 5 and design Phase 4 hand off here) — the forward protocol below;
 - the user asks to check an existing bianhua for integrity / impact — the same forward protocol;
-- a prose artifact claims graph-backed leverage and must be verified — the **claim-audit** mode (Mode 3 below).
+- a prose artifact claims graph-backed leverage and must be verified — the **claim-audit** mode below.
 
 ## Protocol
 
@@ -73,7 +73,7 @@ Description states: what the telos implies for these nodes, and **what counts as
 
 `nks_orient(lens="bianhua", focus=<seq>)` — the drivers now include the integrity front. Tell the user what was attached and what was consciously left out.
 
-## Mode 3 — claim-audit: is the claimed carried by the graph
+## Reverse mode — claim-audit: is the claim carried by the graph
 
 The forward pass asks "what will the transformation touch?". The reverse pass asks the mirror question: **does the graph carry what the prose claims?** Run it whenever an artifact *claims* graph-backed leverage — a rendered roadmap, a report, a summary, a telos citing capabilities: «direction D is driven by karta X», «D grows out of capability Y», «flow A feeds B», «the risk is covered». Node-grained detectors cannot catch this failure: each node is individually legal; the lie lives in the mismatch between text and structure.
 
@@ -82,6 +82,10 @@ The forward pass asks "what will the transformation touch?". The reverse pass as
 3. **Report claimed-but-unwired, pair by pair.** Each unbacked claim gets one of two fates, chosen with the owner: **wire it** (the claim was true but unrecorded — hand the missing edges to weaving) or **weaken the prose** (the claim was theater — the artifact overstates the graph). Never leave prose overstating the graph, and never wire edges solely to make prose true.
 
 The audit itself writes nothing; it produces the claims × verdicts table. Same acceptance discipline as the wavefront: the owner picks each fate.
+
+Behavioral verification belongs to the separate **reality-audit** skill. Do not load this graph
+protocol for an ordinary implementation merely because the final code still needs acceptance
+evidence.
 
 ## Noise discipline
 
@@ -95,3 +99,4 @@ The audit itself writes nothing; it produces the claims × verdicts table. Same 
 - **Not design** — integrity poses the «is this affected?» questions; clusters answered «affected» are handed to design.
 - **Not weaving** — it does not repair structure; it marks where structure will have to move.
 - **Not a tension detector** — it runs from a telos, not from structural signals.
+- **Not an execution suite** — it selects and judges evidence; project tests, runtimes, and debugging workflows produce that evidence.

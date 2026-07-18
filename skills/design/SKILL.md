@@ -1,11 +1,19 @@
 ---
 name: design
-description: "Use when the user asks to design, architect, or project a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at decision moments — 'we chose X', 'we decided', 'persist this design' — and right after a brainstorming/elicitation session produced a design or spec: the graph is where it becomes the record. Also use when the conversation turns from reading to building ('what should we build?'). Use even for seemingly simple design tasks — the graph prevents losing decisions, questions, and risks."
+description: "Use when the user asks to design, architect, or choose the structure/lifecycle of a system, component, or feature and NKS tools are available. Triggers: 'спроектируй', 'давай продумаем', 'архитектура', 'нужен дизайн', 'design', 'let's think through', 'plan the system', 'what should this look like', mentions of 'жц' / 'lifecycle', 'крия' / 'эстафета' / 'холон', or 'записать в NKS' / 'положить в граф' / 'зафиксировать'. Also use at real decision moments — 'we chose X', 'we decided', 'persist this design' — and after elicitation produced an accepted design/spec. Do not use for implementing an already accepted concrete spec, routine bug fixes, repository inspection, or ordinary coding where no structural choice is open."
 ---
 
 # NKS Design
 
-The graph IS the spec. If it's not in the graph, it doesn't exist.
+The graph is the durable projection of the spec. A decision or risk absent from it is not durable; behavior present only in it is not verified. External sources, public boundaries, and runtime evidence remain the truth surfaces against which the projection is tested.
+
+## Routing boundary
+
+Design begins where a structural choice is genuinely open: competing paths, lifecycle, ownership,
+public boundary, dependency direction, or a decision that must survive the session. A concrete
+accepted implementation request does not become design work merely because code must be written.
+Implement it under the repository's normal workflow; use `writing` only if the work reveals a
+novel durable correction, dependency, boundary, or open question worth handing to a later actor.
 
 ## Interop: elicitation suites (e.g. superpowers brainstorming)
 
@@ -82,12 +90,16 @@ Actor: the Weaver role. Consumes: a built path. Produces: noticed tensions, clos
 **3a. Analysis:**
 ```
 TRIGGER: path woven, risks not assessed
-DO: For each kriya on path, five provocation questions:
+DO: For each kriya on path, seven provocation questions:
   1. Different actor? What if unavailable?
   2. Different context? Environment changed?
   3. Damaged upadhi? Precondition corrupted?
   4. Scale mismatch? Parallel/concurrent?
   5. Adversary? Network drops, disk fills, process hangs?
+  6. Public boundary and representation? Is the API export, config/schema shape,
+     protocol, serialization, or compatibility surface exact?
+  7. State and history? Does it still hold across isolation, retries, prior work,
+     partial failure, and lifecycle transitions?
   If threat found → nks_add_vimarsha(genre="risk", vimarsha_of=<kriya>)
 OUTPUT: risk-vimarshas
 ```
@@ -114,7 +126,13 @@ TRIGGER: graph designed, all in anagata modes, no one is working on it
 CONDITION: only for graphs projecting external systems (not methodology, not CJM)
 DO:
   1. Create hint-vimarshas for implementors
-  2. Each hint: scope of work, acceptance criteria, a **`posed_to` arrow** (vimarsha→karta) to the doer who can answer — the **能** who stewards the contour (find via the `steward` arrow), the **主** for strategic scope; never a `pratibimba` image; volition graduates chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair),
+  2. Each hint: scope of work; a reality acceptance contract naming the accepted
+     source and correction precedence, observable behavior, exact public symbol
+     or representation shape, concrete falsifier, and independent-evidence plan;
+     a **`posed_to` arrow** (vimarsha→karta) to the doer who can answer — the
+     **能** who stewards the contour (find via the `steward` arrow), the **主**
+     for strategic scope; never a `pratibimba` image; volition graduates
+     chanda→adhimoksha — never attrs.priority; blockingness is a property of the pair;
      and an ANCHOR — vimarsha_of into the contour where the work lands (holon at minimum,
      the precise kriya/phenomenon when known): posed_to without an anchor is a lost hint —
      the addressee orients by holon and never sees it
