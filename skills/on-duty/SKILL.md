@@ -1,6 +1,6 @@
 ---
 name: on-duty
-description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, reality-audit, writing, and weaving; NKS carries durable decision state plus the structure the repo ritual requires between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, design, integrity, reality-audit, writing, and weaving; NKS carries durable decision state plus the structure the repo ritual requires between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
@@ -47,7 +47,7 @@ When the user names a transformation — "продвигай bianhua #N чере
 
 ## 2 · Work
 
-Each vimarsha names its own flow — follow *it*, not a generic one: a code defect → fix + tests per the AGENTS.md gates; a question → answer it (**inquiry**: `addressed_by`, close); a design ask → the **design** skill; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits — all from AGENTS.md. Commit, push; open the PR when the repo's flow says PR. Never merge your own PR unless AGENTS.md explicitly sanctions it. A PR awaiting review is a git-surface expectation — do **not** mirror it as a vimarsha to the owner; only when the un-merged branch blocks another doer's anga does the relay vimarsha say so.
+Each vimarsha names its own flow — follow *it*, not a generic one: a code defect → fix + tests per the AGENTS.md gates; a question → answer it (**inquiry**: `addressed_by`, close); a design ask → the **design** skill; a claim of graph-backed leverage or a transformation impact check → **integrity**; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits — all from AGENTS.md. Commit, push; open the PR when the repo's flow says PR. Never merge your own PR unless AGENTS.md explicitly sanctions it. A PR awaiting review is a git-surface expectation — do **not** mirror it as a vimarsha to the owner; only when the un-merged branch blocks another doer's anga does the relay vimarsha say so.
 
 ## 3 · Integrate locally
 
