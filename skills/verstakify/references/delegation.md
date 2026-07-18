@@ -23,9 +23,9 @@ Split work by **role**, not by size. Four roles, three model tiers:
 The orchestrator keeps the user dialogue, decisions, orchestration, and edits
 that need conversation context.
 
-Rules 1–8 are grounded in a five-task model-tier benchmark. Rules 9–12 are general acceptance and
-cost invariants exposed by later multi-session/multi-role calibration; they still require unseen
-transfer validation:
+Rules 1–8 are grounded in a five-task model-tier benchmark. Rules 9–11 project the reality-audit
+acceptance discipline — independent falsification at the public boundary, actor separation between
+implementer and verifier — not measured benchmark results:
 
 1. **Cheap tier only where errors are cheap or the output is verified
    downstream.** Measured failure modes: wrong exact counts, wrong extracted
@@ -72,12 +72,6 @@ transfer validation:
     integration claim, not a reachable provider/API/config contract in the
     current artifact. Implement and verify the reachable half; report the
     downstream half with the literal environmental blocker.
-12. **Pay for a cold verifier only where independence can change acceptance.**
-    Freeze a compact set of load-bearing claims; do not send routine lint,
-    mechanical checks, or an already-verified no-harm task to a top-tier role.
-    Measure verifier input, output, calls, and wall time separately. If those
-    cannot be measured, the quality verdict may stand but the efficiency claim
-    is provisional.
 
 ## Projection — what verstakify generates
 
@@ -181,6 +175,7 @@ the task tool; `@reader` / `@worker` / `@verifier` is the human's affordance.
   with planted violations, graph writes by brief) × cheap/mid/top tiers,
   ground truth prepared up front. Measured: review recall 3/6 → 5/6 → 6/6 by
   tier; cheap tier correct on MCP orientation but wrong on counts, field
-  extraction, and its own write report. Rules 9–12 are **not** backed by this
-  run — they are calibration-derived acceptance/cost invariants and still await
-  unseen-transfer validation; don't cite the five-task numbers for them.
+  extraction, and its own write report. Rules 9–11 are **not** backed by this
+  run — they project the reality-audit discipline (independent falsification at
+  the public boundary; actor separation between implementer and verifier), not
+  measured benchmark results; no numbers are cited for them.

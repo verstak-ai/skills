@@ -36,21 +36,16 @@ Don't orient for:
 - Questions about tooling itself (Claude, plugins, the NKS schema).
 - Casual conversation, greetings, clarifying questions inside an already-oriented thread.
 - Questions where the user explicitly wants an outside perspective ("forget my notes for a moment").
-- A realm you seeded in this same session when it can only return your own just-written notes and
-  no later role/session needs them. Re-reading self-authored transcription is not memory recovery.
-- A precreated but still-empty run/role realm with no state from an earlier independent session.
-  Start from the artifact; enter only after artifact-facing work establishes a load-bearing
-  decision, dependency, correction, or question for a later cold reader. A future reader does not
-  make an empty orient useful to the first writer.
 
 ## Coexistence with workflow suites
 
 If an installed workflow suite requires skill invocation before any response,
-loading `entry` is not in conflict: reading the realm is memory-fetch, not a
-response or an implementation action. When AGENTS.md explicitly requires
-orient-first and none of the exclusions above applies, orient first, then follow
-the suite's process skills for execution. When AGENTS.md postpones graph work or
-the realm is new and empty, obey that boundary and start from the artifact.
+orient is not in conflict: reading the realm is how this environment gathers
+context — memory-fetch, not a response or an implementation action. The suite's
+own precedence rule (e.g. superpowers: "user instructions always take
+precedence", with explicit user instructions — CLAUDE.md, GEMINI.md, AGENTS.md,
+direct requests — ranked highest priority) ratifies the AGENTS.md orient-first
+ritual. Orient first, then follow the suite's process skills for execution.
 
 ## What "answering from the graph" means
 
@@ -70,66 +65,7 @@ When you open `lens="tensions"`, tensions come **grouped by resolving move** (re
 
 **A clean tension surface means structurally clean only.** It says nothing about implementation correctness, public API compatibility, or whether tests pass. Behavioral closure belongs to the separate **reality-audit** skill.
 
-## Cold-role decision budget
-
-When prior graph state can affect the first repository-facing implementation or verification
-action, spend at most five NKS calls before it: orient the focus, open the karta agenda when one
-exists, then only the search/look needed for that action. With no prior independent state, spend
-zero calls before the first artifact action. Stop earlier when the graph has answered it. Tool
-discovery counts against this budget: in a deferred-tool environment resolve only the exact next
-tool/schema by name — never dump the catalog or every `nks_*` description to find `nks_orient` or
-one factory. A cold role loads `entry` plus the one role skill it needs next — architect→`design`,
-writer→`writing`, behavioral verifier→`reality-audit`, graph-claim auditor→`integrity` — not the
-whole suite.
-
-A relay that names a graph node or decision left by an earlier independent role IS prior graph
-state, even paraphrased. Before the first action it could change, perform exactly one targeted
-receipt (`nks_look` on a supplied id, otherwise the narrowest orient/search that can recover it)
-and record one of two outcomes in the working handoff: the retrieved delta changed a named action,
-or artifact evidence made it redundant and the role rejected it. Never silently skip the read; a
-receipt with no changed action is measured overhead, and a relay copy of the same content is not
-independent memory value.
-
-An empty realm is not permission to model the whole assignment before touching the artifact. Model
-only what is load-bearing across rounds: the focus boundary, accountable roles, accepted
-decisions/corrections, and unresolved cross-role questions. Keep that bootstrap to one batch and at
-most eight nodes unless the task itself requires a richer topology; grow it from witnessed work,
-not imagined completeness.
-
-After the first action, graph work stays subordinate to artifact work: every extra call must answer
-a named uncertainty that can change implementation, verification, or handoff — no realm tours, no
-re-reading facts already present in the checked artifact, no copying the same state into NKS,
-relay, and final prose. Batch a settled write, verify it once, and make the relay a decision delta.
-Two local circuit breakers: if NKS calls reach the count of artifact-changing edits plus test/probe
-actions, stop graph calls until another edit or probe advances reality (the ratio is not permission
-to inflate shell commands or split one edit into noise); if seven calls pass without a changed
-decision, stop and synthesize or name the gap. All of this is a guardrail, not enforcement — a
-prose budget cannot prevent extra round trips. When the host or MCP exposes a call counter/budget,
-obey that harder boundary, and in benchmarked or cost-sensitive work report actual NKS calls and
-failures; never claim the budget held from the instruction alone.
-
-These call and churn budgets curb exploration and duplication; they do not waive a settled
-structural obligation that `writing` or an explicit repo push ritual requires. Such writes are
-batched into as few calls as possible and still must pass the reader-and-use gate — the budget
-chooses *how* they land, never whether they land.
-
-## Tool-error circuit breaker
-
-Do not turn a recoverable NKS error into a retry storm or a second graph:
-
-- `409 Resource already exists` — do not create again. Search/list, resolve the existing object,
-  and continue from it.
-- `400 Unknown realm reference` or an unexpectedly empty orient — stop all writes, relist, select
-  one address exactly as listed (`@owner/slug`, `rN`, or UUID), and verify the `REALM:` header.
-  Never fall back to a bare slug or a guessed/remembered reference, and never create a replacement
-  realm.
-- `422` on a node/arrow — do not mutate a different type until something sticks. Read the live
-  factory schema or `nks_arrow(realm="?")`, correct the invalid operation once, and preserve the
-  original semantic intent.
-
-After the same error class repeats twice, or after three NKS failures in one task phase, stop graph
-writes for that phase. Continue reachable artifact work and verification; hand off the literal
-error and the unwritten decision as a provisional gap. Graph closure never outranks the artifact.
+Cap NKS calls at roughly five per response. If you've made seven and still haven't synthesized — stop, answer from what you have, flag the gap.
 
 ## Seeds and the map
 

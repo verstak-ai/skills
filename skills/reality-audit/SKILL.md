@@ -87,8 +87,7 @@ finish all material artifact changes before the memory write; then perform at mo
 update, and only when a durable correction or contradiction will change a later agent's decision.
 A later material patch means that update was premature — its behavioral confidence is provisional
 until the affected public evidence is rerun and the node reverified. Do not use the graph as
-mid-audit scratch; if memory calls reach your code-edit plus test count, stop modelling and return
-to the artifact.
+mid-audit scratch.
 
 That one-update limit scopes **this audit's own evidence handoff**. It does not stand in for, or
 excuse, structural modelling a repo's push ritual or the `writing` skill separately requires — that

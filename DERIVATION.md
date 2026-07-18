@@ -29,7 +29,7 @@ they are forbidden inside `skills/`.
 | Шабда: виды источников, сверка | #104, #165, #157, #340 | intake → steps 1–2, 5; product-roadmap → Step 5 | a source-kind mode or сверка step changes |
 | Граница реалма топологична; boundary-маркер | #416 (+ nks-dev #978) | design → «Realm boundary»; weaving → «Boundary is the edge of the world»; writing → Decision 5 kriya note | boundary semantics or the marker changes |
 | Санкция bianhua (владелец принимает имя+телос) | #432 + factory SANCTION | writing → Decision 1 bianhua row; assembly → step 5; design → Phase 4; inquiry → section 4 | the sanction discipline changes |
-| Вневременность записи | #440 | writing → Decision 4 «Timelessness» | the timelessness rule changes |
+| Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure (one terminal update, no ceremonial intermediate modes) | the timelessness rule changes |
 
 Two more sync obligations live outside this table:
 
@@ -41,33 +41,33 @@ Two more sync obligations live outside this table:
 
 ## Calibration-derived sections (no canon landmark)
 
-Not everything in `skills/` projects from the methodology realm. The
-`reality-audit` skill (whole) and the calibration-derived sections — `entry` →
-«Cold-role decision budget» / «Tool-error circuit breaker», `inquiry` →
-terminal-triputi closure, `writing` → «After writing» step 6 (graph checks ≠ reality evidence) and
-the reader/use *budget* half of «Reader-and-use novelty gate» (what counts as a
-named reader class, and the anti-busywork skip list — the gate's *kind* obligation
-projects from #471 above and is re-projected there, not here) and the
-create-batch guidance in «Batch ordering» (load only the exact `nks_add_*`
-factory schemas, never dump the whole tool registry),
-`on-duty` → repo/graph durable-state split **and** its reality-audit gating before
-`verified` closure, `design` → «Routing boundary», provocations 6–7 (public boundary /
-representation, state and history) in Phase 3a and the reality-acceptance
-contract each Phase-4 hint must carry,
-`integrity` → the reality-audit boundary in «Reverse mode — claim-audit» and
-«Not an execution suite» in «What it is NOT»,
-`verstakify` → the cold-verifier role in `references/delegation.md` and the
-«Verification surfaces» slot in `references/agents-template.md`, that template's
-«Update the evidenced contour» / «Work the inbox» steps (which replace
-whole-contour sweeps) and its Step 4 reality-audit gate before a `green` /
-`no work remains` claim, the `PostToolUse` git-push reminder hook,
-delegation rules 9–12 — derive from
-the 2026-07 multi-session / multi-role benchmark calibration, not from a canon
-landmark. The evidence doc lives outside this repo. There is no seq to
-re-project from: re-verify these sections against the next transfer-run
-evidence instead. If the methodology realm later canonizes a reality-audit /
-pramana-discipline landmark, move them into the table above as ordinary
-projected rows.
+Not everything in `skills/` projects from the methodology realm. These sections
+originated in the 2026-07 calibration runs; they are retained not on the
+strength of those measurements but because each is independently grounded — in
+methodology reasoning (pramanita requires evidence external to the graph;
+honest modes; actor separation implementer/verifier) or in counterexamples
+witnessed in the nks-dev realm. No benchmark numbers are cited as their
+justification:
+
+- `reality-audit` — the whole skill;
+- `writing` → «After writing» step 6 (graph checks ≠ reality evidence) and the
+  reader/use questions of «Reader-and-use novelty gate» (the gate's *kind*
+  obligation stays projected from #471 above);
+- `on-duty` → the repo/graph durable-state split and its reality-audit gating
+  before `verified` closure;
+- `design` → «Routing boundary», provocations 6–7 (public boundary /
+  representation, state and history) in Phase 3a, and the reality-acceptance
+  contract each Phase-4 hint must carry;
+- `integrity` → the reality-audit boundary in «Reverse mode — claim-audit» and
+  «Not an execution suite» in «What it is NOT»;
+- `verstakify` → the cold-verifier role in `references/delegation.md`, the
+  «Verification surfaces» slot in `references/agents-template.md`, that
+  template's «Update the evidenced contour» / «Work the inbox» steps, its
+  Step 4 reality-audit gate, the `PostToolUse` git-push reminder hook, and
+  delegation rules 9–11.
+
+If the methodology realm later canonizes a reality-audit / pramana-discipline
+landmark, move them into the table above as ordinary projected rows.
 
 ## Language contract (four layers, en-first product)
 

@@ -326,9 +326,9 @@ this skill).
   file — it stays with the session model or a per-call top-tier override.
   `verifier` is the narrow exception: frozen claims and a falsification-first
   return contract make acceptance review delegable without delegating judgment
-  about what the product should mean. It is also the expensive exception: use
-  it only for load-bearing claims where independence can change acceptance,
-  and measure verifier tokens/calls/wall separately in cost-sensitive work.
+  about what the product should mean. It is also an expensive role: use it
+  only for load-bearing claims where independent falsification can change
+  acceptance.
 - **Merge, never overwrite**: a same-named `reader`/`worker`/`verifier` agent file from
   another suite may already exist — fold your body/description in or rename
   yours (`verstak-reader`); the same rule the hooks merge follows.
