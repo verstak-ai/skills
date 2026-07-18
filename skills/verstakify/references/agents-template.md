@@ -5,14 +5,16 @@
 - **Nature**: `<production | research | sandbox | one-off | library>`. If not
   `production`, list which working principles are relaxed and why. No explicit
   relaxation = full production discipline (agents lean lenient by default).
-- **NKS realm**: `<canonical owner/slug or UUID>` — every session starts with
-  `nks_orient` here. Never persist a listing-local `rN` short alias; on first
-  orient, verify the returned `REALM:` header before any graph write.
+- **NKS realm**: `<@owner/slug, immutable rN, or UUID — copied verbatim from
+  nks_realm(action="list")>` — every session starts with `nks_orient` here. Any
+  of the three addresses is durable (`rN` survives a rename); a bare slug
+  without its owner is deprecated — never persist one. On first orient, verify
+  the returned `REALM:` header before any graph write.
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
   Your inbox: `nks_orient(focus="<seq>")` at session start (self-locate
-  fallback: `nks_admin(action="my_kartas")`).
+  fallback: `nks_me(action="kartas")`).
 - **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
   here as `posed_to` vimarshas.
 - **Stack**: `<language + primary frameworks, one line>`.

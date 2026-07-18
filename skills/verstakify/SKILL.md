@@ -160,7 +160,7 @@ the user what was found and settle the mode:
   adhikarin without a steward edge is a live warning ("acts but answers for
   nothing"). Create the owner's svatantra karta if Step 1 found none. Record
   both seqs in *What this project is*. An agent can always re-find its kartas
-  via `nks_admin(action="my_kartas")` — the doc slot is the fast path, not the
+  via `nks_me(action="kartas")` — the doc slot is the fast path, not the
   only one.
 
 ### Step 3 — Quality gate (propose strictest, user confirms)

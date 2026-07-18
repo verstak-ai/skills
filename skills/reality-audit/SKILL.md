@@ -90,6 +90,11 @@ until the affected public evidence is rerun and the node reverified. Do not use 
 mid-audit scratch; if memory calls reach your code-edit plus test count, stop modelling and return
 to the artifact.
 
+That one-update limit scopes **this audit's own evidence handoff**. It does not stand in for, or
+excuse, structural modelling a repo's push ritual or the `writing` skill separately requires — that
+work belongs to the round, not to the audit. This skill itself stays NKS-free and evidence-first: no
+graph access is required to run it, and no graph state is ever an input to a verdict.
+
 **Exit status is the verdict** (the canonical statement — `writing` points here). Make combined
 terminal evidence fail closed from its first command (`set -euo pipefail` or the platform
 equivalent); when a failure code is itself expected, capture and assert it locally, then restore

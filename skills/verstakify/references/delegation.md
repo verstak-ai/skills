@@ -176,9 +176,11 @@ the task tool; `@reader` / `@worker` / `@verifier` is the human's affordance.
 - `reader` / `worker` / `verifier` are deliberately bare, generic names and may collide
   with same-named user-level agents — accepted trade-off (mirror of the bare
   skill-name convention); rename per-repo if a collision bites.
-- The measured benchmark behind the rules: 5 verifiable tasks (repo search,
+- The measured benchmark behind **rules 1–8 only**: 5 verifiable tasks (repo search,
   mechanical JSON extraction, graph orientation via MCP, convention review
   with planted violations, graph writes by brief) × cheap/mid/top tiers,
   ground truth prepared up front. Measured: review recall 3/6 → 5/6 → 6/6 by
   tier; cheap tier correct on MCP orientation but wrong on counts, field
-  extraction, and its own write report.
+  extraction, and its own write report. Rules 9–12 are **not** backed by this
+  run — they are calibration-derived acceptance/cost invariants and still await
+  unseen-transfer validation; don't cite the five-task numbers for them.

@@ -15,7 +15,7 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 1. **`nks_realm(action="list")`** — see what's available. The user typically signals which realm is in play by topic, by name, or by explicit mention. If the realm is unambiguous from context, skip to step 2. If unclear and the question is non-trivial, briefly ask which realm to enter.
 
-   **Use a canonical realm identity.** In a multi-owner listing, persist and hand off the exact `owner/slug` shown by the listing, or the UUID. A short alias such as `r17` is accepted as a convenience by the tool surface, but is not a durable cross-agent identity: do not infer it, copy it into AGENTS.md, or treat the same-looking alias from another listing as the same realm. On the first orient, verify the returned `REALM:` header names the intended realm. A mismatch or an unexpectedly empty graph is a stop signal: relist and resolve the canonical identity before any write.
+   **Use a canonical realm identity.** The live tool surface accepts three addresses: the full `@owner/slug`, the short id `rN` (immutable — it survives a rename), or the UUID. Any of the three is durable enough to persist and hand off, but only when **copied verbatim from `nks_realm(action="list")`** — never guessed, inferred from a repo name, or carried over from another listing you did not just read. A bare slug without its owner is deprecated and ambiguous across owners: never write one into a doc, a handoff, or a tool call. On the first orient, verify the returned `REALM:` header names the intended realm. A mismatch or an unexpectedly empty graph is a stop signal: relist and resolve the canonical identity before any write.
 
    **Realm ≠ repo.** A realm commonly models a whole system across several repositories — each repo a holon, each repo's developer role a sub-karta, in one graph. Working in repo X and needing to reach the code, roles, or questions of repo Y does not mean switching realms: look for Y's holon and roles inside the current realm first. Not finding a realm named after a repo is not a gap — it is the signal you are already in the right realm.
 
@@ -108,6 +108,11 @@ prose budget cannot prevent extra round trips. When the host or MCP exposes a ca
 obey that harder boundary, and in benchmarked or cost-sensitive work report actual NKS calls and
 failures; never claim the budget held from the instruction alone.
 
+These call and churn budgets curb exploration and duplication; they do not waive a settled
+structural obligation that `writing` or an explicit repo push ritual requires. Such writes are
+batched into as few calls as possible and still must pass the reader-and-use gate — the budget
+chooses *how* they land, never whether they land.
+
 ## Tool-error circuit breaker
 
 Do not turn a recoverable NKS error into a retry storm or a second graph:
@@ -115,8 +120,9 @@ Do not turn a recoverable NKS error into a retry storm or a second graph:
 - `409 Resource already exists` — do not create again. Search/list, resolve the existing object,
   and continue from it.
 - `400 Unknown realm reference` or an unexpectedly empty orient — stop all writes, relist, select
-  the exact listed `owner/slug` or UUID, and verify the `REALM:` header. Never fall back to a short
-  alias or create a replacement realm.
+  one address exactly as listed (`@owner/slug`, `rN`, or UUID), and verify the `REALM:` header.
+  Never fall back to a bare slug or a guessed/remembered reference, and never create a replacement
+  realm.
 - `422` on a node/arrow — do not mutate a different type until something sticks. Read the live
   factory schema or `nks_arrow(realm="?")`, correct the invalid operation once, and preserve the
   original semantic intent.

@@ -21,6 +21,8 @@ they are forbidden inside `skills/`.
 | Устойчивые комбинации модусов — образцы | #53 | writing → `references/modes.md` (stable triads) | a sample triad is added/retired |
 | Конфликтные триады — forbidden triples | #52 | writing → `references/modes.md` (Forbidden) | a hard triple changes |
 | given_as канон + матрица стрелок | #372, #376 | writing → Decision 2 + `references/given_as.md`; design → «given_as — arrow legality» | a mode of givenness or arrow-legality cell changes |
+| vollzug не заменяет крию — деятельность не записывается существительным | #471 | writing → Decision 1 «A method is half a node» + Traps «Activity reified into a method-noun» + Kriya question 6 + «After writing» 3–4 + «Reader-and-use novelty gate» (transcription-vs-structure kind distinction; applying kriya and phase contains-children are structural modeling, never vetoed by the gate); `references/given_as.md` → «Obligation — vollzug / grundsatz» | the obligation, the phases-are-contains rule, or the one-line test changes |
+| Проектная активность — не крия (задача ≠ действие с повторяемой эстафетой) | #102 | writing → Traps «Task in kriya disguise» | the kriya-vs-task test changes |
 | manifested_as канон (роды делателя) | #460 | writing → Decision 2b; product-roadmap → actor-modeling rules (Step 2) | a род or its addressing/steward rule changes |
 | 時-цикл, bianhua, роли сборки, композиция | #431, #432, #434, #435 | assembly → the whole skill; inquiry → «Inquiry and transformation» | the ritual, roles, or 形 halves change |
 | Жизнь вимарши: исходы, кристаллизация | #387 + genre canon | inquiry → sections 2–3; writing → «Vimarsha genres» | an outcome or genre-resolution rule changes |
@@ -42,8 +44,24 @@ Two more sync obligations live outside this table:
 Not everything in `skills/` projects from the methodology realm. The
 `reality-audit` skill (whole) and the calibration-derived sections — `entry` →
 «Cold-role decision budget» / «Tool-error circuit breaker», `inquiry` →
-terminal-triputi closure, `writing` → step 5 (graph checks ≠ reality evidence),
-`on-duty` → repo/graph durable-state split, delegation rules 9–12 — derive from
+terminal-triputi closure, `writing` → «After writing» step 6 (graph checks ≠ reality evidence) and
+the reader/use *budget* half of «Reader-and-use novelty gate» (what counts as a
+named reader class, and the anti-busywork skip list — the gate's *kind* obligation
+projects from #471 above and is re-projected there, not here) and the
+create-batch guidance in «Batch ordering» (load only the exact `nks_add_*`
+factory schemas, never dump the whole tool registry),
+`on-duty` → repo/graph durable-state split **and** its reality-audit gating before
+`verified` closure, `design` → «Routing boundary», provocations 6–7 (public boundary /
+representation, state and history) in Phase 3a and the reality-acceptance
+contract each Phase-4 hint must carry,
+`integrity` → the reality-audit boundary in «Reverse mode — claim-audit» and
+«Not an execution suite» in «What it is NOT»,
+`verstakify` → the cold-verifier role in `references/delegation.md` and the
+«Verification surfaces» slot in `references/agents-template.md`, that template's
+«Update the evidenced contour» / «Work the inbox» steps (which replace
+whole-contour sweeps) and its Step 4 reality-audit gate before a `green` /
+`no work remains` claim, the `PostToolUse` git-push reminder hook,
+delegation rules 9–12 — derive from
 the 2026-07 multi-session / multi-role benchmark calibration, not from a canon
 landmark. The evidence doc lives outside this repo. There is no seq to
 re-project from: re-verify these sections against the next transfer-run

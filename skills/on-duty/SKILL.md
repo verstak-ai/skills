@@ -1,15 +1,17 @@
 ---
 name: on-duty
-description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, reality-audit, writing, and weaving; NKS carries non-reconstructable decision state between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Use this skill for the duty cycle in a verstakified repo: 'заступай на вахту', 'вахта', 'разгребай инбокс', 'on duty', 'stand watch', 'sweep the inbox', or an autonomous session where AGENTS.md names an agent karta. Also for one transformation: 'продвигай bianhua', 'доведи превращение', 'drive the bianhua'. Loop: orient → agenda → work per repo ritual → reality-audit before verified closure → wire decision deltas into other doers' inboxes → weave → wait or escalate owner decisions. Composes entry, inquiry, integrity, reality-audit, writing, and weaving; NKS carries durable decision state plus the structure the repo ritual requires between wakes. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
 
 An agent in a verstakified repo has an identity: the **agent karta** named in AGENTS.md, steward of the repo's contour. Its inbox — incoming `posed_to` vimarshas on that karta — is where other doers (human and agent) put work that expects *this* doer to act. This skill is the closed loop that drains it: take what is workable, ship it, wire the relay to whoever depends on it, wait consciously, repeat.
 
-The loop is **stateless by design**: the repository/artifact is the canonical implementation state;
-the graph carries only non-reconstructable decision deltas, ownership, dependencies, and open
-questions needed by a later doer. Every exit point — a wait, a crash, a context death — must leave
+The loop is **stateless by design**: the repository/artifact remains the canonical implementation
+state, and the graph carries what a later doer cannot reconstruct from it — durable decision state
+(deltas, ownership, dependencies, open questions) **plus** the load-bearing traversable structure
+that `writing` or the repo's push ritual requires. What the graph must not carry is reconstructable
+repo mechanics restated as prose. Every exit point — a wait, a crash, a context death — must leave
 both surfaces consistent enough that a fresh session re-enters through the inbox and artifact and
 continues. If resuming would require unpersisted session memory, you have left the rails.
 

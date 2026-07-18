@@ -48,6 +48,11 @@ Do not run a field-wide inquiry sweep merely because an implementation round is 
 affected old requirements' tests in the artifact; then, if a durable decision changed, make at
 most one terminal batched graph handoff. Inquiry hygiene never consumes the verification tail.
 
+This limit scopes **inquiry closure at the end of a round** — how many calls the field's own
+discharge may spend. It is not a cap on the graph work a round owes elsewhere: structural modelling
+separately required by `writing` or the repo's push ritual is its own obligation, batched into the
+same handoff where possible but never waived because the closure quota was spent.
+
 ## 3. Genre sets the character of resolution
 
 The genre you posed under (writing) determines what *counts* as discharging it:
