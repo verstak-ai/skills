@@ -21,7 +21,7 @@ they are forbidden inside `skills/`.
 | Устойчивые комбинации модусов — образцы | #53 | writing → `references/modes.md` (stable triads) | a sample triad is added/retired |
 | Конфликтные триады — forbidden triples | #52 | writing → `references/modes.md` (Forbidden) | a hard triple changes |
 | given_as канон + матрица стрелок | #372, #376 | writing → Decision 2 + `references/given_as.md`; design → «given_as — arrow legality» | a mode of givenness or arrow-legality cell changes |
-| vollzug не заменяет крию — деятельность не записывается существительным | #471 | writing → Decision 1 «A method is half a node» + Traps «Activity reified into a method-noun» + Kriya question 6 + «After writing» 3–4 + «Reader-and-use novelty gate» (transcription-vs-structure kind distinction; applying kriya and phase contains-children are structural modeling, never vetoed by the gate); `references/given_as.md` → «Obligation — vollzug / grundsatz» | the obligation, the phases-are-contains rule, or the one-line test changes |
+| vollzug не заменяет крию — деятельность не записывается существительным | #471 | writing → Decision 1 «A method is half a node» + Traps «Activity reified into a method-noun» + Kriya question 6 + «After writing» 3–4 + «Reader-and-use novelty gate» (its kind obligation and method carve-out); `references/given_as.md` → «Obligation — vollzug / grundsatz» | the obligation, the phases-are-contains rule, or the one-line test changes |
 | Проектная активность — не крия (задача ≠ действие с повторяемой эстафетой) | #102 | writing → Traps «Task in kriya disguise» | the kriya-vs-task test changes |
 | manifested_as канон (роды делателя) | #460 | writing → Decision 2b; product-roadmap → actor-modeling rules (Step 2) | a род or its addressing/steward rule changes |
 | 時-цикл, bianhua, роли сборки, композиция | #431, #432, #434, #435 | assembly → the whole skill; inquiry → «Inquiry and transformation» | the ritual, roles, or 形 halves change |
@@ -29,7 +29,7 @@ they are forbidden inside `skills/`.
 | Шабда: виды источников, сверка | #104, #165, #157, #340 | intake → steps 1–2, 5; product-roadmap → Step 5 | a source-kind mode or сверка step changes |
 | Граница реалма топологична; boundary-маркер | #416 (+ nks-dev #978) | design → «Realm boundary»; weaving → «Boundary is the edge of the world»; writing → Decision 5 kriya note | boundary semantics or the marker changes |
 | Санкция bianhua (владелец принимает имя+телос) | #432 + factory SANCTION | writing → Decision 1 bianhua row; assembly → step 5; design → Phase 4; inquiry → section 4 | the sanction discipline changes |
-| Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure (one terminal update, no ceremonial intermediate modes) | the timelessness rule changes |
+| Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure | the timelessness rule changes |
 
 Two more sync obligations live outside this table:
 
@@ -39,15 +39,12 @@ Two more sync obligations live outside this table:
 - **superpowers → interop section** — `skills/verstakify/references/superpowers-interop.md`
   carries its own re-verify checklist.
 
-## Calibration-derived sections (no canon landmark)
+## Sections without a canon landmark
 
-Not everything in `skills/` projects from the methodology realm. These sections
-originated in the 2026-07 calibration runs; they are retained not on the
-strength of those measurements but because each is independently grounded — in
-methodology reasoning (pramanita requires evidence external to the graph;
-honest modes; actor separation implementer/verifier) or in counterexamples
-witnessed in the nks-dev realm. No benchmark numbers are cited as their
-justification:
+Not everything in `skills/` projects from the methodology realm. The sections
+below have no canon landmark; they stand on methodology reasoning (pramanita
+requires evidence external to the graph; honest modes; implementer/verifier
+actor separation) and on counterexamples witnessed in `r5`:
 
 - `reality-audit` — the whole skill;
 - `writing` → «After writing» step 6 (graph checks ≠ reality evidence) and the
