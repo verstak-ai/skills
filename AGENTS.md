@@ -102,5 +102,6 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
-- **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner". Committing to your branch and opening the PR are yours to do without asking; merging is the user's, and only the user signals it.
+- **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
