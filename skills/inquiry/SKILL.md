@@ -20,6 +20,8 @@ A vimarsha carrying an **expectation** (a `posed_to` arrow to a karta, anga to a
 
 The mirror failure is just as real: `vimarsha_of` **without** `posed_to` on a question that *expects another doer to act* — anchored, visible in the territory, in no one's inbox; a delegation degraded to a note-into-the-void. If you expect someone to act, name them: the 能 who stewards the holon where the work lives (**writing** Decision 2b — find it via the `steward` arrow or `nks_search(q="", node_type="karta")`, never from orient's root-kartas showcase), never a `pratibimba`.
 
+**Anchor where the ADDRESSEE orients, not where you stand.** A tool defect noticed while editing skills belongs in the tool's holon; a methodology gap found while shipping code, in the methodology's node. Anchored in your own territory instead, it passes the `unanchored` check and stays invisible to the one who could answer — a failure that hides from the detector rather than being caught by it.
+
 If you find a dangling vimarsha (orient flags them), the first move is almost always to anchor it, then triage.
 
 ## 2. The lifecycle — three outcomes
@@ -80,6 +82,12 @@ Decisions with transcendent will — refusal, priority, choosing-otherwise — a
 ## 6. The session must arrive at understanding
 
 The principle that governs the whole skill: **a session should converge to bildung-understandings, not only spawn more vimarshas**. Triaging a field that ends with more open questions than it started — and no crystallized insight — has not landed. Before you close a field-work session, ask: *what did we now understand that we didn't?* Record it (crystallize — see outcome 3). A field that only grows is a realm that never learns.
+
+## 7. Session-close sweep — the mirror of orient-first
+
+Entry → orient opens a session; nothing closes one, so questions raised mid-work stay where they were dropped — in the transcript. Before finishing, run `nks_orient(lens="vimarshas", since=<session start>)` and give **every vimarsha you yourself raised** one outcome from sections 2–5: anchored, attached, resolved, closed, or parked with a stated reason.
+
+Two failures, pulling opposite ways. **Ceremony** — closing to empty a counter, which is section 2's suppression wearing a tidy face; a parked question with a reason beats a closed one without. **Amnesia** — a session that resolved much and asked nothing, though the work surfaced real doubt. The sweep is where both show.
 
 ## Acceptance
 

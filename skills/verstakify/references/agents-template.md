@@ -20,8 +20,9 @@
 
 ## Persistence rules
 State lives in the **repo** or in **NKS** — nowhere else. Local agent memory
-(`~/.claude/projects/<encoded-path>/memory/`, conversation summaries, `/tmp`,
-machine-local files) is **forbidden for project state**, even when convenient:
+(whatever your harness calls it — a per-project memory dir, conversation
+summaries, `/tmp`, machine-local files) is **forbidden for project state**, even
+when convenient:
 it breaks flow reproducibility and silently prevents working from a second
 machine or with another agent.
 - **Repo**: code, configs, conventions, code-level gotchas, branch state — the
@@ -94,12 +95,23 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   carries the memory/design plane only. Decisions and risks born during
   execution still land in the realm **before the session ends** — never gate
   them on a future push/commit.
-- **Hooks merge.** `.claude/settings.json` hooks from different suites coexist —
-  add alongside, never overwrite another suite's entries.
-- A `SessionStart` hook, a post-`git push` hook, and a memory-write hook in
-  `.claude/settings.json` (committed) automate these reminders — verify all
-  three wired. Where the interop stamp below says `full`, a fourth spec-write
-  reminder hook rides along — verify it too; otherwise it must not be wired.
+- **Hooks merge.** Where the harness has a hooks file, entries from different
+  suites coexist — add alongside, never overwrite another suite's.
+- These reminders are automated where the harness supports it: a session-start
+  hook, a post-`git push` hook, and a memory-write hook — verify all three
+  wired. Where the interop stamp below says `full`, a fourth spec-write reminder
+  rides along; otherwise it must not be wired. <!-- Fill in the harness's own
+  paths (Claude Code: `.claude/settings.json`); on a harness with no hook
+  surface, drop this bullet — the rituals above still bind, unautomated. -->
+- **Keep your own toolchain current.** An outdated installed skill degrades you
+  silently — it drifts from the tool surface it names, nothing crashes, the
+  method just quietly goes wrong. So updates are **on by default**: take them as
+  the channel delivers them, don't pin. <!-- opt-out: replace this bullet with
+  the pin + the reason, e.g. "pinned to verstak@X.Y — <why>"; a pin without a
+  recorded reason is drift with extra steps. --> Where the install channel has
+  no auto-update — a plain unpacked copy under the agent's skills dir — the
+  presumption can't hold: check the installed version before a session that will
+  lean on the skills, or move to a channel that carries updates itself.
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
@@ -137,20 +149,36 @@ branches before it merges. After the branch merges (however this project merges
    or team's contour — is not yours to make across the border: record it as
    a vimarsha on that holon's node in its realm, anchored where that holon's
    owner orients, `anga` to the bianhua it serves.
-4. **Surgical changes.** Touch only what the task needs. Don't reformat or
+4. **The second implementation is a reportable event.** About to write something
+   that already exists elsewhere — the same component for a second consumer, the
+   same rule in a second service? Say so: name both places and propose either
+   re-joining them or a named, deliberate fork. This is the only moment the
+   duplication is cheap to catch, because both copies are in your hands. Check
+   *Shared surfaces* before adding a consumer to anything listed there.
+5. **Surgical changes.** Touch only what the task needs. Don't reformat or
    refactor adjacent code. Match existing style; the linter is authoritative.
    Remove only the dead code your change created; flag the rest, don't delete.
-5. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
+6. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
    failing test before patching (no ad-hoc curl/bash debugging). Multi-step:
    state plan as `step → verify` pairs, loop until each passes. Runtimes (UI,
    service, integration): verify in the real environment (browser, real API,
    downstream system), not just unit tests. Close vimarshas your change
    resolves (`visarjana`).
-6. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
+7. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
    the `methodology` realm before answering (multiple queries; one miss ≠
    absent). The `entry` skill runs the protocol.
+
+## Shared surfaces
+<!-- Authored slot — no checkable source, so ask the user; omit the section only
+if the answer is genuinely "nothing is shared". List each component, schema,
+contract or rule with more than one consumer, and who those consumers are.
+Touching one obliges checking the others (Working principle 4). This turns
+duplicate-detection from discovery an agent can't afford into a lookup. -->
+| Surface | Consumers | Note |
+|---------|-----------|------|
+| <component / schema / contract> | <system A, system B> | <shared on purpose, or a fork we accepted and why> |
 
 ## NKS ↔ repo: where things live
 | Concern                                | Repo            | NKS                      |

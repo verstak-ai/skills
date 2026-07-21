@@ -119,6 +119,16 @@ sentences of rationale that belong in an NKS vimarsha.
 Idempotent throughout: in a mature repo, run each self-check and act only on
 failures; report what's still outstanding.
 
+**Quick mode — first contact only.** The full run is a heavy first thing to meet
+after a restart, before the newcomer has seen anything worth the cost. On a repo's
+*first* verstakify, unless the user asked for the full pass: run **Step 2** (realm,
+focus holon, agent karta) plus a **skeleton `AGENTS.md`** of the slots you can
+derive without asking, then hand over to the roadmap teaser (Step 7's baton).
+Defer Steps 1, 3, 4, 6 in one line — "gate, hooks and the interview are deferred —
+say `verstakify` again for the full pass." Two rules keep it honest: never write a
+*derived* line you haven't checked (an unasked authored slot stays absent, never
+guessed), and always name what was deferred. Every later run is the full arc.
+
 ### Step 1 — Settle with the user (do first)
 Don't silently pick defaults. Confirm in conversation, then write into *What this
 project is*: **Nature** (and, if not `production`, which principles are relaxed +
@@ -136,6 +146,12 @@ cache, a cloud sandbox? If yes, capture per-lane isolation (per-branch
 DB/schema, per-lane port, per-lane temp dir) as a gotcha: agents run branches
 concurrently in separate worktrees, and a shared resource corrupts across lanes.
 Skip when build/test has no shared mutable state.
+
+Also settle **shared surfaces**: which components, schemas, contracts or rules
+have more than one consumer, and which consumers. Authored slot — a silently
+forked component looks like two ordinary files, so the repo can't be grepped for
+it. Fills *Shared surfaces*; omit the section only if the answer is genuinely
+nothing.
 
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
@@ -196,7 +212,16 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
-Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
+**The deliverable is the rituals, not the file.** Detect which harness the repo
+uses and wire *its* surface — Claude Code's hooks file, Codex's `[hooks]` in
+`config.toml`, OpenCode's plugin dir — from `references/harness-surfaces.md`,
+which carries the verified paths, event names and per-ritual mapping for each.
+More than one may be present; wire each. Where a harness has no surface for a
+ritual, say which one you couldn't automate — it still binds through the AGENTS.md
+*Session lifecycle* prose, which the skeleton inlines for exactly this reason.
+Never write a config for a format you're guessing.
+
+The rest of this step is Claude Code's shape. Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them), plus a conditional fourth — the spec-write
 hook — **only when the Step-1 coexistence settle chose full interop** (the
 settled mode is recorded in the AGENTS.md interop stamp, Step 7; no subsection
@@ -331,15 +356,18 @@ this skill).
   pointer at most); no pre-existing agent file was overwritten.
 
 ### Step 7 — Finalize
-- Write the filled body to **`AGENTS.md`**, then create the Claude Code pointer:
-  a one-line `CLAUDE.md` whose entire content is `@AGENTS.md` (no backticks in
-  the file — a code span suppresses the import). This is the docs-recommended
-  import: expanded at launch, identical to inline content, and it works
-  everywhere — Windows checkouts get plain text where a symlink would break
-  (`core.symlinks=false` is the default there). An existing
-  `ln -s AGENTS.md CLAUDE.md` symlink is an acceptable POSIX equivalent — don't
-  churn it. (`AGENTS.md` is the vendor-neutral canonical name; Claude Code reads
-  `CLAUDE.md`, not `AGENTS.md`.)
+- Write the filled body to **`AGENTS.md`** — the vendor-neutral canonical name,
+  which Codex and OpenCode read natively. **A pointer file is Claude Code's
+  requirement alone** (it reads `CLAUDE.md`, not `AGENTS.md`); don't create one
+  for a harness that doesn't need it. For Claude Code: a one-line `CLAUDE.md`
+  whose entire content is `@AGENTS.md` (no backticks in the file — a code span
+  suppresses the import). This is the docs-recommended import: expanded at
+  launch, identical to inline content, and it works everywhere — Windows
+  checkouts get plain text where a symlink would break (`core.symlinks=false` is
+  the default there). An existing `ln -s AGENTS.md CLAUDE.md` symlink is an
+  acceptable POSIX equivalent — don't churn it. Per-harness specifics, including
+  Codex's root→cwd merge and its `AGENTS.override.md` local override, are in
+  `references/harness-surfaces.md`.
 - **Legacy config already present** (the common case): use the skeleton as the
   frame and fold existing content in *by line kind* — re-project derived facts
   from their source (don't carry a stale version, command, or path forward just
@@ -369,13 +397,18 @@ this skill).
   does?" Cut narrative, motivation, design rationale (rationale → NKS).
 - Drift between runs is guaranteed — the doc goes stale the moment code changes.
   verstakify re-verifies only when re-run; an automatic "claimed vs actual" check
-  hook (e.g. doc versions vs `package.json`) is a deliberate non-default —
-  generic prose-vs-source parsing is brittle and would itself drift. Tracked as
-  an open vimarsha in nks-dev; re-running verstakify is the current discipline.
+  hook (e.g. doc versions vs `package.json`) is a **settled non-default** —
+  generic prose-vs-source parsing is brittle, throws false positives, and the
+  checker drifts alongside the doc it guards. Re-running verstakify is the
+  discipline. A narrow per-repo checker on named lines is the only shape worth
+  building; never a generic one.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
-- **Pass the baton.** End the bootstrap by offering the first visible value —
-  a quick roadmap teaser (`product-roadmap` skill, quick mode) over the freshly
-  bootstrapped repo. The newcomer's first wow should not wait for them to guess
-  the next prompt.
+- **Pass the baton — name the next step, never let the user guess it.** End by
+  offering the first visible value: a quick roadmap teaser (`product-roadmap`
+  skill, quick mode) over the freshly bootstrapped repo. Say its name, don't
+  allude to it. After a quick-mode run the baton is two items in order: the
+  teaser, then "say `verstakify` again for the gate, hooks and the interview".
+  The chain from setup to first wow breaks wherever the user is expected to
+  remember a word across a session restart.
