@@ -119,6 +119,18 @@ sentences of rationale that belong in an NKS vimarsha.
 Idempotent throughout: in a mature repo, run each self-check and act only on
 failures; report what's still outstanding.
 
+**Quick mode — first contact only.** The full run (interview + strictest gate +
+hooks) is a heavy first thing to meet after a restart, and a newcomer has not yet
+seen anything worth the cost. When this is the repo's *first* verstakify and the
+user hasn't asked for the full pass, run the short arc — **Step 2** (realm, focus
+holon, agent karta) and a **skeleton `AGENTS.md`** with the slots you can derive
+without asking — then stop and hand over to the roadmap teaser (Step 7's baton).
+Defer Steps 1, 3, 4, 6 and say so in one line: "gate, hooks and the interview are
+deferred — say `verstakify` again for the full pass." Two rules keep this honest:
+never write a *derived* line you haven't checked (an unasked authored slot stays
+absent, never guessed), and always name what was deferred. On any later run, or
+when the user asks for it, do the full arc.
+
 ### Step 1 — Settle with the user (do first)
 Don't silently pick defaults. Confirm in conversation, then write into *What this
 project is*: **Nature** (and, if not `production`, which principles are relaxed +
@@ -136,6 +148,13 @@ cache, a cloud sandbox? If yes, capture per-lane isolation (per-branch
 DB/schema, per-lane port, per-lane temp dir) as a gotcha: agents run branches
 concurrently in separate worktrees, and a shared resource corrupts across lanes.
 Skip when build/test has no shared mutable state.
+
+Also settle **shared surfaces**: which components, schemas, contracts or rules
+have more than one consumer, and which consumers. This is an authored slot — the
+repo can't be grepped for it, because a silently forked component looks like two
+ordinary files. It fills *Shared surfaces*, and it is what turns "notice the
+duplicate" from discovery no single-task agent can afford into a lookup. Omit the
+section only if the answer is genuinely nothing.
 
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
@@ -369,13 +388,19 @@ this skill).
   does?" Cut narrative, motivation, design rationale (rationale → NKS).
 - Drift between runs is guaranteed — the doc goes stale the moment code changes.
   verstakify re-verifies only when re-run; an automatic "claimed vs actual" check
-  hook (e.g. doc versions vs `package.json`) is a deliberate non-default —
-  generic prose-vs-source parsing is brittle and would itself drift. Tracked as
-  an open vimarsha in nks-dev; re-running verstakify is the current discipline.
+  hook (e.g. doc versions vs `package.json`) is a **settled non-default** —
+  generic prose-vs-source parsing is brittle, throws false positives, and the
+  checker drifts alongside the doc it guards. Re-running verstakify is the
+  discipline. A narrow per-repo checker on named lines is the only shape worth
+  building; never a generic one.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
-- **Pass the baton.** End the bootstrap by offering the first visible value —
-  a quick roadmap teaser (`product-roadmap` skill, quick mode) over the freshly
-  bootstrapped repo. The newcomer's first wow should not wait for them to guess
-  the next prompt.
+- **Pass the baton — always name the next step, never let the user guess it.**
+  End by offering the first visible value: a quick roadmap teaser
+  (`product-roadmap` skill, quick mode) over the freshly bootstrapped repo. Say
+  its name, don't allude to it. If this was a quick-mode run, the baton is two
+  items, in this order: the teaser, then "say `verstakify` again for the gate,
+  hooks and the interview". Every step of the newcomer's path must call the next
+  one by name — the chain from setup to first wow breaks wherever the user is
+  expected to remember a word across a session restart.

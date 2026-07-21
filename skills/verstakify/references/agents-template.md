@@ -100,6 +100,16 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `.claude/settings.json` (committed) automate these reminders — verify all
   three wired. Where the interop stamp below says `full`, a fourth spec-write
   reminder hook rides along — verify it too; otherwise it must not be wired.
+- **Keep your own toolchain current.** An outdated installed skill degrades you
+  silently — the skill drifts from the tool surface it names, nothing crashes,
+  the method just quietly goes wrong. So updates are **on by default**: take the
+  plugin channel's updates as they come, and don't pin. <!-- opt-out: replace
+  this bullet with the pin + the reason, e.g. "pinned to verstak@X.Y — <why>";
+  a pin without a recorded reason is drift with extra steps. --> On a channel
+  with no auto-update (flat installs under `~/.claude/skills/` via npx or manual
+  unzip), the presumption can't hold: check the installed version against the
+  marketplace at the start of a session that will lean on the skills, or move to
+  the plugin channel, which is the only one that carries updates on its own.
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
@@ -137,20 +147,38 @@ branches before it merges. After the branch merges (however this project merges
    or team's contour — is not yours to make across the border: record it as
    a vimarsha on that holon's node in its realm, anchored where that holon's
    owner orients, `anga` to the bianhua it serves.
-4. **Surgical changes.** Touch only what the task needs. Don't reformat or
+4. **The second implementation is a reportable event.** When you are about to
+   write a thing that already exists elsewhere — the same component for a second
+   consumer, the same rule in a second service — stop and say so: name both
+   places and propose either re-joining them or a named, deliberate fork. Never
+   let it happen silently. This is the one moment the duplication is cheap to
+   catch, because both copies are in your hands; afterwards no one holds them
+   together, and the two drift into separate features written twice. Check
+   *Shared surfaces* below before adding a consumer to anything listed there.
+5. **Surgical changes.** Touch only what the task needs. Don't reformat or
    refactor adjacent code. Match existing style; the linter is authoritative.
    Remove only the dead code your change created; flag the rest, don't delete.
-5. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
+6. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
    failing test before patching (no ad-hoc curl/bash debugging). Multi-step:
    state plan as `step → verify` pairs, loop until each passes. Runtimes (UI,
    service, integration): verify in the real environment (browser, real API,
    downstream system), not just unit tests. Close vimarshas your change
    resolves (`visarjana`).
-6. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
+7. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
    the `methodology` realm before answering (multiple queries; one miss ≠
    absent). The `entry` skill runs the protocol.
+
+## Shared surfaces
+<!-- Authored slot — no checkable source, so ask the user; omit the section only
+if the answer is genuinely "nothing is shared". List each component, schema,
+contract or rule with more than one consumer, and who those consumers are.
+Touching one obliges checking the others (Working principle 4). This turns
+duplicate-detection from discovery an agent can't afford into a lookup. -->
+| Surface | Consumers | Note |
+|---------|-----------|------|
+| <component / schema / contract> | <system A, system B> | <shared on purpose, or a fork we accepted and why> |
 
 ## NKS ↔ repo: where things live
 | Concern                                | Repo            | NKS                      |
