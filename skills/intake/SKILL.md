@@ -24,20 +24,18 @@ If the adapter can't supply provenance for an item, that item is not intake-able
 
 ## 1. Map the form to a node type
 
-External word is heterogeneous; one item is not one node-shape. Map by **form**, with the agent's judgement (propose → confirm), never a blind import:
-
-The forms are **kinds of speech**, not tracker categories:
+External word is heterogeneous; one item is not one node-shape. Map by **form** — kind of speech, not tracker category — with the agent's judgement (propose → confirm), never a blind import:
 
 | External form | Node | Note |
 |---|---|---|
 | a report that something is broken | `risk` vimarsha, or a 🔥 sachverhalt-incident if it already fired | a report is a claim that something is wrong |
 | a wish, plan, or direction | `bianhua` ("X becomes Y") + driving vimarshas — **or** a `kriya` (anagata/chanda) if it's one deed | a single wish is not a transformation — locate the existing bianhua first (assembly), don't spawn one per item |
 | an open question | `samshaya` vimarsha | the question is the node |
-| an opinion contesting an accepted account | `prati-paksha` vimarsha on the node it contests — **or** `vyabhichara` if the text carries an actual counter-example | polemic is neither a fact nor a question: it is a rival reading, and it belongs *on* what it argues against |
+| an opinion contesting an accepted account | `prati-paksha` vimarsha on the node it contests — **or** `vyabhichara` if it carries a counter-example | not a fact and not a question: a rival reading, anchored on what it argues against |
 | a stated fact about the world | `phenomenon` (given_as by what it is) | subject to пратьякша before it's asserted |
 | markers the source attaches (labels, tags, rubrics, hashtags) | a hint to genre/holon, not a node | routing signal |
 
-Tracker vocabulary — bug, feature-request, RFC, backlog label — is one adapter's *rendering* of these forms, not the forms themselves. A news item, a chronicle entry, a forwarded post and a spoken remark map through the same six rows; if you find yourself reaching for a word that only exists in an issue tracker, you are reading the adapter, not the utterance.
+Tracker words — bug, feature-request, backlog label — are one adapter's *rendering* of these rows, not forms of their own; a news item, a chronicle entry and a forwarded post map through the same six.
 
 Naming, given_as, and the modes themselves are the **writing** skill's discipline — invoke it at each write. This skill decides *which* shape the external form takes.
 
@@ -71,7 +69,7 @@ An intake node with no origin is a rumour. Each one needs:
 - **`arose_from`** → the provenance (the post, the issue, the file, the conversation) — its traceable origin;
 - its type's home: a vimarsha needs **`vimarsha_of`** into the contour it's about (the holon/phenomenon/kriya the claim touches); a phenomenon needs **`context`** → its holon.
 
-**The provenance is a node, not an attribute.** Bring the external artefact in as a **`ding` phenomenon** — the post, the document, the file, the URL — carrying `attrs {author, url/path, source_kind: "shabda"}`, and grow every node from that item `arose_from` it. A source dissolved into its children's attributes has no lifecycle: it cannot be argued with, cannot be closed `badhita` when it turns out false, and cannot be found again when a second text from the same author arrives. A source that is a node can do all three — and when two intake items come from one origin, they visibly share it.
+**The provenance is a node, not an attribute.** Bring the artefact in as a **`ding` phenomenon** — the post, the document, the file, the URL — with `attrs {author, url/path, source_kind: "shabda"}`, and grow every node from that item `arose_from` it. Dissolved into its children's attributes a source has no lifecycle: it can't be argued with, can't go `badhita` when it turns out false, can't be found again when the next text from the same author arrives.
 
 Anchoring is the **inquiry** skill's law (an unanchored vimarsha is invisible) — honour it at intake time, not post-hoc.
 
@@ -85,15 +83,15 @@ Intake is not done when the claim is written — it's done when it's been *recon
 
 A realm that ingests but never verifies is exactly the mass-dump failure with extra steps.
 
-### When пратьякша is unreachable — testimony about the past
+### When пратьякша is unreachable
 
-Direct observation of 1917 is impossible in principle, and by the letter above a `kalpita` claim about the past could never graduate. Testimony about what happened is checked against **independent sources**, not against observation:
+Observation of 1917 is impossible in principle, so by the letter above a `kalpita` claim about the past would never graduate. Check testimony against **independent sources** instead:
 
-- **independent sources converge** → `pramanita`;
-- **the claim follows from documents you can read now** → `anumita` — and it legitimately *stays* there. For the past, anumita is a terminal mode, not a way-station;
-- **sources diverge** → that is a live disagreement, so raise a `vyabhichara` (one source carries a counter-example) or a `prati-paksha` (a rival account), and leave the node at the mode its own evidence warrants. **Not `badhita`** — witnesses disagreeing is not a ground that has fallen.
+- **sources converge** → `pramanita`;
+- **it follows from documents you can read now** → `anumita`, and it stays there — for the past anumita is terminal, not a way-station;
+- **sources diverge** → `vyabhichara` (one carries a counter-example) or `prati-paksha` (a rival account), node left at the mode its evidence warrants. **Not `badhita`** — witnesses disagreeing is not a ground that has fallen.
 
-The same branch covers anything else beyond reach: a closed system, a person's stated intent, a vendor's internal behaviour.
+Same branch for anything else out of reach: a closed system, a stated intent, a vendor's internals.
 
 ## 6. Selectivity is a guard, not a convenience
 

@@ -55,7 +55,7 @@ Not paraphrasing one node. The pattern is: cite relevant nodes with seq numbers,
 
 Then: **don't paper over this** with a training-data answer. Say: "nothing in the realm on this — answering from general considerations; should we open a samshaya?". The honest gap is more valuable than a confident-sounding miss.
 
-**Search the gap before you declare it — this binds every gap, not only an empty search.** "The methodology has no distinction for X", "the realm doesn't cover Y" is a *claim about the realm*, and it is the cheapest claim you can make: unlike a node it passes no factory check, nobody reviews it, and it goes on living in your own reasoning, generating proposals built on a hole that may not exist. So before you say it, `nks_semantic_search` the gap itself — phrased the way the realm would say it, not the way you would — and re-read what `orient` already printed for you: the answer is very often on screen and unread, because you were in the motivation "list the problems" rather than "understand". Almost every "methodology gap" turns out on checking to be methodology you didn't apply.
+**This binds any gap you declare, not only an empty search.** "The realm has no X" is a claim, and the cheapest one you can make — it passes no factory check and then lives on in your reasoning. `nks_semantic_search` the gap itself, in the realm's words rather than yours, and re-read what `orient` already printed: the answer is routinely on screen and unread. Almost every "methodology gap" is methodology you didn't apply.
 
 ## Recall vs keyword search
 

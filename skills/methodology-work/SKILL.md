@@ -166,13 +166,10 @@ DO:
      c. Agent errors (agent misunderstood, methodology is fine)
      d. Tool bugs (nks_orient and its lenses — not methodology)
   2. Before accepting any (a) as real: nks_semantic_search the gap ITSELF,
-     in the words the realm would use rather than the agent's. A declared gap
-     is a claim, not an observation — cheaper to make than any node, checked
-     by no factory, and it survives in reasoning long after it's wrong.
-     Re-read what the agent's own orient already printed: the answer is
-     routinely on screen and unread. Almost every "methodology gap" is,
-     on checking, methodology that was not applied.
-     Only what survives this search is a real gap; the rest is (c).
+     in the realm's words rather than the agent's, and re-read what the
+     agent's orient already printed — the answer is routinely on screen
+     and unread. Almost every "methodology gap" is methodology that wasn't
+     applied. What doesn't survive the search is (c), not (a).
   3. For each real gap: which type of work? (principle/kriya/distinction/vollzug/thread)
   4. For each agent error: what did the agent get wrong? Is it a PATTERN that other agents will repeat?
      If yes → record as distinction or anti-pattern in a grundsatz/vollzug

@@ -133,13 +133,10 @@ branches before it merges. After the branch merges (however this project merges
    Validate at boundaries; trust internal invariants. 200 lines that could be
    50 → rewrite.
 3. **Stay inside the repo boundary.** Never leave this repository's working
-   directory. A change that belongs to another holon — another repo, another
-   service, another team's contour — is **not** yours to make across the
-   border: record it as a vimarsha on that holon's node in its NKS realm,
-   anchored where that holon's owner actually orients, `anga` to the bianhua
-   it serves. A cross-boundary edit lands in a contour nobody asked, breaks
-   under a reviewer who never saw it coming, and leaves no trace where the
-   decision belonged.
+   directory. A change belonging to another holon — another repo, service,
+   or team's contour — is not yours to make across the border: record it as
+   a vimarsha on that holon's node in its realm, anchored where that holon's
+   owner orients, `anga` to the bianhua it serves.
 4. **Surgical changes.** Touch only what the task needs. Don't reformat or
    refactor adjacent code. Match existing style; the linter is authoritative.
    Remove only the dead code your change created; flag the rest, don't delete.
