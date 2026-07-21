@@ -32,7 +32,8 @@ One branch through to its merge — commit follow-ups into it, don't chain new b
 1. **Think before editing.** Orient in nks-dev; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
 2. **Surgical changes.** Touch only the skill steps the task needs. Match each bundle's existing register and terminology. Don't mass-rewrite a bundle for one fix unless asked.
 3. **Sync over invention.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill.
-4. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
+4. **Ask in prose, never in a picker.** Every question to the user — clarification, a fork in the road, an owner's call on a telos — is asked as plain text in the reply. Do not use the AskUserQuestion tool (option widgets, multiple-choice cards) here: it flattens a question that needs its context into pre-chewed options and costs a round-trip to say no to. State the question, name the real alternatives and your recommendation, and let the answer come back as text.
+5. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
 
 ## NKS ↔ repo: where things live
 | Concern | Repo | NKS |
