@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Use this skill to bring EXTERNAL WORD into an NKS realm — the agent-facing shabda-intake. Triggers: 'впусти внешнее слово', 'засей граф из issue/доков', 'внеси issue в граф', 'intake', 'ingest issues into the graph', 'seed the realm from docs/README/conversation', 'bring external word into NKS', 'shabda intake'. Source-independent: issues, docs, code, a conversation enter through an adapter under one discipline — form→node type, epistemic mode by kind of source, provenance source_kind=shabda, dedup, anchor to the source, verify and graduate. Distinct from writing (one node from a distinction you already hold), verstakify (projects derived config), and product-roadmap (composes this layer with a GitHub adapter). Needs the nks_* MCP tools."
+description: "Bring EXTERNAL WORD into an NKS realm — the agent-facing shabda-intake. Use whenever the user hands over ANY external text (a post, article, news item, forwarded message, quote, transcript) to be recorded into a realm, not only issues/docs/code. Triggers: 'запиши пост', 'внеси новость', 'добавь в летопись', 'record this post', 'log this news', 'впусти внешнее слово', 'засей граф из issue/доков', 'intake', 'shabda intake'. Source-independent: post, issue, docs, code, conversation enter through an adapter under one discipline — form to node type, epistemic mode by kind of source, provenance source_kind=shabda, dedup, anchor, verify. Distinct from writing (a node from a distinction you already hold), verstakify (derived config) and product-roadmap (composes this with a GitHub adapter). Needs the nks_* MCP tools."
 ---
 
 # NKS Intake
@@ -16,7 +16,7 @@ The symptom this skill prevents: external word dumped *en masse as facts* floods
 Fetching external word is the adapter's job, not this skill's. Whatever the source (GitHub `gh`, file read, a conversation transcript), the adapter must hand the core, per item:
 
 - **content** — the claim itself (title + trimmed body, or the prose chunk);
-- **form** — what kind of utterance it is (bug / feature-request / RFC / design-doc / source-fact / decision), so the core can map it;
+- **form** — what kind of utterance it is (a report of breakage, a wish, an open question, an opinion, a stated fact, a decision), so the core can map it;
 - **provenance** — a stable back-reference to the origin (issue URL, file path + symbol, "conversation 2026-…"), so each node can `arose_from` it;
 - **authority** — who said it and how directly it can be checked (a drive-by issue vs. the owner's decision vs. code you can read now). This sets the epistemic mode (step 3).
 
@@ -24,15 +24,18 @@ If the adapter can't supply provenance for an item, that item is not intake-able
 
 ## 1. Map the form to a node type
 
-External word is heterogeneous; one item is not one node-shape. Map by **form**, with the agent's judgement (propose → confirm), never a blind import:
+External word is heterogeneous; one item is not one node-shape. Map by **form** — kind of speech, not tracker category — with the agent's judgement (propose → confirm), never a blind import:
 
 | External form | Node | Note |
 |---|---|---|
-| bug / breakage report | `risk` vimarsha, or a 🔥 sachverhalt-incident if it already fired | a report is a claim that something is wrong |
-| feature / plan / direction | `bianhua` ("X becomes Y") + driving vimarshas — **or** a `kriya` (anagata/chanda) if it's one deed | a single wish is not a transformation — locate the existing bianhua first (assembly), don't spawn one per item |
-| RFC / design-discussion / open question | `samshaya` vimarsha | the question is the node |
-| stated fact about the system | `phenomenon` (given_as by what it is) | subject to пратьякша before it's asserted |
-| labels / tags | a hint to genre/holon, not a node | routing signal |
+| a report that something is broken | `risk` vimarsha, or a 🔥 sachverhalt-incident if it already fired | a report is a claim that something is wrong |
+| a wish, plan, or direction | `bianhua` ("X becomes Y") + driving vimarshas — **or** a `kriya` (anagata/chanda) if it's one deed | a single wish is not a transformation — locate the existing bianhua first (assembly), don't spawn one per item |
+| an open question | `samshaya` vimarsha | the question is the node |
+| an opinion contesting an accepted account | `prati-paksha` vimarsha on the node it contests — **or** `vyabhichara` if it carries a counter-example | not a fact and not a question: a rival reading, anchored on what it argues against |
+| a stated fact about the world | `phenomenon` (given_as by what it is) | subject to пратьякша before it's asserted |
+| markers the source attaches (labels, tags, rubrics, hashtags) | a hint to genre/holon, not a node | routing signal |
+
+Tracker words — bug, feature-request, backlog label — are one adapter's *rendering* of these rows, not forms of their own; a news item, a chronicle entry and a forwarded post map through the same six.
 
 Naming, given_as, and the modes themselves are the **writing** skill's discipline — invoke it at each write. This skill decides *which* shape the external form takes.
 
@@ -42,7 +45,7 @@ This is the move agents get wrong. **`source_kind=shabda` is provenance** (this 
 
 | Kind of external word | Epistemic | Why |
 |---|---|---|
-| issue / feature-request / RFC / design-doc | **kalpita** | a proposal/assertion, not yet checked |
+| someone's claim or proposal — an issue, a post, an article, an RFC | **kalpita** | asserted, not yet checked |
 | source code read directly, a release tag you see | **pratyakshita** | you witnessed it |
 | retro / report of a real run | pratyakshita (atita) | observed past |
 | briefing about a settled past | pramanita | confirmed |
@@ -63,8 +66,10 @@ Before each insert, `nks_semantic_search(q=<the claim as a phrase>, realm=…)` 
 
 An intake node with no origin is a rumour. Each one needs:
 
-- **`arose_from`** → the provenance (the issue, the file, the conversation) — its traceable origin;
+- **`arose_from`** → the provenance (the post, the issue, the file, the conversation) — its traceable origin;
 - its type's home: a vimarsha needs **`vimarsha_of`** into the contour it's about (the holon/phenomenon/kriya the claim touches); a phenomenon needs **`context`** → its holon.
+
+**The provenance is a node, not an attribute.** Bring the artefact in as a **`ding` phenomenon** — the post, the document, the file, the URL — with `attrs {author, url/path, source_kind: "shabda"}`, and grow every node from that item `arose_from` it. Dissolved into its children's attributes a source has no lifecycle: it can't be argued with, can't go `badhita` when it turns out false, can't be found again when the next text from the same author arrives.
 
 Anchoring is the **inquiry** skill's law (an unanchored vimarsha is invisible) — honour it at intake time, not post-hoc.
 
@@ -78,9 +83,19 @@ Intake is not done when the claim is written — it's done when it's been *recon
 
 A realm that ingests but never verifies is exactly the mass-dump failure with extra steps.
 
+### When пратьякша is unreachable
+
+Observation of 1917 is impossible in principle, so by the letter above a `kalpita` claim about the past would never graduate. Check testimony against **independent sources** instead:
+
+- **sources converge** → `pramanita`;
+- **it follows from documents you can read now** → `anumita`, and it stays there — for the past anumita is terminal, not a way-station;
+- **sources diverge** → `vyabhichara` (one carries a counter-example) or `prati-paksha` (a rival account), node left at the mode its evidence warrants. **Not `badhita`** — witnesses disagreeing is not a ground that has fallen.
+
+Same branch for anything else out of reach: a closed system, a stated intent, a vendor's internals.
+
 ## 6. Selectivity is a guard, not a convenience
 
-Never the whole tracker, never "all the docs". Declare the cut (open/labelled, a date bound, the high-signal subset), cap the volume, and **state what you dropped** — a silent cap reads as "ingested everything". Selectivity + the shabda modes + dedup are together the mitigation of the mass-dump failure; drop any one and the guard fails.
+Never the whole source — not the whole tracker, not "all the docs", not the entire feed. Declare the cut (a date bound, a marker, the high-signal subset), cap the volume, and **state what you dropped** — a silent cap reads as "ingested everything". Selectivity + the shabda modes + dedup are together the mitigation of the mass-dump failure; drop any one and the guard fails.
 
 ## After writing
 

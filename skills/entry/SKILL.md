@@ -55,6 +55,8 @@ Not paraphrasing one node. The pattern is: cite relevant nodes with seq numbers,
 
 Then: **don't paper over this** with a training-data answer. Say: "nothing in the realm on this — answering from general considerations; should we open a samshaya?". The honest gap is more valuable than a confident-sounding miss.
 
+**This binds any gap you declare, not only an empty search.** "The realm has no X" is a claim, and the cheapest one you can make — it passes no factory check and then lives on in your reasoning. `nks_semantic_search` the gap itself, in the realm's words rather than yours, and re-read what `orient` already printed: the answer is routinely on screen and unread. Almost every "methodology gap" is methodology you didn't apply.
+
 ## Recall vs keyword search
 
 Once inside the graph, navigate **by tension**, not by keyword. Each node has neighbors ranked by structural tension (leaked, orphan, missing actor, blocking vimarsha). The most informative neighbor is usually the most *tense* one, not the most textually similar one. Use `nks_orient(focus=<seq>)` — with **no lens** — to stand on a node and see its neighborhood (tensions + open vimarshas + neighbors); that's often where the live thinking is. `nks_orient` is the single read-dispatcher for connectivity: **focus** = where to stand, **lens** = which way to look. With no lens it prints a *suggester* naming the lenses worth trying next (`lens="trace"` to walk a phenomenon's estafeta, `lens="tensions"` for structural health, `lens="vimarshas"` for the field of inquiry, `lens="bianhua"` for the forest of transformations — ready / blocked / done) with copy-paste arguments — follow it.

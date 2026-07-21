@@ -132,16 +132,21 @@ branches before it merges. After the branch merges (however this project merges
    abstractions for single-use code, no error handling for impossible cases.
    Validate at boundaries; trust internal invariants. 200 lines that could be
    50 → rewrite.
-3. **Surgical changes.** Touch only what the task needs. Don't reformat or
+3. **Stay inside the repo boundary.** Never leave this repository's working
+   directory. A change belonging to another holon — another repo, service,
+   or team's contour — is not yours to make across the border: record it as
+   a vimarsha on that holon's node in its realm, anchored where that holon's
+   owner orients, `anga` to the bianhua it serves.
+4. **Surgical changes.** Touch only what the task needs. Don't reformat or
    refactor adjacent code. Match existing style; the linter is authoritative.
    Remove only the dead code your change created; flag the rest, don't delete.
-4. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
+5. **Goal-driven execution.** Tasks → verifiable goals. Bugs: pin with a
    failing test before patching (no ad-hoc curl/bash debugging). Multi-step:
    state plan as `step → verify` pairs, loop until each passes. Runtimes (UI,
    service, integration): verify in the real environment (browser, real API,
    downstream system), not just unit tests. Close vimarshas your change
    resolves (`visarjana`).
-5. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
+6. **Methodology check on open-ended asks.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — query
    the `methodology` realm before answering (multiple queries; one miss ≠

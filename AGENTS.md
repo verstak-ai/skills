@@ -5,7 +5,7 @@ Agent-facing NKS skill bundles (Claude Code skills), including `verstakify` — 
 - **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: content is prose + methodology, so there are no behavioural tests. The gates are (1) human review of the `SKILL.md` diff plus the skills' own discipline and (2) a lightweight CI that validates the frontmatter contract and bundle sync (`make check`). Breakage is otherwise silent, not loud (see Production statement) — CI catches the one mechanical class (malformed frontmatter / drifted bundles).
 - **NKS realm**: `nks-dev` — every session starts with `nks_orient` here.
 - **Focus holon**: `#844 «📦 verstak-ai/skills (скиллы агента)»`.
-- **Agent karta**: `#931 «👨‍💻 Разработчик в verstak-ai/skills»` — adhikarin, steward of #844. Your inbox: `nks_orient(realm="nks-dev", focus="931")` at session start (self-locate fallback: `nks_admin(action="my_kartas")`).
+- **Agent karta**: `#931 «👨‍💻 Разработчик скилл-репозиториев агента»` — adhikarin, steward of #844 (also stewards the iskron/skills fork #1506). Your inbox: `nks_orient(realm="nks-dev", focus="931")` at session start (self-locate fallback: `nks_admin(action="my_kartas")`).
 - **Owner karta**: `#1226 «👑 Владелец продукта»` (svatantra 主) — out-of-mandate questions go there as `posed_to` vimarshas.
 - **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), versioned by semver in `.claude-plugin/plugin.json` — bumped **automatically on every merge to `main`** (feat→minor, feat!/BREAKING→major, else patch; `.github/workflows/version-bump.yml`, never by hand). No runtime, no dependencies; CI is a dependency-free format gate (pure Node + bash) — see `.github/workflows/ci.yml`.
 - **Production statement**: skills install into agents' `~/.claude/skills/` and shape how every agent works with NKS. A wrong instruction — e.g. a reference to a tool that nks-mcp has dropped — silently degrades every agent that loads the skill; there is no crash, only methodology drift. The consumer is the agent, not a human user. Keeping skills in sync with the nks-mcp tool surface is the core maintenance obligation.
@@ -32,7 +32,8 @@ One branch through to its merge — commit follow-ups into it, don't chain new b
 1. **Think before editing.** Orient in nks-dev; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
 2. **Surgical changes.** Touch only the skill steps the task needs. Match each bundle's existing register and terminology. Don't mass-rewrite a bundle for one fix unless asked.
 3. **Sync over invention.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill.
-4. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
+4. **Ask in prose, never in a picker.** Every question to the user — clarification, a fork in the road, an owner's call on a telos — is asked as plain text in the reply. Do not use the AskUserQuestion tool (option widgets, multiple-choice cards) here: it flattens a question that needs its context into pre-chewed options and costs a round-trip to say no to. State the question, name the real alternatives and your recommendation, and let the answer come back as text.
+5. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
 
 ## NKS ↔ repo: where things live
 | Concern | Repo | NKS |
@@ -101,5 +102,6 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
-- **Definition of done**: change committed and merged to `main` on `github.com/verstak-ai/skills` (direct push or PR, per the user's call); the user signals the merge. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner". Committing to your branch and opening the PR are yours to do without asking; merging is the user's, and only the user signals it.
+- **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
