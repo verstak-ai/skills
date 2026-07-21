@@ -212,15 +212,16 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
-**The deliverable is the rituals, not the file.** Hooks are one platform's way of
-firing them; the paths below are Claude Code's, verified. On a harness with no
-hook surface (or one you haven't verified — check, don't assume) the same rituals
-still hold, carried by the AGENTS.md *Session lifecycle* prose, which the skeleton
-inlines for exactly this reason. Wire what the harness in use actually supports,
-say which of the four you couldn't automate, and never write a hook file for a
-platform whose format you're guessing.
+**The deliverable is the rituals, not the file.** Detect which harness the repo
+uses and wire *its* surface — Claude Code's hooks file, Codex's `[hooks]` in
+`config.toml`, OpenCode's plugin dir — from `references/harness-surfaces.md`,
+which carries the verified paths, event names and per-ritual mapping for each.
+More than one may be present; wire each. Where a harness has no surface for a
+ritual, say which one you couldn't automate — it still binds through the AGENTS.md
+*Session lifecycle* prose, which the skeleton inlines for exactly this reason.
+Never write a config for a format you're guessing.
 
-Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
+The rest of this step is Claude Code's shape. Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them), plus a conditional fourth — the spec-write
 hook — **only when the Step-1 coexistence settle chose full interop** (the
 settled mode is recorded in the AGENTS.md interop stamp, Step 7; no subsection
@@ -355,15 +356,18 @@ this skill).
   pointer at most); no pre-existing agent file was overwritten.
 
 ### Step 7 — Finalize
-- Write the filled body to **`AGENTS.md`**, then create the Claude Code pointer:
-  a one-line `CLAUDE.md` whose entire content is `@AGENTS.md` (no backticks in
-  the file — a code span suppresses the import). This is the docs-recommended
-  import: expanded at launch, identical to inline content, and it works
-  everywhere — Windows checkouts get plain text where a symlink would break
-  (`core.symlinks=false` is the default there). An existing
-  `ln -s AGENTS.md CLAUDE.md` symlink is an acceptable POSIX equivalent — don't
-  churn it. (`AGENTS.md` is the vendor-neutral canonical name; Claude Code reads
-  `CLAUDE.md`, not `AGENTS.md`.)
+- Write the filled body to **`AGENTS.md`** — the vendor-neutral canonical name,
+  which Codex and OpenCode read natively. **A pointer file is Claude Code's
+  requirement alone** (it reads `CLAUDE.md`, not `AGENTS.md`); don't create one
+  for a harness that doesn't need it. For Claude Code: a one-line `CLAUDE.md`
+  whose entire content is `@AGENTS.md` (no backticks in the file — a code span
+  suppresses the import). This is the docs-recommended import: expanded at
+  launch, identical to inline content, and it works everywhere — Windows
+  checkouts get plain text where a symlink would break (`core.symlinks=false` is
+  the default there). An existing `ln -s AGENTS.md CLAUDE.md` symlink is an
+  acceptable POSIX equivalent — don't churn it. Per-harness specifics, including
+  Codex's root→cwd merge and its `AGENTS.override.md` local override, are in
+  `references/harness-surfaces.md`.
 - **Legacy config already present** (the common case): use the skeleton as the
   frame and fold existing content in *by line kind* — re-project derived facts
   from their source (don't carry a stale version, command, or path forward just
