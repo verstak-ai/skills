@@ -119,17 +119,15 @@ sentences of rationale that belong in an NKS vimarsha.
 Idempotent throughout: in a mature repo, run each self-check and act only on
 failures; report what's still outstanding.
 
-**Quick mode — first contact only.** The full run (interview + strictest gate +
-hooks) is a heavy first thing to meet after a restart, and a newcomer has not yet
-seen anything worth the cost. When this is the repo's *first* verstakify and the
-user hasn't asked for the full pass, run the short arc — **Step 2** (realm, focus
-holon, agent karta) and a **skeleton `AGENTS.md`** with the slots you can derive
-without asking — then stop and hand over to the roadmap teaser (Step 7's baton).
-Defer Steps 1, 3, 4, 6 and say so in one line: "gate, hooks and the interview are
-deferred — say `verstakify` again for the full pass." Two rules keep this honest:
-never write a *derived* line you haven't checked (an unasked authored slot stays
-absent, never guessed), and always name what was deferred. On any later run, or
-when the user asks for it, do the full arc.
+**Quick mode — first contact only.** The full run is a heavy first thing to meet
+after a restart, before the newcomer has seen anything worth the cost. On a repo's
+*first* verstakify, unless the user asked for the full pass: run **Step 2** (realm,
+focus holon, agent karta) plus a **skeleton `AGENTS.md`** of the slots you can
+derive without asking, then hand over to the roadmap teaser (Step 7's baton).
+Defer Steps 1, 3, 4, 6 in one line — "gate, hooks and the interview are deferred —
+say `verstakify` again for the full pass." Two rules keep it honest: never write a
+*derived* line you haven't checked (an unasked authored slot stays absent, never
+guessed), and always name what was deferred. Every later run is the full arc.
 
 ### Step 1 — Settle with the user (do first)
 Don't silently pick defaults. Confirm in conversation, then write into *What this
@@ -150,11 +148,10 @@ concurrently in separate worktrees, and a shared resource corrupts across lanes.
 Skip when build/test has no shared mutable state.
 
 Also settle **shared surfaces**: which components, schemas, contracts or rules
-have more than one consumer, and which consumers. This is an authored slot — the
-repo can't be grepped for it, because a silently forked component looks like two
-ordinary files. It fills *Shared surfaces*, and it is what turns "notice the
-duplicate" from discovery no single-task agent can afford into a lookup. Omit the
-section only if the answer is genuinely nothing.
+have more than one consumer, and which consumers. Authored slot — a silently
+forked component looks like two ordinary files, so the repo can't be grepped for
+it. Fills *Shared surfaces*; omit the section only if the answer is genuinely
+nothing.
 
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
@@ -215,6 +212,14 @@ in a follow-up branch, not the bootstrap.
 Write commands into *Commands*, discipline into *Code conventions*.
 
 ### Step 4 — Hooks
+**The deliverable is the rituals, not the file.** Hooks are one platform's way of
+firing them; the paths below are Claude Code's, verified. On a harness with no
+hook surface (or one you haven't verified — check, don't assume) the same rituals
+still hold, carried by the AGENTS.md *Session lifecycle* prose, which the skeleton
+inlines for exactly this reason. Wire what the harness in use actually supports,
+say which of the four you couldn't automate, and never write a hook file for a
+platform whose format you're guessing.
+
 Three hooks in `.claude/settings.json` (committed — project-wide rituals, every
 agent on every clone needs them), plus a conditional fourth — the spec-write
 hook — **only when the Step-1 coexistence settle chose full interop** (the
@@ -396,11 +401,10 @@ this skill).
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
-- **Pass the baton — always name the next step, never let the user guess it.**
-  End by offering the first visible value: a quick roadmap teaser
-  (`product-roadmap` skill, quick mode) over the freshly bootstrapped repo. Say
-  its name, don't allude to it. If this was a quick-mode run, the baton is two
-  items, in this order: the teaser, then "say `verstakify` again for the gate,
-  hooks and the interview". Every step of the newcomer's path must call the next
-  one by name — the chain from setup to first wow breaks wherever the user is
-  expected to remember a word across a session restart.
+- **Pass the baton — name the next step, never let the user guess it.** End by
+  offering the first visible value: a quick roadmap teaser (`product-roadmap`
+  skill, quick mode) over the freshly bootstrapped repo. Say its name, don't
+  allude to it. After a quick-mode run the baton is two items in order: the
+  teaser, then "say `verstakify` again for the gate, hooks and the interview".
+  The chain from setup to first wow breaks wherever the user is expected to
+  remember a word across a session restart.

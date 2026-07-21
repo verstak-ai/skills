@@ -20,7 +20,7 @@ A vimarsha carrying an **expectation** (a `posed_to` arrow to a karta, anga to a
 
 The mirror failure is just as real: `vimarsha_of` **without** `posed_to` on a question that *expects another doer to act* — anchored, visible in the territory, in no one's inbox; a delegation degraded to a note-into-the-void. If you expect someone to act, name them: the 能 who stewards the holon where the work lives (**writing** Decision 2b — find it via the `steward` arrow or `nks_search(q="", node_type="karta")`, never from orient's root-kartas showcase), never a `pratibimba`.
 
-**Anchor where the ADDRESSEE orients, not where you stand.** The contour you are working in is not automatically the contour your question is about. Noticing a tool defect while editing skills, or a methodology gap while shipping code, means the anchor belongs in *that* contour — the tool's holon, the methodology's node — where its steward will actually see it. Anchored in your own territory it is technically not dangling, so no detector complains, and it is invisible to the only person who could answer. This is the failure that hides from `unanchored` rather than being caught by it.
+**Anchor where the ADDRESSEE orients, not where you stand.** A tool defect noticed while editing skills belongs in the tool's holon; a methodology gap found while shipping code, in the methodology's node. Anchored in your own territory instead, it passes the `unanchored` check and stays invisible to the one who could answer — a failure that hides from the detector rather than being caught by it.
 
 If you find a dangling vimarsha (orient flags them), the first move is almost always to anchor it, then triage.
 
@@ -85,9 +85,9 @@ The principle that governs the whole skill: **a session should converge to bildu
 
 ## 7. Session-close sweep — the mirror of orient-first
 
-Starting a session has a strong ritual (entry → orient). Ending one has none, so questions raised mid-work stay exactly where they were dropped: in the transcript. Before you finish, run `nks_orient(lens="vimarshas", since=<session start>)` and give **every vimarsha you yourself raised** one of the outcomes from sections 2–5 — anchored, attached, resolved, closed, or parked with a stated reason. Leaving one un-triaged is not neutral: it was cheap for you to write while holding the context, and it will be expensive for the next reader, who has none of it.
+Entry → orient opens a session; nothing closes one, so questions raised mid-work stay where they were dropped — in the transcript. Before finishing, run `nks_orient(lens="vimarshas", since=<session start>)` and give **every vimarsha you yourself raised** one outcome from sections 2–5: anchored, attached, resolved, closed, or parked with a stated reason.
 
-Two failures to avoid, and they pull in opposite directions. **Ceremony**: closing questions to empty a counter, which is the suppression section 2 forbids wearing a tidy face — a parked question with a recorded reason beats a closed one without. **Amnesia**: finishing a session that resolved a great deal and raised nothing, when the work surfaced real doubt. If you found something worth asking and didn't ask it, the sweep is where that shows.
+Two failures, pulling opposite ways. **Ceremony** — closing to empty a counter, which is section 2's suppression wearing a tidy face; a parked question with a reason beats a closed one without. **Amnesia** — a session that resolved much and asked nothing, though the work surfaced real doubt. The sweep is where both show.
 
 ## Acceptance
 
