@@ -105,4 +105,5 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
 - **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner". Committing to your branch and opening the PR are yours to do without asking; merging is the user's, and only the user signals it.
 - **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **PR description: short and in English.** A few lines — what changed and why it's right. Not a retelling of the diff, not an essay; the reasoning belongs in NKS, the detail in the commit messages.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
