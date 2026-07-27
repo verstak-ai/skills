@@ -1,11 +1,11 @@
 ---
 name: whoami
-description: "The user's memory in the graph — the personal realm @<handle>/me. Works like memory: by reflex, not as a session ritual. READ when the user's own field is in play and nothing names the realm: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне', 'где задеплоено', 'whoami', 'my realms', 'what's on my plate', 'where is X deployed'. WRITE when a fact concerns the user, matters later, and has no project-realm home: machines, deployments, people, dated facts, cross-project findings. 'заведи личный реалм' / 'verstakify me' → bootstrap; reconcile on request. Silent in verstakified repos — AGENTS.md names the realm; steward agents never need this. Needs the nks_* MCP tools."
+description: "The user's memory in the graph — the personal realm @<handle>/me. Works like memory: by reflex, not as a session ritual. READ when the user's own field is in play and nothing names the realm: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне', 'где задеплоено', 'whoami', 'my realms', 'what's on my plate', 'where is X deployed'. WRITE when a fact concerns the user, matters later, and has no project-realm home: machines, deployments, people, dated facts, cross-project findings. 'заведи личный реалм' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos the read reflex is silent (AGENTS.md names the realm) — the write reflex stays armed: user-facts born there still route here. Needs the nks_* MCP tools."
 ---
 
 # Whoami — the user's memory in the graph
 
-`@<handle>/me` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. Treat it exactly like memory — **by reflex, not by ritual**. No agent is required to pass through it; a steward agent in a verstakified repo never touches it (AGENTS.md already names the realm), and `entry` is self-contained — it knows nothing of this skill.
+`@<handle>/me` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. Treat it exactly like memory — **by reflex, not by ritual**. No agent is required to pass through it, and `entry` is self-contained — it knows nothing of this skill. In a verstakified repo the **read** reflex never fires (AGENTS.md already names the realm; the steward has no routing question) — but the **write** reflex stays armed everywhere: a user-fact born during repo work has no other home.
 
 ## Two reflexes
 
@@ -41,7 +41,7 @@ Ceiling: 2 calls. If the reflex needs more, the realm is built wrong — fix the
 
 The graph twin of "worth remembering, nowhere to put it": about the user + useful later + no project realm owns it → it goes here. Shapes are in `references/personal-realm.md` — machines and deployments (§7), people (§2b), dated facts (§7), lessons (§8), findings serving several contours.
 
-Two guards, in order: never what a call answers (Storage rule below); never a second copy of a project realm's content — **when a project realm could own the fact, the project realm wins**; here lives the remainder.
+Three-way routing, in order: a fact about **this** project → its realm or AGENTS.md (the repo's persistence rules); a fact about **another** contour → anchored in *that* contour's realm, `posed_to` its steward (**inquiry**: anchor where the addressee orients, not where you stand); a fact about the **user** that no project owns → here. Two guards on the last branch: never what a call answers (Storage rule below); never a second copy of a project realm's content.
 
 ## §2 Reconcile
 
@@ -130,7 +130,7 @@ Both are ordinary graph citizens — model them, don't route around them.
 | Skill | Seam |
 |---|---|
 | **entry** | one-directional: whoami names the realm and hands over; **entry stays self-contained and never references back** — the reflex fires on its own or not at all. |
-| **verstakify** | a verstakified repo names its realm in AGENTS.md → whoami is silent there. Same audit machinery (absent/stale/correct); verstakify binds the owner karta whoami's §4 sweeps. |
+| **verstakify** | a verstakified repo names its realm in AGENTS.md → the read reflex is silent there; the memory-guard moment (a blocked local-memory write) is where the write reflex routes user-scoped facts here. Same audit machinery; verstakify binds the owner karta whoami's §4 sweeps. |
 | **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
 | **intake** | classifying a newly appeared realm is external word entering under provenance — and this contour is where word serving *several* contours lands, instead of the realm that happened to be open. |
@@ -140,7 +140,7 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 - The read reflex answers in ≤2 calls, or asks one question naming the candidates.
 - `Realm not found` is read as routing (→ §3), not as failure.
-- In a verstakified repo the skill stays silent.
+- In a verstakified repo the read reflex stays silent; a user-scoped fact born there still lands in `@<handle>/me`.
 - §2 is idempotent and reports what it dropped.
 - After §3, `nks_me(action="kartas")` returns a karta for every live realm where the person holds a role.
 - Nothing derivable was written into the realm.
