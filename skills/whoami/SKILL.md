@@ -5,13 +5,13 @@ description: "The user's memory in the graph — the personal realm @<handle>/me
 
 # Whoami — the user's memory in the graph
 
-`@<handle>/me` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. Treat it exactly like memory — **by reflex, not by ritual**. No agent is required to pass through it, and `entry` is self-contained — it knows nothing of this skill. In a verstakified repo the **read** reflex never fires (AGENTS.md already names the realm; the steward has no routing question) — but the **write** reflex stays armed everywhere: a user-fact born during repo work has no other home.
+`@<handle>/me` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. Treat it exactly like memory — **by reflex, not by ritual**; `entry` is self-contained and knows nothing of this skill. In a verstakified repo the **read** reflex never fires (AGENTS.md already names the realm) — the **write** reflex stays armed everywhere: a user-fact born during repo work has no other home.
 
 ## Two reflexes
 
 | Reflex | Fires when | Move |
 |---|---|---|
-| **READ** | the user's own field is in play and nothing names the realm — "which realm owns this?", "what do I have?", "what's on me?", "where is X deployed?" | §1: one orient of `@<handle>/me`; answer, run the §4 sweep if the ask is "what's on me", or hand the named realm to **entry** |
+| **READ** | the user's own field is in play and nothing names the realm — "which realm owns this?", "what do I have?", "what's on me?", "where is X deployed?" | §1 — one orient: answer or hand the named realm to **entry**; the "what's on me" ask → §4 |
 | **WRITE** | a fact concerns the user, will matter later, and has no project-realm home | §1b: route it to `@<handle>/me` per the skeleton — never to harness-local memory |
 
 Bootstrap (§3) and reconcile (§2) run on explicit request only.
@@ -86,7 +86,7 @@ nks_me(action="kartas")                                  → [(realm, karta-seq)
 nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
 ```
 
-The person's standing in a realm is their **主 (owner) karta** bound via `user` — that binding *is* the cross-realm identity. A standing webhook armed on those kartas (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
+The person's standing in a realm is a karta bound via `user` — typically the **主 (owner) karta**; agent kartas the person runs bind the same way. That binding *is* the cross-realm identity. A standing webhook armed on a bound karta (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
 
 **Sweep `@<handle>/me` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
 

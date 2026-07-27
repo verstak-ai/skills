@@ -32,7 +32,7 @@ they are forbidden inside `skills/`.
 | Вневременность записи | #440 | writing → Decision 4 «Timelessness»; whoami → dated facts as attrs (skeleton §7) | the timelessness rule changes |
 | Кристаллизация вопрошания + 忘 Пост-забвение | #387, #182 | whoami → §2 crystallize-then-release + skeleton §8 (lessons from retired contours) | the crystallization or release canon changes |
 | Замкнутость ЖЦ — каждый ding порождается и уничтожается (P1) | #389 | design → P1; whoami → skeleton §6 (the map's own lifecycle) | P1 or the deferred-closure form changes |
-| Нить 1 «Вхождение и ориентация» — вход начинается с УЖЕ данного реалма (крия «Вхождение в реалм», `boundary=init`); различение узнавание ≠ ориентировка | #337, #147, #478 | whoami → the opening framing (upstream of entry) + «Seams» → entry + §1's ask-one-line rule | a canonical step before «Вхождение в реалм» appears, or the thread's inlet moves |
+| Нить 1 «Вхождение и ориентация» — вход начинается с УЖЕ данного реалма (крия «Вхождение в реалм», `boundary=init`); различение узнавание ≠ ориентировка | #337, #147, #478 | whoami → §1 read reflex (names the realm, hands to entry; ask-one-line rule) + Seams → entry (one-directional) | a canonical step before «Вхождение в реалм» appears, or the thread's inlet moves |
 
 Two more sync obligations live outside this table:
 

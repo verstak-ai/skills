@@ -99,10 +99,11 @@ the reason).
 ## 5 · Disposable classes — one rule, not N cards
 
 ```
-nks_add_phenomenon(given_as="grundsatz", attrs={"key": true},
+nks_add_phenomenon(realm=…, given_as="grundsatz", attrs={"key": true},
   name="⚖️ Realms matching <pattern> are disposable",
   description="<pattern> marks throwaway realms — benchmark runs, experiments.
-    Never route a question there, never index them individually, retire on sight.")
+    Never route a question there, never index them individually, retire on sight.",
+  epistemic_mode="pramanita", ontic_mode="vartamana", volitive_mode="adhimoksha")
 ```
 
 The rule outlives its population; forty cards don't. This is the single highest-
