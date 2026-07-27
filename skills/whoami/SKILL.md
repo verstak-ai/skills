@@ -1,28 +1,20 @@
 ---
 name: whoami
-description: "Stand the person up in the graph — the entry point ABOVE the realms. Answers three questions before any realm is entered: where am I (which contour, which realm owns this question), what is mine (live realms, people, machines, deployments, what is dead), what is on me (everything addressed to this person in every realm at once). Triggers: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне сейчас', 'что где задеплоено', 'заведи личный реалм', 'whoami', 'which realm is this', 'my realms', 'what's on my plate', 'where is X deployed', 'verstakify me'. Also when a session opens with no realm named by the user or by AGENTS.md. Two tacts: bearings (one orient) and reconcile (diff live access, wire identity, sweep inboxes). The person's contour lives in @<handle>/me. Needs the nks_* MCP tools."
+description: "The user's memory in the graph — the personal realm @<handle>/me. Works like memory: by reflex, not as a session ritual. READ when the user's own field is in play and nothing names the realm: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне', 'где задеплоено', 'whoami', 'my realms', 'what's on my plate', 'where is X deployed'. WRITE when a fact concerns the user, matters later, and has no project-realm home: machines, deployments, people, dated facts, cross-project findings. 'заведи личный реалм' / 'verstakify me' → bootstrap; reconcile on request. Silent in verstakified repos — AGENTS.md names the realm; steward agents never need this. Needs the nks_* MCP tools."
 ---
 
-# Whoami — the person's contour above the realms
+# Whoami — the user's memory in the graph
 
-Three questions, answered before any single realm is entered:
+`@<handle>/me` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. Treat it exactly like memory — **by reflex, not by ritual**. No agent is required to pass through it; a steward agent in a verstakified repo never touches it (AGENTS.md already names the realm), and `entry` is self-contained — it knows nothing of this skill.
 
-| Question | Answered from | Cost |
+## Two reflexes
+
+| Reflex | Fires when | Move |
 |---|---|---|
-| **Where am I?** — which contour, which realm owns this question | the contour map (§1) | 1–2 calls |
-| **What's mine?** — live realms and what each is for; the people of each contour; machines and deployments; what's dead or disposable | the same call | 0 extra |
-| **What's on me?** — everything addressed to this person, across every realm | derived by sweep (§4) | 1 + N calls |
+| **READ** | the user's own field is in play and nothing names the realm — "which realm owns this?", "what do I have?", "what's on me?", "where is X deployed?" | §1: one orient of `@<handle>/me`; answer, run the §4 sweep if the ask is "what's on me", or hand the named realm to **entry** |
+| **WRITE** | a fact concerns the user, will matter later, and has no project-realm home | §1b: route it to `@<handle>/me` per the skeleton — never to harness-local memory |
 
-`entry` orients *inside* a realm and assumes the realm is given. This is what gives it.
-
-## Two carriers
-
-| Carrier | Holds |
-|---|---|
-| **This skill** | protocol, contour taxonomy, storage rule, reconcile procedure, realm skeleton (`references/personal-realm.md`) |
-| **`@<handle>/me`** | this person's contours, what each live realm is for, routing rules, local setup |
-
-No harness-local file participates (no global `CLAUDE.md`, no `~/.codex/AGENTS.md`). *(why: those differ per harness and die with the machine — the graph is the only carrier that travels.)*
+Bootstrap (§3) and reconcile (§2) run on explicit request only.
 
 ## The address
 
@@ -32,24 +24,28 @@ nks_orient(realm="@<handle>/me")   → the contour map
 ```
 
 - The address is a **convention in this skill**, not a fact in the world. Never scan `nks_realm(action="list")` for "this user's personal realm". *(why: a runtime search is the guessing this skill removes.)*
-- `Realm not found: "@<handle>/me"` **is the routing answer** — no contour yet → §3. Do not fall back to listing realms.
+- `Realm not found: "@<handle>/me"` **is the answer** — no contour yet → §3. Do not fall back to listing realms.
 - Handle is stable: re-read it once per session, not per call.
 - A personal contour already living under a **different slug** is settled at bootstrap, once: move it to `me`, or leave a **stub at `@<handle>/me`** — one `key:true` landmark naming the real address (a cold session then pays one extra orient). Never resolved by search at runtime.
 
-## §1 Bearings
-
-Skip entirely when the realm is already named — by the user, or by a verstakified `AGENTS.md`. Skip likewise when the session has no NKS relevance at all — pure technical work, tooling questions, casual talk (same list as **entry**'s "When NOT"): whoami is an entry point, not a rite.
+## §1 The read reflex
 
 1. Resolve the address (above).
 2. `nks_orient(realm="@<handle>/me")` — one call, no lens. It returns: root holons = contours; `attrs.key=true` landmarks = live-realm cards + routing rules; ACTIVE BIANHUA = the person's own transformations.
-3. Name the contour and the realm. Hand to **entry**.
+3. Answer from the map — or name the realm and hand to **entry**.
 4. Two contours claim the question → ask one line naming both. Do not pick silently.
 
-Ceiling: 2 calls. If a tact needs more, the contour is built wrong — fix the realm (§2), not the tact.
+Ceiling: 2 calls. If the reflex needs more, the realm is built wrong — fix the realm (§2), not the reflex.
+
+## §1b The write reflex
+
+The graph twin of "worth remembering, nowhere to put it": about the user + useful later + no project realm owns it → it goes here. Shapes are in `references/personal-realm.md` — machines and deployments (§7), people (§2b), dated facts (§7), lessons (§8), findings serving several contours.
+
+Two guards, in order: never what a call answers (Storage rule below); never a second copy of a project realm's content — **when a project realm could own the fact, the project realm wins**; here lives the remainder.
 
 ## §2 Reconcile
 
-Run on request, on a new realm / machine / job, or when the map is visibly behind. **Never on §1's cadence.** *(why: a reconcile-priced entry gets skipped, and then the session guesses.)*
+Consolidation of the memory. Run on request, on a new realm / machine / job, or when the map is visibly behind. **Never on the read reflex's cadence.** *(why: a reconcile-priced read gets skipped, and then the session guesses.)*
 
 1. **Observe** — `nks_realm(action="list")` · `nks_me(action="kartas")` · `nks_org(action="list")`.
 2. **Diff and classify** every row:
@@ -90,6 +86,8 @@ nks_me(action="kartas")                                  → [(realm, karta-seq)
 nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
 ```
 
+The person's standing in a realm is their **主 (owner) karta** bound via `user` — that binding *is* the cross-realm identity. A standing webhook armed on those kartas (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
+
 **Sweep `@<handle>/me` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
 
 Raw `posed_to` search does not pre-filter closedness — drop closed rows by carrier: `visarjana` always, `virodha` for every genre but risk (a risk *lives* in virodha).
@@ -125,14 +123,14 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 - **Cross-realm arrows do not exist.** Everything `@<handle>/me` says about another realm is prose and attrs, never an edge. No propagation, no `anga` across realms.
 - **Not a hub.** §4's unity comes from iteration, not structure. Keep the realm thin so it doesn't pretend otherwise.
-- **§1 is only as honest as the last §2.**
+- **The read reflex is only as honest as the last §2.**
 
 ## Seams
 
 | Skill | Seam |
 |---|---|
-| **entry** | whoami names the realm; entry orients inside it. Entry's realm-discovery defers here. |
-| **verstakify** | repo contour ↔ person contour, same audit machinery. A verstakified repo names its realm → §1 unnecessary that session. |
+| **entry** | one-directional: whoami names the realm and hands over; **entry stays self-contained and never references back** — the reflex fires on its own or not at all. |
+| **verstakify** | a verstakified repo names its realm in AGENTS.md → whoami is silent there. Same audit machinery (absent/stale/correct); verstakify binds the owner karta whoami's §4 sweeps. |
 | **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
 | **intake** | classifying a newly appeared realm is external word entering under provenance — and this contour is where word serving *several* contours lands, instead of the realm that happened to be open. |
@@ -140,8 +138,9 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 ## Acceptance
 
-- §1 answers in ≤2 calls, or asks one question naming the candidates.
+- The read reflex answers in ≤2 calls, or asks one question naming the candidates.
 - `Realm not found` is read as routing (→ §3), not as failure.
+- In a verstakified repo the skill stays silent.
 - §2 is idempotent and reports what it dropped.
 - After §3, `nks_me(action="kartas")` returns a karta for every live realm where the person holds a role.
 - Nothing derivable was written into the realm.
@@ -149,8 +148,8 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 ## What whoami is NOT
 
-- **Not `entry`** — that orients inside a given realm.
-- **Not a realm router only** — routing is the cheapest of its three questions; holdings and the cross-realm agenda are the other two.
+- **Not a session ritual** — nothing routes through it by protocol; it fires by its triggers or not at all.
+- **Not `entry`** — that orients inside a given realm, is used by every agent already told where to go, and does not know this skill exists.
 - **Not an index of the access surface** — it stores the authored remainder.
 - **Not a local-config generator** — no harness file is read or written.
 - **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **on-duty**.
