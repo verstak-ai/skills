@@ -1,8 +1,8 @@
-# The personal realm — skeleton for `@<handle>/me`
+# The personal realm — skeleton for `@<handle>/mind`
 
-The shape `whoami` fills at bootstrap (§3) and keeps true at reconcile (§2). Not a
+The shape `memory` fills at bootstrap (§3) and keeps true at reconcile (§2). Not a
 document to paste: a **node set to build**, designed so that a single
-`nks_orient(realm="@<handle>/me")` prints the routing answer with no lens and no
+`nks_orient(realm="@<handle>/mind")` prints the routing answer with no lens and no
 follow-up call.
 
 That design goal governs every choice below. The overview prints **root holons**,
@@ -11,7 +11,7 @@ carry everything the read reflex needs, and nothing else needs to be cheap.
 
 ## 1 · The realm
 
-`nks_realm(action="create", slug="me", name=<the person's own words>)`.
+`nks_realm(action="create", slug="mind", name=<the person's own words>)`.
 
 Owner is the user, always personal — never transferred to an organization. An org
 has no personal contour; a team-scoped variant is deliberately out of scope.
@@ -129,7 +129,7 @@ honestly:
 
 Dated sachverhalts (§7) wire the same way — produced by classification, consumed
 by release or by their own discharge kriya. No attrs, no suppression: this is
-whoami §2 as an instance living in the realm it maintains; the procedure itself
+memory §2 as an instance living in the realm it maintains; the procedure itself
 stays in the skill.
 
 ## 7 · Local setup — `ding` with a closed lifecycle

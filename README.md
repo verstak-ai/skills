@@ -8,7 +8,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 
 | Skill | What it does |
 |---|---|
-| **whoami** | The user's memory in the graph — the personal realm `@<handle>/me`: read it when nothing names the realm, write user-facts no project realm owns, sweep the cross-realm agenda. Reflex, not ritual. |
+| **memory** | The user's mind in the graph — the personal realm `@<handle>/mind`: recall when nothing names the realm or a user holding is needed, write user-facts no project realm owns, sweep the cross-realm agenda. Reflex, not ritual. |
 | **entry** | Orientation & reading protocol — enter a realm, search, deepen. |
 | **writing** | Node-writing discipline — naming (正名), modes, edges. |
 | **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |
