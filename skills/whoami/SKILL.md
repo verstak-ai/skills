@@ -1,6 +1,6 @@
 ---
 name: whoami
-description: "Stand the person up in the graph — the entry point ABOVE the realms. Answers three questions before any realm is entered: where am I (which contour, which realm owns this question), what is mine (live realms, machines, deployments, what is dead), what is on me (everything addressed to this person in every realm at once). Triggers: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне сейчас', 'что где задеплоено', 'заведи личный реалм', 'whoami', 'which realm is this', 'my realms', 'what's on my plate', 'where is X deployed', 'verstakify me'. Also when a session opens with no realm named by the user or by AGENTS.md. Two tacts: bearings (one orient) and reconcile (diff live access, wire identity, sweep inboxes). The person's contour lives in @<handle>/me. Needs the nks_* MCP tools."
+description: "Stand the person up in the graph — the entry point ABOVE the realms. Answers three questions before any realm is entered: where am I (which contour, which realm owns this question), what is mine (live realms, people, machines, deployments, what is dead), what is on me (everything addressed to this person in every realm at once). Triggers: 'где я', 'какой реалм', 'мои реалмы', 'что у меня есть', 'что на мне сейчас', 'что где задеплоено', 'заведи личный реалм', 'whoami', 'which realm is this', 'my realms', 'what's on my plate', 'where is X deployed', 'verstakify me'. Also when a session opens with no realm named by the user or by AGENTS.md. Two tacts: bearings (one orient) and reconcile (diff live access, wire identity, sweep inboxes). The person's contour lives in @<handle>/me. Needs the nks_* MCP tools."
 ---
 
 # Whoami — the person's contour above the realms
@@ -10,7 +10,7 @@ Three questions, answered before any single realm is entered:
 | Question | Answered from | Cost |
 |---|---|---|
 | **Where am I?** — which contour, which realm owns this question | the contour map (§1) | 1–2 calls |
-| **What's mine?** — live realms and what each is for; machines, deployments, checkouts; what's dead or disposable | the same call | 0 extra |
+| **What's mine?** — live realms and what each is for; the people of each contour; machines and deployments; what's dead or disposable | the same call | 0 extra |
 | **What's on me?** — everything addressed to this person, across every realm | derived by sweep (§4) | 1 + N calls |
 
 `entry` orients *inside* a realm and assumes the realm is given. This is what gives it.
@@ -105,11 +105,18 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 | which kartas the person holds | contour of each realm; what's dead or dormant |
 | the §4 agenda | routing and naming rules |
 | anything a tool returns on demand | machines, deployments, checkouts, per-machine tool surfaces |
-| people — who is who, what they're like | external word serving **more than one** contour (a finding, a benchmark, a diagnosis that belongs to no single project) |
-| calendar dates, renewals, billing | lessons crystallized out of retired contours (§2) |
+| a second copy of a project realm's content | the people of each contour, and what is open with them |
+| secrets — credentials, tokens, keys | dated facts: expiries, renewals, review cycles |
+| prose restating what orient already shows | external word serving **more than one** contour (a finding, a benchmark, a diagnosis belonging to no single project); lessons crystallized out of retired contours (§2) |
 
 - **Classes, not cards.** Disposable realms (benchmark runs, experiments) get **one** grundsatz naming the pattern — never a card each. *(why: the rule outlives its population.)*
-- Never credentials or tokens.
+
+### People and dated facts
+
+Both are ordinary graph citizens — model them, don't route around them.
+
+- **A person is a karta** — the role they play *in your contour*, with its motivation. Bind it: `user=<their sub>` when they are on the platform (**writing** Decision 2b), `manifested_as="agantuka"` 客 when they answer on their own time from beyond your boundary. What is open with them is a vimarsha `posed_to` that karta, not a note *about* them.
+- **A date is an attr, not prose** — an expiry, a renewal, a review cycle is a `sachverhalt` carrying its timestamp in `attrs` (**writing**, Decision 4); a recurring duty is a kriya. `attrs.parked_until` and `attrs.wake_condition` carry "not now, wake me then" and are honoured by the staleness detectors — use them instead of writing a date into a description.
 
 ## Limits
 

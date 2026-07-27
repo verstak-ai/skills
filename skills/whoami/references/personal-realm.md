@@ -34,6 +34,27 @@ Do **not** re-create the roles the person holds in project realms — those live
 there and come back from `nks_me(action="kartas")` in one call. Duplicating them
 here creates a second source of truth that drifts.
 
+## 2b · The people of your contours
+
+Personal connections are part of what a contour holds — the collaborators,
+counterparties, clients and household of that boundary. Model each as the
+**role they play in your contour**, with its own motivation (a person's name is
+still not a karta — **writing** Decision 2b):
+
+- `user=<their sub>` when they are on the platform (`nks_admin(action="search_users")`
+  finds it) — that binding is what lets the graph know it is the same person you
+  meet in a project realm;
+- `manifested_as="agantuka"` 客 for anyone who answers on their own time from
+  beyond your boundary — a client, a counterparty, a regulator. `svatantra` /
+  `adhikarin` only for those inside your rhythm;
+- what is open with them is a vimarsha `posed_to` that karta — the relationship is
+  carried by what passes between you, not by a description of the person;
+- `group` to a senior role when someone is a sub-role of another (a reviewer within
+  a team lead's contour).
+
+The people of a *project* live in the project's realm; here belong those who cross
+contours or belong to no project at all.
+
 ## 3 · Contours — root holons
 
 A contour is a **boundary**, not a folder: it must answer the four holon
@@ -105,6 +126,13 @@ session is derived and must not be written down; what is true of a machine you a
 not sitting at is knowledge that exists nowhere else and is re-discovered
 empirically, badly, on every move.
 
+**Dated facts belong here too, as attrs.** A certificate expiry, a subscription
+renewal, a review cycle: a `sachverhalt` with its timestamp in `attrs` (never in
+the prose — **writing**, Decision 4), or a kriya when the duty repeats. For "needed,
+but not yet", set `attrs.parked_until` (or `attrs.wake_condition`) rather than
+volitive `upeksha` alone — the staleness detectors read those attrs and stop
+nagging until the date arrives.
+
 ## 7 · Lessons from retired contours — the forgetting layer
 
 When a realm is archived, everything in it becomes unread: nobody opens an
@@ -137,12 +165,9 @@ immediately; a second map does not, until the first one is being read.
 - the realm list, access levels, roles, org membership — derived, re-read live;
 - which kartas the person holds — `nks_me(action="kartas")`;
 - a stored cross-realm agenda — derived every time (SKILL.md §4);
-- **people** — who someone is, what they are like to work with. A karta is a role,
-  never a person (writing skill); membership is derived; and a private dossier on
-  colleagues rots and should not be compiled in the first place;
-- **calendar and billing** — dates, renewals, quotas. They have no lifecycle here
-  and are stale within the week; a constraint they impose on work can be recorded,
-  the date cannot;
+- **a dossier on a person** — a description of what someone is *like*. The role,
+  the binding and what is open with them are modelled (§2b); an assessment of the
+  human is not a node;
 - harness preferences and agent working style — those belong to the harness's own
   instruction surface, not to a realm about the person's holdings;
 - anything that would be a second copy of a project realm's content.
