@@ -174,10 +174,13 @@ the user what was found and settle the mode:
   (`nks_add_karta`, `manifested_as=adhikarin`, motivation distilled from the
   Production statement) and draw its `steward` edge to the focus holon — an
   adhikarin without a steward edge is a live warning ("acts but answers for
-  nothing"). Create the owner's svatantra karta if Step 1 found none. Record
-  both seqs in *What this project is*. An agent can always re-find its kartas
-  via `nks_admin(action="my_kartas")` — the doc slot is the fast path, not the
-  only one.
+  nothing"). Create the owner's svatantra karta if Step 1 found none, and bind
+  it to the human it stands for — `user="me"` when the owner is the person
+  running this, otherwise their `sub` from `nks_admin(action="list_members")`.
+  That binding is what makes the owner findable across every repo they own
+  (**whoami** §4); without it their roles stay unlinked per realm. Record both
+  seqs in *What this project is* — the doc slot is the fast path,
+  `nks_me(action="kartas")` the fallback.
 
 ### Step 3 — Quality gate (propose strictest, user confirms)
 For each: propose the strictest sensible option for the stack, a one-line

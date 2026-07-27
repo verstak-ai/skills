@@ -13,7 +13,7 @@ Three questions, answered before any single realm is entered:
 | **What's mine?** — live realms and what each is for; machines, deployments, checkouts; what's dead or disposable | the same call | 0 extra |
 | **What's on me?** — everything addressed to this person, across every realm | derived by sweep (§4) | 1 + N calls |
 
-`entry` orients *inside* a realm and assumes the realm is given. This is what gives it. The third question nothing else can answer: it needs to know who this person is in each realm, and only the identity link (§2.3) makes that readable.
+`entry` orients *inside* a realm and assumes the realm is given. This is what gives it.
 
 ## Two carriers
 
@@ -61,7 +61,7 @@ Run on request, on a new realm / machine / job, or when the map is visibly behin
 
    *(why crystallize first: an archived realm is never re-read. Release without it deletes the only part of a finished contour that had long value.)*
 
-3. **Wire identity** — for every live realm where the person holds a role: `nks_update(realm=<R>, node_id=<karta>, user="me", basis_version=<v>)`, or `user="me"` at creation. Only kartas the person actually stands behind. *(why: the link is a claim about reality; it is also what makes §4 possible at all.)*
+3. **Wire identity** — for every live realm where the person holds a role: `nks_update(realm=<R>, node_id=<karta>, user="me", basis_version=<v>)`, or `user="me"` at creation. Only kartas the person actually stands behind. *(why: the link is a claim about reality — and §4 sees nothing else.)*
 4. **Sweep** (§4).
 5. **Report what changed and what you left out.** A silent reconcile reads as "all fine".
 
@@ -89,9 +89,9 @@ nks_me(action="kartas")                                  → [(realm, karta-seq)
 nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
 ```
 
-**Sweep `@<handle>/me` too, not only project realms.** What you posed to your own 主 karta — a duty belonging to no repository, a blocker you carry yourself — lives only there. The agenda is what others addressed to you *and* what you addressed to yourself; leaving the second half out is why "what's on me" feels wrong even when the sweep is complete.
+**Sweep `@<handle>/me` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
 
-Cost = number of **live** contours, not accesses — which is what the map buys. Kartas without the `user` link do not appear: unwired realms are invisible here, so §2.3 is the precondition, not an optimization.
+Cost = number of **live** contours, not accesses. Kartas without the `user` link do not appear at all — §2.3 is the precondition, not an optimization.
 
 Never stored. *(why: a saved agenda states yesterday's obligations with today's confidence.)*
 
