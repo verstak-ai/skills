@@ -56,8 +56,10 @@ Run on request, on a new realm / machine / job, or when the map is visibly behin
    | Verdict | Move |
    |---|---|
    | in the world, not in the map | classify: contour + what it's for, or fold under a disposable class (§ Storage) |
-   | in the map, not in the world | release — `nks_update(volitive_mode="visarjana")` or ontic `atita`, reason stated |
+   | in the map, not in the world | **crystallize, then release** — ask what the contour proved; if there is an answer, write it as a `grundsatz`/`bildung` with `arose_from` to the card, *then* `nks_update(volitive_mode="visarjana")` / ontic `atita`, reason stated |
    | in both | leave it |
+
+   *(why crystallize first: an archived realm is never re-read. Release without it deletes the only part of a finished contour that had long value.)*
 
 3. **Wire identity** — for every live realm where the person holds a role: `nks_update(realm=<R>, node_id=<karta>, user="me", basis_version=<v>)`, or `user="me"` at creation. Only kartas the person actually stands behind. *(why: the link is a claim about reality; it is also what makes §4 possible at all.)*
 4. **Sweep** (§4).
@@ -87,6 +89,8 @@ nks_me(action="kartas")                                  → [(realm, karta-seq)
 nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
 ```
 
+**Sweep `@<handle>/me` too, not only project realms.** What you posed to your own 主 karta — a duty belonging to no repository, a blocker you carry yourself — lives only there. The agenda is what others addressed to you *and* what you addressed to yourself; leaving the second half out is why "what's on me" feels wrong even when the sweep is complete.
+
 Cost = number of **live** contours, not accesses — which is what the map buys. Kartas without the `user` link do not appear: unwired realms are invisible here, so §2.3 is the precondition, not an optimization.
 
 Never stored. *(why: a saved agenda states yesterday's obligations with today's confidence.)*
@@ -100,7 +104,9 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 | realm list, access, roles, org membership | what each live realm is **for**; when to route there |
 | which kartas the person holds | contour of each realm; what's dead or dormant |
 | the §4 agenda | routing and naming rules |
-| anything a tool returns on demand | machines, deployments, checkouts — what doesn't survive a machine change |
+| anything a tool returns on demand | machines, deployments, checkouts, per-machine tool surfaces |
+| people — who is who, what they're like | external word serving **more than one** contour (a finding, a benchmark, a diagnosis that belongs to no single project) |
+| calendar dates, renewals, billing | lessons crystallized out of retired contours (§2) |
 
 - **Classes, not cards.** Disposable realms (benchmark runs, experiments) get **one** grundsatz naming the pattern — never a card each. *(why: the rule outlives its population.)*
 - Never credentials or tokens.
@@ -119,7 +125,8 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 | **verstakify** | repo contour ↔ person contour, same audit machinery. A verstakified repo names its realm → §1 unnecessary that session. |
 | **on-duty** | §4 is the cross-realm view of the inboxes on-duty works one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
-| **intake** | classifying a newly appeared realm is external word entering under provenance. |
+| **intake** | classifying a newly appeared realm is external word entering under provenance — and this contour is where word serving *several* contours lands, instead of the realm that happened to be open. |
+| **inquiry** | crystallization is the §2 release move: a finished contour leaves a form behind, not just an absence. |
 
 ## Acceptance
 

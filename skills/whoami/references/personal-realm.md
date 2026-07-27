@@ -99,7 +99,29 @@ machine you are on: addresses, roles of hosts, where a thing is deployed and by
 what path. Never credentials, never tokens, never anything you would not put in
 a repository.
 
-## 7 · The person's own transformations — optional
+**Tool surfaces belong here too** — which harness runs where, which browser is
+paired on which machine, which host has no GUI at all. What is available in *this*
+session is derived and must not be written down; what is true of a machine you are
+not sitting at is knowledge that exists nowhere else and is re-discovered
+empirically, badly, on every move.
+
+## 7 · Lessons from retired contours — the forgetting layer
+
+When a realm is archived, everything in it becomes unread: nobody opens an
+archived realm again. The one part with long value — what the contour *proved* —
+has to be lifted out before the form is released (SKILL.md §2).
+
+A lesson is a `grundsatz` (it now binds) or a `bildung` (it is still forming),
+with `arose_from` to the realm card it came from, and `context` to the contour the
+realm belonged to. When a whole contour retires, its holon stays with ontic
+`atita` — a boundary that held once is not deleted; it stops being in force.
+
+This is what separates a contour that learns from an index that forgets. Two
+tests before writing one: could it change a decision in a *different* contour, and
+would you have wanted it on the day the project started? If neither — release
+without it, and say so.
+
+## 8 · The person's own transformations — optional
 
 If the person wants their cross-realm becoming mapped, it lives here as bianhua
 and shows up in ACTIVE BIANHUA. **Owner accepts every name and telos** (assembly
@@ -110,11 +132,17 @@ named in prose.
 Skip this half on the first pass. The index and the setup earn their keep
 immediately; a second map does not, until the first one is being read.
 
-## 8 · What never goes in
+## 9 · What never goes in
 
 - the realm list, access levels, roles, org membership — derived, re-read live;
 - which kartas the person holds — `nks_me(action="kartas")`;
 - a stored cross-realm agenda — derived every time (SKILL.md §4);
+- **people** — who someone is, what they are like to work with. A karta is a role,
+  never a person (writing skill); membership is derived; and a private dossier on
+  colleagues rots and should not be compiled in the first place;
+- **calendar and billing** — dates, renewals, quotas. They have no lifecycle here
+  and are stale within the week; a constraint they impose on work can be recorded,
+  the date cannot;
 - harness preferences and agent working style — those belong to the harness's own
   instruction surface, not to a realm about the person's holdings;
 - anything that would be a second copy of a project realm's content.
