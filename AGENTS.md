@@ -70,7 +70,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 ## Project structure
 - `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`entry`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `intake`, `on-duty`, `methodology-work`, `verstakify`, `product-roadmap`); `references/*` optional (`verstakify`, `writing`, `product-roadmap` ship them).
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` mirrors the plugin version. No component lists — the plugin's skills auto-discover from `skills/` (`strict: true`, plugin.json authoritative).
+- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` and the plugin entry's `version` both mirror `plugin.json` (release-please writes all three; `make validate` fails if they diverge). No component lists — the plugin's skills auto-discover from `skills/` (`strict: true`, plugin.json authoritative).
 - `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is what Claude Code reads to deliver updates (bumped by release-please when the release PR merges, never by hand).
 - `release-please-config.json` + `.release-please-manifest.json` + `.github/workflows/release-please.yml` — release-please: it maintains a release PR from the Conventional Commits on `main`; merging that PR writes the version into `plugin.json`/`marketplace.json`, tags `vX.Y.Z`, and cuts a GitHub Release with a `CHANGELOG.md` entry.
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
