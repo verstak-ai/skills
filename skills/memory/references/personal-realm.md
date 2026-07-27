@@ -7,7 +7,7 @@ follow-up call.
 
 That design goal governs every choice below. The overview prints **root holons**,
 **`attrs.key=true` landmarks**, and **ACTIVE BIANHUA** — so those three channels
-carry everything the read reflex needs, and nothing else needs to be cheap.
+carry everything recall needs, and nothing else needs to be cheap.
 
 ## 1 · The realm
 
