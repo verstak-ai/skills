@@ -5,7 +5,7 @@ description: "The user's mind in the graph — the personal realm @<handle>/mind
 
 # Memory — the user's mind in the graph
 
-`@<handle>/mind` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. This skill is that realm's **memory** — recall and write, **by reflex, not by ritual**; `entry` is self-contained and knows nothing of it. Both reflexes key to the **question, not the session**: a verstakified repo kills only the routing case (AGENTS.md names the session's realm) — everything else fires from any session.
+`@<handle>/mind` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. This skill is that realm's **memory** — recall and write, **by reflex, not by ritual**. Both reflexes key to the **question, not the session**: a verstakified repo kills only the routing case (AGENTS.md names the session's realm) — everything else fires from any session.
 
 ## Two reflexes
 
@@ -26,16 +26,16 @@ nks_orient(realm="@<handle>/mind") → the contour map
 - The address is a **convention in this skill**, not a fact in the world. Never scan `nks_realm(action="list")` for "this user's personal realm". *(why: a runtime search is the guessing this skill removes.)*
 - `Realm not found: "@<handle>/mind"` **is the answer** — no contour yet → §3. Do not fall back to listing realms.
 - Handle is stable: re-read it once per session, not per call.
-- A personal contour already living under a **different slug** is settled at bootstrap, once: move it to `mind`, or leave a **stub at `@<handle>/mind`** — one `key:true` landmark naming the real address (a cold session then pays one extra orient). Never resolved by search at runtime.
+- A personal contour already living under a **different slug** is settled at bootstrap, once: move it to `mind`, or leave a **stub at `@<handle>/mind`** — one `key:true` landmark naming the real address (a cold session then pays one extra orient).
 
 ## §1 Recall
 
 Two depths, priced separately:
 
 1. **Map-level** — which realm owns this, what do I have, which contour: one `nks_orient(realm="@<handle>/mind")`, no lens. It returns: root holons = contours; `attrs.key=true` landmarks = live-realm cards + routing rules; ACTIVE BIANHUA = the person's own transformations. Answer from the map, or name the realm and hand to **entry**. Ceiling: 2 calls.
-2. **Fact-level** — a *specific* remembered fact (a path on a box, a person's rhythm, an expiry): **search first, skip the orient** — `nks_search(realm="@<handle>/mind", q=<term>)`, plus `nks_semantic_search` when the memory may be worded differently than the ask. Lexical `q` is AND-matched and stem-sensitive: one or two short terms **in the realm's language** («caddy», «домен»), never a sentence — a multi-word query silently misses cards that carry every word but one. Read the mode badge before trusting the hit: `atita` is a *former* fact, `anagata` a planned one. Deeper reads follow **entry**'s protocol (orient → search → look), run inside this realm. Ceiling: 3 calls, then answer with what you have.
+2. **Fact-level** — a *specific* remembered fact (a path on a box, a person's rhythm, an expiry): **search first, skip the orient** — `nks_search(realm="@<handle>/mind", q=<term>)`, plus `nks_semantic_search` when the memory may be worded differently than the ask. Lexical `q` is AND-matched and stem-sensitive: one or two short terms **in the realm's language** («caddy», «домен») — a multi-word query silently misses cards that carry every word but one. Read the mode badge before trusting the hit: `atita` is a *former* fact, `anagata` a planned one. Deeper reads follow **entry**'s protocol (orient → search → look), run inside this realm. Ceiling: 3 calls, then answer with what you have.
 
-Two rules at either depth: two contours claim the question → ask one line naming both, never pick silently; **a miss is an answer** — "этого в памяти нет" beats a confident invention, and a miss the user corrects is the write reflex's cue (§1b), so the next ask finds it.
+Two rules at either depth: two contours claim the question → ask one line naming both, never pick silently; **a miss is an answer** — "этого в памяти нет" beats a confident invention, and a miss the user corrects is the write reflex's cue (§1b).
 
 ## §1b The write reflex
 
@@ -79,7 +79,7 @@ Audit each concern against its source and classify **absent / stale / correct** 
 
 Then fill `references/personal-realm.md` and run §2 once, so the first map is born verified.
 
-**When not to build one** (provisional threshold, held as an open question in the design): **all three** of ≤3 realms, a single contour, no organizations → say so and stop. *(why: an unreconciled map answers fast and wrong; a bootstrap run on everyone is a rite, not a tool.)*
+**When not to build one** (provisional threshold): **all three** of ≤3 realms, a single contour, no organizations → say so and stop. *(why: an unreconciled map answers fast and wrong; a bootstrap run on everyone is a rite, not a tool.)*
 
 ## §4 Agenda across all realms
 
@@ -94,11 +94,11 @@ Three rules make a sweep honest:
 
 - **The filter is part of the call.** The `volitive_mode` CSV keeps answered and released rows (`visarjana`) off the wire entirely.
 - **Two kinds of closed rows survive it — drop them on read:** rows rendered with the 🌅 sunset badge (closed by their carrier), and `virodha` rows of any genre except risk (a refused question is closed; a risk in `virodha` is *live* — that is its active mode).
-- **Read the "N of M" header.** A mature inbox holds hundreds of rows; past `limit` the page truncates, and a truncated agenda looks exactly like a complete one. Page on until N = M.
+- **Read the "N of M" header.** Past `limit` the page truncates — and a truncated agenda looks complete. Page on until N = M.
 
 The person's standing in a realm is a karta bound via `user` — typically the **主 (owner) karta**; agent kartas the person runs bind the same way. That binding *is* the cross-realm identity. A standing webhook armed on a bound karta (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
 
-**Sweep `@<handle>/mind` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
+**Sweep `@<handle>/mind` too** — a duty you posed to your own 主 karta lives nowhere else.
 
 Cost = number of **live** contours, not accesses. Kartas without the `user` link do not appear at all — §2.3 is the precondition, not an optimization.
 
@@ -122,8 +122,6 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 
 ### People and dated facts
 
-Both are ordinary graph citizens — model them, don't route around them.
-
 - **A person is a karta** — the role they play *in your contour*, with its motivation. Bind it: `user=<their sub>` when they are on the platform (**writing** Decision 2b), `manifested_as="agantuka"` 客 when they answer on their own time from beyond your boundary. What is open with them is a vimarsha `posed_to` that karta, not a note *about* them.
 - **A date is an attr, not prose** — an expiry, a renewal, a review cycle is a `sachverhalt` carrying its timestamp in `attrs` (**writing**, Decision 4); a recurring duty is a kriya. `attrs.parked_until` and `attrs.wake_condition` carry "not now, wake me then" and are honoured by the staleness detectors — use them instead of writing a date into a description.
 
@@ -137,7 +135,7 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 | Skill | Seam |
 |---|---|
-| **entry** | one-directional: memory names the realm and hands over; **entry stays self-contained and never references back** — the reflex fires on its own or not at all. |
+| **entry** | one-directional: memory names the realm and hands over; **entry stays self-contained**. |
 | **verstakify** | a verstakified repo names its realm in AGENTS.md → the routing question dies there; user-field recall stays, and the memory-guard moment (a blocked local-memory write) is where the write reflex routes user-scoped facts here. Same audit machinery; verstakify binds the owner karta memory's §4 sweeps. |
 | **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
@@ -159,6 +157,6 @@ Both are ordinary graph citizens — model them, don't route around them.
 
 - **Not a session ritual** — nothing routes through it by protocol; it fires by its triggers or not at all.
 - **Not the harness's memory feature** — no MEMORY.md, no local files; the graph is the carrier, and user-facts routed here are exactly the ones that must survive a machine change.
-- **Not `entry`** — that orients inside a given realm, is used by every agent already told where to go, and does not know this skill exists.
+- **Not `entry`** — that orients inside a given realm, used by every agent already told where to go.
 - **Not an index of the access surface** — it stores the authored remainder.
 - **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **on-duty**.
