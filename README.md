@@ -8,6 +8,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 
 | Skill | What it does |
 |---|---|
+| **whoami** | The entry point *above* the realms — which contour this session is in, what belongs to this user, what awaits them across all their realms. Keeps the personal realm `@<handle>/me`. |
 | **entry** | Orientation & reading protocol — enter a realm, search, deepen. |
 | **writing** | Node-writing discipline — naming (正名), modes, edges. |
 | **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |

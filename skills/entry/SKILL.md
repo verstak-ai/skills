@@ -15,6 +15,8 @@ The user may have one or many realms (separate domains, each with its own graph)
 
 1. **`nks_realm(action="list")`** — see what's available. The user typically signals which realm is in play by topic, by name, or by explicit mention. If the realm is unambiguous from context, skip to step 2. If unclear and the question is non-trivial, briefly ask which realm to enter.
 
+   **Many realms and no signal? Don't scan the list — that is the `whoami` skill's job.** The user's own contour lives at `@<handle>/me` and says which realm owns which question; reach for it before asking the user. The flat list is the fallback for a user who has no personal contour, not the first move for one who does.
+
    **Realm ≠ repo.** A realm commonly models a whole system across several repositories — each repo a holon, each repo's developer role a sub-karta, in one graph. Working in repo X and needing to reach the code, roles, or questions of repo Y does not mean switching realms: look for Y's holon and roles inside the current realm first. Not finding a realm named after a repo is not a gap — it is the signal you are already in the right realm.
 
 2. **`nks_orient(realm=<token>)`** — one call, one realm. Returns a compact map: holons, **active bianhua** (transformations underway — shown right after the root holons, the map of where the realm is going), entry/exit kriyas, active vimarshas, tensions. No full descriptions. A realm with a populated `ACTIVE BIANHUA` section reads as a map, not a wall — read it first.

@@ -30,6 +30,7 @@ they are forbidden inside `skills/`.
 | Граница реалма топологична; boundary-маркер | #416 (+ nks-dev #978) | design → «Realm boundary»; weaving → «Boundary is the edge of the world»; writing → Decision 5 kriya note | boundary semantics or the marker changes |
 | Санкция bianhua (владелец принимает имя+телос) | #432 + factory SANCTION | writing → Decision 1 bianhua row; assembly → step 5; design → Phase 4; inquiry → section 4 | the sanction discipline changes |
 | Вневременность записи | #440 | writing → Decision 4 «Timelessness» | the timelessness rule changes |
+| Нить 1 «Вхождение и ориентация» — вход начинается с УЖЕ данного реалма (крия «Вхождение в реалм», `boundary=init`); различение узнавание ≠ ориентировка | #337, #147, #478 | whoami → the opening framing (upstream of entry) + «Seams» → entry + §1's ask-one-line rule | a canonical step before «Вхождение в реалм» appears, or the thread's inlet moves |
 
 Two more sync obligations live outside this table:
 
