@@ -173,10 +173,10 @@ try {
 
 // 3. Version contract: .claude-plugin/plugin.json is Claude Code's
 //    highest-precedence version source — an install refreshes only when this
-//    string changes. It must be valid semver, never duplicated in the
-//    marketplace plugin entry (plugin.json wins; a second copy silently
-//    drifts), and mirrored in marketplace metadata.version so there is one
-//    "verstak version". The bump workflow moves both together; this gate
+//    string changes. It must be valid semver, and mirrored in both marketplace
+//    copies — `metadata.version` and the plugin entry's own `version` (what a
+//    marketplace listing shows before install) — so there is one "verstak
+//    version". release-please writes all three from the same release; this gate
 //    fails loudly if they ever diverge.
 const pluginPath = join(root, ".claude-plugin", "plugin.json");
 try {
@@ -194,8 +194,9 @@ try {
     fail("plugin.json", `\`name\` (${JSON.stringify(plugin.name)}) matches no plugin in marketplace.json`);
   }
   for (const p of manifest.plugins ?? []) {
-    if ("version" in p) {
-      fail("marketplace.json", `plugin \`${p.name}\` carries its own \`version\` — keep it only in plugin.json (it takes precedence; a duplicate drifts)`);
+    if (p.name !== plugin.name) continue;
+    if (p.version !== plugin.version) {
+      fail("marketplace.json", `plugin \`${p.name}\` has \`version\` ${JSON.stringify(p.version)} — must mirror plugin.json (${plugin.version}); release-please writes both`);
     }
   }
   if (manifest.metadata?.version !== plugin.version) {
