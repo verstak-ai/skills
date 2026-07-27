@@ -84,15 +84,21 @@ Then fill `references/personal-realm.md` and run §2 once, so the first map is b
 ## §4 Agenda across all realms
 
 ```
-nks_me(action="kartas")                                  → [(realm, karta-seq)]
-nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
+nks_me(action="kartas")                                    → [(realm, karta-seq)]
+nks_search(realm=<R>, q="", posed_to=<seq>,
+           volitive_mode="chanda,adhimoksha,upeksha,virodha",
+           limit=100)                                      → open items, per realm
 ```
+
+Three rules make a sweep honest:
+
+- **The filter is part of the call.** The `volitive_mode` CSV keeps answered and released rows (`visarjana`) off the wire entirely.
+- **Two kinds of closed rows survive it — drop them on read:** rows rendered with the 🌅 sunset badge (closed by their carrier), and `virodha` rows of any genre except risk (a refused question is closed; a risk in `virodha` is *live* — that is its active mode).
+- **Read the "N of M" header.** A mature inbox holds hundreds of rows; past `limit` the page truncates, and a truncated agenda looks exactly like a complete one. Page on until N = M.
 
 The person's standing in a realm is a karta bound via `user` — typically the **主 (owner) karta**; agent kartas the person runs bind the same way. That binding *is* the cross-realm identity. A standing webhook armed on a bound karta (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
 
 **Sweep `@<handle>/mind` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
-
-Raw `posed_to` search does not pre-filter closedness — drop closed rows by carrier: `visarjana` always, `virodha` for every genre but risk (a risk *lives* in virodha).
 
 Cost = number of **live** contours, not accesses. Kartas without the `user` link do not appear at all — §2.3 is the precondition, not an optimization.
 
