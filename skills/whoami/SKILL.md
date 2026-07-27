@@ -34,10 +34,11 @@ nks_orient(realm="@<handle>/me")   → the contour map
 - The address is a **convention in this skill**, not a fact in the world. Never scan `nks_realm(action="list")` for "this user's personal realm". *(why: a runtime search is the guessing this skill removes.)*
 - `Realm not found: "@<handle>/me"` **is the routing answer** — no contour yet → §3. Do not fall back to listing realms.
 - Handle is stable: re-read it once per session, not per call.
+- A personal contour already living under a **different slug** is settled at bootstrap, once: move it to `me`, or leave a **stub at `@<handle>/me`** — one `key:true` landmark naming the real address (a cold session then pays one extra orient). Never resolved by search at runtime.
 
 ## §1 Bearings
 
-Skip entirely when the realm is already named — by the user, or by a verstakified `AGENTS.md`.
+Skip entirely when the realm is already named — by the user, or by a verstakified `AGENTS.md`. Skip likewise when the session has no NKS relevance at all — pure technical work, tooling questions, casual talk (same list as **entry**'s "When NOT"): whoami is an entry point, not a rite.
 
 1. Resolve the address (above).
 2. `nks_orient(realm="@<handle>/me")` — one call, no lens. It returns: root holons = contours; `attrs.key=true` landmarks = live-realm cards + routing rules; ACTIVE BIANHUA = the person's own transformations.
@@ -80,7 +81,7 @@ Audit each concern against its source and classify **absent / stale / correct** 
 
 Then fill `references/personal-realm.md` and run §2 once, so the first map is born verified.
 
-**When not to build one:** ≤3 realms, one contour, no organizations → say so and stop. *(why: an unreconciled map answers fast and wrong; a bootstrap run on everyone is a rite, not a tool.)*
+**When not to build one** (provisional threshold, held as an open question in the design): **all three** of ≤3 realms, a single contour, no organizations → say so and stop. *(why: an unreconciled map answers fast and wrong; a bootstrap run on everyone is a rite, not a tool.)*
 
 ## §4 Agenda across all realms
 
@@ -91,15 +92,17 @@ nks_search(realm=<R>, q="", posed_to=<seq>)              → per realm
 
 **Sweep `@<handle>/me` too**, not only project realms — a duty you posed to your own 主 karta lives nowhere else. *(why: an agenda missing what you addressed to yourself looks complete and isn't.)*
 
+Raw `posed_to` search does not pre-filter closedness — drop closed rows by carrier: `visarjana` always, `virodha` for every genre but risk (a risk *lives* in virodha).
+
 Cost = number of **live** contours, not accesses. Kartas without the `user` link do not appear at all — §2.3 is the precondition, not an optimization.
 
 Never stored. *(why: a saved agenda states yesterday's obligations with today's confidence.)*
 
 ## Storage rule
 
-**Store only what no call can answer.**
+**Store only what no call can answer** — minus secrets, which are unanswerable *and* still never stored.
 
-| Never store (derived) | Store (authored) |
+| Never store | Store (authored) |
 |---|---|
 | realm list, access, roles, org membership | what each live realm is **for**; when to route there |
 | which kartas the person holds | contour of each realm; what's dead or dormant |
@@ -130,7 +133,7 @@ Both are ordinary graph citizens — model them, don't route around them.
 |---|---|
 | **entry** | whoami names the realm; entry orients inside it. Entry's realm-discovery defers here. |
 | **verstakify** | repo contour ↔ person contour, same audit machinery. A verstakified repo names its realm → §1 unnecessary that session. |
-| **on-duty** | §4 is the cross-realm view of the inboxes on-duty works one realm at a time. |
+| **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
 | **intake** | classifying a newly appeared realm is external word entering under provenance — and this contour is where word serving *several* contours lands, instead of the realm that happened to be open. |
 | **inquiry** | crystallization is the §2 release move: a finished contour leaves a form behind, not just an absence. |
@@ -138,9 +141,9 @@ Both are ordinary graph citizens — model them, don't route around them.
 ## Acceptance
 
 - §1 answers in ≤2 calls, or asks one question naming the candidates.
-- `Realm not found` routes to §3 without an error path.
+- `Realm not found` is read as routing (→ §3), not as failure.
 - §2 is idempotent and reports what it dropped.
-- After §3, `nks_me(action="kartas")` returns a karta for every live contour.
+- After §3, `nks_me(action="kartas")` returns a karta for every live realm where the person holds a role.
 - Nothing derivable was written into the realm.
 - On a user who doesn't need one: says so, stops.
 

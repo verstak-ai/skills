@@ -108,7 +108,30 @@ nks_add_phenomenon(given_as="grundsatz", attrs={"key": true},
 The rule outlives its population; forty cards don't. This is the single highest-
 leverage node in a realm-heavy contour: it is what keeps §1 cheap.
 
-## 6 · Local setup — `ding` with a closed lifecycle
+## 6 · The map's own lifecycle — two kriyas
+
+Every card and rule above is a phenomenon, and the graph's health rules expect
+phenomena wired to the deeds that produce and consume them: a `ding` with only a
+`context` arrow, or a `grundsatz` nothing applies, carries a standing orphan
+tension — and a realm that greets every orient with red tensions trains its owner
+to ignore the one signal this suite says never to suppress.
+
+Two kriyas — the reconcile practice modelled where it acts — close everything
+honestly:
+
+- **🧭 Classification of an appeared realm** — actor: the 主 karta; `utpatti` →
+  the realm cards (each card is born by this deed); `upadhi` → the routing and
+  disposable-class rules it applies (which also clears `declarative_grundsatz`).
+  Ontic `vartamana`: it runs on every reconcile.
+- **🍂 Release of a gone realm** — `ahara` → the realm cards; kept parked,
+  `anagata` + `upeksha`: the deferred end-of-life closure design P1 asks for.
+
+Dated sachverhalts (§7) wire the same way — produced by classification, consumed
+by release or by their own discharge kriya. No attrs, no suppression: this is
+whoami §2 as an instance living in the realm it maintains; the procedure itself
+stays in the skill.
+
+## 7 · Local setup — `ding` with a closed lifecycle
 
 Machines, servers, deployments, checkouts: each a `ding` in the workplace
 contour, each **born and consumed by a kriya** (provisioning / teardown) — an
@@ -129,11 +152,12 @@ empirically, badly, on every move.
 **Dated facts belong here too, as attrs.** A certificate expiry, a subscription
 renewal, a review cycle: a `sachverhalt` with its timestamp in `attrs` (never in
 the prose — **writing**, Decision 4), or a kriya when the duty repeats. For "needed,
-but not yet", set `attrs.parked_until` (or `attrs.wake_condition`) rather than
-volitive `upeksha` alone — the staleness detectors read those attrs and stop
-nagging until the date arrives.
+but not yet": the park itself stays a conscious volitive act (`upeksha` —
+**inquiry**), and `attrs.parked_until` / `attrs.wake_condition` bound the silence
+in time — the staleness detectors then resume when the date arrives, instead of
+never.
 
-## 7 · Lessons from retired contours — the forgetting layer
+## 8 · Lessons from retired contours — the forgetting layer
 
 When a realm is archived, everything in it becomes unread: nobody opens an
 archived realm again. The one part with long value — what the contour *proved* —
@@ -149,7 +173,7 @@ tests before writing one: could it change a decision in a *different* contour, a
 would you have wanted it on the day the project started? If neither — release
 without it, and say so.
 
-## 8 · The person's own transformations — optional
+## 9 · The person's own transformations — optional
 
 If the person wants their cross-realm becoming mapped, it lives here as bianhua
 and shows up in ACTIVE BIANHUA. **Owner accepts every name and telos** (assembly
@@ -160,7 +184,7 @@ named in prose.
 Skip this half on the first pass. The index and the setup earn their keep
 immediately; a second map does not, until the first one is being read.
 
-## 9 · What never goes in
+## 10 · What never goes in
 
 - the realm list, access levels, roles, org membership — derived, re-read live;
 - which kartas the person holds — `nks_me(action="kartas")`;
