@@ -15,9 +15,10 @@ https://nks.lab.mirari.ru/mcp
 ```
 
 Substitute that literal string wherever `<MCP_URL>` appears below. The server
-authenticates by **OAuth** — a browser login on first contact — so on the default path
-you ask the user for nothing. Only the headless fallback needs their **graph token**;
-never invent, guess, or reuse one.
+authenticates two ways. Default is **OAuth** — a browser login on first contact, so you
+ask the user for nothing. When that is unavailable or simply refuses to work, there is a
+**personal access token** the user makes in the web UI; it works everywhere and is the
+answer to any authorization you cannot get past. Never invent, guess, or reuse a token.
 
 ## 0. Detect your harness
 
@@ -89,10 +90,16 @@ claude mcp add --transport http nks <MCP_URL>
 
 OAuth login triggers on first use in both.
 
-**Fallback — headless agents and harnesses without MCP-OAuth support** (Codex-style
-configs, CI, autonomous VMs): use a personal access token instead. Ask the user for it
-(it comes with the early-access invite) — never invent one — and pass it as a Bearer
-header, e.g.:
+**The token path — when OAuth is absent, or when it will not go through.** Two cases
+lead here, and the second matters more than it looks. One is structural: headless agents
+and harnesses without MCP-OAuth support (Codex-style configs, CI, autonomous VMs) have
+no browser login to run. The other is plain breakage — the login never opens, never
+completes, or every `nks_*` call keeps coming back 401. Do not grind on it and do not
+retry variations: a personal access token works on every harness, including the ones
+where OAuth is broken, so switch and move on.
+
+The user creates the token in the web UI and gives it to you — never invent, guess, or
+reuse one. Pass it as a Bearer header:
 
 ```sh
 npx add-mcp <MCP_URL> --header "Authorization: Bearer ${VERSTAK_TOKEN}"
@@ -127,9 +134,12 @@ and seeds the graph with the structure the codebase already shows.
   → verstak → Connectors** as in step 2 — the button is not in the app's Connectors
   settings, and no URL is pasted anywhere.
 - **Plugin installed on claude.ai, invisible in the desktop app** → restart the app.
-- **401 / auth error** → on the OAuth path, re-run the login (`/mcp` → authenticate, or
-  restart the session). On the token fallback the token is wrong or expired — re-ask the
-  user; do not retry with variations.
+- **401 / auth error, or an OAuth login that will not complete** → try the login once
+  more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the
+  Connectors-tab step above. If it still fails, stop retrying and take the token path in
+  step 2 — a PAT authenticates where OAuth won't, and asking the user for one is a
+  shorter road than debugging their browser. If a token is already in play and still
+  401s, it is wrong or expired: ask for a fresh one, do not retry variations.
 - **`nks_*` tools not visible** → the MCP config loads on session start: restart the
   session (or reload MCP config) and verify again.
 - **Skill name collision on flat installs** → another skill pack already uses a bare
