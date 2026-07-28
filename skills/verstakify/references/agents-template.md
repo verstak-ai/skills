@@ -73,10 +73,14 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     to the node that carries it — that raises confidence, it does not end the
     question. Release (`visarjana`) is a separate, volitional act, and what it
     takes first depends on the question: a distinction is answered by its form,
-    a behavioral claim needs the observation on its carrier (*Reality*). Release
-    what your own work answered; where the call is the owner's, prepare it and
-    present it, never assume it. Release is not the only ending — park it,
-    supersede it, or crystallize what it taught.
+    a behavioral claim needs the observation on its carrier (*Reality*).
+    Release it yourself when three things hold together — the answer stands in
+    the realm as a node rather than in your recollection, the repo shows it, and
+    reality shows it as far as reality is reachable; where it is not reachable,
+    the user's word stands in its place and you asked for it. Short of all
+    three, prepare the release and present it to the owner instead of assuming
+    it. Release is not the only ending — park, supersede, or crystallize what
+    the question taught.
 
   - **Sweep the shipped contour.** A push that realizes designed nodes flips
     their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
@@ -191,6 +195,16 @@ branches before it merges. After the branch merges (however this project merges
    answered from recorded thinking, not from training data: query the realm
    first, several ways (one miss ≠ absent). The `entry` skill runs the protocol
    and locates the realm that holds the answer.
+
+8. **Think in NKS, speak the project's language.** The graph's structural
+   vocabulary — kriya, phenomenon, holon, karta, vimarsha, the three mode axes —
+   is for reasoning: it carries distinctions ordinary language drops, and losing
+   it is how "release by the volitional axis" decays into "close the ticket". It
+   does not appear in what you say to the user — not once, not for precision —
+   unless they used it first. Translate into this project's own words, and the
+   glossary is at hand: the realm's holon and phenomenon names, and the
+   vocabulary of the code. The same split governs the graph itself — structural
+   terms *type* a node, the domain's words *name* it.
 
 ## Shared surfaces
 <!-- Authored slot — no checkable source, so ask the user; omit the section only
