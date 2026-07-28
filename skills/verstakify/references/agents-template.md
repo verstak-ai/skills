@@ -81,11 +81,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     three, prepare the release and present it to the owner instead of assuming
     it. Release is not the only ending — park, supersede, or crystallize what
     the question taught.
-
   - **Sweep the shipped contour.** A push that realizes designed nodes flips
     their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
-    designed contour — not only the nodes you happened to touch — and closes
-    the design vimarshas the ship settled.
+    designed contour — not only the nodes you happened to touch — and ends the
+    design vimarshas the ship settled, by the rule above.
   - **Work the inbox.** The `posed_to` questions your work answered end by the
     rule above; park or group the stale ones.
   - **Vocabulary pass.** Re-read what you are about to land — repo text and graph
@@ -96,8 +95,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     worse than the word it displaced — it reads as native, so nobody questions
     it again.)
 
-  `weaving` / `design` carry the *how* (closing vimarshas, threading
-  the holon).
+  `weaving` / `design` carry the *how* (ending vimarshas, threading the holon).
 - **Design completion criterion:** a design is not *done* until its decisions,
   risks, and lifecycle are in the realm — whichever skill elicited it.
   Persisting to the graph is memory-work, not implementation, so design-phase
@@ -115,7 +113,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   works", "the endpoint answers", "the migration ran" — close on a cold
   `verifier` subagent's verdict, never on your own re-reading. Give it the
   claim, the carrier and the falsifier from *Reality*, and **wait for the
-  verdict** before closing anything. (why: you cannot see your own change as it
+  verdict** before ending anything by the rule above. (why: you cannot see your own change as it
   is, only as you meant it.) Where this repo has no verifier role, make the
   observation yourself against the carrier — never close a behavioral claim on
   the source that was supposed to produce it.
@@ -202,7 +200,6 @@ branches before it merges. After the branch merges (however this project merges
    answered from recorded thinking, not from training data: query the realm
    first, several ways (one miss ≠ absent). The `entry` skill runs the protocol
    and locates the realm that holds the answer.
-
 8. **Think in NKS, speak the project's language.** The graph's structural
    vocabulary — kriya, phenomenon, holon, karta, vimarsha, the three mode axes —
    is for reasoning: it carries distinctions ordinary language drops, and losing
@@ -291,6 +288,10 @@ exhaustive.>`
 ## What to update when
 - `AGENTS.md` — commands, structure, conventions, or stack change; a reality
   carrier appears, moves, or becomes reachable/unreachable.
+  <!-- Keep this row only where CLAUDE.md is a copy rather than a symlink or an
+  import (Windows checkouts): -->
+- `CLAUDE.md` — regenerate the copy whenever `AGENTS.md` changes; it is a
+  duplicate, never edit it directly.
 - `HANDOVER.md` — current branch state shifts (branch, what's runnable/blocked).
   Not a changelog (that's commits + NKS).
 - `MISSING_*.md` — a need surfaces that an upstream/downstream system doesn't

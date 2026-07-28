@@ -6,8 +6,8 @@ description: "Use when the user asks to verstakify a repo — bootstrap or refre
 # Verstakify
 
 Bring the **current repo** to the verstak agent standard: a dense, AI-first
-`AGENTS.md` (read every session, not by a human once) + a `CLAUDE.md` symlink,
-the NKS session rituals wired as hooks, and a quality gate. You **generate** the
+`AGENTS.md` (read every session, not by a human once) + a `CLAUDE.md` pointing
+at it, the NKS session rituals wired as hooks, and a quality gate. You **generate** the
 config from the skeleton — nothing is copied by hand and the user pastes no
 template.
 
@@ -135,6 +135,14 @@ say `verstakify` again for the full pass." Two rules keep it honest: never write
 *derived* line you haven't checked (an unasked authored slot stays absent, never
 guessed), and always name what was deferred. Every later run is the full arc.
 
+**A deferred authored section is declared, not dropped** — *Reality* and *Shared
+surfaces* especially, because other sections point at them. Keep the heading and
+write one real line under it — *"Not settled yet: run the interview (say
+verstakify) before accepting any behavioral claim here."* — not a slot, so the
+no-angle-brackets check still passes. An absent section reads as "nothing to
+check here", the opposite of true, and leaves the pointers in *Session lifecycle*
+and Working principles 4 and 6 aimed at nothing.
+
 ### Step 1 — Settle with the user (do first)
 Don't silently pick defaults. Confirm in conversation, then write into *What this
 project is*: **Nature** (and, if not `production`, which principles are relaxed +
@@ -256,8 +264,14 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   every designed node the push realized — the whole contour, not only the nodes
   you touched — and end the design vimarshas the ship settled), **work the
   inbox** (the `posed_to` questions the work answered), run the
-  after-green-push self-review, and: uningested design/spec docs on this
-  branch → intake them (`intake` skill, then `design`) before closing.
+  after-green-push self-review, **re-read the diff and the nodes for borrowed
+  project-management words** — ticket, backlog, sprint, epic, story, done,
+  blocker, committed — naming each to the user and asking what this project
+  calls it instead of swapping it yourself, and: uningested design/spec docs on
+  this branch → intake them (`intake` skill, then `design`) before closing.
+  The vocabulary re-read rides *this hook* on purpose: it is the prose ban's
+  mechanism, and a ban that lives only in AGENTS.md is the one an agent skates
+  past.
 - **`PreToolUse`** with `"matcher": "Write|Edit|MultiEdit"` → the **memory-guard
   hook**: when the target path is inside the local project-memory dir, **block
   the write** (exit 2, routing message on stderr) — project state lives in the
@@ -356,9 +370,10 @@ this skill).
   runtime yet — it is what makes the *Reality* table actionable, and a repo that
   gains a carrier later should not need a re-run to gain its acceptor.
 - When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
-  the user says so): `.opencode/agents/reader.md` + `worker.md`,
-  `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent
-  inherits the invoking primary's model, so the pin is the point. Resolve
+  the user says so): `.opencode/agents/reader.md`, `worker.md` and
+  `verifier.md`, `mode: subagent`, model **pinned** per file — an unpinned
+  OpenCode subagent inherits the invoking primary's model, so the pin is the
+  point, and on the verifier it decides whether acceptance is real. Resolve
   current `provider/model-id`s from the user's setup (ask, or read
   `opencode.json` / the global config); never hardcode from the reference.
 - The `description` fields are the delivery channel — they sit in the
@@ -368,9 +383,9 @@ this skill).
 - Judgment work (design, review, synthesis) gets no role file — it stays with
   the session model or a per-call top-tier override where the platform
   supports it.
-- **Merge, never overwrite**: a same-named `reader`/`worker` agent file from
-  another suite may already exist — fold your body/description in or rename
-  yours (`verstak-reader`); the same rule the hooks merge follows.
+- **Merge, never overwrite**: a same-named `reader` / `worker` / `verifier`
+  agent file from another suite may already exist — fold your body/description
+  in or rename yours (`verstak-reader`); the same rule the hooks merge follows.
 - Self-check: role files parse (frontmatter); pinned models exist in the
   user's setup; AGENTS.md carries **no** inlined delegation doctrine (a
   pointer at most); no pre-existing agent file was overwritten.
@@ -379,15 +394,22 @@ this skill).
 - Write the filled body to **`AGENTS.md`** — the vendor-neutral canonical name,
   which Codex and OpenCode read natively. **A pointer file is Claude Code's
   requirement alone** (it reads `CLAUDE.md`, not `AGENTS.md`); don't create one
-  for a harness that doesn't need it. For Claude Code: a one-line `CLAUDE.md`
-  whose entire content is `@AGENTS.md` (no backticks in the file — a code span
-  suppresses the import). This is the docs-recommended import: expanded at
-  launch, identical to inline content, and it works everywhere — Windows
-  checkouts get plain text where a symlink would break (`core.symlinks=false` is
-  the default there). An existing `ln -s AGENTS.md CLAUDE.md` symlink is an
-  acceptable POSIX equivalent — don't churn it. Per-harness specifics, including
-  Codex's root→cwd merge and its `AGENTS.override.md` local override, are in
-  `references/harness-surfaces.md`.
+  for a harness that doesn't need it. Two isomorphic forms, chosen by whether
+  symlinks survive the checkout — decide by `git config core.symlinks` plus the
+  platform, don't assume:
+  - **Symlinks work (POSIX default):** `ln -s AGENTS.md CLAUDE.md`. One file,
+    two names — nothing to keep in sync, and any tool reading `CLAUDE.md`
+    literally gets the real content, not an import directive.
+  - **Symlinks don't (Windows, `core.symlinks=false`):** copy `AGENTS.md` to
+    `CLAUDE.md` byte-for-byte. A copy is a second source of truth, so it is
+    regenerated on every verstakify run and listed in *What to update when*;
+    edits go to `AGENTS.md` and never to the copy. A third form exists — a
+    one-line `CLAUDE.md` containing `@AGENTS.md`, Claude Code's import (no
+    backticks, a code span suppresses it) — use it where a copy would be worse
+    than an import that only Claude Code understands.
+  Don't churn a pointer that already works, whichever of the three it is.
+  Per-harness specifics, including Codex's root→cwd merge and its
+  `AGENTS.override.md` local override, are in `references/harness-surfaces.md`.
 - **Legacy config already present** (the common case): use the skeleton as the
   frame and fold existing content in *by line kind* — re-project derived facts
   from their source (don't carry a stale version, command, or path forward just
@@ -395,7 +417,7 @@ this skill).
   why-clauses, nature) that has no checkable source, sanity-checking it against
   the code. Project-specific content with no slot moves to *Code conventions* or a
   new section. End with `AGENTS.md` as the one file + `CLAUDE.md` as the pointer
-  (the `@AGENTS.md` import, or a pre-existing symlink) — if a *content-bearing*
+  (whichever of the three forms above the checkout supports) — if a *content-bearing*
   `CLAUDE.md` exists, fold its content into `AGENTS.md` and replace the file
   with the pointer. One source per concern — no duplicate sections.
 - If Step 1 settled full interop or prose-only: render the
@@ -425,8 +447,9 @@ this skill).
 - **Stamp the contract.** Trailing line of `AGENTS.md`: `*(verstakify: contract
   <the date from the top of this file> — re-run when the installed contract is
   newer, or when the sources this file derives from have moved since.)*` On a
-  refresh, overwrite the old stamp; never leave two. The stamp is what makes a
-  later session able to tell a current config from one that merely exists.
+  refresh, overwrite the old stamp; never leave two. A config carrying **no**
+  stamp predates the contract entirely — treat it as older than any date and
+  run the full arc.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
