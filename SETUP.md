@@ -3,6 +3,10 @@
 You are a coding agent setting up **verstak** for your user. Execute the steps below
 autonomously, in order, and report the result of each one.
 
+Expect approval prompts. Your harness may gate or refuse any command below — that is a
+permission decision, not a broken step, and nothing in this file can override it. Asking
+and waiting is part of a normal run, not a dead end; see **Troubleshooting**.
+
 verstak is two parts:
 
 1. **Skills** — plain-markdown method bundles from this repo (readable before install).
@@ -185,6 +189,11 @@ and seeds the graph with the structure the codebase already shows.
 
 ## Troubleshooting
 
+- **A command was refused, or is waiting on approval** → a permission decision, not an
+  installation failure. Do not rephrase the command and do not switch to a different
+  install path — a flat install is another product, not a workaround. Say which step you
+  are on, the exact command, and what approving it does; then stop and wait. On approval,
+  re-run that command and continue — steps that already succeeded are not repeated.
 - **Claude Desktop / claude.ai: `nks_*` tools visible but unauthorized** → expected; the
   plugin does not authorize its own server. Walk the user through **Customize → Plugins
   → verstak → Connectors** as in step 2 — the button is not in the app's Connectors
