@@ -176,12 +176,11 @@ claude mcp add --transport http nks <MCP_URL>
 OAuth login triggers on first use in both.
 
 **The token path — when OAuth is absent, cannot reach you, or will not go through.**
-Three cases lead here, and the middle one is the one this file used to get wrong. The
-first is structural: harnesses without MCP-OAuth support (Codex-style configs, CI,
-autonomous VMs) have no browser login to run. The second is the wrong-client case from
-step 0 — the login is available, it simply authorizes somebody else. The third is plain
-breakage: the login never opens, never completes, or every `nks_*` call keeps coming back
-401. Do not grind on any of them and do not retry variations. A personal access token is
+Three cases lead here, and the middle one is the easiest to miss. The first is
+structural: harnesses without MCP-OAuth support (Codex-style configs, CI, autonomous VMs)
+have no browser login to run. The second is the wrong-client case from step 0 — the login
+is available, it simply authorizes somebody else. The third is plain breakage: the login
+never opens, never completes, or every `nks_*` call keeps coming back 401. Do not grind on any of them and do not retry variations. A personal access token is
 a header, not a session, so it authenticates from any process on any host — which makes
 it the one path that behaves the same everywhere.
 
