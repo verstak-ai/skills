@@ -15,6 +15,49 @@ Every NKS tool call requires `realm=<token>`. Confirm which realm you're writing
 
 **Cross-realm arrows do not work.** `nks_arrow(action="link", source="739", target="29")` resolves both seq numbers inside the current realm. If #29 in your realm is not the node you mean — you just created a wrong arrow. For cross-realm references, use text in the sense ("see <realm> #29") — never arrows.
 
+### Reader-and-use novelty gate
+
+Before every create or semantic update, name:
+
+1. the later role/session — or the named reader/query class — expected to retrieve this state;
+2. the concrete decision, answer, verification, or handoff that retrieval can change;
+3. what is new relative to the accepted requirement, repository, relay, and existing graph.
+
+Model only what is load-bearing across rounds. A requirement is not graph-worthy merely because it
+exists; its durable correction, dependency, ownership boundary, or unresolved ambiguity may be.
+
+**The test is kind, not recoverability.** Two kinds, both first-class:
+
+- **Transcription — skip.** What the accepted artifacts already encode, restated in prose:
+  requirement bullets, work logs, test transcripts, feature existence, public output shape,
+  implemented algorithm, a prose copy of repository state. Reference the source instead.
+- **Structure — write.** Load-bearing structure and relations the artifacts do **not** encode as
+  *traversable relations*: composition (what a thing is made of, which phases it runs through),
+  blast radius and cross-artifact dependency, ownership boundary, correspondence-or-drift between
+  artifacts. Write these even when the underlying content is recoverable by reading — recovering
+  the text still leaves the relation untraversable.
+
+**Where the two meet — algorithm is not composition.** Mirroring an artifact's internal algorithm
+into nodes is not new structure: a step-by-step re-encoding of code the reader can simply read stays
+source-only, unless an ontology obligation demands the model (Decision 1's vollzug/grundsatz rule)
+or a named cross-node reasoning use needs that relation traversable.
+
+A durable decision delta is always graph-worthy: an accepted correction, contradiction, dependency,
+evidence verdict, ownership boundary, or open question whose loss would change later action.
+
+An unknown exact future task or session is not by itself a veto — but only once the test above is
+met: a named reader/query class ("whoever traces this method's phases", "whoever asks what breaks if
+X changes") *together with* the reasoning or action it enables. Fail that test and the write is
+skipped as before; speculative or empty structure — relations with no reader class and no reasoning
+they enable — is never licensed.
+
+**This gate never blocks Decision 1's method obligation** («A method is half a node»: name the kriya
+that runs the method, and model its phases as that kriya's children). A `vollzug`/`grundsatz`
+method's applying kriya and its phase
+`contains`-children are structural modeling, not transcription — write them; the obligation stands
+however recoverable the protocol text is. The converse stands too: prose-retelling that protocol in
+the phenomenon's description remains forbidden.
+
 ## Decision 1: What type of node?
 
 | If it… | Type | Tool |
@@ -200,7 +243,12 @@ Every arrow carries a sense explaining WHY.
 2. **Phenomenon with ahara/utpatti**: `nks_orient(lens="trace", focus=<seq>)` — lifecycle connected?
 3. **Kriya**: actor, ahara, utpatti phenomena all exist? And — if the pariṇāma names phases — are they `contains`-children, or still prose? `nks_look` renders them as `HOW`; an empty `HOW` under a body that promises steps is a black box, and it is silent: nothing will flag it for you.
 4. **Method phenomenon (vollzug / grundsatz)**: does a kriya apply it via `upadhi`, and are that kriya's steps modeled? A method nobody runs is a dead recipe; a method whose running isn't decomposed is a description pretending to be a model.
-5. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*: if the new node supersedes an existing one, draw `supersedes` new→old, migrate the old node's load (`key:true`, anchors, upadhi consumers that should move), and close it (`visarjana`). A successor that doesn't release its predecessor leaves a live duplicate canon — the forward wave updates references and strands the old node under the retired term.
+5. **Release what you replaced.** Locate-before-write looks for duplicates *before* the write; this is its mirror *after*. The live arrow matrix permits `supersedes` only for **vimarsha→vimarsha**: use it there, migrate the old question's load, and close it (`visarjana`). For every other node type, never invent a generic successor edge: migrate `key:true`, anchors, and consumers that should move; add another legal relation (`derived_from`, `specifies`, etc.) only when its meaning is true; retire the predecessor through its carrier mode. Re-check `nks_arrow(realm="?")` before teaching or automating a replacement pattern. A successor that does not release its predecessor leaves a live duplicate canon.
+6. **Do not confuse graph checks with reality evidence.** `CHECKS:`, trace connectivity, actors, and legal arrows establish graph integrity only. For a behavioral `sachverhalt`:
+   - code inspection justifies `anumita`; a focused internal/mock-only test can justify `pratyakshita` (evidence the audit grades `provisional` mints at most that); `pramanita` requires the separate **reality-audit** skill (observable contract, canonical public boundary, attempted falsifier, fresh independently observable evidence);
+   - executable evidence counts only with a recorded successful exit status — the canonical rule («exit status is the verdict») lives in reality-audit. A failing broad suite does not automatically refute a separately isolated fact, but without a focused exit-zero falsifier for that exact fact, keep it `anumita` and attach a reverify vimarsha;
+   - a newly written black-box test qualifies when it rebuilds and executes that exact boundary; authorship alone neither upgrades nor downgrades it;
+   - mint behavioral `pramanita` only after the audit verdicts are frozen and no material artifact change remains in the phase — never between probes; a later patch invalidates that confidence until affected public evidence is rerun and the node reverified. If the evidence surface is unavailable, keep the claim provisional and anchor a reverify vimarsha instead of stamping confidence.
 
 ## Operational reminders
 

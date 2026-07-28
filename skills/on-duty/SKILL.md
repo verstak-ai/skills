@@ -1,6 +1,6 @@
 ---
 name: on-duty
-description: "Stand watch — the agent's duty cycle in a verstakified repo, driven by the doer's inbox. Triggers: 'заступай на вахту', 'вахта', 'on duty', 'stand watch', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Scopes to one transformation on request ('продвигай bianhua', 'доведи превращение'). Two loops: a cheap duty tact (wake → wake-reason + since-delta → nothing to do? arm the next wake, sleep) and an expensive work tact (select → ship per repo ritual → relay into dependants' inboxes → weave → close). Wake mode and focus are declared on entry, never guessed. Composes entry, inquiry, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Stand watch — the agent's duty cycle in a verstakified repo, driven by the doer's inbox. Triggers: 'заступай на вахту', 'вахта', 'on duty', 'stand watch', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Scopes to one transformation on request ('продвигай bianhua', 'доведи превращение'). Two loops: a cheap duty tact (wake → wake-reason + since-delta → nothing to do? arm the next wake, sleep) and an expensive work tact (select → ship per repo ritual → relay into dependants' inboxes → weave → close). Wake mode and focus are declared on entry, never guessed. A behavioral claim is reality-audited before it closes or relays as verified. Composes entry, inquiry, design, integrity, reality-audit, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
@@ -8,6 +8,8 @@ description: "Stand watch — the agent's duty cycle in a verstakified repo, dri
 An agent in a verstakified repo has an identity: the **agent karta** named in AGENTS.md, steward of the repo's contour. Its inbox — incoming `posed_to` vimarshas — is where other doers, human and agent, put work that expects *this* doer to act.
 
 **The watch is two loops, not one.** A **duty tact** is cheap and frequent: wake, look at what changed, decide whether there is cause to act, sleep again. A **work tact** is expensive and rare: take the work, ship it, wire the relay, weave, close. Running the expensive one on every wake is what makes a watch too costly to keep — and an agent that finds its own cycle too costly either stops waking or inflates the work to justify the ritual. Keep them separate.
+
+**The two surfaces carry different durable state.** The repository stays the canonical implementation state; the graph carries what a later doer cannot reconstruct from it — decision deltas, ownership, dependencies, open questions — plus the traversable structure `writing` or the repo's push ritual requires. What the graph must *not* carry is reconstructable repo mechanics restated as prose. Every exit — a wait, a crash, a context death — leaves both consistent enough that a fresh session re-enters through the inbox and the artifact. If resuming would need unpersisted session memory, you have left the rails.
 
 When three to five agents drive one feature, they hand vimarshas back and forth in minutes. The watch exists to make that exchange fast, so **the measure of a tact is how quickly whoever waits on you is unblocked** — not how much of the inbox got swept.
 
@@ -70,7 +72,7 @@ When the focus is a transformation, the same loop runs scoped to its **arrival**
 - **Map first**: `nks_orient(lens="bianhua", focus=<N>)` — telos, anga drivers with resolved marks, touched holons. An open `anantara` predecessor means this bianhua is blocked — surface that instead of pushing work into it.
 - **The queue is the anga**: `nks_search(q="", posed_to=<your-karta>, anga_of=<N>)`, then the unassigned remainder. Invariant: **no open anga without an inbox** — an anga in another doer's contour gets a relay vimarsha into *their* inbox; an unassigned one in your contour you take.
 - Work raises new drivers: a question that must be answered for this telos → pose it, anga-attach it, it joins the queue at once.
-- The cycle ends at arrival — every anga discharged or consciously parked. **The bianhua's closure is the owner's acceptance**: propose it with the evidence, never close it yourself.
+- The cycle ends at arrival — every anga discharged or consciously parked, integration merged, and every required behavioral claim reality-audited. **The bianhua's closure is the owner's acceptance**: propose it with the claim verdicts as evidence, never close it yourself. A full map and a green integration are inputs to that proposal, never a correctness verdict.
 
 ## 3 · Work and relay
 
@@ -85,6 +87,8 @@ Each vimarsha names its own flow — follow *it*: a defect → fix + tests per t
 - Both follow **writing** discipline: anchor (`vimarsha_of` into the addressee's territory) **and** inbox edge (`posed_to`). One without the other is invisible.
 
 If AGENTS.md documents a local integration surface, rebuild it and verify the change runs — the claim is "shipped and running", not "pushed". Only what AGENTS.md documents; never touch shared or production surfaces from this loop.
+
+**Before anything closes or relays as `verified`, run `reality-audit`.** It freezes each required claim independently of the implementor's report and carries it to one verdict against the canonical public surface. An owner correction invalidates the affected claims and their dependents until rerun. A required `provisional`, `contradicted` or `blocked` claim keeps the work open — unless the owner consciously accepts the named exception. A clean graph is not a verdict about behavior.
 
 ### Integration merges — only when granted
 
@@ -107,6 +111,8 @@ In webhook mode you may arm a scoped one-shot subscription on the escalated vima
 
 - **Two loops.** Cheap duty tact, expensive work tact. Never the ritual of the second on the cadence of the first.
 - **The graph is sufficient to resume cold** — a demand on the graph, not an obligation to forget on every wake.
+- **Repo and graph carry different durable state.** The artifact is the implementation; the graph is what cannot be reconstructed from it. Never repo mechanics restated as prose.
+- **`verified` is earned by evidence, never by narration** — reality-audited against the canonical surface before it closes or relays.
 - **Wake mode and focus are declared, not guessed.**
 - **Updates are deltas**, never bare pings.
 - **Every expectation is a vimarsha** — anchored, `posed_to`, with "Answered when:". No side-channel dependencies.

@@ -1,8 +1,9 @@
 # verstak-ai/skills
 
 Agent-facing skill bundles for working with **NKS** (Nyāya Knowledge System) — a method of
-structured inquiry over a directed graph. These are Claude Code skills that teach an agent how
-to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
+structured inquiry over a directed graph — and for verifying the implementations that agents
+produce. They teach an agent how to read, write, design, and weave an NKS graph through the
+`nks_*` MCP tools, then test behavioral claims at the canonical public boundary.
 
 ## Skills
 
@@ -15,6 +16,7 @@ to read, write, design, and weave an NKS graph through the `nks_*` MCP tools.
 | **inquiry** | The life of a vimarsha — anchor, resolve, close, park, crystallize, attach to a bianhua. |
 | **assembly** | The 時-cycle ritual — discern the bianhua a realm is undergoing and produce 形, the assembly map. |
 | **integrity** | Wrap a bianhua in integrity — propagate a transformation's impact wavefront and surface what it touches. |
+| **reality-audit** | Terminal implementation check — rebuild the canonical deliverable and exercise exact acceptance falsifiers before claiming done. |
 | **intake** | Bring external word (шабда) into a realm — map form→type, mode by kind (#104), dedup, anchor, verify by пратьякша. Source-independent. |
 | **on-duty** | Stand watch — the agent's autonomous duty cycle: drain the doer's inbox, wire dependencies into other doers' inboxes, weave the wake, wait consciously (webhook / bounded re-check). Scoped mode drives one bianhua to arrival. |
 | **methodology-work** | Working on the methodology realm itself. |

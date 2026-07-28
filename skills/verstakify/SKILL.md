@@ -258,12 +258,14 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
   vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS (match reality + advance the bianhua map, and
-  end what the push settled by axis — `addressed_by` records the answer, release
-  is its own act), **sweep the shipped contour** (flip the modes of
-  every designed node the push realized — the whole contour, not only the nodes
-  you touched — and end the design vimarshas the ship settled), **work the
-  inbox** (the `posed_to` questions the work answered), run the
+  push`, reminder to update NKS **only from fresh artifact evidence** — confirm
+  the canonical changed path and the exposed old requirements were actually
+  exercised — then advance the bianhua map and end what the push settled by axis
+  (`addressed_by` records the answer, release is its own act), **sweep the
+  shipped contour** (walk the whole designed contour, not only the nodes you
+  touched; but a mode flip is itself a claim, so flip what the evidence covers
+  and leave the rest as it stands rather than advancing it ceremonially), **work
+  the inbox** (the `posed_to` questions the work answered), run the
   after-green-push self-review, **re-read the diff and the nodes for borrowed
   project-management words** — ticket, backlog, sprint, epic, story, done,
   blocker, committed — naming each to the user and asking what this project
@@ -364,25 +366,31 @@ prose (orchestration mechanics stay out of AGENTS.md — the output contract
 above). Doctrine + file templates: `references/delegation.md` (relative to
 this skill).
 - Always: `.claude/agents/reader.md` (cheap-tier recon),
-  `.claude/agents/worker.md` (mid-tier brief execution) and
-  `.claude/agents/verifier.md` (top-tier cold acceptance), model aliases
-  `haiku`/`sonnet`/`opus`. The verifier is projected even where the repo has no
-  runtime yet — it is what makes the *Reality* table actionable, and a repo that
-  gains a carrier later should not need a re-run to gain its acceptor.
+  `.claude/agents/worker.md` (mid-tier brief execution), and
+  `.claude/agents/verifier.md` (cold falsification-first acceptance audit).
+  Use stable aliases for reader/worker (`haiku`/`sonnet`); resolve a supported
+  top/session model for verifier rather than inheriting a cheap tier. The
+  verifier is projected even where the repo has no runtime yet — it is what
+  makes the *Reality* table actionable, and a repo that gains a carrier later
+  should not need a re-run to gain its acceptor.
 - When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
-  the user says so): `.opencode/agents/reader.md`, `worker.md` and
-  `verifier.md`, `mode: subagent`, model **pinned** per file — an unpinned
-  OpenCode subagent inherits the invoking primary's model, so the pin is the
-  point, and on the verifier it decides whether acceptance is real. Resolve
+  the user says so): `.opencode/agents/reader.md` + `worker.md` + `verifier.md`,
+  `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent
+  inherits the invoking primary's model, so the pin is the point, and on the
+  verifier it decides whether acceptance is real. Resolve
   current `provider/model-id`s from the user's setup (ask, or read
   `opencode.json` / the global config); never hardcode from the reference.
 - The `description` fields are the delivery channel — they sit in the
   agent/task tool list every session, so the routing trigger fires without any
   skill load. Keep them trigger-shaped: when to use, what comes back, what NOT
   to trust it with.
-- Judgment work (design, review, synthesis) gets no role file — it stays with
-  the session model or a per-call top-tier override where the platform
-  supports it.
+- Open-ended judgment (design, synthesis, exploratory review) gets no role
+  file — it stays with the session model or a per-call top-tier override.
+  `verifier` is the narrow exception: frozen claims and a falsification-first
+  return contract make acceptance review delegable without delegating judgment
+  about what the product should mean. It is also an expensive role: use it
+  only for load-bearing claims where independent falsification can change
+  acceptance.
 - **Merge, never overwrite**: a same-named `reader` / `worker` / `verifier`
   agent file from another suite may already exist — fold your body/description
   in or rename yours (`verstak-reader`); the same rule the hooks merge follows.

@@ -5,7 +5,11 @@
 - **Nature**: `<production | research | sandbox | one-off | library>`. If not
   `production`, list which working principles are relaxed and why. No explicit
   relaxation = full production discipline (agents lean lenient by default).
-- **NKS realm**: `<slug>` — every session starts with `nks_orient` here.
+- **NKS realm**: `<@owner/slug, immutable rN, or UUID — copied verbatim from
+  nks_realm(action="list")>` — every session starts with `nks_orient` here. Any
+  of the three addresses is durable (`rN` survives a rename); a bare slug
+  without its owner is deprecated — never persist one. On first orient, verify
+  the returned `REALM:` header before any graph write.
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
@@ -60,7 +64,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
 - **Every push → update NKS.** Every move below is required:
-  - **Match reality.** Record what positions the change in the target system:
+  - **Match reality.** First confirm the fresh canonical changed path and the
+    exposed old requirements were exercised in the artifact. If that evidence
+    is missing or contradicted, do not upgrade or end graph claims. Then record
+    what positions the change in the target system:
     architecture, module APIs, supply/delivery, user experience, integration
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
     refactors with no outside impact, commands, file moves — stay in git, not
@@ -81,12 +88,14 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     three, prepare the release and present it to the owner instead of assuming
     it. Release is not the only ending — park, supersede, or crystallize what
     the question taught.
-  - **Sweep the shipped contour.** A push that realizes designed nodes flips
-    their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
-    designed contour — not only the nodes you happened to touch — and ends the
-    design vimarshas the ship settled, by the rule above.
-  - **Work the inbox.** The `posed_to` questions your work answered end by the
-    rule above; park or group the stale ones.
+  - **Update the evidenced contour.** Walk the whole contour the push designed
+    — not only the nodes you happened to touch — and for each node the
+    executable evidence actually realized, make **one** terminal update carrying
+    its final modes (anagata→vartamana, kalpita→pratyakshita). No ceremonial
+    intermediate modes, no unrelated nodes swept because a round ended, and
+    nothing flipped past what the evidence covers: a mode flip is a claim.
+  - **Work the inbox.** The `posed_to` questions your work and its evidence
+    answered end by the rule above; park or group the stale ones.
   - **Vocabulary pass.** Re-read what you are about to land — repo text and graph
     nodes alike — for borrowed project-management words (ticket, backlog, sprint,
     epic, story, done, blocker, committed). Do **not** swap them yourself: name
@@ -192,8 +201,13 @@ branches before it merges. After the branch merges (however this project merges
    downstream system), not just unit tests — *Reality* names this project's
    carriers and who can reach them. Name the falsifier before you look ("what
    observation would refute this?"), and observe the carrier itself, not the
-   source that was meant to produce it. Ending the questions your change touched
-   follows *Session lifecycle* — by axis, not by feeling done.
+   source that was meant to produce it. Before claiming `verified`, `done`,
+   `integration green`, or `no work remains`, run the `reality-audit` skill: it
+   freezes each required claim and carries it to one truthful verdict. A clean
+   graph, or an internal/mock-only test that misses the canonical public
+   boundary, is not a release verdict; unavailable evidence stays
+   `provisional`/`blocked`. Ending the questions your change touched follows
+   *Session lifecycle* — by axis, not by feeling done.
 7. **Read before answering an open-ended ask.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — are
@@ -281,6 +295,9 @@ exhaustive.>`
 - `<naming / import style / forbidden patterns + why-forbidden>`
 - **Test discipline**: `<unit | unit+integration | +e2e; coverage threshold
   for production>`.
+- **Verification surfaces**: `<public API/UI/config/runtime boundary for each
+  load-bearing behavior; canonical command or environment; honest fallback and
+  literal blocker when unavailable>`.
 - **Gotchas**: `<runtime traps types/linter miss — hook return shapes, async
   races, env-specific behavior, library quirks, CI-parity gaps, shared
   build/test state, tracked secret/env files. One paragraph each.>`
