@@ -15,10 +15,12 @@ https://nks.lab.mirari.ru/mcp
 ```
 
 Substitute that literal string wherever `<MCP_URL>` appears below. The server
-authenticates two ways. Default is **OAuth** — a browser login on first contact, so you
-ask the user for nothing. When that is unavailable or simply refuses to work, there is a
-**personal access token** the user makes in the web UI; it works everywhere and is the
-answer to any authorization you cannot get past. Never invent, guess, or reuse a token.
+authenticates two ways. Default is **OAuth** — a browser login you can start yourself, so
+you never ask the user for a secret. They still approve it in their browser: that press is
+the one part of this file nobody can do for them. When that is unavailable or refuses to
+work, there is a **personal access token** the user makes in the web UI; it works
+everywhere and is the answer to any authorization you cannot get past. Never invent,
+guess, or reuse a token.
 
 ## 0. Detect your harness
 
@@ -44,6 +46,18 @@ claude plugin install verstak@verstak-ai
 (Inside an interactive session: `/plugin marketplace add verstak-ai/skills` then
 `/plugin install verstak@verstak-ai`.)
 
+**Look before you add.** `claude plugin list` tells you whether verstak is already here
+and at what version. If it is, adding the marketplace again repairs nothing — refresh the
+catalog and move the install onto it instead:
+
+```sh
+claude plugin marketplace update verstak-ai
+claude plugin update verstak@verstak-ai
+```
+
+An install that is present and current is a finished step 1, not a reason to reinstall.
+Go to step 2 and check the server, which is where a "broken verstak" almost always is.
+
 **Cursor / Codex / any other agent** (flat install, ~70 harnesses supported):
 
 ```sh
@@ -54,9 +68,43 @@ Add `--agent codex` (or `-a cursor`, …) to target a specific harness explicitl
 
 ## 2. Connect the graph server
 
-**Claude Code (terminal) + plugin from step 1: nothing to configure.** The plugin
-bundles the server (`.mcp.json` in the plugin root); the first `nks_*` call — or `/mcp`
-— opens the OAuth login. Skip to step 3.
+**Claude Code + plugin from step 1: the server arrives configured, but not logged in.**
+The plugin bundles it (`.mcp.json` in the plugin root) under the qualified name
+**`plugin:verstak:nks`** — that name, not `nks`, is what every `claude mcp` command wants;
+`claude mcp list` prints the exact one and the status beside it.
+
+In an interactive terminal the first `nks_*` call — or `/mcp` — opens the browser login,
+and you are done. Do not assume you are in one. In a headless run, an IDE- or
+desktop-hosted session, a subagent, anything where `/mcp` does not render, nothing opens:
+the call comes back `needs authentication` and stays there however many times you retry.
+Start the login yourself instead:
+
+```sh
+claude mcp login plugin:verstak:nks
+```
+
+**Give it a terminal or it will not wait.** Without one the command aborts —
+`stdin isn't a terminal, so authentication can't be completed here` — even though the part
+that matters needs no input at all: the browser redirects to a localhost callback the
+command is already listening on, and only the paste-the-URL fallback wants stdin. A
+pseudo-terminal is the whole fix, and the login then completes on its own:
+
+```sh
+script -q /dev/null claude mcp login plugin:verstak:nks      # macOS / BSD
+script -qec "claude mcp login plugin:verstak:nks" /dev/null  # Linux (util-linux)
+```
+
+Run it in the background if your harness would otherwise block on it, and read its output:
+the command prints the authorization URL before it waits. If no browser can open where you
+are, add `--no-browser` and hand that URL to the user. It is single-use and bound to the
+waiting process — while they have it open, do not re-run the login, or you invalidate the
+link they are on.
+
+Then verify, and only then call it connected:
+
+```sh
+claude mcp list    # plugin:verstak:nks: <MCP_URL> (HTTP) - ✔ Connected
+```
 
 **Claude Desktop and claude.ai: the plugin adds the server, but leaves it unauthorized.**
 Installing the plugin is still the right move — it just stops one press short. The
@@ -140,8 +188,15 @@ and seeds the graph with the structure the codebase already shows.
   step 2 — a PAT authenticates where OAuth won't, and asking the user for one is a
   shorter road than debugging their browser. If a token is already in play and still
   401s, it is wrong or expired: ask for a fresh one, do not retry variations.
+- **`claude mcp login nks` → no such server** → with the plugin the server is
+  `plugin:verstak:nks`. Run `claude mcp list` and copy the name from there.
+- **`stdin isn't a terminal, so authentication can't be completed here`** → your shell has
+  no TTY, not a broken login. Re-run it under `script` as in step 2; the localhost
+  callback finishes the flow without any input.
 - **`nks_*` tools not visible** → the MCP config loads on session start: restart the
-  session (or reload MCP config) and verify again.
+  session (or reload MCP config) and verify again. Tools stay invisible in the session
+  that authorized the server — that is expected, not a failed login; `claude mcp list`
+  is the check that matters.
 - **Skill name collision on flat installs** → another skill pack already uses a bare
   name like `design`. Rename that directory, or use the Claude Code plugin channel,
   which namespaces everything under `verstak`.
