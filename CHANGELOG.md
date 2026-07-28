@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0](https://github.com/verstak-ai/skills/compare/v1.9.0...v1.10.0) (2026-07-28)
+
+
+### Features
+
+* add reality-audit skill discipline ([#44](https://github.com/verstak-ai/skills/issues/44)) ([3ce074e](https://github.com/verstak-ai/skills/commit/3ce074eed5689aa64b5cb489ae27a80b7a0af8d8))
+* **memory:** the user's mind in the graph — personal realm @&lt;handle&gt;/mind ([#53](https://github.com/verstak-ai/skills/issues/53)) ([02546b1](https://github.com/verstak-ai/skills/commit/02546b117cd7096440f64a85a7e50249bc15368b))
+* **verstakify:** contract stamp and a Reality slot the agent cannot derive ([#57](https://github.com/verstak-ai/skills/issues/57)) ([0fb80a5](https://github.com/verstak-ai/skills/commit/0fb80a5d97e1cf303e595b4b9f6b2fec87fc172a))
+
+
+### Bug Fixes
+
+* replace dead nks_admin(my_kartas) with live nks_me(kartas) ([#55](https://github.com/verstak-ai/skills/issues/55)) ([f4d361d](https://github.com/verstak-ai/skills/commit/f4d361d44ff696b621e002ca38fc67cf050fd051))
+
 ## [1.9.0](https://github.com/verstak-ai/skills/compare/v1.8.0...v1.9.0) (2026-07-24)
 
 
