@@ -73,6 +73,8 @@ An intake node with no origin is a rumour. Each one needs:
 
 Anchoring is the **inquiry** skill's law (an unanchored vimarsha is invisible) — honour it at intake time, not post-hoc.
 
+**Word serving more than one contour has a different home.** A finding, benchmark or diagnosis bearing on several of the user's realms belongs in their personal contour (**minding**), not in whichever realm happened to be open — anchored there, it is invisible to every other contour it was meant to inform.
+
 ## 5. Verify by пратьякша and graduate the mode
 
 Intake is not done when the claim is written — it's done when it's been *reconciled with reality* (the сверка kriya). For each kalpita node, observe directly on the three levels: `nks_look` (recall — what's written), `nks_orient(lens="tensions")`/neighborhood (awareness — what pulls), `nks_orient(lens="trace")` (reflection — where it travels). Then graduate:

@@ -9,6 +9,7 @@ produce. They teach an agent how to read, write, design, and weave an NKS graph 
 
 | Skill | What it does |
 |---|---|
+| **minding** | The user's mind in the graph — the personal realm `@<handle>/mind`: recall when nothing names the realm or a user holding is needed, write user-facts no project realm owns, sweep the cross-realm agenda. Reflex, not ritual. |
 | **entry** | Orientation & reading protocol — enter a realm, search, deepen. |
 | **writing** | Node-writing discipline — naming (正名), modes, edges. |
 | **design** | Projecting systems — backward chaining, forward weaving, risk analysis. |

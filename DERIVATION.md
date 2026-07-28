@@ -23,13 +23,16 @@ they are forbidden inside `skills/`.
 | given_as канон + матрица стрелок | #372, #376 | writing → Decision 2 + `references/given_as.md`; design → «given_as — arrow legality» | a mode of givenness or arrow-legality cell changes |
 | vollzug не заменяет крию — деятельность не записывается существительным | #471 | writing → Decision 1 «A method is half a node» + Traps «Activity reified into a method-noun» + Kriya question 6 + «After writing» 3–4 + «Reader-and-use novelty gate» (its kind obligation and method carve-out); `references/given_as.md` → «Obligation — vollzug / grundsatz» | the obligation, the phases-are-contains rule, or the one-line test changes |
 | Проектная активность — не крия (задача ≠ действие с повторяемой эстафетой) | #102 | writing → Traps «Task in kriya disguise» | the kriya-vs-task test changes |
-| manifested_as канон (роды делателя) | #460 | writing → Decision 2b; product-roadmap → actor-modeling rules (Step 2) | a род or its addressing/steward rule changes |
+| manifested_as канон (роды делателя) | #460 | writing → Decision 2b; product-roadmap → actor-modeling rules (Step 2); minding → skeleton §2b (people of the contours, agantuka rule) | a род or its addressing/steward rule changes |
 | 時-цикл, bianhua, роли сборки, композиция | #431, #432, #434, #435 | assembly → the whole skill; inquiry → «Inquiry and transformation» | the ritual, roles, or 形 halves change |
 | Жизнь вимарши: исходы, кристаллизация | #387 + genre canon | inquiry → sections 2–3; writing → «Vimarsha genres» | an outcome or genre-resolution rule changes |
 | Шабда: виды источников, сверка | #104, #165, #157, #340 | intake → steps 1–2, 5; product-roadmap → Step 5 | a source-kind mode or сверка step changes |
 | Граница реалма топологична; boundary-маркер | #416 (+ nks-dev #978) | design → «Realm boundary»; weaving → «Boundary is the edge of the world»; writing → Decision 5 kriya note | boundary semantics or the marker changes |
 | Санкция bianhua (владелец принимает имя+телос) | #432 + factory SANCTION | writing → Decision 1 bianhua row; assembly → step 5; design → Phase 4; inquiry → section 4 | the sanction discipline changes |
-| Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure | the timelessness rule changes |
+| Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure; minding → dated facts as attrs (skeleton §7) | the timelessness rule changes |
+| Кристаллизация вопрошания + 忘 Пост-забвение | #387, #182 | minding → §2 crystallize-then-release + skeleton §8 (lessons from retired contours) | the crystallization or release canon changes |
+| Замкнутость ЖЦ — каждый ding порождается и уничтожается (P1) | #389 | design → P1; minding → skeleton §6 (the map's own lifecycle) | P1 or the deferred-closure form changes |
+| Нить 1 «Вхождение и ориентация» — вход начинается с УЖЕ данного реалма (крия «Вхождение в реалм», `boundary=init`); различение узнавание ≠ ориентировка | #337, #147, #478 | minding → §1 recall (names the realm, hands to entry; ask-one-line rule) + Seams → entry (one-directional) | a canonical step before «Вхождение в реалм» appears, or the thread's inlet moves |
 
 Two more sync obligations live outside this table:
 

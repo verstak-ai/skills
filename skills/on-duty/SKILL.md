@@ -90,6 +90,8 @@ If AGENTS.md documents a local integration surface, rebuild it and verify the ch
 
 **Before anything closes or relays as `verified`, run `reality-audit`.** It freezes each required claim independently of the implementor's report and carries it to one verdict against the canonical public surface. An owner correction invalidates the affected claims and their dependents until rerun. A required `provisional`, `contradicted` or `blocked` claim keeps the work open — unless the owner consciously accepts the named exception. A clean graph is not a verdict about behavior.
 
+Two things bind even if you never open that skill, because they decide whether you *may* say the word at all. **Say which step you checked against**: reading the record — `look` / `orient` / `trace` — is one step and the graph is an instrument for observing the world, not the world; fresh observation on the canonical carrier is the other, and only the second closes a behavioral claim. "Verified" with no named step is not a result. **And *Reality*'s `Ceiling` classes never come back `verified`** — a claim class the owner recorded as having no reachable observation tops out at `provisional`, however the probe went.
+
 ### Integration merges — only when granted
 
 When the user or AGENTS.md explicitly grants merge rights, the order is **agreed through inboxes, never guessed**: the chain of relay vimarshas *is* the order. Merge only when your upstream vimarsha is discharged, then update the downstream doer's vimarsha with the delta ("merged, integration green" — states of the world, never SHAs or branch names). Across transformations the same ordering is `anantara`.

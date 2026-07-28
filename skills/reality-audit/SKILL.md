@@ -14,6 +14,14 @@ Load it **after the final material implementation change**, before saying `verif
 invalidates earlier evidence. Not at task entry, and never interrupt implementation with graph
 modelling to prepare for it.
 
+**"Checked" is a two-step claim, and the step is always declared.** Checking against the *record*
+— `look` / `orient` / `trace`, whether the words agree with what is written — is one step; the
+graph is an instrument for observing the world, not the world. Witnessing the *world* — fresh
+observation on the canonical carrier — is the other. Record-checking ranks below world-witnessing,
+and behavioral closure is carried by the second only. So when you close anything with the word
+"verified", say what you verified it against; a verdict with no named step is not a result. Every
+verdict this protocol issues is a world-step verdict.
+
 **Proportionality.** When the change alters no public contract — no new or changed exported
 symbol, output format, config/schema shape, or documented behavior — the ladder collapses to
 steps 1–2 on the touched path: rebuild the canonical deliverable, exercise the changed path once
@@ -38,10 +46,19 @@ example exactly; a simpler representative case does not discharge it.
 
 For each claim, one compact row:
 
+**Take the surface from the config, don't re-derive it.** A verstakified repo answers this in
+`AGENTS.md` → *Reality*: the canonical carrier per claim class, the exact observation, and who can
+reach it. Read that table first — the carrier is the owner's to name, not the auditor's to guess.
+No table, or a class it doesn't cover: **ask the owner and offer a `verstakify` run**, and record
+what they answer so the next audit starts from it. Deriving a carrier yourself is the guess this
+whole protocol exists to remove. Its **Ceiling** rows are binding: a claim class recorded there as
+having no reachable observation cannot come back `verified` from this protocol, however the probe
+goes — `provisional` or `blocked` is its honest top.
+
 | Field | Required answer |
 |---|---|
 | Claim | What exactly must hold? |
-| Canonical surface | Which exact binary, package, exported symbol, API route, UI, schema, generated artifact, or deployed path will users consume? |
+| Canonical surface | Which exact binary, package, exported symbol, API route, UI, schema, generated artifact, or deployed path will users consume? (From *Reality* where the repo has one.) |
 | Observable | What should an external observer see? |
 | Executable falsifier | Which command, request, assertion, or test would prove the claim false? |
 
@@ -82,8 +99,11 @@ NKS comes after the evidence and is never part of it. Freeze the claim verdicts 
 material artifact changes first; then at most one terminal update, and only when a durable
 correction or contradiction will change a later agent's decision. A later material patch makes
 that update premature — its behavioral confidence is provisional until the affected public
-evidence is rerun and the node reverified. The graph is not mid-audit scratch, and graph state is
-never an input to a verdict. The one-update limit scopes this audit's own evidence handoff; the
+evidence is rerun and the node reverified. The graph is not mid-audit scratch, and no graph state
+raises a **behavioral** verdict. What is forbidden is the substitution, not the reading: the
+record-step is legitimate and *obligatory in its own place* — resolving the contract, deduping,
+`integrity`'s claim-audit — and only passing it off as world-witnessing, or letting it lift a
+behavioral verdict, is illegitimate. The one-update limit scopes this audit's own evidence handoff; the
 structural modelling `writing` or the repo's push ritual requires belongs to the round, not to
 the audit.
 
