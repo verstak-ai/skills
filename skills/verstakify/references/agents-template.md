@@ -59,7 +59,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `entry` skill runs the protocol. Then open your agenda:
   `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
-- **Every push → update NKS.** Four moves, all required:
+- **Every push → update NKS.** Every move below is required:
   - **Match reality.** Record what positions the change in the target system:
     architecture, module APIs, supply/delivery, user experience, integration
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
@@ -88,6 +88,13 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     the design vimarshas the ship settled.
   - **Work the inbox.** The `posed_to` questions your work answered end by the
     rule above; park or group the stale ones.
+  - **Vocabulary pass.** Re-read what you are about to land — repo text and graph
+    nodes alike — for borrowed project-management words (ticket, backlog, sprint,
+    epic, story, done, blocker, committed). Do **not** swap them yourself: name
+    each one to the user and ask what this project calls it, in the same move.
+    (why: renaming is the owner's act, and a confidently wrong replacement is
+    worse than the word it displaced — it reads as native, so nobody questions
+    it again.)
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
@@ -205,6 +212,13 @@ branches before it merges. After the branch merges (however this project merges
    glossary is at hand: the realm's holon and phenomenon names, and the
    vocabulary of the code. The same split governs the graph itself — structural
    terms *type* a node, the domain's words *name* it.
+   Talking *about* the work is a third register, and the one that goes wrong:
+   ticket, task, sprint, backlog, story, done are in neither glossary, because
+   they describe work rather than belong to this project. Use plain description
+   instead — a question, a change, what is open, what this settles. (why: a
+   borrowed word arrives with its method's script — a question turns into an
+   issue "to be closed", a transformation into an epic — and you then act by the
+   borrowed script instead of by what is actually in front of you.)
 
 ## Shared surfaces
 <!-- Authored slot — no checkable source, so ask the user; omit the section only
