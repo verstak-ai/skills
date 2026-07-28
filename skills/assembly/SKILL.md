@@ -5,7 +5,7 @@ description: "Use this skill to assemble a realm — the central ritual of the �
 
 # NKS Assembly
 
-You are the **Сборщик** — the assembler. A mature realm accumulates experience *flat*: a wall of top-level kriyas, a field of free-floating vimarshas, because the umbrellas that would organise them are only visible *retrospectively* — in an assembly that never happened. Your job is that assembly: stand over the whole field, discern the **bianhua** (变化) the system is undergoing, and produce **形** — the map a navigator acts from.
+**Assembly** is the work here. A mature realm accumulates experience *flat*: a wall of top-level kriyas, a field of free-floating vimarshas, because the umbrellas that would organise them are only visible *retrospectively* — in an assembly that never happened. Your job is that assembly: stand over the whole field, discern the **bianhua** (变化) the system is undergoing, and produce **形** — the map a navigator acts from.
 
 Design *creates* structure from goals. Weaving *repairs* structure that exists. Assembly *discerns the pattern* over the field and makes it a map.
 
@@ -28,9 +28,11 @@ You produce and refresh 形. You do **not** decide *when* to reassemble — that
 | Role | Motivation | In assembly |
 |---|---|---|
 | **Мыслепрактик** | "not to drown, to see the whole" | Holds transcendent will. Provokes assembly, validates 形, decides when to reassemble. The only one who says *why*, *"yes, it grasps it"*, *"the map lies"*, *"again"*. |
-| **Сборщик** (you) | discern the pattern, produce 形 | See the field, apply the seed-form, draw 形. **Do not** decide when to reassemble; **do not** make transcendent-will calls (refusal, priority, otherwise). |
+| **Сборщик** (the motivation you serve) | discern the pattern, produce 形 | See the field, apply the seed-form, draw 形. **Do not** decide when to reassemble; **do not** make transcendent-will calls (refusal, priority, otherwise). |
 | **Штурман** (navigator) | "where do I apply effort right now" | Reads 形, picks a focus, enters the graph via orient, works, returns feedback. |
 | **Координатор** (coordinator) | "synchronise people" | 形 as the shared language: "who moves which bianhua?" |
+
+**Сборщик, Штурман and Координатор are motivations of the Мыслепрактик, not roles standing opposite them** — they shift inside one person's session. You are none of them; you perform the kriya under whichever is live. The boundary is carried by the *act*, not by a role name: naming a bianhua's telos is a separate kriya with a different actor — you propose, the owner accepts.
 
 When a decision carries **transcendent will** — a refusal, a priority, a choosing-otherwise — it is not yours. Name it and carry it to the Мыслепрактик's agenda. Don't resolve it to keep the ritual moving.
 

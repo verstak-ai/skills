@@ -165,11 +165,16 @@ DO:
      b. Skill gaps (methodology knows, skill doesn't teach)
      c. Agent errors (agent misunderstood, methodology is fine)
      d. Tool bugs (nks_orient and its lenses — not methodology)
-  2. For each real gap: which type of work? (principle/kriya/distinction/vollzug/thread)
-  3. For each agent error: what did the agent get wrong? Is it a PATTERN that other agents will repeat?
+  2. Before accepting any (a) as real: nks_semantic_search the gap ITSELF,
+     in the realm's words rather than the agent's, and re-read what the
+     agent's orient already printed — the answer is routinely on screen
+     and unread. Almost every "methodology gap" is methodology that wasn't
+     applied. What doesn't survive the search is (c), not (a).
+  3. For each real gap: which type of work? (principle/kriya/distinction/vollzug/thread)
+  4. For each agent error: what did the agent get wrong? Is it a PATTERN that other agents will repeat?
      If yes → record as distinction or anti-pattern in a grundsatz/vollzug
-  4. For skill gaps → update relevant skill, not methodology
-  5. For tool bugs → vimarsha in nks-dev, not methodology
+  5. For skill gaps → update relevant skill, not methodology
+  6. For tool bugs → vimarsha in nks-dev, not methodology
 
 CRITICAL PATTERN — agent tries to suppress tension:
   This is THE most common agent error. The correct response is ALWAYS:

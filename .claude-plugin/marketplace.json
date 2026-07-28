@@ -1,17 +1,19 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "verstak-ai",
   "owner": {
     "name": "verstak-ai"
   },
   "metadata": {
     "description": "Agent-facing NKS (Nyāya Knowledge System) methodology skills.",
-    "version": "1.5.1"
+    "version": "1.9.0"
   },
   "plugins": [
     {
       "name": "verstak",
       "description": "NKS methodology skills — orient, write, design, and weave an NKS graph through the nks_* MCP tools.",
       "source": "./",
+      "version": "1.9.0",
       "strict": true
     }
   ]

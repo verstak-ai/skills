@@ -57,12 +57,16 @@ implementer and verifier — not measured benchmark results:
    ("waiting for background work") — resume it with a pointed message instead
    of re-running the whole task.
 9. **Verification is independent or provisional.** Freeze acceptance claims
-   before the verifier reads the worker report. The verifier tries the named
-   falsifier at the public boundary. Judge evidence by the contract and boundary,
-   not authorship: a new black-box test can be decisive when derived from the
-   frozen claim and run against the canonical surface; an internal/mock test that
-   repeats the implementation hypothesis is provisional. Requirement corrections
-   invalidate affected verdicts until fresh evidence is reproduced.
+   before the verifier reads the worker report. Its brief carries the claim, the
+   canonical carrier and the falsifier — AGENTS.md *Reality* is where a repo
+   records both — and not the reasoning that produced the change. The verifier
+   tries the named falsifier at the public boundary. Judge evidence by the
+   contract and boundary, not authorship: a new black-box test can be decisive
+   when derived from the frozen claim and run against the canonical surface; an
+   internal/mock test that repeats the implementation hypothesis is provisional.
+   Requirement corrections invalidate affected verdicts until fresh evidence is
+   reproduced. **Wait for the verdict** — a claim ended without waiting for it is
+   the author's own opinion with extra steps.
 10. **Exact boundaries before broad suites.** Run one narrow acceptance probe
     for every frozen claim before spending the budget on a broad regression
     suite. An unimportable public symbol, wrong config/schema shape, or missing
@@ -153,8 +157,10 @@ model: <provider/cheap-tier-id — resolve at projection time>
 ```
 
 `worker.md`: same shape, `model: <provider/mid-tier-id>`. `verifier.md`: same
-body as above, `model: <provider/top-tier-id>`. The calling agent invokes via
-the task tool; `@reader` / `@worker` / `@verifier` is the human's affordance.
+body as above, `model: <provider/top-tier-id>` — the pin matters most here, since
+an inherited cheap model turns acceptance into guesswork. The calling agent
+invokes via the task tool; `@reader` / `@worker` / `@verifier` is the human's
+affordance.
 
 ## Maintainer notes (not deployed)
 
