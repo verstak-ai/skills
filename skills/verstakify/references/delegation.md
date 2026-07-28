@@ -17,6 +17,7 @@ Split work by **role**, not by size. Three roles, three model tiers:
 |---|---|---|---|
 | `reader` | cheap (Haiku-class) | breadth-first recon: locate, shortlist candidates, digest with error tolerance | leads + pointers (`file:line`), ≤12 lines |
 | `worker` | mid (Sonnet-class) | mechanical execution of a self-contained brief: transforms, inventories, structured writes | status + artifact paths |
+| `verifier` | top (pinned) | cold acceptance of a behavioral claim: rebuild the canonical carrier, run the named falsifier, report what happened | one verdict per claim + the evidence, ≤10 lines |
 | judgment | top / session model | design, review, synthesis — anything the orchestrator acts on directly | conclusion + reasoning |
 
 The orchestrator keeps the user dialogue, decisions, orchestration, and edits
@@ -53,6 +54,13 @@ Rules — grounded in a 5-task benchmark across tiers, not guesswork:
 8. **Spot-check every return.** A stopped agent sometimes returns a non-answer
    ("waiting for background work") — resume it with a pointed message instead
    of re-running the whole task.
+9. **Whoever made a claim does not accept it.** An author re-reading their own
+   work sees what they meant, not what is there — so behavioral claims go to a
+   cold `verifier` that never saw the conversation. Its brief carries the claim,
+   the canonical carrier and the falsifier (from AGENTS.md *Reality*), and not
+   the reasoning that produced the change. **Wait for the verdict**: a claim you
+   closed without waiting is your own opinion with extra steps. Top tier, always
+   — this is the one role where a cheap miss ships as "verified".
 
 ## Projection — what verstakify generates
 
@@ -98,7 +106,24 @@ Execution agent for briefs. Your final message is your only output.
 - If the brief conflicts with reality, follow reality and flag it in the return.
 ```
 
-### OpenCode — `.opencode/agents/reader.md`, `.opencode/agents/worker.md`
+```markdown
+---
+name: verifier
+description: Cold acceptance of a behavioral claim — rebuilds the canonical artifact, runs the named falsifier, reports what actually happened. Give it the claim, the carrier and the falsifier; it has no conversation history by design, which is the point. Returns one verdict per claim with the evidence. Not for writing fixes, not for design review, not for judging whether the claim was worth making.
+model: opus
+---
+
+Acceptance agent. You did not make this change and must not defend it. Your final message is your only output.
+- First line: `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`; then one line per claim — `VERDICT: confirmed|refuted|unreachable`, the command you ran, and what it printed.
+- Observe the **canonical carrier** named in the brief: the built artifact, the live endpoint, the migrated table. Never the source that was supposed to produce it, never a cached or scratch derivative.
+- Rebuild before observing when the carrier is built — a stale artifact confirms nothing.
+- `unreachable` is a real verdict. If the observation can't be made, say so and why; never infer a confirmation from code that looks right.
+- Report refutations in full, including ones the brief did not anticipate.
+- Do not edit anything, do not fix what you find, do not spawn subagents.
+- If the brief conflicts with reality, follow reality and say so in the return.
+```
+
+### OpenCode — `.opencode/agents/reader.md`, `worker.md`, `verifier.md`
 
 Same bodies — reuse them verbatim; only the frontmatter differs. **The model
 pin is the point**: an unpinned OpenCode subagent inherits the invoking
@@ -116,8 +141,10 @@ model: <provider/cheap-tier-id — resolve at projection time>
 <same body>
 ```
 
-`worker.md`: same shape, `model: <provider/mid-tier-id>`. The calling agent
-invokes via the task tool; `@reader` / `@worker` is the human's affordance.
+`worker.md`: same shape, `model: <provider/mid-tier-id>`; `verifier.md`: same
+shape, `model: <provider/top-tier-id>` — the pin matters most here, since an
+inherited cheap model turns acceptance into guesswork. The calling agent invokes
+via the task tool; `@reader` / `@worker` / `@verifier` is the human's affordance.
 
 ## Maintainer notes (not deployed)
 
@@ -130,7 +157,7 @@ invokes via the task tool; `@reader` / `@worker` is the human's affordance.
 - Delivery rationale: the `description` field is the only channel in context
   every session on both platforms. Skill bodies load on demand and agents
   don't reflexively load them — the agent files sidestep that failure mode.
-- `reader` / `worker` are deliberately bare, generic names and may collide
+- `reader` / `worker` / `verifier` are deliberately bare, generic names and may collide
   with same-named user-level agents — accepted trade-off (mirror of the bare
   skill-name convention); rename per-repo if a collision bites.
 - The measured benchmark behind the rules: 5 verifiable tasks (repo search,
