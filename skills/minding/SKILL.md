@@ -1,9 +1,9 @@
 ---
-name: memory
+name: minding
 description: "The user's mind in the graph — the personal realm @<handle>/mind; this skill is its memory: recall and write by reflex, not ritual. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate'. WRITE when a fact concerns the user, matters later, and has no project-realm home: 'запомни', machines, deployments, people, dated facts, cross-project findings. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos only the session-routing question dies (AGENTS.md names the realm) — recall and the write reflex stay armed. Needs the nks_* MCP tools."
 ---
 
-# Memory — the user's mind in the graph
+# Minding — the user's mind in the graph
 
 `@<handle>/mind` holds what belongs to the user and travels with them: contours, live realms and their purpose, machines and deployments, the people of their contexts, dated facts, lessons from finished work. This skill is that realm's **memory** — recall and write, **by reflex, not by ritual**. Both reflexes key to the **question, not the session**: a verstakified repo kills only the routing case (AGENTS.md names the session's realm) — everything else fires from any session.
 
@@ -135,7 +135,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 
 | Skill | Seam |
 |---|---|
-| **entry** | one-directional: memory names the realm and hands over; **entry stays self-contained**. |
+| **entry** | one-directional: minding names the realm and hands over; **entry stays self-contained**. |
 | **verstakify** | a verstakified repo names its realm in AGENTS.md → the routing question dies there; user-field recall stays, and the memory-guard moment (a blocked local-memory write) is where the write reflex routes user-scoped facts here. Same audit machinery; verstakify binds the owner karta memory's §4 sweeps. |
 | **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
@@ -153,7 +153,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 - Nothing derivable was written into the realm.
 - On a user who doesn't need one: says so, stops.
 
-## What memory is NOT
+## What minding is NOT
 
 - **Not a session ritual** — nothing routes through it by protocol; it fires by its triggers or not at all.
 - **Not the harness's memory feature** — no MEMORY.md, no local files; the graph is the carrier, and user-facts routed here are exactly the ones that must survive a machine change.

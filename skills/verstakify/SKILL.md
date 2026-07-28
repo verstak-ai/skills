@@ -202,7 +202,7 @@ the user what was found and settle the mode:
   it to the human it stands for — `user="me"` when the owner is the person
   running this, otherwise their `sub` from `nks_admin(action="list_members")`.
   That binding is what makes the owner findable across every repo they own
-  (**memory** §4); without it their roles stay unlinked per realm. Record both
+  (**minding** §4); without it their roles stay unlinked per realm. Record both
   seqs in *What this project is* — the doc slot is the fast path,
   `nks_me(action="kartas")` the fallback.
 
@@ -313,7 +313,7 @@ The path is unambiguous (`.claude/projects/<encoded>/memory/`), so false
 positives are near zero:
 ```json
 { "matcher": "Write|Edit|MultiEdit", "hooks": [ { "type": "command",
-  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden for project state (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state → a hint vimarsha in the project realm; a user-scoped fact no project owns (machines, people, cross-project findings) → the personal realm @<handle>/mind (memory skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden for project state (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state → a hint vimarsha in the project realm; a user-scoped fact no project owns (machines, people, cross-project findings) → the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
 ```
 This entry goes under `"PreToolUse"` — its own event array, not the
 `PostToolUse` one.
@@ -352,7 +352,7 @@ confirmation rather than assuming it lands silently.
   audit and **evacuate** it. Project state (decisions, constraints, branch
   state, gotchas) → AGENTS.md / HANDOVER.md / NKS; durable user holdings
   (machines, deployments, cross-project findings) → the user's personal realm
-  (**memory**); agent working-style preferences → the user's global harness
+  (**minding**); agent working-style preferences → the user's global harness
   memory, not the project dir. Then freeze the dir: `MEMORY.md` becomes a one-line
   prohibition stub («project state lives in the repo or the graph — see
   AGENTS.md, Persistence rules»), and the memory-guard hook (Step 4) blocks

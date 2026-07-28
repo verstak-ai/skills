@@ -1,6 +1,6 @@
 # The personal realm — skeleton for `@<handle>/mind`
 
-The shape `memory` fills at bootstrap (§3) and keeps true at reconcile (§2). Not a
+The shape `minding` fills at bootstrap (§3) and keeps true at reconcile (§2). Not a
 document to paste: a **node set to build**, designed so that a single
 `nks_orient(realm="@<handle>/mind")` prints the routing answer with no lens and no
 follow-up call.
@@ -129,7 +129,7 @@ honestly:
 
 Dated sachverhalts (§7) wire the same way — produced by classification, consumed
 by release or by their own discharge kriya. No attrs, no suppression: this is
-memory §2 as an instance living in the realm it maintains; the procedure itself
+minding §2 as an instance living in the realm it maintains; the procedure itself
 stays in the skill.
 
 ## 7 · Local setup — `ding` with a closed lifecycle
