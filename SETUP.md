@@ -24,29 +24,13 @@ guess, or reuse a token.
 
 ## 0. Detect your harness
 
-Two things decide the rest of this file: whether you can run the `claude` CLI at all, and
-whether it is signed into the same Claude account as the session you are running in.
+Identify which agent you are running as — Claude Code in a terminal, Claude Desktop,
+Cursor, Codex, or other — and follow that path below. If you cannot tell, ask the user.
 
-```sh
-claude --version && echo "claudecode=${CLAUDECODE:-0}"
-```
-
-**A working `claude`.** Terminal Claude Code and the desktop app's Code tab both qualify —
-they share one config root (`~/.claude`), so a server the CLI adds or authorizes reaches
-either. Take the OAuth path in step 2; you can start it yourself, and the only human act
-is the approval in the browser that OAuth requires by design.
-
-**No `claude`** — Cursor, Codex, CI, or another agent entirely. Take the token path.
-
-The one thing the CLI does *not* share is the credential store: OAuth credentials are held
-per Claude account. If the `claude` you can run is signed into a different account than the
-session you are in, the login succeeds for *that* account and leaves you unauthorized —
-convincingly, since it prints success and turns `claude mcp list` green. You cannot read
-account parity off the environment, so do not try to. The verification at the end of step 2
-catches it, and the fix is one `claude login` into the right account.
-
-Claude Desktop and claude.ai are a separate case — chat surfaces, no CLI at all; there the
-server is authorized by a press inside the app (step 2).
+Tell Claude Desktop apart from Claude Code before you start: the two install skills
+identically but connect the server differently. Claude Code finishes the login on its own,
+terminal or desktop-hosted; Claude Desktop and claude.ai need a press inside the app
+(step 2).
 
 ## 1. Install the skills
 
@@ -62,18 +46,6 @@ claude plugin install verstak@verstak-ai
 
 (Inside an interactive session: `/plugin marketplace add verstak-ai/skills` then
 `/plugin install verstak@verstak-ai`.)
-
-**Look before you add.** `claude plugin list` tells you whether verstak is already here
-and at what version. If it is, adding the marketplace again repairs nothing — refresh the
-catalog and move the install onto it instead:
-
-```sh
-claude plugin marketplace update verstak-ai
-claude plugin update verstak@verstak-ai
-```
-
-An install that is present and current is a finished step 1, not a reason to reinstall.
-Go to step 2 and check the server, which is where a "broken verstak" almost always is.
 
 **Cursor / Codex / any other agent** (flat install, ~70 harnesses supported):
 
@@ -114,34 +86,31 @@ script -qec "claude mcp login plugin:verstak:nks" /dev/null  # Linux (util-linux
 ```
 
 Run it in the background if your harness would otherwise block on it, and read its output:
-the command prints the authorization URL before it waits. If no browser can open where you
-are, add `--no-browser` and hand that URL to the user. It is single-use and bound to the
-waiting process — while they have it open, do not re-run the login, or you invalidate the
-link they are on. One caveat before reaching for that flag: the redirect goes to
-`localhost` on *their* machine, so if you are on a remote host this is the one moment the
-flow genuinely wants stdin — they land on a dead port and paste the redirect URL back into
-the waiting process. Same machine, same browser, and none of that applies.
+the command prints the authorization URL before it waits. If no browser opens, hand that
+URL to the user — it is single-use and bound to the waiting process, so do not re-run the
+login while they still have it open.
 
-This works from a session hosted inside the desktop app exactly as it does from a terminal,
-provided the accounts match — the browser opens on its own, the user approves once, and
-the credential is readable by both. Nothing has to be pressed in the app's own UI.
+This works from a session hosted inside the desktop app exactly as it does from a terminal
+— the browser opens on its own, the user approves once, and the credential is readable by
+both. Nothing has to be pressed in the app's own UI.
 
-Then verify, in two steps that answer different questions:
+Then verify:
 
 ```sh
 claude mcp list    # plugin:verstak:nks: <MCP_URL> (HTTP) - ✔ Connected
 ```
 
-That line proves the login completed for the account the CLI is signed into. It is
-necessary, not sufficient. The check that settles it is a real call from your own
-session — `nks_me` names you, `nks_orient` returns a realm list — and it cannot happen
-before a restart: MCP config is read at session start, so a plugin installed mid-session
-has no tools until the session comes back. Ask for the restart (step 3), then call.
+That line proves the login completed, not that the tools reached a session: MCP config is
+read at session start, so a server authorized mid-session has none until the session comes
+back. Ask for the restart (step 3) — but do not park the answer on it, or you end your turn
+never knowing. Spawn one fresh non-interactive session and call there — `nks_me` names you,
+`nks_orient` returns a realm list:
 
-If the tools are still missing after that restart while `claude mcp list` reads Connected,
-the accounts differ. Have the user point the CLI at the account their session runs as —
-`claude login` — and repeat the login above; or take the token path, which sidesteps
-accounts entirely.
+```sh
+claude -p "Call nks_me and print its result." --allowedTools "mcp__plugin_verstak_nks__nks_me"
+```
+
+(The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
 
 **Claude Desktop and claude.ai: the plugin adds the server, but leaves it unauthorized.**
 Installing the plugin is still the right move — it just stops one press short. The
@@ -173,41 +142,20 @@ claude mcp add --transport http nks <MCP_URL>
 { "mcpServers": { "nks": { "url": "<MCP_URL>" } } }
 ```
 
-OAuth login triggers on first use in both.
+OAuth login triggers on first use in Cursor. In Claude Code it does not — an unauthorized
+server publishes no tools, so there is no first use to trigger it; run
+`claude mcp login nks` explicitly, under a pty as above.
 
 **The token path — when OAuth is absent, cannot reach you, or will not go through.**
-Three cases lead here. The first is structural: harnesses without MCP-OAuth support
-(Codex-style configs, CI, autonomous VMs) have no browser login to run. The second is the
-account split from step 0, when pointing the CLI at the right account is not something the
-user wants to do. The third is plain breakage: the login never opens, never completes, or
-every `nks_*` call keeps coming back 401. Do not grind on any of them and do not retry
-variations. A personal access token is a header, not a session, so it authenticates from
-any process on any host — which makes it the one path that behaves the same everywhere.
+Two cases lead here. The first is structural: harnesses without MCP-OAuth support (CI,
+autonomous VMs, any config with no browser login to run). The second is plain breakage:
+the login never opens, never completes, or every `nks_*` call keeps coming back 401. Do
+not grind on either and do not retry variations. A personal access token is a header, not
+a session, so it authenticates from any process on any host — which makes it the one path
+that behaves the same everywhere.
 
 The user creates the token in the web UI and gives it to you — never invent, guess, or
-reuse one. Pass it as a Bearer header.
-
-**Claude Code, terminal or desktop-hosted.** Add a header-authenticated entry beside the
-plugin's. MCP *configuration* lives in `~/.claude.json` and every client on the machine
-reads it; only OAuth *credentials* are per-client. That asymmetry is the whole reason this
-reaches a desktop-hosted session when a login cannot:
-
-```sh
-claude mcp add --transport http --scope user nks-token <MCP_URL> \
-  --header 'Authorization: Bearer ${VERSTAK_TOKEN}'
-```
-
-The single quotes are deliberate — they keep the placeholder out of the shell's hands, so
-the literal `${VERSTAK_TOKEN}` lands in the config and Claude Code expands it at load
-(`headers` is a supported expansion site). The token itself never enters the file.
-
-One trap on macOS: an app launched from the Dock never reads your shell profile, so a
-`VERSTAK_TOKEN` exported in `.zshrc` is invisible to the desktop app, the header expands
-to nothing, and you get a clean 401 that looks like a bad token. Either put it where GUI
-processes can see it — `launchctl setenv VERSTAK_TOKEN …`, then restart the app — or
-accept the literal token in `~/.claude.json`, which is machine-local and never committed.
-
-**Anything else:**
+reuse one. Pass it as a Bearer header:
 
 ```sh
 npx add-mcp <MCP_URL> --header "Authorization: Bearer ${VERSTAK_TOKEN}"
@@ -244,10 +192,13 @@ and seeds the graph with the structure the codebase already shows.
 - **Plugin installed on claude.ai, invisible in the desktop app** → restart the app.
 - **401 / auth error, or an OAuth login that will not complete** → try the login once
   more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the
-  Connectors-tab step above. If it still fails, stop retrying and take the token path in
-  step 2 — a PAT authenticates where OAuth won't, and asking the user for one is a
-  shorter road than debugging their browser. If a token is already in play and still
-  401s, it is wrong or expired: ask for a fresh one, do not retry variations.
+  Connectors-tab step above. If it repeats, clear the stored credential instead of logging
+  in on top of it — `claude mcp logout plugin:verstak:nks`; if you are reinstalling too, do
+  that *before* removing the plugin, or the name stops resolving. If it still fails, stop
+  retrying and take the token path in step 2 — a PAT authenticates where OAuth won't, and
+  asking the user for one is a shorter road than debugging their browser. If a token is
+  already in play and still 401s, it is wrong or expired: ask for a fresh one, do not
+  retry variations.
 - **`claude mcp login nks` → no such server** → with the plugin the server is
   `plugin:verstak:nks`. Run `claude mcp list` and copy the name from there.
 - **`stdin isn't a terminal, so authentication can't be completed here`** → your shell has
@@ -256,11 +207,6 @@ and seeds the graph with the structure the codebase already shows.
 - **`nks_*` tools not visible** → the MCP config loads on session start, so restart the
   session and verify again. Tools stay invisible in the session that authorized the
   server — expected, not a failed login.
-- **`claude mcp list` reads Connected, but the session still has no `nks_*` tools after a
-  restart** → the account split. The login authorized the account the CLI is signed into,
-  which is not the one your session runs as; retrying it changes nothing, and no button in
-  the app's UI fixes it either. Have the user run `claude login` into the account their
-  session uses and repeat the login, or take the token path.
 - **Skill name collision on flat installs** → another skill pack already uses a bare
   name like `design`. Rename that directory, or use the Claude Code plugin channel,
   which namespaces everything under `verstak`.
