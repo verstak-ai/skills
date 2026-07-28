@@ -38,10 +38,18 @@ example exactly; a simpler representative case does not discharge it.
 
 For each claim, one compact row:
 
+**Take the surface from the config, don't re-derive it.** A verstakified repo answers this in
+`AGENTS.md` → *Reality*: the canonical carrier per claim class, the exact observation, and who can
+reach it. Read that table first and re-derive only what it doesn't cover — the carrier is the
+owner's to name, not the auditor's to guess, and a repo whose table you extend in passing is one
+the next audit starts from. Its **Ceiling** rows are binding: a claim class recorded there as
+having no reachable observation cannot come back `verified` from this protocol, however the probe
+goes — `provisional` or `blocked` is its honest top.
+
 | Field | Required answer |
 |---|---|
 | Claim | What exactly must hold? |
-| Canonical surface | Which exact binary, package, exported symbol, API route, UI, schema, generated artifact, or deployed path will users consume? |
+| Canonical surface | Which exact binary, package, exported symbol, API route, UI, schema, generated artifact, or deployed path will users consume? (From *Reality* where the repo has one.) |
 | Observable | What should an external observer see? |
 | Executable falsifier | Which command, request, assertion, or test would prove the claim false? |
 
@@ -82,8 +90,10 @@ NKS comes after the evidence and is never part of it. Freeze the claim verdicts 
 material artifact changes first; then at most one terminal update, and only when a durable
 correction or contradiction will change a later agent's decision. A later material patch makes
 that update premature — its behavioral confidence is provisional until the affected public
-evidence is rerun and the node reverified. The graph is not mid-audit scratch, and graph state is
-never an input to a verdict. The one-update limit scopes this audit's own evidence handoff; the
+evidence is rerun and the node reverified. The graph is not mid-audit scratch, and no graph state
+raises a **behavioral** verdict — reading the graph is a legitimate check of its own (it is what a
+claim-audit does), it simply observes the record rather than the world, and passing the first off
+as the second is the whole failure this protocol exists to prevent. The one-update limit scopes this audit's own evidence handoff; the
 structural modelling `writing` or the repo's push ritual requires belongs to the round, not to
 the audit.
 
