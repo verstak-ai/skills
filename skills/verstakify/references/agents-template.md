@@ -65,18 +65,25 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     with neighbouring code. Repo-only mechanics — lockfile churn, internal
     refactors with no outside impact, commands, file moves — stay in git, not
     NKS.
-  - **Advance the map.** Close (visarjana) the vimarshas this push resolved;
-    keep open work attached via `anga` to the bianhua it drives. A thin
-    `genre=hint` seed is left only for what the graph can't carry —
-    external-world state, chosen priorities; pointer, not payload
+  - **Advance the map.** Keep open work attached via `anga` to the bianhua it
+    drives. A thin `genre=hint` seed is left only for what the graph can't carry
+    — external-world state, chosen priorities; pointer, not payload
     — never by default.
+  - **Close by axis, not by feeling done.** Record the answer as `addressed_by`
+    to the node that carries it — that raises confidence, it does not end the
+    question. Release (`visarjana`) is a separate, volitional act, and what it
+    takes first depends on the question: a distinction is answered by its form,
+    a behavioral claim needs the observation on its carrier (*Reality*). Release
+    what your own work answered; where the call is the owner's, prepare it and
+    present it, never assume it. Release is not the only ending — park it,
+    supersede it, or crystallize what it taught.
 
   - **Sweep the shipped contour.** A push that realizes designed nodes flips
     their modes (anagata→vartamana, kalpita→pratyakshita) across the *whole*
     designed contour — not only the nodes you happened to touch — and closes
     the design vimarshas the ship settled.
-  - **Sweep the inbox.** Close (visarjana) the `posed_to` questions your work
-    answered; park or group the stale ones.
+  - **Work the inbox.** The `posed_to` questions your work answered end by the
+    rule above; park or group the stale ones.
 
   `weaving` / `design` carry the *how* (closing vimarshas, threading
   the holon).
@@ -141,7 +148,7 @@ branches before it merges. After the branch merges (however this project merges
 2. Delete the merged branch (`git branch -d <name>`); prune others now on
    `main`.
 3. Update NKS: change is on `main`, not a branch — thread shipped state into
-   the holon, close vimarshas the merge resolved (`weaving`).
+   the holon, end what the merge settled by the rule above (`weaving`).
 4. Confirm cleanup is done before the next task.
 
 ## Working principles
@@ -176,8 +183,8 @@ branches before it merges. After the branch merges (however this project merges
    downstream system), not just unit tests — *Reality* names this project's
    carriers and who can reach them. Name the falsifier before you look ("what
    observation would refute this?"), and observe the carrier itself, not the
-   source that was meant to produce it. Close vimarshas your change resolves
-   (`visarjana`).
+   source that was meant to produce it. Ending the questions your change touched
+   follows *Session lifecycle* — by axis, not by feeling done.
 7. **Read before answering an open-ended ask.** Tasks framed as *discuss / think
    through / figure out / research / design / plan / analyse / investigate /
    explore / "what do you think"* — anything beyond "do X concretely" — are
@@ -209,6 +216,13 @@ the user? A row the agent can't execute is worth nothing. -->
 **Ceiling**: `<claim classes with no reachable observation, and why — the past,
 a third-party system, a surface the agent may not touch. Their honest top is
 inference or converging independent sources; they are never closed as verified.>`
+
+**This table grows by use.** The interview only seeds it. The moment a session
+teaches you something it doesn't hold — a carrier nobody named, an observation
+that turned out reachable, one that turned out not to be (→ *Ceiling*), a command
+here that was wrong — write the row *then*, in that session, before the work that
+taught it is closed. (why: an unrecorded carrier is one the next agent doesn't
+find, so the same claim gets accepted on weaker evidence next time.)
 
 ## NKS ↔ repo: where things live
 | Concern                                | Repo            | NKS                      |

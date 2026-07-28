@@ -19,14 +19,15 @@ State lives in the **repo** or in **NKS** — nowhere else.
 
 ## Session lifecycle
 - **Start:** `nks_orient(realm="nks-dev", focus_holon="844")`; orient by the ACTIVE BIANHUA map (`lens="bianhua"` for the forest) — open work lives as anga-vimarshas on transformations; a `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The `entry` skill runs the protocol. Then open your agenda: `nks_orient(realm="nks-dev", focus="931")` — incoming `posed_to` vimarshas are your inbox; pick up or explicitly defer each before starting repo work.
-- **Every push → update NKS:** thread shipped skill changes into holon #844. Advance the map — close (visarjana) the vimarshas the push resolved, keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
+- **Every push → update NKS:** thread shipped skill changes into holon #844. Advance the map — keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
+- **End vimarshas by axis, not by feeling done.** `addressed_by` records the answer and raises confidence; it does not end the question. Release (`visarjana`) is a separate volitional act, and what it takes first depends on the question — a distinction is answered by its form, a behavioral claim needs the observation on its carrier. Release what your own work answered; where the call is the owner's (#1226), prepare it and present it, never assume it. Release is not the only ending — park, supersede, or crystallize what it taught. Each node's `Carrier:` line states which mode actually closes it; read it rather than reaching for `visarjana` by habit.
 - **Every skill is a pair — map both halves, and map the kriya by steps.** The **phenomenon** (`given_as=vollzug`, «Скилл <name>», #845…) carries the method as an artefact; its description matches the shipped `SKILL.md`. The **applying kriya** (#924…) carries the method as it runs, and is decomposed **step by step**: one sub-kriya per protocol phase (`contains`-child) with its own pariṇāma, `ahara`/`utpatti`, `actor`, `next` into each tool-kriya it calls (MCP contour — #296 `nks_orient`, #309 `nks_search`, #859 `nks_arrow`…), and `upadhi` to any skill it composes (e.g. on-duty's close → weaving #848). A phase whose actor is **not** the agent — owner acceptance of telos, goal, or gate — is its own kriya (#1583, #1619, #1658, #1678): one kriya, one actor. New skill → new phenomenon + applying kriya, decomposed the same way; a changed protocol → the sub-kriyas move with it.
 - **Why the step-map is load-bearing:** it is the instrument for steering skill development. A tool rename's blast radius, a skill's real composition, and the method's correspondence-or-drift against the **methodology** canon become graph traversals instead of re-readings of prose — mismatch surfaces as a structural tension, not as a hunch. Prose in `SKILL.md` stays the source of truth; the graph is the model of that truth, and a model you can't query can't steer anything.
 - **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
 
 ### Branch discipline
-One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges. After merge: `git checkout main && git pull`, delete the merged branch, update NKS (#844 + close resolved vimarshas).
+One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges. After merge: `git checkout main && git pull`, delete the merged branch, update NKS (#844 + end what the merge settled, by axis).
 
 ## Working principles
 1. **Think before editing.** Orient in nks-dev; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
@@ -97,7 +98,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `skills/verstakify/references/superpowers-interop.md` — when superpowers renames its skills/paths/gates (re-verify checklist inside).
 - `skills/verstakify/references/delegation.md` — when Claude Code / OpenCode agent-file surfaces change (dirs, frontmatter keys, model aliases/inheritance; re-verify checklist inside).
 - `skills/verstakify/references/harness-surfaces.md` — when a harness changes where it reads instructions or fires automation (Claude Code hooks file, Codex `[hooks]`/`AGENTS.override.md`, OpenCode plugin dir + event list; re-verify checklist inside). A harness gaining or losing a surface changes what verstakify can promise.
-- NKS (`nks-dev`, #844) — every push: bring **both halves** of every touched skill to the shipped state — the phenomenon («Скилл <name>», vollzug) and its applying kriya with its step-by-step sub-kriyas (tool `next`-edges and composition `upadhi` included) — and close resolved vimarshas.
+- NKS (`nks-dev`, #844) — every push: bring **both halves** of every touched skill to the shipped state — the phenomenon («Скилл <name>», vollzug) and its applying kriya with its step-by-step sub-kriyas (tool `next`-edges and composition `upadhi` included) — and end what the push settled, by axis.
 
 ## Git workflow
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
@@ -106,6 +107,6 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner".
 - **Pushing your branch and opening its PR are your own responsibility.** Don't ask for permission, and don't offer them as a choice ("push or keep working?") — that is the same ask in a different coat. Work that is done gets pushed and gets its PR in the same breath; a finished change sitting unpushed is not finished. Keep committing follow-ups into the open PR.
 - **Merging is the user's alone.** Never merge — not on green checks, not on approval, not on a one-liner. Only the user signals it.
-- **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — close resolved vimarshas, advance the bianhua they drive.
+- **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — end what it settled by axis, advance the bianhua they drive.
 - **PR description: short and in English.** A few lines — what changed and why it's right. Not a retelling of the diff, not an essay; the reasoning belongs in NKS, the detail in the commit messages.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
