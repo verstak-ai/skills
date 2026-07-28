@@ -27,12 +27,11 @@ have, with `<…>` slots and a few `<!-- … -->` notes. Fill the slots, drop
 optional rows/sections that don't apply, strip every `<!-- … -->` note, never
 leave an angle bracket. The skeleton is *what to produce*; this file is *how*.
 
-**Contract: `2026-07-28`.** Every run stamps this date into the generated
-`AGENTS.md` (Step 7). Maintainers bump it only when a change here or in the
-skeleton makes an already-generated file *wrong* — a section added, renamed or
-retired, a ritual changed, a tool name dropped; never for wording. On a repo
-whose stamp is older than this line, run the full arc and say which contract the
-config came from — a stamp that merely *exists* is not a stamp that still holds.
+**Contract: `2026-07-28`.** Step 7 stamps this date into every `AGENTS.md` it
+writes. Bump it only when a change here or in the skeleton makes an
+already-generated file *wrong* — a section added, renamed or retired, a ritual
+changed, a tool name dropped; never for wording. A repo whose stamp is older
+gets the full arc, and you name the contract its config came from.
 
 The skeleton deliberately *inlines* repo-agnostic agent-discipline (Working
 principles, parts of Session lifecycle) into every generated `AGENTS.md` so the
@@ -160,20 +159,15 @@ forked component looks like two ordinary files, so the repo can't be grepped for
 it. Fills *Shared surfaces*; omit the section only if the answer is genuinely
 nothing.
 
-Also settle **reality** — what a claim in this project is verified *against*.
-Fills the *Reality* table. This is the slot an agent cannot fill for itself and
-usually doesn't think to ask about: it knows the graph (the model) and the repo
-(part of the embodiment), and often has no idea what the work becomes when it
-runs, or whether that is observable at all. It differs completely between a code
-repo, a data repo and an infrastructure repo, so derive nothing — ask. Walk the
-user through it: where does a change land, what effects does it produce, which
-of them can be observed and with exactly what command, URL, dashboard or query,
-and — the half that decides whether any of this happens — what the agent can
-reach on its own versus what needs them. Push for the *canonical carrier* of
-each claim class, not the source that was meant to produce it (the built
-artifact, not the sources; the live endpoint, not the handler; a clean install,
-not a warm cache). Where a class has no reachable observation, record it under
-*Ceiling* with the reason instead of leaving the row aspirational.
+Also settle **reality** — what a claim here is verified *against*; fills the
+*Reality* table. A code repo, a data repo and an infrastructure repo answer this
+differently, so derive nothing, ask: where a change lands, what effects it
+produces, which of them are observable and with exactly what command / URL /
+query, and what the agent reaches alone versus what needs the user. Press for
+the *canonical carrier* of each claim class — the built artifact, not the
+sources; the live endpoint, not the handler; a clean install, not a warm cache.
+A class with no reachable observation goes under *Ceiling* with its reason,
+never left as an aspirational row.
 
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
@@ -354,9 +348,12 @@ Project the delegation doctrine as **named role agents**, not as AGENTS.md
 prose (orchestration mechanics stay out of AGENTS.md — the output contract
 above). Doctrine + file templates: `references/delegation.md` (relative to
 this skill).
-- Always: `.claude/agents/reader.md` (cheap-tier recon) and
-  `.claude/agents/worker.md` (mid-tier brief execution), model aliases
-  `haiku`/`sonnet`.
+- Always: `.claude/agents/reader.md` (cheap-tier recon),
+  `.claude/agents/worker.md` (mid-tier brief execution) and
+  `.claude/agents/verifier.md` (top-tier cold acceptance), model aliases
+  `haiku`/`sonnet`/`opus`. The verifier is projected even where the repo has no
+  runtime yet — it is what makes the *Reality* table actionable, and a repo that
+  gains a carrier later should not need a re-run to gain its acceptor.
 - When the repo shows OpenCode use (`opencode.json` / `.opencode/` present, or
   the user says so): `.opencode/agents/reader.md` + `worker.md`,
   `mode: subagent`, model **pinned** per file — an unpinned OpenCode subagent

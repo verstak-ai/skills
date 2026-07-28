@@ -93,6 +93,14 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   carries the memory/design plane only. Decisions and risks born during
   execution still land in the realm **before the session ends** — never gate
   them on a future push/commit.
+- **A claim you made is not a claim you accept.** Behavioral claims — "the fix
+  works", "the endpoint answers", "the migration ran" — close on a cold
+  `verifier` subagent's verdict, never on your own re-reading. Give it the
+  claim, the carrier and the falsifier from *Reality*, and **wait for the
+  verdict** before closing anything. (why: you cannot see your own change as it
+  is, only as you meant it.) Where this repo has no verifier role, make the
+  observation yourself against the carrier — never close a behavioral claim on
+  the source that was supposed to produce it.
 - **Hooks merge.** Where the harness has a hooks file, entries from different
   suites coexist — add alongside, never overwrite another suite's.
 - These reminders are automated where the harness supports it: a session-start
@@ -187,14 +195,13 @@ Touching one obliges checking the others (Working principle 4). -->
 | <component / schema / contract> | <system A, system B> | <shared on purpose, or a fork we accepted and why> |
 
 ## Reality — what a claim is verified against
-<!-- Authored slot — no checkable source, so ask the user; every project answers
-it differently (code, data, infrastructure, content). NKS is the model of the
-work; this repo is part of its embodiment; this section names the third thing —
-what the work becomes when it actually runs, and how to look at it. Ask: where
-does a change land? what effects does it produce? which of them can be observed,
-and with exactly what command, URL, dashboard or query? what can the agent reach
-on its own, and what needs the user? Keep the table short and exact — a row an
-agent can't execute is worth nothing. -->
+<!-- Authored slot — ask the user, derive nothing; every project answers it
+differently (code, data, infrastructure, content). NKS is the model of the work,
+this repo part of its embodiment; this names the third thing — what the work
+becomes when it runs, and how to look at it. Ask: where does a change land? what
+effects does it produce? which of them are observable, with exactly what
+command, URL, dashboard or query? what does the agent reach alone, what needs
+the user? A row the agent can't execute is worth nothing. -->
 | Claim class | Canonical carrier | How to observe | Who can |
 |---|---|---|---|
 | <what kind of claim this row settles> | <the thing that settles it: the built artifact, the live endpoint, the migrated table, the deployed host — never the source that was supposed to produce it> | <exact command / URL / query> | <agent \| user> |
