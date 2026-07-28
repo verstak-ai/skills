@@ -100,9 +100,10 @@ material artifact changes first; then at most one terminal update, and only when
 correction or contradiction will change a later agent's decision. A later material patch makes
 that update premature — its behavioral confidence is provisional until the affected public
 evidence is rerun and the node reverified. The graph is not mid-audit scratch, and no graph state
-raises a **behavioral** verdict — reading the graph is a legitimate check of its own (it is what a
-claim-audit does), it simply observes the record rather than the world, and passing the first off
-as the second is the whole failure this protocol exists to prevent. The one-update limit scopes this audit's own evidence handoff; the
+raises a **behavioral** verdict. What is forbidden is the substitution, not the reading: the
+record-step is legitimate and *obligatory in its own place* — resolving the contract, deduping,
+`integrity`'s claim-audit — and only passing it off as world-witnessing, or letting it lift a
+behavioral verdict, is illegitimate. The one-update limit scopes this audit's own evidence handoff; the
 structural modelling `writing` or the repo's push ritual requires belongs to the round, not to
 the audit.
 
