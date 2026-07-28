@@ -10,31 +10,13 @@ and waiting is part of a normal run, not a dead end; see **Troubleshooting**.
 verstak is two parts:
 
 1. **Skills** — plain-markdown method bundles from this repo (readable before install).
-2. **Graph MCP server** — the remote NKS reasoning graph, exposed as `nks_*` tools.
-
-**The server address.** Throughout this file, `<MCP_URL>` means exactly:
-
-```
-https://nks.lab.mirari.ru/mcp
-```
-
-Substitute that literal string wherever `<MCP_URL>` appears below. The server
-authenticates two ways. Default is **OAuth** — a browser login you can start yourself, so
-you never ask the user for a secret. They still approve it in their browser: that press is
-the one part of this file nobody can do for them. When that is unavailable or refuses to
-work, there is a **personal access token** the user makes in the web UI; it works
-everywhere and is the answer to any authorization you cannot get past. Never invent,
-guess, or reuse a token.
+2. **Graph MCP server** — the remote NKS reasoning graph at
+   `https://nks.lab.mirari.ru/mcp`, exposed as `nks_*` tools.
 
 ## 0. Detect your harness
 
 Identify which agent you are running as — Claude Code in a terminal, Claude Desktop,
 Cursor, Codex, or other — and follow that path below. If you cannot tell, ask the user.
-
-Tell Claude Desktop apart from Claude Code before you start: the two install skills
-identically but connect the server differently. Claude Code finishes the login on its own,
-terminal or desktop-hosted; Claude Desktop and claude.ai need a press inside the app
-(step 2).
 
 ## 1. Install the skills
 
@@ -62,27 +44,17 @@ Add `--agent codex` (or `-a cursor`, …) to target a specific harness explicitl
 ## 2. Connect the graph server
 
 **Claude Code + plugin from step 1: the server arrives configured, but not logged in.**
-The plugin bundles it (`.mcp.json` in the plugin root) under the qualified name
-**`plugin:verstak:nks`** — that name, not `nks`, is what every `claude mcp` command wants;
-`claude mcp list` prints the exact one and the status beside it.
+The plugin bundles it (`.mcp.json` in the plugin root) as **`plugin:verstak:nks`** — use
+that name in every `claude mcp` command; `claude mcp list` prints it with its status.
 
-**An interactive terminal.** `/mcp` lists the server and completes the login there. Do not
-assume you are here, and do not plan on triggering it with an `nks_*` call: an
-unauthorized server publishes no tools, so there is nothing to call.
-
-**Anywhere `/mcp` does not render** — a headless run, a cron job, a piped `-p` invocation,
-a subagent, a session hosted inside the desktop app. Nothing opens on its own: the server
-sits at `needs authentication` however many times you retry. Start the login yourself:
+**The login is yours to start.** Nothing triggers it on its own — the server sits at
+`needs authentication` until you run:
 
 ```sh
 claude mcp login plugin:verstak:nks
 ```
 
-**Give it a terminal or it will not wait.** Without one the command aborts —
-`stdin isn't a terminal, so authentication can't be completed here` — even though the part
-that matters needs no input at all: the browser redirects to a localhost callback the
-command is already listening on, and only the paste-the-URL fallback wants stdin. A
-pseudo-terminal is the whole fix, and the login then completes on its own:
+The command needs a TTY to wait for the browser; in a shell without one, wrap it:
 
 ```sh
 script -q /dev/null claude mcp login plugin:verstak:nks      # macOS / BSD
@@ -92,23 +64,18 @@ script -qec "claude mcp login plugin:verstak:nks" /dev/null  # Linux (util-linux
 Run it in the background if your harness would otherwise block on it, and read its output:
 the command prints the authorization URL before it waits. If no browser opens, hand that
 URL to the user — it is single-use and bound to the waiting process, so do not re-run the
-login while they still have it open.
-
-This works from a session hosted inside the desktop app exactly as it does from a terminal
-— the browser opens on its own, the user approves once, and the credential is readable by
-both. Nothing has to be pressed in the app's own UI.
+login while they still have it open. A session hosted inside the desktop app behaves the
+same as a terminal here; nothing is pressed in the app's own UI.
 
 Then verify:
 
 ```sh
-claude mcp list    # plugin:verstak:nks: <MCP_URL> (HTTP) - ✔ Connected
+claude mcp list    # plugin:verstak:nks: https://nks.lab.mirari.ru/mcp (HTTP) - ✔ Connected
 ```
 
-That line proves the login completed, not that the tools reached a session: MCP config is
-read at session start, so a server authorized mid-session has none until the session comes
-back. Ask for the restart (step 3) — but do not park the answer on it, or you end your turn
-never knowing. Spawn one fresh non-interactive session and call there — `nks_me` names you,
-`nks_orient` returns a realm list:
+That line proves the login completed, not that the tools reached a session — MCP config
+is read at session start. Ask for the restart (step 3), and confirm now from one fresh
+non-interactive session — `nks_me` names you, `nks_orient` returns a realm list:
 
 ```sh
 claude -p "Call nks_me and print its result." --allowedTools "mcp__plugin_verstak_nks__nks_me"
@@ -117,38 +84,34 @@ claude -p "Call nks_me and print its result." --allowedTools "mcp__plugin_versta
 (The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
 
 **Claude Desktop and claude.ai: the plugin adds the server, but leaves it unauthorized.**
-Installing the plugin is still the right move — it just stops one press short. The
-authorize button is not in the app's own Connectors settings, and there is nothing to
-paste: it sits on a **Connectors tab inside the verstak plugin's own page**, and it
-appears only once the plugin itself is installed. Two presses, in this order:
-**Install**, then **Connect**. This is where people get stuck, so walk the user through
-it instead of letting them hunt:
+The authorize button is not in the app's own Connectors settings, and there is nothing to
+paste: it sits on a **Connectors tab inside the verstak plugin's own page**, and appears
+only once the plugin is installed. Walk the user through it:
 
 > Open **Customize → Plugins** and find the **verstak** plugin. Press **Install** if you
 > haven't yet, then open its **Connectors** tab and press the authorize button there —
 > **Connect** only shows up after the install.
 
-Two things worth telling them up front: this flow is more reliable on **claude.ai** than
-in the desktop app, and a plugin installed on claude.ai is not picked up until the
-desktop app is restarted.
+This flow is more reliable on **claude.ai** than in the desktop app, and a plugin
+installed on claude.ai is not picked up until the desktop app is restarted.
 
 Afterwards the `nks_*` tools arrive already authorized, and you continue at step 3.
 
 **Claude Code without the plugin:**
 
 ```sh
-claude mcp add --transport http nks <MCP_URL>
+claude mcp add --transport http nks https://nks.lab.mirari.ru/mcp
 ```
 
 **Cursor** — merge into `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
 
 ```json
-{ "mcpServers": { "nks": { "url": "<MCP_URL>" } } }
+{ "mcpServers": { "nks": { "url": "https://nks.lab.mirari.ru/mcp" } } }
 ```
 
 OAuth login triggers on first use in Cursor. In Claude Code it does not — an unauthorized
-server publishes no tools, so there is no first use to trigger it; run
-`claude mcp login nks` explicitly, under a pty as above.
+server publishes no tools, so there is no first use to trigger it; run the login
+explicitly, under a pty as above.
 
 **The token path — when OAuth is absent, cannot reach you, or will not go through.**
 Two cases lead here. The first is structural: harnesses without MCP-OAuth support (CI,
@@ -162,13 +125,13 @@ The user creates the token in the web UI and gives it to you — never invent, g
 reuse one. Pass it as a Bearer header:
 
 ```sh
-npx add-mcp <MCP_URL> --header "Authorization: Bearer ${VERSTAK_TOKEN}"
+npx add-mcp https://nks.lab.mirari.ru/mcp --header "Authorization: Bearer ${VERSTAK_TOKEN}"
 ```
 
 ```toml
 # Codex ~/.codex/config.toml
 [mcp_servers.nks]
-url = "<MCP_URL>"
+url = "https://nks.lab.mirari.ru/mcp"
 bearer_token_env_var = "VERSTAK_TOKEN"
 ```
 
@@ -195,9 +158,8 @@ and seeds the graph with the structure the codebase already shows.
   are on, the exact command, and what approving it does; then stop and wait. On approval,
   re-run that command and continue — steps that already succeeded are not repeated.
 - **Claude Desktop / claude.ai: `nks_*` tools visible but unauthorized** → expected; the
-  plugin does not authorize its own server. Walk the user through **Customize → Plugins
-  → verstak → Connectors** as in step 2 — the button is not in the app's Connectors
-  settings, and no URL is pasted anywhere.
+  plugin does not authorize its own server. Authorize on the plugin's own **Connectors**
+  tab as in step 2 — not in the app's Connectors settings, and no URL is pasted anywhere.
 - **Plugin installed on claude.ai, invisible in the desktop app** → restart the app.
 - **401 / auth error, or an OAuth login that will not complete** → try the login once
   more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the
