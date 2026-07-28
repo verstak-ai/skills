@@ -14,6 +14,14 @@ Load it **after the final material implementation change**, before saying `verif
 invalidates earlier evidence. Not at task entry, and never interrupt implementation with graph
 modelling to prepare for it.
 
+**"Checked" is a two-step claim, and the step is always declared.** Checking against the *record*
+— `look` / `orient` / `trace`, whether the words agree with what is written — is one step; the
+graph is an instrument for observing the world, not the world. Witnessing the *world* — fresh
+observation on the canonical carrier — is the other. Record-checking ranks below world-witnessing,
+and behavioral closure is carried by the second only. So when you close anything with the word
+"verified", say what you verified it against; a verdict with no named step is not a result. Every
+verdict this protocol issues is a world-step verdict.
+
 **Proportionality.** When the change alters no public contract — no new or changed exported
 symbol, output format, config/schema shape, or documented behavior — the ladder collapses to
 steps 1–2 on the touched path: rebuild the canonical deliverable, exercise the changed path once
@@ -40,9 +48,10 @@ For each claim, one compact row:
 
 **Take the surface from the config, don't re-derive it.** A verstakified repo answers this in
 `AGENTS.md` → *Reality*: the canonical carrier per claim class, the exact observation, and who can
-reach it. Read that table first and re-derive only what it doesn't cover — the carrier is the
-owner's to name, not the auditor's to guess, and a repo whose table you extend in passing is one
-the next audit starts from. Its **Ceiling** rows are binding: a claim class recorded there as
+reach it. Read that table first — the carrier is the owner's to name, not the auditor's to guess.
+No table, or a class it doesn't cover: **ask the owner and offer a `verstakify` run**, and record
+what they answer so the next audit starts from it. Deriving a carrier yourself is the guess this
+whole protocol exists to remove. Its **Ceiling** rows are binding: a claim class recorded there as
 having no reachable observation cannot come back `verified` from this protocol, however the probe
 goes — `provisional` or `blocked` is its honest top.
 
