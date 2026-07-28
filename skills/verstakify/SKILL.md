@@ -27,12 +27,18 @@ have, with `<…>` slots and a few `<!-- … -->` notes. Fill the slots, drop
 optional rows/sections that don't apply, strip every `<!-- … -->` note, never
 leave an angle bracket. The skeleton is *what to produce*; this file is *how*.
 
+**Contract: `2026-07-28`.** Every run stamps this date into the generated
+`AGENTS.md` (Step 7). Maintainers bump it only when a change here or in the
+skeleton makes an already-generated file *wrong* — a section added, renamed or
+retired, a ritual changed, a tool name dropped; never for wording. On a repo
+whose stamp is older than this line, run the full arc and say which contract the
+config came from — a stamp that merely *exists* is not a stamp that still holds.
+
 The skeleton deliberately *inlines* repo-agnostic agent-discipline (Working
 principles, parts of Session lifecycle) into every generated `AGENTS.md` so the
 file stands alone for agents with no NKS access. Keep it inline — don't replace
 it with a pointer to the methodology realm even though it duplicates content
-there. (Whether invariant discipline should instead live once in methodology
-with a pointer is a deliberate open trade-off, tracked as a samshaya in nks-dev.)
+there.
 
 ## Audit → classify → act (not fresh-vs-existing)
 
@@ -64,6 +70,7 @@ Each claim class has one authority. Verify there — don't recall:
 | Quality gate (strictness, max-warnings) | linter config, `tsconfig`, CI yaml | read |
 | Project structure, path aliases | filesystem + `tsconfig`/bundler config | glob / list |
 | Nature, production statement, relaxations | the user (authored) | confirm in conversation |
+| Reality carriers + how to observe them | the user (authored) | confirm in conversation — never derive |
 | Design decisions, why-clauses, open questions | NKS | `nks_orient` / `nks_search` |
 | Branch state, what's runnable | git + `HANDOVER.md` | `git status` / `log` |
 | Gotchas | authored (past pain) | sanity-check only — don't auto-derive |
@@ -152,6 +159,21 @@ have more than one consumer, and which consumers. Authored slot — a silently
 forked component looks like two ordinary files, so the repo can't be grepped for
 it. Fills *Shared surfaces*; omit the section only if the answer is genuinely
 nothing.
+
+Also settle **reality** — what a claim in this project is verified *against*.
+Fills the *Reality* table. This is the slot an agent cannot fill for itself and
+usually doesn't think to ask about: it knows the graph (the model) and the repo
+(part of the embodiment), and often has no idea what the work becomes when it
+runs, or whether that is observable at all. It differs completely between a code
+repo, a data repo and an infrastructure repo, so derive nothing — ask. Walk the
+user through it: where does a change land, what effects does it produce, which
+of them can be observed and with exactly what command, URL, dashboard or query,
+and — the half that decides whether any of this happens — what the agent can
+reach on its own versus what needs them. Push for the *canonical carrier* of
+each claim class, not the source that was meant to produce it (the built
+artifact, not the sources; the live endpoint, not the handler; a clean install,
+not a warm cache). Where a class has no reachable observation, record it under
+*Ceiling* with the reason instead of leaving the row aspirational.
 
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
@@ -402,6 +424,11 @@ this skill).
   checker drifts alongside the doc it guards. Re-running verstakify is the
   discipline. A narrow per-repo checker on named lines is the only shape worth
   building; never a generic one.
+- **Stamp the contract.** Trailing line of `AGENTS.md`: `*(verstakify: contract
+  <the date from the top of this file> — re-run when the installed contract is
+  newer, or when the sources this file derives from have moved since.)*` On a
+  refresh, overwrite the old stamp; never leave two. The stamp is what makes a
+  later session able to tell a current config from one that merely exists.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
