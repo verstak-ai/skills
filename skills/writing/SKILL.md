@@ -252,7 +252,7 @@ Every arrow carries a sense explaining WHY.
 
 ## Operational reminders
 
-**reasoning.** Every write tool accepts `reasoning="..."`. Use it — it is not only the audit trail. Where a doer watches a node or its own inbox, that line is what rides the notification: the next agent is woken by your one sentence and judges from it whether to act. A write with no reason wakes someone with nothing to judge by, so they must fetch the node to learn they didn't need it.
+**reasoning.** Every write tool accepts `reasoning="..."`. Use it — it is not only the audit trail. Where a doer watches its own inbox through a channel, that line is what rides the wake-up into it: the next agent is woken by your one sentence and judges from it whether to act. A write with no reason wakes someone with nothing to judge by, so they must fetch the node to learn they didn't need it. Write it for that reader, not for the log — what changed and why it might matter to them, in one line.
 
 **basis_version.** Every `nks_update`, `nks_arrow` (delete/reconnect/update), and `nks_delete_node` requires it. Read → write → re-read on conflict.
 
