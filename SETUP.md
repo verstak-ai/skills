@@ -16,7 +16,9 @@ verstak is two parts:
 Authentication uses **OAuth exclusively**. Start the browser flow yourself, wait for its
 callback, and finish setup in the same run. Do not substitute a different authentication
 scheme. If the harness cannot complete MCP OAuth, report that literal blocker instead of
-claiming the installation succeeded.
+claiming the installation succeeded. A notice that this session is non-interactive is not
+that blocker: it is about a missing TTY only, which the `script` wrapper below supplies.
+Only a login you actually ran and watched fail counts.
 
 ## 0. Detect your harness
 
