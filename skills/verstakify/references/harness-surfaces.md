@@ -93,7 +93,7 @@ Ritual mapping: orient → `event` on `session.created`; memory guard →
 `tool.execute.before` with a throw; push → NKS → `tool.execute.after` on the
 shell tool. Subagent role files: `.opencode/agents/` (see `delegation.md`).
 
-## Wake mechanisms — what an `on-duty` mode maps onto
+## Wake mechanisms — what an `autonomous` mode maps onto
 
 The watch declares a wake mode; the mechanism belongs to the harness. Wire what
 the harness actually has — never a scheduler you assume it has.

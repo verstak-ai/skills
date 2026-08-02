@@ -137,7 +137,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 |---|---|
 | **entry** | one-directional: minding names the realm and hands over; **entry stays self-contained**. |
 | **verstakify** | a verstakified repo names its realm in AGENTS.md → the routing question dies there; user-field recall stays, and the memory-guard moment (a blocked local-memory write) is where the write reflex routes user-scoped facts here. Same audit machinery; verstakify binds the owner karta memory's §4 sweeps. |
-| **on-duty** | §4 is the cross-realm view of the inboxes that **on-duty** works through one realm at a time. |
+| **autonomous** | §4 is the cross-realm view of the inboxes that **autonomous** works through one realm at a time. |
 | **assembly** | the person's own transformations, if mapped, are an assembly at the scale of a life — owner accepts each telos. |
 | **intake** | classifying a newly appeared realm is external word entering under provenance — and this contour is where word serving *several* contours lands, instead of the realm that happened to be open. |
 | **inquiry** | crystallization is the §2 release move: a finished contour leaves a form behind, not just an absence. |
@@ -159,4 +159,4 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 - **Not the harness's memory feature** — no MEMORY.md, no local files; the graph is the carrier, and user-facts routed here are exactly the ones that must survive a machine change.
 - **Not `entry`** — that orients inside a given realm, used by every agent already told where to go.
 - **Not an index of the access surface** — it stores the authored remainder.
-- **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **on-duty**.
+- **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **autonomous**.
