@@ -20,6 +20,7 @@ produce. They teach an agent how to read, write, design, and weave an NKS graph 
 | **reality-audit** | Terminal implementation check — rebuild the canonical deliverable and exercise exact acceptance falsifiers before claiming done. |
 | **intake** | Bring external word (шабда) into a realm — map form→type, mode by kind (#104), dedup, anchor, verify by пратьякша. Source-independent. |
 | **on-duty** | Stand watch — the agent's autonomous duty cycle: drain the doer's inbox, wire dependencies into other doers' inboxes, weave the wake, wait consciously (webhook / bounded re-check). Scoped mode drives one bianhua to arrival. |
+| **collaborate** | Doers agreeing across contours — recognize the boundary, find the doer, address, wake, wait under a bound, converge or escalate, close by writing. Draft: the frame protocol settles when the channel carries addressed inquiry natively. |
 | **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` pointer: `@AGENTS.md` import, Windows-safe), wire the NKS session rituals, set the quality gate. |
 | **product-roadmap** | Build a product roadmap for a product you maintain on GitHub — one repo or many (an org / repo-set treated as one product) — by modelling it as a verified ground, harvesting its issues + PRs, and assembling the directions it's actually under. Composes verstakify + intake + assembly. |

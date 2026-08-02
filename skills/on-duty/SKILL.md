@@ -1,6 +1,6 @@
 ---
 name: on-duty
-description: "Stand watch — the agent's duty cycle in a verstakified repo, driven by the doer's inbox. Triggers: 'заступай на вахту', 'вахта', 'on duty', 'stand watch', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Scopes to one transformation on request ('продвигай bianhua', 'доведи превращение'). Two loops: a cheap duty tact (wake → wake-reason + since-delta → nothing to do? arm the next wake, sleep) and an expensive work tact (select → ship per repo ritual → relay into dependants' inboxes → weave → close). Wake mode and focus are declared on entry, never guessed. A behavioral claim is reality-audited before it closes or relays as verified. Composes entry, inquiry, design, integrity, reality-audit, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Stand watch — the agent's duty cycle in a verstakified repo, driven by the doer's inbox. Triggers: 'заступай на вахту', 'вахта', 'on duty', 'stand watch', 'duty cycle', or an autonomous session start where AGENTS.md names an agent karta. Scopes to one transformation on request ('продвигай bianhua', 'доведи превращение'). Two loops: a cheap duty tact (wake → wake-reason + since-delta → nothing to do? arm the next wake, sleep) and an expensive work tact (select → mark intent → ship per repo ritual → relay → reconcile → weave → close). Wake mode and focus are declared on entry, never guessed. A behavioral claim is reality-audited before it closes or relays as verified. Composes entry, inquiry, design, integrity, reality-audit, collaborate, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS On-Duty — the watch
@@ -74,6 +74,16 @@ When the focus is a transformation, the same loop runs scoped to its **arrival**
 - Work raises new drivers: a question that must be answered for this telos → pose it, anga-attach it, it joins the queue at once.
 - The cycle ends at arrival — every anga discharged or consciously parked, integration merged, and every required behavioral claim reality-audited. **The bianhua's closure is the owner's acceptance**: propose it with the claim verdicts as evidence, never close it yourself. A full map and a green integration are inputs to that proposal, never a correctness verdict.
 
+## 2c · Mark the intent — before the work leaves the graph
+
+Once the work is chosen and **before the first change outside NKS**, the deeds you are about to do stand in the graph: each in the project triad — ontic `anagata`, epistemic no higher than `anumita`, volitive `chanda`/`adhimoksha` — and each volitional kriya `anga`-attached to the bianhua it constitutes. The starting-triple canon is **writing**'s, the projection is **design**'s; don't re-derive either here.
+
+**Mark what you are about to do, not the whole design.** A deed you cannot state as a transition — this ahara, that utpatti — is not a node still missing detail; it is a signal that you don't yet know what you are about to build. Think, don't write more nodes.
+
+The order is load-bearing for two reasons. **A graph written after the deed cannot be wrong** — and a record that cannot be wrong carries no knowledge. The projection is a claim; the flip in §4 is what turns it into evidence, and the divergence between what you marked and what shipped is the most informative thing a work tact produces. **And the map reads work in flight**: until the deeds stand in it, the bianhua shows nothing happening, so a second doer reads an idle transformation and either duplicates your work or waits on it.
+
+Marking is not deciding. A telos, a scope, a new transformation stay the owner's (§5) — project *inside* what was already accepted.
+
 ## 3 · Work and relay
 
 Each vimarsha names its own flow — follow *it*: a defect → fix + tests per the AGENTS.md gates; a question → answer and close (**inquiry**); a design ask → **design**; graph repair → **weaving**. Repo ritual is law: branch discipline, quality gate, conventional commits. Never merge your own PR unless AGENTS.md sanctions it. A PR awaiting review is a git-surface expectation — don't mirror it as a vimarsha; only when the unmerged branch blocks another doer's anga does a relay say so.
@@ -85,6 +95,7 @@ Each vimarsha names its own flow — follow *it*: a defect → fix + tests per t
 - **Downstream** — someone depends on what you shipped: make it land in *their* inbox, as a new vimarsha or an update to the one they already watch. An update is a **delta, not a ping**: what changed, what is now possible. A content-free ping invites livelock.
 - **Upstream** — you depend on someone: a *current* vimarsha in the blocker's inbox stating what you need and, explicitly, **"Answered when: …"** — that line is what lets them recognize they can discharge you.
 - Both follow **writing** discipline: anchor (`vimarsha_of` into the addressee's territory) **and** inbox edge (`posed_to`). One without the other is invisible.
+- The exchange itself — recognizing the boundary, finding the doer, waking them, waiting under a bound, converging or escalating — is **collaborate**. The two bullets above are its most common moves, not its whole lifecycle.
 
 If AGENTS.md documents a local integration surface, rebuild it and verify the change runs — the claim is "shipped and running", not "pushed". Only what AGENTS.md documents; never touch shared or production surfaces from this loop.
 
@@ -99,6 +110,7 @@ When the user or AGENTS.md explicitly grants merge rights, the order is **agreed
 ## 4 · Close the work tact
 
 - Every resolved vimarsha leaves by an **inquiry** door: `addressed_by` → `visarjana`; crystallize what became standing knowledge. Answered-but-open items re-litigate themselves next session.
+- **Reconcile the projection with what shipped** — for every node marked in §2c, one terminal update carrying the modes the evidence actually covers (`anagata→vartamana`, `anumita→pratyakshita`; a deprecation arrives at `atita`), and the body corrected to what was built rather than what was intended. **A mode flip is a claim**: flip only as far as the evidence reaches — `reality-audit` says how far — and where projection and artifact diverge, the artifact wins. That divergence is what the marking was for; note it on the node rather than quietly overwriting it.
 - **Weave the wake** — `nks_orient(lens="tensions", focus=<touched holon>)`: close the lifecycles the change opened, write sense on new arrows, reconnect what a new distinction moved (**weaving**). Weave-class tensions are yours; address-class go to the agenda. This belongs to the *work* tact — a duty tact never weaves.
 - Run the repo's push→NKS ritual per AGENTS.md.
 - Then back to §1: another cause, or arm the next wake and sleep.
@@ -114,6 +126,7 @@ In webhook mode you may arm a scoped one-shot subscription on the escalated vima
 - **Two loops.** Cheap duty tact, expensive work tact. Never the ritual of the second on the cadence of the first.
 - **The graph is sufficient to resume cold** — a demand on the graph, not an obligation to forget on every wake.
 - **Repo and graph carry different durable state.** The artifact is the implementation; the graph is what cannot be reconstructed from it. Never repo mechanics restated as prose.
+- **Mark before you build, reconcile after.** A node born after the deed cannot be wrong, and a record that cannot be wrong is not knowledge.
 - **`verified` is earned by evidence, never by narration** — reality-audited against the canonical surface before it closes or relays.
 - **Wake mode and focus are declared, not guessed.**
 - **Updates are deltas**, never bare pings.

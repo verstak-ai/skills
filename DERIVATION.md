@@ -32,6 +32,7 @@ they are forbidden inside `skills/`.
 | Вневременность записи | #440 | writing → Decision 4 «Timelessness»; inquiry → terminal-triputi closure; minding → dated facts as attrs (skeleton §7) | the timelessness rule changes |
 | Кристаллизация вопрошания + 忘 Пост-забвение | #387, #182 | minding → §2 crystallize-then-release + skeleton §8 (lessons from retired contours) | the crystallization or release canon changes |
 | Замкнутость ЖЦ — каждый ding порождается и уничтожается (P1) | #389 | design → P1; minding → skeleton §6 (the map's own lifecycle) | P1 or the deferred-closure form changes |
+| Граф — не реальность, а натяжение с реальностью; импульс к работе ставится по anagata-графу | #403, #392 | on-duty → «2c · Mark the intent» + «4 · Close the work tact» (reconcile bullet); verstakify → `references/agents-template.md` «Before work leaves the graph» + «Update the evidenced contour» | the tension-with-reality principle changes, or the impulse step moves/renames |
 | Нить 1 «Вхождение и ориентация» — вход начинается с УЖЕ данного реалма (крия «Вхождение в реалм», `boundary=init`); различение узнавание ≠ ориентировка | #337, #147, #478 | minding → §1 recall (names the realm, hands to entry; ask-one-line rule) + Seams → entry (one-directional) | a canonical step before «Вхождение в реалм» appears, or the thread's inlet moves |
 
 Two more sync obligations live outside this table:
@@ -50,6 +51,11 @@ requires evidence external to the graph; honest modes; implementer/verifier
 actor separation) and on counterexamples witnessed in `r5`:
 
 - `reality-audit` — the whole skill;
+- `collaborate` — the whole skill, and **not yet audited against the canon**: it
+  ships as a draft standing on methodology reasoning (the graph is the record,
+  the channel is the wake) and on the channel's observed behaviour. Auditing it
+  against the canon — and moving what projects into the table above — is part of
+  finishing the draft, not an optional pass;
 - `writing` → «After writing» step 6 (graph checks ≠ reality evidence) and the
   reader/use questions of «Reader-and-use novelty gate» (the gate's *kind*
   obligation stays projected from #471 above);

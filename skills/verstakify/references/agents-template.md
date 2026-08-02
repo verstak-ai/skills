@@ -63,6 +63,19 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `entry` skill runs the protocol. Then open your agenda:
   `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
+- **Before work leaves the graph:** once the decision is taken and before the
+  first change outside NKS, the deeds you are about to do stand in the realm in
+  the project triad — ontic `anagata`, epistemic no higher than `anumita`,
+  volitive `chanda`/`adhimoksha` — each volitional kriya attached by `anga` to
+  the transformation it constitutes. Mark what you are about to do, not the
+  whole design: a deed you cannot state as a transition (this ahara, that
+  utpatti) is a signal to think, not to write more nodes. Marking is not
+  deciding — a telos, a scope, a new transformation stay the owner's. (why: a
+  graph written after the deed can never be wrong, and a record that cannot be
+  wrong carries no knowledge — the projection is what makes the mode flip below
+  evidence rather than bookkeeping; and until the deeds stand in it, the
+  transformation shows nothing in flight, so a second doer reads it as idle.)
+  `design` carries the *how*.
 - **Every push → update NKS.** Every move below is required:
   - **Match reality.** First confirm the fresh canonical changed path and the
     exposed old requirements were exercised in the artifact. If that evidence
@@ -88,7 +101,8 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     three, prepare the release and present it to the owner instead of assuming
     it. Release is not the only ending — park, supersede, or crystallize what
     the question taught.
-  - **Update the evidenced contour.** Walk the whole contour the push designed
+  - **Update the evidenced contour** — the counterpart of the marking above.
+    Walk the whole contour the push designed
     — not only the nodes you happened to touch — and for each node the
     executable evidence actually realized, make **one** terminal update carrying
     its final modes (anagata→vartamana, kalpita→pratyakshita). No ceremonial
