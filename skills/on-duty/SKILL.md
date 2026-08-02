@@ -35,7 +35,7 @@ Then, once per session: run the **entry** protocol and open the agenda — `nks_
 
 On every wake:
 
-1. **The wake reason.** A webhook names the vimarsha that woke you — read *it* first, in context. That is why you are awake; the rest of the inbox is background.
+1. **The wake reason.** A webhook names the vimarsha that woke you — read *it* first, in context. That is why you are awake; the rest of the inbox is background. The frame carries a pointer and the writer's one-line reason, not the text: usually enough to judge, and you fetch the node when you decide to act (**collaborate**).
 2. **The delta.** `nks_orient(lens="vimarshas", since=<previous wake>)` — what changed since you slept. Not a re-orientation of the whole field.
 3. **Cause to act?** Someone waits on you, a blocker cleared, a question landed. No → arm the next wake per the mode and sleep.
 

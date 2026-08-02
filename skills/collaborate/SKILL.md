@@ -41,6 +41,16 @@ A question that comes back down repeatedly is itself the signal: two bounces mea
 
 **7 · Close by writing.** The answer lands as `addressed_by` on the vimarsha, then release it (**inquiry**). Relay the delta to whoever depended on the outcome — **a delta, not a ping**: what changed and what is now possible. What the exchange taught that outlives it gets crystallized as a node; the frames are not the record and are not kept.
 
+## A frame is a pointer, not a payload
+
+What arrives from the graph is addressing, not content: what happened, to which node, at which version, the author's one-line reason for the change, and the platform's mark of who caused it. That is deliberately enough to decide **whether this concerns you now** — and not enough to work from. The text is fetched through the tools, when you choose to act on it.
+
+Three things follow, and they are why the discipline below is affordable at all:
+
+- **Skipping is cheap.** You can pass over what doesn't touch the cluster in flight without ever paying for its body. An arrival that costs a paragraph to ignore would make "not an interrupt" a slogan; an arrival that costs a line makes it a rule you can actually keep.
+- **The reason line is the delta.** It is authored, not generated — which is why every write you make carries one: yours is what the next doer reads at the moment of waking, and a write with no reason wakes someone with nothing to judge by.
+- **The version is a fence.** Fetch and act against the version the frame named; if it moved since, that is a signal someone else is working the same node — read before you write over them.
+
 ## When something arrives while you are working
 
 An arrival is **not** an interrupt by default. It is already in the inbox by construction, so the next duty tact will select it — switching to it now costs the cluster in flight. But *default* is not *silence*, and not every arrival costs the same. Sort by what it takes, not by how it feels:
