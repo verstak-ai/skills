@@ -117,9 +117,9 @@ When the user or AGENTS.md explicitly grants merge rights, the order is **agreed
 
 ## 5 · Escalate
 
-Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. Pose it to the **owner karta** (主 in AGENTS.md), anchored where the decision lives, with its own "Answered when:". Then keep working whatever does not depend on it — and if *everything* does, say so in one list rather than going quiet.
+Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange with the owner karta (主 in AGENTS.md) as addressee; don't re-derive it here. What the watch adds: keep working whatever does not depend on the answer, and if *everything* does, say so in one list rather than going quiet.
 
-In webhook mode you may arm a scoped one-shot subscription on the escalated vimarsha, so the answer wakes you directly. Write the vimarsha so a cold session could resume from it anyway: if only your live context makes it actionable, it is under-written.
+In webhook mode, subscribe to the escalated vimarsha so the answer wakes you directly — **collaborate** step 6 carries the how. Write the vimarsha so a cold session could resume from it anyway: if only your live context makes it actionable, it is under-written.
 
 ## Invariants
 
