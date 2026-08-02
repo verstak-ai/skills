@@ -93,6 +93,24 @@ Ritual mapping: orient → `event` on `session.created`; memory guard →
 `tool.execute.before` with a throw; push → NKS → `tool.execute.after` on the
 shell tool. Subagent role files: `.opencode/agents/` (see `delegation.md`).
 
+## Wake mechanisms — what an `autonomous` mode maps onto
+
+The watch declares a wake mode; the mechanism belongs to the harness. Wire what
+the harness actually has — never a scheduler you assume it has.
+
+- **Claude Code** — `sleep-poll`: a self-paced recurring invocation of the skill
+  (a loop that re-enters it; leaving the interval unset lets each tact choose its
+  own delay instead of having a cadence forced on it). `webhook`: mint the
+  karta's channel, register its inbound as that karta's hook target, and watch
+  the socket with the harness's socket watcher — **reconnect on close**, a socket
+  is not durable — plus a bounded fallback wake.
+- **Codex CLI / OpenCode** — where the harness has no first-class recurring
+  invocation, drive `sleep-poll` from the platform's own scheduler re-entering
+  the agent, and treat `webhook` as an inbound process that starts a session per
+  frame.
+- Where none of these exist, `interactive` is the honest mode — a declared watch
+  that nothing wakes is worse than no watch.
+
 ## Re-verify checklist (maintainers)
 
 Re-check on harness upgrades, like the interop reference:
