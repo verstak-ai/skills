@@ -41,6 +41,26 @@ A question that comes back down repeatedly is itself the signal: two bounces mea
 
 **7 · Close by writing.** The answer lands as `addressed_by` on the vimarsha, then release it (**inquiry**). Relay the delta to whoever depended on the outcome — **a delta, not a ping**: what changed and what is now possible. What the exchange taught that outlives it gets crystallized as a node; the frames are not the record and are not kept.
 
+## When something arrives while you are working
+
+An arrival is **not** an interrupt by default. It is already in the inbox by construction, so the next duty tact will select it — switching to it now costs the cluster in flight. But *default* is not *silence*, and not every arrival costs the same. Sort by what it takes, not by how it feels:
+
+- **Answerable from what you already hold** — the answer is in the code open in front of you, or in the graph you just read. Answer it now and close it by the inquiry door: it costs less than the note reminding you to come back.
+- **Someone is waiting and the answer is not ready** — say so on their channel: what you are doing, what they will get, and what would change your order. "Wait, I'm finishing this" is a real act, not politeness — it tells the waiting doer whether to wait or route elsewhere, and it is what keeps two agents from deadlocking on each other's silence. It does **not** replace updating the vimarsha when the answer actually lands.
+- **A mechanical ask — rebuild, restart, re-run, integrate** — delegate instead of switching: a subagent or a background run does it while your cluster stays in flight, and the result goes back on the same vimarsha. Doing it by hand is what turns a two-minute favour into a lost work tact.
+- **It blocks the cluster in flight** — then it is not an interruption at all, it is your work: fold it into the cluster, or park the cluster consciously and say so on its node.
+- **A direct instruction from the user** — takes precedence over all of the above. The inbox serves the user, not the other way round.
+
+## When the answer comes back
+
+An answer is not received until it is in the graph, and **a human answers in words, not in nodes** — so the recording is the agent's act, always. Left in a channel or a chat, the decision dies with the session that heard it.
+
+Three outcomes, and each has its own move:
+
+- **It resolves the question** — record it as `addressed_by` on the node that carries the answer, carry what it changed into the nodes it changed (a body, a mode, a bound decision), then release the vimarsha (**inquiry**). A sanction is recorded the same way: an irreversible act done on a remembered "yes" leaves no trace that it was ever granted.
+- **It changes the work** — carry the change before continuing, not after. Work that proceeds on the old shape while the answer says otherwise is the most expensive kind of divergence, because it looks like progress.
+- **It doesn't actually answer** — re-ask on the **same** node, naming precisely what remains undecided and why the reply doesn't settle it. Re-asking is not rudeness; a decision recorded as settled when it isn't is worse than an open question, because nothing will ever reopen it.
+
 ## Invariants
 
 - **The graph is the record; the channel is the wake.** Never the other way round.

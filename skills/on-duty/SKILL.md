@@ -27,6 +27,8 @@ When three to five agents drive one feature, they hand vimarshas back and forth 
 
 Neither is guessed silently. If the user didn't say, infer: a named transformation → that bianhua; work that just shipped → its contour; a live chat with no timer capability → interactive. **If inference fails, ask in one line naming the options** — a watch running in the wrong mode either burns tokens polling for nothing or falls asleep when a human was waiting for an answer.
 
+The **mechanism** is the harness's, not this skill's. `sleep-poll` wants a self-paced recurring invocation — one that lets the tact choose its own delay rather than forcing a cadence on it. `webhook` wants the doer's channel registered as its own hook target plus a socket watcher **that reconnects**, because a socket is not durable and a watch gone deaf looks exactly like a quiet inbox. **Arm a bounded fallback wake even in webhook mode.** Per-harness surfaces live in verstakify's `harness-surfaces` reference; where a harness offers none of them, `interactive` is the honest mode — say so rather than claiming a watch nothing wakes.
+
 Then, once per session: run the **entry** protocol and open the agenda — `nks_orient(realm=…, focus=<agent-karta-seq>)`. No agent karta in AGENTS.md → this skill does not apply; the repo needs a verstakify pass.
 
 ## 1 · The duty tact — cheap by construction
@@ -107,6 +109,8 @@ Two things bind even if you never open that skill, because they decide whether y
 
 When the user or AGENTS.md explicitly grants merge rights, the order is **agreed through inboxes, never guessed**: the chain of relay vimarshas *is* the order. Merge only when your upstream vimarsha is discharged, then update the downstream doer's vimarsha with the delta ("merged, integration green" — states of the world, never SHAs or branch names). Across transformations the same ordering is `anantara`.
 
+**Something landing mid-tact is not an interrupt.** Sort arrivals by what they cost, not by how loud they are — **collaborate** carries the sort: answer it now if you already hold the answer, tell whoever is blocked on their channel that you are finishing, delegate a rebuild or a restart to a subagent or a background run, fold it into the cluster if it blocks the cluster. Only a direct user instruction preempts.
+
 ## 4 · Close the work tact
 
 - Every resolved vimarsha leaves by an **inquiry** door: `addressed_by` → `visarjana`; crystallize what became standing knowledge. Answered-but-open items re-litigate themselves next session.
@@ -119,13 +123,25 @@ When the user or AGENTS.md explicitly grants merge rights, the order is **agreed
 
 Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange with the owner karta (主 in AGENTS.md) as addressee; don't re-derive it here. What the watch adds: keep working whatever does not depend on the answer, and if *everything* does, say so in one list rather than going quiet.
 
+When the owner answers, the answer is not received until it is woven in — record it, carry what it changed, release the node, or re-ask on the same node when the reply doesn't settle it (**collaborate**, "When the answer comes back"). A decision left in the reply that carried it dies with the session that heard it.
+
 In webhook mode, subscribe to the escalated vimarsha so the answer wakes you directly — **collaborate** step 6 carries the how. Write the vimarsha so a cold session could resume from it anyway: if only your live context makes it actionable, it is under-written.
+
+## Surviving a compaction
+
+A long work tact can outlive its own context window. The compaction is not the failure — an unmarked graph is.
+
+- **Before the stretch.** §2c is what makes a compaction survivable: the deeds you are about to do already stand in the graph, so nothing structural lives only in the window. About to start something long that isn't marked? Mark it first.
+- **What must never live only in the window.** Not the reasoning — the *pointers*: which vimarsha you are on, which branch carries the work, what you verified and against what. Those belong on the node.
+- **After.** Treat it as a cold wake, not as continuity: re-read the vimarsha you were on, take the delta, and trust the graph and the artifact over recollection. A claim you can no longer point to evidence for is not verified — re-run the check instead of inheriting your own confidence.
 
 ## Invariants
 
 - **Two loops.** Cheap duty tact, expensive work tact. Never the ritual of the second on the cadence of the first.
 - **The graph is sufficient to resume cold** — a demand on the graph, not an obligation to forget on every wake.
 - **Repo and graph carry different durable state.** The artifact is the implementation; the graph is what cannot be reconstructed from it. Never repo mechanics restated as prose.
+- **A compaction is a cold wake.** Pointers live on the node, never only in the window.
+- **An answer is not received until it is in the graph** — a human answers in words; the recording is yours.
 - **Mark before you build, reconcile after.** A node born after the deed cannot be wrong, and a record that cannot be wrong is not knowledge.
 - **`verified` is earned by evidence, never by narration** — reality-audited against the canonical surface before it closes or relays.
 - **Wake mode and focus are declared, not guessed.**
