@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/verstak-ai/skills/compare/v1.10.0...v2.0.0) (2026-08-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* autonomous — the cycle carries work to integration; collaborate ([#59](https://github.com/verstak-ai/skills/issues/59))
+
+### Features
+
+* autonomous — the cycle carries work to integration; collaborate ([#59](https://github.com/verstak-ai/skills/issues/59)) ([9ed1720](https://github.com/verstak-ai/skills/commit/9ed1720f4b361ecb823773cd2f9db72635f64bc6))
+
 ## [1.10.0](https://github.com/verstak-ai/skills/compare/v1.9.0...v1.10.0) (2026-07-28)
 
 
