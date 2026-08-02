@@ -13,6 +13,11 @@ verstak is two parts:
 2. **Graph MCP server** — the remote NKS reasoning graph at
    `https://nks.lab.mirari.ru/mcp`, exposed as `nks_*` tools.
 
+Authentication uses **OAuth exclusively**. Start the browser flow yourself, wait for its
+callback, and finish setup in the same run. Do not substitute a different authentication
+scheme. If the harness cannot complete MCP OAuth, report that literal blocker instead of
+claiming the installation succeeded.
+
 ## 0. Detect your harness
 
 Identify which agent you are running as — Claude Code in a terminal, Claude Desktop,
@@ -33,13 +38,21 @@ claude plugin install verstak@verstak-ai
 (Inside an interactive session: `/plugin marketplace add verstak-ai/skills` then
 `/plugin install verstak@verstak-ai`.)
 
-**Cursor / Codex / any other agent** (flat install, ~70 harnesses supported):
+**Codex** (global install, all skills, Codex only):
 
 ```sh
-npx skills add verstak-ai/skills --all
+npx --yes skills add verstak-ai/skills --global --agent codex --skill '*' --yes
 ```
 
-Add `--agent codex` (or `-a cursor`, …) to target a specific harness explicitly.
+**Cursor** uses the same flat installer with its own harness target:
+
+```sh
+npx --yes skills add verstak-ai/skills --global --agent cursor --skill '*' --yes
+```
+
+For another supported agent, replace `cursor` with that installer's agent id. Do not
+combine `--all` with `--agent`: `--all` also selects every supported agent. Do not omit
+`--global`, or the skills may land only in the current project.
 
 ## 2. Connect the graph server
 
@@ -75,10 +88,11 @@ claude mcp list    # plugin:verstak:nks: https://nks.lab.mirari.ru/mcp (HTTP) - 
 
 That line proves the login completed, not that the tools reached a session — MCP config
 is read at session start. Ask for the restart (step 3), and confirm now from one fresh
-non-interactive session — `nks_me` names you, `nks_orient` returns a realm list:
+non-interactive session using the current read-only identity call:
 
 ```sh
-claude -p "Call nks_me and print its result." --allowedTools "mcp__plugin_verstak_nks__nks_me"
+claude -p 'Call nks_me(action="whoami") and print its result.' \
+  --allowedTools "mcp__plugin_verstak_nks__nks_me"
 ```
 
 (The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
@@ -97,6 +111,46 @@ installed on claude.ai is not picked up until the desktop app is restarted.
 
 Afterwards the `nks_*` tools arrive already authorized, and you continue at step 3.
 
+**Codex:** inspect the existing entry before changing it:
+
+```sh
+codex mcp get nks
+```
+
+If it is absent, add it:
+
+```sh
+codex mcp add nks --url https://nks.lab.mirari.ru/mcp
+```
+
+If it already has that URL, keep it. If the name exists with another URL, stop and
+report the conflict instead of overwriting the user's server. `Auth: OAuth` in
+`codex mcp list` describes server capability; it does not prove that a credential is
+present. Start OAuth explicitly and wait for the command to exit:
+
+```sh
+codex mcp login nks
+```
+
+The command prints a single-use browser URL and listens on its localhost callback. Let
+the browser flow finish; do not re-run login while that URL is open. Success is exit code
+0 with `Successfully logged in to MCP server 'nks'.`
+
+The current session will not gain tools loaded after it started, so verify through one
+fresh, ephemeral, read-only Codex session. The allowlist and approval override apply only
+to the two read-only NKS tools used by this command:
+
+```sh
+codex exec --ephemeral --skip-git-repo-check --sandbox read-only \
+  -c 'approval_policy="never"' \
+  -c 'mcp_servers.nks.enabled_tools=["nks_me","nks_realm"]' \
+  -c 'mcp_servers.nks.default_tools_approval_mode="approve"' \
+  'Verification only. Call nks_me(action="whoami") and nks_realm(action="list"). Do not call shell or any other tools. Report the authenticated identity and the number of realms.'
+```
+
+Setup is verified only when that command exits 0, prints the authenticated identity, and
+returns a realm count. Then continue to step 3.
+
 **Claude Code without the plugin:**
 
 ```sh
@@ -113,31 +167,6 @@ OAuth login triggers on first use in Cursor. In Claude Code it does not — an u
 server publishes no tools, so there is no first use to trigger it; run the login
 explicitly, under a pty as above.
 
-**The token path — when OAuth is absent, cannot reach you, or will not go through.**
-Two cases lead here. The first is structural: harnesses without MCP-OAuth support (CI,
-autonomous VMs, any config with no browser login to run). The second is plain breakage:
-the login never opens, never completes, or every `nks_*` call keeps coming back 401. Do
-not grind on either and do not retry variations. A personal access token is a header, not
-a session, so it authenticates from any process on any host — which makes it the one path
-that behaves the same everywhere.
-
-The user creates the token in the web UI and gives it to you — never invent, guess, or
-reuse one. Pass it as a Bearer header:
-
-```sh
-npx add-mcp https://nks.lab.mirari.ru/mcp --header "Authorization: Bearer ${VERSTAK_TOKEN}"
-```
-
-```toml
-# Codex ~/.codex/config.toml
-[mcp_servers.nks]
-url = "https://nks.lab.mirari.ru/mcp"
-bearer_token_env_var = "VERSTAK_TOKEN"
-```
-
-Store the token where your harness expects env vars; do not hard-code it into files
-that get committed. The token never goes into the URL.
-
 ## 3. Restart
 
 Tell the user installation is done and ask them to restart the session so the new
@@ -146,9 +175,10 @@ skills and connection are picked up. This is the end of what you can do here.
 ## 4. First session: verstakify
 
 In the fresh session, the user says `verstakify` (or `/verstak:verstakify` with the
-Claude Code plugin). The agent then verifies the connection (`nks_orient` returns a
-realm list), brings the repo to the verstak standard (`AGENTS.md` + session rituals),
-and seeds the graph with the structure the codebase already shows.
+Claude Code plugin). The agent then verifies identity with
+`nks_me(action="whoami")`, discovers realms with `nks_realm(action="list")`, orients into
+the selected realm, brings the repo to the verstak standard (`AGENTS.md` + session
+rituals), and seeds the graph with the structure the codebase already shows.
 
 ## Troubleshooting
 
@@ -164,12 +194,10 @@ and seeds the graph with the structure the codebase already shows.
 - **401 / auth error, or an OAuth login that will not complete** → try the login once
   more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the
   Connectors-tab step above. If it repeats, clear the stored credential instead of logging
-  in on top of it — `claude mcp logout plugin:verstak:nks`; if you are reinstalling too, do
-  that *before* removing the plugin, or the name stops resolving. If it still fails, stop
-  retrying and take the token path in step 2 — a PAT authenticates where OAuth won't, and
-  asking the user for one is a shorter road than debugging their browser. If a token is
-  already in play and still 401s, it is wrong or expired: ask for a fresh one, do not
-  retry variations.
+  in on top of it — `claude mcp logout plugin:verstak:nks` for the plugin, or
+  `codex mcp logout nks` for Codex — then run the matching OAuth login once. If it still
+  fails, report the exact OAuth error and stop. If you are reinstalling the Claude plugin
+  too, log out *before* removing it, or the qualified server name stops resolving.
 - **`claude mcp login nks` → no such server** → with the plugin the server is
   `plugin:verstak:nks`. Run `claude mcp list` and copy the name from there.
 - **`stdin isn't a terminal, so authentication can't be completed here`** → your shell has
