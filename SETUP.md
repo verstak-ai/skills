@@ -44,15 +44,11 @@ claude plugin install verstak@verstak-ai
 npx --yes skills add verstak-ai/skills --global --agent codex --skill '*' --yes
 ```
 
-**Cursor** uses the same flat installer with its own harness target:
+**Cursor / any other supported agent** (original flat install):
 
 ```sh
-npx --yes skills add verstak-ai/skills --global --agent cursor --skill '*' --yes
+npx skills add verstak-ai/skills --all
 ```
-
-For another supported agent, replace `cursor` with that installer's agent id. Do not
-combine `--all` with `--agent`: `--all` also selects every supported agent. Do not omit
-`--global`, or the skills may land only in the current project.
 
 ## 2. Connect the graph server
 
