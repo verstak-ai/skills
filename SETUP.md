@@ -111,18 +111,20 @@ claude -p 'Call nks_me(action="whoami") and print its result.' \
 
 (The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
 
-**Claude Desktop: authorization is a user action in the app's own UI — walk them
-through it, do not script around it.** The desktop's plugin/connector surface
-(Customize) syncs through the claude.ai account, not from the CLI's `~/.claude`: a
-terminal `claude mcp login` never reaches it, and there is no documented programmatic
-way to press its Connect button (no deep link, no CLI command, no SDK call). Your job
-here is detection (step 0), the walkthrough below, and verification after the restart —
-the clicks are the user's:
+**Claude Desktop: the install is already done — the authorization is a user action in
+the app's own UI. Walk them through it, do not script around it.** Step 1's CLI install
+is shared with the desktop app: the plugin and its bundled server appear on the app's
+plugin page with no UI install needed. What stays manual is the authorization click —
+the Customize/connector surface syncs through the claude.ai account, not from the CLI's
+`~/.claude`: a terminal `claude mcp login` never reaches it, and there is no documented
+programmatic way to press its Connect button (no deep link, no CLI command, no SDK
+call). Your job here is detection (step 0), the walkthrough below, and verification
+after the restart — the click is the user's:
 
-> Open **Customize → Plugins** and find the **verstak** plugin. Press **Install** if you
-> haven't yet, then open its **Connectors** tab and press the authorize button there —
-> **Connect** only shows up after the install, and the OAuth consent finishes in the
-> browser.
+> Open **Customize → Plugins** and find the **verstak** plugin — after step 1 it is
+> already installed (press **Install** only if it is missing). Open its **Connectors**
+> tab and press the authorize button there — **Connect** only shows up once the plugin
+> is installed, and the OAuth consent finishes in the browser.
 
 Afterwards fresh sessions get the `nks_*` tools already authorized
 (`mcp__plugin_verstak_nks__nks_*`), and you continue at step 3.
@@ -208,6 +210,8 @@ rituals), and seeds the graph with the structure the codebase already shows.
   install path — a flat install is another product, not a workaround. Say which step you
   are on, the exact command, and what approving it does; then stop and wait. On approval,
   re-run that command and continue — steps that already succeeded are not repeated.
+  Seen in the wild: `claude plugin install` blocked by an auto-mode permission
+  classifier on the first attempt — same handling, approve and re-run.
 - **Claude Desktop / claude.ai: `nks_*` tools visible but unauthorized** → expected; the
   plugin does not authorize its own server. Authorize on the plugin's own **Connectors**
   tab as in step 2 — not in the app's Connectors settings, and no URL is pasted anywhere.
