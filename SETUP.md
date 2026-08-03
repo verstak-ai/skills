@@ -137,8 +137,11 @@ around it.** The Customize/connector surface syncs through the claude.ai account
 from the CLI's `~/.claude`, and nothing in a shell reaches it. Your whole job here is
 detection (step 0), the walkthrough, and verification:
 
-> Open **Customize**, find the **nks** connector, and press **Connect**. The OAuth
-> consent opens in the browser and returns you to the app.
+> Open **Customize → Plugins → verstak → Connectors**, and press **Connect** on **nks**.
+> The OAuth consent opens in the browser and returns you to the app.
+
+If **verstak** is not in that plugin list, the app has not picked up the CLI install yet
+— reload it (**Cmd+R** / **Ctrl+R**) or restart it, then open the path again.
 
 When the user confirms, check your own session before asking for anything: on this
 surface the connector's tools (`mcp__<connector-id>__nks_*`) usually hot-load into the
@@ -275,7 +278,8 @@ rituals), and seeds the graph with the structure the codebase already shows.
   server from several binaries around token expiry. Recover with
   `claude mcp logout plugin:verstak:nks`, then one login from the surface you actually
   use.
-- **Plugin installed on claude.ai, invisible in the desktop app** → restart the app.
+- **Plugin installed (CLI or claude.ai), missing from the desktop's plugin list** →
+  reload the app (**Cmd+R** / **Ctrl+R**) or restart it.
 - **401 / auth error, or an OAuth login that will not complete** → try the login once
   more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the Customize
   step in step 2. If it repeats, clear the stored credential instead of logging
