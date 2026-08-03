@@ -13,12 +13,20 @@ verstak is two parts:
 2. **Graph MCP server** — the remote NKS reasoning graph at
    `https://nks.lab.mirari.ru/mcp`, exposed as `nks_*` tools.
 
-Authentication uses **OAuth exclusively**. Start the browser flow yourself, wait for its
-callback, and finish setup in the same run. Do not substitute a different authentication
-scheme. If the harness cannot complete MCP OAuth, report that literal blocker instead of
-claiming the installation succeeded. A notice that this session is non-interactive is not
-that blocker: it is about a missing TTY only, which the `script` wrapper below supplies.
-Only a login you actually ran and watched fail counts.
+Authentication uses **OAuth exclusively** — never substitute another scheme. *Who*
+performs it depends on the surface, and getting that wrong is the most common way a run
+fails:
+
+- **Terminal Claude Code, Codex, Cursor** — the login is yours. Start the browser flow,
+  wait for the callback, finish in the same run. A "this session is non-interactive"
+  notice is about a missing TTY only; the `script` wrapper in step 2 supplies one, so run
+  it rather than handing the login back.
+- **Claude Desktop, claude.ai** — the authorization is a click in the app's own UI, and it
+  is the user's to make. No CLI command, deep link, or SDK call presses it. Do **not** run
+  `claude mcp login` here: it authorizes the terminal binary's credential store, which the
+  app never reads, so you would report success over a connector that is still dark.
+
+Report the literal blocker rather than claiming an install succeeded.
 
 ## 0. Detect your harness
 
@@ -34,10 +42,11 @@ the user.
 
 ## 1. Install the skills
 
-**The plugin is the way in.** Use it wherever it exists — Claude Code, Claude Desktop,
-claude.ai. It namespaces every skill under `verstak`, so nothing collides, and it
-carries the graph server with it. Everything else on this page is for harnesses that
-have no plugin channel.
+**The plugin is the way in, and this one CLI install serves every Claude Code surface** —
+terminal and desktop-hosted alike. Run it whatever step 0 detected; the surfaces diverge
+only at step 2, over who authorizes the connector. It namespaces every skill under
+`verstak`, so nothing collides, and it carries the graph server with it. Everything else
+on this page is for harnesses that have no plugin channel.
 
 ```sh
 claude plugin marketplace add verstak-ai/skills
@@ -111,23 +120,31 @@ claude -p 'Call nks_me(action="whoami") and print its result.' \
 
 (The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
 
-**Claude Desktop: the install is already done — the authorization is a user action in
-the app's own UI. Walk them through it, do not script around it.** Step 1's CLI install
-is shared with the desktop app: the plugin and its bundled server appear on the app's
-plugin page with no UI install needed. What stays manual is the authorization click —
-the Customize/connector surface syncs through the claude.ai account, not from the CLI's
-`~/.claude`: a terminal `claude mcp login` never reaches it, and there is no documented
-programmatic way to press its Connect button (no deep link, no CLI command, no SDK
-call). Your job here is detection (step 0), the walkthrough below, and verification
-after the restart — the click is the user's:
+**Claude Desktop: step 1 already installed the plugin. Only the connector's
+authorization is left, and it is the user's click — walk them through it, do not script
+around it.** The Customize/connector surface syncs through the claude.ai account, not
+from the CLI's `~/.claude`, and nothing in a shell reaches it. Your whole job here is
+detection (step 0), the walkthrough, and verification after the restart:
 
-> Open **Customize → Plugins** and find the **verstak** plugin — after step 1 it is
-> already installed (press **Install** only if it is missing). Open its **Connectors**
-> tab and press the authorize button there — **Connect** only shows up once the plugin
-> is installed, and the OAuth consent finishes in the browser.
+> Open **Customize**, find the **nks** connector, and press **Connect**. The OAuth
+> consent opens in the browser and returns you to the app.
 
-Afterwards fresh sessions get the `nks_*` tools already authorized
-(`mcp__plugin_verstak_nks__nks_*`), and you continue at step 3.
+Then ask for the restart (step 3).
+
+Afterwards `claude mcp list` shows **two** entries for the same URL. That is the correct
+end state, not a half-finished install:
+
+```text
+claude.ai nks:      https://nks.lab.mirari.ru/mcp - ✔ Connected
+plugin:verstak:nks: https://nks.lab.mirari.ru/mcp (HTTP) - ! Needs authentication
+```
+
+The claude.ai-account connector is the live one, and it is what publishes the `nks_*`
+tools. The plugin-bundled `plugin:verstak:nks` stays unauthenticated on this surface
+permanently — leave it alone. Its tools are namespaced by the connector's own id, not by
+the plugin name, so do not look for `mcp__plugin_verstak_nks__*` and do not conclude from
+its status line that the setup failed. **Verify by calling `nks_me(action="whoami")` from
+a fresh session** — check for working tools, never for a status line.
 
 **claude.ai (web): the same UI route**, on the same plugin page. A plugin installed on
 claude.ai is not picked up by the desktop app until that app restarts — which also
@@ -212,16 +229,39 @@ rituals), and seeds the graph with the structure the codebase already shows.
   re-run that command and continue — steps that already succeeded are not repeated.
   Seen in the wild: `claude plugin install` blocked by an auto-mode permission
   classifier on the first attempt — same handling, approve and re-run.
-- **Claude Desktop / claude.ai: `nks_*` tools visible but unauthorized** → expected; the
-  plugin does not authorize its own server. Authorize on the plugin's own **Connectors**
-  tab as in step 2 — not in the app's Connectors settings, and no URL is pasted anywhere.
-- **Desktop: Connect button greyed out or missing on the plugin's Connectors tab** →
-  known upstream behavior for plugin-bundled OAuth servers. Do the same Install +
-  Connect on **claude.ai** instead, then restart the desktop app to pick it up.
-- **Terminal says `Connected`, desktop shows Install/unauthorized** → not a broken
-  install. MCP credentials are per surface: the terminal login authorized the terminal
-  binary's store, which the desktop app never reads. Authorize the desktop through its
-  own path (step 2, Claude Desktop).
+- **Desktop: `plugin:verstak:nks` still says `Needs authentication` after a successful
+  setup** → expected, and permanent. The plugin does not authorize its own bundled
+  server; the connector that works is the separate `claude.ai nks` entry. Two entries
+  against the same URL is the normal end state (step 2). Judge the install by whether
+  `nks_me(action="whoami")` answers, not by that line.
+- **Desktop: Connect button greyed out or missing** → known upstream behavior for
+  plugin-bundled OAuth servers. Do the Connect on **claude.ai** instead, then restart the
+  desktop app to pick it up.
+- **Terminal says `Connected`, desktop shows unauthorized** → not a broken install. MCP
+  credentials are per surface: the terminal login authorized the terminal binary's store,
+  which the desktop app never reads. Authorize the desktop through its own path (step 2,
+  Claude Desktop).
+- **`Couldn't register with nks's sign-in service` (may cite an `ofid_…` reference)** →
+  the connector registers itself with the authorization server on every Connect, and
+  Rauthy rate-limits that registration **per source IP, one per 60 seconds**. Disconnect
+  followed by an immediate reconnect lands inside your own window. **Wait a full minute
+  and press Connect again** — nothing is broken and nothing needs reinstalling. Note the
+  registration comes from the Claude backend's IP, not the user's browser, so a `curl`
+  test from the user's machine will happily succeed while the app still fails. The
+  permanent escape is the error's own suggestion: register a static client in Rauthy
+  (redirect `https://claude.ai/api/mcp/auth_callback`) and put its client id in the
+  connector settings — that path never calls dynamic registration at all.
+- **Do not hand-delete the `dyn$…` clients this creates in Rauthy** → each Connect mints
+  one, and Rauthy reaps any that go unused, on its own, hourly. The registration URI
+  serves `GET` but not `DELETE`, so an attempted cleanup just returns 404.
+- **`Couldn't connect` immediately, without ever showing the login page** → discovery
+  failed before the redirect, so the authorization server was never reached. Compare the
+  `authorization_servers[0]` that
+  `https://nks.lab.mirari.ru/.well-known/oauth-protected-resource/mcp` publishes against
+  the `issuer` its authorization server returns: RFC 8414 §3.3 makes a client compare
+  those **byte for byte**, and a lone trailing slash is enough to fail it. A login page
+  that appears and *then* fails is a different fault — that one is the token exchange,
+  not discovery.
 - **Credential suddenly wiped (401s, empty token, no refresh token in the store)** →
   refresh-rotation race: several Claude binaries (terminal CLI, desktop-bundled engine,
   parallel sessions) share one credential entry, and whichever refreshes second presents
@@ -241,7 +281,8 @@ rituals), and seeds the graph with the structure the codebase already shows.
   `plugin:verstak:nks`. Run `claude mcp list` and copy the name from there.
 - **`stdin isn't a terminal, so authentication can't be completed here`** → your shell has
   no TTY, not a broken login. Re-run it under `script` as in step 2; the localhost
-  callback finishes the flow without any input.
+  callback finishes the flow without any input. **Terminal path only** — on a
+  desktop-hosted session there is no login for you to run in the first place.
 - **`nks_*` tools not visible** → the MCP config loads on session start, so restart the
   session and verify again. Tools stay invisible in the session that authorized the
   server — expected, not a failed login.
