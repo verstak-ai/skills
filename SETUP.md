@@ -242,26 +242,13 @@ rituals), and seeds the graph with the structure the codebase already shows.
   which the desktop app never reads. Authorize the desktop through its own path (step 2,
   Claude Desktop).
 - **`Couldn't register with nks's sign-in service` (may cite an `ofid_…` reference)** →
-  the connector registers itself with the authorization server on every Connect, and
-  Rauthy rate-limits that registration **per source IP, one per 60 seconds**. Disconnect
-  followed by an immediate reconnect lands inside your own window. **Wait a full minute
-  and press Connect again** — nothing is broken and nothing needs reinstalling. Note the
-  registration comes from the Claude backend's IP, not the user's browser, so a `curl`
-  test from the user's machine will happily succeed while the app still fails. The
-  permanent escape is the error's own suggestion: register a static client in Rauthy
-  (redirect `https://claude.ai/api/mcp/auth_callback`) and put its client id in the
-  connector settings — that path never calls dynamic registration at all.
-- **Do not hand-delete the `dyn$…` clients this creates in Rauthy** → each Connect mints
-  one, and Rauthy reaps any that go unused, on its own, hourly. The registration URI
-  serves `GET` but not `DELETE`, so an attempted cleanup just returns 404.
-- **`Couldn't connect` immediately, without ever showing the login page** → discovery
-  failed before the redirect, so the authorization server was never reached. Compare the
-  `authorization_servers[0]` that
-  `https://nks.lab.mirari.ru/.well-known/oauth-protected-resource/mcp` publishes against
-  the `issuer` its authorization server returns: RFC 8414 §3.3 makes a client compare
-  those **byte for byte**, and a lone trailing slash is enough to fail it. A login page
-  that appears and *then* fails is a different fault — that one is the token exchange,
-  not discovery.
+  a rate limit on the sign-in service, most often tripped by disconnecting and
+  reconnecting straight away. **Wait a minute, press Connect again.** Nothing is broken
+  and nothing needs reinstalling.
+- **`Couldn't connect` immediately, without ever showing a login page** → the sign-in
+  service was never reached, so this is not something the install can fix. Retry once; if
+  it repeats, report it with the exact message — it is a server-side problem. (A login
+  page that appears and *then* fails is a different fault; say which one you saw.)
 - **Credential suddenly wiped (401s, empty token, no refresh token in the store)** →
   refresh-rotation race: several Claude binaries (terminal CLI, desktop-bundled engine,
   parallel sessions) share one credential entry, and whichever refreshes second presents
@@ -271,8 +258,8 @@ rituals), and seeds the graph with the structure the codebase already shows.
   use.
 - **Plugin installed on claude.ai, invisible in the desktop app** → restart the app.
 - **401 / auth error, or an OAuth login that will not complete** → try the login once
-  more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the
-  Connectors-tab step above. If it repeats, clear the stored credential instead of logging
+  more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the Customize
+  step in step 2. If it repeats, clear the stored credential instead of logging
   in on top of it — `claude mcp logout plugin:verstak:nks` for the plugin, or
   `codex mcp logout nks` for Codex — then run the matching OAuth login once. If it still
   fails, report the exact OAuth error and stop. If you are reinstalling the Claude plugin
