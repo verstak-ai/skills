@@ -28,17 +28,28 @@ fails:
 
 Report the literal blocker rather than claiming an install succeeded.
 
+**Reporting to the user:** a progress report is two things — what is done, and the one
+action that is theirs (a click, an approval, a restart). Everything else on this page —
+credential stores, dual server entries, plugin-bundled vs. account connectors, tool
+namespaces — is routing knowledge for *you*. Do not recite it; bring it up only when the
+user asks why something failed.
+
 ## 0. Detect your harness
 
 Identify which agent you are running as — Claude Code in a terminal, a session hosted
 inside the Claude Desktop app, Cursor, Codex, or other — and follow that path below.
 
-For Claude Code the split that matters is terminal vs. desktop-hosted, and it is one
-check: `echo "$CLAUDE_CODE_ENTRYPOINT"`. The value `claude-desktop` means your session
-is hosted by the Claude Desktop app — take the **Claude Desktop** path in step 2;
-anything else (e.g. `cli`) is a plain terminal session. macOS backup signal:
-`__CFBundleIdentifier` = `com.anthropic.claudefordesktop`. If you cannot tell, ask
-the user.
+For Claude Code the split that matters is terminal vs. desktop-hosted. Read it from
+context first — no command needed. Desktop-/web-hosted sessions show themselves: the
+session already lists claude.ai-account connectors (MCP tools namespaced
+`mcp__<uuid>__…`), and its harness notes route connector auth to "claude.ai connector
+settings". A bare terminal session shows neither.
+
+Only if context is silent, check `echo "$CLAUDE_CODE_ENTRYPOINT"` — `claude-desktop`
+means desktop-hosted; anything else (e.g. `cli`) is a plain terminal. macOS backup
+signal: `__CFBundleIdentifier` = `com.anthropic.claudefordesktop`. Permission
+classifiers commonly deny environment reads — a denied check is a signal to fall back
+to context or ask the user, not a blocker to clear.
 
 ## 1. Install the skills
 
@@ -124,15 +135,19 @@ claude -p 'Call nks_me(action="whoami") and print its result.' \
 authorization is left, and it is the user's click — walk them through it, do not script
 around it.** The Customize/connector surface syncs through the claude.ai account, not
 from the CLI's `~/.claude`, and nothing in a shell reaches it. Your whole job here is
-detection (step 0), the walkthrough, and verification after the restart:
+detection (step 0), the walkthrough, and verification:
 
 > Open **Customize**, find the **nks** connector, and press **Connect**. The OAuth
 > consent opens in the browser and returns you to the app.
 
-Then ask for the restart (step 3).
+When the user confirms, check your own session before asking for anything: on this
+surface the connector's tools (`mcp__<connector-id>__nks_*`) usually hot-load into the
+live session. If they appeared, call `nks_me(action="whoami")` right away — a reply is
+full verification, no restart needed. Ask for a restart (step 3) only if the tools did
+not appear.
 
 Afterwards `claude mcp list` shows **two** entries for the same URL. That is the correct
-end state, not a half-finished install:
+end state, not a half-finished install — and it is internal; do not report it:
 
 ```text
 claude.ai nks:      https://nks.lab.mirari.ru/mcp - ✔ Connected
@@ -143,8 +158,8 @@ The claude.ai-account connector is the live one, and it is what publishes the `n
 tools. The plugin-bundled `plugin:verstak:nks` stays unauthenticated on this surface
 permanently — leave it alone. Its tools are namespaced by the connector's own id, not by
 the plugin name, so do not look for `mcp__plugin_verstak_nks__*` and do not conclude from
-its status line that the setup failed. **Verify by calling `nks_me(action="whoami")` from
-a fresh session** — check for working tools, never for a status line.
+its status line that the setup failed. **Verify by calling `nks_me(action="whoami")`** —
+check for working tools, never for a status line.
 
 **claude.ai (web): the same UI route**, on the same plugin page. A plugin installed on
 claude.ai is not picked up by the desktop app until that app restarts — which also
@@ -210,7 +225,9 @@ explicitly, under a pty as above.
 ## 3. Restart
 
 Tell the user installation is done and ask them to restart the session so the new
-skills and connection are picked up. This is the end of what you can do here.
+skills and connection are picked up. Skip the ask if step 2 already verified live
+(desktop hot-load) — then the only thing left to say is done, and what comes next
+(step 4). This is the end of what you can do here.
 
 ## 4. First session: verstakify
 
@@ -228,7 +245,9 @@ rituals), and seeds the graph with the structure the codebase already shows.
   are on, the exact command, and what approving it does; then stop and wait. On approval,
   re-run that command and continue — steps that already succeeded are not repeated.
   Seen in the wild: `claude plugin install` blocked by an auto-mode permission
-  classifier on the first attempt — same handling, approve and re-run.
+  classifier on the first attempt — same handling, approve and re-run. Also seen: the
+  step 0 env check and even read-only MCP calls denied by the same classifier — for
+  detection, don't re-ask; context signals (step 0) answer it without any command.
 - **Desktop: `plugin:verstak:nks` still says `Needs authentication` after a successful
   setup** → expected, and permanent. The plugin does not authorize its own bundled
   server; the connector that works is the separate `claude.ai nks` entry. Two entries
