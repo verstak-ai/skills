@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/verstak-ai/skills/compare/v2.0.0...v2.0.1) (2026-08-04)
+
+
+### Bug Fixes
+
+* **collaborate:** make the listening half of the exchange executable ([#65](https://github.com/verstak-ai/skills/issues/65)) ([3a60f8b](https://github.com/verstak-ai/skills/commit/3a60f8b63c471cdf057a0237ad68a1fe434fd75d))
+
 ## [2.0.0](https://github.com/verstak-ai/skills/compare/v1.10.0...v2.0.0) (2026-08-02)
 
 
