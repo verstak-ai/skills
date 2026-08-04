@@ -103,6 +103,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 
 ## Git workflow
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
+- **The PR title is the only commit that reaches `main`.** Merges here are squashes, so release-please reads the title and nothing else — your branch's own `feat:` commits are invisible to both the version and the `CHANGELOG`. Give the PR the **highest** type its branch carries (any `feat:` in the branch makes it a `feat:` PR, however many fixes surround it), and write the title knowing it becomes the changelog line. Witnessed: a branch carrying four `feat:` commits shipped as a patch with a one-line changelog, because its title said `fix:`.
 - **No co-author trailer.**
 - **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter and drifted bundles, not substance — still review the `SKILL.md` diff by eye.
 - **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner".
