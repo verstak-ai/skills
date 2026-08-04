@@ -27,7 +27,11 @@ State lives in the **repo** or in **NKS** — nowhere else.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
 
 ### Branch discipline
-One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges. After merge: `git checkout main && git pull`, delete the merged branch, update NKS (#844 + end what the merge settled, by axis).
+One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges.
+
+**Start every branch from a freshly fetched `origin/main`:** `git fetch origin && git switch -c <name> origin/main`. Never from wherever you happen to be standing. Merges here are **squashes**, so a merged branch's own commits exist nowhere on `main` — branch off one and you replay work that is already there, and the PR conflicts with itself. This bites hardest right after a merge, when the tree looks current and isn't.
+
+That form also works in a **worktree**, where the usual `git checkout main` fails outright (`main` is checked out in the primary clone) — which is exactly the wrong turn that produced the conflict this rule exists to prevent. After merge in a worktree: fetch, verify your work is on `origin/main`, and start the next branch from it; branch deletion belongs to the clone that holds `main`. Then update NKS (#844 + end what the merge settled, by axis).
 
 ## Working principles
 1. **Think before editing.** Orient in `r5`; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
