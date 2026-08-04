@@ -98,6 +98,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `skills/verstakify/references/superpowers-interop.md` — when superpowers renames its skills/paths/gates (re-verify checklist inside).
 - `skills/verstakify/references/delegation.md` — when Claude Code / OpenCode agent-file surfaces change (dirs, frontmatter keys, model aliases/inheritance; re-verify checklist inside).
 - `skills/verstakify/references/harness-surfaces.md` — when a harness changes where it reads instructions or fires automation (Claude Code hooks file, Codex `[hooks]`/`AGENTS.override.md`, OpenCode plugin dir + event list; re-verify checklist inside). A harness gaining or losing a surface changes what verstakify can promise.
+- `skills/collaborate/SKILL.md` — when the bridge that relays a human onto an agent's channel changes the shape of its address line (`re <realm>#<seq> v<version> · karta #<seq>`). That contract deliberately lives in two places — the bridge's own contour and this skill — because agents reading the skill have no access to that realm, so neither side can point at the other and drift is caught by meaning alone. A field added, dropped, or renamed there must land here in the same breath.
 - NKS (`r5`, #844) — every push: bring **both halves** of every touched skill to the shipped state — the phenomenon («Скилл <name>», vollzug) and its applying kriya with its step-by-step sub-kriyas (tool `next`-edges and composition `upadhi` included) — and end what the push settled, by axis.
 
 ## Git workflow
