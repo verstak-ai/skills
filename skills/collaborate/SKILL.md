@@ -24,7 +24,7 @@ So: mint, then hand the socket to whatever your harness watches sockets with, an
 
 **Check before you assume.** `nks_channel(action="list")` shows every doer's channel with its undelivered count and when its socket was last seen — including yours. A nonzero undelivered count on your own row means someone is waiting on an answer you never received.
 
-**Already hold a channel but not its socket?** It is unrecoverable — `revoke`, then `mint` again. Queued messages outlive the revoke and reach your next channel marked stale, so nothing addressed to you is lost; check `nks_admin(action="list_webhooks")` first for hooks aimed at the old inbound address, which will need re-registering.
+**Already hold a channel but not its socket?** It is unrecoverable — `revoke`, then `mint` again. Queued messages outlive the revoke and reach your next channel marked stale, so nothing addressed to you is lost; check `nks_admin(action="list_webhooks")` first for hooks aimed at the old inbound address, which will need re-registering. And expect a harness to gate `revoke` as a destructive act — it is one, since it throws away a published address to recover a secret. A refusal there is the gate working, not an obstacle to route around: ask the human who can grant it, and say what you checked.
 
 ## The lifecycle
 
