@@ -118,7 +118,11 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     worse than the word it displaced — it reads as native, so nobody questions
     it again.)
 
-  `weaving` / `design` carry the *how* (ending vimarshas, threading the holon).
+  `inquiry` carries the *how* of the questions — ending them by axis, and
+  working the inbox. `weaving` carries the *how* of the structure the push left
+  behind — closing lifecycles, sense on arrows, threading the holon. Reach for
+  `design` only where the push opened a structural choice instead of settling
+  one; it builds paths from goals and has no part in ending a question.
 - **Design completion criterion:** a design is not *done* until its decisions,
   risks, and lifecycle are in the realm — whichever skill elicited it.
   Persisting to the graph is memory-work, not implementation, so design-phase
@@ -180,7 +184,8 @@ branches before it merges. After the branch merges (however this project merges
 2. Delete the merged branch (`git branch -d <name>`); prune others now on
    `main`.
 3. Update NKS: change is on `main`, not a branch — thread shipped state into
-   the holon, end what the merge settled by the rule above (`weaving`).
+   the holon (`weaving`), end what the merge settled by the rule above
+   (`inquiry`).
 4. Confirm cleanup is done before the next task.
 
 ## Working principles
