@@ -167,6 +167,15 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   no auto-update — a plain unpacked copy under the agent's skills dir — the
   presumption can't hold: check the installed version before a session that will
   lean on the skills, or move to a channel that carries updates itself.
+- **Skill names in this file are meant to be invoked, so they must resolve.**
+  How a skill is addressed depends on the install channel — a plugin namespaces
+  its skills, a flat unpack leaves them bare — so the names written here are the
+  ones that resolve on `<this project's channel>`. If one of them doesn't
+  resolve for you, that is a defect in this file, not your problem to route
+  around: say so, and try the other form before working by feel. (why: an
+  unresolvable name raises no error, it raises a shrug — the reminder still
+  fires, the doer still reads it, and the method it was pointing at silently
+  doesn't run.)
 
 ### After a green push: self-review
 Quality gate green and the iteration done → re-read your diff for: bugs,
@@ -338,6 +347,13 @@ exhaustive.>`
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`refactor:`/`docs:`/
   `test:`). Branches `feat/…`, `fix/…`, `chore/…`. PR titles same format.
 - **No co-author trailer** unless the user asks.
+- **Where the project squash-merges, the PR title is the only commit that lands
+  on the trunk.** Everything your branch said in its own commit messages
+  collapses into that one line, so whatever reads the trunk's history — release
+  automation, a changelog, a version bump — sees the title alone. Give the PR
+  the highest type its branch carries, and write the title knowing it becomes
+  the changelog entry. `<state here how this project merges, since it decides
+  whether commit messages or the PR title carry the release>`
 - **Who does which act.** Committing and pushing your branch are yours — do
   them, don't offer them as a choice ("push, or keep working?" is the same ask
   in a different coat). Opening the PR is yours too, with

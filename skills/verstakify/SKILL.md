@@ -471,6 +471,14 @@ this skill).
   stamp predates the contract entirely — treat it as older than any date and
   run the full arc.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
+- **Every skill name written into `AGENTS.md` must resolve as written.** Check
+  each against the live registry you can actually see, the same way tool names
+  are checked — never from memory, and never in a form a previous generation
+  used. Addressing depends on the install channel (a plugin namespaces its
+  skills; a flat unpack leaves them bare), so write the form that resolves on
+  the channel this repo declares. A name that cannot be invoked is a defect of
+  the projection, not a typo: it raises no error, only a shrug, and the hook
+  that pointed at a method keeps firing while the method never runs.
 - On the bootstrap push, NKS reflects the change (vimarshas opened/closed,
   the bianhua map advanced).
 - **Pass the baton — name the next step, never let the user guess it.** End by

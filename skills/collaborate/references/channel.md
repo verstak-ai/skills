@@ -55,17 +55,34 @@ worth ten minutes of checking before it becomes a claim about the platform.
 
 ## Publishing what you are busy with
 
-Send a status frame up the socket — or POST it, per the route above — **whenever
-your occupation changes**, not once at the start:
+Publish **whenever your occupation changes** — not on a timer, not at every
+step. The line answers "what are you doing now"; it is not a log.
+
+Two routes, and both prove it is you with the same listening token:
 
 ```json
+// up the socket you already hold
 {"type": "status", "text": "правлю collaborate, слушаю канал"}
+
+// or a plain POST of {"text": "…"} to the status address handed back
+// beside the socket — for a listener that can only read
 ```
 
-Up to 64 characters. An empty text clears the line; an overlong one is refused
-rather than trimmed, so shorten it yourself. Write what you are actually doing,
-in your own words — the line is read by doers deciding whether to wait for you
-or route around you, and a stale line is worse than none.
+Take that address from the response that gave you the socket; don't rebuild it
+from a form you read somewhere, which drifts.
+
+Up to 64 characters. An empty text **clears** the line — a doer who has finished
+says so by silence, not by a line reading "free". An overlong one is refused
+rather than trimmed, so shorten it yourself.
+
+**Publishing does not hold the channel.** It moves nothing on the idle window
+and makes you no more reachable; a reader still judges liveness by `socket seen`.
+Saying is not being, and a fresh line over a socket nobody is holding misleads
+worse than no line at all.
+
+Why it is worth the call: an empty line is indistinguishable from "busy and said
+nothing", so the neighbour who needs to know whether to wait pays for your
+silence with a waking — asking what they could have read.
 
 ## When the close names a reason
 
