@@ -359,6 +359,14 @@ confirmation rather than assuming it lands silently.
   any further write at the moment the save-instinct fires. Reason:
   reproducibility + multi-machine, multi-agent work — local memory is
   invisible to every other agent and machine.
+- **The forge and its CLI — derive it, never assume GitHub.** Read `git remote
+  -v`; the host decides the tool (`gh` GitHub, `fj` Forgejo/Codeberg, `glab`
+  GitLab, `tea` Gitea). Check it is installed and authenticated, then name it in
+  *Git workflow* together with its watch command. This is not cosmetic: opening
+  the PR is the one hand-off step the agent owns outright, and an agent that
+  can't name the tool turns it back into a question for the user. An
+  unrecognized self-hosted host → ask which CLI they use; never guess `gh`
+  because it is the one you know.
 - *Stack*, *Commands*, *Project structure*, *Code conventions* hold real content
   proportional to maturity. Empty is fine day one; `TBD` is not.
 - `HANDOVER.md` exists only if feature-branch work is in flight.

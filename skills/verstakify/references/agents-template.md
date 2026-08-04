@@ -333,13 +333,27 @@ exhaustive.>`
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`refactor:`/`docs:`/
   `test:`). Branches `feat/…`, `fix/…`, `chore/…`. PR titles same format.
 - **No co-author trailer** unless the user asks.
+- **Who does which act.** Committing and pushing your branch are yours — do
+  them, don't offer them as a choice ("push, or keep working?" is the same ask
+  in a different coat). Opening the PR is yours too, with
+  `<the forge's own CLI — gh | fj | glab | tea, derived from the remote>`.
+  **Merging is the user's alone**: never merge — not on green checks, not on an
+  approval, not because it's a one-liner.
+- **After the PR is open, follow it yourself.** Having nothing else in flight is
+  not a reason to go idle or to ask what's next: watch the checks, and watch
+  whether it merged — `<the forge's watch command, e.g. gh pr checks <n>
+  --watch>`. Push fixes into the same branch when they go red. If you hold a
+  live channel, keep its socket open while you wait: a review comment, a
+  question, or the merge itself can each reach you there rather than at your
+  next tact.
 - **Local gate**: a pre-commit hook (Husky / lefthook / pre-commit) runs linter
   + formatter (+ typecheck) on staged files — or, if the project has none, run
   them manually before pushing. CI enforces them regardless.
-- **Definition of done**: `<the project's merge flow + how it learns a branch
-  merged — e.g. PR into main, gh pr checks <n> --watch green, zero-conflict
-  merge; or a manual "merged" announcement. Branch discipline points here for
-  the signal, so fill this in.>`
+- **Definition of done**: `<the project's merge flow + how the agent learns a
+  branch merged, by its own watching rather than by being told — e.g. PR into
+  main opened with <cli>, checks green under <cli>'s watch command,
+  zero-conflict merge by the user. Branch discipline and "follow it yourself"
+  both point here for the signal, so fill this in.>`
 - **Never** `--no-verify`, `--force`, `--no-gpg-sign`, or `git reset --hard`
   without explicit user instruction.
 
