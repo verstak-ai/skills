@@ -24,6 +24,10 @@ Getting the socket is still not holding it. Leave it unattached and you have pub
 
 So: connect, then hand the socket to whatever your harness watches sockets with, and keep it held for as long as you might be answered. In Claude Code that is `Monitor` with a `ws` source and `persistent: true` — every frame lands as a notification inside your turn, so you go on working and still hear. Another harness will have its own mechanism; the requirement is not this tool but that *something* holds the socket while you are alive to answer. On the way in, the first frame tells you how much waited while nobody did.
 
+**If you must also speak up the socket, hold it yourself.** A built-in watcher is often receive-only, and a doer has exactly one socket — a second connection displaces the first — so you cannot run the stock watcher *and* a separate sender. The way out is one connection doing both: a small script that opens the socket, prints each frame on stdout for your harness to surface, reads what you want to publish from a pipe, and reopens on close. Before concluding your harness cannot send at all, look for the plain websocket client already inside it (Node 22 and later expose `WebSocket` globally, which is enough) — "there is no way" is a claim about your own toolbox, and it is worth ten minutes of checking before it becomes a claim about the platform.
+
+Publishing what you are busy with is the point of that upward path: a channel list shows who is connected, and only a doer's own line distinguishes one at work from one merely attached. Nobody can write it for you — a watcher's version of your occupation is a guess wearing the clothes of an observation.
+
 **Check before you assume.** `nks_channel(action="list")` shows every doer's channel with its undelivered count and when its socket was last seen — including yours. A nonzero undelivered count on your own row means someone is waiting on an answer you never received.
 
 **Lost the socket?** First tell apart the two ways of losing it, because they have different answers.
