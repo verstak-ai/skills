@@ -118,7 +118,11 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
     worse than the word it displaced — it reads as native, so nobody questions
     it again.)
 
-  `weaving` / `design` carry the *how* (ending vimarshas, threading the holon).
+  `inquiry` carries the *how* of the questions — ending them by axis, and
+  working the inbox. `weaving` carries the *how* of the structure the push left
+  behind — closing lifecycles, sense on arrows, threading the holon. Reach for
+  `design` only where the push opened a structural choice instead of settling
+  one; it builds paths from goals and has no part in ending a question.
 - **Design completion criterion:** a design is not *done* until its decisions,
   risks, and lifecycle are in the realm — whichever skill elicited it.
   Persisting to the graph is memory-work, not implementation, so design-phase
@@ -180,7 +184,8 @@ branches before it merges. After the branch merges (however this project merges
 2. Delete the merged branch (`git branch -d <name>`); prune others now on
    `main`.
 3. Update NKS: change is on `main`, not a branch — thread shipped state into
-   the holon, end what the merge settled by the rule above (`weaving`).
+   the holon (`weaving`), end what the merge settled by the rule above
+   (`inquiry`).
 4. Confirm cleanup is done before the next task.
 
 ## Working principles
@@ -333,13 +338,27 @@ exhaustive.>`
 - **Conventional commits** (`feat:`/`fix:`/`chore:`/`refactor:`/`docs:`/
   `test:`). Branches `feat/…`, `fix/…`, `chore/…`. PR titles same format.
 - **No co-author trailer** unless the user asks.
+- **Who does which act.** Committing and pushing your branch are yours — do
+  them, don't offer them as a choice ("push, or keep working?" is the same ask
+  in a different coat). Opening the PR is yours too, with
+  `<the forge's own CLI — gh | fj | glab | tea, derived from the remote>`.
+  **Merging is the user's alone**: never merge — not on green checks, not on an
+  approval, not because it's a one-liner.
+- **After the PR is open, follow it yourself.** Having nothing else in flight is
+  not a reason to go idle or to ask what's next: watch the checks, and watch
+  whether it merged — `<the forge's watch command, e.g. gh pr checks <n>
+  --watch>`. Push fixes into the same branch when they go red. If you hold a
+  live channel, keep its socket open while you wait: a review comment, a
+  question, or the merge itself can each reach you there rather than at your
+  next tact.
 - **Local gate**: a pre-commit hook (Husky / lefthook / pre-commit) runs linter
   + formatter (+ typecheck) on staged files — or, if the project has none, run
   them manually before pushing. CI enforces them regardless.
-- **Definition of done**: `<the project's merge flow + how it learns a branch
-  merged — e.g. PR into main, gh pr checks <n> --watch green, zero-conflict
-  merge; or a manual "merged" announcement. Branch discipline points here for
-  the signal, so fill this in.>`
+- **Definition of done**: `<the project's merge flow + how the agent learns a
+  branch merged, by its own watching rather than by being told — e.g. PR into
+  main opened with <cli>, checks green under <cli>'s watch command,
+  zero-conflict merge by the user. Branch discipline and "follow it yourself"
+  both point here for the signal, so fill this in.>`
 - **Never** `--no-verify`, `--force`, `--no-gpg-sign`, or `git reset --hard`
   without explicit user instruction.
 

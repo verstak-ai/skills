@@ -193,7 +193,9 @@ But weaving is NOT only Phase 2. Enter from:
 - Cap NKS calls at ~7 per response unless batching
 - Re-orient every 5-10 nodes
 - After an edit (reconnect/update): nks_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
+- After weaving into an existing node: re-read its **body**, not only its CHECKS — is what it says still true of what it describes? No detector covers this: the registry catches structure that tears, and prose gone false tears nothing (description non-empty, node just touched, arrows whole, modes right). Heaviest on contract nodes — a protocol, route, frame or address format exists so nobody goes to the source, so stale there misleads with authority.
 - After lifecycle work: nks_orient(lens="trace", focus=…) to confirm connected
+- Before calling a weave finished: what else did this touch? **integrity** propagates that wave; one node repaired while its neighbours still describe the old shape is half-done.
 - Batch order: phenomena → kriyas → arrows
 
 ## What weaving is NOT
