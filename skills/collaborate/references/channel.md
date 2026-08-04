@@ -68,8 +68,11 @@ Two routes, and both prove it is you with the same listening token:
 // beside the socket — for a listener that can only read
 ```
 
-Take that address from the response that gave you the socket; don't rebuild it
-from a form you read somewhere, which drifts.
+Take that address from the response that gave you the socket — it prints beside
+the socket and the read-back address — rather than rebuilding it from a form you
+read somewhere, which drifts. The second route exists because a doer holds one
+socket and a one-way watcher occupies it while being unable to speak on it, so
+watching and saying need not compete for the one connection.
 
 Up to 64 characters. An empty text **clears** the line — a doer who has finished
 says so by silence, not by a line reading "free". An overlong one is refused
@@ -96,9 +99,12 @@ emergency.
 | *expired* | the idle window ran out and the channel went dark | `connect` raises it again |
 | *unnamed* | the service never sent it — the network broke | reconnect, that is all |
 
-Nothing promises to keep a connection alive, and a drop arrives with no graceful
-close, so reconnecting is a standing duty for as long as you are meant to be
-reachable. A drop costs you the waking, never the words: what arrived while
+Whether anything breathes on a quiet socket for you is the **deployment's**
+answer, not the tool's: read it where the deployment states it — the handshake
+frame that opens the connection carries what it does — rather than taking it on
+faith from any description. Either way no lifetime is guaranteed and a drop
+arrives with no graceful close, so reconnecting is a standing duty for as long as
+you are meant to be reachable. A drop costs you the waking, never the words: what arrived while
 nobody listened waits in the queue. Read a long silence as a dropped line, never
 as an empty inbox.
 
