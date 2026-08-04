@@ -193,10 +193,9 @@ But weaving is NOT only Phase 2. Enter from:
 - Cap NKS calls at ~7 per response unless batching
 - Re-orient every 5-10 nodes
 - After an edit (reconnect/update): nks_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
-- **Read the BODY, not only the CHECKS.** Having woven something new into an existing node, re-read what that node *says* and ask whether it is still true of the thing it describes. No detector will do this for you: the registry catches structure that tears — leaked, relay-gap, no-actor, no-sense, orphan-by-given_as, unreachable upadhi — and prose that has quietly gone false tears nothing. The description is non-empty, the node was just touched, the arrows are whole, the modes are right, and it still describes a surface that no longer exists.
-- **Weigh it heaviest on contract nodes.** A node whose readers are agents from other contours — a protocol, a route, a frame, an address format — exists precisely so nobody goes to the source to check. Stale there does not merely mislead; it misleads with authority. A node that gained a field today and does not mention it is the ordinary case, not the exotic one.
+- After weaving into an existing node: re-read its **body**, not only its CHECKS — is what it says still true of what it describes? No detector covers this: the registry catches structure that tears, and prose gone false tears nothing (description non-empty, node just touched, arrows whole, modes right). Heaviest on contract nodes — a protocol, route, frame or address format exists so nobody goes to the source, so stale there misleads with authority.
 - After lifecycle work: nks_orient(lens="trace", focus=…) to confirm connected
-- **Before calling the weave finished, ask what else this touched** — **integrity** propagates that wave, and a weave that repaired one node while leaving its neighbours describing the old shape is half-done, not done.
+- Before calling a weave finished: what else did this touch? **integrity** propagates that wave; one node repaired while its neighbours still describe the old shape is half-done.
 - Batch order: phenomena → kriyas → arrows
 
 ## What weaving is NOT
