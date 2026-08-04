@@ -2,5 +2,5 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "verstak",
   "description": "NKS methodology skills — orient, write, design, and weave an NKS graph through the nks_* MCP tools.",
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
