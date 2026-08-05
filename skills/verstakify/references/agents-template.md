@@ -23,12 +23,13 @@
   project is for, and when it stops being cheap.>`
 
 ## Persistence rules
-State lives in the **repo** or in **NKS** — nowhere else. Local agent memory
-(whatever your harness calls it — a per-project memory dir, conversation
-summaries, `/tmp`, machine-local files) is **forbidden for project state**, even
-when convenient:
-it breaks flow reproducibility and silently prevents working from a second
-machine or with another agent.
+State lives in the **repo** or in **NKS** — nowhere else. The harness's built-in
+memory (whatever it calls it — a per-project memory dir, conversation summaries,
+`/tmp`, machine-local files) is **forbidden entirely, not by category**: nothing
+goes into it, not a project fact, not a user preference, not a note on working
+style. (why: local memory is invisible to every other agent and every other
+machine, so it drifts silently — and it breaks flow reproducibility, which is
+what makes a second machine or a second agent possible at all.)
 - **Repo**: code, configs, conventions, code-level gotchas, branch state — the
   artifact itself.
 - **NKS**: methodology, design decisions, open questions (vimarshas), plans,
@@ -38,19 +39,20 @@ machine or with another agent.
   decided…"? Stop and read NKS or the repo before acting.
 - **External design/spec files are drafts to intake**, not the record — the
   graph holds the decisions; any such file is a view of them.
-- **Memory write-gate.** The harness's own memory instruction invites a
-  `project` memory category — overridden here: before saving any memory,
-  classify the fact. Project fact (system property, decision, constraint,
-  gotcha) → repo/NKS; memory keeps at most a one-line pointer.
-  Agent/user-scoped (working style, preferences, language) → memory, as
-  designed. Dual-nature facts are the trap: "X works only in prod" *felt* as
-  "how I should test X" is still a project fact — split it (fact → repo/NKS,
-  pointer → memory).
-- The memory index (`MEMORY.md`), loaded every session, opens with this gate
-  as its first line — the rule must meet the save-instinct at write time, not
-  sit only in this file. The gate line is permanent: memory-consolidation
-  passes never prune it. Project facts already accumulated in memory → move
-  to their real home (AGENTS.md / HANDOVER.md / NKS), leave pointers.
+- **This overrides the harness's own memory instruction**, which invites a
+  `project` memory category and will keep inviting it — the pull is strongest
+  exactly when something feels worth keeping, and this file is long out of
+  context by then. Route it instead, always: a repo convention or a fact about
+  the code → this file; work state, a decision, an open question → a vimarsha
+  in the realm; a fact about the user that no project owns (machines, people,
+  cross-project findings) → their personal realm `@<handle>/mind` (`minding`).
+  There is no residue the memory dir keeps — "it's only a preference" is how
+  the category comes back.
+- The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a
+  one-line prohibition stub pointing here, and the `PreToolUse` memory guard
+  in the harness config blocks any write into it (exit 2) at the moment the
+  save-instinct fires. Whatever had already accumulated there moves to its real
+  home before the freeze — nothing is deleted unread.
 
 ## Session lifecycle
 NKS = the work (structure, open questions, what's next). Git = how it got here

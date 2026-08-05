@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsDir = join(root, "skills");
-const ALLOWED_KEYS = new Set(["name", "description"]);
+const ALLOWED_KEYS = new Set(["name", "description", "slash"]);
 const REQUIRED_KEYS = ["name", "description"];
 
 const errors = [];
@@ -115,6 +115,13 @@ function validateSkill(name) {
         fail(where, `\`name\` must be kebab-case (^[a-z][a-z0-9-]*$), got ${JSON.stringify(unquoted)}`);
       } else if (unquoted !== name) {
         fail(where, `\`name\` (${JSON.stringify(unquoted)}) must match the directory name (${JSON.stringify(name)})`);
+      }
+    }
+    if (key === "slash") {
+      // OpenCode decodes frontmatter `slash` as a boolean; a quoted "true"
+      // arrives as a string and fails the decode, taking the skill with it.
+      if (value !== "true" && value !== "false") {
+        fail(where, `\`slash\` must be a plain \`true\` or \`false\`, got ${JSON.stringify(value)}`);
       }
     }
     if (key === "description") {
