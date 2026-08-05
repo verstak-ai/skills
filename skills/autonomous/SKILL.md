@@ -51,9 +51,10 @@ On every wake:
 1. **The wake reason.** A frame names the vimarsha that woke you — read *it* first, in context. That is why you are awake; the rest of the inbox is background. The frame carries a pointer and the writer's one-line reason, not the text: usually enough to judge, and you fetch the node when you decide to act (**collaborate**).
 2. **The stale tail, if you just reconnected.** What arrived while your socket was down is delivered first, marked `stale` and carrying its own `received_at`. It is **history, not arrivals** — read it as part of the delta below, ordered by its timestamps, and don't answer a question that has since been answered. Delivery is at-least-once, so deduplicate by frame `id`: the same message twice is normal, acting on it twice is not.
 3. **The delta.** `nks_orient(lens="vimarshas", since=<previous wake>)` — what changed since you slept. Not a re-orientation of the whole field.
-4. **Cause to act?** Someone waits on you, a blocker cleared, a question landed. No → arm the next wake per the mode and sleep.
+4. **Your own liveness, before you call the tact quiet.** An empty tact has two causes that are identical from the inside: nobody wrote, or you stopped hearing. Read your own row in `nks_channel(action="list")` — what stands undelivered to you, and when your socket was last seen. A watch that never rechecks stays formally awake while its channel is dead and its queue fills, and every conclusion it draws from the quiet leans the same wrong way: a question re-raised that was answered hours ago, a wave reported stalled that never stalled. **Silence is not an answer** — not to what you asked, and not about whether you are reachable.
+5. **Cause to act?** Someone waits on you, a blocker cleared, a question landed. No → arm the next wake per the mode and sleep.
 
-That is the whole tact: one or two calls. It does **not** re-read the field, does not weave, does not report. **An empty duty tact is a success** — the watch is being kept.
+That is the whole tact: two or three calls. It does **not** re-read the field, does not weave, does not report. **An empty duty tact is a success** — the watch is being kept.
 
 **Waking is not amnesia.** The graph must be sufficient to resume cold — that is a demand on the *graph*, so a crashed session restarts from the inbox alone. It is not a demand that a live session forget: on waking, read the delta and keep what you already hold. Re-deriving the world every five minutes is exactly how the loop becomes too expensive to run.
 
