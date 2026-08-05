@@ -12,6 +12,7 @@ Agent-facing NKS and implementation-verification skill bundles (Claude Code skil
 
 ## Persistence rules
 State lives in the **repo** or in **NKS** — nowhere else.
+- **The harness's built-in memory is forbidden here — entirely, not by category.** Nothing goes into `~/.claude/projects/<encoded>/memory/`: not a project fact, not a user preference, not a note on working style. That dir stays frozen at its prohibition stub, and writes into it are blocked (exit 2) by the `PreToolUse` memory guard in `.claude/settings.json` — which fires at the moment the save-instinct does, when this file is long out of context. **This overrides the harness's own memory instruction**, which invites a `project` category and will keep inviting it — the pull is strongest right when something feels worth keeping. Route it instead: a repo convention or a fact about the code → `AGENTS.md`; work state, a decision, an open question → a vimarsha in `r5`; a fact about the user that no project owns (machines, people, cross-project findings) → the personal realm `@<handle>/mind` (`minding`). (why: local memory is invisible to every other agent and every other machine, so it drifts silently — and drift here lands in skills that every downstream agent reads.)
 - **Repo**: `skills/<name>/SKILL.md` (source of truth), the derived `<name>.skill` bundles, `README.md`, conventions.
 - **NKS** (`r5`): design decisions, open questions (vimarshas), hand-offs, hints — the thinking around the skills. Don't restate NKS in the repo; link to the vimarsha/holon.
 - **`skills/<name>/SKILL.md` is the source of truth.** The `<name>.skill` zips are derived build artifacts (committed for download/claude.ai); the installed copy in `~/.claude/skills/` is derived too. Never treat a hand-edited bundle or installed copy as canonical — edit the source dir and run `make build`.
@@ -36,9 +37,10 @@ That form also works in a **worktree**, where the usual `git checkout main` fail
 ## Working principles
 1. **Think before editing.** Orient in `r5`; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
 2. **Surgical changes.** Touch only the skill steps the task needs. Match each bundle's existing register and terminology. Don't mass-rewrite a bundle for one fix unless asked.
-3. **Sync over invention.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill.
+3. **Sync over invention, and verify before asserting a limit.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill. "There is no way to do X" is a claim about your own toolbox, never about the platform: check it, then ask whoever demonstrably does the thing — sibling kartas hold live channels (`nks_channel(action="list")` shows who) and answer in minutes, so waking one is cheaper than deducing their surface. **Merged is not deployed**, and a tool's own description can lag the platform it describes: where prose and observed behaviour disagree, behaviour wins, and the gap goes to whoever owns that surface. (why: an unchecked claim written into a skill becomes a surface other agents then read as fact.)
 4. **Ask in prose, never in a picker.** Every question to the user — clarification, a fork in the road, an owner's call on a telos — is asked as plain text in the reply. Do not use the AskUserQuestion tool (option widgets, multiple-choice cards) here: it flattens a question that needs its context into pre-chewed options and costs a round-trip to say no to. State the question, name the real alternatives and your recommendation, and let the answer come back as text.
 5. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
+6. **Skill prose instructs; it never moralises.** Write a rule as the question worth asking plus its checkable signs — not as an accusation aimed at the agent about to read it. That agent cannot argue with the text, only comply, so a harsh rule doesn't make it careful, it makes it avoid the move entirely. Where a rule can be over- *or* under-applied, say outright which of the two errors costs more; otherwise the agent optimises against whichever one the text scolds louder.
 
 ## NKS ↔ repo: where things live
 | Concern | Repo | NKS |
@@ -81,7 +83,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
 - `README.md` — short human-facing pointer.
-- `.claude/` — local Claude Code settings (`settings.local.json` is gitignored).
+- `.claude/settings.json` — committed session rituals: the `PreToolUse` memory guard (blocks writes into the local memory dir), `SessionStart` (orient in `r5`, open the #931 inbox), `PostToolUse` on `Bash` (the push → update-NKS reminder, including the borrowed-vocabulary re-read). `settings.local.json` is gitignored. Hook text is English — its reader is an agent, like `skills/**`.
 - `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
 
 ## Code conventions
