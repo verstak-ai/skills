@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0](https://github.com/verstak-ai/skills/compare/v2.1.0...v2.2.0) (2026-08-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **verstakify:** the built-in memory is forbidden by dir, not by category ([#77](https://github.com/verstak-ai/skills/issues/77))
+
+### Features
+
+* **collaborate,autonomous:** standings, escalation by marker, channel liveness, weighing an ask, agreement over consensus ([#73](https://github.com/verstak-ai/skills/issues/73)) ([37d846a](https://github.com/verstak-ai/skills/commit/37d846a4e4c54e3fcbfd9d9767427d441133d094))
+* **verstakify:** record a decision when it is taken, and describe a task before beginning it ([#78](https://github.com/verstak-ai/skills/issues/78)) ([2a12a83](https://github.com/verstak-ai/skills/commit/2a12a83a0b54a5b788703eb38c64ba83e6d31c15))
+* **verstakify:** the built-in memory is forbidden by dir, not by category ([#77](https://github.com/verstak-ai/skills/issues/77)) ([d29df21](https://github.com/verstak-ai/skills/commit/d29df2161a36abb7637f27447cb8a0a0b42e6fc9))
+
+
+### Bug Fixes
+
+* **verstakify:** declare slash: true so typed /verstakify resolves in OpenCode v2 ([#72](https://github.com/verstak-ai/skills/issues/72)) ([fb8f35a](https://github.com/verstak-ai/skills/commit/fb8f35a43e2aae3dd3813e2707e06e78615b8a0c))
+
 ## [2.1.0](https://github.com/verstak-ai/skills/compare/v2.0.1...v2.1.0) (2026-08-04)
 
 
