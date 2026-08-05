@@ -262,9 +262,14 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
   vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
-  push`, reminder to update NKS **only from fresh artifact evidence** — confirm
+  push`, reminder to **ask which kind of push this was** — where done means
+  merged, a push that only opens or updates a PR ships nothing, so it records
+  an answer where one genuinely stands and leaves bodies and modes describing
+  what the trunk carries (a model written ahead of the merge describes what the
+  repo does not have, and a withdrawn PR leaves it lying). After a *merge*:
+  update NKS **only from fresh artifact evidence** — confirm
   the canonical changed path and the exposed old requirements were actually
-  exercised — then advance the bianhua map and end what the push settled by axis
+  exercised — then advance the bianhua map and end what the merge settled by axis
   (`addressed_by` records the answer, release is its own act), **sweep the
   shipped contour** (walk the whole designed contour, not only the nodes you
   touched; but a mode flip is itself a claim, so flip what the evidence covers

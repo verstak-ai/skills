@@ -65,6 +65,27 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   `entry` skill runs the protocol. Then open your agenda:
   `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
+- **A decision is recorded the moment it is taken, not when it is done.**
+  Wherever it arrives — the user says it in chat, a person's word comes over
+  the socket, two agents settle it between themselves — it stands in the graph
+  **immediately**, with the modes it actually has right then: epistemic no
+  higher than `anumita`, ontic `anagata`, volitive `chanda`/`adhimoksha`. The
+  modes move later, as it is built; the record does not wait for them. Write
+  who decided and what counts as carrying it out. (why: a decision left in the
+  conversation that carried it dies with that conversation — the next session,
+  and every other doer, sees a repo that simply disagrees with an intent
+  nobody can find. Recording it late is the same failure with a delay: what
+  gets written after the fact is what you remember deciding, which is not the
+  same thing.)
+- **Every task is described before it is begun.** Before the first change
+  outside the graph: the task stands there as a deed with its before/after,
+  its inputs and what it produces. While it runs, the graph moves with it —
+  what changed, what turned out otherwise, what it opened. On **merge** (not
+  on push — a branch that merged nothing shipped nothing) the modes flip to
+  what the merge actually made true. Then **reality-audit**: verify the claim
+  against the deployed artifact, not against the diff, and only then let the
+  node say so. A mode flipped ahead of the evidence is a claim you have not
+  checked, and it reads exactly like one you have.
 - **Before work leaves the graph:** once the decision is taken and before the
   first change outside NKS, the deeds you are about to do stand in the realm in
   the project triad — ontic `anagata`, epistemic no higher than `anumita`,
@@ -78,7 +99,10 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   evidence rather than bookkeeping; and until the deeds stand in it, the
   transformation shows nothing in flight, so a second doer reads it as idle.)
   `design` carries the *how*.
-- **Every push → update NKS.** Every move below is required:
+- **Every merge → update NKS.** A push that only opens or updates a PR ships
+  nothing: record an answer where one genuinely stands, and leave bodies and
+  modes describing what the trunk actually carries. Once it merges, every move
+  below is required:
   - **Match reality.** First confirm the fresh canonical changed path and the
     exposed old requirements were exercised in the artifact. If that evidence
     is missing or contradicted, do not upgrade or end graph claims. Then record
