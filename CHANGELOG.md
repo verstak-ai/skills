@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0](https://github.com/verstak-ai/skills/compare/v2.0.1...v2.1.0) (2026-08-04)
+
+
+### Features
+
+* **collaborate,autonomous,verstakify:** teach the status line, fix the watch's channel entry, name two projection defects ([#67](https://github.com/verstak-ai/skills/issues/67)) ([0274f76](https://github.com/verstak-ai/skills/commit/0274f76dde01aa8f4e6861023fbbd489634d9d1d))
+
+
+### Bug Fixes
+
+* **collaborate:** compare a frame's declared length against the wire form, not the unpacked text ([#70](https://github.com/verstak-ai/skills/issues/70)) ([462ba28](https://github.com/verstak-ai/skills/commit/462ba285a9692d966e88a7ef3f885674b0f793ad))
+* name the entry skill in the form that actually resolves ([#69](https://github.com/verstak-ai/skills/issues/69)) ([fca81ed](https://github.com/verstak-ai/skills/commit/fca81eddee0cd7b149944b2e7404e72a0046ca41))
+
 ## [2.0.1](https://github.com/verstak-ai/skills/compare/v2.0.0...v2.0.1) (2026-08-04)
 
 
