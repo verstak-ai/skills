@@ -79,7 +79,7 @@ Then judge each candidate:
 | blocked | **name the blocker first** — find the doer via the `steward` arrow or `nks_search(node_type="karta")`; "there is no addressee" is almost never true. Then ensure a current vimarsha sits in their inbox and move on: it waits, not you |
 | the question itself is malformed | don't answer it as asked — supersede it with the question that should have been posed (**inquiry**), then answer that |
 
-**Every refusal is an act in the graph, not a line in a report.** Update the vimarsha with why you passed. In an autonomous run there is no one to read a report, and without the record there is no bounce count — so a vimarsha bounced repeatedly can never be recognized as needing the owner. When you see from its history that it has come back several times, re-address it to the 主 karta: repeated bouncing means the question is wrong or the mandate is, and neither is fixed by another round.
+**Every refusal is an act in the graph, not a line in a report.** Update the vimarsha with why you passed. In an autonomous run there is no one to read a report, and without the record there is no bounce count — so a vimarsha bounced repeatedly can never be recognized as needing the owner. When you see from its history that it has come back several times, re-address it upward — to your own user, per **collaborate** step 6: repeated bouncing means the question is wrong or the mandate is, and neither is fixed by another round.
 
 ## 2a · Grasp it before you take it
 
@@ -162,7 +162,7 @@ Two things bind even if you never open that skill, because they decide whether y
 
 ## 5 · Escalate
 
-Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange with the owner karta (主 in AGENTS.md) as addressee; don't re-derive it here. What the watch adds: keep working whatever does not depend on the answer, and if *everything* does, say so in one list rather than going quiet.
+Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange, addressed to your own user rather than to a role; don't re-derive it here. What the watch adds: keep working whatever does not depend on the answer, and if *everything* does, say so in one list rather than going quiet.
 
 When the owner answers, the answer is not received until it is woven in — record it, carry what it changed, release the node, or re-ask on the same node when the reply doesn't settle it (**collaborate**, "When the answer comes back"). A decision left in the reply that carried it dies with the session that heard it.
 

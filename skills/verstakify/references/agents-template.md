@@ -15,8 +15,10 @@
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
   Your inbox: `nks_orient(focus="<seq>")` at session start (self-locate
   fallback: `nks_me(action="kartas")`).
-- **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
-  here as `posed_to` vimarshas.
+- **Owner karta**: `<#seq «name»>` (svatantra 主) — the role that answers for the
+  product. Address it when the question is about the role itself; an
+  out-of-mandate question goes first to your own user (`nks_me`), who carries it
+  further if the decision is above them.
 - **Stack**: `<language + primary frameworks, one line>`.
 - **Production statement**: `<one paragraph: what ships, to whom, where, cost
   of breakage. Sandbox/research: state that breakage is cheap, what the
@@ -203,8 +205,9 @@ branches before it merges. After the branch merges (however this project merges
    interpretations; push back when a simpler approach or false premise is
    visible. Check repo + NKS before writing; fetch, don't recall. Hit the
    live system before trusting a type, a name, or a doc. Out-of-boundary or
-   authority-exceeding questions become vimarshas `posed_to` the owner's 主
-   karta — not silent decisions, not chat-only asks.
+   authority-exceeding questions become vimarshas `posed_to` your own user's
+   karta — the owner's 主 only when the question is about the role itself — not
+   silent decisions, not chat-only asks.
 2. **Simplicity first.** Minimum code for the task. No speculative features, no
    abstractions for single-use code, no error handling for impossible cases.
    Validate at boundaries; trust internal invariants. 200 lines that could be
