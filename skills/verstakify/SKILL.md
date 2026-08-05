@@ -28,11 +28,20 @@ have, with `<…>` slots and a few `<!-- … -->` notes. Fill the slots, drop
 optional rows/sections that don't apply, strip every `<!-- … -->` note, never
 leave an angle bracket. The skeleton is *what to produce*; this file is *how*.
 
-**Contract: `2026-08-05`.** Step 7 stamps this date into every `AGENTS.md` it
-writes. Bump it only when a change here or in the skeleton makes an
+**Contract: `1`.** Step 7 stamps this number into every `AGENTS.md` it writes.
+Increment it by one only when a change here or in the skeleton makes an
 already-generated file *wrong* — a section added, renamed or retired, a ritual
-changed, a tool name dropped; never for wording. A repo whose stamp is older
+changed, a tool name dropped; never for wording. A repo whose stamp is lower
 gets the full arc, and you name the contract its config came from.
+
+It is a plain counter, and deliberately neither a date nor the plugin's
+version. A date cannot express two changes in one day — it happened, and the
+second change had no way to announce itself. The release version moves on every
+release, including ones that touch no skill here, so stamping it would mark
+every generated config stale after any release at all; a staleness signal that
+fires constantly stops being read. This counter is the template's own and moves
+only when the template's output goes wrong. **A config stamped with a date
+predates this scheme** — treat it as lower than any number and run the full arc.
 
 The skeleton deliberately *inlines* repo-agnostic agent-discipline (Working
 principles, parts of Session lifecycle) into every generated `AGENTS.md` so the
@@ -475,11 +484,11 @@ this skill).
   discipline. A narrow per-repo checker on named lines is the only shape worth
   building; never a generic one.
 - **Stamp the contract.** Trailing line of `AGENTS.md`: `*(verstakify: contract
-  <the date from the top of this file> — re-run when the installed contract is
-  newer, or when the sources this file derives from have moved since.)*` On a
+  <the number from the top of this file> — re-run when the installed contract is
+  higher, or when the sources this file derives from have moved since.)*` On a
   refresh, overwrite the old stamp; never leave two. A config carrying **no**
-  stamp predates the contract entirely — treat it as older than any date and
-  run the full arc.
+  stamp, or one carrying a **date** from the scheme this counter replaced,
+  predates the contract — treat it as lower than any number and run the full arc.
 - Confirm no `<…>` slot and no `<!-- … -->` note survived into `AGENTS.md`.
 - **Every skill name written into `AGENTS.md` must resolve as written.** Check
   each against the live registry you can actually see, the same way tool names
