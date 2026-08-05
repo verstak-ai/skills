@@ -28,7 +28,7 @@ have, with `<…>` slots and a few `<!-- … -->` notes. Fill the slots, drop
 optional rows/sections that don't apply, strip every `<!-- … -->` note, never
 leave an angle bracket. The skeleton is *what to produce*; this file is *how*.
 
-**Contract: `2026-07-28`.** Step 7 stamps this date into every `AGENTS.md` it
+**Contract: `2026-08-05`.** Step 7 stamps this date into every `AGENTS.md` it
 writes. Bump it only when a change here or in the skeleton makes an
 already-generated file *wrong* — a section added, renamed or retired, a ritual
 changed, a tool name dropped; never for wording. A repo whose stamp is older
@@ -280,8 +280,9 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   past.
 - **`PreToolUse`** with `"matcher": "Write|Edit|MultiEdit"` → the **memory-guard
   hook**: when the target path is inside the local project-memory dir, **block
-  the write** (exit 2, routing message on stderr) — project state lives in the
-  repo or the graph, never in local agent memory; the dir stays frozen at its
+  the write** (exit 2, routing message on stderr) — state lives in the repo,
+  the graph, or the user's personal realm, never in local agent memory, and the
+  prohibition is by dir rather than by category; the dir stays frozen at its
   prohibition stub (Step 5). Blocking is safe here: the path is unambiguous and
   legitimate writes there are zero by policy. It fires at the exact moment the
   save-instinct does, when AGENTS.md is far behind in the context. Exact JSON
@@ -314,7 +315,7 @@ The path is unambiguous (`.claude/projects/<encoded>/memory/`), so false
 positives are near zero:
 ```json
 { "matcher": "Write|Edit|MultiEdit", "hooks": [ { "type": "command",
-  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden for project state (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state → a hint vimarsha in the project realm; a user-scoped fact no project owns (machines, people, cross-project findings) → the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state → a hint vimarsha in the project realm; a user-scoped fact no project owns (machines, people, cross-project findings) → the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
 ```
 This entry goes under `"PreToolUse"` — its own event array, not the
 `PostToolUse` one.
@@ -350,15 +351,18 @@ confirmation rather than assuming it lands silently.
   <file>`, never `git add -A` / `commit -a` (an agent editing a tracked env file
   otherwise leaks it into the PR).
 - Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`):
-  audit and **evacuate** it. Project state (decisions, constraints, branch
-  state, gotchas) → AGENTS.md / HANDOVER.md / NKS; durable user holdings
-  (machines, deployments, cross-project findings) → the user's personal realm
-  (**minding**); agent working-style preferences → the user's global harness
-  memory, not the project dir. Then freeze the dir: `MEMORY.md` becomes a one-line
+  audit and **evacuate** it, then freeze it. Nothing keeps a place there —
+  the prohibition is by dir, not by category. Project state (decisions,
+  constraints, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS; durable
+  user holdings (machines, deployments, cross-project findings) *and* the
+  working-style preferences that used to be waved through → the user's personal
+  realm (**minding**), which is the home that survives a new machine and is
+  readable by the next agent. Then freeze: `MEMORY.md` becomes a one-line
   prohibition stub («project state lives in the repo or the graph — see
   AGENTS.md, Persistence rules»), and the memory-guard hook (Step 4) blocks
-  any further write at the moment the save-instinct fires. Reason:
-  reproducibility + multi-machine, multi-agent work — local memory is
+  any further write at the moment the save-instinct fires. Evacuate before you
+  freeze — a stub over unread content destroys what it was meant to relocate.
+  Reason: reproducibility + multi-machine, multi-agent work — local memory is
   invisible to every other agent and machine.
 - **The forge and its CLI — derive it, never assume GitHub.** Read `git remote
   -v`; the host decides the tool (`gh` GitHub, `fj` Forgejo/Codeberg, `glab`
