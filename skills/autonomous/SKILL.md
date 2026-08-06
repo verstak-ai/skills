@@ -1,6 +1,6 @@
 ---
 name: autonomous
-description: "Work autonomously in a verstakified repo — the agent's own cycle, driven by its karta's inbox and live channel. Triggers: 'вахта', 'заступай на вахту', 'работай сам', 'автономный цикл', 'on duty', 'stand watch', 'duty cycle', 'work autonomously', or an autonomous session start where AGENTS.md names an agent karta. Two loops: a cheap duty tact (wake → reason + since-delta → nothing to do? sleep) and an expensive work tact (grasp → mark intent → ship per repo ritual → relay → carry to integration → reconcile → weave → close). Wake mode, focus and channel are declared, never guessed; work ends at integration, not at a commit; a behavioral claim is reality-audited before it relays as verified. Composes entry, inquiry, reality-audit, collaborate, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
+description: "Work autonomously in a verstakified repo — the agent's own cycle over its karta's inbox and live channel. Triggers: 'вахта', 'заступай на вахту', 'работай сам', 'автономный цикл', 'on duty', 'stand watch', 'work autonomously', or an autonomous session start where AGENTS.md names an agent karta. Two loops: a cheap duty tact (wake → reason + since-delta → sleep) and an expensive work tact (grasp → mark intent → ship → relay → integrate → reconcile → weave → close). Wake mode, focus and channel are declared, never guessed; the watch begins only once it can speak, not only hear; no mode excuses an empty tact; work ends at integration, not a commit; a behavioral claim is reality-audited before it relays. Composes entry, inquiry, reality-audit, collaborate, writing, weaving. Needs nks_* MCP tools and a verstakified AGENTS.md."
 ---
 
 # NKS Autonomous — the agent's own cycle
@@ -10,6 +10,19 @@ An agent in a verstakified repo has an identity: the **agent karta** named in AG
 The cycle is called a **watch** (вахта) — the agent stands it the way a duty officer does: awake on a cadence, acting on what arrives, accountable for what it left. What makes it autonomous is not that nobody watches, but that it runs the whole span itself — from the arrival that woke it to the merge that ends it, asking for what it may not decide and never for what it may.
 
 **The watch is two loops, not one.** A **duty tact** is cheap and frequent: wake, look at what changed, decide whether there is cause to act, sleep again. A **work tact** is expensive and rare: grasp the work, take it, ship it, wire the relay, carry it to integration, weave, close. Running the expensive one on every wake is what makes a watch too costly to keep — and an agent that finds its own cycle too costly either stops waking or inflates the work to justify the ritual. Keep them separate.
+
+**A stage counts by its outward sign, never by the inward one.** Every stage of the watch has a sign the doer can read from inside itself — *connected*, so I am standing; *reported*, so I have accounted for it; *read my row*, so I have looked around; *the mode says the turn may end*, so I may be silent. Each of those can be fully satisfied while nothing at all changed outside: the word never arrived, no branch exists, no node was written, the neighbour is still stuck. That is why a stalled watch and a working one look identical from outside — and why, from inside, both read as duty done.
+
+So every stage below names the sign visible **from outside**, and that sign is the *condition* of the stage, not its report:
+
+| Stage | Not this inward sign | This outward one |
+|---|---|---|
+| Stood on watch | the channel connected | one real word reached your human |
+| Reported | you said it | it landed in someone else's inbox |
+| Worked the tact | you were busy | there is a branch, a node, or a sent word |
+| Looked around | you read your own row | you read the whole listing |
+
+The rule generalizes past these four: **when you add a stage to your own loop, name what it leaves outside, or you have added a way to feel finished.**
 
 **The two surfaces carry different durable state.** The repository stays the canonical implementation state; the graph carries what a later doer cannot reconstruct from it — decision deltas, ownership, dependencies, open questions — plus the traversable structure `writing` or the repo's push ritual requires. What the graph must *not* carry is reconstructable repo mechanics restated as prose. Every exit — a wait, a crash, a context death — leaves both consistent enough that a fresh session re-enters through the inbox and the artifact. If resuming would need unpersisted session memory, you have left the rails.
 
@@ -23,7 +36,7 @@ When three to five agents drive one feature, they hand vimarshas back and forth 
 |---|---|---|---|
 | **webhook** | the graph wakes you on inbox change | event-driven | verify the hook is actually armed (list/inspect — a hook whose sender died sleeps forever), arm a bounded fallback too, sleep |
 | **sleep-poll** | you | 5–10 min while a wave is live; longer when nobody waits on you | sleep again |
-| **interactive** | the user | none | report state and end the turn — the user is the scheduler |
+| **interactive** | the user | none | the user schedules the next wake — the turn ends, but only *after* this tact moved something (*the mode schedules*, below) |
 
 **Focus** — what this watch is for: the whole inbox, one transformation (§2b), or one holon/feature.
 
@@ -37,12 +50,30 @@ Then, once per session: run the **entry** protocol and open the agenda — `nks_
 
 A doer with a channel is reachable *now*; a doer without one is reachable at its next tact. Opening it is **its own entry stage**, done after orienting and before the first tact — not a side effect of needing it later.
 
-1. **Connect.** `nks_channel(action="connect", karta=<your karta>)` converges to a working socket from any starting state — none yet, it opens one; one already live, it reissues the socket alone and leaves your inbound address, queue and trail untouched — so you need not first work out which state you are in. It returns two addresses that are not the same kind of thing: the **inbound** `https://…` is a mailbox other doers write to and are meant to find; the **socket** `wss://…` is shown **once** and is the credential itself. Whoever holds the socket reads everything addressed to you. **Never `revoke` to get a socket back** — it destroys the inbound address others hold and, in the same act, the webhooks aimed at it, including the one you are about to arm in step 2. That is how a watch comes back looking connected and deaf to its own inbox. **A watch standing in its own working copy names its standing after that copy** — derived from the worktree or branch, never remembered — and must know that connecting under a name seats it *alongside* its old place rather than renaming it, leaving that place collecting mail nobody reads (**collaborate**, *be listening*).
-2. **Point your own inbox at it.** `nks_admin(action="add_webhook", node_id=<your karta>, url=<the inbound>)` — now a vimarsha `posed_to` you arrives on the same socket as a doer's message, instead of waiting for a poll. Without this the channel carries only what someone deliberately sends you, never the graph itself.
-3. **Stand on the socket** with whatever your harness watches sockets with, and **reconnect whenever it closes** — nothing promises to keep it alive, so reopening is the ordinary course, not an incident, and a watch gone deaf is indistinguishable from a quiet inbox. A drop costs the waking, never the words: what arrived waits in the queue. Idleness closes the channel itself, and `connect` raises it again. When a close names a reason, the reason names the move — **collaborate**'s `references/channel.md` has them.
-4. **Say what you are on.** Publish your occupation when it changes — up the socket, or by POST for a listener that can only read. A neighbour deciding whether to wait for you reads that line; without it they pay for your silence with a waking. It does not hold the channel open: liveness is still read from when your socket was last seen.
+**A channel is two capabilities, and only one of them gets tested by accident.** Hearing is proven the first time anything arrives. Speaking is proven by nothing at all — a published socket, an armed hook and a green connect describe a doer that can be *reached*, and say nothing about whether it can reach anyone.
+
+**So speaking comes first, and not out of courtesy.** The outgoing word is the cheapest live probe of the surface you are standing on, and it is the one act in the entry stage that returns a fact rather than a reading. Witnessed: a watch that skipped it stood for hours believing itself connected, on a receiving socket and an outgoing path that was refusing sends — and when it finally tried to speak, the refusal came back in one call and brought the urgent work with it. Orienting nine ways had not surfaced either. **The act you keep deferring is the act that would have uncovered the work.**
+
+Note what this does *not* cost: your own socket is not needed to send, and a reply to your word waits in your queue until you are listening. A drop costs the waking, never the words — so speaking before you are set up to hear loses nothing at all.
+
+1. **Speak — send the opening delta to your human.** One real message, not a ping: where you stand, what you are holding, what you expect to be asking them about. Take the address from `nks_channel(action="list")` — the standing that bridges to that person, read off the board rather than guessed, and never substituted by the `me` marker, which names the karta bound to *your* identity and has nothing to do with their bridge. **If it does not go through, the watch has not begun**: repair the channel — that *is* the tact — instead of going off to work behind a mouth that doesn't open.
+2. **Connect.** `nks_channel(action="connect", karta=<your karta>)` converges to a working socket from any starting state — none yet, it opens one; one already live, it reissues the socket alone and leaves your inbound address, queue and trail untouched — so you need not first work out which state you are in. It returns two addresses that are not the same kind of thing: the **inbound** `https://…` is a mailbox other doers write to and are meant to find; the **socket** `wss://…` is shown **once** and is the credential itself. Whoever holds the socket reads everything addressed to you. **Never `revoke` to get a socket back** — it destroys the inbound address others hold and, in the same act, the webhooks aimed at it, including the one you are about to arm in step 3. That is how a watch comes back looking connected and deaf to its own inbox. **A watch standing in its own working copy names its standing after that copy** — derived from the worktree or branch, never remembered — and must know that connecting under a name seats it *alongside* its old place rather than renaming it, leaving that place collecting mail nobody reads (**collaborate**, *be listening*).
+3. **Point your own inbox at it.** `nks_admin(action="add_webhook", node_id=<your karta>, url=<the inbound>)` — now a vimarsha `posed_to` you arrives on the same socket as a doer's message, instead of waiting for a poll. Without this the channel carries only what someone deliberately sends you, never the graph itself.
+4. **Stand on the socket** with whatever your harness watches sockets with, and **reconnect whenever it closes** — nothing promises to keep it alive, so reopening is the ordinary course, not an incident, and a watch gone deaf is indistinguishable from a quiet inbox. A drop costs the waking, never the words: what arrived waits in the queue. Idleness closes the channel itself, and `connect` raises it again. When a close names a reason, the reason names the move — **collaborate**'s `references/channel.md` has them.
+5. **Say what you are on.** Publish your occupation when it changes — up the socket, or by POST for a listener that can only read. A neighbour deciding whether to wait for you reads that line; without it they pay for your silence with a waking. It does not hold the channel open: liveness is still read from when your socket was last seen.
+**Accepted is not delivered, and delivered is not read.** A send the platform took is evidence about the platform, not about the person. The path to a human counts as *proven* only by a word coming back from that side — once per session, before you lean on it. Until it is proven, a thing you "told the human" is claimed, not done: it has to stand on a node in their inbox as well, and that is what carries it if the bridge turns out to be dead.
 
 **Arm a bounded fallback wake anyway.** The channel is a faster path to the same inbox, never a replacement for it: every delivery path can go quiet, and a mode with no floor under it turns silence into sleep.
+
+### The mode schedules; it never excuses
+
+**The wake mode decides who appoints the next tact. It never decides whether this one works.** These are two different questions, and letting the first answer the second is how a watch produces a sequence of turns in which nothing happened, each one locally defensible.
+
+Once there was cause to act, a tact that ended with no branch, no write in the graph and no message sent is a **failed tact — in every mode, `interactive` included**. There, the user is the scheduler and the turn does end; what the mode buys is the timing of the next wake, never a pass on this one.
+
+The one turn that legitimately moves nothing is the **empty duty tact** — and it is not an exception to this, because finding no cause and arming the next wake is exactly what it was supposed to do. The failure being named here is the opposite shape: cause was found, or the queue was never actually read, and the turn ended anyway on the strength of the mode.
+
+**Entry is bounded, too.** Orienting, opening the channel and debugging your own listener are the price of admission, not the work — and they will absorb an entire session if allowed to. If by the end of entry you have not touched an artifact, the next act is a work tact, not another round of orienting.
 
 ## 1 · The duty tact — cheap by construction
 
@@ -51,8 +82,12 @@ On every wake:
 1. **The wake reason.** A frame names the vimarsha that woke you — read *it* first, in context. That is why you are awake; the rest of the inbox is background. The frame carries a pointer and the writer's one-line reason, not the text: usually enough to judge, and you fetch the node when you decide to act (**collaborate**).
 2. **The stale tail, if you just reconnected.** What arrived while your socket was down is delivered first, marked `stale` and carrying its own `received_at`. It is **history, not arrivals** — read it as part of the delta below, ordered by its timestamps, and don't answer a question that has since been answered. Delivery is at-least-once, so deduplicate by frame `id`: the same message twice is normal, acting on it twice is not.
 3. **The delta.** `nks_orient(lens="vimarshas", since=<previous wake>)` — what changed since you slept. Not a re-orientation of the whole field.
-4. **Your own liveness, before you call the tact quiet.** An empty tact has two causes that are identical from the inside: nobody wrote, or you stopped hearing. Read your own row in `nks_channel(action="list")` — what stands undelivered to you, and when your socket was last seen. A watch that never rechecks stays formally awake while its channel is dead and its queue fills, and every conclusion it draws from the quiet leans the same wrong way: a question re-raised that was answered hours ago, a wave reported stalled that never stalled. **Silence is not an answer** — not to what you asked, and not about whether you are reachable.
-5. **Cause to act?** Someone waits on you, a blocker cleared, a question landed. No → arm the next wake per the mode and sleep.
+4. **Read the board — the whole listing, not your own row.** `nks_channel(action="list")` is one call and it costs nobody a waking. It carries two readings, and the tact is cheaper for taking both at once.
+
+   *Your own liveness, before you call the tact quiet.* An empty tact has two causes that are identical from the inside: nobody wrote, or you stopped hearing. Your row says what stands undelivered to you and when your socket was last seen. A watch that never rechecks stays formally awake while its channel is dead and its queue fills, and every conclusion it draws from the quiet leans the same wrong way: a question re-raised that was answered hours ago, a wave reported stalled that never stalled. **Silence is not an answer** — not to what you asked, and not about whether you are reachable.
+
+   *And everyone else's position.* Every doer's occupation line and whether it is listening are right there. This is the only place the watch learns anything it was not *sent* — the inbox is pull-only by construction, so a neighbour stuck on your surface who never posed a vimarsha is invisible everywhere except here.
+5. **Cause to act?** Someone waits on you, a neighbour is stuck on something in your contour, a blocker cleared, a question landed. No → arm the next wake per the mode and sleep.
 
 That is the whole tact: two or three calls. It does **not** re-read the field, does not weave, does not report. **An empty duty tact is a success** — the watch is being kept.
 
@@ -62,13 +97,18 @@ That is the whole tact: two or three calls. It does **not** re-read the field, d
 
 Only when a duty tact found cause.
 
-**Read the field before picking, once per work session.** Clusters — items that ride one branch, one PR, one decision — are visible only *across* items, never from one. Skipping this is how a watch ships five disconnected PRs where one was right.
+**Read the field before picking, once per work session.** Clusters — items that ride one branch, one PR, one decision — are visible only *across* items, never from one. Skipping this is how a watch ships five disconnected PRs where one was right. Reading the field means **opening the items**, not skimming their one-line summaries: a queue read at its titles will look uniformly unpromising, because a title is written to identify an item and not to argue for it.
+
+**"The field is blocked" is a claim you have to earn, and it is the easiest false claim a watch can make** — it explains the whole tact away at once. You may not make it until every item in the queue has actually been opened and every blocker any of them names has been probed by one live call. Both halves are cheap. The second one especially: the probe usually costs a single call and it usually refutes the blocker, because what a watch is standing on is normally a state it observed some time ago and never re-observed. The graph rule — *fetch, never recall* — is not a rule about the graph. It covers the platform contract, the merge state, the deployed surface: **anything you have not touched this tact, you are remembering.**
 
 Order by:
 
-1. **Someone waits on you** — read it from the relay: who is `posed_to` on dependents, which bianhua stall. In a wave this dominates everything else.
-2. **Serves a committed bianhua** — `adhimoksha` on the map is the owner's live priority; it is already in the graph, so use it instead of inventing urgency.
-3. **Fully specified** — its "Answered when" needs no decision from anyone.
+1. **A neighbour is stuck on something in your contour** — read off the board (§1), not out of your inbox. **This outranks the inbox**, because the inbox only ever holds what someone thought to send: a doer waiting on your surface is paying for your silence whether or not they got around to asking, and the delay is already running. The offer is the move — *"I hold that surface; I can have X by Y"* — and it does not wait for them to discover the right addressee.
+2. **Someone waits on you** — read it from the relay: who is `posed_to` on dependents, which bianhua stall. In a wave this dominates everything else.
+3. **Serves a committed bianhua** — `adhimoksha` on the map is the owner's live priority; it is already in the graph, so use it instead of inventing urgency.
+4. **Fully specified** — its "Answered when" needs no decision from anyone.
+
+**Offering is not chatting, and the difference is what keeps it affordable.** The occupation line answers *what is that doer on* for free — so reading it is never a reason to write. A message is earned by a concrete offer or a concrete warning, both of which carry information the other side does not have. A bare *"what are you working on?"* is exactly the content-free ping the relay rule forbids, made worse by being avoidable in one read. The failure this guards against, though, is the opposite one and it is the more common: reading the board and doing nothing with it costs nobody a waking and costs the wave everything.
 
 Then judge each candidate:
 
@@ -77,7 +117,7 @@ Then judge each candidate:
 | in-mandate, actionable, unblocked | take it |
 | out-of-mandate (needs transcendent will) | escalate (§5) — and take the part that doesn't, rather than escalating the whole |
 | under-specified | return it to its poser with the exact question, "Answered when: …" |
-| blocked | **name the blocker first** — find the doer via the `steward` arrow or `nks_search(node_type="karta")`; "there is no addressee" is almost never true. Then ensure a current vimarsha sits in their inbox and move on: it waits, not you |
+| blocked | **probe the blocker before you believe it** — one live call against the thing you claim is in the way, because a blocker you have not touched is a guess, and the guess is usually stale (the merge you are waiting on landed an hour ago). If it survives the probe, **name its doer** — via the `steward` arrow or `nks_search(node_type="karta")`; "there is no addressee" is almost never true — ensure a current vimarsha sits in their inbox, and move on: it waits, not you |
 | the question itself is malformed | don't answer it as asked — supersede it with the question that should have been posed (**inquiry**), then answer that |
 
 **Every refusal is an act in the graph, not a line in a report.** Update the vimarsha with why you passed. In an autonomous run there is no one to read a report, and without the record there is no bounce count — so a vimarsha bounced repeatedly can never be recognized as needing the owner. When you see from its history that it has come back several times, re-address it upward — to your own user, `posed_to="me"` (**collaborate** step 6): repeated bouncing means the question is wrong or the mandate is, and neither is fixed by another round.
@@ -163,7 +203,11 @@ Two things bind even if you never open that skill, because they decide whether y
 
 ## 5 · Escalate
 
-Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange, addressed to your own user (named by the marker, not looked up) rather than to a role; don't re-derive it here. What the watch adds: **a question never ends your tact.** Asking is a write, not a wait — the vimarsha lands in the addressee's queue, the wake goes up their channel, and you go straight back to whatever the answer doesn't touch. That holds for *every* question to a person, not only for escalation: halting to wait is the one move a watch cannot make, because from outside a halted watch is indistinguishable from a dead one, and the person being waited on usually has no idea that they are. If *everything* genuinely depends on the answer, say so in one list on the node and arm your next wake — that is waiting with a body, not stopping. One exception, by construction: in `interactive` mode the user *is* the scheduler, so ending the turn is the mode working as designed, not the watch stalling.
+Transcendent will is not yours: refusal, ordering across questions, scope or telos changes, production and money risk, sanction for destructive work, anything AGENTS.md marks owner-only. The act itself is **collaborate** step 6 — the same exchange, addressed to your own user rather than to a role; don't re-derive it here. Name them **with the marker where the call takes it, and off the board where it doesn't**: the marker is a convenience for resolving who your person is, never the definition of it, and a call that refuses it is not a wall — find their standing in `nks_channel(action="list")` and address that.
+
+What the watch adds: **a question never ends your tact.** Asking is a write, not a wait — the vimarsha lands in the addressee's queue, the wake goes up their channel, and **in the same turn** you take the next item the answer doesn't touch. Three open questions are three independent gates, not one gate: stopping on one of them is not stopping. Halting to wait is the one move a watch cannot make, because from outside a halted watch is indistinguishable from a dead one, and the person being waited on usually has no idea that they are. If *everything* genuinely depends on the answer, say so in one list on the node and arm your next wake — that is waiting with a body, not stopping. And in `interactive` mode the user is the scheduler, so the turn does end there — after the tact moved something, never in place of it.
+
+**To report is to land it where the addressee will see it: their channel, or a node in their inbox.** Text written into a terminal nobody is watching is a monologue, and a monologue that used the word "reported" is worse than silence, because it leaves you believing the hand-off happened. This is the whole of what "reportable, not silent" means below.
 
 When the owner answers, the answer is not received until it is woven in — record it, carry what it changed, release the node, or re-ask on the same node when the reply doesn't settle it (**collaborate**, "When the answer comes back"). A decision left in the reply that carried it dies with the session that heard it.
 
@@ -183,6 +227,13 @@ A long work tact can outlive its own context window. The compaction is not the f
 - **Work ends at integration, not at a commit** — and the branch is opened, reviewed, announced and cleaned up by you.
 - **Grasp before you take** — where it integrates, what changes, what it risks, what is irreversible, which telos it moves. What is missing you ask.
 - **The channel is a faster path to the inbox, never a replacement for it** — and never a substitute for the graph as the record. Reconnect on close; keep a bounded fallback wake under every mode.
+- **A stage counts by its outward sign, never the inward one** — and a stage you add without naming what it leaves outside is a new way to feel finished.
+- **Speaking is the first act of the watch, not the last.** The outgoing path is proven by sending, never by connecting; a watch that cannot reach its human has not begun.
+- **Sending is the cheapest probe of the surface you stand on**, and a blocker you have not probed is a guess. The act you defer is usually the one that would have uncovered the work.
+- **To report is to land it where the addressee will see it** — a terminal nobody watches is a monologue.
+- **The mode schedules the next tact; it never excuses this one** — an empty duty tact aside, which is the mode doing its job.
+- **A question is a write, not a wait** — asked, then straight on to what the answer doesn't touch.
+- **The channel list is a board, not a mirror** — read every doer's row, not only your own.
 - **The graph is sufficient to resume cold** — a demand on the graph, not an obligation to forget on every wake.
 - **Repo and graph carry different durable state.** The artifact is the implementation; the graph is what cannot be reconstructed from it. Never repo mechanics restated as prose.
 - **A compaction is a cold wake.** Pointers live on the node, never only in the window.
@@ -204,7 +255,8 @@ A long work tact can outlive its own context window. The compaction is not the f
 The two loops are judged by different standards — one criterion for both is what lets a watch pass by doing nothing:
 
 - **A duty tact succeeds when it costs almost nothing and the next wake is armed.** Finding no cause is a normal outcome. Failing to arm the next wake, or declining the mandate, is the failure — not an empty inbox.
-- **A work tact succeeds when something moved**: integrated, or standing at a named gate with the wait recorded — plus relayed, escalated with a named addressee, or consciously parked with a reason on the node. A work tact that ends with only skips is a failure — either the field was misread or everything is blocked on the owner, and both are reportable, not silent.
+- **A work tact succeeds when something moved**: integrated, or standing at a named gate with the wait recorded — plus relayed, escalated with a named addressee, or consciously parked with a reason on the node. A work tact that ends with only skips is a failure — either the field was misread or everything is blocked on the owner, and both are reportable, not silent. **Reportable means landed in the owner's inbox**, and "everything is blocked" is earned per §2, not declared.
+- **No mode passes a work tact that moved nothing.** No branch, no write in the graph, no message sent — a failed tact, `interactive` included; the mode only ever chose who wakes you next. The empty *duty* tact is the one turn that legitimately moves nothing, and it still armed the next wake.
 - Every wait is represented in the graph *before* sleeping.
 - A second agent reading only the graph can tell what this one shipped, what it waits for, and what it asks.
 
