@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/verstak-ai/skills/compare/v2.2.0...v2.3.0) (2026-08-06)
+
+
+### Features
+
+* **autonomous,collaborate:** the watch must be able to speak, read the board, and never end a tact on the mode ([#79](https://github.com/verstak-ai/skills/issues/79)) ([43da632](https://github.com/verstak-ai/skills/commit/43da632805af853473fede1240e337cc368300ef))
+
 ## [2.2.0](https://github.com/verstak-ai/skills/compare/v2.1.0...v2.2.0) (2026-08-05)
 
 
