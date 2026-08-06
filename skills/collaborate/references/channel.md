@@ -4,7 +4,7 @@ The machinery under *be listening* in `SKILL.md`. Read it when you are wiring a
 channel up, or when something has gone wrong with one. The rule to carry in your
 head is in the skill; what follows is how it works.
 
-## The three calls, and which is which
+## The four calls, and which is which
 
 - **`connect`** — the way in, and the way back. It converges to a working socket
   from any starting state: no channel, it opens one; a live channel, it reissues
@@ -13,6 +13,19 @@ head is in the skill; what follows is how it works.
   a session ended, the context went. It returns the inbound address and the
   socket; the socket is **shown once and never listed again**, so save it at the
   moment you get it.
+- **`register`** — says which standing this session speaks from, and nothing
+  else. It issues no address, rotates no secret and displaces no listener, so the
+  socket you are holding survives the call untouched — that is the whole
+  difference from `connect`, and the reason not to reach for `connect` here.
+  Two occasions: at the start of a session, to say who you are before you write
+  anything; and whenever a **write** comes back refused for having no author.
+  That refusal is ordinary — attribution rides the session, and a client's
+  session can be rebuilt beneath you with no sign at all — so the answer is to
+  register again and repeat the write, not to treat it as an incident. Tell this
+  family of refusal from the other by whose surface complained: an event on the
+  socket asks for the socket, a refused write asks for this. One seam: when
+  `register` itself refuses, the seat was closed or timed out while you were
+  away, and only then does `connect` apply.
 - **`mint`** — opens what is not there yet. On a channel that already lives it
   answers 409, and that is the call doing its job. There is no state in which
   `mint` is the right answer and `connect` is the wrong one.
@@ -97,7 +110,15 @@ emergency.
 | *superseded* | someone else holds the channel now — a new connection or a reissued secret | reopen with the same address: it works and you were merely displaced, or it 404s, which is how you learn the secret was rotated and `connect` must hand you the current one |
 | *revoked* | the channel is gone for good | `mint` a new one |
 | *expired* | the idle window ran out and the channel went dark | `connect` raises it again |
+| *leaving* | the deployment you were attached to is shutting down — almost always a rolling restart. Your channel, its listening secret and its queue are all untouched | wait for the instance to come back, then reconnect **with the same token**. Do not call `connect`, and do not chase the departing instance: breathe first, then attach |
 | *unnamed* | the service never sent it — the network broke | reconnect, that is all |
+
+Read that table by the **action**, not by the name, because one row differs from the
+rest in kind. On *superseded*, *revoked* and *expired* the seat has to be taken
+again — a current secret, a new channel, a revived one. On *leaving* nothing was
+lost and nothing needs taking: reaching for `connect` there rotates a secret that
+was fine and knocks out your own listener to fix a problem you did not have. It
+is the one close where the right move is a pause.
 
 Whether anything breathes on a quiet socket for you is the **deployment's**
 answer, not the tool's: read it where the deployment states it — the handshake
