@@ -13,6 +13,8 @@ The cycle is called a **watch** (вахта) — the agent stands it the way a d
 
 **A stage counts by its outward sign, never by the inward one.** Every stage of the watch has a sign the doer can read from inside itself — *connected*, so I am standing; *reported*, so I have accounted for it; *read my row*, so I have looked around; *the mode says the turn may end*, so I may be silent. Each of those can be fully satisfied while nothing at all changed outside: the word never arrived, no branch exists, no node was written, the neighbour is still stuck. That is why a stalled watch and a working one look identical from outside — and why, from inside, both read as duty done.
 
+**Choosing what to work on is not a turn.** The outward sign for *chose the work* is the first actual change, or a question written where its addressee will find it — never a report that you chose. Witnessed repeatedly: a watch reads its inbox, writes "I'll start with this one, if you don't mind", and ends the turn there. Nothing is coming — no input is due, and the watch is dead until somebody pings it. Each such turn is locally defensible, and the hours go anyway. So **announcing a start belongs in the occupation line, never at the end of a turn**; and *"if you don't mind"* is legitimate about exactly one thing — an act you cannot reverse — where it means writing the ask to whoever grants it **and** carrying on with everything the ask does not touch. Asking and stopping are two separate acts, and only the first was ever needed.
+
 So every stage below names the sign visible **from outside**, and that sign is the *condition* of the stage, not its report:
 
 | Stage | Not this inward sign | This outward one |

@@ -315,6 +315,17 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   doc, reminder that the file is a draft view — the graph is the design record.
   Same envelope style, gated on `.tool_input.file_path` the way the push hook
   gates on the command text; exact JSON below.
+- **`Stop`** → the **turn-without-a-change** guard. A turn that ends having
+  announced what the agent is *about to* do — "I'll start with this one, if
+  you don't mind" — ends the agent: no input is due, and it sits dead until
+  someone pings it. The norm against this is written and gets violated
+  anyway, which is the same shape as the memory rule: what a norm cannot
+  catch, a hook fires at the exact moment the instinct does. So this one
+  **blocks**, and the exemption is what makes it safe — a turn passes if it
+  produced a change (an edit, a command, a node) **or** carries a question
+  written where its addressee will find it. Announcing an intention is
+  neither. Wire the announcement into the occupation line instead, which is
+  where "what I am on" belongs.
 
 Each hook runs a shell `command` that echoes the hook envelope to stdout. The
 nesting (`event → array → {"hooks":[{"type":"command","command":…}]}`) is the

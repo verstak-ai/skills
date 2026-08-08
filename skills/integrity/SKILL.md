@@ -1,9 +1,25 @@
 ---
 name: integrity
-description: "Use for a transformation's graph integrity or a reverse audit of prose that claims graph-backed leverage. Triggers: 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'что затронет это превращение', 'claim audit', 'подкреплено ли графом', 'не театр ли'. Propagates a bianhua's impact wavefront or checks prose claims against actual graph edges. Distinct from behavioral verification, which uses reality-audit; needs nks_* tools."
+description: "Use for a transformation's graph integrity, for INTEGRATING one surface with another, or for a reverse audit of prose that claims graph-backed leverage. Triggers: 'integrate X with Y', 'integration', 'wire these two together', 'интеграция', 'состыковать', 'связать поверхности', 'integrity check', 'impact analysis', 'what will this change touch', 'проверь на целостность', 'что затронет это превращение', 'claim audit', 'подкреплено ли графом', 'не театр ли'. An integration task starts here, from the graph, before any code. Propagates a bianhua's impact wavefront or checks prose claims against actual graph edges. Distinct from behavioral verification, which uses reality-audit; needs nks_* tools."
 ---
 
 # NKS Integrity — the transformation's wavefront
+
+## Mode 0 — an integration task starts from the graph
+
+**"Integrate X with Y" is a lifecycle closure across a boundary, not a coding task**, and it arrives without a specification almost every time. Witnessed across a day of multi-agent work: integration tasks taken code-first converged by iteration — each round discovering a requirement the previous one could have named. The word itself is the trigger; if you reached this skill by any other route and the task says *integrate*, you are already in this mode.
+
+The specification is a **graph cluster**, and building it costs less than one wasted round:
+
+1. **Trace both sides' estafetas** — what each surface produces and consumes, and where the two are supposed to meet. The meeting point is the boundary being crossed.
+2. **Take the wavefront** across it (the rest of this skill), so what the crossing touches is named rather than discovered.
+3. **Write the missing pieces as nodes in intent modes** — the phenomena that must travel and the kriyas that must run, in `anagata`, before they exist. That set *is* the specification, and it is inspectable by the other side.
+4. **Work from it, refining it** — divergence between the projection and what gets built is the informative part, not a failure of the projection.
+5. **Validate on both halves**: the surfaces converge in reality (**reality-audit**), *and* the doer who stewards the adjacent surface reviews the interface, the specification and the report. Your own account of someone else's boundary is a claim about it, never a verdict on it.
+
+Of the two errors, an over-specified integration costs a few nodes nobody reads again; an under-specified one costs rounds on both sides, and the second doer pays for a gap the first never wrote down.
+
+## The transformation's wavefront
 
 A bianhua is a HOLISTIC change — cross-holon by definition. Its map shows what *drives* it (anga); it is silent about what it will *touch*. This skill makes the wavefront visible: every implicated part of the graph gets an explicit question — «is this affected? design the adaptation» — so the transformation cannot honestly close while its impact is unexamined.
 
