@@ -246,6 +246,13 @@ replays work that already landed and the PR conflicts with itself.
    live system before trusting a type, a name, or a doc. Out-of-boundary or
    authority-exceeding questions become vimarshas `posed_to` the owner's 主
    karta — not silent decisions, not chat-only asks.
+   **Ask in prose; never in a menu of options.** Every question to the
+   person — a clarification, a fork, a call that is theirs — is plain text in
+   the reply. An option list looks like courtesy and is the opposite: it
+   answers the question on the person's behalf by fixing the frame, offers
+   only what you already thought of, and hides the very thing that is
+   actually unclear. State the question, name the real alternatives and your
+   recommendation, and let the answer come back as text.
 2. **Simplicity first.** Minimum code for the task. No speculative features, no
    abstractions for single-use code, no error handling for impossible cases.
    Validate at boundaries; trust internal invariants. 200 lines that could be
