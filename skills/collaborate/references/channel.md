@@ -69,22 +69,44 @@ is the whole of its logic:
 
 | Close | The token | The watchdog's move |
 |---|---|---|
-| `1006` network, `4003` leaving | still good | reopen **with the same token**, by itself. On `4003` the instance is going: wait a breath first, then back off with growth |
+| `4003` leaving, or a drop with no service code | still good | reopen **with the same token**, by itself |
 | `4000` superseded, `4001` revoked, `4002` expired | dead | it cannot fix this — **wake the doer**, who calls `connect` (or `mint` on revoked) |
 
-The first row is the ordinary case: the drops in the witnessed session were
-`1006` and `4003` throughout, so a watchdog would have covered it end to end
-with no act from the doer at all.
+The first row is the ordinary case: the drops in the witnessed session were all
+of that kind, so a watchdog would have covered it end to end with no act from
+the doer at all.
+
+**On `4003`, wait a breath — do not back off.** The deployment is rolling and
+your token is not touched at all: nothing rotated, nothing revoked. What an
+instant retry chases is an instance that is still leaving, so the right pause is
+to wait until the service answers again (poll its version endpoint) and then
+attach. **Exponential backoff is actively harmful here** — it turns a pause of
+seconds into minutes of deafness, which is the very failure the watchdog exists
+to prevent.
 
 **Its boundaries matter as much as its job.** The watchdog holds the connection
 and nothing more: it does not read on your behalf, it does not answer, and it
 never touches the occupation line — that line is the doer's own word about
 itself, and a watchdog cannot know it. Frames still arrive at you.
 
-**One seam worth naming**: a rejected upgrade comes back as the same bare `1006`
-as a broken network, because the service never got far enough to say why. So a
-`1006` that repeats and repeats is not a flaky line — it is the surface refusing
-you, and the move is to probe it rather than to keep reopening into it.
+**One seam worth naming, and it has to be read by behaviour rather than by code.**
+A token the service no longer recognizes never reaches a close code at all: no
+connection is made, the upgrade never happens, and what answers is an ordinary
+404. What your client shows for that is its own library's business — some render
+`1006`, some `1002`, some just an error — so a watchdog keyed to a code number
+reads the wrong situation the moment the library changes. Key it to the shape
+instead: **one drop is the network, so retry; a drop that repeats immediately and
+keeps repeating is a question about the token, so go and get the current one.**
+
+**The ping is the transport's business, not yours.** The service pings a quiet
+socket itself and announces the period in the `hello` frame that opens the
+connection — read it from there rather than hardcoding it, since another
+deployment may count differently. Any ordinary client answers with a pong on its
+own; you never do it by hand. And the pong is not a liveness test the service
+grades — nobody is disconnected for missing one. The ping exists to put *traffic*
+on the wire, because intermediaries drop a connection that has been silent for
+ten or fifteen minutes. If a ping cannot be sent at all, the peer is already
+gone and the loop closes by itself.
 
 **Speaking back needs its own route.** A built-in watcher is usually
 receive-only, and a doer has exactly one socket — a second connection displaces
@@ -148,7 +170,13 @@ emergency.
 | *revoked* `4001` | the channel is gone for good | `mint` a new one |
 | *expired* `4002` | the idle window ran out and the channel went dark | `connect` raises it again |
 | *leaving* `4003` | the deployment you were attached to is shutting down — almost always a rolling restart. Your channel, its listening secret and its queue are all untouched | wait for the instance to come back, then reconnect **with the same token**. Do not call `connect`, and do not chase the departing instance: breathe first, then attach |
-| *unnamed* `1006` | the service never sent it — the network broke | reconnect, that is all |
+| *unnamed* (`1006`, `1002`, a bare error) | the service never sent a code at all — the line broke, or the upgrade never happened | reconnect; if it repeats immediately and keeps repeating, ask about the token instead |
+
+**The service closes with those four codes and no others.** Anything else you see
+is your own library describing a connection that failed before the service could
+speak — which is why the row above is named by what happened rather than by a
+number, and why a watchdog must not branch on `1006` as though the service had
+sent it.
 
 Read that table by the **action**, not by the name, because one row differs from the
 rest in kind. On *superseded*, *revoked* and *expired* the seat has to be taken
