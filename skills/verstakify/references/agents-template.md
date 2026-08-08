@@ -223,6 +223,21 @@ branches before it merges. After the branch merges (however this project merges
    (`inquiry`).
 4. Confirm cleanup is done before the next task.
 
+**The signal starts the sequence.** Steps 1–4 are owed to the merge event
+itself, not to a quiet moment after it. An agent on a live channel never
+reaches "nothing else in flight" — the next arrival lands while it is still
+tidying — so a ritual conditioned on calm never runs at all, and the skip is
+free on the day you make it and costs a conflict several merges later, too far
+from its cause to connect from the inside. The mechanics are delegable to a
+subagent while your current work stays in flight; noticing the event is not.
+
+**Prove freshness, don't recall it.** Start each branch from a freshly fetched
+trunk, and check at push time that it still descends from one:
+`git merge-base --is-ancestor origin/main HEAD`. This is worst right after a
+merge, when the tree looks current and is not — where this project squashes, a
+merged branch's own commits exist nowhere on the trunk, so branching off one
+replays work that already landed and the PR conflicts with itself.
+
 ## Working principles
 1. **Think before coding.** State assumptions; ask when uncertain — name
    *what's* unclear, not just "which option". Surface competing
