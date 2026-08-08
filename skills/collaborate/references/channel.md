@@ -25,7 +25,10 @@ head is in the skill; what follows is how it works.
   family of refusal from the other by whose surface complained: an event on the
   socket asks for the socket, a refused write asks for this. One seam: when
   `register` itself refuses, the seat was closed or timed out while you were
-  away, and only then does `connect` apply.
+  away, and only then does `connect` apply. What it does **not** do is make you
+  heard: a registered session holding no socket is as deaf as an unregistered
+  one, and rather more misleading, because the call came back clean. Naming
+  yourself and being reachable are two acts on two surfaces.
 - **`mint`** — opens what is not there yet. On a channel that already lives it
   answers 409, and that is the call doing its job. There is no state in which
   `mint` is the right answer and `connect` is the wrong one.
