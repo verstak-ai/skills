@@ -65,6 +65,8 @@ DO:
 ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
 
+**A `leaked` flag on a node whose body names its own consumer is the report being right.** This is the one false-alarm reading worth naming outright, because the author is the person least able to see it: knowing the connectivity, they read the flag as the detector missing what the prose states plainly — and it is the detector telling the truth, since a connection living in a body is invisible to everything that travels by edges. So read the body before dismissing the flag. If it names a consumer, that is not a tension to wave off, it is an edge waiting to be drawn; where it names several, draw all of them; where the consumer is outside the graph, mark the edge of the world rather than leaving silence. Dismissing these is how an author learns to distrust the report on exactly the cases where it is correct.
+
 ### 2. Sense writing
 
 ```
