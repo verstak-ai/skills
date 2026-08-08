@@ -170,7 +170,7 @@ The body is addressed by its **per-type name** on every surface — the name you
 What goes in it, by type:
 
 - **Kriya** (`essence`): pariṇāma — "Before: X. After: Y." If it reads like a task list, rewrite.
-- **Phenomenon** (`description`): what it IS, and which kriyas consume / produce / condition it. If you can't name any such kriya, you don't yet know what you're writing.
+- **Phenomenon** (`description`): what it IS. If you can't name a kriya that consumes, produces or conditions it, you don't yet know what you're writing — but naming one *here* does not connect it. The arrows in Decision 5 carry the link; the body only says what it means.
 - **Vimarsha** (`description`): the question. What would count as an answer?
 - **Holon** (`description`): what principle separates inside from outside. nks_add_holon enforces 4 questions — answer them.
 - **Karta** (`motivation`): what drives the role. nks_add_karta requires it.
@@ -185,6 +185,12 @@ What goes in it, by type:
 ## Decision 5: Arrows
 
 Arrowless = orphan = invisible.
+
+**The link goes in the edge; the explanation of the link goes in the body.** The commonest way to leave a node orphaned is not carelessness — it is knowing exactly who consumes it and writing that down in prose instead of drawing it. Observed independently across five contours by different authors: a body saying "consumed by every applying kriya", or naming its contract by number outright, with not one edge beneath it. A reading agent travels by edges — trace, lenses, connectivity search — and reaches a body only once it is already standing on the node, so a link that lives in prose is available only to whoever no longer needs it.
+
+**Several consumers is the instruction to draw them all, not a reason to draw none.** This is where the trap springs, and it springs on conscientiousness: with one consumer the edge is obvious, and with five, singling one out feels like a distortion — so prose looks *more honest*, since it names everyone without privileging anyone. It isn't. `upadhi` is cheap, any number may exist, and not one of them claims to be the only one. Choosing a single consumer would indeed be arbitrary; the conclusion is that you don't choose. And where the consumer lies outside the graph — a person reading the page, an agent handed the result — that is an edge of the world, and it is marked as an edge rather than by silence.
+
+Of the two errors, an edge you later judge too weak costs one call to remove; a link left in prose costs every future traversal that will never find it, and it trains you to read a correct `leaked` report as a false alarm.
 
 ### Kriya (six questions)
 
