@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.4.0](https://github.com/verstak-ai/skills/compare/v2.3.0...v2.4.0) (2026-08-08)
+
+
+### Features
+
+* **autonomous,collaborate,verstakify:** the merge is an event, freshness is checked, and the socket is held by a watchdog ([#85](https://github.com/verstak-ai/skills/issues/85)) ([7a72778](https://github.com/verstak-ai/skills/commit/7a72778a11efbf8e8caa6c9bfde2e540a9b59620))
+* **collaborate,autonomous:** a person cannot open your pointer, talking is not a node, and a refusal is the densest reading ([#83](https://github.com/verstak-ai/skills/issues/83)) ([1bf56e1](https://github.com/verstak-ai/skills/commit/1bf56e1b75188e8fdf2d13fbb9f5a0fcf1b5a363))
+* **integrity,autonomous,collaborate,verstakify:** integration starts from the graph, and choosing work is not a turn ([#89](https://github.com/verstak-ai/skills/issues/89)) ([69d884f](https://github.com/verstak-ai/skills/commit/69d884fcece6dd230575eedd19c1c8e127f5b54b))
+* **writing,weaving:** the link goes in the edge, the explanation of the link goes in the body ([#88](https://github.com/verstak-ai/skills/issues/88)) ([8cb9a07](https://github.com/verstak-ai/skills/commit/8cb9a070c2a35d053140f1d21db91e5f724fb6c4))
+
+
+### Bug Fixes
+
+* **autonomous:** put the socket call in the body — a reference is read when debugging, not when doing ([#84](https://github.com/verstak-ai/skills/issues/84)) ([86fc74b](https://github.com/verstak-ai/skills/commit/86fc74bd8ef257be7856971c39238eea7f44c42f))
+* **collaborate:** register settles who is speaking, not whether anyone can reach you ([#87](https://github.com/verstak-ai/skills/issues/87)) ([c2ea46d](https://github.com/verstak-ai/skills/commit/c2ea46d4174db394f86b55317a4945997ff4d576))
+
 ## [2.3.0](https://github.com/verstak-ai/skills/compare/v2.2.0...v2.3.0) (2026-08-06)
 
 
