@@ -289,6 +289,15 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
   blocker, committed — naming each to the user and asking what this project
   calls it instead of swapping it yourself, and: uningested design/spec docs on
   this branch → intake them (`intake` skill, then `design`) before closing.
+  Two things this hook is the natural place for. **Check freshness rather than
+  trust it**: branch on the push having actually run, and where the branch no
+  longer descends from the trunk — `git merge-base --is-ancestor origin/main
+  HEAD` exits nonzero — say so in the same breath. Stale discovered at push
+  costs a fetch; discovered at merge it costs whoever integrates. And **phrase
+  the merge half as an event**: the reminder fires on a push, but the post-merge
+  sequence is owed to the merge signal itself, never to a quiet stretch after it
+  — an agent on a live channel never gets one, so a ritual conditioned on calm
+  reads as a rule and behaves as none.
   The vocabulary re-read rides *this hook* on purpose: it is the prose ban's
   mechanism, and a ban that lives only in AGENTS.md is the one an agent skates
   past.

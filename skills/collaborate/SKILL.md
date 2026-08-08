@@ -202,7 +202,7 @@ Three outcomes, and each has its own move:
 
 ## What is still unfixed
 
-The lifecycle above is fixed and the two surfaces are settled; the *protocol* between doers is not. Five things stay open — treat them as choices you make conservatively and **record on the vimarsha**, rather than conventions you may assume another agent shares:
+The lifecycle above is fixed and the two surfaces are settled; the *protocol* between doers is not. Four things stay open — treat them as choices you make conservatively and **record on the vimarsha**, rather than conventions you may assume another agent shares:
 
 - **How a reply is tied to what it answers.** A graph event names its vimarsha; a doer's message names nothing by construction. Say in the body which node you are answering until the channel carries it structurally.
 - **The turn bound** — how many exchanges before escalation, and how a deadlock between two doers each waiting on the other is broken. Two bounces is the working rule here, not a settled one.
