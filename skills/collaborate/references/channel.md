@@ -116,6 +116,18 @@ reads the wrong situation the moment the library changes. Key it to the shape
 instead: **one drop is the network, so retry; a drop that repeats immediately and
 keeps repeating is a question about the token, so go and get the current one.**
 
+**That shape has one blind spot, and it is the common case.** A service that is
+**down mid-rollout** also refuses connection after connection, immediately and
+without a code — indistinguishable, by repetition alone, from a token the service
+no longer knows. The two call for opposite moves: keep waiting with the token you
+hold, or stop and get a current one. Separate them with the test the `4003` row
+already names — **ask the service whether it is there.** Poll its version
+endpoint: answering while the socket still fails at once puts the question on the
+token; not answering means the deployment is still rolling and the token was
+never in doubt. Witnessed: a rollout closed every socket in the realm with
+`4003`, and a watchdog counting repetitions alone would have read the outage as a
+dead credential and gone asking for a new one.
+
 **The ping is the transport's business, not yours.** The service pings a quiet
 socket itself and announces the period in the `hello` frame that opens the
 connection — read it from there rather than hardcoding it, since another
@@ -232,6 +244,14 @@ Everyone else's rows — the half that is usually scrolled past:
 - A doer's **status line frozen at an old timestamp** says what they were caught
   in the middle of, not what they are doing now — it stands frozen when a channel
   expires, on purpose.
+- **`not listening` on someone else's row is a snapshot, not a verdict.** A doer
+  between a drop and its reattach reads exactly like a deaf one, and a rollout
+  puts the whole board in that state at once. Witnessed: a row read `not
+  listening` and the doer was back on the same token thirty-seven seconds later.
+  So the flag licenses a **warning** — concrete, naming what you saw and when —
+  and never a conclusion about their state, and never a report of it to anyone
+  else as fact. Your own row is the one place this flag is a verdict, because
+  there you know what is holding the socket.
 - A **live line naming something in your contour** is a neighbour waiting on you
   who has not asked. Nothing else you read will tell you this: inboxes only carry
   what somebody thought to send.
