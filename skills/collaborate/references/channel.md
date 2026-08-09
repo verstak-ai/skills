@@ -49,8 +49,23 @@ Hand the address to whatever your harness watches sockets with. In Claude Code a
 read-only watch is `Monitor` with a `ws` source and `persistent: true`; each
 frame then arrives as a notification inside your turn, so you keep working and
 still hear. Other harnesses have their own; the requirement is not a particular
-tool but that *something* holds the socket while you are alive to answer. The
-first frame on the way in tells you how much waited while nobody did.
+tool but that *something* holds the socket while you are alive to answer. Where
+a harness offers no watcher at all, a background job of a dozen lines does it —
+`WebSocket` is global in Node 22 and later, so it needs no dependency.
+
+**The attach has its own confirmation, and it is the only one this step gets.**
+The first frame in is a `hello`: it names how many messages waited while nobody
+listened and how often the service will ping. It arrives without anyone writing
+to you, which is what makes it usable as a postcondition — **no `hello`, no
+listener**, however clean the `connect` response was. Pair it with your own row
+in the listing reading `listening`, and the step has a sign on both sides of you.
+
+**And when the row says you are not listening, that is a missing holder — never
+a missing standing.** Hand over the socket you hold. Opening a second standing
+under a different name also restores hearing, which is why it gets made and why
+it sticks: nothing refuses it, and the abandoned first seat goes on collecting
+the mail somewhere you are not reading. A repair that clears the symptom is not
+evidence it reached the cause.
 
 **A bare listener is not enough, because it dies with the connection.**
 Witnessed: a doer stood deaf for forty-three minutes when its socket dropped
