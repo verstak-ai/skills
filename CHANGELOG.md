@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1](https://github.com/verstak-ai/skills/compare/v2.4.0...v2.4.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **collaborate,autonomous:** holding the socket closes on hello and a listening row, not on connect ([#91](https://github.com/verstak-ai/skills/issues/91)) ([b8d4f14](https://github.com/verstak-ai/skills/commit/b8d4f1458c8343591703217c050fdfac8158b8c8))
+
 ## [2.4.0](https://github.com/verstak-ai/skills/compare/v2.3.0...v2.4.0) (2026-08-08)
 
 
