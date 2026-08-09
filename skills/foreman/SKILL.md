@@ -1,6 +1,7 @@
 ---
 name: foreman
 description: "Running a crew of doers on one field of work — the shop-floor role that keeps others working and carries what only the owner can decide. Use when the work is too wide for one doer and splits into parallel units each needing its own place: several pull requests, several services, several branches of one migration. Triggers: 'запусти агентов', 'разведи работу', 'следи за агентами', 'кто из них встал', 'собери решения', 'погонщик', 'бригадир', 'run a crew', 'orchestrate agents', 'who is stuck', 'collect the decisions', 'keep them working'. The foreman does not do the craft: it stands up doers, notices the stalled, gathers what needs deciding, relays answers with their reasoning intact, guards the outward bounds, and reports truthfully. Composes collaborate, autonomous, entry. Needs the nks_* MCP tools."
+slash: true
 ---
 
 # Foreman — running a crew
