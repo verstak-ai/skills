@@ -27,19 +27,29 @@ Correlation is not proof, and the doers themselves said so when asked. One of th
 
 **One doer per unit, one place per doer.** Isolated working copies, never two doers in one. Before starting, check that no two units are checked out on the same branch — the collision surfaces as a confusing failure hours later.
 
+**Isolated places are not isolated resources.** Parallel units still share one machine, and the expensive steps collide there. Witnessed: two doers' release builds starving each other until neither finished inside its timeout — which then read as a red check. Under contention a timeout is a resource verdict, not a test verdict. Stagger the expensive verifications, or accept that they serialize and size the timeouts for that.
+
 **Derive the standing name, never invent it.** Worktree plus branch, so a fresh session re-establishes the same name without memory and two doers in the same role stand beside each other instead of taking the seat from each other.
 
 **State the bounds in the first instruction, not after the first violation.** What must not happen — rewriting shared history, merging, closing, touching another unit's work — belongs in the opening brief. So does the escalation path: out-of-mandate questions become inquiries addressed to the owner's role, not silent choices and not chat-only asks.
 
 **Give each doer the same shape of brief**: what the unit is, what state it is in, what counts as done, what is out of bounds, and how to reach the owner. Differences between briefs become differences in behaviour you will have to reconcile later.
 
+**Keep the crew in a roster file, not in your head**: unit, place, doer, last known state, what is pending on whom. Two reasons. A fresh session — including your own replacement — must be able to re-establish the watch from it. And the sweep below is a diff against it: without a recorded "last known", every look at the crew is a first look.
+
 ## 3 · Noticing the stalled
 
-Sweep the crew on a rhythm, not on a feeling. For each doer, three readings:
+**Sweep on a rhythm, not on a feeling — and sweep delta-first.** Open each sweep by diffing reality against the roster's last known state: heads, verdicts, open items, the owner's queue. Where nothing moved, stop — an empty sweep should cost a handful of reads and end in one line. Re-derive the full picture only where the delta shows movement. Witnessed: a foreman re-verifying six finished units every hour, twenty-five calls per empty sweep, all night — waste shaped like diligence.
+
+For each unit where something moved, or should have, three readings:
 
 1. **Is it seated?** A doer whose socket is gone will stop and not say so.
 2. **When did it last act?** Compare against the unit's own rhythm — a compile-heavy unit that is quiet for twenty minutes is working; a review unit quiet for two hours has stopped.
 3. **Did it move, or only speak?** Tool calls without progress on the actual artifact is a doer circling.
+
+**Status is a claim, not evidence — in both directions.** Silence may be a long compile; "busy" may be a hung turn. Witnessed: two doers reporting busy for two hours with no child process alive and no movement on the artifact — false occupancy, not work. Rank what you read: pushed artifacts over live processes over status flags over the doer's own words. When busy proves hollow, interrupt the hung turn only and re-issue the same directed instruction; the server and the working copy are healthy, and restarting them destroys state for nothing.
+
+**A unit waiting on someone outside the crew is yours to watch.** The external event — a review verdict, an owner's answer — does not arrive into the doer's session by itself, so the doer keeps waiting after the wait's premise is gone. Each sweep re-checks the premise, not the doer: has the thing it waits for already happened? Witnessed: a doer waiting for re-review while the reviewer had long since answered — with new findings nobody had read.
 
 **Nudge with direction, never with "look up".** A generic poke wakes a doer into re-checking everything it already knows — it re-reads the same state, re-queries the same service, and reports the same thing. Name the specific gap: what is still open on its unit, what it said it would do and has not, what it is waiting for that has already arrived.
 
@@ -58,6 +68,8 @@ The crew produces questions faster than the owner can absorb them, and unfiltere
 **Put it as a choice, not as a problem.** What is happening → what you need from them → what it costs if unanswered → the options with the price of each → which one you recommend and why. A question without a recommendation pushes the whole analysis back onto the owner.
 
 **One ask per series.** Bundling three decisions into one message gets you one answer.
+
+**Repeat an unanswered ask only on new delta.** The owner saw it; silence is not loss. Asking again with nothing new trains them to skim you — repeat when the price changed, a deadline approached, or the question itself moved.
 
 ## 5 · Carrying the decision back
 
@@ -93,11 +105,15 @@ A foreman is a doer and stops like one. Running it as a session that only moves 
 
 So stand the foreman on its own channel, in its own place, with the same discipline it imposes: derived name, live socket, published occupation. A foreman that has to be woken by the owner has inverted the role — the owner is now watching the watcher.
 
+**And expect your own wake to be generic.** The pump that keeps the watch alive is a periodic poke that says nothing — that is what makes the watch survive, and what makes it dangerous. Answering every poke with a full survey is committing the crew's most expensive trap against yourself; answering it with the delta-first sweep is the whole discipline of receiving one. The poke pays for waking you; what it wakes must be cheap while the field is still.
+
 ## Traps
 
 - **Doing the craft.** The unit looks small, you fix it yourself, and for that hour nobody is watching the crew. Hand it to a doer even when handing it over costs more than doing it.
 - **Relay theatre.** Messages sent, nothing verified, everything reported as delivered.
 - **Diagnosing from correlation.** Two readings moving together is a hypothesis. Ask the doers what actually stopped them; they know things the records do not show, and they will correct you.
+- **Trusting `busy`.** A status flag is the cheapest thing a stall can keep emitting. Hours of "busy" with no process behind it and no artifact moving is a hung turn wearing a doer's clothes.
+- **Full sweep on an empty delta.** Re-verifying the unchanged every hour reads as diligence, costs like work, and buries the one sweep that mattered.
 - **Generic wake.** Hourly pokes that say "you have been on this a while" produce hourly re-verification of unchanged state, which reads as activity and costs real money.
 - **Content-free acknowledgement.** "Received", "nothing further" — between two doers whose answers return automatically, these loop indefinitely. Let a turn end in silence.
 - **Deciding because asking is slow.** The owner's absence is not consent. Prepare the decision, state your recommendation, and if you must proceed, say plainly which choice you took on their behalf and how to reverse it.
