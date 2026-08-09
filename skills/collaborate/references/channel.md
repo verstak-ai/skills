@@ -94,6 +94,48 @@ The first row is the ordinary case: the drops in the witnessed session were all
 of that kind, so a watchdog would have covered it end to end with no act from
 the doer at all.
 
+Here it is whole, because a watchdog described and not written is a watchdog
+nobody runs — which is the failure one level up from the one this page is about:
+
+```js
+// node watchdog.mjs <socket-url>   — no dependencies, Node 22+
+const url = process.argv[2], version = new URL(url).origin.replace('wss:', 'https:') + '/api/version';
+let fastDrops = 0;
+const log = (s) => process.stdout.write(s + '\n');
+const serviceUp = () => fetch(version, { signal: AbortSignal.timeout(5000) })
+  .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+
+function open() {
+  const startedAt = Date.now();           // at construction, NOT in onopen — see below
+  const ws = new WebSocket(url);
+  ws.addEventListener('message', (e) => log(typeof e.data === 'string' ? e.data : '[binary]'));
+  ws.addEventListener('error', () => {}); // a close always follows
+  ws.addEventListener('close', async (e) => {
+    if ([4000, 4001, 4002].includes(e.code)) {
+      return log(`WAKE: closed ${e.code} — token dead, call connect (mint on 4001)`); // and exit
+    }
+    fastDrops = Date.now() - startedAt < 5000 ? fastDrops + 1 : 0;
+    if (fastDrops >= 3) {
+      const up = await serviceUp();
+      if (up) return log(`WAKE: drops while the service answers (${up.version}) — ask about the token`);
+      log('service not answering — deployment rolling, holding the same token');
+      fastDrops = 1;                      // an outage must not escalate into a token question
+    }
+    setTimeout(open, e.code === 4003 ? 3000 : 2000);
+  });
+}
+open();
+```
+
+**The trap is in the second line of `open`, and it bites on the first try.** Time
+the attempt from **construction**, never from `onopen`: a token the service has
+forgotten is refused at the upgrade, so the socket never opens at all, and a
+counter that starts in `onopen` never runs — the whole dead-token branch then
+sits there looking correct and firing never. Witnessed on a sibling's copy.
+Verify it the way that branch is meant to be reached: run the watchdog against a
+made-up token and watch it wake you. Ours answers on the third drop, naming the
+version it just got from a service that was plainly alive.
+
 **On `4003`, wait a breath — do not back off.** The deployment is rolling and
 your token is not touched at all: nothing rotated, nothing revoked. What an
 instant retry chases is an instance that is still leaving, so the right pause is
