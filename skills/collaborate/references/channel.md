@@ -121,8 +121,10 @@ keeps repeating is a question about the token, so go and get the current one.**
 without a code — indistinguishable, by repetition alone, from a token the service
 no longer knows. The two call for opposite moves: keep waiting with the token you
 hold, or stop and get a current one. Separate them with the test the `4003` row
-already names — **ask the service whether it is there.** Poll its version
-endpoint: answering while the socket still fails at once puts the question on the
+already names — **ask the service whether it is there.** `GET /api/version` on
+the same host as the socket, unauthenticated, answers with the running version,
+its commit and its `started_at`; a moved `started_at` is itself the record of a
+restart. Answering while the socket still fails at once puts the question on the
 token; not answering means the deployment is still rolling and the token was
 never in doubt. Witnessed: a rollout closed every socket in the realm with
 `4003`, and a watchdog counting repetitions alone would have read the outage as a
