@@ -35,19 +35,21 @@ Correlation is not proof, and the doers themselves said so when asked. One of th
 
 **Give each doer the same shape of brief**: what the unit is, what state it is in, what counts as done, what is out of bounds, and how to reach the owner. Differences between briefs become differences in behaviour you will have to reconcile later.
 
-**Keep the crew in a roster file, not in your head**: unit, place, doer, last known state, what is pending on whom. Two reasons. A fresh session — including your own replacement — must be able to re-establish the watch from it. And the sweep below is a diff against it: without a recorded "last known", every look at the crew is a first look.
+**Keep the crew in a roster file, not in your head** — and record the stable, compute the fluid. Composition (unit, place, doer) and the last known artifact state belong in the roster; channel and session state go stale within hours, so read them at sweep time instead of recording them — a foreman on watch found its own hand-written "seat is live" marks lying by morning. Two reasons for the roster itself: a fresh session — including your own replacement — must be able to re-establish the watch from it, and the sweep below is a diff against it. Without a recorded "last known", every look at the crew is a first look.
 
 ## 3 · Noticing the stalled
 
-**Sweep on a rhythm, not on a feeling — and sweep delta-first.** Open each sweep by diffing reality against the roster's last known state: heads, verdicts, open items, the owner's queue. Where nothing moved, stop — an empty sweep should cost a handful of reads and end in one line. Re-derive the full picture only where the delta shows movement. Witnessed: a foreman re-verifying six finished units every hour, twenty-five calls per empty sweep, all night — waste shaped like diligence.
+**Sweep on a rhythm, not on a feeling — and sweep delta-first.** Open each sweep by diffing reality against the roster's last known state: heads, verdicts, open items, the owner's queue. Where nothing moved, stop — an empty sweep should cost a handful of reads and end in one line. Re-derive the full picture only where the delta shows movement; the full survey belongs at the start of a watch and after an observation gap, not in every round. Witnessed: a foreman re-verifying six finished units every hour, twenty-five calls per empty sweep, all night — waste shaped like diligence.
 
 For each unit where something moved, or should have, three readings:
 
 1. **Is it seated?** A doer whose socket is gone will stop and not say so.
-2. **When did it last act?** Compare against the unit's own rhythm — a compile-heavy unit that is quiet for twenty minutes is working; a review unit quiet for two hours has stopped.
+2. **When did it last act?** Compare against the phase, not just the unit: compiling, under review, waiting on CI and waiting on a human each have their own silence budget. Twenty quiet minutes is work in one phase and a stall in another.
 3. **Did it move, or only speak?** Tool calls without progress on the actual artifact is a doer circling.
 
-**Status is a claim, not evidence — in both directions.** Silence may be a long compile; "busy" may be a hung turn. Witnessed: two doers reporting busy for two hours with no child process alive and no movement on the artifact — false occupancy, not work. Rank what you read: pushed artifacts over live processes over status flags over the doer's own words. When busy proves hollow, interrupt the hung turn only and re-issue the same directed instruction; the server and the working copy are healthy, and restarting them destroys state for nothing.
+**Status is a claim, not evidence — in both directions.** Silence may be a long compile; "busy" may be a hung turn. Liveness is four separate readings — server up, session executing, seat listening, artifact moving — and none of them implies another; a watch saw every combination come apart. Rank what you read: pushed artifacts over live processes over status flags over the doer's own words.
+
+**Interrupt a hung turn only on cumulative evidence, and only the turn.** Witnessed: two doers reporting busy for two hours — no tool activity, no live process behind the session, no artifact movement, the phase budget long exceeded. All four together justify an abort; any one alone does not, because an abort can cut a push, a migration or a write mid-flight. Interrupt the turn — never the server or the working copy — check the working copy's integrity after, and re-issue the same directed instruction once. Both rescued doers started real work immediately; that is the confirmation, and it only comes afterwards.
 
 **A unit waiting on someone outside the crew is yours to watch.** The external event — a review verdict, an owner's answer — does not arrive into the doer's session by itself, so the doer keeps waiting after the wait's premise is gone. Each sweep re-checks the premise, not the doer: has the thing it waits for already happened? Witnessed: a doer waiting for re-review while the reviewer had long since answered — with new findings nobody had read.
 
@@ -83,7 +85,9 @@ The crew produces questions faster than the owner can absorb them, and unfiltere
 
 ## 6 · Reporting
 
-**Distinguish approved from done.** A unit can be approved with unanswered items still open against it. Report both, and separate items that still point at live work from items that went stale on their own.
+**Report the delta, not the round.** A sweep that found nothing is recorded in the roster and ends there — it is not a message. Hourly "all quiet" series train the owner to skim; witnessed: forty-five frames over one watch, the empty majority burying the three that mattered.
+
+**Distinguish approved from done — and both from an open owner decision.** A unit can be approved with unanswered items still open against it; report both, and separate items that still point at live work from items that went stale on their own. And a unit whose craft is finished but whose product question sits with the owner is not "working": ask once, with options and a recommendation, and let its doer go idle honestly instead of holding it as busy against someone else's decision.
 
 **Report the crew and the field separately.** How the doers are doing is one reading; what the work has become is another. Merging them hides a crew that is busy producing nothing.
 
@@ -96,6 +100,8 @@ The crew leaves traces that outlive it, and every one of them lies about the pre
 **Kill what outlived its session.** A holder that keeps a socket alive after the work behind it ended presents a working doer where there is none. This is the single most misleading artifact a crew produces, because every surface downstream reports it as healthy.
 
 **Release seats whose doer is gone**, rather than leaving them to be read as available.
+
+**The watch has an end.** When every unit is done and only owner decisions remain, propose shutdown instead of patrolling an empty field. Ending is its own sequence, not an absence of work: the owner's word, then release the seats, stop the servers, and leave the roster recording where everything stood — so the next watch starts from a record, not from archaeology. A watch that cannot end is one more socket-holder: presence without purpose.
 
 **Never fake your own presence.** A foreman that holds a seat with nothing behind it commits exactly the fault it removes from others. A seat that is occupied but not listening is honest as long as it says so.
 
@@ -114,6 +120,7 @@ So stand the foreman on its own channel, in its own place, with the same discipl
 - **Diagnosing from correlation.** Two readings moving together is a hypothesis. Ask the doers what actually stopped them; they know things the records do not show, and they will correct you.
 - **Trusting `busy`.** A status flag is the cheapest thing a stall can keep emitting. Hours of "busy" with no process behind it and no artifact moving is a hung turn wearing a doer's clothes.
 - **Full sweep on an empty delta.** Re-verifying the unchanged every hour reads as diligence, costs like work, and buries the one sweep that mattered.
+- **Empty round reported to the owner.** The round happened is not news; the delta is. Forty quiet frames teach the owner to stop reading the loud one.
 - **Generic wake.** Hourly pokes that say "you have been on this a while" produce hourly re-verification of unchanged state, which reads as activity and costs real money.
 - **Content-free acknowledgement.** "Received", "nothing further" — between two doers whose answers return automatically, these loop indefinitely. Let a turn end in silence.
 - **Deciding because asking is slow.** The owner's absence is not consent. Prepare the decision, state your recommendation, and if you must proceed, say plainly which choice you took on their behalf and how to reverse it.
