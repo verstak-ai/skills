@@ -74,7 +74,15 @@ actor separation) and on counterexamples witnessed in `r5`:
   «Verification surfaces» slot in `references/agents-template.md`, that
   template's «Update the evidenced contour» / «Work the inbox» steps, its
   Step 4 reality-audit gate, the `PostToolUse` git-push reminder hook, and
-  delegation rules 9–11.
+  delegation rules 9–11;
+- `foreman` — the whole skill, and **not yet audited against the canon**. Like
+  `collaborate` it stands on methodology reasoning (a doer that finished a turn
+  does not continue itself; the channel is the wake, the graph is the record) and
+  on behaviour witnessed running a crew of doers over one field of work — a
+  parallel watch where stalls, relay and escalation were measured rather than
+  assumed. If the canon grows a thread for standing watch, «1 · A doer that
+  finished a turn does not continue itself» and «8 · The foreman needs seating
+  too» are the first sections to re-derive from it.
 
 If the methodology realm later canonizes a reality-audit / pramana-discipline
 landmark, move them into the table above as ordinary projected rows.
