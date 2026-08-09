@@ -144,6 +144,12 @@ attach. **Exponential backoff is actively harmful here** — it turns a pause of
 seconds into minutes of deafness, which is the very failure the watchdog exists
 to prevent.
 
+The script above does not poll on `4003` itself, and the two agree rather than
+differ: a `4003` into a service that is still leaving produces exactly the fast
+drops the version test already covers, so the poll happens a beat later and the
+fixed pause stays flat throughout. Write it either way — what must not vary is
+that the delay never grows and the token is never rotated.
+
 **Its boundaries matter as much as its job.** The watchdog holds the connection
 and nothing more: it does not read on your behalf, it does not answer, and it
 never touches the occupation line — that line is the doer's own word about
