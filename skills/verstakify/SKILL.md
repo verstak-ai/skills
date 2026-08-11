@@ -213,8 +213,8 @@ the user what was found and settle the mode:
   running this, otherwise their `sub` from `nks_admin(action="list_members")`.
   That binding is what makes the owner findable across every repo they own
   (**minding** §4); without it their roles stay unlinked per realm. Record both
-  seqs in *What this project is* — the doc slot is the fast path,
-  `nks_me(action="kartas")` the fallback.
+  seqs in *What this project is* — the doc slot is the only path an agent can
+  rely on.
 
 ### Step 3 — Quality gate (propose strictest, user confirms)
 For each: propose the strictest sensible option for the stack, a one-line
