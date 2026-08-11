@@ -13,8 +13,8 @@
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
-  Your inbox: `nks_orient(focus="<seq>")` at session start (self-locate
-  fallback: `nks_me(action="kartas")`).
+  Your inbox: `nks_orient(focus="<seq>")` at session start. No seq recorded
+  here → the repo is not verstakified; run verstakify before acting.
 - **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
   here as `posed_to` vimarshas.
 - **Stack**: `<language + primary frameworks, one line>`.
