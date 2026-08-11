@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.2](https://github.com/verstak-ai/skills/compare/v2.4.1...v2.4.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **verstakify:** the doc slot is the only way an agent finds its own karta ([#93](https://github.com/verstak-ai/skills/issues/93)) ([7b16fb2](https://github.com/verstak-ai/skills/commit/7b16fb2824b7a5d45b3df92074bca876d8f98a01))
+
 ## [2.4.1](https://github.com/verstak-ai/skills/compare/v2.4.0...v2.4.1) (2026-08-09)
 
 
