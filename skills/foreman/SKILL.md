@@ -20,9 +20,11 @@ A doer completes its turn and stops. Nothing internal restarts it. Unless someth
 
 Witnessed on a live watch: doers holding an open channel had a longest stall of about two hours, because periodic pokes kept arriving; doers with no channel stalled nine and eleven hours on the same night, having received their instructions and simply stopped.
 
-So: **a doer's channel is not a convenience for reaching it — it is what keeps it working.** Stand every doer on one before handing out work, and treat a doer without a live socket as a doer that will stop and not tell you.
+So: **a doer's channel is not a convenience for reaching it — it is what keeps it working, wherever something actually holds the socket.** The invariant underneath is outward reach: nothing internal restarts a stopped doer, so something outside must be able to reach it — and the channel carries that reach only while a harness watches it. Where one exists, stand every doer on a channel before handing out work, and treat a doer without a live socket as a doer that will stop and not tell you.
 
 Correlation is not proof, and the doers themselves said so when asked. One of them named the deeper cause honestly: it had turned an unreachable production check into a wait, when its work was already finished and the check was not blocking. The channel did not cause that; it made it invisible. **Read a stall as two questions, not one: what stopped the doer, and what kept you from seeing it.**
+
+**No harness on the machine means the watch runs degraded — name the mode and run it anyway.** Without a socket-holder a doer is fire-and-forget: nothing reaches it mid-turn, and the control points shrink to exactly two — the brief going in and the report coming out. Say so in the roster, know which instruments are dead here (the nudge, the mid-turn interrupt, the seat reading of the sweep), and lean harder on what survives: uniform briefs, bounds stated up front, every report verified against the artifact, the owner's queue. And mint only what something will hold: a socket token shown once with no harness to keep it is not a wake path but a pile of frames nobody will ever read. An inbound address can still be worth leaving as a durable trace — with that price named.
 
 ## 2 · Standing up the crew
 
@@ -37,6 +39,8 @@ Correlation is not proof, and the doers themselves said so when asked. One of th
 **Give each doer the same shape of brief**: what the unit is, what state it is in, what counts as done, what is out of bounds, and how to reach the owner. Differences between briefs become differences in behaviour you will have to reconcile later.
 
 **Keep the crew in a roster file, not in your head** — and record the stable, compute the fluid. Composition (unit, place, doer) and the last known artifact state belong in the roster; channel and session state go stale within hours, so read them at sweep time instead of recording them — a foreman on watch found its own hand-written "seat is live" marks lying by morning. Two reasons for the roster itself: a fresh session — including your own replacement — must be able to re-establish the watch from it, and the sweep below is a diff against it. Without a recorded "last known", every look at the crew is a first look.
+
+**Write the launch into the roster in the same motion as making it.** A background doer is fire-and-forget: between the launch call and the report there is nothing to ask, so the pair — which session carries which unit — exists nowhere unless recorded at the moment of launch. A running session you cannot match to a roster line is a stop signal for further launches, not a loose end for later. Witnessed: a foreman that deferred identifying one unclaimed session stood up a second doer on the same unit within minutes — the very collision this section opens by forbidding, committed by the watcher itself.
 
 ## 3 · Noticing the stalled
 
@@ -73,6 +77,10 @@ The crew produces questions faster than the owner can absorb them, and unfiltere
 **One ask per series.** Bundling three decisions into one message gets you one answer.
 
 **Repeat an unanswered ask only on new delta.** The owner saw it; silence is not loss. Asking again with nothing new trains them to skim you — repeat when the price changed, a deadline approached, or the question itself moved.
+
+**The owner may refuse to decide — that is an answer, not silence.** Deliberately suspending a question is a lawful outcome beside picking an option: record it as an open inquiry where the field lives, release the unit it was holding — a doer idled against a question nobody will answer is not working — and re-raise it only on new delta, like any other ask. It differs from silence in exactly one way: it can be recorded, so record it.
+
+**When new delta destroys the ground under your own recommendation, withdraw it out loud before recomposing.** Say that the earlier recommendation is withdrawn and why; a silently rebuilt choice reads as if the first one never stood, and the owner cannot see that the basis moved. A recommendation that survives its second measurement is rare enough that the withdrawal, said plainly, is what keeps the asks worth trusting.
 
 ## 5 · Carrying the decision back
 
@@ -116,7 +124,7 @@ So stand the foreman on its own channel, in its own place, with the same discipl
 
 ## Traps
 
-- **Doing the craft.** The unit looks small, you fix it yourself, and for that hour nobody is watching the crew. Hand it to a doer even when handing it over costs more than doing it.
+- **Doing the craft.** The unit looks small, you fix it yourself, and for that hour nobody is watching the crew. Hand a unit's substance to a doer even when handing it over costs more than doing it. The floor of the rule: coordination artifacts — the roster, a relayed message, a pull request's description, a verification read — are the foreman's own work, not craft to hand off; where doers cannot be reached mid-turn, re-briefing a fresh one for a ten-line metadata edit costs asymmetrically more than the edit. Hand off substance, keep bookkeeping.
 - **Relay theatre.** Messages sent, nothing verified, everything reported as delivered.
 - **Diagnosing from correlation.** Two readings moving together is a hypothesis. Ask the doers what actually stopped them; they know things the records do not show, and they will correct you.
 - **Trusting `busy`.** A status flag is the cheapest thing a stall can keep emitting. Hours of "busy" with no process behind it and no artifact moving is a hung turn wearing a doer's clothes.

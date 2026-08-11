@@ -75,14 +75,26 @@ actor separation) and on counterexamples witnessed in `r5`:
   template's «Update the evidenced contour» / «Work the inbox» steps, its
   Step 4 reality-audit gate, the `PostToolUse` git-push reminder hook, and
   delegation rules 9–11;
-- `foreman` — the whole skill, and **not yet audited against the canon**. Like
-  `collaborate` it stands on methodology reasoning (a doer that finished a turn
-  does not continue itself; the channel is the wake, the graph is the record) and
-  on behaviour witnessed running a crew of doers over one field of work — a
-  parallel watch where stalls, relay and escalation were measured rather than
-  assumed. If the canon grows a thread for standing watch, «1 · A doer that
-  finished a turn does not continue itself» and «8 · The foreman needs seating
-  too» are the first sections to re-derive from it.
+- `foreman` — the whole skill; **audited against the canon (methodology realm,
+  2026-08-11)**. Nothing in it projects from a landmark yet, so it stays in this
+  list; the audit pinned the alignments and one friction. Aligned: «Derive the
+  standing name, never invent it» restates the standing discipline (#538 — the
+  name derives from what the doer is; two doers under one name displace each
+  other silently); «It is not the owner either» plus the «Deciding because
+  asking is slow» trap restate 主-acts are not delegated (#477 — the agent
+  prepares the act, the owner performs it); «Require it recorded» and leaving
+  closure to the inquiry's own holder follow the release discipline (#246 —
+  letting go is the holder's volitional act). Friction, fixed in the skill
+  rather than recorded here: §1 stated the channel claim as absolute («the
+  channel is what keeps a doer working») where the canon treats the session and
+  its harness as the replaceable carrier of a standing (#538); the claim is now
+  bound to a harness that holds the socket, and the harness-less degraded mode
+  is named. Open link: §1's load-bearing fact is empirical material for #530
+  («нить несения вахты не описана» — what carries a doer's cycle through time
+  is exactly the undescribed thread); if the canon grows that thread, «1 · A
+  doer that finished a turn does not continue itself» and «8 · The foreman
+  needs seating too» re-derive from it first and this entry moves into the
+  table above.
 
 If the methodology realm later canonizes a reality-audit / pramana-discipline
 landmark, move them into the table above as ordinary projected rows.
