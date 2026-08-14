@@ -9,6 +9,19 @@ You are working with a user who maintains an NKS — a living knowledge graph of
 
 NKS access is provided via MCP tools named `nks_*` (the harness may prepend its own server prefix to the full tool name). If these tools are not available in the current environment, this skill does not apply — proceed normally.
 
+## Know which edition you are reading
+
+A skill carries no mark of its own version, and an installed copy can be several releases behind the one being maintained. That gap does not announce itself: the stale text reads exactly as authoritatively as the current one, and its defects present as **defects of the method** rather than as staleness — so an agent reasoning from it points confidently at the wrong thing. Witnessed: three doers spent a morning on one failure, two of them diagnosing prose that the maintained edition no longer contains, one starting to fix what was already fixed upstream.
+
+So before you cite what a skill says — and always before reporting a skill's instruction as wrong — read the version you actually hold and compare it with the published one. In Claude Code the installed plugins are on disk and the releases are a call away:
+
+```
+cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json     # what you are running
+gh release view --repo <the plugin's repo> --json tagName        # what exists
+```
+
+Behind by more than a patch, say so before arguing with the text, and reload the plugin if your harness can. **The claim to avoid is not "this skill is wrong" — it is "this skill is wrong" said by someone who did not check which skill they had.**
+
 ## Realm discovery
 
 The user may have one or many realms (separate domains, each with its own graph). Do not assume which realm is relevant.
@@ -24,6 +37,15 @@ The user may have one or many realms (separate domains, each with its own graph)
 3. **`nks_search(q=<key term from the question>, realm=<token>)`** — full-text (keyword) over names + descriptions: what does the graph already know on this topic? Cite found nodes with their seq numbers (`#42`). Keyword only matches the words the author happened to use.
 
    When the concept might be **phrased differently** than you'd guess, or the query is **conceptual** (you're describing an idea, not a known label), also run **`nks_semantic_search(q=<the idea as a phrase>, realm=<token>)`** — embedding-based, it surfaces conceptually-related nodes that keyword misses. Reach for it by default on conceptual questions, not only after a keyword miss.
+
+   **One query, one concept — and the placeholder above is the trap.** A filled example, since every occurrence of this instruction in the corpus is a placeholder and a bag of terms formally satisfies one:
+
+   ```
+   good: q="описание смыслового поиска обещает больше, чем даёт его лексическая половина"
+   bad:  q="hybrid semantic search recall лексическая ветка плейсхолдер запрос"
+   ```
+
+   The whole string becomes a **single** vector, so a bag of unrelated terms lands on a centroid between several meanings — a point near which no node lies, because no node is about all of it at once. Two concepts are two queries, never one longer one. The bad line above is real: it returned nothing on a realm that held the answer, which the good line then found first try.
 
 4. **`nks_look(node_id=<seq>, realm=<token>)`** — only on nodes actually needed for the answer. Two or three at most per response.
 
