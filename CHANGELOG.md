@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/verstak-ai/skills/compare/v2.4.3...v2.5.0) (2026-08-14)
+
+
+### Features
+
+* **feedback,entry:** the feedback skill, plus two fixes the session paid for ([#97](https://github.com/verstak-ai/skills/issues/97)) ([f75f140](https://github.com/verstak-ai/skills/commit/f75f140a43d0efeedd5624a21a7d61d5f9f859e5))
+
 ## [2.4.3](https://github.com/verstak-ai/skills/compare/v2.4.2...v2.4.3) (2026-08-14)
 
 
