@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.3](https://github.com/verstak-ai/skills/compare/v2.4.2...v2.4.3) (2026-08-14)
+
+
+### Bug Fixes
+
+* **writing:** name the create gate on ahara/utpatti instead of denying it ([#95](https://github.com/verstak-ai/skills/issues/95)) ([c3cc0a3](https://github.com/verstak-ai/skills/commit/c3cc0a38182566a43362e3714db3c3865fe97f06))
+
 ## [2.4.2](https://github.com/verstak-ai/skills/compare/v2.4.1...v2.4.2) (2026-08-11)
 
 
