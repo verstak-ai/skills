@@ -53,7 +53,13 @@ alive to answer — and that what it hears reaches you rather than a file.
 In Claude Code, `Monitor` with a `ws` source delivers each frame as a
 notification inside your turn — but it is the bare listener this page warns
 about below: its own contract ends the watch when the socket closes, which is
-the one event holding exists to survive. A backgrounded shell job survives
+the one event holding exists to survive. Its failure has a friendly half and a
+silent one, and only the friendly half is ever rehearsed: a *graceful* close
+surfaces as an event — witnessed, a `4003` on a rolling deploy reached its doer,
+who reattached inside a minute — while a partition produces no frame at all and
+the deafness runs until something else makes you look. Even the good half leaves
+the reattach to you, which is the agent-remembers remedy this page condemns
+below. Judge it by the silent drop. A backgrounded shell job survives
 drops and delivers nothing: its stdout accumulates where nothing wakes you,
 while the board reads `listening` the whole time. Compose them instead —
 `Monitor` with the watchdog below as its `command` and `persistent: true`, so
