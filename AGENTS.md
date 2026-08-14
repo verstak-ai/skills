@@ -12,7 +12,7 @@ Agent-facing NKS and implementation-verification skill bundles (Claude Code skil
 
 ## Persistence rules
 State lives in the **repo** or in **NKS** — nowhere else.
-- **The harness's built-in memory is forbidden here — entirely, not by category.** Nothing goes into `~/.claude/projects/<encoded>/memory/`: not a project fact, not a user preference, not a note on working style. That dir stays frozen at its prohibition stub, and writes into it are blocked (exit 2) by the `PreToolUse` memory guard in `.claude/settings.json` — which fires at the moment the save-instinct does, when this file is long out of context. **This overrides the harness's own memory instruction**, which invites a `project` category and will keep inviting it — the pull is strongest right when something feels worth keeping. Route it instead: a repo convention or a fact about the code → `AGENTS.md`; work state, a decision, an open question → a vimarsha in `r5`; a fact about the user that no project owns (machines, people, cross-project findings) → the personal realm `@<handle>/mind` (`minding`). (why: local memory is invisible to every other agent and every other machine, so it drifts silently — and drift here lands in skills that every downstream agent reads.)
+- **The harness's built-in memory is forbidden here — entirely, not by category.** Nothing goes into `~/.claude/projects/<encoded>/memory/`: not a project fact, not a user preference, not a note on working style. The dir does not exist here and is not to be created — the harness will offer to, and its own instruction says it already exists; verified this run, it does not. Writes into it are blocked (exit 2) by the `PreToolUse` memory guard in `.claude/settings.json` — which fires at the moment the save-instinct does, when this file is long out of context. **This overrides the harness's own memory instruction**, which invites a `project` category and will keep inviting it — the pull is strongest right when something feels worth keeping. Route it instead: a repo convention or a fact about the code → `AGENTS.md`; work state, a decision, an open question → a vimarsha in `r5`; a fact about the user that no project owns (machines, people, cross-project findings) → the personal realm `@<handle>/mind` (`minding`). (why: local memory is invisible to every other agent and every other machine, so it drifts silently — and drift here lands in skills that every downstream agent reads.)
 - **Repo**: `skills/<name>/SKILL.md` (source of truth), the derived `<name>.skill` bundles, `README.md`, conventions.
 - **NKS** (`r5`): design decisions, open questions (vimarshas), hand-offs, hints — the thinking around the skills. Don't restate NKS in the repo; link to the vimarsha/holon.
 - **`skills/<name>/SKILL.md` is the source of truth.** The `<name>.skill` zips are derived build artifacts (committed for download/claude.ai); the installed copy in `~/.claude/skills/` is derived too. Never treat a hand-edited bundle or installed copy as canonical — edit the source dir and run `make build`.
@@ -26,6 +26,9 @@ State lives in the **repo** or in **NKS** — nowhere else.
 - **Why the step-map is load-bearing:** it is the instrument for steering skill development. A tool rename's blast radius, a skill's real composition, and the method's correspondence-or-drift against the **methodology** canon become graph traversals instead of re-readings of prose — mismatch surfaces as a structural tension, not as a hunch. Prose in `SKILL.md` stays the source of truth; the graph is the model of that truth, and a model you can't query can't steer anything.
 - **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
 - **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
+
+### After a green push: self-review
+Format gate green and the iteration done → re-read your own diff before calling it finished. Here the diff is prose, so the questions are prose questions: does any line instruct into a refusal the surface actually makes; does a rule scold where it should name the checkable sign; is a step's obligation stated or only implied; did a fix to one node's wording leave the same wording standing on a sibling. Fix in the **same branch** and push again, or say plainly that nothing surfaced. Don't invent findings to look diligent.
 
 ### Branch discipline
 One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges.
@@ -41,6 +44,29 @@ That form also works in a **worktree**, where the usual `git checkout main` fail
 4. **Ask in prose, never in a picker.** Every question to the user — clarification, a fork in the road, an owner's call on a telos — is asked as plain text in the reply. Do not use the AskUserQuestion tool (option widgets, multiple-choice cards) here: it flattens a question that needs its context into pre-chewed options and costs a round-trip to say no to. State the question, name the real alternatives and your recommendation, and let the answer come back as text.
 5. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
 6. **Skill prose instructs; it never moralises.** Write a rule as the question worth asking plus its checkable signs — not as an accusation aimed at the agent about to read it. That agent cannot argue with the text, only comply, so a harsh rule doesn't make it careful, it makes it avoid the move entirely. Where a rule can be over- *or* under-applied, say outright which of the two errors costs more; otherwise the agent optimises against whichever one the text scolds louder.
+
+## Shared surfaces
+Touching one obliges checking the others. Found by graph traversal, not by grep — a rule with several consumers looks like one ordinary node.
+
+| Surface | Consumers | Note |
+|---|---|---|
+| `skills/verstakify/references/agents-template.md` | every repo verstakify will ever bootstrap | changing a section changes configs already generated — that is what the contract counter is for |
+| Frontmatter contract (`scripts/validate-skills.mjs`) | all 16 `SKILL.md` files | three keys and no others; the validator is the contract, read it before adding a key |
+| `collaborate` address-line contract | this skill + the bridge that relays a human onto an agent's channel | deliberately duplicated: neither side can read the other's copy, so drift is caught by meaning alone |
+| grundsatz nodes in `#844` (writing/placement rules) | several applying kriyas each, via `upadhi` | a duplicate principle grows here unseen — one rule under two nodes with disjoint consumers, fixed on one and stale on the other |
+| `iskron/skills` (fork, holon #1506) | its own deployment, on a separate NKS instance | a realm address hardcoded in a skill does not survive the crossing |
+
+## Reality — what a claim is verified against
+| Claim class | Canonical carrier | How to observe | Who can |
+|---|---|---|---|
+| Format — frontmatter parses, bundles match source | the committed `<name>.skill` zips + `skills/` | `make check` | agent |
+| Delivery — the method actually reaches an agent | the installed plugin in the harness cache | `cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json` against `gh release view` | agent |
+| Substance — a skill's instruction matches the tool surface | the live nks-mcp surface | attempt the call the skill prescribes and read the refusal or the result | agent |
+| Graph correspondence — the model matches the shipped method | `r5` | `nks_orient(lens="tensions", focus="844")` before and after | agent |
+
+**Ceiling**: whether an agent that *read* a skill then acts differently. Nothing here observes it: the reader is another agent in another session, and the effect shows up as method drift, not as a failure. Today its only carriers are a case in `@nks/feedback` and the user's word. The intended carrier is an agentic check — in CI, or subagents asked a comprehension question about the skill — and until it exists this class is never closed as verified.
+
+**This table grows by use.** The moment a session teaches you a carrier nobody named, an observation that turned out reachable, or one that turned out not to be (→ *Ceiling*), write the row *then*, before the work that taught it is closed. (why: an unrecorded carrier is one the next agent doesn't find, so the same claim gets accepted on weaker evidence next time.)
 
 ## NKS ↔ repo: where things live
 | Concern | Repo | NKS |
@@ -84,7 +110,9 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
 - `README.md` — short human-facing pointer.
 - `.claude/settings.json` — committed session rituals: the `PreToolUse` memory guard (blocks writes into the local memory dir), `SessionStart` (orient in `r5`, open the #931 inbox), `PostToolUse` on `Bash` (the push → update-NKS reminder, including the borrowed-vocabulary re-read). `settings.local.json` is gitignored. Hook text is English — its reader is an agent, like `skills/**`.
-- `tmp/` — scratch dir (no longer gitignored; `.gitignore` now ignores `.DS_Store` only — keep scratch out of commits yourself).
+- `CLAUDE.md` — a **symlink to `AGENTS.md`**, not a copy: Claude Code reads `CLAUDE.md`, every other harness reads `AGENTS.md`, and one file answers both. Editing `CLAUDE.md` edits `AGENTS.md` — there is no second file to keep in sync, and no import line to preserve.
+- `.claude/agents/` — delegation roles (`reader`, `worker`, `verifier`); the `description` field is what routes them, so it stays trigger-shaped.
+- `.gitignore` — three entries: `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`. Scratch is **not** ignored: there is no `tmp/` here, so keep working files out of the tree or out of the commit yourself.
 
 ## Code conventions
 - **`SKILL.md` frontmatter**: `name:` (kebab, matches the skill dir) + `description:` carrying explicit trigger phrases — that description is what routes the skill, so keep triggers concrete. Add `slash: true` when the skill is meant to be typed as `/<name>` in OpenCode v2.
@@ -120,4 +148,7 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - **Merging is the user's alone.** Never merge — not on green checks, not on approval, not on a one-liner. Only the user signals it.
 - **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — end what it settled by axis, advance the bianhua they drive.
 - **PR description: short and in English.** A few lines — what changed and why it's right. Not a retelling of the diff, not an essay; the reasoning belongs in NKS, the detail in the commit messages.
+- **Always name the remote**: `git push -u origin <branch>`, `git switch -c <name> origin/main`. `origin` → `verstak-ai/skills` is the only remote this repo has anything to do with.
 - **Never** `--force` or `git reset --hard` without explicit instruction.
+
+*(verstakify: contract 1 — re-run when the installed contract is higher, or when the sources this file derives from have moved since.)*
