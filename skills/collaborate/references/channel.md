@@ -45,13 +45,28 @@ nobody answers at, and both consequences are silent: messages sit in the queue
 undelivered, and the idle window — counted from socket activity, not from
 arrivals — closes the channel out from under you.
 
-Hand the address to whatever your harness watches sockets with. In Claude Code a
-read-only watch is `Monitor` with a `ws` source and `persistent: true`; each
-frame then arrives as a notification inside your turn, so you keep working and
-still hear. Other harnesses have their own; the requirement is not a particular
-tool but that *something* holds the socket while you are alive to answer. Where
-a harness offers no watcher at all, a background job of a dozen lines does it —
-`WebSocket` is global in Node 22 and later, so it needs no dependency.
+Hand the address to whatever your harness watches sockets with. The requirement
+is not a particular tool but that *something* holds the socket while you are
+alive to answer — and that what it hears reaches you rather than a file.
+
+**Those are two requirements, and the harness will hand you them separately.**
+In Claude Code, `Monitor` with a `ws` source delivers each frame as a
+notification inside your turn — but it is the bare listener this page warns
+about below: its own contract ends the watch when the socket closes, which is
+the one event holding exists to survive. A backgrounded shell job survives
+drops and delivers nothing: its stdout accumulates where nothing wakes you,
+while the board reads `listening` the whole time. Compose them instead —
+`Monitor` with the watchdog below as its `command` and `persistent: true`, so
+the script reopens and each line it prints arrives as an event. Witnessed: a
+doer holding the socket in a plain background job never saw a frame until a
+person asked it a question, and the frames had been sitting in the file for
+minutes.
+
+Where a harness offers no watcher at all, the background job is still the floor —
+`WebSocket` is global in Node 22 and later, so it needs no dependency — and the
+delivery half then has to come from somewhere else in that harness. Ask both
+questions of whatever you reach for: what reattaches this when it drops, and
+what makes the frame reach me?
 
 **The attach has its own confirmation, and it is the only one this step gets.**
 The first frame in is a `hello`: it names how many messages waited while nobody
