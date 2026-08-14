@@ -194,6 +194,8 @@ Of the two errors, an edge you later judge too weak costs one call to remove; a 
 
 ### Kriya (six questions)
 
+The factory holds 1–2 as a gate: `nks_add_kriya` refuses a kriya with neither `ahara` nor `utpatti` (a genuine realm inlet passes `attrs.boundary="init"` — see *Realm boundary*).
+
 1. **Consumes?** → `ahara` to phenomenon. ahara = DESTRUCTION. Just read → upadhi.
 2. **Produces?** → `utpatti` to phenomenon. Can't name utpatti? Stop — you don't understand the kriya.
 3. **Who acts?** → `actor` to karta.
@@ -206,7 +208,7 @@ A phase whose actor is **not** the actor of the parent — an owner accepting a 
 
 Plus: `next` (sense = praśna — yes/no question). `contains` for sub-steps.
 
-Realm boundary is topological: a kriya at the realm edge is legal without ahara — no detector demands it, no marker waives it. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, never as a tension-silencer.
+Realm boundary is topological: no detector demands ahara at the realm edge, and `attrs.boundary="init"` never silences a tension. The marker is a positive claim with two effects — at creation it lifts the factory's ahara/utpatti gate, and in reading it renders as a sanctioned inlet. Setting it to dodge an honest ahara is the antipattern.
 
 ### Phenomenon
 
