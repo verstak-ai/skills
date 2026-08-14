@@ -21,6 +21,16 @@
         ]
       }
     ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "IN=$(cat); [ \"$(echo \"$IN\" | jq -r '.stop_hook_active // false')\" = \"true\" ] && exit 0; T=$(echo \"$IN\" | jq -r '.transcript_path // \"\"'); [ -f \"$T\" ] || exit 0; tail -n 80 \"$T\" | grep -q '\"type\":\"tool_use\"' && exit 0; tail -n 5 \"$T\" | grep -q '?' && exit 0; echo 'BLOCKED: this turn ends without a change and without a question. Announcing what you are about to do ends you — no input is due, and nothing wakes you until someone pings. Do the thing, or ask the question where its addressee will find it (the user here, a posed_to vimarsha for another doer). What you are on belongs in the occupation line on your channel, not in a turn that stops.' >&2; exit 2"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
