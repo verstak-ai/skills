@@ -1,6 +1,6 @@
 ---
 name: minding
-description: "The user's mind in the graph — the personal realm @<handle>/mind; this skill is its memory: recall and write by reflex, not ritual. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate'. WRITE when a fact concerns the user, matters later, and has no project-realm home: 'запомни', machines, deployments, people, dated facts, cross-project findings. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos only the session-routing question dies (AGENTS.md names the realm) — recall and the write reflex stay armed. Needs the nks_* MCP tools."
+description: "The user's mind in the graph — the personal realm @handle/mind; this skill is its memory: recall and write by reflex, not ritual. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate'. WRITE when a fact concerns the user, matters later, and has no project-realm home: 'запомни', machines, deployments, people, dated facts, cross-project findings. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos only the session-routing question dies (AGENTS.md names the realm) — recall and the write reflex stay armed. Needs the nks_* MCP tools."
 ---
 
 # Minding — the user's mind in the graph
