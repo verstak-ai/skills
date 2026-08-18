@@ -331,6 +331,16 @@ Everyone else's rows — the half that is usually scrolled past:
   seat on the same karta that accepts mail and is watched by no one. A send into
   the wrong standing is accepted, queued, and never read.
 
+**When you name the standing in a send, take it off the board, verbatim and
+bare.** The name carries no owner prefix: witnessed, `owner:name` and
+`@owner:name` were both refused with *"No standing of this role goes by that
+name"*, and — unlike the unnamed call, which enumerates the standings — that
+refusal names neither the format nor the candidates, so three formats get tried
+on guess before the bare name answers. Read the exact string from the listing
+rather than composing it, and treat the refusal's silence as a defect in the
+surface to relay to whoever owns it, not as a hint: a refusal is supposed to be
+the densest reading a call returns.
+
 What you owe the board is a concrete offer or a concrete warning. What you must
 not spend it on is asking a doer what its own line already says.
 
