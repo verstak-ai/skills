@@ -44,13 +44,14 @@ what makes a second machine or a second agent possible at all.)
   exactly when something feels worth keeping, and this file is long out of
   context by then. Route it instead, always, classifying by one test:
   **would this fact still be true if this repo were deleted tomorrow?**
-  A repo convention, a decision, a fact about the code, this project's
-  procedures (they die with the repo) → this file / docs / code; work state, an
-  open question → a vimarsha in the realm; a fact that survives the repo and no
-  project owns — the user's machines, deploy targets, ssh hosts, expiries,
-  people, cross-project lessons → their personal realm `@<handle>/mind`
-  (`minding`), written at the moment it is learned, not at session end; a
-  project's rules never land there, not even as a mention on a machine card.
+  A repo convention, a fact about the code, this project's
+  procedures (they die with the repo) → this file / docs / code; work state, a
+  decision, an open question → a vimarsha in the realm; a fact that survives
+  the repo and no project owns — the user's machines, deploy targets, ssh
+  hosts, expiries, people, cross-project lessons → their personal realm
+  `@<handle>/mind` (`minding`), written at the moment it is learned, not at
+  session end; a project's rules never land there, not even as a mention on a
+  machine card.
   There is no residue the memory dir keeps — "it's only a preference" is how
   the category comes back.
 - The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a
