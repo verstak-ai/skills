@@ -42,16 +42,18 @@ what makes a second machine or a second agent possible at all.)
 - **This overrides the harness's own memory instruction**, which invites a
   `project` memory category and will keep inviting it — the pull is strongest
   exactly when something feels worth keeping, and this file is long out of
-  context by then. Route it instead, always, classifying by one test:
-  **would this fact still be true if this repo were deleted tomorrow?**
-  A repo convention, a fact about the code, this project's
-  procedures (they die with the repo) → this file / docs / code; work state, a
-  decision, an open question → a vimarsha in the realm; a fact that survives
-  the repo and no project owns — the user's machines, deploy targets, ssh
-  hosts, expiries, people, cross-project lessons → their personal realm
-  `@<handle>/mind` (`minding`), written at the moment it is learned, not at
-  session end; a project's rules never land there, not even as a mention on a
-  machine card.
+  context by then. Route it instead, always, asking **whose fact is this?**
+  A repo convention, a fact about the code, this project's procedures, **this
+  project's servers and deploy pipeline, its dated duties** → this file / docs
+  / code, or a node in this repo's realm; work state, a decision, an open
+  question → a vimarsha in the realm; a fact that is the **user's own** and
+  serves no single project — their personal machines, their expiries, people,
+  cross-project lessons → their personal realm `@<handle>/mind` (`minding`),
+  written at the moment it is learned, not at session end; a fact about
+  **another** project → that project's realm (the contour map in `@<handle>/mind`
+  names it). A project's rules never land in the personal realm, not even as
+  a mention on a machine card. A dated duty (renewal, expiry, deadline) is a
+  node carrying the date in `attrs` — a README mention alone loses it.
   There is no residue the memory dir keeps — "it's only a preference" is how
   the category comes back.
 - The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a
