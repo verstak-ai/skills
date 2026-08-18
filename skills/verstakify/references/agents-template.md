@@ -49,7 +49,12 @@ what makes a second machine or a second agent possible at all.)
   A repo convention, a fact about the code, this project's procedures, **this
   project's servers and deploy pipeline, its dated duties** → this file / docs
   / code, or a node in this repo's realm; work state, a decision, an open
-  question → a vimarsha in the realm; a fact that is the **user's own** and
+  question → a vimarsha in the realm;
+  <!-- cross-project memory: yes (default) — keep the branches below that
+       mention @<handle>/mind or global preferences, and the preferences
+       clause; no — delete them, leaving repo-scoped routing only
+       (verstakify Step 1 records the choice) -->
+  a fact that is the **user's own** and
   serves no single project — their personal machines, their expiries, people,
   cross-project lessons → their personal realm `@<handle>/mind` (`minding`),
   written at the moment it is learned, not at session end; a fact about

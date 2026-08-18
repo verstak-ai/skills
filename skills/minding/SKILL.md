@@ -78,6 +78,7 @@ Audit each concern against its source and classify **absent / stale / correct** 
 | what each live realm is for; contours; what's dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing and disposable-class rules | authored | propose, user confirms |
+| standing preferences ("how to act with me") | authored | the globally injected instruction file of each harness the user runs — create if absent, one source linked across harnesses; never a node here |
 
 Then fill `references/personal-realm.md` and run §2 once, so the first map is born verified.
 
@@ -159,7 +160,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 
 - **Not a session ritual** — nothing routes through it by protocol; it fires by its triggers or not at all.
 - **Not the harness's memory feature** — no MEMORY.md, no local files; the graph is the carrier, and user-facts routed here are exactly the ones that must survive a machine change.
-- **Not the home of standing preferences** — "how to act with me" (language, workflow rules, style) is an *instruction*, not a fact: it belongs in the globally injected user instruction file (`~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`), which every session loads without being asked. A node here is the wrong carrier — nothing auto-reads it per session. *(why: a preference nobody injects is a preference nobody obeys.)* Facts — what is true about the user — come here; instructions — how to behave — go where they are always in context.
+- **Not the home of standing preferences** — "how to act with me" (language, workflow rules, style) is an *instruction*, not a fact: its home is the globally injected user instruction file (`~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`), which every session loads without being asked — a node here is the wrong carrier, nothing auto-reads it per session. The layer is established once by **verstakify** (cross-project memory: yes) — or by §3 below when it is absent. *(why: a preference nobody injects is a preference nobody obeys.)*
 - **Not `entry`** — that orients inside a given realm, used by every agent already told where to go.
 - **Not an index of the access surface** — it stores the authored remainder.
 - **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **autonomous**.

@@ -187,6 +187,20 @@ sources; the live endpoint, not the handler; a clean install, not a warm cache.
 A class with no reachable observation goes under *Ceiling* with its reason,
 never left as an aspirational row.
 
+Also settle **cross-project memory** — ask once per *user*, not per repo (a
+previous verstakification's answer is reusable): does the user want what
+outlives any single repo to persist — the personal realm `@<handle>/mind` for
+user facts, and a globally injected preferences file ("how to act with me":
+`~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`) for standing
+instructions? **Yes** → establish the layer: bootstrap the realm (**minding**
+§3) and the preferences file (create if absent, one source linked across the
+harnesses the user runs); the generated routing keeps its personal-realm
+branches, and the memory-guard message keeps its minding route. **No** → the
+routing is repo-scoped: project facts to this repo and its realm, everything
+else stays session-local — the personal-realm branches, the preferences
+clause, and the minding route in the guard message are omitted. Never assume
+the layer exists because the harness has a slot for it.
+
 Also settle **workflow-suite coexistence** (only when a coercive workflow suite
 is detected — its skills appear in the skills list, or its dir exists in the
 plugin cache, e.g. `~/.claude/plugins/`; today that means superpowers): tell
