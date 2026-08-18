@@ -56,7 +56,10 @@ what makes a second machine or a second agent possible at all.)
   **another** project → that project's realm (the contour map in `@<handle>/mind`
   names it). A project's rules never land in the personal realm, not even as
   a mention on a machine card. A dated duty (renewal, expiry, deadline) is a
-  node carrying the date in `attrs` — a README mention alone loses it.
+  node carrying the date in `attrs` — a README mention alone loses it. Standing
+  preferences ("how to act with me") are instructions, not facts: a
+  project-scoped one goes in this repo's `AGENTS.md`, a cross-project one in
+  the user's global instruction file — never into the graph or the memory dir.
   There is no residue the memory dir keeps — "it's only a preference" is how
   the category comes back.
 - The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a
