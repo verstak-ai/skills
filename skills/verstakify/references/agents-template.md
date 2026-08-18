@@ -50,21 +50,24 @@ what makes a second machine or a second agent possible at all.)
   project's servers and deploy pipeline, its dated duties** → this file / docs
   / code, or a node in this repo's realm; work state, a decision, an open
   question → a vimarsha in the realm;
-  <!-- cross-project memory: yes (default) — keep the branches below that
-       mention @<handle>/mind or global preferences, and the preferences
-       clause; no — delete them, leaving repo-scoped routing only
-       (verstakify Step 1 records the choice) -->
-  a fact that is the **user's own** and
+  A dated duty (renewal, expiry, deadline) is a node carrying the date in
+  `attrs` — a README mention alone loses it. A project's rules never land in
+  another project's or the user's realm, not even as a mention on a machine
+  card.
+  <!-- cross-project memory: the text between BEGIN and END is written in its
+       yes-form. Under verstakify's answer "no", delete the whole region and
+       the closing sentence about preferences; routing stays repo-scoped. -->
+  <!-- BEGIN cross-project (yes-form) -->
+  A fact that is the **user's own** and
   serves no single project — their personal machines, their expiries, people,
   cross-project lessons → their personal realm `@<handle>/mind` (`minding`),
   written at the moment it is learned, not at session end; a fact about
   **another** project → that project's realm (the contour map in `@<handle>/mind`
-  names it). A project's rules never land in the personal realm, not even as
-  a mention on a machine card. A dated duty (renewal, expiry, deadline) is a
-  node carrying the date in `attrs` — a README mention alone loses it. Standing
-  preferences ("how to act with me") are instructions, not facts: a
-  project-scoped one goes in this repo's `AGENTS.md`, a cross-project one in
-  the user's global instruction file — never into the graph or the memory dir.
+  names it). Standing preferences ("how to act with me") are instructions,
+  not facts: a project-scoped one goes in this repo's `AGENTS.md`, a
+  cross-project one in the user's global instruction file — never into the
+  graph or the memory dir.
+  <!-- END cross-project -->
   There is no residue the memory dir keeps — "it's only a preference" is how
   the category comes back.
 - The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a

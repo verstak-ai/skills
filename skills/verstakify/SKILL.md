@@ -360,10 +360,11 @@ the push actually ran.
 The memory-guard hook — unlike the reminders it **blocks**: a `PreToolUse`
 command that exits 2 stops the tool call and hands Claude the stderr message.
 The path is unambiguous (`.claude/projects/<encoded>/memory/`), so false
-positives are near zero:
+positives are near zero. The message's last route follows the Step 1
+cross-project-memory answer — under **no**, drop the personal-realm sentence:
 ```json
 { "matcher": "Write|Edit|MultiEdit", "hooks": [ { "type": "command",
-  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state → a hint vimarsha in the project realm; a user-scoped fact no project owns (machines, people, cross-project findings) → the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
+  "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence rules). Route the fact: repo conventions / code facts → AGENTS.md; project state, this project\\'s servers and dated duties → the project realm; a user-scoped fact no project owns → the personal realm @<handle>/mind (minding skill) — drop this route under cross-project-memory=no. This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0" } ] }
 ```
 This entry goes under `"PreToolUse"` — its own event array, not the
 `PostToolUse` one.
@@ -401,11 +402,15 @@ confirmation rather than assuming it lands silently.
 - Local project-memory dir (`~/.claude/projects/<encoded-path>/memory/`):
   audit and **evacuate** it, then freeze it. Nothing keeps a place there —
   the prohibition is by dir, not by category. Project state (decisions,
-  constraints, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS; durable
-  user holdings (machines, deployments, cross-project findings) *and* the
-  working-style preferences that used to be waved through → the user's personal
-  realm (**minding**), which is the home that survives a new machine and is
-  readable by the next agent. Then freeze: `MEMORY.md` becomes a one-line
+  constraints, branch state, gotchas) → AGENTS.md / HANDOVER.md / NKS; this
+  project's servers and dated duties → its realm; the user's own holdings
+  (personal machines, expiries, people, cross-project findings) → the user's
+  personal realm (**minding**) — but only under the Step 1 cross-project-memory
+  answer **yes**; under **no** they stay in the repo's AGENTS.md if this repo
+  must keep them, otherwise they are dropped with the user's knowledge.
+  Working-style preferences are instructions, not facts: → the globally
+  injected instruction file (minding §3 establishes it), never a node. Then
+  freeze: `MEMORY.md` becomes a one-line
   prohibition stub («project state lives in the repo or the graph — see
   AGENTS.md, Persistence rules»), and the memory-guard hook (Step 4) blocks
   any further write at the moment the save-instinct fires. Evacuate before you
