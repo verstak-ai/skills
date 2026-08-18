@@ -1,6 +1,6 @@
 ---
 name: minding
-description: "The user's mind in the graph — the personal realm @<handle>/mind; this skill is its memory: recall and write by reflex, not ritual. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate'. WRITE when a fact concerns the user, matters later, and has no project-realm home: 'запомни', machines, deployments, people, dated facts, cross-project findings. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos only the session-routing question dies (AGENTS.md names the realm) — recall and the write reflex stay armed. Needs the nks_* MCP tools."
+description: "The user's mind in the graph — the personal realm @<handle>/mind; this skill is its memory: recall and write by reflex, not ritual. WRITE when a durable fact about the user surfaces mid-task and no project realm owns it — test: would it still be true if this repo were deleted tomorrow? Machines, deploy targets, ssh hosts, expiries, people, cross-project lessons → @<handle>/mind (never harness-local memory); project decisions and procedures die with the repo and stay in it — not even as a mention on a machine card. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate', or a task needs such a fact (a deploy target, a machine trait, an expiry). 'запомни' → write. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. Needs the nks_* MCP tools."
 ---
 
 # Minding — the user's mind in the graph
@@ -40,6 +40,8 @@ Two rules at either depth: two contours claim the question → ask one line nami
 ## §1b The write reflex
 
 The graph twin of "worth remembering, nowhere to put it": about the user + useful later + no project realm owns it → it goes here. Shapes are in `references/personal-realm.md` — machines and deployments (§7), people (§2b), dated facts (§7), lessons (§8), findings serving several contours.
+
+**The classification test: would this fact still be true if this repo were deleted tomorrow?** Survives the repo → a user fact (machines, deploy targets, ssh hosts, expiries, people, cross-project lessons). Dies with the repo — decisions, conventions, this project's deploy procedures → the repo, never here, not even as a mention on a machine card: a card carries only the machine's own traits (host, ssh, role, dates). *(why: agents reliably split "machine" from "project rule" on this test where a bare prohibition does not hold — benchmarked.)*
 
 Three-way routing, in order: a fact about **this** project → its realm or AGENTS.md (the repo's persistence rules); a fact about **another** contour → anchored in *that* contour's realm, `posed_to` its steward (**inquiry**: anchor where the addressee orients, not where you stand); a fact about the **user** that no project owns → here. Two guards on the last branch: never what a call answers (Storage rule below); never a second copy of a project realm's content.
 

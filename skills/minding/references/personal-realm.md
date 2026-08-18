@@ -142,7 +142,9 @@ instead of modelled.
 Record only what does not survive a machine change and cannot be read from the
 machine you are on: addresses, roles of hosts, where a thing is deployed and by
 what path. Never credentials, never tokens, never anything you would not put in
-a repository.
+a repository. And only the machine's own traits: how a particular project
+deploys to it is that project's fact — it dies with the project, so it lives in
+the project's repo, not on this card.
 
 **Tool surfaces belong here too** — which harness runs where, which browser is
 paired on which machine, which host has no GUI at all. What is available in *this*
