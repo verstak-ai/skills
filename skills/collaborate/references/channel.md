@@ -176,6 +176,37 @@ and nothing more: it does not read on your behalf, it does not answer, and it
 never touches the occupation line — that line is the doer's own word about
 itself, and a watchdog cannot know it. Frames still arrive at you.
 
+**Exit on the frame; don't print it — for harnesses without a built-in
+watcher.** Where the harness delivers frames natively (Claude Code's `Monitor`
+with a `ws` source), it does this for you and none of what follows applies.
+Witnessed twice, independently, on harnesses with no such watcher: a
+forever-listener that printed each frame to a log held the line perfectly and
+delivered nothing — output of a background job is pull-only, and the doer saw
+a working frame five minutes late, by accident. What those harnesses *do* turn
+into an interruption is the process **ending**: so the listener's job is to
+exit, code 0, on the first frame that is a message — the agent wakes, acts,
+and starts the listener again. Three parts make that pattern safe:
+
+- **Service frames are a class, and only messages exit.** The server speaks
+  first: `hello`, then pings — a naive listener answered the `hello` as if it
+  were an assignment and died one frame into its watch. Exit on
+  `type:"message"`, nothing else.
+- **A close is also an exit — a loud one.** Exit nonzero on an unexpected
+  close rather than silently reopening from inside a doer that has already
+  moved on, so a stale token surfaces instead of simulating an empty inbox.
+- **Rearming is a protocol step, not a memory.** The listener that exits on a
+  frame is one-shot by construction, so the act after the work — starting it
+  again — is where the deafness returns if it depends on the agent remembering.
+  A worker session that ends without rearming leaves the standing deaf with
+  full queues while senders see `accepted`. Make the rearm the closing move of
+  the frame's handling, every time.
+
+Two clock facts to plan around: the idle window (hours) is refreshed by socket
+activity, not by arrivals — a long work tact with the listener exited can let
+the window lapse silently, so a long-running doer reattaches on a timer, and
+the exit-on-frame listener re-enters with the same token. And `POST /status`
+lets a one-way guard speak without occupying the socket.
+
 **One seam worth naming, and it has to be read by behaviour rather than by code.**
 A token the service no longer recognizes never reaches a close code at all: no
 connection is made, the upgrade never happens, and what answers is an ordinary
