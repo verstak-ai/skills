@@ -42,7 +42,10 @@ what makes a second machine or a second agent possible at all.)
 - **This overrides the harness's own memory instruction**, which invites a
   `project` memory category and will keep inviting it — the pull is strongest
   exactly when something feels worth keeping, and this file is long out of
-  context by then. Route it instead, always, asking **whose fact is this?**
+  context by then. Route it instead, always — and **before finishing, check
+  every durable fact from the user's context is persisted per this routing; an
+  unpersisted fact is a failure of the task, not a nice-to-have** — asking
+  **whose fact is this?**
   A repo convention, a fact about the code, this project's procedures, **this
   project's servers and deploy pipeline, its dated duties** → this file / docs
   / code, or a node in this repo's realm; work state, a decision, an open
