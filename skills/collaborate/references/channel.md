@@ -360,6 +360,12 @@ Everyone else's rows — the half that is usually scrolled past:
   that actually reaches a person — the bridge into their chat — as opposed to a
   seat on the same karta that accepts mail and is watched by no one. A send into
   the wrong standing is accepted, queued, and never read.
+- **A sibling's line naming a node you were about to take is an announced
+  take.** Picking a question from a role's inbox when the role has siblings
+  starts at the board, not at the work: a line naming that node means stand
+  down, or offer help on the node — never start a second copy. Then announce
+  your own take the same way: the line for the board, a word on the node for
+  whoever arrives after the line expires.
 
 **When you name the standing in a send, strip the prefix.** The listing
 shows the composed name — `@handle:name` — while the `standing` parameter
