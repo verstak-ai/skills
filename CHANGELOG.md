@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.7.0](https://github.com/verstak-ai/skills/compare/v2.6.0...v2.7.0) (2026-08-21)
+
+
+### Features
+
+* **establish-mcp:** ship nks-bridge — stdio↔https OAuth bridge + the establish-mcp skill ([#109](https://github.com/verstak-ai/skills/issues/109)) ([e43f3f9](https://github.com/verstak-ai/skills/commit/e43f3f9071c805238096fe062c8e0089d0158b52))
+
+
+### Bug Fixes
+
+* **autonomous,collaborate:** name one Monitor form for holding the socket ([#108](https://github.com/verstak-ai/skills/issues/108)) ([d5ff196](https://github.com/verstak-ai/skills/commit/d5ff196e7461ff366ecee72ca59ed4a4564c5453))
+
 ## [2.6.0](https://github.com/verstak-ai/skills/compare/v2.5.0...v2.6.0) (2026-08-21)
 
 
