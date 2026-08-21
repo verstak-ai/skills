@@ -311,9 +311,18 @@ let authInFlight = null;
 // opts.force ignores the cached access token (after an upstream 401);
 // opts.interactive=false forbids the browser (background keepalive).
 async function ensureAuth(wwwAuthenticate, opts = {}) {
-  if (authInFlight) return authInFlight;
   const { force = false, interactive = true } = opts;
-  authInFlight = (async () => {
+  if (authInFlight) {
+    // A background (non-interactive) attempt must not stand in for a caller
+    // that is allowed to open the browser: await it, and if it could not
+    // finish the job, run our own interactive round.
+    if (!interactive || authInFlight.interactive) return authInFlight.promise;
+    await authInFlight.promise.catch(() => {});
+    if (authInFlight) return authInFlight.promise; // someone else already restarted it
+    const s = loadStore();
+    if (s.tokens?.access_token && (s.tokens.expires_at || Infinity) > Date.now()) return s.tokens;
+  }
+  const promise = (async () => {
     try {
       const s = loadStore();
       if (!force && s.tokens?.access_token && (s.tokens.expires_at || Infinity) > Date.now()) {
@@ -355,7 +364,8 @@ async function ensureAuth(wwwAuthenticate, opts = {}) {
       authInFlight = null;
     }
   })();
-  return authInFlight;
+  authInFlight = { promise, interactive };
+  return promise;
 }
 
 // Keep the grant alive even when the harness makes no MCP calls: refresh the
