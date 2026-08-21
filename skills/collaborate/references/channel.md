@@ -177,8 +177,9 @@ never touches the occupation line — that line is the doer's own word about
 itself, and a watchdog cannot know it. Frames still arrive at you.
 
 **Exit on the frame; don't print it — for harnesses without a built-in
-watcher.** Where the harness delivers frames natively (Claude Code's `Monitor`
-with a `ws` source), it does this for you and none of what follows applies.
+watcher.** Where the harness surfaces a running script's stdout as events
+(Claude Code's `Monitor` with the watchdog above as its `command`), delivery is
+already covered and none of what follows applies.
 Elsewhere, output of a background job is pull-only: a listener that prints
 frames holds the line perfectly and delivers nothing. What those harnesses
 *do* turn into an interruption is the process **ending**: so the listener's
