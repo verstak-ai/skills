@@ -60,7 +60,9 @@ Touching one obliges checking the others. Found by graph traversal, not by grep 
 | Claim class | Canonical carrier | How to observe | Who can |
 |---|---|---|---|
 | Format — frontmatter parses, bundles match source | the committed `<name>.skill` zips + `skills/` | `make check` | agent |
+| Channel format — the corpus passes a consuming channel's own loader | that channel's loader (claude.ai plugin upload) | only by attempting the upload; `make validate` carries rules learned from observed refusals as superset bans (e.g. no `<`/`>` in descriptions) | user |
 | Delivery — the method actually reaches an agent | the installed plugin in the harness cache | `cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json` against `gh release view` | agent |
+| Delivery (claude.ai) — a release actually reaches that channel | the uploaded `verstak.zip` in a claude.ai account | a human uploads the release asset and watches it install — agent-unreachable; the user's word is the carrier | user |
 | Substance — a skill's instruction matches the tool surface | the live nks-mcp surface | attempt the call the skill prescribes and read the refusal or the result | agent |
 | Graph correspondence — the model matches the shipped method | `r5` | `nks_orient(lens="tensions", focus="844")` before and after | agent |
 
@@ -92,6 +94,7 @@ Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.
 | Find / search across skills | `grep`/`Grep` over `skills/` (it's plain text) |
 | Edit a skill | edit `skills/<name>/SKILL.md` |
 | Rebuild the `.skill` bundles | `make build` (deterministic; or auto via the pre-commit hook) |
+| Build the claude.ai plugin archive | `make plugin` (→ `dist/verstak.zip`, gitignored) |
 | Enable the auto-rebuild hook | `make hooks` (sets `core.hooksPath -> .githooks`) |
 | Verify a bundle's contents | `unzip -l <name>.skill` |
 | Run the CI gate locally | `make check` (= `make validate` + `make check-bundles`) |
@@ -105,14 +108,14 @@ The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bu
 - `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
 - `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` and the plugin entry's `version` both mirror `plugin.json` (release-please writes all three; `make validate` fails if they diverge). No component lists — the plugin's skills auto-discover from `skills/` (`strict: true`, plugin.json authoritative).
 - `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is what Claude Code reads to deliver updates (bumped by release-please when the release PR merges, never by hand).
-- `release-please-config.json` + `.release-please-manifest.json` + `.github/workflows/release-please.yml` — release-please: it maintains a release PR from the Conventional Commits on `main`; merging that PR writes the version into `plugin.json`/`marketplace.json`, tags `vX.Y.Z`, and cuts a GitHub Release with a `CHANGELOG.md` entry.
-- `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build.
+- `release-please-config.json` + `.release-please-manifest.json` + `.github/workflows/release-please.yml` — release-please: it maintains a release PR from the Conventional Commits on `main`; merging that PR writes the version into `plugin.json`/`marketplace.json`, tags `vX.Y.Z`, and cuts a GitHub Release with a `CHANGELOG.md` entry; a follow-up job then builds `dist/verstak.zip` (`make plugin`) and attaches it to the Release — the claude.ai delivery artifact (that channel is manual-upload only, no auto-delivery).
+- `Makefile`, `scripts/build-skills.sh`, `scripts/build-plugin.sh`, `.githooks/pre-commit` — the build.
 - `scripts/validate-skills.mjs` (frontmatter contract, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `.github/workflows/ci.yml` — the format gate.
 - `README.md` — short human-facing pointer.
 - `.claude/settings.json` — committed session rituals: the `PreToolUse` memory guard (blocks writes into the local memory dir), `SessionStart` (orient in `r5`, open the #931 inbox), `PostToolUse` on `Bash` (the push → update-NKS reminder, including the borrowed-vocabulary re-read). `settings.local.json` is gitignored. Hook text is English — its reader is an agent, like `skills/**`.
 - `CLAUDE.md` — a **symlink to `AGENTS.md`**, not a copy: Claude Code reads `CLAUDE.md`, every other harness reads `AGENTS.md`, and one file answers both. Editing `CLAUDE.md` edits `AGENTS.md` — there is no second file to keep in sync, and no import line to preserve.
 - `.claude/agents/` — delegation roles (`reader`, `worker`, `verifier`); the `description` field is what routes them, so it stays trigger-shaped.
-- `.gitignore` — three entries: `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`. Scratch is **not** ignored: there is no `tmp/` here, so keep working files out of the tree or out of the commit yourself.
+- `.gitignore` — four entries: `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the built plugin archive). Scratch is **not** ignored: there is no `tmp/` here, so keep working files out of the tree or out of the commit yourself.
 
 ## Code conventions
 - **`SKILL.md` frontmatter**: `name:` (kebab, matches the skill dir) + `description:` carrying explicit trigger phrases — that description is what routes the skill, so keep triggers concrete. Add `slash: true` when the skill is meant to be typed as `/<name>` in OpenCode v2.

@@ -1,4 +1,4 @@
-.PHONY: build validate check-bundles check hooks
+.PHONY: build validate check-bundles check hooks plugin
 
 # Run the full CI gate locally: frontmatter contract + bundle sync.
 check: validate check-bundles
@@ -14,6 +14,10 @@ check-bundles:
 # Regenerate the committed <name>.skill bundles from skills/<name>/ (source of truth).
 build:
 	@bash scripts/build-skills.sh
+
+# Build the claude.ai plugin archive (dist/verstak.zip). CI attaches it to each GitHub Release.
+plugin:
+	@bash scripts/build-plugin.sh
 
 # Enable the repo's pre-commit hook (auto-rebuilds .skill bundles before each commit).
 hooks:
