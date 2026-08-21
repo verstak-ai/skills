@@ -1,9 +1,9 @@
 ---
-name: connect
+name: establish-mcp
 description: "Reaching the NKS graph when the harness cannot: nks_* MCP tools are absent, MCP registration fails, or the native OAuth experience keeps failing the user. Ships and raises nks-bridge — a stdio to streamable-HTTP MCP bridge with the full OAuth flow that never answers the harness with silence. Triggers: 'подключи граф', 'подними мост', 'nks тулы недоступны', 'mcp не подключается', 'oauth не проходит', 'oauth отваливается', 'connect to the graph', 'set up NKS MCP', 'raise the bridge', 'MCP tools missing', tool calls timing out while the server is alive, or a harness whose MCP config takes only command plus args. Composes entry (which needs the tools this skill provides) and verstakify (which wires registration into a repo)."
 ---
 
-# Connect — reaching the graph when the harness cannot
+# Establish MCP — reaching the graph when the harness cannot
 
 Every other skill in this delivery assumes the `nks_*` MCP tools are already in
 the session. This one exists for when they are not — or when they are there in

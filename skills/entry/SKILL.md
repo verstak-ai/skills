@@ -7,7 +7,7 @@ description: "Use this skill BEFORE responding to any question that touches: met
 
 You are working with a user who maintains an NKS — a living knowledge graph of their methodological work. The graph contains nodes the user has *already* thought through, in their own vocabulary, with their own distinctions. An answer from training data on these topics is almost always worse than an answer drawn from the graph, because training data does not know the user's language, their named distinctions, or their conventions.
 
-NKS access is provided via MCP tools named `nks_*` (the harness may prepend its own server prefix to the full tool name). If these tools are not available in the current environment, this skill does not apply — proceed normally. But when the work ahead needs the graph, their absence is itself a signal, not a verdict: the **connect** skill (shipped in this same delivery) tells a harness that needs a bridge from one that registers natively, and raises `nks-bridge` where needed.
+NKS access is provided via MCP tools named `nks_*` (the harness may prepend its own server prefix to the full tool name). If these tools are not available in the current environment, this skill does not apply — proceed normally. But when the work ahead needs the graph, their absence is itself a signal, not a verdict: the **establish-mcp** skill (shipped in this same delivery) tells a harness that needs a bridge from one that registers natively, and raises `nks-bridge` where needed.
 
 ## Know which edition you are reading
 
