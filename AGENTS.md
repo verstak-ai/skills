@@ -65,6 +65,7 @@ Touching one obliges checking the others. Found by graph traversal, not by grep 
 | Delivery (claude.ai) — a release actually reaches that channel | the uploaded `verstak.zip` in a claude.ai account | a human uploads the release asset and watches it install — agent-unreachable; the user's word is the carrier | user |
 | Substance — a skill's instruction matches the tool surface | the live nks-mcp surface | attempt the call the skill prescribes and read the refusal or the result | agent |
 | Graph correspondence — the model matches the shipped method | `r5` | `nks_orient(lens="tensions", focus="844")` before and after | agent |
+| Transport — the bundled bridge (establish-mcp) carries an agent to the graph through OAuth | a live instance + a human browser | agent-observable up to the authorize URL (discovery, DCR, PKCE — probed by running the bridge); the browser leg — consent click, code exchange, first answered `nks_*` call — is agent-unreachable, the user's word after a live run is the carrier | agent + user |
 
 **Ceiling**: whether an agent that *read* a skill then acts differently. Nothing here observes it: the reader is another agent in another session, and the effect shows up as method drift, not as a failure. Today its only carriers are a case in `@nks/feedback` and the user's word. The intended carrier is an agentic check — in CI, or subagents asked a comprehension question about the skill — and until it exists this class is never closed as verified.
 
