@@ -142,6 +142,15 @@ function validateSkill(name) {
       } else if (bytes > 900) {
         warn(where, `\`description\` is ${bytes} UTF-8 bytes — inside the 1024-byte cliff's blast radius; keep ≤900 for headroom`);
       }
+      // The claude.ai plugin loader refuses a description with XML-tag-shaped
+      // content ("SKILL.md description cannot contain XML tags") — and the
+      // refusal takes down the whole plugin install, not just the one skill.
+      // Its exact matcher is unknown (behaviour over prose), and no
+      // description needs angle brackets, so ban them outright: write
+      // placeholders as @handle/mind, not @<handle>/mind.
+      if (/[<>]/.test(rendered)) {
+        fail(where, "`description` contains `<` or `>` — the claude.ai plugin loader rejects XML-tag-shaped descriptions and the whole plugin install fails with it; write placeholders without angle brackets (@handle/mind, not @<handle>/mind)");
+      }
     }
   }
 
