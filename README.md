@@ -21,6 +21,7 @@ produce. They teach an agent how to read, write, design, and weave an NKS graph 
 | **intake** | Bring external word (шабда) into a realm — map form→type, mode by kind (#104), dedup, anchor, verify by пратьякша. Source-independent. |
 | **autonomous** | Work autonomously in a verstakified repo — the agent's own cycle: stand on your channel, grasp what arrived, mark the intent, ship per repo ritual, relay into other doers' inboxes, carry it to integration, reconcile, weave, wait consciously. Scoped mode drives one bianhua to arrival. |
 | **collaborate** | Doers agreeing across contours — recognize the boundary, find the doer, address, wake, wait under a bound, converge or escalate, close by writing. The graph is the record; the channel is the wake. |
+| **feedback** | The session's own experience about the skills and tools it used, written into the shared `@nks/feedback` field as a reproducible case — fires by itself on a non-trivial stumble, checks the field for the same thing already said, and places the case where it will be found. |
 | **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` pointer: `@AGENTS.md` import, Windows-safe), wire the NKS session rituals, set the quality gate. |
 | **product-roadmap** | Build a product roadmap for a product you maintain on GitHub — one repo or many (an org / repo-set treated as one product) — by modelling it as a verified ground, harvesting its issues + PRs, and assembling the directions it's actually under. Composes verstakify + intake + assembly. |
@@ -77,7 +78,13 @@ npx skills add verstak-ai/skills --all --agent claude
 `--agent claude` lands skills in `~/.claude/skills/` (what Claude Code scans), not the default
 `~/.agents/skills/`.
 
-**claude.ai / manual:** each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it
+**claude.ai (whole plugin):** every [release](https://github.com/verstak-ai/skills/releases/latest)
+from v2.6.0 onward carries `verstak.zip` — the plugin archive. Upload it as a plugin in claude.ai; to update, upload
+a newer release's asset — the same plugin name overwrites the installed copy. This channel has no
+auto-update: what's installed is the release you last uploaded (its `version` sits in
+`.claude-plugin/plugin.json` inside the archive).
+
+**Single skills / manual:** each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it
 as a Skill in claude.ai, or unzip into your skills directory:
 
 ```sh

@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.5.0](https://github.com/verstak-ai/skills/compare/v2.4.3...v2.5.0) (2026-08-14)
+
+
+### Features
+
+* **feedback,entry:** the feedback skill, plus two fixes the session paid for ([#97](https://github.com/verstak-ai/skills/issues/97)) ([f75f140](https://github.com/verstak-ai/skills/commit/f75f140a43d0efeedd5624a21a7d61d5f9f859e5))
+
+## [2.4.3](https://github.com/verstak-ai/skills/compare/v2.4.2...v2.4.3) (2026-08-14)
+
+
+### Bug Fixes
+
+* **writing:** name the create gate on ahara/utpatti instead of denying it ([#95](https://github.com/verstak-ai/skills/issues/95)) ([c3cc0a3](https://github.com/verstak-ai/skills/commit/c3cc0a38182566a43362e3714db3c3865fe97f06))
+
+## [2.4.2](https://github.com/verstak-ai/skills/compare/v2.4.1...v2.4.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **verstakify:** the doc slot is the only way an agent finds its own karta ([#93](https://github.com/verstak-ai/skills/issues/93)) ([7b16fb2](https://github.com/verstak-ai/skills/commit/7b16fb2824b7a5d45b3df92074bca876d8f98a01))
+
+## [2.4.1](https://github.com/verstak-ai/skills/compare/v2.4.0...v2.4.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **collaborate,autonomous:** holding the socket closes on hello and a listening row, not on connect ([#91](https://github.com/verstak-ai/skills/issues/91)) ([b8d4f14](https://github.com/verstak-ai/skills/commit/b8d4f1458c8343591703217c050fdfac8158b8c8))
+
 ## [2.4.0](https://github.com/verstak-ai/skills/compare/v2.3.0...v2.4.0) (2026-08-08)
 
 

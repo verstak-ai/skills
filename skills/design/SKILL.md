@@ -213,7 +213,7 @@ Anti-pattern: attrs.parked=true to suppress tensions. Use modes and vimarshas.
 
 ## Realm boundary
 
-The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives only as a positive inlet-consumer marker, not a waiver.
+The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives as a positive inlet-consumer marker: at creation it lifts `nks_add_kriya`'s ahara/utpatti gate; it never silences a tension.
 
 ## Concurrency
 

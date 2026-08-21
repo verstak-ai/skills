@@ -13,8 +13,8 @@
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
-  Your inbox: `nks_orient(focus="<seq>")` at session start (self-locate
-  fallback: `nks_me(action="kartas")`).
+  Your inbox: `nks_orient(focus="<seq>")` at session start. No seq recorded
+  here → the repo is not verstakified; run verstakify before acting.
 - **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
   here as `posed_to` vimarshas.
 - **Stack**: `<language + primary frameworks, one line>`.
@@ -42,10 +42,32 @@ what makes a second machine or a second agent possible at all.)
 - **This overrides the harness's own memory instruction**, which invites a
   `project` memory category and will keep inviting it — the pull is strongest
   exactly when something feels worth keeping, and this file is long out of
-  context by then. Route it instead, always: a repo convention or a fact about
-  the code → this file; work state, a decision, an open question → a vimarsha
-  in the realm; a fact about the user that no project owns (machines, people,
-  cross-project findings) → their personal realm `@<handle>/mind` (`minding`).
+  context by then. Route it instead, always — and **before finishing, check
+  every durable fact from the user's context is persisted per this routing; an
+  unpersisted fact is a failure of the task, not a nice-to-have** — asking
+  **whose fact is this?**
+  A repo convention, a fact about the code, this project's procedures, **this
+  project's servers and deploy pipeline, its dated duties** → this file / docs
+  / code, or a node in this repo's realm; work state, a decision, an open
+  question → a vimarsha in the realm;
+  A dated duty (renewal, expiry, deadline) is a node carrying the date in
+  `attrs` — a README mention alone loses it. A project's rules never land in
+  another project's or the user's realm, not even as a mention on a machine
+  card.
+  <!-- cross-project memory: the text between BEGIN and END is written in its
+       yes-form. Under verstakify's answer "no", delete the whole region and
+       the closing sentence about preferences; routing stays repo-scoped. -->
+  <!-- BEGIN cross-project (yes-form) -->
+  A fact that is the **user's own** and
+  serves no single project — their personal machines, their expiries, people,
+  cross-project lessons → their personal realm `@<handle>/mind` (`minding`),
+  written at the moment it is learned, not at session end; a fact about
+  **another** project → that project's realm (the contour map in `@<handle>/mind`
+  names it). Standing preferences ("how to act with me") are instructions,
+  not facts: a project-scoped one goes in this repo's `AGENTS.md`, a
+  cross-project one in the user's global instruction file — never into the
+  graph or the memory dir.
+  <!-- END cross-project -->
   There is no residue the memory dir keeps — "it's only a preference" is how
   the category comes back.
 - The local memory dir is **evacuated and frozen**: `MEMORY.md` holds a

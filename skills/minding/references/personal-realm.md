@@ -137,12 +137,17 @@ stays in the skill.
 Machines, servers, deployments, checkouts: each a `ding` in the workplace
 contour, each **born and consumed by a kriya** (provisioning / teardown) — an
 unclosed lifecycle here is the usual sign that a machine was recorded as a note
-instead of modelled.
+instead of modelled. The machines **of this contour** are the user's own: their
+laptop, their personal boxes, boxes they run for life rather than for a project.
+A server that exists to serve one project is that project's fact — it belongs
+in that project's realm, and only the user's own contour map here says so.
 
 Record only what does not survive a machine change and cannot be read from the
 machine you are on: addresses, roles of hosts, where a thing is deployed and by
 what path. Never credentials, never tokens, never anything you would not put in
-a repository.
+a repository. And only the machine's own traits: how a particular project
+deploys to it is that project's fact — it dies with the project, so it lives in
+the project's repo, not on this card.
 
 **Tool surfaces belong here too** — which harness runs where, which browser is
 paired on which machine, which host has no GUI at all. What is available in *this*
