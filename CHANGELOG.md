@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.6.0](https://github.com/verstak-ai/skills/compare/v2.5.0...v2.6.0) (2026-08-21)
+
+
+### Features
+
+* collaborate — pose-without-wake fix and the exit-on-frame waiting pattern ([#105](https://github.com/verstak-ai/skills/issues/105)) ([edb6061](https://github.com/verstak-ai/skills/commit/edb606184a7739f7de4f0b5c20ee2dcd79c92870))
+* **foreman:** add the crew-running skill ([#90](https://github.com/verstak-ai/skills/issues/90)) ([4dc03da](https://github.com/verstak-ai/skills/commit/4dc03da684c2c563fce66022031fdc8aaea7ac72))
+* **minding:** two-boundary fact routing + before-you-finish persistence checklist ([#106](https://github.com/verstak-ai/skills/issues/106)) ([d8ea449](https://github.com/verstak-ai/skills/commit/d8ea4492058f287f68842993e46d94044f3d92fe))
+* ship the plugin archive as a release asset — the claude.ai delivery channel ([#104](https://github.com/verstak-ai/skills/issues/104)) ([3877331](https://github.com/verstak-ai/skills/commit/387733182f3faefe42fb756bdcc1d582c2cc72cf))
+
+
+### Bug Fixes
+
+* keep angle brackets out of skill descriptions (claude.ai plugin loader rejects them) ([#103](https://github.com/verstak-ai/skills/issues/103)) ([c2e1de8](https://github.com/verstak-ai/skills/commit/c2e1de84029a0ab8decb71b8fa63c655e8544168))
+
 ## [2.5.0](https://github.com/verstak-ai/skills/compare/v2.4.3...v2.5.0) (2026-08-14)
 
 
