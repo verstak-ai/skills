@@ -78,7 +78,13 @@ npx skills add verstak-ai/skills --all --agent claude
 `--agent claude` lands skills in `~/.claude/skills/` (what Claude Code scans), not the default
 `~/.agents/skills/`.
 
-**claude.ai / manual:** each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it
+**claude.ai (whole plugin):** every [release](https://github.com/verstak-ai/skills/releases/latest)
+from v2.6.0 onward carries `verstak.zip` — the plugin archive. Upload it as a plugin in claude.ai; to update, upload
+a newer release's asset — the same plugin name overwrites the installed copy. This channel has no
+auto-update: what's installed is the release you last uploaded (its `version` sits in
+`.claude-plugin/plugin.json` inside the archive).
+
+**Single skills / manual:** each `*.skill` is a committed zip bundle (`<name>/SKILL.md`). Upload it
 as a Skill in claude.ai, or unzip into your skills directory:
 
 ```sh

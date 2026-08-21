@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: the built-in memory is forbidden in this repo entirely, not by category (AGENTS.md, Persistence rules). Route the fact instead: a repo convention or a fact about the code -> AGENTS.md; work state, a decision, an open question -> a vimarsha in r5; a fact about the user that no project owns -> the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0"
+            "command": "jq -r '.tool_input.file_path // \"\"' | grep -Eq '\\.claude/projects/.*/memory/' && { echo 'BLOCKED: the built-in memory is forbidden in this repo entirely, not by category (AGENTS.md, Persistence rules). Route the fact instead: a repo convention or a fact about the code -> AGENTS.md; work state, a decision, an open question -> a vimarsha in r5; this repo's servers and dated duties -> r5 nodes with dates in attrs; a fact about the user that no project owns (personal machines, expiries, people) -> the personal realm @<handle>/mind (minding skill). This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0"
           }
         ]
       }

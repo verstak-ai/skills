@@ -1,3 +1,4 @@
 .DS_Store
 .impeccable/
 .claude/settings.local.json
+dist/

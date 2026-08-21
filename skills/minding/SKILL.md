@@ -1,6 +1,6 @@
 ---
 name: minding
-description: "The user's mind in the graph — the personal realm @handle/mind; this skill is its memory: recall and write by reflex, not ritual. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'какой реалм', 'do you remember', 'what's on my plate'. WRITE when a fact concerns the user, matters later, and has no project-realm home: 'запомни', machines, deployments, people, dated facts, cross-project findings. 'заведи мне память' / 'verstakify me' → bootstrap; reconcile on request. In verstakified repos only the session-routing question dies (AGENTS.md names the realm) — recall and the write reflex stay armed. Needs the nks_* MCP tools."
+description: "The user's mind in the graph — the personal realm @handle/mind; this skill is its memory: recall and write by reflex, not ritual. WRITE when a durable fact about the user surfaces mid-task and serves no single project — their personal machines, their expiries, people, cross-project lessons → @handle/mind (never harness-local memory). A project's servers, pipeline and dated duties are that project's facts — its own realm, never here. A fact about another project → its realm via this realm's contour map. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'do you remember', 'what's on my plate', or a task needs such a fact. 'запомни' → write. 'заведи мне память' → bootstrap. Needs the nks_* MCP tools."
 ---
 
 # Minding — the user's mind in the graph
@@ -39,7 +39,9 @@ Two rules at either depth: two contours claim the question → ask one line nami
 
 ## §1b The write reflex
 
-The graph twin of "worth remembering, nowhere to put it": about the user + useful later + no project realm owns it → it goes here. Shapes are in `references/personal-realm.md` — machines and deployments (§7), people (§2b), dated facts (§7), lessons (§8), findings serving several contours.
+The graph twin of "worth remembering, nowhere to put it": about the user + useful later + serves no single project → it goes here. Shapes are in `references/personal-realm.md` — the user's own machines (§7), people (§2b), dated facts (§7), lessons (§8), findings serving several contours.
+
+**Classification: whose fact is it?** Two boundaries, not one. Infrastructure that exists to serve **this project** — its servers (staging, prod), its deploy pipeline, its dated duties — belongs to the project's realm, never here, however long the servers outlive the repo. Here belongs what is the user's **own** and serves no single project: their personal machines, their expiries, people, cross-project lessons. A fact about **another** contour → that contour's realm (the map names it). A card here carries only its own subject's traits — a project's deploy procedure is not a machine trait. *(why: benchmarks on cold sessions — agents route project servers to the project realm and personal machines to mind on this boundary, where single-question tests misroute.)*
 
 Three-way routing, in order: a fact about **this** project → its realm or AGENTS.md (the repo's persistence rules); a fact about **another** contour → anchored in *that* contour's realm, `posed_to` its steward (**inquiry**: anchor where the addressee orients, not where you stand); a fact about the **user** that no project owns → here. Two guards on the last branch: never what a call answers (Storage rule below); never a second copy of a project realm's content.
 
@@ -76,6 +78,7 @@ Audit each concern against its source and classify **absent / stale / correct** 
 | what each live realm is for; contours; what's dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing and disposable-class rules | authored | propose, user confirms |
+| standing preferences ("how to act with me") | authored | the globally injected instruction file of each harness the user runs — create if absent, one source linked across harnesses; never a node here |
 
 Then fill `references/personal-realm.md` and run §2 once, so the first map is born verified.
 
@@ -113,7 +116,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 | realm list, access, roles, org membership | what each live realm is **for**; when to route there |
 | which kartas the person holds | contour of each realm; what's dead or dormant |
 | the §4 agenda | routing and naming rules |
-| anything a tool returns on demand | machines, deployments, checkouts, per-machine tool surfaces |
+| anything a tool returns on demand | the user's own machines and checkouts, per-machine tool surfaces |
 | a second copy of a project realm's content | the people of each contour, and what is open with them |
 | secrets — credentials, tokens, keys | dated facts: expiries, renewals, review cycles |
 | prose restating what orient already shows | external word serving **more than one** contour (a finding, a benchmark, a diagnosis belonging to no single project); lessons crystallized out of retired contours (§2) |
@@ -157,6 +160,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 
 - **Not a session ritual** — nothing routes through it by protocol; it fires by its triggers or not at all.
 - **Not the harness's memory feature** — no MEMORY.md, no local files; the graph is the carrier, and user-facts routed here are exactly the ones that must survive a machine change.
+- **Not the home of standing preferences** — "how to act with me" (language, workflow rules, style) is an *instruction*, not a fact: its home is the globally injected user instruction file (`~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`), which every session loads without being asked — a node here is the wrong carrier, nothing auto-reads it per session. The layer is established once by **verstakify** (cross-project memory: yes) — or by §3 above when it is absent. *(why: a preference nobody injects is a preference nobody obeys.)*
 - **Not `entry`** — that orients inside a given realm, used by every agent already told where to go.
 - **Not an index of the access surface** — it stores the authored remainder.
 - **Not a scheduler** — §4 says what awaits; what to do with it belongs to the person and **autonomous**.
