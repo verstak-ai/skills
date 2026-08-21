@@ -14,10 +14,13 @@
 // upstream connections to go half-dead: each request is its own POST.
 //
 // Usage:
-//   node nks-bridge.mjs <server-url> [--timeout <ms>] [--auth-dir <dir>]
+//   node nks-bridge.mjs [server-url] [--timeout <ms>] [--auth-dir <dir>]
 //                       [--client-name <name>] [--no-browser] [--debug]
-// Env (flags win): NKS_BRIDGE_TIMEOUT, NKS_BRIDGE_AUTH_DIR, NKS_BRIDGE_NO_BROWSER,
-//                  NKS_BRIDGE_DEBUG, NKS_BRIDGE_SCOPE, NKS_BRIDGE_CLIENT_ID
+// With no server-url the bridge points at the product instance (DEFAULT_SERVER_URL
+// below); pass a URL (or set NKS_BRIDGE_URL) only for another instance or fork.
+// Env (flags win): NKS_BRIDGE_URL, NKS_BRIDGE_TIMEOUT, NKS_BRIDGE_AUTH_DIR,
+//                  NKS_BRIDGE_NO_BROWSER, NKS_BRIDGE_DEBUG, NKS_BRIDGE_SCOPE,
+//                  NKS_BRIDGE_CLIENT_ID
 //
 // No dependencies. Node >= 20.
 
@@ -30,6 +33,7 @@ import { homedir } from "node:os";
 import { createInterface } from "node:readline";
 
 const VERSION = "0.1.0";
+const DEFAULT_SERVER_URL = "https://nks.lab.mirari.ru/mcp";
 
 // ---------------------------------------------------------------- arguments
 
@@ -55,10 +59,7 @@ function parseArgs(argv) {
     else if (!a.startsWith("--") && !cfg.serverUrl) cfg.serverUrl = a;
     else { log(`unknown argument: ${a}`); process.exit(2); }
   }
-  if (!cfg.serverUrl) {
-    log("usage: nks-bridge.mjs <server-url> [--timeout ms] [--auth-dir dir] [--no-browser] [--debug]");
-    process.exit(2);
-  }
+  if (!cfg.serverUrl) cfg.serverUrl = process.env.NKS_BRIDGE_URL || DEFAULT_SERVER_URL;
   try { new URL(cfg.serverUrl); } catch {
     log(`not a URL: ${cfg.serverUrl}`);
     process.exit(2);

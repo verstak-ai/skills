@@ -26,7 +26,7 @@ experience keeps failing the user anyway.
    `serverUrl` field, or `type: "http"` / `"remote"` / `"streamableHttp"`) **and
    the harness has an auth verb** — a login command (`/mcp`, `codex mcp login`,
    `opencode mcp auth`), an Authenticate button, a connectors UI. → Register
-   natively and stop. The bridge enters only if case 4 develops.
+   natively — at user scope, same rule as step 3 below — and stop. The bridge enters only if case 4 develops.
 2. **A remote entry exists, but no auth verb anywhere** — the docs show manual
    `Authorization` headers instead. → The OAuth flow will not happen natively.
    Raise the bridge.
@@ -56,21 +56,28 @@ opened browser is native support working; a `401` followed by silence is row 2.
    Re-run the copy after a delivery update — the installed skill is the source,
    the copy is derived.
 
-2. **Get the server URL from the user or the repo's AGENTS.md — never assume
-   one.** Instances differ per deployment; a URL hardcoded anywhere in config
-   or prose is a defect.
+2. **The bridge already knows the product instance.** With no URL argument it
+   points at `https://nks.lab.mirari.ru/mcp`. Pass a URL (or `NKS_BRIDGE_URL`)
+   only when the user works against another instance or a fork — take it from
+   them or the repo's AGENTS.md, never guess a non-default one.
 
-3. **Register the bridge as an ordinary stdio MCP server.** The generic shape,
-   adapted to the harness's config file:
+3. **Register the bridge as an ordinary stdio MCP server — at USER scope, not
+   project scope.** The graph is the user's own contour and follows them across
+   every repository; a project-scoped entry loses it in the first directory
+   over. So the registration goes into the harness's user-level config (the
+   file in the home directory), never the per-project one — project scope only
+   when the user explicitly asks for it. The generic shape:
 
    ```json
-   { "command": "node", "args": ["/home/USER/.nks-bridge/nks-bridge.mjs", "https://SERVER/mcp"] }
+   { "command": "node", "args": ["/home/USER/.nks-bridge/nks-bridge.mjs"] }
    ```
 
    In Claude Code that is
-   `claude mcp add nks -- node ~/.nks-bridge/nks-bridge.mjs https://SERVER/mcp`
-   (useful when the native http entry misbehaves — case 4). Use the absolute
-   home path, not `~`, in JSON configs that do not expand it.
+   `claude mcp add --scope user nks -- node ~/.nks-bridge/nks-bridge.mjs`
+   (the default scope is project-local — pass `--scope user` explicitly; this
+   path is also useful when the native http entry misbehaves — case 4). Append
+   the server URL as one more arg only for a non-default instance. Use the
+   absolute home path, not `~`, in JSON configs that do not expand it.
 
 4. **First call authorizes.** The bridge answers the first `401` by opening the
    browser for the OAuth flow (discovery, client registration, PKCE — all
