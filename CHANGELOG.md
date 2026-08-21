@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/verstak-ai/skills/compare/v2.7.0...v2.8.0) (2026-08-21)
+
+
+### Features
+
+* **establish-mcp:** bridge defaults to the product instance; MCP registered at user scope ([#111](https://github.com/verstak-ai/skills/issues/111)) ([a21bde8](https://github.com/verstak-ai/skills/commit/a21bde83d9f7db1caa38056aea1c0035d57ca169))
+
 ## [2.7.0](https://github.com/verstak-ai/skills/compare/v2.6.0...v2.7.0) (2026-08-21)
 
 
