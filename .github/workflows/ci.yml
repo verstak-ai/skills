@@ -33,6 +33,17 @@ jobs:
       - name: Verify committed bundles match skills/ (content, not raw bytes)
         run: make check-bundles
 
+  surface-lint:
+    name: Corpus matches the surface snapshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Lint tool names and enum values against fixtures/surface.json
+        run: make check-surface
+
   plugin-archive:
     name: Plugin archive builds
     runs-on: ubuntu-latest

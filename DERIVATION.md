@@ -16,7 +16,7 @@ they are forbidden inside `skills/`.
 
 | Methodology landmark (canon) | Seq | Projected into (skill → section) | Re-project when |
 |---|---|---|---|
-| Ось живости рода — carrier table, U1–U3, U6 | #464 | writing → «Starting triples & closure — carrier canon»; design → «Starting modes for projected work» (pointer); methodology-work → «Carrier canon» (pointer) | a carrier row or U-universal changes |
+| Ось живости рода — carrier table, U1–U3, U6 | #464 | writing → «Starting triples & closure — carrier canon»; design → «Starting modes for projected work» (pointer) | a carrier row or U-universal changes |
 | Грамматика переходов трипути — moves, suspicious transitions, kind-aware forbidden | #465 | weaving → «Carrier transitions are acts, not tensions»; writing → virodha-polarity bullets | a transition rule or forbidden state changes |
 | Устойчивые комбинации модусов — образцы | #53 | writing → `references/modes.md` (stable triads) | a sample triad is added/retired |
 | Конфликтные триады — forbidden triples | #52 | writing → `references/modes.md` (Forbidden) | a hard triple changes |

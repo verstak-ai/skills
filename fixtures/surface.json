@@ -1,0 +1,167 @@
+{
+  "server": {
+    "name": "nks",
+    "version": "0.25.0"
+  },
+  "protocolVersion": "2025-06-18",
+  "tools": [
+    "nks_add_bianhua",
+    "nks_add_holon",
+    "nks_add_karta",
+    "nks_add_kriya",
+    "nks_add_phenomenon",
+    "nks_add_vimarsha",
+    "nks_admin",
+    "nks_arrow",
+    "nks_batch",
+    "nks_channel",
+    "nks_delete_node",
+    "nks_history",
+    "nks_look",
+    "nks_me",
+    "nks_org",
+    "nks_orient",
+    "nks_realm",
+    "nks_search",
+    "nks_semantic_search",
+    "nks_update"
+  ],
+  "enums": {
+    "lens": [
+      "bianhua",
+      "path",
+      "tensions",
+      "topology",
+      "trace",
+      "vimarshas"
+    ],
+    "op_type": [
+      "create_edge",
+      "create_node",
+      "delete_edge",
+      "delete_node",
+      "update_edge",
+      "update_node"
+    ],
+    "node_type": [
+      "bianhua",
+      "holon",
+      "karta",
+      "kriya",
+      "phenomenon",
+      "vimarsha"
+    ],
+    "given_as": [
+      "bildung",
+      "ding",
+      "grundsatz",
+      "sachverhalt",
+      "sinn",
+      "vollzug"
+    ],
+    "epistemic_mode": [
+      "anumita",
+      "badhita",
+      "kalpita",
+      "pramanita",
+      "pratyakshita"
+    ],
+    "ontic_mode": [
+      "anagata",
+      "atita",
+      "nashta",
+      "vartamana",
+      "vikalpa"
+    ],
+    "volitive_mode": [
+      "adhimoksha",
+      "chanda",
+      "upeksha",
+      "virodha",
+      "visarjana"
+    ],
+    "arrow_type": [
+      "actor",
+      "addressed_by",
+      "ahara",
+      "anantara",
+      "anga",
+      "arose_from",
+      "contains",
+      "context",
+      "derived_from",
+      "group",
+      "next",
+      "posed_to",
+      "realized_as",
+      "specifies",
+      "steward",
+      "supersedes",
+      "upadhi",
+      "utpatti",
+      "vimarsha_of"
+    ],
+    "direction": [
+      "from",
+      "to"
+    ],
+    "quantifier": [
+      "*",
+      "+",
+      "1",
+      "?"
+    ],
+    "genre": [
+      "hetu-dosha",
+      "hint",
+      "prati-paksha",
+      "risk",
+      "samshaya",
+      "semantic-drift",
+      "vyabhichara"
+    ],
+    "manifested_as": [
+      "adhikarin",
+      "agantuka",
+      "pratibimba",
+      "svatantra"
+    ],
+    "action": [
+      "add_bianhua",
+      "add_holon",
+      "add_karta",
+      "add_kriya",
+      "add_phenomenon",
+      "add_vimarsha",
+      "arrow_delete",
+      "arrow_link",
+      "arrow_reconnect",
+      "arrow_update",
+      "delete_node",
+      "restore_edge",
+      "restore_node",
+      "update_node"
+    ],
+    "role": [
+      "admin",
+      "inquirer",
+      "reader",
+      "writer"
+    ],
+    "payload": [
+      "full",
+      "minimal",
+      "ntfy",
+      "titled"
+    ],
+    "base_role": [
+      "none",
+      "reader",
+      "writer"
+    ],
+    "org_role": [
+      "admin",
+      "member"
+    ]
+  }
+}

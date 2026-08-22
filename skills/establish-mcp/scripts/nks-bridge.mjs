@@ -349,7 +349,13 @@ async function ensureAuth(wwwAuthenticate, opts = {}) {
             debug("a sibling refreshed the tokens — reusing them");
             return fresh.tokens;
           }
-          const definitive = e instanceof TokenError && DEFINITIVE_OAUTH_ERRORS.has(e.oauthError);
+          // Definitive = the grant itself is refused: a known OAuth error code,
+          // or any 400/401 from the token endpoint (servers word these codes
+          // freely — witnessed: Rauthy answers a dead refresh with 401 "JwtToken").
+          // Only 5xx/network/temporarily_unavailable stay transient.
+          const definitive = e instanceof TokenError
+            && e.oauthError !== "temporarily_unavailable"
+            && (DEFINITIVE_OAUTH_ERRORS.has(e.oauthError) || e.status === 400 || e.status === 401);
           if (!definitive) {
             // Transient failure: keep the grant, do NOT open a browser.
             throw new Error(`token refresh failed transiently (${e.message}) — grant kept, will retry`);
