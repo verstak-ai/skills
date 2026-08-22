@@ -148,7 +148,12 @@ that the delay never grows and the token is never rotated.
 **Its boundaries matter as much as its job.** The watchdog holds the connection
 and nothing more: it does not read on your behalf, it does not answer, and it
 never touches the occupation line — that line is the doer's own word about
-itself, and a watchdog cannot know it. Frames still arrive at you.
+itself, and a watchdog cannot know it. Frames still arrive at you. And what it
+proves is exactly as narrow: `listening` on the board is the socket half only.
+A scheme where something launches work off the frames — a pump, a driver — is
+healthy only when the socket lives AND the launched tacts reach their verdicts;
+the second signal never shows on the board, and the consumption-order rule that
+keeps it honest lives in **foreman**.
 
 **Exit on the frame; don't print it — for harnesses without a built-in
 watcher.** Where the harness surfaces a running script's stdout as events
