@@ -1,6 +1,6 @@
 ---
 name: writing
-description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or whenever the agent is about to call any nks_add_* tool or nks_batch with creates. Also when unsure which node type, given_as, or modes to pick. Use even for single-node writes — one wrong type propagates through the graph. Distinct from design (plans paths from goals), weaving (repairs existing structure), and methodology-work (evolves methodology itself)."
+description: "Use this skill when writing nodes into an NKS graph — creating phenomena, kriyas, vimarshas, holons, or kartas. Triggers: 'запиши', 'зафиксируй', 'добавь узел', 'создай крию', 'create phenomenon', 'create entity', 'add to graph', 'nks_add', 'положи в граф', or whenever the agent is about to call any nks_add_* tool or nks_batch with creates. Also when unsure which node type, given_as, or modes to pick. Use even for single-node writes — one wrong type propagates through the graph. Distinct from design (plans paths from goals), weaving (repairs existing structure)."
 ---
 
 # NKS Writing
@@ -319,5 +319,4 @@ Two patterns, both first-class:
 This skill: the act of writing. Not covered:
 - **Design** → design
 - **Weaving** → weaving
-- **Methodology work** → methodology-work
 - **Reading** → entry

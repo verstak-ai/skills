@@ -24,7 +24,6 @@ produce. They teach an agent how to read, write, design, and weave an NKS graph 
 | **collaborate** | Doers agreeing across contours — recognize the boundary, find the doer, address, wake, wait under a bound, converge or escalate, close by writing. The graph is the record; the channel is the wake. |
 | **foreman** | Running a crew of doers on one field of work — stand each unit's doer on its own place and channel, sweep delta-first for the stalled, gather what only the owner can decide and relay the answer with its reasoning, then end the watch and clean up after it. |
 | **feedback** | The session's own experience about the skills and tools it used, written into the shared `@nks/feedback` field as a reproducible case — fires by itself on a non-trivial stumble, checks the field for the same thing already said, and places the case where it will be found. |
-| **methodology-work** | Working on the methodology realm itself. |
 | **verstakify** | Bootstrap a repo to the verstak `AGENTS.md` standard — generate `AGENTS.md` (+ `CLAUDE.md` pointer: `@AGENTS.md` import, Windows-safe), wire the NKS session rituals, set the quality gate. |
 | **product-roadmap** | Build a product roadmap for a product you maintain on GitHub — one repo or many (an org / repo-set treated as one product) — by modelling it as a verified ground, harvesting its issues + PRs, and assembling the directions it's actually under. Composes verstakify + intake + assembly. |
 
