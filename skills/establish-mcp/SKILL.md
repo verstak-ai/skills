@@ -112,16 +112,18 @@ ephemeral harness process reaped, a crash, a `SIGKILL` — hands the flow on
 cleanly: the next instance finds nothing listening, takes over, and publishes a
 URL of its own. Asked to leave while a flow is pending, a bridge stays up until
 the click lands, because that click is not repeatable. If you are ever unsure
-whether an authorize URL is still live, the check is `lsof -iTCP:<port> -sTCP:LISTEN`
-(or `netstat`) on the port in its `redirect_uri` — an open port is the whole
-claim, and a URL published without one costs the human a login for nothing.
+whether an authorize URL is still live, read the port out of its `redirect_uri`
+and look for a listener: `lsof -iTCP:PORT -sTCP:LISTEN` on macOS/Linux,
+`netstat -ano | findstr :PORT` on Windows — where this defect was first seen. An
+open port is the whole claim; a URL published without one costs the human a
+login for nothing.
 
 | You see | It means | Move |
 |---|---|---|
 | error mentions `upstream unreachable` / `no answer within` | network or server down; the bridge is fine | retry; if it persists, the server side needs attention — not the bridge |
 | error mentions `authorization failed` | the OAuth flow itself failed | read the bridge's stderr in the harness's MCP logs; re-run the call to retrigger the flow |
 | error mentions `session recovery failed` | server restarted and refused re-initialize | restart the harness's MCP connection |
-| error mentions `callback port … is held by another process` | something unrelated to the bridge sits on the loopback redirect port | find it (`lsof -iTCP:<port>`) and stop it; the port is derived from the server URL, so it cannot be moved |
+| error mentions `callback port … is held by another process` | something unrelated to the bridge sits on the loopback redirect port | find it (`lsof -iTCP:PORT`, or `netstat -ano | findstr :PORT`) and stop it; the port is derived from the server URL, so the bridge cannot move off it |
 | calls hang with no error at all | the harness is not talking to this bridge | check which process the config actually launched |
 
 Knobs, when the defaults pinch: `--timeout` ms per request (default 120000),
