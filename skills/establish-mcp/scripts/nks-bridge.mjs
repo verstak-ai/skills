@@ -27,7 +27,7 @@
 import { createServer } from "node:http";
 import { createHash, randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, unlinkSync, openSync, closeSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { createInterface } from "node:readline";
@@ -231,17 +231,53 @@ function waitForCallback(port, expectedState, timeoutMs = 300_000) {
   });
 }
 
-// If another bridge instance holds the callback port, it is probably running
-// the same flow — wait for it to finish and reuse its tokens.
-async function waitForSiblingAuth(deadlineMs = 120_000) {
-  log("callback port busy — another bridge instance seems to be authorizing; waiting for it");
-  const start = Date.now();
-  while (Date.now() - start < deadlineMs) {
-    await new Promise((r) => setTimeout(r, 2000));
-    const s = loadStore();
-    if (s.tokens?.access_token && (s.tokens.expires_at || Infinity) > Date.now()) return s.tokens;
+// --- machine-wide authorization coordination ------------------------------
+// Dozens of local agents share one grant, so at most ONE bridge instance runs
+// the browser flow; every other instance (and every call meanwhile) surfaces
+// the SAME authorize URL from the lock — whichever surface the human happens
+// to look at, one click heals the whole machine.
+
+const AUTH_LOCK_FRESH_MS = 330_000; // flow timeout + margin; older = dead winner, take over
+
+function authLockPath() { return storePath() + ".auth-pending"; }
+function readAuthLock() {
+  try {
+    const l = JSON.parse(readFileSync(authLockPath(), "utf8"));
+    if (Date.now() - l.started_at < AUTH_LOCK_FRESH_MS) return l;
+  } catch {}
+  return null;
+}
+// Returns true if this process now owns the flow; false if a fresh lock stands.
+function acquireAuthLock(url) {
+  mkdirSync(CFG.authDir, { recursive: true, mode: 0o700 });
+  for (;;) {
+    try {
+      const fd = openSync(authLockPath(), "wx", 0o600);
+      writeFileSync(fd, JSON.stringify({ pid: process.pid, started_at: Date.now(), authorize_url: url }));
+      closeSync(fd);
+      return true;
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+      if (readAuthLock()) return false;
+      try { unlinkSync(authLockPath()); } catch {} // stale winner — take over
+    }
   }
-  throw new Error("callback port stayed busy and no tokens appeared — kill stale nks-bridge processes and retry");
+}
+function releaseAuthLock() { try { unlinkSync(authLockPath()); } catch {} }
+// A winner that dies mid-flow must not leave the machine locked for the
+// stale-window: drop an owned lock on the way out.
+process.on("exit", () => {
+  try {
+    const l = JSON.parse(readFileSync(authLockPath(), "utf8"));
+    if (l.pid === process.pid) unlinkSync(authLockPath());
+  } catch {}
+});
+
+class AuthPending extends Error {
+  constructor(url) {
+    super(`authorization required — open in a browser: ${url}`);
+    this.authorizeUrl = url;
+  }
 }
 
 async function tokenRequest(meta, params) {
@@ -267,7 +303,15 @@ async function tokenRequest(meta, params) {
   return tokens;
 }
 
+// Starts (or joins) the machine-wide browser flow and throws AuthPending with
+// the authorize URL immediately — no harness call ever blocks on a human. The
+// winner completes the flow in the background and saves the tokens; every
+// instance picks them up from the store on its next call.
+let flowInBackground = null;
 async function interactiveFlow(meta) {
+  const standing = readAuthLock();
+  if (standing) throw new AuthPending(standing.authorize_url);
+
   const port = callbackPort();
   const redirectUri = `http://127.0.0.1:${port}/callback`;
   const client = await ensureClient(meta, redirectUri);
@@ -282,28 +326,37 @@ async function interactiveFlow(meta) {
   authUrl.searchParams.set("code_challenge_method", "S256");
   authUrl.searchParams.set("resource", meta.resource);
   if (meta.scope) authUrl.searchParams.set("scope", meta.scope);
+  const url = authUrl.toString();
 
-  const codePromise = waitForCallback(port, state);
-  codePromise.catch(() => {}); // handled below; avoid unhandled-rejection noise
-  // Give the listener a beat to fail on EADDRINUSE before opening the browser.
-  await new Promise((r) => setTimeout(r, 50));
-  openBrowser(authUrl.toString());
-  let code;
-  try {
-    code = await codePromise;
-  } catch (e) {
-    if (String(e.message).includes("EADDRINUSE") || e.code === "EADDRINUSE") return waitForSiblingAuth();
-    throw e;
+  if (!acquireAuthLock(url)) {
+    throw new AuthPending(readAuthLock()?.authorize_url ?? url);
   }
-  log("authorization code received — exchanging for tokens");
-  return tokenRequest(meta, {
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: redirectUri,
-    client_id: client.client_id,
-    code_verifier: verifier,
-    resource: meta.resource,
-  });
+  if (!flowInBackground) {
+    flowInBackground = (async () => {
+      try {
+        const codePromise = waitForCallback(port, state);
+        openBrowser(url);
+        const code = await codePromise;
+        log("authorization code received — exchanging for tokens");
+        await tokenRequest(meta, {
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirectUri,
+          client_id: client.client_id,
+          code_verifier: verifier,
+          resource: meta.resource,
+        });
+        log("authorization complete — tokens saved for every local agent");
+      } catch (e) {
+        // EADDRINUSE without a lock: an unknown process camps on the port.
+        log(`authorization flow failed: ${e.message}`);
+      } finally {
+        releaseAuthLock();
+        flowInBackground = null;
+      }
+    })();
+  }
+  throw new AuthPending(url);
 }
 
 let authInFlight = null;
@@ -558,6 +611,10 @@ async function deliver(msg) {
           await ensureAuth(e.message, { force: true });
           continue;
         } catch (authErr) {
+          if (authErr instanceof AuthPending) {
+            if (hasId) emit(syntheticError(msg.id, authErr.message));
+            return;
+          }
           log(`authorization failed: ${authErr.message}`);
           if (hasId) emit(syntheticError(msg.id, `authorization failed: ${authErr.message}`));
           return;

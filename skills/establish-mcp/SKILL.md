@@ -97,6 +97,16 @@ the server's response or a JSON-RPC error naming `nks-bridge` and the reason.
 There is no long-lived upstream connection to die half-open — each request is
 its own POST with a deadline.
 
+**Many agents, one grant, one flow.** Dozens of local agents may each run their
+own bridge process; they all share one token store, and a refresh completed by
+any of them serves the rest. When the grant is dead and a browser is needed,
+exactly one instance runs the flow (a lock beside the token store holds it);
+every call on every agent meanwhile answers immediately with the SAME authorize
+URL — whichever surface the human happens to be looking at, one click heals the
+whole machine. A winner that dies mid-flow releases the lock (or times out),
+and the next instance takes the flow over. No call ever hangs waiting for a
+human.
+
 | You see | It means | Move |
 |---|---|---|
 | error mentions `upstream unreachable` / `no answer within` | network or server down; the bridge is fine | retry; if it persists, the server side needs attention — not the bridge |
