@@ -222,6 +222,40 @@ try {
   fail(".claude-plugin/plugin.json", `could not read/parse: ${e.message}`);
 }
 
+// Manifest lists must match the tree. Hand-edited inventories beside automation
+// drift silently (witnessed: the AGENTS.md structure line knew 16 skills while
+// the tree held 18) — so the lists are linted against readdir, not trusted.
+try {
+  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  const m = /one dir per skill \(([^)]*)\)/.exec(agents);
+  if (!m) {
+    fail("AGENTS.md", "inventory line not found (\"one dir per skill (…)\" in Project structure)");
+  } else {
+    const listed = new Set([...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]));
+    const onDisk = new Set(skillNames);
+    for (const name of onDisk) if (!listed.has(name)) {
+      fail("AGENTS.md", `skill \`${name}\` exists in skills/ but is missing from the inventory line`);
+    }
+    for (const name of listed) if (!onDisk.has(name)) {
+      fail("AGENTS.md", `inventory line names \`${name}\` but skills/${name}/ does not exist`);
+    }
+  }
+} catch (e) {
+  fail("AGENTS.md", `could not read: ${e.message}`);
+}
+try {
+  const readme = readFileSync(join(root, "README.md"), "utf8");
+  const rows = new Set([...readme.matchAll(/^\| \*\*([a-z-]+)\*\* \|/gm)].map((x) => x[1]));
+  for (const name of skillNames) if (!rows.has(name)) {
+    fail("README.md", `skill \`${name}\` has no row in the skill table`);
+  }
+  for (const name of rows) if (!skillNames.includes(name)) {
+    fail("README.md", `table row \`${name}\` matches no directory in skills/`);
+  }
+} catch (e) {
+  fail("README.md", `could not read: ${e.message}`);
+}
+
 // Report.
 if (warnings.length > 0) {
   console.warn(`⚠ ${warnings.length} warning${warnings.length === 1 ? "" : "s"} (non-fatal):`);

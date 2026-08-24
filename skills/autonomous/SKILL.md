@@ -94,6 +94,8 @@ On every wake:
 
 That is the whole tact: two or three calls. It does **not** re-read the field, does not weave, does not report. **An empty duty tact is a success** — the watch is being kept.
 
+**The delta is consumed by the tact's verdict, never by its start.** Whatever carries your reading position — a `since` timestamp, a state file, an offset — advances only when the tact that read the delta reaches its verdict: for an empty duty tact the recorded «no cause», for a work tact its close. A tact that died on the way — transport error, timeout, crash — leaves the position where it stood, so the same delta returns at the next wake instead of vanishing. Advance-then-work loses one delta to one bad launch; under a standing fault it compounds into a deaf watch that looks kept: every wake eats its delta and dies, the socket-holder keeps the row at `listening`, and the board stays green over hours of zero processing — witnessed, twenty of them. The socket's liveness and the tacts' verdicts are two independent signals; a reading of the first is never evidence about the second.
+
 **Waking is not amnesia.** The graph must be sufficient to resume cold — that is a demand on the *graph*, so a crashed session restarts from the inbox alone. It is not a demand that a live session forget: on waking, read the delta and keep what you already hold. Re-deriving the world every five minutes is exactly how the loop becomes too expensive to run.
 
 ## 2 · The work tact — select
