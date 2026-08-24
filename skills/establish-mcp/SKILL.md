@@ -1,6 +1,6 @@
 ---
 name: establish-mcp
-description: "Reaching the NKS graph when the harness cannot: nks_* MCP tools are absent, MCP registration fails, or the native OAuth experience keeps failing the user. Ships and raises nks-bridge — a stdio to streamable-HTTP MCP bridge with the full OAuth flow that never answers the harness with silence. Triggers: 'подключи граф', 'подними мост', 'nks тулы недоступны', 'mcp не подключается', 'oauth не проходит', 'oauth отваливается', 'connect to the graph', 'set up NKS MCP', 'raise the bridge', 'MCP tools missing', tool calls timing out while the server is alive, or a harness whose MCP config takes only command plus args. Composes entry (which needs the tools this skill provides) and verstakify (which wires registration into a repo)."
+description: "Reaching the NKS graph when the harness cannot: nks_* MCP tools are absent, MCP registration fails, or the native OAuth experience keeps failing the user. Ships and raises verstak-bridge — a stdio to streamable-HTTP MCP bridge with the full OAuth flow that never answers the harness with silence. Triggers: 'подключи граф', 'подними мост', 'nks тулы недоступны', 'mcp не подключается', 'oauth не проходит', 'oauth отваливается', 'connect to the graph', 'set up NKS MCP', 'raise the bridge', 'MCP tools missing', tool calls timing out while the server is alive, or a harness whose MCP config takes only command plus args. Composes entry (which needs the tools this skill provides) and verstakify (which wires registration into a repo)."
 ---
 
 # Establish MCP — reaching the graph when the harness cannot
@@ -12,7 +12,7 @@ name and fail in use. Its job ends where entry's begins: a session whose first
 
 The server is remote (streamable HTTP + OAuth); nothing of it installs on the
 user's machine. What installs is this delivery — and it carries its own
-transport for harnesses that need one: `scripts/nks-bridge.mjs`, beside this
+transport for harnesses that need one: `scripts/verstak-bridge.mjs`, beside this
 file.
 
 ## First: which case is this?
@@ -48,8 +48,8 @@ opened browser is native support working; a `401` followed by silence is row 2.
    point into it. Copy to a stable home:
 
    ```sh
-   mkdir -p ~/.nks-bridge
-   cp "$SKILL_DIR/scripts/nks-bridge.mjs" ~/.nks-bridge/
+   mkdir -p ~/.verstak-bridge
+   cp "$SKILL_DIR/scripts/verstak-bridge.mjs" ~/.verstak-bridge/
    ```
 
    (`$SKILL_DIR` = this skill's base directory, printed when the skill loads.)
@@ -57,7 +57,7 @@ opened browser is native support working; a `401` followed by silence is row 2.
    the copy is derived.
 
 2. **The bridge already knows the product instance.** With no URL argument it
-   points at `https://nks.lab.mirari.ru/mcp`. Pass a URL (or `NKS_BRIDGE_URL`)
+   points at `https://nks.lab.mirari.ru/mcp`. Pass a URL (or `VERSTAK_BRIDGE_URL`)
    only when the user works against another instance or a fork — take it from
    them or the repo's AGENTS.md, never guess a non-default one.
 
@@ -69,11 +69,11 @@ opened browser is native support working; a `401` followed by silence is row 2.
    when the user explicitly asks for it. The generic shape:
 
    ```json
-   { "command": "node", "args": ["/home/USER/.nks-bridge/nks-bridge.mjs"] }
+   { "command": "node", "args": ["/home/USER/.verstak-bridge/verstak-bridge.mjs"] }
    ```
 
    In Claude Code that is
-   `claude mcp add --scope user nks -- node ~/.nks-bridge/nks-bridge.mjs`
+   `claude mcp add --scope user nks -- node ~/.verstak-bridge/verstak-bridge.mjs`
    (the default scope is project-local — pass `--scope user` explicitly; this
    path is also useful when the native http entry misbehaves — case 4). Append
    the server URL as one more arg only for a non-default instance. Use the
@@ -81,9 +81,9 @@ opened browser is native support working; a `401` followed by silence is row 2.
 
 4. **First call authorizes.** The bridge answers the first `401` by opening the
    browser for the OAuth flow (discovery, client registration, PKCE — all
-   automatic). Headless session: set `NKS_BRIDGE_NO_BROWSER=1`; the bridge
+   automatic). Headless session: set `VERSTAK_BRIDGE_NO_BROWSER=1`; the bridge
    prints the authorize URL on stderr for the user to open anywhere. Tokens
-   land in `~/.nks-bridge/` (0600) and refresh themselves from then on — also
+   land in `~/.verstak-bridge/` (0600) and refresh themselves from then on — also
    while idle, so an unused session does not decay into a dead grant.
 
 5. **Verify by calling, not by config.** Restart the harness's MCP layer and
@@ -93,9 +93,19 @@ opened browser is native support working; a `401` followed by silence is row 2.
 ## What the bridge guarantees — and how to read its errors
 
 The bridge never answers the harness with silence: every request either gets
-the server's response or a JSON-RPC error naming `nks-bridge` and the reason.
+the server's response or a JSON-RPC error naming `verstak-bridge` and the reason.
 There is no long-lived upstream connection to die half-open — each request is
 its own POST with a deadline.
+
+**Many agents, one grant, one flow.** Dozens of local agents may each run their
+own bridge process; they all share one token store, and a refresh completed by
+any of them serves the rest. When the grant is dead and a browser is needed,
+exactly one instance runs the flow (a lock beside the token store holds it);
+every call on every agent meanwhile answers immediately with the SAME authorize
+URL — whichever surface the human happens to be looking at, one click heals the
+whole machine. A winner that dies mid-flow releases the lock (or times out),
+and the next instance takes the flow over. No call ever hangs waiting for a
+human.
 
 | You see | It means | Move |
 |---|---|---|
@@ -106,7 +116,7 @@ its own POST with a deadline.
 
 Knobs, when the defaults pinch: `--timeout` ms per request (default 120000),
 `--auth-dir`, `--no-browser`, `--debug` (verbose stderr), env
-`NKS_BRIDGE_CLIENT_ID` (skip dynamic registration), `NKS_BRIDGE_SCOPE`.
+`VERSTAK_BRIDGE_CLIENT_ID` (skip dynamic registration), `VERSTAK_BRIDGE_SCOPE`.
 
 ## First aid when the session is on mcp-remote
 
@@ -125,5 +135,5 @@ kill PID                                      # only the ones WITHOUT establishe
 
 The harness respawns fresh bridges and the next call goes through. Leave alive
 ones alone — a working bridge may stand among the corpses. Then propose
-switching to `nks-bridge` (this delivery owns it, versions it, and its failure
+switching to `verstak-bridge` (this delivery owns it, versions it, and its failure
 mode is a visible error instead of this silence).

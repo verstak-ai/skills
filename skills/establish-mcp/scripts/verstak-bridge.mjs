@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// nks-bridge — stdio <-> streamable-HTTP MCP bridge with the full OAuth 2.1 flow.
+// verstak-bridge — stdio <-> streamable-HTTP MCP bridge with the full OAuth 2.1 flow.
 //
 // For harnesses that cannot (or should not) speak https+OAuth MCP themselves:
 // the harness runs this file as an ordinary stdio MCP server, and the bridge
@@ -14,20 +14,20 @@
 // upstream connections to go half-dead: each request is its own POST.
 //
 // Usage:
-//   node nks-bridge.mjs [server-url] [--timeout <ms>] [--auth-dir <dir>]
+//   node verstak-bridge.mjs [server-url] [--timeout <ms>] [--auth-dir <dir>]
 //                       [--client-name <name>] [--no-browser] [--debug]
 // With no server-url the bridge points at the product instance (DEFAULT_SERVER_URL
-// below); pass a URL (or set NKS_BRIDGE_URL) only for another instance or fork.
-// Env (flags win): NKS_BRIDGE_URL, NKS_BRIDGE_TIMEOUT, NKS_BRIDGE_AUTH_DIR,
-//                  NKS_BRIDGE_NO_BROWSER, NKS_BRIDGE_DEBUG, NKS_BRIDGE_SCOPE,
-//                  NKS_BRIDGE_CLIENT_ID
+// below); pass a URL (or set VERSTAK_BRIDGE_URL) only for another instance or fork.
+// Env (flags win): VERSTAK_BRIDGE_URL, VERSTAK_BRIDGE_TIMEOUT, VERSTAK_BRIDGE_AUTH_DIR,
+//                  VERSTAK_BRIDGE_NO_BROWSER, VERSTAK_BRIDGE_DEBUG, VERSTAK_BRIDGE_SCOPE,
+//                  VERSTAK_BRIDGE_CLIENT_ID
 //
 // No dependencies. Node >= 20.
 
 import { createServer } from "node:http";
 import { createHash, randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, unlinkSync, openSync, closeSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { createInterface } from "node:readline";
@@ -40,13 +40,13 @@ const DEFAULT_SERVER_URL = "https://nks.lab.mirari.ru/mcp";
 function parseArgs(argv) {
   const cfg = {
     serverUrl: null,
-    timeoutMs: Number(process.env.NKS_BRIDGE_TIMEOUT) || 120_000,
-    authDir: process.env.NKS_BRIDGE_AUTH_DIR || join(homedir(), ".nks-bridge"),
-    clientName: "nks-bridge",
-    noBrowser: !!process.env.NKS_BRIDGE_NO_BROWSER,
-    debug: !!process.env.NKS_BRIDGE_DEBUG,
-    scope: process.env.NKS_BRIDGE_SCOPE || null,
-    staticClientId: process.env.NKS_BRIDGE_CLIENT_ID || null,
+    timeoutMs: Number(process.env.VERSTAK_BRIDGE_TIMEOUT) || 120_000,
+    authDir: process.env.VERSTAK_BRIDGE_AUTH_DIR || join(homedir(), ".verstak-bridge"),
+    clientName: "verstak-bridge",
+    noBrowser: !!process.env.VERSTAK_BRIDGE_NO_BROWSER,
+    debug: !!process.env.VERSTAK_BRIDGE_DEBUG,
+    scope: process.env.VERSTAK_BRIDGE_SCOPE || null,
+    staticClientId: process.env.VERSTAK_BRIDGE_CLIENT_ID || null,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -59,7 +59,7 @@ function parseArgs(argv) {
     else if (!a.startsWith("--") && !cfg.serverUrl) cfg.serverUrl = a;
     else { log(`unknown argument: ${a}`); process.exit(2); }
   }
-  if (!cfg.serverUrl) cfg.serverUrl = process.env.NKS_BRIDGE_URL || DEFAULT_SERVER_URL;
+  if (!cfg.serverUrl) cfg.serverUrl = process.env.VERSTAK_BRIDGE_URL || DEFAULT_SERVER_URL;
   try { new URL(cfg.serverUrl); } catch {
     log(`not a URL: ${cfg.serverUrl}`);
     process.exit(2);
@@ -71,7 +71,7 @@ function parseArgs(argv) {
 // ------------------------------------------------------------------ logging
 
 function log(msg) {
-  process.stderr.write(`[nks-bridge ${new Date().toISOString()}] ${msg}\n`);
+  process.stderr.write(`[verstak-bridge ${new Date().toISOString()}] ${msg}\n`);
 }
 let CFG = null;
 function debug(msg) {
@@ -171,7 +171,7 @@ async function ensureClient(meta, redirectUri) {
   const stored = loadStore().client;
   if (stored?.client_id && stored?.redirect_uri === redirectUri) return stored;
   if (!meta.as.registration_endpoint) {
-    throw new Error("server offers no dynamic client registration; pass NKS_BRIDGE_CLIENT_ID");
+    throw new Error("server offers no dynamic client registration; pass VERSTAK_BRIDGE_CLIENT_ID");
   }
   const reg = await fetchJson(meta.as.registration_endpoint, {
     method: "POST",
@@ -215,8 +215,8 @@ function waitForCallback(port, expectedState, timeoutMs = 300_000) {
       const err = u.searchParams.get("error");
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(err
-        ? `<h3>nks-bridge: authorization failed (${err})</h3>`
-        : "<h3>nks-bridge: authenticated — you can close this tab.</h3>");
+        ? `<h3>verstak-bridge: authorization failed (${err})</h3>`
+        : "<h3>verstak-bridge: authenticated — you can close this tab.</h3>");
       clearTimeout(timer); server.close();
       if (err) return reject(new Error(`authorization refused: ${err}`));
       if (!code || state !== expectedState) return reject(new Error("callback missing code or state mismatch"));
@@ -231,17 +231,53 @@ function waitForCallback(port, expectedState, timeoutMs = 300_000) {
   });
 }
 
-// If another bridge instance holds the callback port, it is probably running
-// the same flow — wait for it to finish and reuse its tokens.
-async function waitForSiblingAuth(deadlineMs = 120_000) {
-  log("callback port busy — another bridge instance seems to be authorizing; waiting for it");
-  const start = Date.now();
-  while (Date.now() - start < deadlineMs) {
-    await new Promise((r) => setTimeout(r, 2000));
-    const s = loadStore();
-    if (s.tokens?.access_token && (s.tokens.expires_at || Infinity) > Date.now()) return s.tokens;
+// --- machine-wide authorization coordination ------------------------------
+// Dozens of local agents share one grant, so at most ONE bridge instance runs
+// the browser flow; every other instance (and every call meanwhile) surfaces
+// the SAME authorize URL from the lock — whichever surface the human happens
+// to look at, one click heals the whole machine.
+
+const AUTH_LOCK_FRESH_MS = 330_000; // flow timeout + margin; older = dead winner, take over
+
+function authLockPath() { return storePath() + ".auth-pending"; }
+function readAuthLock() {
+  try {
+    const l = JSON.parse(readFileSync(authLockPath(), "utf8"));
+    if (Date.now() - l.started_at < AUTH_LOCK_FRESH_MS) return l;
+  } catch {}
+  return null;
+}
+// Returns true if this process now owns the flow; false if a fresh lock stands.
+function acquireAuthLock(url) {
+  mkdirSync(CFG.authDir, { recursive: true, mode: 0o700 });
+  for (;;) {
+    try {
+      const fd = openSync(authLockPath(), "wx", 0o600);
+      writeFileSync(fd, JSON.stringify({ pid: process.pid, started_at: Date.now(), authorize_url: url }));
+      closeSync(fd);
+      return true;
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+      if (readAuthLock()) return false;
+      try { unlinkSync(authLockPath()); } catch {} // stale winner — take over
+    }
   }
-  throw new Error("callback port stayed busy and no tokens appeared — kill stale nks-bridge processes and retry");
+}
+function releaseAuthLock() { try { unlinkSync(authLockPath()); } catch {} }
+// A winner that dies mid-flow must not leave the machine locked for the
+// stale-window: drop an owned lock on the way out.
+process.on("exit", () => {
+  try {
+    const l = JSON.parse(readFileSync(authLockPath(), "utf8"));
+    if (l.pid === process.pid) unlinkSync(authLockPath());
+  } catch {}
+});
+
+class AuthPending extends Error {
+  constructor(url) {
+    super(`authorization required — open in a browser: ${url}`);
+    this.authorizeUrl = url;
+  }
 }
 
 async function tokenRequest(meta, params) {
@@ -267,7 +303,15 @@ async function tokenRequest(meta, params) {
   return tokens;
 }
 
+// Starts (or joins) the machine-wide browser flow and throws AuthPending with
+// the authorize URL immediately — no harness call ever blocks on a human. The
+// winner completes the flow in the background and saves the tokens; every
+// instance picks them up from the store on its next call.
+let flowInBackground = null;
 async function interactiveFlow(meta) {
+  const standing = readAuthLock();
+  if (standing) throw new AuthPending(standing.authorize_url);
+
   const port = callbackPort();
   const redirectUri = `http://127.0.0.1:${port}/callback`;
   const client = await ensureClient(meta, redirectUri);
@@ -282,28 +326,37 @@ async function interactiveFlow(meta) {
   authUrl.searchParams.set("code_challenge_method", "S256");
   authUrl.searchParams.set("resource", meta.resource);
   if (meta.scope) authUrl.searchParams.set("scope", meta.scope);
+  const url = authUrl.toString();
 
-  const codePromise = waitForCallback(port, state);
-  codePromise.catch(() => {}); // handled below; avoid unhandled-rejection noise
-  // Give the listener a beat to fail on EADDRINUSE before opening the browser.
-  await new Promise((r) => setTimeout(r, 50));
-  openBrowser(authUrl.toString());
-  let code;
-  try {
-    code = await codePromise;
-  } catch (e) {
-    if (String(e.message).includes("EADDRINUSE") || e.code === "EADDRINUSE") return waitForSiblingAuth();
-    throw e;
+  if (!acquireAuthLock(url)) {
+    throw new AuthPending(readAuthLock()?.authorize_url ?? url);
   }
-  log("authorization code received — exchanging for tokens");
-  return tokenRequest(meta, {
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: redirectUri,
-    client_id: client.client_id,
-    code_verifier: verifier,
-    resource: meta.resource,
-  });
+  if (!flowInBackground) {
+    flowInBackground = (async () => {
+      try {
+        const codePromise = waitForCallback(port, state);
+        openBrowser(url);
+        const code = await codePromise;
+        log("authorization code received — exchanging for tokens");
+        await tokenRequest(meta, {
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirectUri,
+          client_id: client.client_id,
+          code_verifier: verifier,
+          resource: meta.resource,
+        });
+        log("authorization complete — tokens saved for every local agent");
+      } catch (e) {
+        // EADDRINUSE without a lock: an unknown process camps on the port.
+        log(`authorization flow failed: ${e.message}`);
+      } finally {
+        releaseAuthLock();
+        flowInBackground = null;
+      }
+    })();
+  }
+  throw new AuthPending(url);
 }
 
 let authInFlight = null;
@@ -501,7 +554,7 @@ async function reinitialize() {
       if (!state.initParams) throw new UpstreamError("session lost before initialize", "session");
       log("upstream session lost — re-initializing transparently");
       state.sessionId = null;
-      const id = `nks-bridge-reinit-${++state.reinitCounter}`;
+      const id = `verstak-bridge-reinit-${++state.reinitCounter}`;
       let result = null;
       await post(
         { jsonrpc: "2.0", id, method: "initialize", params: state.initParams },
@@ -526,7 +579,7 @@ function syntheticError(id, message) {
     id,
     error: {
       code: -32001,
-      message: `nks-bridge: ${message}. The bridge stays up — retry the call; if this repeats, the server side needs attention.`,
+      message: `verstak-bridge: ${message}. The bridge stays up — retry the call; if this repeats, the server side needs attention.`,
     },
   };
 }
@@ -558,6 +611,10 @@ async function deliver(msg) {
           await ensureAuth(e.message, { force: true });
           continue;
         } catch (authErr) {
+          if (authErr instanceof AuthPending) {
+            if (hasId) emit(syntheticError(msg.id, authErr.message));
+            return;
+          }
           log(`authorization failed: ${authErr.message}`);
           if (hasId) emit(syntheticError(msg.id, `authorization failed: ${authErr.message}`));
           return;
@@ -602,9 +659,16 @@ function main() {
     pending.add(p);
     p.finally(() => pending.delete(p));
   });
-  rl.on("close", () => {
+  rl.on("close", async () => {
     debug("stdin closed — harness is gone, exiting");
-    Promise.allSettled([...pending]).then(() => process.exit(0));
+    await Promise.allSettled([...pending]);
+    // A human may be mid-click on OUR authorize URL: dying now kills the
+    // callback server and silently loses their login. Outlive the flow.
+    if (flowInBackground) {
+      log("stdin closed but an authorization flow is pending — staying alive for it");
+      await flowInBackground.catch(() => {});
+    }
+    process.exit(0);
   });
   process.on("SIGINT", () => process.exit(0));
   process.on("SIGTERM", () => process.exit(0));

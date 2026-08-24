@@ -6,7 +6,7 @@
 //   node scripts/export-surface.mjs [server-url]
 //
 // Speaks to the server through the delivery's own bridge
-// (skills/establish-mcp/scripts/nks-bridge.mjs), so auth, refresh and liveness
+// (skills/establish-mcp/scripts/verstak-bridge.mjs), so auth, refresh and liveness
 // are the bridge's problem, not this script's.
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
@@ -14,7 +14,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const bridge = join(root, "skills/establish-mcp/scripts/nks-bridge.mjs");
+const bridge = join(root, "skills/establish-mcp/scripts/verstak-bridge.mjs");
 const args = process.argv[2] ? [process.argv[2]] : [];
 
 const child = spawn("node", [bridge, ...args], { stdio: ["pipe", "pipe", "inherit"] });
