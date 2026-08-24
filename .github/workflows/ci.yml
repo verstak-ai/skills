@@ -1,10 +1,13 @@
 name: CI
 
-# The repo has no runtime and no tests — the artifact is prose. But a malformed
-# SKILL.md frontmatter (e.g. an unescaped quote in a description) installs
-# silently into every agent that loads the skill, degrading methodology with no
-# crash. This workflow is the loud gate: it validates the frontmatter contract
-# and proves the committed .skill bundles match their source.
+# Most of what ships here is prose, and a malformed SKILL.md frontmatter (e.g. an
+# unescaped quote in a description) installs silently into every agent that loads
+# the skill, degrading methodology with no crash. This workflow is the loud gate:
+# it validates the frontmatter contract and proves the committed .skill bundles
+# match their source. One artifact is code — the bundled verstak-bridge — and it
+# carries a behavioural suite, because its failures (a dead callback listener, a
+# burnt refresh grant) are silent for the agent and only visible to a human whose
+# login went nowhere.
 
 on:
   push:
@@ -43,6 +46,17 @@ jobs:
           node-version: "20"
       - name: Lint tool names and enum values against fixtures/surface.json
         run: make check-surface
+
+  bridge-tests:
+    name: verstak-bridge behaves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Drive the bridge over stdio against a local fake NKS + OAuth server
+        run: make test
 
   plugin-archive:
     name: Plugin archive builds
