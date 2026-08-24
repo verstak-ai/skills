@@ -229,24 +229,24 @@ explicitly, under a pty as above.
 
 **Harness without native https+OAuth MCP** — its config accepts only `command` + `args`,
 or it has a URL field but no login command or button anywhere. Do not reach for
-`mcp-remote`: the delivery bundles its own bridge, **nks-bridge** (shipped inside the
+`mcp-remote`: the delivery bundles its own bridge, **verstak-bridge** (shipped inside the
 `establish-mcp` skill installed in step 1). Copy it out of the versioned install path and
 register it as an ordinary stdio server:
 
 ```sh
-mkdir -p ~/.nks-bridge
-cp "$(dirname "$(find ~/.claude -path '*skills/establish-mcp/scripts/nks-bridge.mjs' | head -1)")/nks-bridge.mjs" ~/.nks-bridge/
+mkdir -p ~/.verstak-bridge
+cp "$(dirname "$(find ~/.claude -path '*skills/establish-mcp/scripts/verstak-bridge.mjs' | head -1)")/verstak-bridge.mjs" ~/.verstak-bridge/
 ```
 
 ```json
-{ "mcpServers": { "nks": { "command": "node", "args": ["/абс/путь/до/.nks-bridge/nks-bridge.mjs"] } } }
+{ "mcpServers": { "nks": { "command": "node", "args": ["/абс/путь/до/.verstak-bridge/verstak-bridge.mjs"] } } }
 ```
 
 Put that entry in the harness's **user-level** config file (home directory), not the
 project one — the graph follows the user.
 
 With no URL argument the bridge points at `https://nks.lab.mirari.ru/mcp`; on the first
-call it runs the full OAuth flow in the browser, keeps tokens fresh in `~/.nks-bridge/`
+call it runs the full OAuth flow in the browser, keeps tokens fresh in `~/.verstak-bridge/`
 (also while idle), and turns any upstream failure into a visible error instead of a
 silent hang. Needs Node 20+. Details and the decision ladder: the `establish-mcp` skill.
 
@@ -324,7 +324,7 @@ rituals), and seeds the graph with the structure the codebase already shows.
 - **A native connector's OAuth keeps failing the user** (repeated re-auth after idle,
   calls hanging while the server is alive on other surfaces) → switch that harness to the
   bundled bridge (see step 2, "Harness without native https+OAuth MCP"): its token store
-  is its own (`~/.nks-bridge/`), isolated from shared credential entries, its refresh
+  is its own (`~/.verstak-bridge/`), isolated from shared credential entries, its refresh
   runs in the background even while idle, and failures surface as errors, never hangs.
 - **Skill name collision on flat installs** → another skill pack already uses a bare
   name like `design`. Rename that directory, or use the Claude Code plugin channel,

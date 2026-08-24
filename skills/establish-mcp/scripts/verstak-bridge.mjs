@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// nks-bridge — stdio <-> streamable-HTTP MCP bridge with the full OAuth 2.1 flow.
+// verstak-bridge — stdio <-> streamable-HTTP MCP bridge with the full OAuth 2.1 flow.
 //
 // For harnesses that cannot (or should not) speak https+OAuth MCP themselves:
 // the harness runs this file as an ordinary stdio MCP server, and the bridge
@@ -14,13 +14,13 @@
 // upstream connections to go half-dead: each request is its own POST.
 //
 // Usage:
-//   node nks-bridge.mjs [server-url] [--timeout <ms>] [--auth-dir <dir>]
+//   node verstak-bridge.mjs [server-url] [--timeout <ms>] [--auth-dir <dir>]
 //                       [--client-name <name>] [--no-browser] [--debug]
 // With no server-url the bridge points at the product instance (DEFAULT_SERVER_URL
-// below); pass a URL (or set NKS_BRIDGE_URL) only for another instance or fork.
-// Env (flags win): NKS_BRIDGE_URL, NKS_BRIDGE_TIMEOUT, NKS_BRIDGE_AUTH_DIR,
-//                  NKS_BRIDGE_NO_BROWSER, NKS_BRIDGE_DEBUG, NKS_BRIDGE_SCOPE,
-//                  NKS_BRIDGE_CLIENT_ID
+// below); pass a URL (or set VERSTAK_BRIDGE_URL) only for another instance or fork.
+// Env (flags win): VERSTAK_BRIDGE_URL, VERSTAK_BRIDGE_TIMEOUT, VERSTAK_BRIDGE_AUTH_DIR,
+//                  VERSTAK_BRIDGE_NO_BROWSER, VERSTAK_BRIDGE_DEBUG, VERSTAK_BRIDGE_SCOPE,
+//                  VERSTAK_BRIDGE_CLIENT_ID
 //
 // No dependencies. Node >= 20.
 
@@ -40,13 +40,13 @@ const DEFAULT_SERVER_URL = "https://nks.lab.mirari.ru/mcp";
 function parseArgs(argv) {
   const cfg = {
     serverUrl: null,
-    timeoutMs: Number(process.env.NKS_BRIDGE_TIMEOUT) || 120_000,
-    authDir: process.env.NKS_BRIDGE_AUTH_DIR || join(homedir(), ".nks-bridge"),
-    clientName: "nks-bridge",
-    noBrowser: !!process.env.NKS_BRIDGE_NO_BROWSER,
-    debug: !!process.env.NKS_BRIDGE_DEBUG,
-    scope: process.env.NKS_BRIDGE_SCOPE || null,
-    staticClientId: process.env.NKS_BRIDGE_CLIENT_ID || null,
+    timeoutMs: Number(process.env.VERSTAK_BRIDGE_TIMEOUT) || 120_000,
+    authDir: process.env.VERSTAK_BRIDGE_AUTH_DIR || join(homedir(), ".verstak-bridge"),
+    clientName: "verstak-bridge",
+    noBrowser: !!process.env.VERSTAK_BRIDGE_NO_BROWSER,
+    debug: !!process.env.VERSTAK_BRIDGE_DEBUG,
+    scope: process.env.VERSTAK_BRIDGE_SCOPE || null,
+    staticClientId: process.env.VERSTAK_BRIDGE_CLIENT_ID || null,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -59,7 +59,7 @@ function parseArgs(argv) {
     else if (!a.startsWith("--") && !cfg.serverUrl) cfg.serverUrl = a;
     else { log(`unknown argument: ${a}`); process.exit(2); }
   }
-  if (!cfg.serverUrl) cfg.serverUrl = process.env.NKS_BRIDGE_URL || DEFAULT_SERVER_URL;
+  if (!cfg.serverUrl) cfg.serverUrl = process.env.VERSTAK_BRIDGE_URL || DEFAULT_SERVER_URL;
   try { new URL(cfg.serverUrl); } catch {
     log(`not a URL: ${cfg.serverUrl}`);
     process.exit(2);
@@ -71,7 +71,7 @@ function parseArgs(argv) {
 // ------------------------------------------------------------------ logging
 
 function log(msg) {
-  process.stderr.write(`[nks-bridge ${new Date().toISOString()}] ${msg}\n`);
+  process.stderr.write(`[verstak-bridge ${new Date().toISOString()}] ${msg}\n`);
 }
 let CFG = null;
 function debug(msg) {
@@ -171,7 +171,7 @@ async function ensureClient(meta, redirectUri) {
   const stored = loadStore().client;
   if (stored?.client_id && stored?.redirect_uri === redirectUri) return stored;
   if (!meta.as.registration_endpoint) {
-    throw new Error("server offers no dynamic client registration; pass NKS_BRIDGE_CLIENT_ID");
+    throw new Error("server offers no dynamic client registration; pass VERSTAK_BRIDGE_CLIENT_ID");
   }
   const reg = await fetchJson(meta.as.registration_endpoint, {
     method: "POST",
@@ -215,8 +215,8 @@ function waitForCallback(port, expectedState, timeoutMs = 300_000) {
       const err = u.searchParams.get("error");
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(err
-        ? `<h3>nks-bridge: authorization failed (${err})</h3>`
-        : "<h3>nks-bridge: authenticated — you can close this tab.</h3>");
+        ? `<h3>verstak-bridge: authorization failed (${err})</h3>`
+        : "<h3>verstak-bridge: authenticated — you can close this tab.</h3>");
       clearTimeout(timer); server.close();
       if (err) return reject(new Error(`authorization refused: ${err}`));
       if (!code || state !== expectedState) return reject(new Error("callback missing code or state mismatch"));
@@ -554,7 +554,7 @@ async function reinitialize() {
       if (!state.initParams) throw new UpstreamError("session lost before initialize", "session");
       log("upstream session lost — re-initializing transparently");
       state.sessionId = null;
-      const id = `nks-bridge-reinit-${++state.reinitCounter}`;
+      const id = `verstak-bridge-reinit-${++state.reinitCounter}`;
       let result = null;
       await post(
         { jsonrpc: "2.0", id, method: "initialize", params: state.initParams },
@@ -579,7 +579,7 @@ function syntheticError(id, message) {
     id,
     error: {
       code: -32001,
-      message: `nks-bridge: ${message}. The bridge stays up — retry the call; if this repeats, the server side needs attention.`,
+      message: `verstak-bridge: ${message}. The bridge stays up — retry the call; if this repeats, the server side needs attention.`,
     },
   };
 }
