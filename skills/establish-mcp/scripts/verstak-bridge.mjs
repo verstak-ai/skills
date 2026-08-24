@@ -659,9 +659,16 @@ function main() {
     pending.add(p);
     p.finally(() => pending.delete(p));
   });
-  rl.on("close", () => {
+  rl.on("close", async () => {
     debug("stdin closed — harness is gone, exiting");
-    Promise.allSettled([...pending]).then(() => process.exit(0));
+    await Promise.allSettled([...pending]);
+    // A human may be mid-click on OUR authorize URL: dying now kills the
+    // callback server and silently loses their login. Outlive the flow.
+    if (flowInBackground) {
+      log("stdin closed but an authorization flow is pending — staying alive for it");
+      await flowInBackground.catch(() => {});
+    }
+    process.exit(0);
   });
   process.on("SIGINT", () => process.exit(0));
   process.on("SIGTERM", () => process.exit(0));
