@@ -100,18 +100,28 @@ its own POST with a deadline.
 **Many agents, one grant, one flow.** Dozens of local agents may each run their
 own bridge process; they all share one token store, and a refresh completed by
 any of them serves the rest. When the grant is dead and a browser is needed,
-exactly one instance runs the flow (a lock beside the token store holds it);
-every call on every agent meanwhile answers immediately with the SAME authorize
-URL — whichever surface the human happens to be looking at, one click heals the
-whole machine. A winner that dies mid-flow releases the lock (or times out),
-and the next instance takes the flow over. No call ever hangs waiting for a
-human.
+exactly one instance runs the flow; every call on every agent meanwhile answers
+immediately with the SAME authorize URL — whichever surface the human happens to
+be looking at, one click heals the whole machine. No call ever hangs waiting for
+a human.
+
+What decides who runs it is the **loopback callback port**, not the note beside
+the token store: the instance that binds the port owns the flow, and the note
+only carries its URL for the others to show. So a bridge killed mid-flow — an
+ephemeral harness process reaped, a crash, a `SIGKILL` — hands the flow on
+cleanly: the next instance finds nothing listening, takes over, and publishes a
+URL of its own. Asked to leave while a flow is pending, a bridge stays up until
+the click lands, because that click is not repeatable. If you are ever unsure
+whether an authorize URL is still live, the check is `lsof -iTCP:<port> -sTCP:LISTEN`
+(or `netstat`) on the port in its `redirect_uri` — an open port is the whole
+claim, and a URL published without one costs the human a login for nothing.
 
 | You see | It means | Move |
 |---|---|---|
 | error mentions `upstream unreachable` / `no answer within` | network or server down; the bridge is fine | retry; if it persists, the server side needs attention — not the bridge |
 | error mentions `authorization failed` | the OAuth flow itself failed | read the bridge's stderr in the harness's MCP logs; re-run the call to retrigger the flow |
 | error mentions `session recovery failed` | server restarted and refused re-initialize | restart the harness's MCP connection |
+| error mentions `callback port … is held by another process` | something unrelated to the bridge sits on the loopback redirect port | find it (`lsof -iTCP:<port>`) and stop it; the port is derived from the server URL, so it cannot be moved |
 | calls hang with no error at all | the harness is not talking to this bridge | check which process the config actually launched |
 
 Knobs, when the defaults pinch: `--timeout` ms per request (default 120000),
