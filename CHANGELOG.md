@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.0](https://github.com/verstak-ai/skills/compare/v2.8.0...v2.9.0) (2026-08-24)
+
+
+### Features
+
+* conformance gate (manifest + surface lints); drop methodology-work ([#114](https://github.com/verstak-ai/skills/issues/114)) ([174d4a3](https://github.com/verstak-ai/skills/commit/174d4a3d7b6fdf4ba108dcf74bf7facd5ba2c6b5))
+* **establish-mcp:** verstak-bridge — machine-wide auth coordination + rename ([#116](https://github.com/verstak-ai/skills/issues/116)) ([ea1b1da](https://github.com/verstak-ai/skills/commit/ea1b1da6443a6c20870745eaa440ca20c3152ad0))
+
 ## [2.8.0](https://github.com/verstak-ai/skills/compare/v2.7.0...v2.8.0) (2026-08-21)
 
 
