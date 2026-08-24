@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/verstak-ai/skills/compare/v2.9.0...v2.9.1) (2026-08-24)
+
+
+### Bug Fixes
+
+* **establish-mcp:** the callback listener, not a file, decides who owns the bridge's OAuth flow ([#118](https://github.com/verstak-ai/skills/issues/118)) ([3887607](https://github.com/verstak-ai/skills/commit/3887607cf46fe3409062d910e467b6b2508a305b))
+
 ## [2.9.0](https://github.com/verstak-ai/skills/compare/v2.8.0...v2.9.0) (2026-08-24)
 
 
