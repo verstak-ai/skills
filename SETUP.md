@@ -195,16 +195,20 @@ the browser flow finish; do not re-run login while that URL is open. Success is 
 0 with `Successfully logged in to MCP server 'nks'.`
 
 The current session will not gain tools loaded after it started, so verify through one
-fresh, ephemeral, read-only Codex session. The allowlist and approval override apply only
-to the two read-only NKS tools used by this command:
+fresh, ephemeral, read-only Codex session. The sandbox and the prompt keep it read-only;
+the approval override spares you a prompt per call:
 
 ```sh
 codex exec --ephemeral --skip-git-repo-check --sandbox read-only \
   -c 'approval_policy="never"' \
-  -c 'mcp_servers.nks.enabled_tools=["nks_me","nks_realm"]' \
   -c 'mcp_servers.nks.default_tools_approval_mode="approve"' \
   'Verification only. Call nks_me(action="whoami") and nks_realm(action="list"). Do not call shell or any other tools. Report the authenticated identity and the number of realms.'
 ```
+
+Adding `-c 'mcp_servers.nks.enabled_tools=[...]'` to narrow the surface looks tidier and
+can cost you the verification: on Codex 0.146.0 that filter left the session with no NKS
+tools at all, and the same command without it found `nks_me` and ran it. If a run reports
+no tools, drop any `enabled_tools` line before concluding that login failed.
 
 Setup is verified only when that command exits 0, prints the authenticated identity, and
 returns a realm count. Then continue to step 3.
