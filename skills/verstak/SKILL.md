@@ -86,7 +86,7 @@ A one-off task or question is a message in a case, ending there with its outcome
 
 ### Ledger
 
-A case is read first by its summary (`read`): the latest line per subject, a snapshot of the work. A line (`action="line"`) records one move and its observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): never a plan or effort, never instead of the move. An open wait is a `partial` line "on whom, waiting for what". The lasting result goes into the graph (modes, nodes, arrows); a closed case is dropped. A wait between holons is a vimarsha; session notes go into the transformation's seed (**writing**).
+A case is read first by its summary (`read`): the latest line per subject, a snapshot of the work. A line (`action="line"`) records one move and its observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): never a plan or effort, never instead of a move. An open wait is a `partial` line "on whom, waiting for what". The lasting result goes into the graph (modes, nodes, arrows); closed cases are dropped. A wait across holons is a vimarsha; notes go into the transformation's seed (**writing**).
 
 ### Communication
 

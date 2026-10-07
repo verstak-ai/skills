@@ -186,7 +186,7 @@ Ground these in the canon, not in the product decision.
 ## Product departs from canon (deliberately)
 The skill keeps the product rule and does not annotate it; re-decide here when either side moves.
 
-1. **Main reading and ledger:** the door keeps `action="line"` optional and only for waits; work state is read from node modes and vimarshas. r4 #744 makes the ledger aggregate the case's main reading, with latest `[was] [did] = verdict` entries recording observed outcomes, not merely waiting lines. This product rule is unchanged and unannotated in the skill. Its graph-first readings in architect, assistant, foreman and autonomous remain consistent with the product choice.
+1. **Main reading and ledger — resolved, no longer a departure.** The door now follows r4 #744: a case is read first by its ledger summary (latest `[was] [did] = verdict` per subject, verdict on observed outcomes), the snapshot of the work in progress; the lasting result lives in the graph (modes, nodes, arrows), and a closed case is dropped. The owner's word: the summary is the case's main reading; state and effect stay in the graph.
 2. **Every subagent assignment gets a child case:** the door requires a new child case. r4 #745 allows the launching agent's own case, a child case, or the case of the particular work. The product deliberately narrows that choice; unchanged.
 3. **Closure procedure:** architect/autonomous use the surface's `ends_at` objection deadline and participant eligibility. r4 #747 makes journal order before the final closure entry decisive and continues late substance in a new case. Exact calls remain unchanged; the skills now state the canon's receiving/could-object condition rather than treating every silent participant as consenting.
 
