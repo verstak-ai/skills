@@ -1,8 +1,10 @@
 # design — designing a system as a graph
 
-**Use when:** a structural choice opens — competing paths, ownership, a boundary, a dependency direction; a decision is made ("we decided", "persist this design"); a brainstorm ends. Phrases: "design this", "let's think it through", "architecture", "plan the system". Out of failure 5 (the door, `The method fails in five ways`): design with the graph, not around it. Not for implementing an accepted concrete spec, routine fixes, or coding with no open structural choice.
+**Use when:** a structural choice opens — competing paths, ownership, a boundary, a dependency direction; a decision is made ("we decided", "persist this design"); a brainstorm ends. Phrases: "design this", "let's think it through", "architecture", "plan the system". Out of failure 5 (the door, `The method fails in five ways`): design with the graph, not around it.
 
 The graph is a stable projection of the spec: a decision or risk outside it won't survive the session; behaviour that lives only in it is unverified — external sources, public boundaries and runtime evidence stay the truth it is checked against.
+
+**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; new kriyas and phenomena `anagata`+`chanda`; risks; a vimarsha `posed_to` whoever must answer. Every arrow you write carries `sense`. Only the transformation's acceptance waits (below).
 
 ## Routing boundary
 
@@ -10,7 +12,7 @@ Design starts where a structural choice is open — competing paths, a lifecycle
 
 ## Interop: elicitation kits (e.g. superpowers brainstorming)
 
-If a brainstorming skill is installed, use it for elicitation; its spec file is a draft — pass it through `methods/intake.md` and stitch it in here (memory work: implementation gates don't apply). A design is done when its decisions, risks and lifecycles are in the graph.
+If a brainstorming skill is installed, use it for elicitation; its spec file is a draft — pass it through `methods/intake.md` and stitch it in here.
 
 ## Principles
 
@@ -27,7 +29,7 @@ A designed node is born **planned, not done** — the design triad, and the "don
 
 ## A kriya born of will belongs to a transformation
 
-A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`); a new one's name and telos are the user's to accept (`methods/assembly.md`); unsure — ask.
+A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`); an existing one that fits wins — unsure whether one fits, ask before inventing one. A new one you propose as `chanda`; the owner accepts its name and telos (`methods/assembly.md`) — that gates acceptance, not your writing.
 
 ## Four phases
 
@@ -35,7 +37,7 @@ Enter where the graph's maturity calls; any phase can send you back.
 
 ### Phase 1: backward chaining (right to left)
 
-Goal → path → risks → thesis; given_as flows `sachverhalt` → `bildung` → `grundsatz`/`vollzug`. Each step is pulled from the goal, so it is checkable.
+Goal → path → risks → thesis; given_as flows `sachverhalt` → `bildung` → `grundsatz`/`vollzug`.
 
 ```
 TRIGGER: a goal exists, a path does not
@@ -43,7 +45,6 @@ DO:
   1. Name the goal as a sachverhalt (anagata+chanda); the target state is the
      owner's — name it in dialogue, the user accepts it
   2. verstak_search + verstak_semantic_search: already in the graph?
-     (keyword misses a differently-named duplicate; semantic catches it)
   3. Who takes the goal? A hand-off kriya — ahara on the goal, no utpatti, actor an
      owner (svatantra) or guest (agantuka). The right edge stands before you recurse
   4. From the goal: "what produces this?" → a kriya + its ahara phenomenon
@@ -52,16 +53,14 @@ DO:
 OUT: a path of kriyas from entry to goal → Phase 2
 ```
 
-Actor: the Designer. Consumes: a posed question. Produces: a built path.
-
 ### Phase 2: forward weaving (left to right)
 
 ```
 TRIGGER: a path exists, not every phenomenon is served
 DO:
   1. Walk the path. Per phenomenon: no utpatti → relay-gap → add a producer;
-     no ahara → leaked → add end-of-life at the same abstraction level
-     (Bootstrap creates config → Teardown destroys it); context → holon set?
+     no ahara → leaked → add end-of-life at the same abstraction level;
+     context → holon set?
      (without a home holon it's invisible to holon-scoped orienting)
   2. Per kriya: exactly one actor (two → split); sense on every arrow;
      ahara/utpatti on the right phenomena (after a distinction: reconnect)
@@ -70,7 +69,7 @@ DO:
 OUT: cycles closed → Phase 3
 ```
 
-Actor: the Weaver; operations: `methods/weaving.md`.
+Operations: `methods/weaving.md`.
 
 ### Phase 3: risks and mitigation
 
@@ -87,7 +86,7 @@ For a and b, link `addressed_by` from the vimarsha; acceptance ends by mode, not
 
 Only for graphs designing external systems (not a methodology or CJM), once all is designed, `anagata`, and idle.
 
-1. **Put the work on a transformation**: will-born kriyas as kriya-anga to an *existing* bianhua first; a new one only with a user-accepted name and telos.
+1. **Put the work on a transformation**: will-born kriyas as kriya-anga to an *existing* bianhua first; a new one proposed `chanda`, set as work once the owner accepts its name and telos.
 2. **Stage the flow**: staged delivery (test → staging → full) is ONE delivery transformation whose stages are sub-transformations (`anga`) ordered by `anantara`, each gathering its kriyas — the owner reads it as the release plan.
 3. **Work runs in a case**: `verstak_case(action="at", node=<transformation>)`; none → `open_room` on the transformation's (or stage's) write.
 4. **Set the work by reference** (`methods/architect.md`, step 5) — addressed to the `adhikarin` stewarding the holon (`steward` arrow) or the owner at strategic scale, never a `pratibimba`. Order comes from `anantara` and happens-before, not a list.
@@ -125,7 +124,5 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 | a fan (many arrows of one kind) | not "split" — name the middle level with its own coarse link (`methods/writing.md`, Decision 5; by kind: `methods/assembly.md`, step 3) |
 
 **Endpoints become kriyas, not text:** a root `sinn` container ("API URL") holds endpoint phenomena (`sachverhalt`, attrs `method`, `path`); a kriya "Serving GET /path" takes the endpoint (`ahara`), produces the response (`utpatti`), actor the API client; `next`: caller → endpoint kriya → renderer.
-
-**Deferring**: `anagata`+`upeksha` on a node (cycle formally closed) and/or a vimarsha that calls when its time comes — e.g. a deferred kriya plus a `samshaya` "do we need this at all?"
 
 **Vimarshas missing from orient**: `verstak_orient(focus=<holon>)` can show 0 for vimarshas on kriyas passing through → `verstak_search(node_type="vimarsha", vimarsha_of=<kriya seq>)`.

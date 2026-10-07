@@ -1,6 +1,6 @@
 # code-work — changing code in a repository aligned to a graph
 
-**Use when:** you are about to change code where `AGENTS.md` names a graph ("fix this", "implement", "refactor", "we've decided, do it") — before the first edit; a stage is done (gate green, a PR opened or updated); you are about to push; a PR merged ("merged", "shipped", "tidy after the merge"), or the session ends without one. Repository facts live in `AGENTS.md` and `REALITY.md`.
+**Use when:** you are about to change code where `AGENTS.md` names a graph ("fix this", "implement", "refactor", "we've decided, do it") — before the first edit; a stage is done (gate green, a PR opened or updated); you are about to push; a PR merged ("merged", "shipped", "tidy after the merge"), or the session ends without one.
 
 ## Before code
 
@@ -14,7 +14,7 @@ Graph → integration scope → design → code. Task by references and a check;
 
 ## Branch and worktree
 
-- One branch until its merge, follow-ups included, in **its own worktree**, from a fresh trunk: `git fetch origin && git worktree add <dir> -b <branch> origin/main`. A `checkout` in the shared checkout wipes others' work; a branch off a squash-merged branch replays work already on trunk.
+- One branch until its merge, follow-ups included, in **its own worktree**, from a fresh trunk: `git fetch origin && git worktree add <dir> -b <branch> origin/main`. A `checkout` in the shared checkout wipes others' work.
 - Pushed → the PR in the same move (draft if unfinished); watch the checks and the merge signal; fix red in the branch.
 - After merge: `git worktree remove` yours, `git branch -d` merged branches, remove your temp files, `git pull` in the main checkout; confirm cleanup before the next task. Leave others' worktrees alone.
 
@@ -36,8 +36,8 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 A push shipped nothing; these acts hang on the merge, all mandatory, in the same move — also after a forge merge plus `git merge --ff-only`, which fires no hook. On work tasked by another agent, weaving, ending and reconciling are the tasker's; you leave the seed and delivery modes (`methods/autonomous.md`).
 
 1. **Weave** (`methods/weaving.md`): what shipped → nodes and arrows with `sense` in the target system; repo mechanics stay in git. Zero nodes after a real change — say why.
-2. **Advance the map**: open work is `anga` on its transformation; the transformation's seed (`methods/writing.md`, Decision 5).
-3. **Switch modes** (`anagata`→`vartamana`, `kalpita`→`pratyakshita`) across the designed holon, only on evidence from the carrier (`methods/reality-audit.md`).
+2. **Advance the map**: record the merge in the transformation's seed (`methods/writing.md`, Decision 5); open work stays `anga` on it.
+3. **Switch modes on evidence it runs, not on merge.** The merge moves the map and the nodes of what the code now carries. A kriya goes `anagata`→`vartamana` (and up from `kalpita`) only when an actor does it, a rollout or an observed run shows it (`methods/reality-audit.md`). None → it stays `anagata`; ask for what's missing in a vimarsha `posed_to` whoever runs it.
 4. **End by axis** (`methods/inquiry.md`), answer the `posed_to` inbox, `propose_close` with evidence.
 5. **Reconcile** (`methods/reconcile.md`): nodes against code, code against graph; the remainder as vimarshas.
 6. **Feedback reflection** unless `AGENTS.md` sets `Feedback reflection` to `no`, and at session end without a merge: experience about the method, as a concrete instance (`methods/feedback.md`); zero entries is valid.
@@ -47,7 +47,7 @@ Then cleanup; next task → `Before code`.
 
 ## Working principles
 
-1. **Think before code.** Name assumptions; unsure → ask what exactly is unclear, in text, never via a picker. Push back on a false premise or when a simpler move exists. Touch the live system before trusting a type or doc. Out of mandate → `posed_to` the owner role.
+1. **Think before code.** Name assumptions; unsure → ask what exactly is unclear, in text, never via a picker. Push back on a false premise or when a simpler move exists. Out of mandate → `posed_to` the owner role.
 2. **Simplicity first**: the minimum; no speculative features or one-off abstractions; validate at boundaries.
 3. **Stay inside the repo.** Outside the working directory: only reading carriers, the temp directory, the delivery's home. Another holon → a vimarsha on its node (`anga` to the transformation) and `verstak_case(action="talk", about=<subject>)` to its steward. Don't read, clone or survey repos outside your mandate: integration comes from the graph or the steward; what is in neither is a `posed_to` vimarsha.
 4. **A second implementation is an event**: find both via `methods/integrity.md`, name them to the user, propose reunifying or a named fork; a new consumer gets its arrows in the same move.

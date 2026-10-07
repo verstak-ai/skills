@@ -31,7 +31,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also arms the inbox hook and knocks on the user's seat.
    - **`start <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
-   - **Occupied seat.** Never sign with a seat another holder listens on (register-only is never the outcome); never take another live session's seat. After a compaction or restart, the seat in your cases is yours: the bridge returns it to this session itself; leaving the role is no outcome. Another live session holds it → stand beside as `name.N` with hearing: your own seat, not a takeover; it doesn't hear the role's mail or others' frames. Another session's seat only on the user's word. Don't finish without a seat; reading the reply, a refusal, no `verstak_stand` → **collaborate**.
+   - **Occupied seat.** Never sign with a seat another holder listens on (register-only is never the outcome); another live session's seat only on the user's word. After a compaction or restart, the seat in your cases is yours: the bridge returns it to this session itself; leaving the role is no outcome. Another live session holds it → stand beside as `name.N` with hearing: your own seat, not a takeover; it doesn't hear the role's mail or others' frames. Don't finish without a seat; reading the reply, a refusal, no `verstak_stand` → **collaborate**.
 
 3. **Primer — before your first message.** The graph holds what no file shows: consumers, breakage, decisions, rejections. `kriya` (action): a repeatable before → after transition with actor, input, output. `phenomenon`: what actions consume, produce or act through. `vimarsha` (question): on a node, addressed to a role, saying when it's answered. `bianhua` (transformation): where the system is heading. A role is a mandate, not a person; you are the agent role, under your own name. Modes: how we know a node, whether it exists, what we want with it; "verified" only on evidence. More: **entry**, Part I.
 
@@ -59,11 +59,11 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | what the work changes — node modes; a big transition as a bianhua | — |
 | what the repo can't give a later agent | git refs (or a write's `reasoning`) |
 
-**Read before you speak.** Before answering about what's recorded, taking on work, advising, relaying advice or saying "the graph has nothing" → **entry**; name the nodes read.
+**Read before you speak or take on work** (**entry**); name the nodes read.
 
 **A search hit is a lead, not an answer.** Open it, follow the arrow the question needs (`context` → the holon in scope, `upadhi` → the rule an action applies), run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
 
-**Write as you learn.** Search before writing; a thesis name per node, a `sense` per arrow — hooks for the next reader. A stage done → the graph catches up in the same move (**weaving**, **inquiry**); code touched → **reconcile**.
+**Write as you learn.** Search before writing; a thesis name per node, a `sense` per arrow — hooks for the next reader.
 
 ### Work goes to subagents
 
@@ -78,11 +78,11 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Post by intent** — when the addressee will have something to read; no running commentary, no line per action.
 - **Delivery doesn't oblige a reply.**
 - **Leave by outcome** — once nothing of yours remains: `verstak_case(action="leave")`.
-- A PR body: one or two lines plus the case number. Leading and closing: **architect**, `Leading a case`.
+- Leading and closing: **architect**, `Leading a case`.
 
 ### One-off task
 
-A one-off task or question is a message in a case, ending there with its outcome — not a node, not a vimarsha; so is a refusal, with its reason. No case → open one (`open_room` on the subject node, or `verstak_case(action="talk", about=<subject>)`) before the first change outside. A kriya is only a repeatable transition: no answer to "what does its next run consume and produce?" → it's a task.
+A one-off task or question is a message in a case, ending there with its outcome — not a node, not a vimarsha; so is a refusal, with its reason. No case → open one (`open_room` on the subject node, or `verstak_case(action="talk", about=<subject>)`) before the first change outside. A tool can't reach the role or seat (nobody holds it) → still that case (`open_room`, or `in_room`): `verstak_case(action="invite", karta=…, holon=…)`, post the ask there, report it waiting; never a vimarsha. A kriya is only a repeatable transition: no answer to "what does its next run consume and produce?" → it's a task.
 
 ### Ledger
 
@@ -156,8 +156,6 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "show the cases", "which agents are active" in the Verstak window → **widgets**
 - "spread this across the agents", "who's stuck" → **foreman**, a post the user assigns: address its holder; none → ask whether to raise one
 
-**Across all routes:** a skill or tool let you down → **feedback**, without dropping the work; an instance, not an opinion.
-
 ## Step 3 · Forks where agents go wrong
 
 | Pair | Dividing sign |
@@ -183,7 +181,7 @@ Name the route first — one line, the user's words, no method names.
 
 ## Step 5 · Execution
 
-Read the method file in full, follow it to the result; wrong route → say so, reroute. **Load sign:** name something from the file you didn't know. Can't → you didn't read it.
+Read the method file in full, follow it to the result; wrong route → say so, reroute. **Load sign:** name something from the file you didn't know.
 
 ## Step 6 · Answer
 
@@ -209,7 +207,8 @@ They apply unasked.
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
-| merged / shipped | **code-work**, `After merge`; delta to whoever waits |
+| merged / shipped | **code-work**, `After merge`: the map moves; a kriya stays `anagata` until evidence it runs; delta to whoever waits |
+| a tool can't reach a role or seat | still a one-off in a case — `One-off task` |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
 | the case isn't yours, or nothing of yours remains | leave — `Case laws` |
 | two posts in a case with no graph or code move between | `The method fails in five ways`, 1 |
@@ -220,10 +219,10 @@ They apply unasked.
 | Moment | Move |
 |---|---|
 | the change touches more than one thing, or an integration surface | **integrity** |
-| a structural choice is open | **design** — with the graph, not around it |
+| a structural choice is open; "think it through", "we want X" | **design**: write it into the graph this turn; only a new telos waits for the owner |
 | about to say "verified", "done", "works" | **reality-audit**: name level and carrier |
 | a task ends, or code and graph diverge | **reconcile** |
-| the method or a tool let you down | **feedback** |
+| the method or a tool let you down | **feedback**, without dropping the work: an instance, not an opinion |
 | you need a mandate, knowledge or permission that isn't yours | **collaborate**, `Exchange` |
 | holding a cross-holon boundary | **architect** |
 | more work than one agent carries | **foreman**, if the user assigned it |
