@@ -5,13 +5,13 @@
     "name": "verstak-ai"
   },
   "metadata": {
-    "description": "Agent-facing NKS (Nyāya Knowledge System) methodology skills.",
+    "description": "One agent-facing verstak methodology skill for the verstak_* MCP tools.",
     "version": "2.10.1"
   },
   "plugins": [
     {
       "name": "verstak",
-      "description": "NKS methodology skills — orient, write, design, and weave an NKS graph through the nks_* MCP tools.",
+      "description": "One verstak methodology skill — orient, write, design, and weave a graph through the verstak_* MCP tools.",
       "source": "./",
       "version": "2.10.1",
       "strict": true

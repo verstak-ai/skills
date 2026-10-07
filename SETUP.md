@@ -239,11 +239,11 @@ register it as an ordinary stdio server:
 
 ```sh
 mkdir -p ~/.verstak-bridge
-cp "$(dirname "$(find ~/.claude -path '*skills/establish-mcp/scripts/verstak-bridge.mjs' | head -1)")/verstak-bridge.mjs" ~/.verstak-bridge/
+cp "$(dirname "$(find ~/.claude -path '*skills/verstak/scripts/verstak-bridge.mjs' | head -1)")/verstak-bridge.mjs" ~/.verstak-bridge/
 ```
 
 ```json
-{ "mcpServers": { "nks": { "command": "node", "args": ["/абс/путь/до/.verstak-bridge/verstak-bridge.mjs"] } } }
+{ "mcpServers": { "verstak": { "command": "node", "args": ["/absolute/path/to/.verstak-bridge/verstak-bridge.mjs", "https://mcp.verstak.ai/"] } } }
 ```
 
 Put that entry in the harness's **user-level** config file (home directory), not the

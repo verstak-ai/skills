@@ -1,4 +1,4 @@
-.PHONY: build validate check-bundles check-surface surface check test hooks plugin
+.PHONY: build validate check-bundles check-surface surface check test hooks
 
 # Run the full CI gate locally: frontmatter contract + bundle sync + surface lint
 # + the bridge's behavioural tests.
@@ -8,7 +8,7 @@ check: validate check-bundles check-surface test
 validate:
 	@node scripts/validate-skills.mjs
 
-# Verify committed .skill bundles match their source skills/<name>/.
+# Verify the committed verstak.skill bundle matches skills/verstak/.
 check-bundles:
 	@bash scripts/check-bundles.sh
 
@@ -25,13 +25,9 @@ test:
 surface:
 	@node scripts/export-surface.mjs
 
-# Regenerate the committed <name>.skill bundles from skills/<name>/ (source of truth).
+# Regenerate the committed verstak.skill bundle from skills/verstak/ (source of truth).
 build:
 	@bash scripts/build-skills.sh
-
-# Build the claude.ai plugin archive (dist/verstak.zip). CI attaches it to each GitHub Release.
-plugin:
-	@bash scripts/build-plugin.sh
 
 # Enable the repo's pre-commit hook (auto-rebuilds .skill bundles before each commit).
 hooks:

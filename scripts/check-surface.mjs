@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Lint the skills corpus against fixtures/surface.json — the committed snapshot
-// of the live nks-mcp tool surface (refresh: node scripts/export-surface.mjs).
+// of the live verstak tool surface (refresh: node scripts/export-surface.mjs).
 //
 // Two drift classes are caught offline, before merge:
 //   1. A tool name written in a skill that the surface does not carry
@@ -16,11 +16,14 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const surface = JSON.parse(readFileSync(join(root, "fixtures/surface.json"), "utf8"));
 const tools = new Set(surface.tools);
+// Tools the delivery itself registers, not the server: the OpenCode plugin's
+// status tool. They never appear in a server snapshot.
+for (const t of ["verstak_bridge"]) tools.add(t);
 
 // verstak_-prefixed tokens that are NOT tool names (credential/hook prefixes shown
 // in examples). Extend deliberately; every entry is a claim that the token is
 // not meant to resolve as a tool.
-const NON_TOOL_TOKENS = new Set(["nks_pat", "nks_chh"]);
+const NON_TOOL_TOKENS = new Set(["verstak_pat", "verstak_chh"]);
 
 const ENUM_KEYS = new Set([
   "epistemic_mode", "ontic_mode", "volitive_mode",
@@ -35,7 +38,7 @@ const mdFiles = [];
     if (statSync(p).isDirectory()) walk(p);
     else if (e.endsWith(".md")) mdFiles.push(p);
   }
-})(join(root, "skills"));
+})(join(root, "skills/verstak"));
 
 for (const file of mdFiles) {
   const rel = file.slice(root.length + 1);
@@ -49,7 +52,7 @@ for (const file of mdFiles) {
     if (tools.has(bare)) continue;
     if ([...tools].some((t) => t.startsWith(tok.endsWith("_") ? tok : tok + "_"))) continue; // family shorthand (verstak_add, verstak_add_*)
     if (NON_TOOL_TOKENS.has(bare)) continue;
-    errors.push(`${rel}: tool name "${tok}" not in the surface snapshot`);
+    errors.push(`${rel}:${text.slice(0, m.index).split("\n").length}: tool name "${tok}" not in the surface snapshot`);
   }
 
   // 2. Enum assignments in code-ish spans: key="value" / key=value / key: value.
@@ -61,7 +64,7 @@ for (const file of mdFiles) {
     for (const v of raw.split(",").map((x) => x.trim()).filter(Boolean)) {
       if (!/^[a-z][a-z_-]*$/.test(v)) continue; // placeholder / prose, not a value
       if (!vocab.includes(v)) {
-        errors.push(`${rel}: ${key}="${v}" not in the surface vocabulary [${vocab.join(", ")}]`);
+        errors.push(`${rel}:${text.slice(0, m.index).split("\n").length}: ${key}="${v}" not in the surface vocabulary [${vocab.join(", ")}]`);
       }
     }
   }

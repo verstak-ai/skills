@@ -12,7 +12,13 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
 fail=0
-for d in skills/*/; do
+for bundle in *.skill; do
+  if [[ "$bundle" != "verstak.skill" ]]; then
+    echo "✗ $bundle: unexpected bundle (only verstak.skill ships)"
+    fail=1
+  fi
+done
+for d in skills/verstak/; do
   name="$(basename "$d")"
   bundle="$name.skill"
   if [[ ! -f "$bundle" ]]; then
@@ -24,6 +30,9 @@ for d in skills/*/; do
   unzip -qq "$bundle" -d "$tmp"
   if [[ ! -d "$tmp/$name" ]]; then
     echo "✗ $bundle: must contain a top-level '$name/' directory (won't install otherwise)"
+    fail=1
+  elif [[ $(find "$tmp" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ') != 1 ]]; then
+    echo "✗ $bundle: unexpected entries outside '$name/'"
     fail=1
   elif ! diff -r "skills/$name" "$tmp/$name" >/dev/null 2>&1; then
     echo "✗ $bundle: contents differ from skills/$name/ — run 'make build' and commit:"

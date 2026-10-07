@@ -10,7 +10,7 @@ import { spawn } from "node:child_process";
 import { connect } from "node:net";
 import { mkdtempSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { startFakeNks } from "./fake-nks.mjs";
 
@@ -18,7 +18,8 @@ import { startFakeNks } from "./fake-nks.mjs";
 // another copy — a built bundle, an installed one, or a past revision when you
 // want to see a test fail on the defect it was written for.
 const BRIDGE = process.env.VERSTAK_BRIDGE_PATH
-  || join(dirname(fileURLToPath(import.meta.url)), "..", "skills", "establish-mcp", "scripts", "verstak-bridge.mjs");
+  ? resolve(process.env.VERSTAK_BRIDGE_PATH)
+  : join(dirname(fileURLToPath(import.meta.url)), "..", "skills", "verstak", "scripts", "verstak-bridge.mjs");
 const INIT_PARAMS = { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "test-harness", version: "0" } };
 
 // --- driving the bridge the way a harness does -----------------------------

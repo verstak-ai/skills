@@ -57,11 +57,3 @@ jobs:
           node-version: "20"
       - name: Drive the bridge over stdio against a local fake NKS + OAuth server
         run: make test
-
-  plugin-archive:
-    name: Plugin archive builds
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build the claude.ai plugin archive (its first real run must not be at release time)
-        run: make plugin
