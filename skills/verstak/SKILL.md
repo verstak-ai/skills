@@ -61,7 +61,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 **Read before you speak or take on work** (**entry**); name the nodes read.
 
-**A search hit is a lead, not an answer.** Open it, follow the arrow the question needs (`context` → the holon in scope, `upadhi` → the rule an action applies), run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
+**A search hit is a lead, not an answer.** Open it, follow the arrow the question needs, run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
 
 **Write as you learn.** Search before writing; a thesis name per node, a `sense` per arrow — hooks for the next reader.
 
@@ -207,11 +207,11 @@ They apply unasked.
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
-| merged / shipped | **code-work**, `After merge`: the map moves; a kriya stays `anagata` until evidence it runs; delta to whoever waits |
+| merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | a tool can't reach a role or seat | still a one-off in a case — `One-off task` |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
 | the case isn't yours, or nothing of yours remains | leave — `Case laws` |
-| two posts in a case with no graph or code move between | `The method fails in five ways`, 1 |
+| `no-actor`, or who does a step is unknown | a vimarsha `posed_to` the holon's steward; no actor until answered, not the nearest role or invented automation — **weaving** |
 | a wall of tensions · a sprawling field of questions · one question to bring to its outcome | **weaving** · **assembly** · **inquiry** |
 
 **The work calls for a method**
