@@ -2,13 +2,13 @@
 
 **Use when:** a structural choice opens — competing paths, ownership, a boundary, a dependency direction; a decision is made ("we decided", "persist this design"); a brainstorm ends. Phrases: "design this", "let's think it through", "architecture", "plan the system". Out of failure 5 (the door, `The method fails in five ways`): design with the graph, not around it.
 
-The graph is a stable projection of the spec: a decision or risk outside it won't survive the session; behaviour that lives only in it is unverified — external sources, public boundaries and runtime evidence stay the truth it is checked against.
+The graph is a stable projection of the spec: a decision or risk outside it won't survive the session; behaviour that lives only in it is unverified — external sources, public boundaries and runtime evidence are what it's checked against.
 
-**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; new kriyas and phenomena `anagata`+`chanda`; risks; a vimarsha `posed_to` whoever must answer. Every arrow you write carries `sense`. Only the transformation's acceptance waits (below).
+**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; all you design is `anagata`+`chanda` (`vartamana` only for what already runs); risks; a vimarsha `posed_to` whoever must answer. Every arrow carries `sense`. Only a *new* transformation waits: proposed in words, created after the owner's nod (below).
 
 ## Routing boundary
 
-Design starts where a structural choice is open — competing paths, a lifecycle, ownership, a public boundary, a dependency direction — or a decision must outlive the session. An accepted concrete request is implemented through the repository's normal flow; `methods/writing.md` only for a lasting correction, dependency, boundary or question it uncovered.
+Design starts where a structural choice is open (a lifecycle among them) or a decision must outlive the session. An accepted concrete request is implemented through the repository's normal flow; `methods/writing.md` only for a lasting correction, dependency, boundary or question it uncovered.
 
 ## Interop: elicitation kits (e.g. superpowers brainstorming)
 
@@ -19,7 +19,7 @@ If a brainstorming skill is installed, use it for elicitation; its spec file is 
 | # | Principle | For you |
 |---|---|---|
 | P1 | Every thing is born and dies | Each `ding` or `sachverhalt` phenomenon needs `utpatti` (an action producing it) and `ahara` (one consuming it). `leaked` = the end-of-life kriya is missing — add it. |
-| P2 | A complex system can only grow | `anagata`+`upeksha` and vimarshas hold what's deferred. Going deep on the first pass yields a shallow graph (all named, nothing stitched) or a fat node. |
+| P2 | A complex system can only grow | `anagata`+`upeksha` and vimarshas hold what's deferred. Depth on the first pass yields a shallow graph (all named, nothing stitched) or a fat node. |
 | P3 | The graph is a tension with reality | Intake lowers it; design raises it — the graph describes what doesn't exist yet. Each vimarsha marks a tension to work. |
 | P4 | Tensions tell the truth | Close the structure, never suppress (no `attrs` to mute). A tension that looks wrong is a detector bug. |
 
@@ -29,7 +29,7 @@ A designed node is born **planned, not done** — the design triad, and the "don
 
 ## A kriya born of will belongs to a transformation
 
-A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`); an existing one that fits wins — unsure whether one fits, ask before inventing one. A new one you propose as `chanda`; the owner accepts its name and telos (`methods/assembly.md`) — that gates acceptance, not your writing.
+A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`): an existing one that fits takes the design's kriyas as `anga` now. A **new** one is proposed, not created: name and telos in your answer to the user, or, without the user, in a vimarsha `posed_to` the owner role. Create it (`chanda`) only after the nod — creating it while saying acceptance is pending is the error (`methods/assembly.md`, step 5).
 
 ## Four phases
 
@@ -62,7 +62,8 @@ DO:
      no ahara → leaked → add end-of-life at the same abstraction level;
      context → holon set?
      (without a home holon it's invisible to holon-scoped orienting)
-  2. Per kriya: exactly one actor (two → split); sense on every arrow;
+  2. Per kriya: exactly one actor (two → split; unknown → a vimarsha posed_to
+     the holon's steward "who does X?", no actor until answered); sense on every arrow;
      ahara/utpatti on the right phenomena (after a distinction: reconnect)
   3. verstak_orient(lens="trace", focus=<phenomenon>) on the key ones → connected?
   4. verstak_orient(lens="tensions") → anything new?
@@ -86,7 +87,7 @@ For a and b, link `addressed_by` from the vimarsha; acceptance ends by mode, not
 
 Only for graphs designing external systems (not a methodology or CJM), once all is designed, `anagata`, and idle.
 
-1. **Put the work on a transformation**: will-born kriyas as kriya-anga to an *existing* bianhua first; a new one proposed `chanda`, set as work once the owner accepts its name and telos.
+1. **Put the work on a transformation** (above): `anga` to an existing one first; a new one only after the owner's nod.
 2. **Stage the flow**: staged delivery (test → staging → full) is ONE delivery transformation whose stages are sub-transformations (`anga`) ordered by `anantara`, each gathering its kriyas — the owner reads it as the release plan.
 3. **Work runs in a case**: `verstak_case(action="at", node=<transformation>)`; none → `open_room` on the transformation's (or stage's) write.
 4. **Set the work by reference** (`methods/architect.md`, step 5) — addressed to the `adhikarin` stewarding the holon (`steward` arrow) or the owner at strategic scale, never a `pratibimba`. Order comes from `anantara` and happens-before, not a list.

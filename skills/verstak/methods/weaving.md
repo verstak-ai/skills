@@ -13,9 +13,9 @@
 | touch a mode | conflicting modes, a transformation's record behind its case | confirm / release / raise a doubt — don't restructure; a confirming touch names its level, graph or world |
 | neighbour (only with `focus` on a holon) | a scope pair covered by an action outside — a link, not a tension | know the neighbour's steward; nothing to weave |
 
-**Don't repair what was accepted.** The unwanted in `upeksha`, or a question accepted as is, was taken on with open eyes; "fixing" it undoes someone's decision.
+**Don't repair what was accepted.** The unwanted in `upeksha`, or a question accepted as is, is someone's decision; "fixing" it undoes it.
 
-**Don't fix a mass one row at a time.** Uniform rows converging on one neighbour are one undistinguished thing. Touching a node in the mass, leave a remark, not a copied fix: a second `vimarsha_of` anchor from the mass's vimarsha to this node, its sense saying what you noticed. No vimarsha on the cause → pose one there, addressed to the steward of its holon. If the lens doesn't fold the mass into one row ("what is not distinguished here?"), judge convergence yourself. The distinction is an assembly move; its answer clears the mass at once.
+**Don't fix a mass one row at a time.** Uniform rows converging on one neighbour are one undistinguished thing. Touching a node in the mass, leave a remark, not a copied fix: a second `vimarsha_of` anchor from the mass's vimarsha to this node, its sense saying what you noticed. No vimarsha on the cause → pose one there, addressed to the steward of its holon. Not folded into one row by the lens → judge convergence yourself. The distinction ("what is not distinguished here?") is an assembly move; its answer clears the mass at once.
 
 **Each door judges by its own rules.** The tensions lens uses its registry, a node card the rules that come with the node; neither is a superset. A vanished card warning → the node's history. `has_tension` covers a subset of detectors (coverage in each response's header). Weave from `lens="tensions"` with `focus` on a holon (else no neighbours print); a thin `has_tension` list is not a clean graph.
 
@@ -44,7 +44,9 @@ orphan phenomenon? → verstak_look: does a kriya own it?
           no → stitch it; doesn't hold → delete (no distinction), refute and
                keep (false thesis), or release (right, no longer needed)
           yes, arrows lack sense → Op 2
-no-actor? → one role → link actor; two roles → Op 3
+no-actor? → one known role → link actor; two roles → Op 3; who does it unknown
+          → a vimarsha posed_to the holon's steward (or the owner) "who does X?",
+          no actor until answered — a guessed role costs more than the tension
 arrow without sense → Op 2;  one phenomenon became two → Op 4
 no tensions, but feels incomplete? → verstak_look the key kriyas:
           mute arrows → 2; two actors → 3; distinguished phenomena → 4

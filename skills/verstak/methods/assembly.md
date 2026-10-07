@@ -15,7 +15,7 @@ You produce and refresh the map; you don't decide *when* to reassemble.
 | Role | Motivation | In assembly |
 |---|---|---|
 | **The graph's owner** | "don't drown, see the whole" | provokes assembly, validates the map ("that captures it", "the map is lying"), decides when to reassemble |
-| **Assembler** (you) | see the pattern, produce the map | draws the map; an owner-level move (refusal, priority, choosing otherwise) goes on the owner's agenda |
+| **Assembler** (you) | see the pattern, produce the map | draws the map; an owner-level move (step 4) goes on the owner's agenda |
 | **Navigator** | "where to put effort now" | reads the map, picks a focus, works, feeds back |
 | **Coordinator** | "keep people in sync" | uses the map as shared language: "who is moving which transformation?" |
 
@@ -62,10 +62,10 @@ Tensions whose move is to answer or end a question (e.g. unresolved risks) carry
 
 ### 5. Produce 形 — and arrive at understanding
 
-**The transformation is the owner's interface** — vimarshas and cases are the agent's units. Its name and telos are about the only thing the user must accept in the graph: interactively, a nod before creating; autonomously, the candidate goes on the agenda. Never one for a single vimarsha: `lens="bianhua"` + `verstak_semantic_search(node_type="bianhua", q=<the shift>)` → attach as `anga`; no confident match → ask in plain text, naming the transformations you see and why none fits.
+**The transformation is the owner's interface** — vimarshas and cases are the agent's units. Its name and telos are about the only thing the user must accept in the graph, and it is created only after that nod: interactively, propose both in your answer; autonomously, in a vimarsha `posed_to` the owner role (the agenda). Never one for a single vimarsha: `lens="bianhua"` + `verstak_semantic_search(node_type="bianhua", q=<the shift>)` → attach as `anga`; no confident match → ask in plain text, naming the transformations you see and why none fits.
 
 Then build the map:
-- **Create or refresh** each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisites>)`; `telos` = "the system becomes …". No anga-vimarsha → empty (the factory warns): attach drivers or don't create it.
+- **Create** (once accepted) **or refresh** each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisites>)`; `telos` = "the system becomes …". No anga-vimarsha → empty (the factory warns): attach drivers or don't create it.
 - **Run integrity** on each freshly accepted transformation (`methods/integrity.md`).
 - **Order** with `anantara` (B only after A) — the critical path.
 - **Record the emerging pattern**: a phenomenon with `given_as=bildung`, `arose_from` its source. No `bildung` ⇒ the assembly didn't land (`methods/inquiry.md`, §6).
