@@ -13,9 +13,9 @@ slash: true
 Check your last turns for these.
 
 1. **Degeneration — one tool replaces the work.** Sign: since your last real move, more case messages and lines than nodes, arrows and edits. Move: stop posting; do the graph, code or verification work the case is about.
-2. **Reduction — the graph shrinks to search.** Sign: a search not followed by `verstak_look` or `verstak_orient`; "not in the graph" after one search. Move: open the hits, walk their arrows, look through a lens (`trace`, `tensions`, `vimarshas`); write or weave what you learned.
+2. **Reduction — the graph shrinks to search.** Sign: a hit never opened; opened the card, never its arrows; a lens on your role or an incident instead of the subject's holon; "not in the graph" after one search. Move: **entry**, `From a card to evidence`; write or weave what you learned.
 3. **Graph and case not told apart.** Sign: a decision or a question of substance living only in a message; a one-off task written as a node. Move: the table in `Cross-cutting norms`.
-4. **A changed situation not noticed.** Sign: a finished case still open, someone else's case still joined, a stage done with the graph unchanged, a hit never opened. Move: `Agent moments`, "The situation changed".
+4. **A changed situation not noticed.** Sign: a finished case still open, someone else's case still joined, a stage done with the graph unchanged. Move: `Agent moments`, "The situation changed".
 5. **The work needed a method and got none.** Sign: you designed, integrated, said "works" or ended a task without opening its method. Move: `Agent moments`, "The work calls for a method".
 
 Build the move from the user's words and work state. **Do it, don't advise.** A **bold method name** is `methods/<name>.md` — read it, don't recall it. **Routing gets five graph calls**, then route and name what you skipped; a method spends what it needs.
@@ -27,11 +27,11 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. No `AGENTS.md` is no refusal; a bare slug is no address — resolve it by listing. No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
 
-2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under the role and hears nothing; `verstak_stand` takes a listening seat, only for a watch. *Grounding:* a seat is one actor holding the role here and now; the role outlives it, and the seat is what gets addressed.
+2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat, only for a watch.
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also arms the inbox hook and knocks on the user's seat.
    - **`start <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
-   - **Don't finish without a seat**; never sign as another's seat or take a live one without the user's word. Reading the reply, an occupied seat, a refusal, or no `verstak_stand` tool at all → **collaborate**.
+   - **Occupied seat.** Never sign with a seat another holder listens on (register-only is never the outcome); never take another live session's seat. Your own seat by its earlier name (this harness session, its previous bridge after a restart or compaction included) → take it back yourself, `take=true`. Another live session holds it → stand beside as `name.N` with hearing: your own seat, not a takeover; it doesn't hear the role's mail or others' frames. Another session's seat only on the user's word. Don't finish without a seat; reading the reply, a refusal, no `verstak_stand` → **collaborate**.
 
 3. **Primer — before your first message.** The graph holds what no file shows: consumers, breakage, decisions, rejections. `kriya` (action): a repeatable before → after transition with actor, input, output. `phenomenon`: what actions consume, produce or act through. `vimarsha` (question): on a node, addressed to a role, saying when it's answered. `bianhua` (transformation): where the system is heading. A role is a mandate, not a person; you are the agent role, under your own name. Modes: how we know a node, whether it exists, what we want with it; "verified" only on evidence. More: **entry**, Part I.
 
@@ -59,9 +59,9 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | what the work changes — node modes; a big transition as a bianhua | — |
 | what the repo can't give a later agent | git refs (or a write's `reasoning`) |
 
-**Read before you speak.** Before answering about what's recorded, taking on work, advising, relaying advice or saying "the graph has nothing" → **entry**: `verstak_orient(focus=<node>)`, `lens="tensions"` on the same focus, then arrows to decisions and incidents; name the nodes read.
+**Read before you speak.** Before answering about what's recorded, taking on work, advising, relaying advice or saying "the graph has nothing" → **entry**; name the nodes read.
 
-**A search hit is a lead, not an answer.** Open it (`verstak_look`), read each arrow's `sense`, step to the neighbour it names, and use the lens the question needs: `trace` for what it touches, `vimarshas` for what was asked, `bianhua` for where it's heading. Search silent → semantic search, then a lens; only then "I don't see it".
+**A search hit is a lead, not an answer.** Open it, follow the arrow the question needs (`context` → the holon in scope, `upadhi` → the rule an action applies), run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
 
 **Write as you learn.** Search before writing; a thesis name per node, a `sense` per arrow — hooks for the next reader. A stage done → the graph catches up in the same move (**weaving**, **inquiry**); code touched → **reconcile**.
 
@@ -105,7 +105,7 @@ Free: `git status --short`, the branch, the stamp. The first matching row overri
 | no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: invited into a graph → write there; else `verstak_realm(action="create")` named after the repo or request; never offer others' graphs; a fresh graph has no roles yet, so nothing to `register` under. No `AGENTS.md` → also **align** |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
 | the move will write or speak in a case | first `verstak_channel(action="register", realm=…, karta=<role>, name=<derived name>)`, unless the environment named your seat; no seat or no holder → **collaborate**. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
-| a write authorless **again** after naming yourself | **establish-mcp** — only the delivered bridge holds the binding |
+| a write authorless **again** after naming yourself | **establish-mcp** |
 
 No override → the request; the survey's numbers go into your answer.
 
@@ -137,7 +137,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "set up this repo" → **align** (`/verstak align`)
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
-- "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**: `update`, the fresh `SETUP.md` steps, a restart
+- "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
 
 **Make sure**
 - "does it really work" → **reality-audit**
@@ -187,8 +187,6 @@ Read the method file in full, follow it to the result; wrong route → say so, r
 
 ## Step 6 · Answer
 
-The user then knows what exists and where, without asking.
-
 - **What exists, in their words** — the state of things, without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (`@owner/slug` only when asked).
 - **Where it is** — node numbers, paths, branch, PR.
 - **What was missing** — open, assumed, silent. One instrument silent → "I don't see it", not "there is none"; try a second, name both.
@@ -199,14 +197,14 @@ The user then knows what exists and where, without asking.
 
 ## Agent moments
 
-They apply unasked; read the named file in full.
+They apply unasked.
 
 **The situation changed**
 
 | Moment | Move |
 |---|---|
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
-| a search returned hits | open each node, then its neighbourhood (`focus`) and a lens — **entry** |
+| a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
 | about to write (`verstak_add_*`, `verstak_batch`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — **writing**, `After writing` |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |

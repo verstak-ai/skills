@@ -2,7 +2,7 @@
 
 **Use when:** your seat stops hearing or speaking — undelivered frames, `not listening` on your row, no `hello`, a write without an author, a frame cut off, `verstak_stand` missing or refused; you are leaving or removing a seat; the work crosses your mandate, you need another actor's answer, or two agents are about to build the same thing ("nobody can hear me", "this isn't my area", "who owns this"). The door's `Start` normally takes the seat. This file is seat and exchange mechanics; behaviour in a case is the door's (`Cross-cutting norms`).
 
-**Grounding:** a standing is one actor holding the role here and now; the role outlives it, and the standing is what gets addressed. `manifested_as` decides who answers and who decides; your seat attests authorship. **Exchange** puts substantive questions in the graph and one-off requests in cases, addressed to whoever can answer.
+**Grounding:** a standing is one actor holding the role here and now; the role outlives it, and the standing is what gets addressed. `manifested_as` decides who answers and who decides; your seat attests authorship.
 
 Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing sign → tell the user what you can't promise. Detail: `references/collaborate-channel.md`. The **delivery bridge** (`methods/establish-mcp.md`) holds the seat and hearing; the watchdog turns frames into interrupts. No `verstak_stand` → bridge bypassed or old: `node ~/.verstak-bridge/verstak-bridge.mjs doctor` says which.
 
@@ -12,13 +12,13 @@ Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing s
 2. **Read the reply; don't assume it.** A `[verstak-bridge]` block with your harness's watchdog command → hearing is here, step 3. Socket but no `hello` → read the board, don't announce yourself. The bridge stood beside on `name.N`, or another holder listens on the seat → 3a. A refusal → tell the user what it said.
 3. **Start the watchdog with the reply's command** ("Choosing the watchdog") and confirm `hello`: under `Monitor`, an event after the listening notice; under `watchdog-exit`, `hello` logged without a wake-up; in pi, the status saying the channel listens; in OpenCode, the plugin's toast. No sign within tens of seconds → no listener, whatever the call said. Then find your `listening` row on the board.
 
-   **3a. Seat occupied** — another live bridge holds the name, or your explicit `name` hit a listened seat. Same name is not same actor. Don't sign as another's seat, don't take a live seat, don't stall for the user:
-   - (a) **Stand on a seat of your own** — `verstak_stand` without `name`: the bridge returns yours or stands beside on `name.N` with hearing, without the role inbox hook. Then step 3.
-   - (b) **Check the holder at once** — one channel message to that seat (the probe, `Exchange`).
-   - (c) **Your own seat from before a restart** → `verstak_stand(name=<main name>, take=true)` (a dead predecessor's seat in the same grant directory comes back by itself). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
-   - (d) **Ask the user only** about displacing another session's live listener.
+   **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome — and never take another live session's seat; don't stall for the user:
+   - (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction → take it back yourself: `verstak_stand(name=<main name>, take=true)` (a dead predecessor's seat in the same grant directory comes back by itself). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
+   - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the role's mail (no role inbox hook) or the other seat's frames. Then step 3.
+   - (c) **Unsure whose it is** → one channel message to that seat (the probe, `Exchange`); meanwhile (b).
+   - (d) **Taking another live session's seat** — only on the user's word.
 
-   Displaced (close 4000) → the bridge yielded: stand beside; back only with `take=true` on the user's word. On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
+   Displaced (close 4000) → another session took the seat: stand beside; taking it back is (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
 4. **Say one real message early** (the door, `Start`, step 6) — the only proof of the outgoing path. Nothing to say → call that path unproven; don't invent traffic.
 
 ## Without the bridge
@@ -60,7 +60,7 @@ Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by 
 The bridge and watchdog name their fix — do what they say. What they won't tell you:
 
 - **`not listening` on your row** → the listener is missing, not the seat: re-arm. A new seat over deafness leaves mail on the abandoned one.
-- **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → beside; take back only on the user's word). Code 2 → the bridge holds no seat, or several (name the key).
+- **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → 3a). Code 2 → the bridge holds no seat, or several (name the key).
 - **Write without an author** → `verstak_stand` again (on your own seat it only registers), retry; what landed authorless stays so; report it (`methods/feedback.md`).
 - **Sent under another name** → a shared bridge; reference, "Shared bridge and one seat per graph".
 - **Never `connect` for anyone but yourself** (owner's decision): it binds the seat to the calling session.
