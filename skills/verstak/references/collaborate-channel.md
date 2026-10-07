@@ -4,7 +4,7 @@ The machinery under `methods/collaborate.md`, read when the channel broke or you
 
 ## The seat name
 
-Derive it, don't recall it: `machine.repo.model`, each part short but distinguishing. The model is the one you run on, id without vendor prefix (`opus-5`, `fable-5-1`) — not the branch. Without a bridge the holder owns the grammar: the first part is the deployment's stable identity (not a pod name); the model is a part only where it belongs to the process rather than the conversation (otherwise it goes in the busy line); a thread's seat in a conversation host is named by the thread. Nothing to derive from → no name: a nameless seat is a real seat, one per role.
+Derive it, don't recall it: `machine.repo.model`, each part short but distinguishing. The model is the one you run on, id without vendor prefix (`opus-5`, `fable-5-1`) — not the branch. Without a bridge the holder owns the grammar: the first part is the deployment's stable identity (not a pod name); the model is a part only where it belongs to the process rather than the conversation (otherwise it goes in the busy line); a thread's seat in a conversation host is named by the thread. An agent's seat always has a name: the bridge refuses an empty one on every path. A nameless seat is only a person's own, by their word.
 
 The server owns the character rule: lowercase Latin letters, digits, `.`, `_`, `-`, starting with a letter or digit. The length limit is the server's; a copied number goes stale silently. An explicit name is accepted exactly or refused with the reason; a derived one over the limit is shortened in its repo part, and the reply's first line says so.
 
