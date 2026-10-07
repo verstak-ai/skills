@@ -37,7 +37,7 @@ Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive
 | accepted defect | Pt | Va | Up | present · accepted |
 | practice being phased out | Pt | Va | Vi | practised · being phased out |
 | retired practice | Pt | At | Vs | retired — debt paid |
-| doubt, counter-thesis, hint | by grounds | by subject | Ch / Ad / Up | seeking an answer / holding the question / accepted |
+| doubt, counter-thesis, hint | by grounds | the subject's: designed = `anagata`, running = `vartamana` | Ch / Ad / Up | seeking an answer / holding the question / accepted |
 | proposed principle | An | Va | Ch | proposed — grounds via `derived_from` / `arose_from` |
 | principle in force | An/Pm | Va | Ad | in force, by being held |
 | given principle | Pm | Va | Up | in force as given — a law, regulation, invariant |

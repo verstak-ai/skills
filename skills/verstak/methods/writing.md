@@ -28,7 +28,7 @@ The gate never blocks a method's applying kriya with its phases as `contains` ch
 | **names a role with a motivation** | `karta` | `verstak_add_karta` |
 | **transforms the system qualitatively** — a becoming with a telos | `bianhua` | `verstak_add_bianhua` |
 
-A **kriya** ("action") is a contestable claim about a transition — "given X, actor A produces Y" — not an instruction. A **phenomenon** is what presents itself to an action (the noema to the kriya's noesis); it exists *for* a kriya — if none consumes, produces or applies it, you are writing an orphan. A **vimarsha** is an open question holding a tension. A **holon** is a boundary, defined by the questions about its edge. A **karta** is a role with a motivation, not a person. A **bianhua** (变化) is a qualitative transformation; its body field is `telos`.
+A **kriya** ("action") is a contestable claim about a transition — "given X, actor A produces Y" — not an instruction. A **phenomenon** is what presents itself to an action (the noema to the kriya's noesis); it exists *for* a kriya — if none consumes, produces or applies it, you are writing an orphan. A **vimarsha** is an open question holding a tension. A **holon** is a boundary, defined by the questions about its edge. A **karta** is a role with a motivation, not a person. A **bianhua** (变化) is a qualitative transformation.
 
 **bianhua is assembly-level** (`methods/assembly.md`), not a routine write. Test: "the system will become X, which it is not yet". Never one per vimarsha. Search first (`lens="bianhua"`, `verstak_semantic_search(node_type="bianhua")`): a duplicate transformation is worse than a missing one. The owner accepts its name and telos.
 
@@ -55,7 +55,7 @@ Traps:
 
 `vollzug` is HOW, `grundsatz` is WHY; `sinn` names what IS, `grundsatz` what MUST BE. **A method or principle is never `ahara`/`utpatti`** (the API refuses): it is applied — `upadhi` only.
 
-**`sinn` is the cheapest cell, so the easiest place to hide.** What a kriya goes *through* is a `ding` or `sachverhalt` with an `upadhi`; what it eats or produces is `ahara`/`utpatti`; `sinn` is for a concept that does nothing and nothing is done through. **A node isn't written until you've named what pulls on it** — which kriya breaks if it disappears? None → you're hiding a thing in a concept to avoid owning its lifecycle. A lone `context` arrow silences the detector without answering.
+**`sinn` is the cheapest cell, so the easiest place to hide.** What a kriya goes *through* is a `ding` or `sachverhalt` with an `upadhi`; what it eats or produces is `ahara`/`utpatti`; `sinn` is for a concept that does nothing and nothing is done through. **A node isn't written until you've named what pulls on it** — which kriya breaks if it disappears? None → you're hiding a thing in a concept to avoid owning its lifecycle. A lone `context` arrow answers nothing; the orphan check stays.
 
 ## Decision 2b: manifested_as (roles only)
 
@@ -82,13 +82,13 @@ Three required axes. The factories print each axis's values and **the kind's sta
 
 **Epistemic — how do we know:** supposed (`kalpita`), inferred (`anumita`), seen (`pratyakshita`), attested repeatedly and independently (`pramanita`), refuted and kept (`badhita`). Code inspection gives at most `anumita`; a focused test with a recorded zero exit is `pratyakshita`; `pramanita` needs a check against reality, not the graph (`reality-audit`). Re-reading your own write raises nothing.
 
-**Ontic — how does it exist:** in effect (`vartamana`), ahead (`anagata`), past (`atita` — asserts past *being*; what never came about is `anagata` + `visarjana`), construct (`vikalpa` — never was so; only with `badhita`), lost (`nashta` — was and left no trace). `nashta` on an ideal kind (concept, seed, principle, bianhua, will-carried vimarsha) is a kind error: refute or release it. Whatever is being designed is born `anagata` — never `pramanita`/`vartamana`/`upeksha`.
+**Ontic — how does it exist:** in effect (`vartamana`), ahead (`anagata`), past (`atita` — asserts past *being*; what never came about is `anagata` + `visarjana`), construct (`vikalpa` — never was so; only with `badhita`), lost (`nashta` — was and left no trace). `nashta` on an ideal kind (concept, seed, principle, bianhua, will-carried vimarsha) is a kind error: refute or release it. Whatever is being designed is born `anagata` — never `pramanita`/`vartamana`/`upeksha`. **A question takes its subject's ontic:** about something being designed (a flow, policy, risk) → `anagata`; about what runs now → `vartamana`.
 
 **Volitive — the graph holders' stance toward what is written.** **`upeksha` is not a default**: `anagata` + `upeksha` says "it will happen and we don't care". `chanda` vs `upeksha`: **held up by intent or by mechanism?** Would it arise or continue if nobody insisted? Yes → `upeksha`; no → `chanda` (once a mechanism enforces it, switch). Decided → `adhimoksha`; let go → `visarjana`.
 
 **Read the user's will from what they said.** "We need", "I want", "let's" → `chanda`; "decided", "we hold to this" → `adhimoksha`; "no", "remove it" → `virodha` by the kind's polarity; "let it go", "doesn't matter" → `visarjana`; "ok, so be it" → `upeksha`. Without their word you write *your* stance: `chanda` on what you propose. **On the owner's behalf you never set `adhimoksha`, a refusing `virodha`, acceptance of a telos, or `upeksha` on something unwanted (risk, defect, incident)** — prepare the material and wait. The owner is whoever stands in the 主 role, not whoever's keys run. A decision the owner stated may be recorded: who, when and their words in `reasoning`, the content in the body, the stance in the mode. `posed_by` is a short address (role, seat, name), not prose.
 
-**`virodha` is polarised by kind; ending follows the kind's carrying axis.** Where the surface says nothing, the rule still holds.
+**`virodha` is polarised by kind; ending follows the kind's carrying axis.**
 
 | Kind | `virodha` means | What ends it |
 |---|---|---|
@@ -98,11 +98,11 @@ Three required axes. The factories print each axis's values and **the kind's sta
 | doubt, counter-thesis, hint, seed | refusal | itself the ending |
 | bianhua | set by a person | `visarjana` — also by a person |
 
-On a doubt, counter-thesis or hint, `upeksha` is **accepted as is**: out of the queue, not answered, not counted toward the transformation. Refutation: was it ever so? Was → `atita`; never was → `vikalpa`. **A principle:** `chanda` (proposed), `adhimoksha` (in force by being held — the owner puts it there), `upeksha` (in force as given); its grounds are `derived_from`/`arose_from`, without them it's a tension. Not endings: `pramanita` on a seed (crystallize it), `atita` on a concept or principle ("historical"); `upeksha` on a bianhua is a kind error. Detail: `references/writing-modes.md`, "Polarity of virodha and ending".
+On a doubt, counter-thesis or hint, `upeksha` is **accepted as is**: out of the queue, not answered, not counted toward the transformation. **A principle:** `chanda` (proposed), `adhimoksha` (in force by being held — the owner puts it there), `upeksha` (in force as given); its grounds are `derived_from`/`arose_from`, without them it's a tension. Not endings (`pramanita` on a seed, `atita` on a principle): `references/writing-modes.md`, "Polarity of virodha and ending".
 
 ## Decision 4: name and description
 
-**The name** is a thesis about the node's nature (正名, "rectifying names") and an invitation: from the name alone, an agent in its own context should recognise the node matters to it. Ask who should stop here and with what intent, and use *their* word; the rest goes in the body. Over 64 characters, shorten; over 128 it's no longer a name. Anti-patterns: retelling the body; repeating a field ("Counter-thesis to …" when the genre says so); state or history; a dash and a hundred characters of explanation; a node-type word as the name. Renaming is deliberate: your own names in the same move, others' with their agreement, owner-accepted names (a bianhua's telos, an umbrella kriya) only on the owner's word.
+**The name** is a thesis about the node's nature (正名, "rectifying names") and an invitation: from the name alone, an agent in its own context should recognise the node matters to it. Ask who should stop here and with what intent, and use *their* word; the rest goes in the body. Over 64 characters, shorten; over 128 it's no longer a name. Anti-patterns: retelling the body; repeating a field ("Counter-thesis to …" when the genre says so); state or history; a node-type word as the name. Renaming is deliberate: your own names in the same move, others' with their agreement, owner-accepted names (a bianhua's telos, an umbrella kriya) only on the owner's word.
 
 | Type | Grammar | ✓ | ✗ |
 |---|---|---|---|
@@ -173,6 +173,6 @@ Can't pick → two questions are tangled. Can name where it breaks → `risk`; c
 
 ## Operational
 
-`reasoning="…"` on every write — why; it goes into the history. `basis_version` on update / delete / reconnect: read → write → on conflict, re-read. Batches: `references/writing-batch.md` — a kriya's `ahara`/`utpatti` inline in its create; phenomena before the kriyas that reference them.
+`reasoning="…"` on every write — why; it goes into the history. `basis_version` on update / delete / reconnect: read → write → on conflict, re-read. Batches: `references/writing-batch.md` — a kriya's `ahara`/`utpatti` inline in its create; phenomena before the kriyas that reference them. **A write that errored or timed out may have landed:** find it (`verstak_search`, `verstak_history(action="realm")`) before retrying.
 
 **Probe a node address from another actor in the same move.** A number from a frame or message isn't an address until `verstak_look` answers; if it doesn't, say in words where the question stands. A failed read says nothing about the node's past. A single machine's state (a key, a file) never gets a node — ask in words.
