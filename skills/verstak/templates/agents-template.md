@@ -38,7 +38,7 @@
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
 ## Persistence
-- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch the session cleans up. Only committed files and the project graph configure agents.
+- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, probe graphs and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
 - The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2). Where a fact goes: the door, `Routes`, Keep.
 - Rituals (start, push, merge, memory guard`<, spec-write>`) are wired in `<harness paths>`; add beside other suites' entries.
 
