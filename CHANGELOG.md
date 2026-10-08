@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/verstak-ai/skills/compare/v2.10.0...v2.10.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* **assistant:** fall back to case at without the board lens; Map measured as the home does ([#125](https://github.com/verstak-ai/skills/issues/125)) ([0a33cab](https://github.com/verstak-ai/skills/commit/0a33caba83f315e5396ea5dbc3578af8d342b00c))
+
 ## [2.10.0](https://github.com/verstak-ai/skills/compare/v2.9.2...v2.10.0) (2026-10-08)
 
 
