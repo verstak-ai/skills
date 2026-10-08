@@ -25,7 +25,7 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 ## Cold review
 
 - Self-review doesn't replace it: both, in this order.
-- After self-review of an open PR or a large stage → the `reviewer` role, in a separate worktree where the spawner offers isolation (Claude Code: `isolation`); can't → say there was no cold review. The hook fires only on push: a stage without one is yours to hold.
+- After self-review of an open PR or a large stage → the `reviewer` role, in a separate worktree: the spawner's isolation where it offers one (Claude Code: `isolation`); where it doesn't (OpenCode), lay a detached tree yourself (`git worktree add --detach <dir> <head>`), the brief says "work only there", the edit ban is the second line, the report says "isolation manual"; neither → say there was no cold review. The hook fires only on push: a stage without one is yours to hold.
 - Brief with references, not your retelling: diff, repository, focus holon and steward, the nodes the diff embodies. It runs `methods/integrity.md` Mode 1 read-only and returns findings plus an integration report: what is touched, relays, open questions, neighbours' readiness, whom to wake (`methods/collaborate.md`); unknown → `unknown`.
 - `NEEDS_CONTEXT` is a graph defect: finish design, weave, pose vimarshas, review again. Reject a finding by recording why.
 - A behavioural claim closes on a cold `verifier` briefed with claim, carrier and falsifier from `REALITY.md`; wait for its verdict (`methods/reality-audit.md`). No such role → observe the carrier yourself, never the source.
