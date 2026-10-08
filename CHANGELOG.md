@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/verstak-ai/skills/compare/v2.9.2...v2.10.0) (2026-10-08)
+
+
+### Features
+
+* **skills:** flat assistant and widgets for the conversation home ([#123](https://github.com/verstak-ai/skills/issues/123)) ([5d2ceaf](https://github.com/verstak-ai/skills/commit/5d2ceaf7160f51f1865f0279f336e6d39087b168))
+
 ## [2.9.2](https://github.com/verstak-ai/skills/compare/v2.9.1...v2.9.2) (2026-10-08)
 
 
