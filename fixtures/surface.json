@@ -4,6 +4,7 @@
     "version": "0.25.0"
   },
   "protocolVersion": "2025-06-18",
+  "amended": "verstak_case and lens=board added by hand from the sibling delivery surface (make surface failed: dead grant, upstream 404); replace with make surface",
   "tools": [
     "verstak_add_bianhua",
     "verstak_add_holon",
@@ -14,6 +15,7 @@
     "verstak_admin",
     "verstak_arrow",
     "verstak_batch",
+    "verstak_case",
     "verstak_channel",
     "verstak_delete_node",
     "verstak_history",
@@ -29,6 +31,7 @@
   "enums": {
     "lens": [
       "bianhua",
+      "board",
       "path",
       "tensions",
       "topology",
