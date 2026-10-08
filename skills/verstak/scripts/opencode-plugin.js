@@ -47,7 +47,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "2.10.1";
+var VERSION = "3.0.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -223,7 +223,8 @@ var OPENCODE = {
 var OPENCODE_KEEP = {
   en: {
     resumed: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. Check the name against the one derived for this session: if it is someone else's, release it with verstak_channel(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one verstak_stand; a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.`,
-    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not this session's bridge: hearing and the busy line here hold no seat. Call verstak_stand with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
+    resumedOwn: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
+    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: hearing and the busy line here hold no seat. Call verstak_stand with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
     notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries the return once; if you will not wait — verstak_stand.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
@@ -423,42 +424,6 @@ function resolve2() {
 var S = scoped(() => ({ current: null }));
 var lang = () => S.current ??= resolve2();
 var words = (dict) => dict[lang()];
-
-// js/shared/launch.ts
-var LINE = LAUNCH_LINE;
-function parseLaunch(text) {
-  const [, realm, karta, no, of] = LINE.exec(text) ?? [];
-  return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
-}
-function withWord(text, word2) {
-  const m = LINE.exec(text);
-  if (!m) return `${text}
-${word2}`;
-  const nl = text.indexOf("\n", m.index);
-  return nl < 0 ? `${text}
-${word2}` : `${text.slice(0, nl)}
-${word2}${text.slice(nl)}`;
-}
-async function enterCase(l, call, satelliteOf, placeName) {
-  const W4 = words(LAUNCH);
-  const room = `#${l.no}`;
-  const stand = { realm: l.realm, karta: l.karta };
-  if (satelliteOf) stand.satellite_of = satelliteOf;
-  try {
-    await call(tool("stand"), stand);
-  } catch (e) {
-    const why = e.message;
-    const join9 = `${tool("case")}(action="join", room="${room}")`;
-    return W4.notSeated(why, l.no, join9);
-  }
-  const place = placeName() || W4.ownSeat();
-  try {
-    await call(tool("case"), { action: "join", realm: l.realm, room });
-  } catch (e) {
-    return W4.notEntered(place, l.no, e.message);
-  }
-  return W4.entered(place, l.no);
-}
 
 // js/shared/channel.ts
 var SILENT_FLOOR_MS = Number(process.env[envName("CHANNEL_SILENT_FLOOR_MS")]) || 6e4;
@@ -934,165 +899,6 @@ function addressedToMine(frame) {
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || void 0)) === "human";
 }
 
-// js/shared/seen.ts
-var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
-function eventKeyOf(frame) {
-  const via = frame?.provenance?.via;
-  if (via === "room") return evOf(frame?.event_id);
-  if (via !== "graph") return "";
-  const body = frame?.body;
-  if (!body || typeof body !== "object" || Array.isArray(body)) return "";
-  return evOf(body.event_id);
-}
-var asText = (frame) => addressedToMine(frame);
-function deliveryKeys(frame, named = false) {
-  const id = typeof frame?.id === "string" ? frame.id : "";
-  const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
-  const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
-  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
-}
-function eventIn(frame, has) {
-  const ev = frame ? eventKeyOf(frame) : "";
-  if (!ev || !frame) return false;
-  const n2 = ev.slice(3);
-  const stale = frame.stale === true;
-  const keys = !asText(frame) ? [ev, `evs:${n2}`] : stale ? [ev, `evs:${n2}`, `cev:${n2}`, `cevs:${n2}`] : [ev, `cev:${n2}`];
-  return keys.some(has);
-}
-var isTact = (frame) => frame?.provenance?.wake === "look_up";
-var tactAt = (frames) => (frames ?? []).filter(isTact).map((f) => typeof f.received_at === "string" ? f.received_at : "").reduce((a, b) => b > a ? b : a, "");
-var onlyTacts = (frames) => !!frames?.length && frames.every(isTact);
-
-// js/shared/clients.ts
-var OPENCODE_CLIENT = CLIENTS.opencode;
-var PI_CLIENT = CLIENTS.pi;
-var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
-var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
-
-// js/shared/fields.ts
-var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
-var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
-
-// js/shared/version.ts
-import { createHash } from "node:crypto";
-import { readFileSync as readFileSync2 } from "node:fs";
-import { fileURLToPath } from "node:url";
-function buildOf(selfUrl) {
-  try {
-    const src = readFileSync2(fileURLToPath(selfUrl));
-    return `v${VERSION}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
-  } catch {
-    return `v${VERSION}`;
-  }
-}
-function buildOfFile(path) {
-  try {
-    const src = readFileSync2(path);
-    const v = versionIn(src.toString("utf8")) ?? "?";
-    return `v${v}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
-  } catch {
-    return null;
-  }
-}
-var MARK_LITERAL = /"([^"\s]+-build):(?:dev|release)"/g;
-function versionIn(text) {
-  for (const [, name] of text.matchAll(MARK_LITERAL)) if (name !== BUILD_MARK) return null;
-  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text);
-  return m ? m[1] : null;
-}
-
-// js/bridge/build.ts
-var BUILD = buildOf(import.meta.url);
-
-// js/bridge/streams.ts
-var out = scoped(() => ({ stream: null }));
-
-// js/bridge/config.ts
-var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
-function strip(url) {
-  return url.replace(/\/+$/, "");
-}
-var cfgSlot = scoped(() => ({ cfg: null }));
-var CFG = new Proxy({}, {
-  get: (_, k) => cfgSlot.cfg ? Reflect.get(cfgSlot.cfg, k) : void 0,
-  has: (_, k) => !!cfgSlot.cfg && Reflect.has(cfgSlot.cfg, k)
-});
-
-// js/bridge/oauth/discovery.ts
-var REGISTRATION_REUSE_MS = 45 * 6e4;
-
-// js/bridge/oauth/pacing.ts
-var pauses = (v, fallback) => (v || fallback).split(",").map(Number).filter((n2) => Number.isFinite(n2) && n2 >= 0);
-var DEAD_RECHECK_MS = pauses(process.env[envName("BRIDGE_DEAD_RECHECK_MS")], "1000,2000");
-var IN_CALL_WAIT_MS = Number(process.env[envName("BRIDGE_IN_CALL_WAIT_MS")]) || 1e4;
-var ORPHAN_FLOW_MS = Number(process.env[envName("BRIDGE_ORPHAN_FLOW_MS")]) || 5 * 6e4;
-
-// js/bridge/oauth/device.ts
-var SLOW_DOWN_MS = Number(process.env[envName("BRIDGE_DEVICE_SLOW_DOWN_MS")]) || 5e3;
-var REISSUE_PAUSE_MS = Number(process.env[envName("BRIDGE_DEVICE_REISSUE_MS")]) || 3e4;
-var never = new Promise(() => {
-});
-
-// js/bridge/oauth/flow.ts
-var CLAIM_WAIT_MS = Number(process.env[envName("BRIDGE_CLAIM_WAIT_MS")]) || 15e3;
-var LANDED_POLL_MS = Number(process.env[envName("BRIDGE_LANDED_POLL_MS")]) || 2e3;
-var RELEASE_GAP_MS = Number(process.env[envName("BRIDGE_RELEASE_GAP_MS")]) || 0;
-
-// js/bridge/repeat.ts
-var OWN_CALL_PREFIX = `${ID_PREFIX}bridge-call-`;
-var READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(tool));
-var SAFE_ACTIONS = {
-  [tool("channel")]: /* @__PURE__ */ new Set(["list"]),
-  [tool("realm")]: /* @__PURE__ */ new Set(["list"])
-};
-
-// js/shared/satname.ts
-var NAME_MAX = 48;
-var SUB_RE = /\.sub-([1-9]\d*)$/;
-var satelliteName = (base, n2) => base.slice(0, NAME_MAX - `.sub-${n2}`.length).replace(/[-._]+$/, "") + `.sub-${n2}`;
-function isSatelliteOf(base, name) {
-  const m = SUB_RE.exec(name);
-  return !!m && satelliteName(base, Number(m[1])) === name;
-}
-
-// js/bridge/transport.ts
-var state = scoped(() => ({
-  sessionId: null,
-  protocolVersion: null,
-  initParams: null,
-  // params of the harness's initialize, for transparent replay
-  reinitCounter: 0,
-  // The standing this session registered, and the session it was confirmed in.
-  // Why the bridge owns re-registration, what was observed to go wrong, and the
-  // falsifier that closes it: graph @nks/nks-dev, nodes #3919 (the breakdown),
-  // #3454 (the falsifier), #3800 (the header form the surface binds with).
-  // The server correlates a writer BY THE MCP SESSION ID (its holder's word):
-  // a new session is a different writer, and the surface's own self-repair has
-  // nothing to repeat there, because its memory is keyed by that same id and is
-  // collected with it. Sessions die silently in three ways — idle past the
-  // threshold, eviction by the session ceiling, transport close — and the
-  // bridge is the ONLY party that sees the change and still remembers the name
-  // the agent derived for itself. So re-registering is the bridge's duty, and
-  // it hangs on the change of id, never on a timer.
-  standing: null,
-  // {realm, karta, name} of the last register that succeeded
-  // Places in OTHER graphs on the same channel (#5838): register on the channel
-  // in another graph adds a place, and a write is signed by the place of its
-  // own graph. `standing` stays the place the socket was taken for; these ride
-  // it and are replayed with it after every session turnover.
-  places: [],
-  standingSession: null,
-  // the session id that registration is known to hold in
-  // The access token the session was opened with. A session is opened BY a
-  // credential and dies with it (the surface's own word): once the token in the
-  // store is no longer the one this session was opened with — expired, refreshed
-  // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
-  // server that opens a fresh session on it silently runs the call unattributed
-  // before we learn the new id. So a changed token means: re-open first.
-  sessionToken: null
-}));
-var reinit = scoped(() => ({ inFlight: null }));
-
 // js/shared/keyfold.ts
 var rec = (v) => v && typeof v === "object" ? v : {};
 var idOf = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
@@ -1260,6 +1066,217 @@ function batchPointer(frames) {
   }
   return T().inFull([...since].map(([args, e]) => T().caseHistory(args, e - 1)).join("; "));
 }
+
+// js/shared/launch.ts
+var LINE = LAUNCH_LINE;
+function parseLaunch(text) {
+  const [, realm, karta, no, of] = LINE.exec(text) ?? [];
+  return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
+}
+function withWord(text, word2) {
+  const m = LINE.exec(text);
+  if (!m) return `${text}
+${word2}`;
+  const nl = text.indexOf("\n", m.index);
+  return nl < 0 ? `${text}
+${word2}` : `${text.slice(0, nl)}
+${word2}${text.slice(nl)}`;
+}
+async function enterCase(l, call, satelliteOf, placeName) {
+  const W4 = words(LAUNCH);
+  const room = `#${l.no}`;
+  const stand = { realm: l.realm, karta: l.karta };
+  if (satelliteOf) stand.satellite_of = satelliteOf;
+  try {
+    await call(tool("stand"), stand);
+  } catch (e) {
+    const why = e.message;
+    const join9 = `${tool("case")}(action="join", room="${room}")`;
+    return W4.notSeated(why, l.no, join9);
+  }
+  const place = placeName() || W4.ownSeat();
+  try {
+    await call(tool("case"), { action: "join", realm: l.realm, room });
+  } catch (e) {
+    return W4.notEntered(place, l.no, e.message);
+  }
+  return W4.entered(place, l.no);
+}
+
+// js/shared/seen.ts
+var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
+function eventKeyOf(frame) {
+  const via = frame?.provenance?.via;
+  if (via === "room") return evOf(frame?.event_id);
+  if (via !== "graph") return "";
+  const body = frame?.body;
+  if (!body || typeof body !== "object" || Array.isArray(body)) return "";
+  return evOf(body.event_id);
+}
+var asText = (frame) => addressedToMine(frame);
+function deliveryKeys(frame, named = false) {
+  const id = typeof frame?.id === "string" ? frame.id : "";
+  const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
+  const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
+  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
+}
+function eventIn(frame, has) {
+  const ev = frame ? eventKeyOf(frame) : "";
+  if (!ev || !frame) return false;
+  const n2 = ev.slice(3);
+  const stale = frame.stale === true;
+  const keys = !asText(frame) ? [ev, `evs:${n2}`] : stale ? [ev, `evs:${n2}`, `cev:${n2}`, `cevs:${n2}`] : [ev, `cev:${n2}`];
+  return keys.some(has);
+}
+var isTact = (frame) => frame?.provenance?.wake === "look_up";
+var tactAt = (frames) => (frames ?? []).filter(isTact).map((f) => typeof f.received_at === "string" ? f.received_at : "").reduce((a, b) => b > a ? b : a, "");
+var onlyTacts = (frames) => !!frames?.length && frames.every(isTact);
+
+// js/shared/clients.ts
+var OPENCODE_CLIENT = CLIENTS.opencode;
+var PI_CLIENT = CLIENTS.pi;
+var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
+var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
+
+// js/shared/fields.ts
+var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
+var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
+
+// js/shared/version.ts
+import { createHash } from "node:crypto";
+import { readFileSync as readFileSync2 } from "node:fs";
+import { fileURLToPath } from "node:url";
+function buildOf(selfUrl) {
+  try {
+    const src = readFileSync2(fileURLToPath(selfUrl));
+    return `v${VERSION}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
+  } catch {
+    return `v${VERSION}`;
+  }
+}
+function buildOfFile(path) {
+  try {
+    const src = readFileSync2(path);
+    const v = versionIn(src.toString("utf8")) ?? "?";
+    return `v${v}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
+  } catch {
+    return null;
+  }
+}
+var MARK_LITERAL = /"([^"\s]+-build):(?:dev|release)"/g;
+function versionIn(text) {
+  for (const [, name] of text.matchAll(MARK_LITERAL)) if (name !== BUILD_MARK) return null;
+  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text);
+  return m ? m[1] : null;
+}
+
+// js/bridge/build.ts
+var BUILD = buildOf(import.meta.url);
+
+// js/bridge/streams.ts
+var out = scoped(() => ({ stream: null }));
+
+// js/bridge/config.ts
+var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
+function strip(url) {
+  return url.replace(/\/+$/, "");
+}
+var cfgSlot = scoped(() => ({ cfg: null }));
+var CFG = new Proxy({}, {
+  get: (_, k) => cfgSlot.cfg ? Reflect.get(cfgSlot.cfg, k) : void 0,
+  has: (_, k) => !!cfgSlot.cfg && Reflect.has(cfgSlot.cfg, k)
+});
+
+// js/bridge/oauth/discovery.ts
+var REGISTRATION_REUSE_MS = 45 * 6e4;
+
+// js/bridge/oauth/pacing.ts
+var pauses = (v, fallback) => (v || fallback).split(",").map(Number).filter((n2) => Number.isFinite(n2) && n2 >= 0);
+var DEAD_RECHECK_MS = pauses(process.env[envName("BRIDGE_DEAD_RECHECK_MS")], "1000,2000");
+var IN_CALL_WAIT_MS = Number(process.env[envName("BRIDGE_IN_CALL_WAIT_MS")]) || 1e4;
+var ORPHAN_FLOW_MS = Number(process.env[envName("BRIDGE_ORPHAN_FLOW_MS")]) || 5 * 6e4;
+
+// js/bridge/oauth/device.ts
+var SLOW_DOWN_MS = Number(process.env[envName("BRIDGE_DEVICE_SLOW_DOWN_MS")]) || 5e3;
+var REISSUE_PAUSE_MS = Number(process.env[envName("BRIDGE_DEVICE_REISSUE_MS")]) || 3e4;
+var never = new Promise(() => {
+});
+
+// js/bridge/oauth/flow.ts
+var CLAIM_WAIT_MS = Number(process.env[envName("BRIDGE_CLAIM_WAIT_MS")]) || 15e3;
+var LANDED_POLL_MS = Number(process.env[envName("BRIDGE_LANDED_POLL_MS")]) || 2e3;
+var RELEASE_GAP_MS = Number(process.env[envName("BRIDGE_RELEASE_GAP_MS")]) || 0;
+
+// js/bridge/repeat.ts
+var OWN_CALL_PREFIX = `${ID_PREFIX}bridge-call-`;
+var READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(tool));
+var SAFE_ACTIONS = {
+  [tool("channel")]: /* @__PURE__ */ new Set(["list"]),
+  [tool("realm")]: /* @__PURE__ */ new Set(["list"])
+};
+
+// js/bridge/toolsync.ts
+var T2 = scoped(() => ({
+  served: null,
+  // each harness session has its own list
+  told: false,
+  // list_changed said, and the harness has not reread yet
+  inFlight: 0,
+  // the harness's tools/list in flight (any page)
+  listing: /* @__PURE__ */ new WeakSet(),
+  // the harness's tools/list (first page) in flight
+  heldBack: /* @__PURE__ */ new WeakSet(),
+  // …in whose answer the server said list_changed
+  live: /* @__PURE__ */ new WeakSet()
+  // …answered to the harness with the server's live list
+}));
+
+// js/shared/satname.ts
+var NAME_MAX = 48;
+var SUB_RE = /\.sub-([1-9]\d*)$/;
+var satelliteName = (base, n2) => base.slice(0, NAME_MAX - `.sub-${n2}`.length).replace(/[-._]+$/, "") + `.sub-${n2}`;
+function isSatelliteOf(base, name) {
+  const m = SUB_RE.exec(name);
+  return !!m && satelliteName(base, Number(m[1])) === name;
+}
+
+// js/bridge/transport.ts
+var state = scoped(() => ({
+  sessionId: null,
+  protocolVersion: null,
+  initParams: null,
+  // params of the harness's initialize, for transparent replay
+  reinitCounter: 0,
+  // The standing this session registered, and the session it was confirmed in.
+  // Why the bridge owns re-registration, what was observed to go wrong, and the
+  // falsifier that closes it: graph @nks/nks-dev, nodes #3919 (the breakdown),
+  // #3454 (the falsifier), #3800 (the header form the surface binds with).
+  // The server correlates a writer BY THE MCP SESSION ID (its holder's word):
+  // a new session is a different writer, and the surface's own self-repair has
+  // nothing to repeat there, because its memory is keyed by that same id and is
+  // collected with it. Sessions die silently in three ways — idle past the
+  // threshold, eviction by the session ceiling, transport close — and the
+  // bridge is the ONLY party that sees the change and still remembers the name
+  // the agent derived for itself. So re-registering is the bridge's duty, and
+  // it hangs on the change of id, never on a timer.
+  standing: null,
+  // {realm, karta, name} of the last register that succeeded
+  // Places in OTHER graphs on the same channel (#5838): register on the channel
+  // in another graph adds a place, and a write is signed by the place of its
+  // own graph. `standing` stays the place the socket was taken for; these ride
+  // it and are replayed with it after every session turnover.
+  places: [],
+  standingSession: null,
+  // the session id that registration is known to hold in
+  // The access token the session was opened with. A session is opened BY a
+  // credential and dies with it (the surface's own word): once the token in the
+  // store is no longer the one this session was opened with — expired, refreshed
+  // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
+  // server that opens a fresh session on it silently runs the call unattributed
+  // before we learn the new id. So a changed token means: re-open first.
+  sessionToken: null
+}));
+var reinit = scoped(() => ({ inFlight: null }));
 
 // js/bridge/backlog.ts
 var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
@@ -2327,8 +2344,8 @@ async function sessionDirectory(ctx, sessionID) {
 var WATCH_MS = Number(process.env[envName("BRIDGE_WATCH_MS")] || 5 * 6e4);
 var PATIENCE_MS = Number(process.env[envName("RESUME_PATIENCE_MS")] || 1e4);
 var STEP_MS = 500;
-function resumedWord(key) {
-  return words(OPENCODE_KEEP).resumed(key);
+function resumedWord(key, own = false) {
+  return own ? words(OPENCODE_KEEP).resumedOwn(key) : words(OPENCODE_KEEP).resumed(key);
 }
 var elsewhereWord = (keys) => words(OPENCODE_KEEP).elsewhere(keys.join(", "));
 function createKeeper(doors) {
@@ -2389,7 +2406,8 @@ function createKeeper(doors) {
       if (typeof r.key === "string") slot.key = r.key;
       roots.add(root);
       doors.say(W4.sessionResumed(root, r.word), "info");
-      if (typeof r.key === "string" && !quiet) doors.tell(root, resumedWord(r.key), slot.child);
+      if (typeof r.key === "string" && !quiet)
+        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
       return "held";
     } catch (e) {
       marked.delete(root);
@@ -2418,7 +2436,8 @@ function createKeeper(doors) {
     retrying.delete(root);
     if (r?.resumed) {
       doors.say(W4.watchResumed(root, r.word), "info");
-      if (typeof r.key === "string") doors.tell(root, resumedWord(r.key), slot.child);
+      if (typeof r.key === "string")
+        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
     } else if (r?.reopened) doors.say(W4.watchReopened(root, r.word), "warning");
     else if (r?.stuck) doors.say(r.word, "error");
   }
@@ -2643,6 +2662,7 @@ function teller(ctx, say) {
   return async (sessionID, text, wake) => {
     const s = ctx.session;
     const delivery = "steer";
+    text = markFrame(text);
     try {
       if (typeof s.synthetic === "function")
         await s.synthetic({ sessionID, text, delivery, resume: wake });
@@ -4057,7 +4077,7 @@ async function setup(ctx) {
       const counts = await rootOf(sid) === sid ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}
 
-${counts}`;
+${markFrame(counts)}`;
     });
   } catch (e) {
     say(W4.launchDown(e.message), "error");
