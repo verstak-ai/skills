@@ -32,7 +32,7 @@ The user in the chat and the user as a frame through their bridge carry **the sa
 
 1. **Split by tier**: product questions (what, in what order) from architectural ones (how, what breaks); whole, they stick in two queues.
 2. **Record what the task changes, not the task** (the door, `One-off task`): the decision at once, in modes of intent (`methods/writing.md`), on the node it changes — search first.
-3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat, not the role.
+3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat, not the role. Their restatement `in_reply_to` it is the receipt; the taken work and its outcome are their lines on its key. A question you need them to answer is a card, not an assignment (the door, `One-off task`, `Waiting on an answer`).
 
 The assignment derives from the node, not from the user's wish in your words. **Don't stamp your own urgency** — ranking is the queue owner's act; say what delay costs.
 

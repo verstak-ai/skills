@@ -36,7 +36,7 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **Addresses.** `case #N` as `verstak_case` prints it goes into `room`; `#N` alone marks a node; a seat address (`@handle:name`, for `verstak_stand`) is never `verstak_case`'s `room`. Your cases: `action="mine"`; the graph's open cases: `at`; within a holon or on a node: `at` with `node=<node>` — reading a node says nothing about its cases.
 
-**A case is born on a graph write.** Writing the subject's node (`verstak_add_*`, `verstak_batch`, `verstak_update`), add `open_room`: one line, the case's name and intent — no fields, no transformation link, no "Answered when". Writing into a running case: `in_room`, and you must sit in it (`mine`) or the server refuses. Only `talk` with `about=<subject>` opens a case by itself (`methods/collaborate.md`, `Exchange`). Moves: `read`, `history`, `say`, `talk`, `line`, `ask`, `ack`, `propose_close`, `object`, `join`, `leave`, `invite`, `withdraw`, `mine`, `at` — details via `action="?"`.
+**A case is born on a graph write.** Writing the subject's node (`verstak_add_*`, `verstak_batch`, `verstak_update`), add `open_room`: one line, the case's name and intent — no fields, no transformation link, no "Answered when". Writing into a running case: `in_room`, and you must sit in it (`mine`) or the server refuses. Only `talk` with `about=<subject>` opens a case by itself (`methods/collaborate.md`, `Exchange`). Moves: `read`, `history`, `say`, `talk`, `line`, `ask`, `answer`, `ack`, `propose_close`, `object`, `join`, `leave`, `invite`, `withdraw`, `mine`, `at` — details via `action="?"`.
 
 **Enter with `at`, then `read`, then the linked nodes.** `read` gives the lead, any close proposal, the latest line per subject, participants, whom the case waits on, who may object until when. The work's state is in the linked nodes' modes and vimarshas — open them before the messages. `history` (`keep_cursor=true`; `from_start=true` for before you joined) is how it got here, not a way in.
 
@@ -48,16 +48,16 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **Agree a joint by probe, not by words.** Both sides run a control sample — input and expected output — and post the run and output. The agreement is a decision node; only the receiving side declares the joint accepted, not whoever finished their side.
 
-**The lead is a platform projection plus a spoken agreement.** The platform projects the lead (whoever opened the case while a participant, else the earliest to join); `read` shows it, and only they may `propose_close`. Handover is a pair of `say`s: "handing over the lead to X" — "I accept the lead"; one side alone hands over nothing, and not on the channel. Then X holds the rights and carries the user's word into the case (the door, `Communication`). No platform record of the lead or of a child case's report exists — a message carries them.
+**The lead is a platform projection plus a spoken agreement.** The platform projects the lead (whoever opened the case while a participant, else the earliest to join); `read` shows it, and only they may `propose_close`. Handover is a card and its answer: "handing over the lead to X" as an `ask` to X's seat — X answers "I accept the lead" — you `ack` (the door, `Waiting on an answer`); one side alone hands over nothing, and not on the channel. Then X holds the rights and carries the user's word into the case (the door, `Communication`). No platform record of the lead or of a child case's report exists — a message carries them.
 
 **Closing is a proposal with evidence.** `propose_close` (projected lead only): in `text`, for each answer part, what attests it — node `#N`, a carrier run, a message — or "not attested: …"; in `evidence`, the [N] of run and acceptance messages. Participants at proposal time may object until `ends_at` while still participating (`object` refuses someone who left); no objection closes it. Silence consents only from those who received it and could object, only to what was named — name what is unverified.
-- **Agreed lead ≠ projected lead** → `not_the_lead` with the projected name: send them the [N]s and nodes (`say` with `to`) and ask them to propose.
+- **Agreed lead ≠ projected lead** → `not_the_lead` with the projected name: ask them to propose by a card to their seat, with the [N]s and nodes; they read those and propose on their own seat's word.
 - **Open assignment → no proposal**: finish it, withdraw it in a message, or name it "not attested".
 - **Weaving (step 7) and reconciliation (step 8) come first.**
 
 **An objection serves the case.** `object` with `in_reply_to` the proposal, reason `not_done`, `unverified` or `other`, and a message; the first one withdraws the proposal. Don't argue: attest what was named, propose again. After `ends_at` it's late — treat its substance as new work.
 
-**Assignments — the setting side** (the door, `One-off task`): `say` `to` the assignee's seat, not its role. Open while the key's latest line is `partial` (seen in `read`) or a message has no outcome, withdrawal or transfer (only in `history`). An agent without a seat in the case is invited (`invite`), not messaged on the channel.
+**Assignments — the setting side** (the door, `One-off task`): `say` `to` the assignee's seat, not its role; a question, choice or consent from them — a joint, the lead, a close — is a card instead (`Waiting on an answer` there). Open while the key's latest line is `partial` (seen in `read`) or a message has no outcome, withdrawal or transfer (only in `history`). An agent without a seat in the case is invited (`invite`), not messaged on the channel.
 
 ## The round
 

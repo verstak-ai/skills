@@ -80,7 +80,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 | in mandate, actionable, unblocked | mark it (§2c); graph yourself, bulk code to a subagent via a brief of references |
 | out of mandate | escalate (§5); take the part that needs no one's decision |
 | underspecified | a precise question to whoever set it, in that case; a substantive one as a vimarsha with "Answered when" |
-| blocked | **probe the blocker with one live call** — untouched, it is usually stale. Survives → name its actor and the wait (the door, `Ledger`) |
+| blocked | **probe the blocker with one live call** — untouched, it is usually stale. Survives → name its actor; their answer you wait on as a card, work you hand them as a `say` (the door, `Waiting on an answer`, `One-off task`) |
 | the question is wrong | supersede it (`methods/inquiry.md`) and answer the right one |
 
 **A start is made, not announced**: a turn ending in a plan without a change failed. "If you don't mind" is only for the irreversible — then a recorded question **plus** work on what it doesn't touch.
@@ -121,7 +121,7 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's. Work on the user's word or a reality signal isn't split.
 
-**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible) as a vimarsha `posed_to` their role, pointing at moved nodes; report it in the shared case. **Up**: a `partial` line on your key, its outcome the next line (the door, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible) as a vimarsha `posed_to` their role, pointing at moved nodes; report it in the shared case. **Up**: an answer you wait on → an `ask` card to the seat that owes it (the door, `Waiting on an answer`); your own unfinished state → a `partial` line on your key, its outcome the next line (`Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
 
 A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
 
@@ -151,14 +151,14 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 1. **Reconcile** (`methods/reconcile.md`): true modes, remaining debts as vimarshas.
 2. **Hand over** in the seed and in the case: what was taken, promised to whom, open.
-3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening hands over the lead (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
+3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening hands over the lead by a card and its `ack` (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
 4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`). No `revoke`: it deafens the seat when mail matters most and removes a successor's seat on the same name.
 
 Without the user's word there is no handover; a session's end is an absence.
 
 ## 5 · Escalation
 
-Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question (`Asking the user`) — no case → open one on the subject node.
+Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question, whether a person or an agent holds the mandate (the door, `Waiting on an answer`) — no case → open one on the subject node.
 
 **A question doesn't end the round**: in the same turn continue with what the answer doesn't touch; three questions are three gates. All hangs on it → one list on the node, wake-up armed.
 
