@@ -72,9 +72,12 @@ async function produce() {
 // and such a bridge never refreshes the machine's home copy. The mark has one source,
 // the delivery layer.
 const MARK_SOURCE = "js/delivery/version.ts";
-const markDev = /^export const CHANNEL_MARK: string = "([^"]+:dev)";$/m.exec(
-  readFileSync(join(ROOT, MARK_SOURCE), "utf8"),
+const markSource = readFileSync(join(ROOT, MARK_SOURCE), "utf8");
+const version = /^export const VERSION = "([^"]+)"; \/\/ x-release-please-version$/m.exec(
+  markSource,
 )?.[1];
+if (!version) throw new Error(`${MARK_SOURCE}: no stamped VERSION line`);
+const markDev = /^export const CHANNEL_MARK: string = "([^"]+:dev)";$/m.exec(markSource)?.[1];
 if (!markDev) throw new Error(`${MARK_SOURCE}: no CHANNEL_MARK line with the :dev mark`);
 const DEV_MARK = `"${markDev}"`;
 const RELEASE_MARK = `"${markDev.replace(/:dev$/, ":release")}"`;
@@ -86,6 +89,9 @@ if (CHECK) {
   for (const rel of OUTPUTS) {
     const path = join(ROOT, rel);
     const have = existsSync(path) ? readFileSync(path, "utf8") : null;
+    // esbuild preserves this delivery-layer declaration in all three outputs.
+    // Match the declaration, not a version string elsewhere in the bundle.
+    const versions = [...(have ?? "").matchAll(/^var VERSION = "([^"]+)";$/gm)];
     const why =
       have === null
         ? "missing"
@@ -93,7 +99,11 @@ if (CHECK) {
           ? "carries the dev mark"
           : rel === BRIDGE && !have.includes(RELEASE_MARK)
             ? "has no release mark"
-            : null;
+            : versions.length !== 1
+              ? "must carry exactly one embedded VERSION declaration"
+              : versions[0][1] !== version
+                ? `version ${versions[0][1]} differs from stamped version ${version} in ${MARK_SOURCE}`
+                : null;
     if (why) {
       bad++;
       console.error(`✗ ${rel}: ${why} — it is written by make build-release (the release job)`);
@@ -101,7 +111,7 @@ if (CHECK) {
   }
   if (bad) process.exit(1);
   process.stdout.write(
-    `✓ ${OUTPUTS.length} committed JS outputs are a release build, no dev mark\n`,
+    `✓ ${OUTPUTS.length} committed JS outputs are a release build, no dev mark, version ${version}\n`,
   );
 } else {
   const outputs = await produce();

@@ -50,6 +50,8 @@ jobs:
       # into dist/dev.
       - name: Rebuild the shipped JS and the bundles for the stamped version
         run: make build-release
+      - name: Check the shipped JS against the stamped version
+        run: make check-js
       - name: Commit them back to the release branch
         run: |
           if git diff --quiet; then exit 0; fi
@@ -58,4 +60,3 @@ jobs:
           git add -A
           git commit -m "chore: rebuild the shipped JS and bundles for the stamped version"
           git push
-

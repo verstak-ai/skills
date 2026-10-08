@@ -66,7 +66,8 @@ build-release:
 	@VERSTAK_BUILD_CHANNEL=release node js/build.mjs
 	@bash scripts/build-skills.sh
 
-# The committed outputs are the release build: no dev mark, the bridge marked release.
+# The committed outputs are the release build: no dev mark, the bridge marked release,
+# and every embedded VERSION equals the release-please stamp in js/delivery/version.ts.
 check-js:
 	@node js/build.mjs --check
 
