@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.2](https://github.com/verstak-ai/skills/compare/v2.9.1...v2.9.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* **skills:** call the verstak_* tools — the verstak delivery's tool prefix ([#121](https://github.com/verstak-ai/skills/issues/121)) ([33300d7](https://github.com/verstak-ai/skills/commit/33300d72695b21a787c2cfd1781cb451a7ac26f7))
+
 ## [2.9.1](https://github.com/verstak-ai/skills/compare/v2.9.0...v2.9.1) (2026-08-24)
 
 
