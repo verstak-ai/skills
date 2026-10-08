@@ -108,7 +108,7 @@ Claude Code: `.claude/settings.json`, committed. **Merge, never overwrite** — 
 - **`SessionStart`** → load the `verstak` skill first, every session, before any action, and do the door's `Start` with the repo's addresses (graph, focus holon, agent and owner role seqs). Don't retell the start protocol.
 - **`PostToolUse`/Bash — push** (`git push` succeeded, by outcome) → a push shipped nothing: self-review with the vocabulary pass, then cold review (`methods/code-work.md`).
 - **`PostToolUse`/Bash — merge** (a forge merge merged the PR, or `git checkout main && git pull`) → the after-merge acts (`methods/code-work.md`, `After merge`).
-- **`PreToolUse` `Write|Edit|MultiEdit|NotebookEdit` — memory guard**: a path in the project-memory directory → **block** (exit 2, routing message on stderr).
+- **`PreToolUse` `Write|Edit|MultiEdit|NotebookEdit` — memory guard**: a path in the project-memory directory → **block** (exit 2, routing message on stderr). Both harnesses' refusals carry the route filled from the slots: the graph by name, the persistence section by its heading in this `AGENTS.md`, the personal graph; a bare ban is a projection defect.
 - **`PostToolUse` `Write|Edit` — spec-write** (full interop only): a design/spec-looking path → design is recorded in the graph.
 - **Branch freshness** — offer a pre-push hook (`references/align-hooks.md`).
 
@@ -128,8 +128,8 @@ Doctrine, file templates and the satellite entry: `references/align-delegation.m
 - Claude Code, always: `.claude/agents/` `reader`, `searcher` (middle tier), `worker`, `designer`, `reviewer`, `verifier` (top tier) — aliases `sonnet`/`opus`, nothing on `haiku`. `verifier` and `reviewer` even with no runtime: they make `REALITY.md` and review executable. `searcher` is read-only; its candidates are accepted only after checking the node's neighbourhood. No role writes to the graph.
 - OpenCode: the same six in `.opencode/agents/`, `mode: subagent`, model **pinned** per file from the user's setup (ask or read `opencode.json`), never copied from the reference; the top tier only Claude Opus or GPT-6.1 Sol.
 - The satellite entry is one `node -e` form for every OS — copy it verbatim; no machine path.
-- **Merge**: another suite's same-named agent → fold in or rename yours (`verstak-reader`); your earlier projection → rewrite with the current body, but keep the repository's own lines in it (gate command, review canon, edit bans) — diff old against new before writing; someone else's body → leave it.
-- Self-check: files parse; each Claude Code file has its own `verstak-sub-<role>` entry (no shared entry, no `sh -c`); `doctor` from the repo root shows no `TODO:` lines; no body allows graph writes or acts on the shared bridge; an old `weaver` of yours deleted; pinned models exist.
+- **Merge**: another suite's same-named agent → fold in or rename yours (`verstak-reader`); your earlier projection → rewrite the body above `## This repo` and carry that heading's tail as is: the repository's own lines (gate command, review canon, edit bans) live only there; an old file without the heading → sort by content, restore lost lines from the file's history; someone else's body → leave it.
+- Self-check: files parse; each Claude Code file has its own `verstak-sub-<role>` entry (no shared entry, no `sh -c`); `doctor` from the repo root shows no `TODO:` lines; no body allows graph writes or acts on the shared bridge; an old `weaver` of yours deleted; pinned models exist; each `## This repo` tail identical before and after the run.
 - A role projected this run may not be callable until restart — say so, and run this run's cold review as a generic subagent briefed with the role body, on a top-tier model only (a call parameter where the harness gives one; else the session's model if it is one; else no cold review — say so).
 
 ### Step 7 — Finalize

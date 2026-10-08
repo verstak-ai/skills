@@ -129,7 +129,7 @@ export default {
       const base = (await dirOf(input.sessionID)) || own;
       if (!paths.some((p) => isLocalMemoryPath(p, base))) return;
       if (!(await mine(input.sessionID))) return;
-      throw new Error("BLOCKED: local agent memory is forbidden entirely (AGENTS.md, Persistence). Route the fact: repo conventions and code facts -> AGENTS.md; project state, servers, dated duties -> the project graph named in AGENTS.md; a user-scoped fact no project owns -> the personal graph @handle/mind (the minding method of the verstak skill).");
+      throw new Error("BLOCKED: local agent memory is forbidden entirely (AGENTS.md, Persistence). Route the fact: repo conventions and code facts -> AGENTS.md; project state, servers, dated duties -> the project graph <@owner/slug>; a user-scoped fact no project owns -> the personal graph @handle/mind (the minding method of the verstak skill).");
     });
     // Push and merge: after a shell call, append one line to the result. Fire on the outcome, not the form:
     // help and --auto never fire; the exit code speaks for a command only when it is last in the chain or

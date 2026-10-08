@@ -34,7 +34,7 @@ Rules, from a five-task benchmark across tiers:
 
 Role files per platform in use: Claude Code always; OpenCode when the repo shows it (`opencode.json` or `.opencode/`) or the user says so. A harness's built-in subagent without a role file takes only graph-free work.
 
-The fenced blocks are deployable; the prose is guidance. Keep each `description` trigger-shaped (it is the routing surface), under ~500 characters, double-quoted, inner `"` escaped: unquoted, a `: ` breaks the YAML.
+The fenced blocks are deployable; the prose is guidance. A role file's repository lines (gate command, review canon, edit bans) go in a tail under a final `## This repo` heading; re-projection rewrites only what stands above it. Keep each `description` trigger-shaped (it is the routing surface), under ~500 characters, double-quoted, inner `"` escaped: unquoted, a `: ` breaks the YAML.
 
 ### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
