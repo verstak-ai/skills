@@ -10,7 +10,7 @@ The align method (`methods/align.md`) delivers **rituals**: start, push, merge, 
 
 Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Wire every one present.
 
-**The start ritual everywhere:** one message whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the AGENTS.md frontmatter addresses (`Graph`, `Focus holon`, `Agent role`, `Owner role`). Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
+**The start ritual everywhere:** one message, word for word the same in every harness, whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the AGENTS.md frontmatter addresses (`Graph`, `Focus holon`, `Agent role`, `Owner role`). Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
 ## Claude Code
 
@@ -188,7 +188,10 @@ export default {
     const START =
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
       "Addresses (AGENTS.md frontmatter): graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
-      "owner role #<Owner role>. Take a seat only to stand watch, with one verstak_stand.";
+      "owner role #<Owner role>. Take a seat only to stand watch, with one verstak_stand. " +
+      "A launch line of the form start GRAPH ROLE case #N enters that case. " +
+      "A subagent works on its own satellite bridge (verstak_stand with satellite_of, then join and leave on it); " +
+      "on the bridge of the agent that launched it, it writes nothing to the graph.";
     const ac = new AbortController();
     (async () => {
       for await (const ev of await ctx.event.subscribe({ signal: ac.signal })) {
