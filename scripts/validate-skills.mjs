@@ -13,6 +13,7 @@
 // skills actually use (two flat, single-line keys), which both catches malformed
 // YAML and keeps the frontmatter simple.
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -296,6 +297,36 @@ try {
   }
 } catch (e) {
   fail("README.md", `could not read: ${e.message}`);
+}
+
+// Text ban: no Cyrillic and no retired delivery name in the bridge's sources, its
+// gate and its built outputs (tracked, or new and not ignored). Working-tree
+// contents, not history. The multi-skill corpus still carries Russian; the ban
+// widens to every text file but CHANGELOG.md when the one-skill corpus lands.
+const BANNED_TEXT_UNDER = [
+  "js/", "scripts/", "extensions/", "skills/establish-mcp/scripts/",
+  ".github/", ".githooks/", "Makefile", ".nvmrc", "release-please-config.json",
+];
+{
+  const ls = (args) =>
+    execFileSync("git", ["ls-files", "-z", ...args], { cwd: root, encoding: "utf8" })
+      .split("\0")
+      .filter(Boolean);
+  const files = new Set([...ls([]), ...ls(["--others", "--exclude-standard"])]);
+  const retired = new RegExp("is" + "kron", "i");
+  for (const file of files) {
+    if (!BANNED_TEXT_UNDER.some((p) => file === p || (p.endsWith("/") && file.startsWith(p)))) continue;
+    if (file === "CHANGELOG.md" || !existsSync(join(root, file))) continue;
+    if (statSync(join(root, file)).isDirectory()) continue;
+    const buffer = readFileSync(join(root, file));
+    if (buffer.includes(0)) continue;
+    const text = buffer.toString("utf8");
+    if (text.includes("\uFFFD")) continue;
+    for (const [index, line] of text.split("\n").entries()) {
+      if (/\p{Script=Cyrillic}/u.test(line)) fail(`${file}:${index + 1}`, "Cyrillic is not allowed");
+      if (retired.test(line)) fail(`${file}:${index + 1}`, "retired delivery name is not allowed");
+    }
+  }
 }
 
 // Report.
