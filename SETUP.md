@@ -243,16 +243,16 @@ cp "$(dirname "$(find ~/.claude -path '*skills/establish-mcp/scripts/verstak-bri
 ```
 
 ```json
-{ "mcpServers": { "nks": { "command": "node", "args": ["/абс/путь/до/.verstak-bridge/verstak-bridge.mjs"] } } }
+{ "mcpServers": { "nks": { "command": "node", "args": ["/abs/path/to/.verstak-bridge/verstak-bridge.mjs"] } } }
 ```
 
 Put that entry in the harness's **user-level** config file (home directory), not the
 project one — the graph follows the user.
 
-With no URL argument the bridge points at `https://nks.lab.mirari.ru/mcp`; on the first
+With no URL argument the bridge points at `https://mcp.verstak.ai/`; on the first
 call it runs the full OAuth flow in the browser, keeps tokens fresh in `~/.verstak-bridge/`
 (also while idle), and turns any upstream failure into a visible error instead of a
-silent hang. Needs Node 20+. Details and the decision ladder: the `establish-mcp` skill.
+silent hang. Needs Node 22+. Details and the decision ladder: the `establish-mcp` skill.
 
 ## 3. Restart
 
