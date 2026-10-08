@@ -5,7 +5,7 @@
   "derived_from": "prefix swap of the sibling delivery's snapshot; refresh with make surface once mcp.verstak.ai serves",
   "tools": ["verstak_add_bianhua", "verstak_add_holon", "verstak_add_karta", "verstak_add_kriya", "verstak_add_phenomenon", "verstak_add_vimarsha", "verstak_admin", "verstak_arrow", "verstak_batch", "verstak_case", "verstak_channel", "verstak_delete_node", "verstak_history", "verstak_look", "verstak_me", "verstak_org", "verstak_orient", "verstak_realm", "verstak_search", "verstak_semantic_search", "verstak_stand", "verstak_update"],
   "enums": {
-    "lens": ["bianhua", "path", "tensions", "topology", "trace", "vimarshas"],
+    "lens": ["bianhua", "board", "path", "tensions", "topology", "trace", "vimarshas"],
     "op_type": ["create_edge", "create_node", "delete_edge", "delete_node", "update_edge", "update_node"],
     "node_type": ["bianhua", "holon", "karta", "kriya", "phenomenon", "vimarsha"],
     "given_as": ["bildung", "ding", "grundsatz", "sachverhalt", "sinn", "vollzug"],
@@ -39,7 +39,7 @@
     "verstak_look": ["breadcrumb", "node_id", "raw", "realm"],
     "verstak_me": ["action", "handle", "since", "until"],
     "verstak_org": ["action", "attrs", "base_role", "confirm", "handle", "limit", "name", "offset", "org", "org_role", "q", "realm", "role", "sub", "user_id"],
-    "verstak_orient": ["arrow_types", "depth", "direction", "focus", "genre", "include_closed", "include_schema", "lens", "max_depth", "realm", "since", "to", "verbose"],
+    "verstak_orient": ["action", "arrow_types", "depth", "direction", "focus", "genre", "include_closed", "include_schema", "lens", "limit", "max_depth", "offset", "realm", "scope", "since", "standing", "to", "verbose"],
     "verstak_realm": ["action", "attrs", "confirm", "include_archived", "name", "public_read_role", "realm", "slug"],
     "verstak_search": ["actor", "anga_of", "attrs_filter", "context_holon", "epistemic_mode", "genre", "given_as", "has_tension", "include_description", "include_tensions", "limit", "manifested_as", "node_type", "offset", "ontic_mode", "parent_contains", "posed_to", "q", "realm", "sort", "steward_of", "transitive", "untouched_days", "vimarsha_of", "volitive_mode"],
     "verstak_semantic_search": ["epistemic_mode", "genre", "given_as", "hybrid", "limit", "node_type", "ontic_mode", "q", "realm", "volitive_mode"],

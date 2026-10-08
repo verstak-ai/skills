@@ -27,7 +27,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. No `AGENTS.md` is no refusal; a bare slug is no address — resolve it by listing. No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
 
-2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat, only for a watch.
+2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also arms the inbox hook and knocks on the user's seat.
    - **`start <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
@@ -69,13 +69,13 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 **Graph craft is yours:** reading, writing, weaving, integration (**integrity**) stay with whoever decides. Subagents take the volume — code, the gate, review, verification; check their advice against the node's neighbourhood.
 
-**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `start <graph> <role> case #N`; the subagent leaves when the assignment ends, its result stays in that case.
+**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `start <graph> <role> case #N`; its result stays in that case.
 
 ### Case laws
 
 A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Join by share** — invited, or you have a share. To look inside, `read` without joining.
-- **Post by intent** — when the addressee will have something to read; no running commentary, no line per action.
+- **Post by intent** — when the addressee will have something to read.
 - **Delivery doesn't oblige a reply.**
 - **Leave by outcome** — once nothing of yours remains: `verstak_case(action="leave")`.
 - Leading and closing: **architect**, `Leading a case`.
@@ -86,7 +86,7 @@ A one-off task or question is a message in a case, ending there with its outcome
 
 ### Ledger
 
-A case is read first by its summary (`read`): the latest line per subject, a snapshot of the work. A line (`action="line"`) records one move and its observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): never a plan or effort, never instead of a move. An open wait is a `partial` line "on whom, waiting for what". The lasting result goes into the graph (modes, nodes, arrows); closed cases are dropped. A wait across holons is a vimarsha; notes go into the transformation's seed (**writing**).
+A case is read first by its summary (`read`): the latest line per subject, read as the ledger's final state, terse. A line (`action="line"`) is written when a subject's state changes, with the observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): not per action, never a plan or effort, never instead of a move. An open wait is a `partial` line "on whom, waiting for what". The lasting result goes into the graph (modes, nodes, arrows); closed cases are dropped. A wait across holons is a vimarsha; notes go into the transformation's seed (**writing**).
 
 ### Communication
 
@@ -146,7 +146,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Tidy**
 - "tidy after the merge", "the graph lies about the code" → **reconcile**
 - "links aren't drawn", "where does this come from" → **weaving**
-- "what's open", "close / park this question" → **inquiry**
+- "what's hanging in my cases", "tidy up abandoned cases" → **assistant**; "what's open" (questions), "close / park this question" → **inquiry**
 
 **Reach someone**
 - a seat address from the window, "stand beside me", "start graph role case #N" → `Start`
@@ -161,7 +161,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | Pair | Dividing sign |
 |---|---|
 | **reconcile** ↔ **weaving** | code → graph after work vs. gaps inside the graph |
-| **reality-audit** ↔ **integrity** | the world (ran it, exit code) vs. the graph (what it touches); graph state is never evidence of behaviour |
+| **reality-audit** ↔ **integrity** | the world (ran it, exit code) vs. the graph (what it touches) |
 | **inquiry** ↔ **assembly** | each question's fate vs. grouping the field (assembly calls inquiry) |
 | **writing** ↔ **design** | nothing to argue vs. an open choice; "we've decided, do it" is **code-work** |
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
