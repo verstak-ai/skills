@@ -77,7 +77,7 @@ Before saying "works", switching a mode or ending a question, read your claim cl
 - `REALITY.md` — a carrier appears, changes or turns out unreachable; dated measurements go to the graph.
 - `<CLAUDE.md copy — regenerate on every AGENTS.md change>`
 - `<component README — in the commit that moves, renames or adds its files>`
-- `<GOTCHAS.md — a line linking the node; trap gone, line gone>`
+- `<GOTCHAS.md — one line per trap, its node linked where one exists; trap gone, line gone>`
 - `<MISSING_*.md — a need a neighbouring system doesn't cover yet>`
 
 ## Git workflow

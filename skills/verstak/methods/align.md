@@ -139,7 +139,7 @@ Doctrine, file templates and the satellite entry: `references/align-delegation.m
 - **Accuracy pass** over **the whole artifact**: every derived line against its source; a line with no source is authored judgment (keep) or a guess (cut). **Density pass**: does the line change what the agent does? Canon blocks stay byte for byte.
 - **Stamp**: the template's last line with this file's contract and today's date; overwritten on refresh, never two.
 - **Frontmatter**: YAML from the first-line `---` to the closing `---`; flat pairs `'Graph': '@owner/slug (rN)'`, `'Graph — source': 'derived'`; slot names exactly as in the template, each with a ` — source` key valued `derived` / `agreed: <who>` / `not agreed — case #N`; single-quoted strings, inner quotes doubled; `Agreement` a case or `none`. An old frontmatter table moves over without losing values or sources. No harness service keys (e.g. `paths`). Check with a YAML parser; read `CLAUDE.md` against `AGENTS.md`.
-- **Gotchas** are graph nodes on the holon, referenced as `(graph, #N)`.
+- **Gotchas** live where `Layout` says: by default graph nodes on the holon, referenced as `(graph, #N)`; a `Layout` naming `GOTCHAS.md` keeps them as lines there, a node optional.
 - **`REALITY.md`**: each carrier recorded, owner-confirmed, or marked `(proposed — case #N)`; reachability checked or bounded by Ceiling; no dated measurements; the `AGENTS.md` "Reality" section has no table rows.
 - No `not agreed` without a case number, no `<…>` in a value, no `<!-- … -->` left.
 - **Every skill and method name** in the projected files resolves on the repo's install channel — check the live registry: an uncallable name goes silent. A body shipped to several harnesses names tool calls, no invocation syntax.
