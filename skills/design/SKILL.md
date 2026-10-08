@@ -51,7 +51,7 @@ DO:
   1. Name goal as sachverhalt(anagata+chanda). The target state is the
      owner's: name it in dialog when needed — the user accepts the goal
      (and later the bianhua telos), the designer doesn't invent it
-  2. nks_search + nks_semantic_search — goal doesn't already exist? (keyword misses a differently-phrased duplicate; semantic catches it before you design it twice)
+  2. verstak_search + verstak_semantic_search — goal doesn't already exist? (keyword misses a differently-phrased duplicate; semantic catches it before you design it twice)
   3. From goal: "what produces this?" → create kriya + ahara phenomenon
   4. Recurse until you hit a ding that must be given (realm inlet — the edge is
      a topological fact; no marker needed)
@@ -77,8 +77,8 @@ DO:
      - ahara/utpatti point to correct phenomena? (may need reconnect after distinctions)
   4. For each phenomenon: context → holon set? A phenomenon without a holon home
      is invisible to holon-scoped orientation — distribute ALL of them
-  5. nks_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
-  6. nks_orient(lens="tensions") → new problems?
+  5. verstak_orient(lens="trace", focus=<phenomenon>) on key phenomena → lifecycle connected?
+  6. verstak_orient(lens="tensions") → new problems?
 OUTPUT: tensions discovered, lifecycles closed
 NEXT: → Phase 3 (risk analysis) or → lifecycle closure if broken
 ```
@@ -100,7 +100,7 @@ DO: For each kriya on path, seven provocation questions:
      protocol, serialization, or compatibility surface exact?
   7. State and history? Does it still hold across isolation, retries, prior work,
      partial failure, and lifecycle transitions?
-  If threat found → nks_add_vimarsha(genre="risk", vimarsha_of=<kriya>)
+  If threat found → verstak_add_vimarsha(genre="risk", vimarsha_of=<kriya>)
 OUTPUT: risk-vimarshas
 ```
 
@@ -108,13 +108,13 @@ OUTPUT: risk-vimarshas
 ```
 TRIGGER: risk-vimarsha exists, unaddressed
 DO:
-  1. Read risk context: nks_look on target kriya + neighborhood
+  1. Read risk context: verstak_look on target kriya + neighborhood
   2. Research operational environment
   3. Choose response type:
      a. Compensating (mitigation) kriya or phenomenon → prevents/handles the transition failure
      b. Grundsatz invariant → principle as upadhi
      c. Conscious acceptance → vimarsha to upeksha with reasoning
-  4. Wire response, nks_arrow(action="link") addressed_by from vimarsha
+  4. Wire response, verstak_arrow(action="link") addressed_by from vimarsha
 OUTPUT: hint-vimarshas for implementation
 NEXT: → Phase 4 or → next risk
 ```
@@ -152,7 +152,7 @@ DO:
      with an anantara-ordered flow of stages — the owner reads it as the release plan
   7. On a newly accepted bianhua: run the integrity pass (integrity skill) — the
      wavefront of affected-but-unattached nodes gets its «is this affected?» questions
-OUTPUT: implementor enters via orient → ACTIVE BIANHUA / nks_orient(lens="vimarshas", focus=<holon>) → knows what to do first
+OUTPUT: implementor enters via orient → ACTIVE BIANHUA / verstak_orient(lens="vimarshas", focus=<holon>) → knows what to do first
 ```
 
 anagata kriyas alone don't call to action. Vimarshas do. When the hints form a transformation, a **bianhua** (assembly skill) gathers them into a map the navigator reads — anga inward (the driving hints and the volitional kriyas they realize), anantara between — rather than a flat list of questions.
@@ -164,7 +164,7 @@ anagata kriyas alone don't call to action. Vimarshas do. When the hints form a t
 | Connects | kriyas via `next` | phenomena via `ahara`/`utpatti` |
 | Carries | praśna (question-needle) on each arrow | sachverhalt (state of affairs) between kriyas |
 | About | order of actions | lifecycle of a thing |
-| Tool | follow `next` arrows | `nks_orient(lens="trace")` on phenomenon |
+| Tool | follow `next` arrows | `verstak_orient(lens="trace")` on phenomenon |
 
 Never confuse. A chain of sachverhalts is an estafeta. A sequence of kriyas is a thread.
 
@@ -213,12 +213,12 @@ Anti-pattern: attrs.parked=true to suppress tensions. Use modes and vimarshas.
 
 ## Realm boundary
 
-The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives as a positive inlet-consumer marker: at creation it lifts `nks_add_kriya`'s ahara/utpatti gate; it never silences a tension.
+The realm edge is a topological fact, not a marker. A kriya fed by the outside world (thread-origin) or feeding it (thread-terminus) renders as boundary_inlet / boundary_outlet — information ("this is the edge"), not work. No detector demands ahara on a kriya (the old no-ahara tension is retired); never add attrs to silence a tension. `attrs.boundary="init"` survives as a positive inlet-consumer marker: at creation it lifts `verstak_add_kriya`'s ahara/utpatti gate; it never silences a tension.
 
 ## Concurrency
 
-All mutations require `basis_version` — the `v<N>` from `nks_look`. Read → write → on conflict re-read and retry.
+All mutations require `basis_version` — the `v<N>` from `verstak_look`. Read → write → on conflict re-read and retry.
 
 ## orient vimarsha caveat
 
-`nks_orient(focus=<holon>)` may show 0 vimarshas when they're attached to kriyas threading through the holon, not to phenomena inside it. The `lens="vimarshas"` view on a holon groups blocking/active/dormant across its scope — but vimarshas posed on threading kriyas still surface best via `nks_search(node_type="vimarsha", vimarsha_of=<kriya-seq>)` if numbers feel wrong.
+`verstak_orient(focus=<holon>)` may show 0 vimarshas when they're attached to kriyas threading through the holon, not to phenomena inside it. The `lens="vimarshas"` view on a holon groups blocking/active/dormant across its scope — but vimarshas posed on threading kriyas still surface best via `verstak_search(node_type="vimarsha", vimarsha_of=<kriya-seq>)` if numbers feel wrong.

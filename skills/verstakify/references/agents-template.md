@@ -6,14 +6,14 @@
   `production`, list which working principles are relaxed and why. No explicit
   relaxation = full production discipline (agents lean lenient by default).
 - **NKS realm**: `<@owner/slug, immutable rN, or UUID — copied verbatim from
-  nks_realm(action="list")>` — every session starts with `nks_orient` here. Any
+  verstak_realm(action="list")>` — every session starts with `verstak_orient` here. Any
   of the three addresses is durable (`rN` survives a rename); a bare slug
   without its owner is deprecated — never persist one. On first orient, verify
   the returned `REALM:` header before any graph write.
 - **Focus holon**: `<#seq «name»>`, or `focus: realm root` if the whole realm
   is in scope.
 - **Agent karta**: `<#seq «name»>` — adhikarin, steward of the focus holon.
-  Your inbox: `nks_orient(focus="<seq>")` at session start. No seq recorded
+  Your inbox: `verstak_orient(focus="<seq>")` at session start. No seq recorded
   here → the repo is not verstakified; run verstakify before acting.
 - **Owner karta**: `<#seq «name»>` (svatantra 主) — out-of-mandate questions go
   here as `posed_to` vimarshas.
@@ -85,7 +85,7 @@ PR numbers, or "shipped/merged" in nodes (go stale on rebase).
   for the forest) — open work lives as anga-vimarshas on transformations; a
   `genre=hint` seed, if any, is a pointer for what the map doesn't carry. The
   `entry` skill runs the protocol. Then open your agenda:
-  `nks_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
+  `verstak_orient(focus=<agent-karta-seq>)` — incoming `posed_to` vimarshas are
   your inbox; pick up or explicitly defer each before starting repo work.
 - **A decision is recorded the moment it is taken, not when it is done.**
   Wherever it arrives — the user says it in chat, a person's word comes over

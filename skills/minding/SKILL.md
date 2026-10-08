@@ -1,6 +1,6 @@
 ---
 name: minding
-description: "The user's mind in the graph — the personal realm @handle/mind; this skill is its memory: recall and write by reflex, not ritual. WRITE when a durable fact about the user surfaces mid-task and serves no single project — their personal machines, their expiries, people, cross-project lessons → @handle/mind (never harness-local memory). A project's servers, pipeline and dated duties are that project's facts — its own realm, never here. A fact about another project → its realm via this realm's contour map. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'do you remember', 'what's on my plate', or a task needs such a fact. 'запомни' → write. 'заведи мне память' → bootstrap. Needs the nks_* MCP tools."
+description: "The user's mind in the graph — the personal realm @handle/mind; this skill is its memory: recall and write by reflex, not ritual. WRITE when a durable fact about the user surfaces mid-task and serves no single project — their personal machines, their expiries, people, cross-project lessons → @handle/mind (never harness-local memory). A project's servers, pipeline and dated duties are that project's facts — its own realm, never here. A fact about another project → its realm via this realm's contour map. RECALL when the user's own field is in play: 'вспомни', 'что ты знаешь обо мне', 'что у меня есть', 'что на мне', 'где задеплоено', 'do you remember', 'what's on my plate', or a task needs such a fact. 'запомни' → write. 'заведи мне память' → bootstrap. Needs the verstak_* MCP tools."
 ---
 
 # Minding — the user's mind in the graph
@@ -19,11 +19,11 @@ Bootstrap (§3) and reconcile (§2) run on explicit request only.
 ## The address
 
 ```
-nks_me(action="whoami")            → handle
-nks_orient(realm="@<handle>/mind") → the contour map
+verstak_me(action="whoami")            → handle
+verstak_orient(realm="@<handle>/mind") → the contour map
 ```
 
-- The address is a **convention in this skill**, not a fact in the world. Never scan `nks_realm(action="list")` for "this user's personal realm". *(why: a runtime search is the guessing this skill removes.)*
+- The address is a **convention in this skill**, not a fact in the world. Never scan `verstak_realm(action="list")` for "this user's personal realm". *(why: a runtime search is the guessing this skill removes.)*
 - `Realm not found: "@<handle>/mind"` **is the answer** — no contour yet → §3. Do not fall back to listing realms.
 - Handle is stable: re-read it once per session, not per call.
 - A personal contour already living under a **different slug** is settled at bootstrap, once: move it to `mind`, or leave a **stub at `@<handle>/mind`** — one `key:true` landmark naming the real address (a cold session then pays one extra orient).
@@ -32,8 +32,8 @@ nks_orient(realm="@<handle>/mind") → the contour map
 
 Two depths, priced separately:
 
-1. **Map-level** — which realm owns this, what do I have, which contour: one `nks_orient(realm="@<handle>/mind")`, no lens. It returns: root holons = contours; `attrs.key=true` landmarks = live-realm cards + routing rules; ACTIVE BIANHUA = the person's own transformations. Answer from the map, or name the realm and hand to **entry**. Ceiling: 2 calls.
-2. **Fact-level** — a *specific* remembered fact (a path on a box, a person's rhythm, an expiry): **search first, skip the orient** — `nks_search(realm="@<handle>/mind", q=<term>)`, plus `nks_semantic_search` when the memory may be worded differently than the ask. Lexical `q` is AND-matched and stem-sensitive: one or two short terms **in the realm's language** («caddy», «домен») — a multi-word query silently misses cards that carry every word but one. Read the mode badge before trusting the hit: `atita` is a *former* fact, `anagata` a planned one. Deeper reads follow **entry**'s protocol (orient → search → look), run inside this realm. Ceiling: 3 calls, then answer with what you have.
+1. **Map-level** — which realm owns this, what do I have, which contour: one `verstak_orient(realm="@<handle>/mind")`, no lens. It returns: root holons = contours; `attrs.key=true` landmarks = live-realm cards + routing rules; ACTIVE BIANHUA = the person's own transformations. Answer from the map, or name the realm and hand to **entry**. Ceiling: 2 calls.
+2. **Fact-level** — a *specific* remembered fact (a path on a box, a person's rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm="@<handle>/mind", q=<term>)`, plus `verstak_semantic_search` when the memory may be worded differently than the ask. Lexical `q` is AND-matched and stem-sensitive: one or two short terms **in the realm's language** («caddy», «домен») — a multi-word query silently misses cards that carry every word but one. Read the mode badge before trusting the hit: `atita` is a *former* fact, `anagata` a planned one. Deeper reads follow **entry**'s protocol (orient → search → look), run inside this realm. Ceiling: 3 calls, then answer with what you have.
 
 Two rules at either depth: two contours claim the question → ask one line naming both, never pick silently; **a miss is an answer** — "этого в памяти нет" beats a confident invention, and a miss the user corrects is the write reflex's cue (§1b).
 
@@ -51,18 +51,18 @@ Three-way routing, in order: a fact about **this** project → its realm or AGEN
 
 Consolidation of the memory. Run on request, on a new realm / machine / job, or when the map is visibly behind. **Never on recall's cadence.** *(why: a reconcile-priced recall gets skipped, and then the session guesses.)*
 
-1. **Observe** — `nks_realm(action="list")` · `nks_me(action="kartas")` · `nks_org(action="list")`.
+1. **Observe** — `verstak_realm(action="list")` · `verstak_me(action="kartas")` · `verstak_org(action="list")`.
 2. **Diff and classify** every row:
 
    | Verdict | Move |
    |---|---|
    | in the world, not in the map | classify: contour + what it's for, or fold under a disposable class (§ Storage) |
-   | in the map, not in the world | **crystallize, then release** — ask what the contour proved; if there is an answer, write it as a `grundsatz`/`bildung` with `arose_from` to the card, *then* `nks_update(volitive_mode="visarjana")` / ontic `atita`, reason stated |
+   | in the map, not in the world | **crystallize, then release** — ask what the contour proved; if there is an answer, write it as a `grundsatz`/`bildung` with `arose_from` to the card, *then* `verstak_update(volitive_mode="visarjana")` / ontic `atita`, reason stated |
    | in both | leave it |
 
    *(why crystallize first: an archived realm is never re-read. Release without it deletes the only part of a finished contour that had long value.)*
 
-3. **Wire identity** — for every live realm where the person holds a role: `nks_update(realm=<R>, node_id=<karta>, user="me", basis_version=<v>)`, or `user="me"` at creation. Only kartas the person actually stands behind. *(why: the link is a claim about reality — and §4 sees nothing else.)*
+3. **Wire identity** — for every live realm where the person holds a role: `verstak_update(realm=<R>, node_id=<karta>, user="me", basis_version=<v>)`, or `user="me"` at creation. Only kartas the person actually stands behind. *(why: the link is a claim about reality — and §4 sees nothing else.)*
 4. **Sweep** (§4).
 5. **Report what changed and what you left out.** A silent reconcile reads as "all fine".
 
@@ -87,8 +87,8 @@ Then fill `references/personal-realm.md` and run §2 once, so the first map is b
 ## §4 Agenda across all realms
 
 ```
-nks_me(action="kartas")                                    → [(realm, karta-seq)]
-nks_search(realm=<R>, q="", posed_to=<seq>,
+verstak_me(action="kartas")                                    → [(realm, karta-seq)]
+verstak_search(realm=<R>, q="", posed_to=<seq>,
            volitive_mode="chanda,adhimoksha,upeksha,virodha",
            limit=100)                                      → open items, per realm
 ```
@@ -99,7 +99,7 @@ Three rules make a sweep honest:
 - **Two kinds of closed rows survive it — drop them on read:** rows rendered with the 🌅 sunset badge (closed by their carrier), and `virodha` rows of any genre except risk (a refused question is closed; a risk in `virodha` is *live* — that is its active mode).
 - **Read the "N of M" header.** Past `limit` the page truncates — and a truncated agenda looks complete. Page on until N = M.
 
-The person's standing in a realm is a karta bound via `user` — typically the **主 (owner) karta**; agent kartas the person runs bind the same way. That binding *is* the cross-realm identity. A standing webhook armed on a bound karta (`nks_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
+The person's standing in a realm is a karta bound via `user` — typically the **主 (owner) karta**; agent kartas the person runs bind the same way. That binding *is* the cross-realm identity. A standing webhook armed on a bound karta (`verstak_admin(action="add_webhook", node_id=<karta>, …)`) turns this pull-sweep into push: the graph wakes you instead.
 
 **Sweep `@<handle>/mind` too** — a duty you posed to your own 主 karta lives nowhere else.
 
@@ -152,7 +152,7 @@ Never stored. *(why: a saved agenda states yesterday's obligations with today's 
 - `Realm not found` is read as routing (→ §3), not as failure.
 - In a verstakified repo the session-routing question never fires; user-field recall and writes still run there.
 - §2 is idempotent and reports what it dropped.
-- After §3, `nks_me(action="kartas")` returns a karta for every live realm where the person holds a role.
+- After §3, `verstak_me(action="kartas")` returns a karta for every live realm where the person holds a role.
 - Nothing derivable was written into the realm.
 - On a user who doesn't need one: says so, stops.
 

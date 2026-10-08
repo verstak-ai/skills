@@ -1,6 +1,6 @@
 ---
 name: assembly
-description: "Use this skill to assemble a realm — the central ritual of the 時-cycle: discern the pattern over a whole field of inquiry and activity and produce 形, the assembly map. Triggers: 'собери реалм', 'сборка', 'пересборка', 'что здесь происходит по сути', 'повестка', 'состояние реалма целиком', 'assemble the realm', 'what's really going on here', 'reassemble', 'map the transformations'. Also use when entry/orient shows a large ungrouped field — many free vimarshas, a wall of top-level kriyas. Distinct from weaving (semantic repair of existing structure), design (building paths from goals), and inquiry (the per-vimarsha lifecycle work). Needs the nks_* MCP tools, especially nks_add_bianhua and lens=\"bianhua\"."
+description: "Use this skill to assemble a realm — the central ritual of the 時-cycle: discern the pattern over a whole field of inquiry and activity and produce 形, the assembly map. Triggers: 'собери реалм', 'сборка', 'пересборка', 'что здесь происходит по сути', 'повестка', 'состояние реалма целиком', 'assemble the realm', 'what's really going on here', 'reassemble', 'map the transformations'. Also use when entry/orient shows a large ungrouped field — many free vimarshas, a wall of top-level kriyas. Distinct from weaving (semantic repair of existing structure), design (building paths from goals), and inquiry (the per-vimarsha lifecycle work). Needs the verstak_* MCP tools, especially verstak_add_bianhua and lens=\"bianhua\"."
 ---
 
 # NKS Assembly
@@ -50,13 +50,13 @@ The terminal element of the fractal is always a **vimarsha** — a question call
 ### 1. Orient the whole field
 
 ```
-nks_orient(realm=<token>)                          → overview: ACTIVE BIANHUA, vimarshas, top-level kriyas, tensions
-nks_orient(realm=<token>, lens="bianhua")          → forest of transformations (ready / blocked / done)
-nks_orient(realm=<token>, lens="vimarshas", focus=<holon>)  → the field of inquiry, grouped
-nks_orient(realm=<token>, lens="tensions", verbose=true)    → structural health + address-class signals
+verstak_orient(realm=<token>)                          → overview: ACTIVE BIANHUA, vimarshas, top-level kriyas, tensions
+verstak_orient(realm=<token>, lens="bianhua")          → forest of transformations (ready / blocked / done)
+verstak_orient(realm=<token>, lens="vimarshas", focus=<holon>)  → the field of inquiry, grouped
+verstak_orient(realm=<token>, lens="tensions", verbose=true)    → structural health + address-class signals
 ```
 
-Read the field by *content*, not by labels (the pilot failure: the agent worked from etiquettes). Use `nks_orient(lens="vimarshas")` grouping — scan → group → zoom → name — and `nks_search(anga_of=<seq>)` to see what already drives a bianhua — it surfaces kriya-carriers (deeds) alongside the vimarsha-drivers.
+Read the field by *content*, not by labels (the pilot failure: the agent worked from etiquettes). Use `verstak_orient(lens="vimarshas")` grouping — scan → group → zoom → name — and `verstak_search(anga_of=<seq>)` to see what already drives a bianhua — it surfaces kriya-carriers (deeds) alongside the vimarsha-drivers.
 
 ### 2. Triage the field of inquiry
 
@@ -66,9 +66,9 @@ Every **active, free** vimarsha (not yet anga of any bianhua) gets exactly one f
 
 Look at `top-level(scope)` kriyas — "what is really going on here". A wall of them is sediment, not health.
 
-- Find candidate clusters: estafeta-connected + semantically near. (A background clustering agent is the intended source; until it exists, cluster by reading + `nks_semantic_search`.)
+- Find candidate clusters: estafeta-connected + semantically near. (A background clustering agent is the intended source; until it exists, cluster by reading + `verstak_semantic_search`.)
 - **Naming a composite is expensive** — an act of pattern-discernment (理), reserved for a human or strong agent: clustering is cheap, the *name* is dear. An umbrella kriya must be a real kriya with its own pariṇāma that absorbs its children — folder-thinking is forbidden. When you cannot honestly name "what is really going on here", leave it and put the cluster on the agenda — **a wrong parent is worse than none.**
-- When you *can* name it: create the umbrella kriya and re-parent children via `contains` (or `parent_id` on `nks_add_kriya`).
+- When you *can* name it: create the umbrella kriya and re-parent children via `contains` (or `parent_id` on `verstak_add_kriya`).
 
 ### 4. Agenda of address-tensions → the human
 
@@ -78,19 +78,19 @@ Look at `top-level(scope)` kriyas — "what is really going on here". A wall of 
 
 **Bianhua is the owner's interface.** Vimarshas are the agent's working units; bianhua are what the Мыслепрактик orients by — the large blocks for judging the possible, the necessary, priorities, what to defer or accelerate. Hence the creation discipline:
 
-- **Never create a bianhua for a single vimarsha.** One question is not a transformation. Locate first: `lens="bianhua"` (the forest) + `nks_semantic_search(node_type="bianhua", q=<the shift>)` → attach via anga to the transformation it drives. No confident fit → **ask the user** (AskUserQuestion) instead of spawning one.
+- **Never create a bianhua for a single vimarsha.** One question is not a transformation. Locate first: `lens="bianhua"` (the forest) + `verstak_semantic_search(node_type="bianhua", q=<the shift>)` → attach via anga to the transformation it drives. No confident fit → **ask the user** (AskUserQuestion) instead of spawning one.
 - **Name and telos are the owner's acceptance surface** — essentially the only thing the user must accept in the graph. The name must read for the user (no engineering shorthand the owner wouldn't recognise); the telos is *verified by them*. Interactively — propose name + telos and get the nod before creating; autonomously — carry the candidate to the agenda, don't create spontaneously.
 
 Assemble the map:
 
-- **Create / refresh bianhua** for each transformation the field reveals: `nks_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisite bianhua>)`. Write `telos` as the *destination quality* ("the system becomes …"), never "what this is". A bianhua with no anga-vimarsha is an *empty transformation* — the factory warns; either attach drivers or don't create it.
+- **Create / refresh bianhua** for each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisite bianhua>)`. Write `telos` as the *destination quality* ("the system becomes …"), never "what this is". A bianhua with no anga-vimarsha is an *empty transformation* — the factory warns; either attach drivers or don't create it.
 - **Run the integrity pass on each newly accepted bianhua** (**integrity** skill): propagate the telos through the graph's closures and mark the wavefront of affected-but-unattached nodes with «is this affected?» samshayas anga'd to the transformation.
 - **Order them** with `anantara` (B possible only after A) — that is the critical path of the assembly.
 - **Fix bildung-realizations.** A session must arrive at *understandings*, not only spawn new vimarshas (shared with the inquiry skill). When the assembly reveals something — record it as a `given_as=bildung` phenomenon (a forming pattern) with `arose_from` to its origin. No bildung output ⇒ the assembly didn't land.
 
 ### 6. Impulse to the navigator
 
-The Штурман acts from a *ready* map. Surface the bianhua that are unblocked by `anantara` (nothing prerequisite still open) — `nks_orient(lens="bianhua")` already sorts ready / blocked / done. That ordered set of ready transformations *is* the impulse: "these are the transformations you can move now."
+The Штурман acts from a *ready* map. Surface the bianhua that are unblocked by `anantara` (nothing prerequisite still open) — `verstak_orient(lens="bianhua")` already sorts ready / blocked / done. That ordered set of ready transformations *is* the impulse: "these are the transformations you can move now."
 
 ## Acceptance
 

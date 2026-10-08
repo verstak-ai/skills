@@ -1,6 +1,6 @@
 ---
 name: feedback
-description: "Session experience becomes something someone can fix — the agent's own word about the skills and tools it just used. Fires by itself when the experience was non-trivial: a rule missed a case, a description promised what the surface does not do, a fix worked for the wrong reason, a step had no way to prove it was done. Triggers: 'фидбэк', 'дай обратную связь', 'feedback', 'запиши, что не сработало', 'скилл подвёл', 'опиши затык', or the end of a session that carried a stumble. Writes into the shared realm @nks/feedback after checking the field for the same thing already said, and places the case inside that field — the only reach the writer has. Composes writing. Needs the nks_* MCP tools."
+description: "Session experience becomes something someone can fix — the agent's own word about the skills and tools it just used. Fires by itself when the experience was non-trivial: a rule missed a case, a description promised what the surface does not do, a fix worked for the wrong reason, a step had no way to prove it was done. Triggers: 'фидбэк', 'дай обратную связь', 'feedback', 'запиши, что не сработало', 'скилл подвёл', 'опиши затык', or the end of a session that carried a stumble. Writes into the shared realm @nks/feedback after checking the field for the same thing already said, and places the case inside that field — the only reach the writer has. Composes writing. Needs the verstak_* MCP tools."
 slash: true
 ---
 
@@ -28,7 +28,7 @@ An agent passes through its own instruments all day: skills that fitted or misle
 
 The field is shared and long-lived, so the first move is not writing — it is looking. A second node saying what one already says splits the answer, and the second one is the one that gets ignored.
 
-`nks_semantic_search(realm="@nks/feedback", q=<the case as one sentence>)` — **one concept per query, as a natural phrase.** A bag of terms is a bag of directions: the whole string becomes a single vector, and a centroid between several meanings sits near nothing. Two concepts mean two queries, not one longer one. Lexical `nks_search` is the wrong instrument here — its tokens are AND-matched and unstemmed, so a many-word query returns nothing precisely when you have most to say.
+`verstak_semantic_search(realm="@nks/feedback", q=<the case as one sentence>)` — **one concept per query, as a natural phrase.** A bag of terms is a bag of directions: the whole string becomes a single vector, and a centroid between several meanings sits near nothing. Two concepts mean two queries, not one longer one. Lexical `verstak_search` is the wrong instrument here — its tokens are AND-matched and unstemmed, so a many-word query returns nothing precisely when you have most to say.
 
 **On a hit, add the novelty to the node that stands — do not open a second.** Say what is new: another contour where it reproduced, a mechanism the first account did not name, a case that narrows or widens it. A second sighting is worth more than the first, because it turns one session's accident into a pattern; recorded as a duplicate, it is worth nothing.
 
@@ -68,7 +68,7 @@ Two edges do that work, and they answer different questions:
 
 Neither substitutes for the other: addressed but unanchored, it never surfaces where the subject is reviewed; anchored but unaddressed, nobody is holding it.
 
-**Read the field before you place — never guess the shape from another realm.** `nks_orient(realm="@nks/feedback")` shows the boundaries and the roles that exist *today*. Where the field is still flat — no boundary fits, one karta receives everything — both edges collapse onto that receiver, and that is correct rather than lazy. Anchoring on a boundary that does not exist is worse than not anchoring.
+**Read the field before you place — never guess the shape from another realm.** `verstak_orient(realm="@nks/feedback")` shows the boundaries and the roles that exist *today*. Where the field is still flat — no boundary fits, one karta receives everything — both edges collapse onto that receiver, and that is correct rather than lazy. Anchoring on a boundary that does not exist is worse than not anchoring.
 
 **What you owe the case is the account, not the fix.** Write it so a reader who was not there can reproduce it and decide. You will not be in the session where it is acted on.
 

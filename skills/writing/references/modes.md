@@ -1,6 +1,6 @@
 # Modes — Self-Check and Stable Triads
 
-The tool descriptions on each factory (nks_add_phenomenon, nks_add_kriya, etc.) already list enum values and contextual questions for each mode. Read them before writing.
+The tool descriptions on each factory (verstak_add_phenomenon, verstak_add_kriya, etc.) already list enum values and contextual questions for each mode. Read them before writing.
 
 This reference covers what the tools don't: self-check and common patterns.
 

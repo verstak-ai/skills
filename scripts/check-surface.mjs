@@ -17,7 +17,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const surface = JSON.parse(readFileSync(join(root, "fixtures/surface.json"), "utf8"));
 const tools = new Set(surface.tools);
 
-// nks_-prefixed tokens that are NOT tool names (credential/hook prefixes shown
+// verstak_-prefixed tokens that are NOT tool names (credential/hook prefixes shown
 // in examples). Extend deliberately; every entry is a claim that the token is
 // not meant to resolve as a tool.
 const NON_TOOL_TOKENS = new Set(["nks_pat", "nks_chh"]);
@@ -41,13 +41,13 @@ for (const file of mdFiles) {
   const rel = file.slice(root.length + 1);
   const text = readFileSync(file, "utf8");
 
-  // 1. Tool names. A trailing "_" (from nks_add_* globs) makes it a family
+  // 1. Tool names. A trailing "_" (from verstak_add_* globs) makes it a family
   //    prefix: valid if at least one real tool starts with it.
-  for (const m of text.matchAll(/\bnks_[a-z_]+/g)) {
+  for (const m of text.matchAll(/\bverstak_[a-z_]+/g)) {
     const tok = m[0];
     const bare = tok.replace(/_+$/, "");
     if (tools.has(bare)) continue;
-    if ([...tools].some((t) => t.startsWith(tok.endsWith("_") ? tok : tok + "_"))) continue; // family shorthand (nks_add, nks_add_*)
+    if ([...tools].some((t) => t.startsWith(tok.endsWith("_") ? tok : tok + "_"))) continue; // family shorthand (verstak_add, verstak_add_*)
     if (NON_TOOL_TOKENS.has(bare)) continue;
     errors.push(`${rel}: tool name "${tok}" not in the surface snapshot`);
   }
