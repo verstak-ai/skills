@@ -40,7 +40,7 @@ The `verstak` skill — one door and its methods, `align` among them, which boot
 Owned there, not restated here: start and the #931 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
 
 ## Persistence
-- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, probe graphs and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
+- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
 - The memory directory (`~/.claude/projects/-Users-...-skills/memory/`) does not exist here; don't create it — not for a project fact, a preference or a note on working style. The harness's own memory instruction says it exists and invites a `project` category; this file overrides it. The `PreToolUse` memory guard blocks writes (exit 2). Where a fact goes: the door, `Routes`, Keep — here work state and questions are vimarshas in `r5`, this project's servers and dated duties are `r5` nodes with the date in `attrs`.
 - `skills/verstak/` is the source of truth. `verstak.skill`, `~/.claude/skills/` and the plugin cache are derived: never read one as the method or edit it.
 - Rituals (start, push, merge, memory guard) are wired in `.claude/settings.json`; add beside other suites' entries. Hook text is English.
