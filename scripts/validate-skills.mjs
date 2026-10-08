@@ -166,6 +166,48 @@ const skillNames = readdirSync(skillsDir).filter((n) =>
 if (skillNames.length === 0) fail("skills/", "no skill directories found");
 for (const name of skillNames.sort()) validateSkill(name);
 
+// 1b. Conversation-home contract: the verstak.ai home loads these skills by
+//     name, reads each description as a single line, and lifts the assistant's
+//     `## Map` section into its own prompt under a fixed budget. A missing
+//     skill, a second Map heading or an overgrown Map fails silently there.
+const HOME_SKILLS = ["assistant", "widgets"];
+const MAP_BUDGET = 1500;
+for (const name of HOME_SKILLS) {
+  const where = `skills/${name}/SKILL.md`;
+  const path = join(skillsDir, name, "SKILL.md");
+  if (!existsSync(path)) {
+    fail(where, "missing — the conversation home loads this skill by name");
+    continue;
+  }
+  const lines = readFileSync(path, "utf8").split("\n");
+  const closeIdx = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
+  const descLines = lines.slice(1, closeIdx).filter((l) => l.startsWith("description:"));
+  if (descLines.length !== 1 || !/^description:\s+"[\s\S]*"\s*$/.test(descLines[0])) {
+    fail(where, "the conversation home needs exactly one single-line, double-quoted `description`");
+  }
+}
+{
+  const where = "skills/assistant/SKILL.md";
+  const path = join(skillsDir, "assistant", "SKILL.md");
+  if (existsSync(path)) {
+    const lines = readFileSync(path, "utf8").split("\n");
+    const heads = lines.flatMap((l, i) => (/^## Map\s*$/.test(l) ? [i] : []));
+    if (heads.length !== 1) {
+      fail(where, `the conversation home needs exactly one \`## Map\` heading, found ${heads.length}`);
+    } else {
+      // Unicode code points from the heading line inclusive up to the next
+      // line starting with "## ", trailing blank lines counted.
+      let end = lines.findIndex((l, i) => i > heads[0] && l.startsWith("## "));
+      if (end === -1) end = lines.length;
+      const section = lines.slice(heads[0], end).map((l) => l + "\n").join("");
+      const length = [...section].length;
+      if (length > MAP_BUDGET) {
+        fail(where, `\`## Map\` is ${length} code points — over the conversation home's ${MAP_BUDGET} budget`);
+      }
+    }
+  }
+}
+
 // 2. Component-list guard: the skill set ships by plugin auto-discovery from
 //    skills/ — the tree is the single source of truth. A `skills` (or any
 //    component) list in a manifest re-introduces a second copy of that truth:
