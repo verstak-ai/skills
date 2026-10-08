@@ -1,0 +1,40 @@
+{
+  "name": "verstak-skills",
+  "private": true,
+  "description": "Development toolchain for the shipped JS of the verstak delivery (bridge, watchdogs, pi extension, OpenCode plugin). Nothing here ships: the outputs under skills/ and extensions/ are single dependency-free files. It lives in js/, not at the root, on purpose: a root lockfile would make Claude Code install these dev dependencies for every plugin user.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint \"**/*.{ts,mjs}\"",
+    "format": "prettier --write \"**/*.{ts,mjs}\"",
+    "format:check": "prettier --check \"**/*.{ts,mjs}\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test tests/*.test.mjs",
+    "build": "node build.mjs",
+    "check": "node build.mjs --check"
+  },
+  "lint-staged": {
+    "**/*.{ts,mjs}": [
+      "eslint --fix --max-warnings=9999",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@eslint/js": "^10.0.1",
+    "@opencode/plugin": "^2.0.4",
+    "@types/node": "^22.20.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.5.0",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.58.2"
+  }
+}

@@ -57,7 +57,7 @@ opened browser is native support working; a `401` followed by silence is row 2.
    the copy is derived.
 
 2. **The bridge already knows the product instance.** With no URL argument it
-   points at `https://nks.lab.mirari.ru/mcp`. Pass a URL (or `VERSTAK_BRIDGE_URL`)
+   points at `https://mcp.verstak.ai/`. Pass a URL (or `VERSTAK_BRIDGE_URL`)
    only when the user works against another instance or a fork — take it from
    them or the repo's AGENTS.md, never guess a non-default one.
 
