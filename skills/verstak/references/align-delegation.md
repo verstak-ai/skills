@@ -4,12 +4,12 @@ What the align method (`methods/align.md`) projects so that heavy reading and me
 
 ## Doctrine (platform-neutral)
 
-Split work by **role**, not by size. Six roles, two model tiers; the top tier carries both cold roles and judgment. No role writes to the graph (rule 6).
+Split work by **role**, not by size. Six roles, two model tiers: the top tier carries execution, judgment and both cold roles; the middle tier only reconnaissance and search, where the caller catches a miss. No role writes to the graph (rule 6).
 
 | Role | Tier | Good for | Returns to the orchestrator (main session) |
 |---|---|---|---|
 | `reader` | mid (Sonnet class) | breadth-first recon: locate, shortlist candidates, digest with error tolerance | leads + pointers (`file:line`), ≤12 lines |
-| `worker` | mid (Sonnet class) | mechanical execution of a self-contained brief: transforms, inventories, structured writes in files; no graph writes | status + artifact paths |
+| `worker` | top (pinned) | mechanical execution of a self-contained brief: transforms, inventories, structured writes in files; no graph writes | status + artifact paths |
 | `verifier` | top (pinned) | cold acceptance of a behavioural claim: rebuild the canonical carrier, run the named falsifier, report what happened | one verdict per claim + evidence, ≤10 lines |
 | `reviewer` | top (pinned) | cold review of a PR or a large stage: branch diff, surrounding code, focus holon + steward, the change's nodes | `file:line` findings + an integration report: holons, roles, relays, vimarshas, readiness, whom to wake; ≤16 lines |
 | `searcher` | mid (Sonnet class) | "what does the graph know about X": candidate search under several phrasings → node cards → links; read-only, findings are leads | an answer, each claim on a node `#N`, + nodes walked, things seen for repair as questions; ≤12 lines |
@@ -79,7 +79,7 @@ Recon agent. Your final message is your only output.
 ---
 name: worker
 description: "Mechanical execution of a self-contained brief: apply a known transform, build an inventory, make structured writes in files. Needs an explicit brief with a return contract; returns status + artifact paths, not contents. Not for graph writes, judgment, design, review or open-ended exploration."
-model: sonnet
+model: opus
 mcpServers:
   - verstak-sub-worker:
       type: stdio
@@ -209,12 +209,12 @@ The same bodies verbatim; only the frontmatter differs. **The model pin is the p
 ---
 description: <same as for Claude Code>
 mode: subagent
-model: <provider/mid-tier-id — resolve at projection time>
+model: <provider/tier-id — resolve at projection time>
 ---
 <same body>
 ```
 
-- **Models.** `reader`, `worker`, `searcher`: mid tier (`searcher`: GLM-5.3 class, or the same family's fast variant if a run on the project graph returns correct node numbers). `verifier`, `reviewer`, `designer`: top tier; an inherited cheap model turns acceptance into guessing and review into proofreading that reads as approval.
+- **Models.** `reader`, `searcher`: mid tier (`searcher`: GLM-5.3 class, or the same family's fast variant if a run on the project graph returns correct node numbers). `worker`, `designer`, `reviewer`, `verifier`: top tier — only Claude Opus or GPT-6.1 Sol; an inherited cheap model turns acceptance into guessing and review into proofreading that reads as approval.
 - **No `tools`, no `mcpServers`** (unverified in OpenCode). The delivered plugin gives each child its own bridge when it stands: a satellite of the root's seat (`<root's seat>.sub-N`, `satellite_of` filled in); a root without a seat gets the child's `verstak_stand` refused, so the root stands first. Before standing, the child reads through the root's bridge and its writes are refused. The plugin runs the launch line itself; `worker` and `designer` read it as already run.
 - **Lifetime.** A child that stood lives until the assignment's outcome: seat and bridge survive between turns, and a frame from its case wakes its own session. It ends by its `verstak_case(action="leave")` (the launch line's case, or all with no `room`) or `verstak_channel(action="leave")`; by the launching agent's `verstak_channel(action="revoke", standing=<child's seat>)` or a cancelled turn (both final); or by deleting the session. The plugin then removes the seat and hands the launching agent the child's last message, marked as the end (earlier finished turns are marked as turns). No idle limit: remove a forgotten child from the board with `revoke`. A cancellation does not wake the launching agent; a plugin reload restores seat and cases by key.
 - The calling agent invokes them through the task tool; `@reader` … `@designer` are the user's affordance.
