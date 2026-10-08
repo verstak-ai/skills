@@ -223,7 +223,7 @@ They apply unasked.
 | a task ends, or code and graph diverge | **reconcile** |
 | the method or a tool let you down | **feedback**, without dropping the work: an instance, not an opinion |
 | you need a mandate, knowledge or permission that isn't yours | **collaborate**, `Exchange` |
-| a choice only the user makes; an `answer` to your card | **collaborate**, `Asking the user` |
+| a choice only the user makes; an `answer` to your card; a reply asking you to clarify | **collaborate**, `Asking the user`: the card's key is the subject's key already in the case; the card itself is the wait — a `line` on its key withdraws it; a clarification → a new card on that key `in_reply_to` the old one, never prose |
 | about to tell anyone what you sent, asked or invited | say what the receipt printed (`Report the receipt, not the hope`): recorded, waiting, taken — not "sent" |
 | holding a cross-holon boundary | **architect** |
 | more work than one agent carries | **foreman**, if the user assigned it |
