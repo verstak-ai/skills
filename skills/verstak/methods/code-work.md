@@ -45,6 +45,14 @@ A push shipped nothing; these acts hang on the merge, all mandatory, in the same
 
 Then cleanup; next task → `Before code`.
 
+## Cleanup
+
+With each finished piece — merged, delivered, answered, released — not at session end; a wake-up tick is the reminder to walk this list.
+
+1. **Files**: the piece's worktree (`git worktree remove`), its merged branch (`git branch -d`), your scratch by name — gate logs, review trees, isolated run homes. Others' stay; unsure whose → ask.
+2. **Graphs you created for a run or probe**: delete them once their result is recorded (a score node, a verdict file) — `verstak_realm(action="delete", confirm="yes")`, never archive instead. A delete that fails is a defect for the surface's owner, in a case, and you say how many are left.
+3. **Cases**: `verstak_case(action="mine")`. Where no move of yours is awaited (task delivered, question answered, your share done): close your lines with their outcome (`line`); as lead, `propose_close` with evidence or hand the lead over (`methods/architect.md`) — and once it closes, `leave`. Stay only where you await an answer or lead something open.
+
 ## Working principles
 
 1. **Think before code.** Name assumptions; unsure → ask what exactly is unclear, in text (in a case, an `ask` card: `methods/collaborate.md`, `Asking the user`), never via the harness's picker. Push back on a false premise or when a simpler move exists. Out of mandate → `posed_to` the owner role.

@@ -24,7 +24,7 @@ Build the move from the user's words and work state. **Do it, don't advise.** A 
 
 Start ends in **readiness**: graph and role named; a seat taken with one call, or deliberately not; greeting delivered. Queue, maps and other methods wait for a reason.
 
-1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. No `AGENTS.md` is no refusal; a bare slug is no address (**entry**, Part II). No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
+1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. A bare slug is no address (**entry**, Part II). No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
 
 2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
@@ -33,7 +33,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
    - **Occupied seat.** Never sign with a seat another holder listens on; yours after a compaction or restart returns by itself; another live session's → stand beside as `name.N`, take it only on the user's word (**collaborate**, 3a). Don't finish without a seat; a refusal, no `verstak_stand` → **collaborate**.
 
-3. **Primer — before your first message.** The graph holds what no file shows: consumers, breakage, decisions, rejections. `kriya` (action): a repeatable before → after transition with actor, input, output. `phenomenon`: what actions consume, produce or act through. `vimarsha` (question): on a node, addressed to a role, saying when it's answered. `bianhua` (transformation): where the system is heading. A role is a mandate, not a person; you are the agent role, under your own name. Modes: how we know a node, whether it exists, what we want with it; "verified" only on evidence. More: **entry**, Part I.
+3. **Primer — before your first message.** The graph holds what no file shows. `kriya` (action): a repeatable before → after transition with actor, input, output. `phenomenon`: what actions consume, produce or act through. `vimarsha` (question): on a node, addressed to a role, saying when it's answered. `bianhua` (transformation): where the system is heading. A role is a mandate, not a person; you are the agent role, under your own name. Modes: how we know a node, whether it exists, what we want with it; "verified" only on evidence. More: **entry**, Part I.
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
@@ -77,7 +77,7 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Join by share** — invited, or you have a share. To look inside, `read` without joining.
 - **Post by intent** — when the addressee will have something to read.
 - **Delivery doesn't oblige a reply.**
-- **Leave by outcome** — once nothing of yours remains: `verstak_case(action="leave")`.
+- **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes, probe graphs — deleted, not archived. Then `mine`: where nothing of yours is awaited, close your lines with their outcome (lead: `propose_close`), `leave` (**code-work**, `Cleanup`).
 - Leading and closing: **architect**, `Leading a case`.
 
 ### One-off task
@@ -86,7 +86,7 @@ A one-off task or question is a message in a case, ending there with its outcome
 
 ### Ledger
 
-A case is read first by its summary (`read`): the latest line per subject, read as the ledger's final state, terse. A line (`action="line"`) is written when a subject's state changes, with the observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): not per action, never a plan or effort, never instead of a move. An open wait is a `partial` line, "on whom, waiting for what" in its `note`. Closed cases are dropped: what lasts is in the graph. A wait across holons is a vimarsha only for substance or a commitment; notes go into the transformation's seed (**writing**).
+A case is read first by its summary (`read`): the latest line per subject, read as the ledger's final state, terse. A line (`action="line"`) is written when a subject's state changes, with the observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): not per action, never a plan or effort, never instead of a move. An open wait is a `partial` line, "on whom, waiting for what" in its `note`. A wait across holons is a vimarsha only for substance or a commitment; notes go into the transformation's seed (**writing**).
 
 ### Communication
 
@@ -102,7 +102,7 @@ Free: `git status --short`, the branch, the stamp. The first matching row overri
 | Survey | Move |
 |---|---|
 | tools absent or silent | **establish-mcp**, then the request |
-| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: invited into a graph → write there; else `verstak_realm(action="create")` named after the repo or request; never offer others' graphs; a fresh graph has no roles yet, so nothing to `register` under. No `AGENTS.md` → also **align** |
+| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: invited into a graph → write there; else `verstak_realm(action="create")` named after the repo or request; never offer others' graphs. No `AGENTS.md` → also **align** |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
 | the move will write or speak in a case | first `verstak_channel(action="register", realm=…, karta=<role>, name=<derived name>)`, unless the environment named your seat; no seat or no holder → **collaborate**. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
 | a write authorless **again** after naming yourself | **establish-mcp** |
@@ -185,7 +185,7 @@ Read the method file in full, follow it to the result; wrong route → say so, r
 
 ## Step 6 · Answer
 
-- **What exists, in their words** — the state of things, without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (`@owner/slug` only when asked).
+- **What exists, in their words** — without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (`@owner/slug` only when asked).
 - **Where it is** — node numbers, paths, branch, PR.
 - **What was missing** — open, assumed, silent. One instrument silent → "I don't see it", not "there is none".
 
@@ -209,7 +209,7 @@ They apply unasked.
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
-| the case isn't yours, or nothing of yours remains | leave — `Case laws` |
+| a piece finished; a wake-up tick; the case isn't yours | clean up, leave — `Case laws` |
 | `no-actor`, or who does a step is unknown | a vimarsha `posed_to` the holon's steward; no actor until answered, not the nearest role or invented automation — **weaving** |
 | a wall of tensions · a sprawling field of questions · one question to bring to its outcome | **weaving** · **assembly** · **inquiry** |
 
