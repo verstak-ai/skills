@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "One agent-facing verstak methodology skill for the verstak_* MCP tools.",
-    "version": "2.10.1"
+    "version": "3.0.0"
   },
   "plugins": [
     {
       "name": "verstak",
       "description": "One verstak methodology skill — orient, write, design, and weave a graph through the verstak_* MCP tools.",
       "source": "./",
-      "version": "2.10.1",
+      "version": "3.0.0",
       "strict": true
     }
   ]

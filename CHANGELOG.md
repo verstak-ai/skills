@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.0.0](https://github.com/verstak-ai/skills/compare/v2.10.1...v3.0.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* one verstak skill — the method re-derived from canon in English ([#120](https://github.com/verstak-ai/skills/issues/120))
+* verstak bridge built from the shared core with an English delivery layer ([#127](https://github.com/verstak-ai/skills/issues/127))
+
+### Features
+
+* bridge core 7.7.0 from the shared core (8c67b1eb) ([#130](https://github.com/verstak-ai/skills/issues/130)) ([2de7cba](https://github.com/verstak-ai/skills/commit/2de7cbad31d9f82def8e35d38c12f89a8f36480b))
+* one verstak skill — the method re-derived from canon in English ([#120](https://github.com/verstak-ai/skills/issues/120)) ([e5eaae4](https://github.com/verstak-ai/skills/commit/e5eaae4c7c853031016eb51dbb0f8ea7bff75607))
+* verstak bridge built from the shared core with an English delivery layer ([#127](https://github.com/verstak-ai/skills/issues/127)) ([bd4acc7](https://github.com/verstak-ai/skills/commit/bd4acc7d0273e10dd2686028124c9e03ff8e4de7))
+
+
+### Bug Fixes
+
+* **build:** check-js compares the shipped version with the stamped one ([#129](https://github.com/verstak-ai/skills/issues/129)) ([f26ec7e](https://github.com/verstak-ai/skills/commit/f26ec7eb724a4a0113124d59f2f3e065f0694f09))
+
 ## [2.10.1](https://github.com/verstak-ai/skills/compare/v2.10.0...v2.10.1) (2026-10-08)
 
 
