@@ -44,7 +44,16 @@ export const SKILL_STAMP_FILE = "SKILL.md";
 /** The delivery's skill set: the `npx skills` source, the releases repository. */
 export const SKILL_SET = "verstak-ai/skills";
 
-/** Claude Code and Codex plugin: `<name>@<marketplace>`; the MCP entry key is the product name too. */
+/**
+ * Claude Code and Codex plugin: `<name>@<marketplace>`; the MCP entry key is the product name too.
+ * TODO(sibling): the launch line, the frame's product label and the OpenCode slash commands
+ * are not yet separated per delivery in the core; they only differ today because the skill
+ * ids and the words differ.
+ * TODO(sibling): OpenCode lifts the read permission for skill files only for skills an install
+ * lock names (opencode/skillread.ts); the bridge's own skill directory without a lock — a
+ * manual install, OpenCode's own skills dir — still asks per file until the core accepts
+ * `id === BRIDGE_SKILL` without one.
+ */
 export const PLUGIN_NAME = PRODUCT;
 /** A subagent's satellite bridge entry: `<prefix>-<role>`. */
 export const SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
