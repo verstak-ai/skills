@@ -7,7 +7,7 @@ export { CASE_EXIT_CLOSED } from "./patterns/caseexit.ts";
 export { ACTION_LIST_RE, SEAT_GONE_RE, UNATTRIBUTED_RE } from "./patterns/channel.ts";
 export { SERVER_CHOICE } from "./patterns/config.ts";
 export { NOTICE_MARK } from "./patterns/deliver.ts";
-export { LAUNCH_LINE } from "./patterns/launch.ts";
+export { LAUNCH_LINE, LAUNCH_WORD } from "./patterns/launch.ts";
 export { SAT_LOGIN_RE, SAT_OLD_FLAG_RE } from "./patterns/satprobe.ts";
 export {
   BRIDGE_FILE,
@@ -30,10 +30,20 @@ export {
   SATELLITE_CODE,
   SERVER_URLS,
   SKILL_SET,
-  SKILL_STAMP_FILE,
+  SKILL_STAMP_MASK,
   SUB_ENTRY_PREFIX,
 } from "./product.ts";
-export { ID_PREFIX, LOGGERS, method, SERVER_PROTOCOL, tool, TOOL_PREFIX } from "./protocol.ts";
+export {
+  FRAME_MARK,
+  ID_PREFIX,
+  LOGGERS,
+  method,
+  SERVER_LOCALE,
+  serverProtocol,
+  STRUCTURED_CAPABILITY,
+  tool,
+  TOOL_PREFIX,
+} from "./protocol.ts";
 export { BUILD_MARK, CHANNEL_MARK, VERSION } from "./version.ts";
 export { ABSORB, type AbsorbWords } from "./words/absorb.ts";
 export { APPSERVER, type AppServerWords } from "./words/appserver.ts";

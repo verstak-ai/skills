@@ -1,7 +1,7 @@
-// The user's word choosing the server.
-// TODO(sibling): the core reads both `ru` and `en` (bridge/config.ts); with one
-// production address `ru` matches nothing until the core takes a list of choices.
-export const SERVER_CHOICE = {
-  ru: /(?!)/,
+// The user's word choosing the server: one word per delivery language, naming that
+// language's production address (SERVER_URLS); in any session language.
+import type { Lang } from "../lang.ts";
+
+export const SERVER_CHOICE: Readonly<Record<Lang, RegExp>> = {
   en: /^(en|ai|english|verstak)$/i,
-} as const;
+};

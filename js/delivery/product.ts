@@ -1,6 +1,7 @@
 // The product name and everything derived from it: two deliveries on one machine do
 // not collide while every name here comes from its own PRODUCT — home and grant,
 // environment variables, sockets and pipes, files, clients.
+import { DEFAULT_LANG, type Lang } from "./lang.ts";
 
 /** The product name, lower case, as in the home, file and client names. */
 export const PRODUCT = "verstak";
@@ -34,26 +35,15 @@ export const BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
 export const PLUGIN_FILE = "opencode-plugin.js";
 export const PLUGIN_COPY_FILE = `${PRODUCT}.js`;
 /**
- * Stamp mask of the set: the file in each skill directory of the root whose hash measures
- * the set.
- * TODO(sibling): the core hashes one file per skill (bridge/skillset.ts treeStamp), so
- * edits under references/ (and, in the one-skill layout, methods/) leave the stamp as is.
- * A mask covering the whole skill directory waits on the core taking a tree hash.
+ * Stamp mask of the set from its root: `*` is a skill directory, then a file path inside
+ * the skill or `**` for all its files. Every file of every skill is measured, so an edit
+ * under references/ (or, in the one-skill layout, methods/) moves the stamp too.
  */
-export const SKILL_STAMP_FILE = "SKILL.md";
+export const SKILL_STAMP_MASK = "*/**";
 /** The delivery's skill set: the `npx skills` source, the releases repository. */
 export const SKILL_SET = "verstak-ai/skills";
 
-/**
- * Claude Code and Codex plugin: `<name>@<marketplace>`; the MCP entry key is the product name too.
- * TODO(sibling): the launch line, the frame's product label and the OpenCode slash commands
- * are not yet separated per delivery in the core; they only differ today because the skill
- * ids and the words differ.
- * TODO(sibling): OpenCode lifts the read permission for skill files only for skills an install
- * lock names (opencode/skillread.ts); the bridge's own skill directory without a lock — a
- * manual install, OpenCode's own skills dir — still asks per file until the core accepts
- * `id === BRIDGE_SKILL` without one.
- */
+/** Claude Code and Codex plugin: `<name>@<marketplace>`; the MCP entry key is the product name too. */
 export const PLUGIN_NAME = PRODUCT;
 /** A subagent's satellite bridge entry: `<prefix>-<role>`. */
 export const SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
@@ -76,10 +66,10 @@ export const CLIENTS = {
  * Server addresses. One production address; the core names it as its English one.
  * The endpoint is the root path.
  */
-export const SERVER_URLS = {
+export const SERVER_URLS: Readonly<Record<Lang, string>> = {
   en: "https://mcp.verstak.ai/",
-} as const;
-export const DEFAULT_SERVER_URL = SERVER_URLS.en;
+};
+export const DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
 
 /**
  * The `node -e` code of the one satellite-bridge entry form: home path from homedir,
@@ -88,5 +78,5 @@ export const DEFAULT_SERVER_URL = SERVER_URLS.en;
  */
 export const SATELLITE_CODE =
   "const p=require('path').join(require('os').homedir(),'.verstak-bridge','verstak-bridge.mjs');process.argv.splice(1,0,p);import(require('url').pathToFileURL(p).href)";
-/** The hooks section heading in the delivery's bootstrap skill, as the skill spells it. */
-export const HOOKS_SECTION = "Step 4 — Hooks";
+/** The hooks section heading in the delivery's bootstrap skill, per language of the words. */
+export const HOOKS_SECTION: Readonly<Record<Lang, string>> = { en: "Step 4 — Hooks" };

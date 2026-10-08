@@ -11,7 +11,8 @@ export interface StandWords {
   noModel: () => string;
   legacy: (address: string, realm: string, karta: string) => string;
   boardUnread: (text: string) => string;
-  boardUnknown: (start: string, _ru: string, en: string) => string;
+  /** own — the board header in the session language, others — in the server's other languages (BOARD_HEADER). */
+  boardUnknown: (start: string, own: string, others: string) => string;
   boardAmbiguous: (n: number, name: string, karta: string) => string;
   boardCount: (declared: number, parsed: number) => string;
   boardCountFound: (declared: number, parsed: number) => string;
@@ -66,8 +67,8 @@ export const STAND: Readonly<Record<Lang, StandWords>> = {
     legacy: (address, realm, karta) =>
       `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: verstak_channel(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
-    boardUnknown: (start, _ru, en) =>
-      `Refused: the board's form is not recognized — no "${en}" header, no word about an empty graph, no seat lines; no controlling moves (connect, knock, hook) on a guess. The answer begins: ${start}`,
+    boardUnknown: (start, own, others) =>
+      `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock, hook) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name, karta) =>
       `Refused: the board has ${n} seats named ${name} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) =>

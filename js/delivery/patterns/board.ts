@@ -2,12 +2,10 @@
 // until the server gives fields. English forms are assumed, not observed against
 // mcp.verstak.ai.
 
-/**
- * Header of the channels board, for the word about an unrecognised board.
- * TODO(sibling): the core reads both `ru` and `en` (bridge/stand.ts); one language
- * here, so both keys carry the same header until the core takes a list.
- */
-export const BOARD_HEADER = { ru: "Channels", en: "Channels" } as const;
+import type { Lang } from "../lang.ts";
+
+/** Header of the channels board per language, for the word about an unrecognised board. */
+export const BOARD_HEADER: Readonly<Record<Lang, string>> = { en: "Channels" };
 
 export const BOARD_FORM = {
   boardHeader: /^\s*Channels(?:\s*\((\d+)\))?(?:\s|:|$)/m,

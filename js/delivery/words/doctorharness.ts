@@ -43,7 +43,7 @@ export const HARNESS: Readonly<Record<Lang, HarnessWords>> = {
       return `    fix: ${shell}; ${alt}`;
     },
     launchNotFound: (who, cmd, absolute) =>
-      `TODO: ${who}: the command "${cmd}" is not found${absolute ? "" : " in this shell's PATH"} or not executable — the harness will not raise the bridge (spawn ENOENT)`,
+      `${who}: the command "${cmd}" is not found${absolute ? "" : " in this shell's PATH"} or not executable — the harness will not raise the bridge (spawn ENOENT)`,
     launchAbsolute: (who, cmd) =>
       `${who}: the command ${cmd} is executable and independent of PATH`,
     launchFound: (who, cmd, found) => `${who}: "${cmd}" → ${found}`,
@@ -52,7 +52,7 @@ export const HARNESS: Readonly<Record<Lang, HarnessWords>> = {
     openCodeRuntime: () =>
       "OpenCode: the plugin's bridge runs on OpenCode's own runtime — independent of node in PATH",
     secondPath: (where, name, url, remove) =>
-      `TODO: ${where}: the entry "${name}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
+      `${where}: the entry "${name}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
     deleteFrom: (file) => `delete it from ${file}`,
     connector: (name, file) =>
       `Claude Code: the connector "${name}" is in the connection history (${file}, claudeAiMcpEverConnected; the line stays after removal) — claude.ai connectors come into every Claude Code session next to the bridge, and the connector's address is not on disk. If it is installed and leads to the graph server, it is a second path around the bridge → remove it in claude.ai (Settings → Connectors) or disable it in Claude Code (/mcp)`,
@@ -67,7 +67,7 @@ export const HARNESS: Readonly<Record<Lang, HarnessWords>> = {
     skillsBelowRelease: (release) =>
       `BEHIND the release v${release}, level with the bridge: the whole delivery is behind (the bridge — the update subcommand)`,
     skillsBehind: (root, v, why, how) =>
-      `TODO: skills: ${root} — v${v}, ${why} → update the set: ${how}; then a new session`,
+      `skills: ${root} — v${v}, ${why} → update the set: ${how}; then a new session`,
     ocUnreadable: (file) => `OpenCode: ${file} is unreadable`,
     ocDisabled: (name, file) =>
       `OpenCode: the mcp entry "${name}" in ${file} leads to Verstak but is disabled — not in play`,

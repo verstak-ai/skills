@@ -16,7 +16,7 @@ import {
   PRODUCT,
   SATELLITE_CODE,
 } from "../delivery/product.ts";
-import { SERVER_PROTOCOL, tool } from "../delivery/protocol.ts";
+import { FRAME_MARK, serverProtocol, STRUCTURED_CAPABILITY, tool } from "../delivery/protocol.ts";
 import { versionIn } from "../shared/version.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -84,7 +84,9 @@ test("the names our skills write stay the bridge's names", () => {
   assert.equal(BRIDGE_FILE, "verstak-bridge.mjs");
   assert.equal(tool("stand"), "verstak_stand");
   assert.equal(DEFAULT_SERVER_URL, "https://mcp.verstak.ai/");
-  assert.equal(SERVER_PROTOCOL.fields, "verstak/structured");
+  assert.equal(STRUCTURED_CAPABILITY, "verstak/structured");
+  assert.equal(serverProtocol.refusal, "verstak/refusal");
+  assert.equal(FRAME_MARK, "[verstak]");
 });
 
 test("one language, whatever the server", () => {
