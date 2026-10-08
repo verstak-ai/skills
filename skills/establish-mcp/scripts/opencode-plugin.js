@@ -6,7 +6,12 @@ function langOfServer(_url) {
 }
 
 // js/delivery/patterns/launch.ts
-var LAUNCH_LINE = /^[ \t]*start\s+(\S+)\s+(\S+)\s+(?:case\s+)?[№#]\s?(\d+)(?:[ \t]+from[ \t]+(@\S+))?(?=\s|$)/imu;
+var LAUNCH_WORD = "start";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "imu"
+);
 
 // js/delivery/product.ts
 var PRODUCT = "verstak";
@@ -30,7 +35,7 @@ var CLIENTS = {
 var SERVER_URLS = {
   en: "https://mcp.verstak.ai/"
 };
-var DEFAULT_SERVER_URL = SERVER_URLS.en;
+var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
 
 // js/delivery/protocol.ts
 var TOOL_PREFIX = `${PRODUCT}_`;
@@ -38,13 +43,11 @@ var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
-var SERVER_PROTOCOL = {
-  refusal: "verstak/refusal",
-  fields: "verstak/structured"
-};
+var FRAME_MARK = `[${PRODUCT}]`;
+var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "2.9.1";
+var VERSION = "2.10.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -224,13 +227,13 @@ var OPENCODE_KEEP = {
     notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries the return once; if you will not wait — verstak_stand.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
-    legacy: (word) => `Verstak: ${word}.`,
-    sessionResumed: (root, word) => `Verstak: session ${root} — ${word}`,
+    legacy: (word2) => `Verstak: ${word2}.`,
+    sessionResumed: (root, word2) => `Verstak: session ${root} — ${word2}`,
     resumeFailed: (root, message) => `Verstak: returning the seat of session ${root} failed — ${message}`,
     retryFailed: (place, why) => `Verstak: the seat ${place} did not return on the watchdog's retry either: ${why}. The watchdog no longer raises it by itself — take the seat with verstak_stand.`,
     noWhy: () => "the bridge did not say why",
-    watchResumed: (root, word) => `Verstak: the hearing watchdog returned the seat of session ${root} — ${word}`,
-    watchReopened: (root, word) => `Verstak: the hearing watchdog reopened the socket of session ${root} — ${word}`,
+    watchResumed: (root, word2) => `Verstak: the hearing watchdog returned the seat of session ${root} — ${word2}`,
+    watchReopened: (root, word2) => `Verstak: the hearing watchdog reopened the socket of session ${root} — ${word2}`,
     watchFailed: (root, message) => `Verstak: the hearing watchdog of session ${root} — ${message}`,
     keepaliveTitle: () => "verstak: the directory holds a seat",
     noRemove: (title) => `Verstak: the OpenCode sessions context has no remove — keepalive service sessions "${title}" are not removed and pile up as children of the seat; the keepalive goes on`,
@@ -282,14 +285,14 @@ var ROOM = {
   en: {
     said: (author) => `message from ${author}`,
     saidPending: (author) => `message from ${author} in flight — the text follows`,
-    aside: (author, addressee, word) => `${author} → ${addressee}: message [${word}]`,
-    asideRun: (author, addressee, count, word) => `${author} → ${addressee}: ${count} (last [${word}])`,
-    asideBody: (author, addressee, word) => `${author} → ${addressee}: text of message [${word}]`,
+    aside: (author, addressee, word2) => `${author} → ${addressee}: message [${word2}]`,
+    asideRun: (author, addressee, count, word2) => `${author} → ${addressee}: ${count} (last [${word2}])`,
+    asideBody: (author, addressee, word2) => `${author} → ${addressee}: text of message [${word2}]`,
     messages: (n2) => `${n2} ${n2 === 1 ? "message" : "messages"}`,
     body: (refersTo, author) => `text of message [${refersTo}] from ${author}`,
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
-    closing: (author, endsAt) => `the lead ${author} proposes to close the case by ${endsAt}{; evidence: evidence}`,
+    closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
     closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId}) (former name verstak_room)`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
@@ -298,7 +301,7 @@ var ROOM = {
     progress: (key, done, verdict, note, author) => `[${key}] [${done}] = ${verdict}${note} · ${author}`,
     opened: (author) => `case opened by ${author}`,
     joined: (who) => `entered ${who}`,
-    left: (who) => `left ${who}{; reason: reason}`,
+    left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
     node: (seq, name, realm, reasoning) => `node #${seq} ${name} (${realm}) in the case${reasoning}`,
@@ -427,14 +430,14 @@ function parseLaunch(text) {
   const [, realm, karta, no, of] = LINE.exec(text) ?? [];
   return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
 }
-function withWord(text, word) {
+function withWord(text, word2) {
   const m = LINE.exec(text);
   if (!m) return `${text}
-${word}`;
+${word2}`;
   const nl = text.indexOf("\n", m.index);
   return nl < 0 ? `${text}
-${word}` : `${text.slice(0, nl)}
-${word}${text.slice(nl)}`;
+${word2}` : `${text.slice(0, nl)}
+${word2}${text.slice(nl)}`;
 }
 async function enterCase(l, call, satelliteOf, placeName) {
   const W4 = words(LAUNCH);
@@ -825,9 +828,9 @@ function roomKind(frame) {
       phase: null,
       known: false
     };
-  const word = kind === "said" || kind === "body";
-  const withheld = word && f.body_withheld === true;
-  const to = word ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
+  const word2 = kind === "said" || kind === "body";
+  const withheld = word2 && f.body_withheld === true;
+  const to = word2 ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
   const addresseeLeft = f.addressee_left === true || fields.addressee_left === true;
   if (to && !addresseeLeft && (withheld || mine.length && !to.addr.some((a) => mine.includes(a)))) {
     const counts = kind === "said";
@@ -909,8 +912,8 @@ function addressedToMine(frame) {
     return !!a && mine.length > 0 && a.addr.some((x) => mine.includes(x));
   };
   if (rk?.kind === "body") {
-    const word = obj(f.word);
-    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
+    const word2 = obj(f.word);
+    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
       return true;
   } else if (
     // A word to me, a reply to my record (#5954), marked important; a word in flight
@@ -967,7 +970,7 @@ var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
 var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
 
 // js/shared/fields.ts
-var FIELDS_CAPABILITY = SERVER_PROTOCOL.fields;
+var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
 var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
 
 // js/shared/version.ts
@@ -1005,8 +1008,7 @@ var BUILD = buildOf(import.meta.url);
 var out = scoped(() => ({ stream: null }));
 
 // js/bridge/config.ts
-var ENGLISH_SERVER_URL = SERVER_URLS.en;
-var PRODUCTION_URLS = new Set([DEFAULT_SERVER_URL, ENGLISH_SERVER_URL].map(strip));
+var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
 function strip(url) {
   return url.replace(/\/+$/, "");
 }
@@ -1174,6 +1176,7 @@ function tail(frame, withReply) {
     parts.push(W().bodyRead(need(frame.body_read)));
   return parts.length ? `, ${parts.join(", ")}` : "";
 }
+var markFrame = (text) => `${FRAME_MARK} ${text}`;
 function frameToText(frame, raw) {
   if (!frame) return raw;
   const f = frame;
@@ -1658,15 +1661,15 @@ function takeLostMarker(authDir2, home) {
   if (!entries.length) return null;
   const when = new Date(at);
   const hhmm2 = Number.isNaN(when.getTime()) ? at : when.toTimeString().slice(0, 5);
-  const word = (of) => {
+  const word2 = (of) => {
     const where = of.filter((e) => !e.child && !e.moved).map((e) => e.key ?? e.dir ?? e.session).join(", ");
     return where ? words(OPENCODE_KEEP).lostWord(hhmm2, where) : null;
   };
   return {
-    text: word(entries),
+    text: word2(entries),
     // the log gets all
     entries,
-    wordFor: (s) => word(entries.filter((e) => e.session === s))
+    wordFor: (s) => word2(entries.filter((e) => e.session === s))
   };
 }
 
@@ -2111,6 +2114,7 @@ function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
     places.push(join7(dirname(dirname(root)), "skills-lock.json"));
   return places;
 }
+var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
 function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
   const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
   if (!place) return null;
@@ -2181,14 +2185,17 @@ async function skillDirs(ctx) {
     if (dir && basename3(dir) === id) listed.push({ id, dir });
   }
   const sets = /* @__PURE__ */ new Map();
+  const lockless = /* @__PURE__ */ new Set();
   for (const s of list) {
     const root = bridgeRoot(s);
     const c = root ? canon2(root) : null;
-    if (c) sets.set(c, skillLock(c));
+    if (!c) continue;
+    sets.set(c, skillLock(c));
+    if (!hasSkillLock(c)) lockless.add(c);
   }
   return listed.filter(({ id, dir }) => {
     const lock = sets.get(dirname2(dir));
-    if (!lock) return false;
+    if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname2(dir));
     const source = lock[BRIDGE_SKILL]?.source;
     return typeof source === "string" && lock[id]?.source === source;
   }).map(({ dir }) => dir);
@@ -2436,8 +2443,8 @@ function createKeeper(doors) {
         if (e.child || !e.session || seen.has(e.session)) continue;
         seen.add(e.session);
         if (!await doors.exists(e.session)) continue;
-        const word = wordFor(e.session);
-        if (word) doors.lost(e.session, word);
+        const word2 = wordFor(e.session);
+        if (word2) doors.lost(e.session, word2);
         await doors.slotFor(e.session, false);
       }
     },
@@ -3266,8 +3273,8 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
         description: String(t.description ?? ""),
         input: toParameters(t.inputSchema),
         async execute(input, tool2) {
-          const word = await leads.release(String(tool2.sessionID), name, input ?? {}) ?? adopt.revoked(name, input ?? {});
-          if (word) return { content: word };
+          const word2 = await leads.release(String(tool2.sessionID), name, input ?? {}) ?? adopt.revoked(name, input ?? {});
+          if (word2) return { content: word2 };
           await children.settled(String(tool2.sessionID));
           runEnds.guard(String(tool2.sessionID), name, input ?? {}, asks);
           const slot = await slotFor(String(tool2.sessionID));
@@ -3515,7 +3522,7 @@ function setupChannel(ctx, say, freshestRoot) {
       return null;
     }
     try {
-      const r = await ctx.session.prompt({ sessionID: id, text, delivery });
+      const r = await ctx.session.prompt({ sessionID: id, text: markFrame(text), delivery });
       say(W4.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
       return { session: id, inbox: typeof inbox === "string" ? inbox : null };
@@ -3703,7 +3710,8 @@ function setupChannel(ctx, say, freshestRoot) {
 }
 
 // js/opencode/commands.ts
-import { readFileSync as readFileSync7 } from "node:fs";
+import { readFileSync as readFileSync7, realpathSync as realpathSync4 } from "node:fs";
+import { dirname as dirname3 } from "node:path";
 function slashOf(markdown) {
   if (!markdown.startsWith("---")) return false;
   const end = markdown.indexOf("\n---", 3);
@@ -3714,14 +3722,31 @@ function slashOf(markdown) {
 function commandText(id, args) {
   return words(OPENCODE).commandHead(id) + args.trim();
 }
-async function listSkills(ctx) {
-  const res = await ctx.skill.list();
-  const list = Array.isArray(res) ? res : res?.data ?? [];
+var canon3 = (p) => {
+  try {
+    return realpathSync4(p);
+  } catch {
+    return null;
+  }
+};
+function skillCommands(list) {
+  const roots = /* @__PURE__ */ new Map();
+  for (const s of list) {
+    const root = bridgeRoot(s);
+    const c = root ? canon3(root) : null;
+    if (!c) continue;
+    const source = skillLock(c)?.[BRIDGE_SKILL]?.source;
+    roots.set(c, typeof source === "string" ? source : null);
+  }
   const out2 = [];
   for (const s of list) {
     const id = String(s?.id ?? "");
     const path = typeof s?.path === "string" ? s.path : null;
     if (!id || !path) continue;
+    const root = canon3(dirname3(dirname3(path)));
+    if (!root || !roots.has(root)) continue;
+    const source = roots.get(root);
+    if (source && skillLock(root)?.[id]?.source !== source) continue;
     let text;
     try {
       text = readFileSync7(path, "utf8");
@@ -3732,6 +3757,10 @@ async function listSkills(ctx) {
     out2.push({ id, description: snippet(String(s?.description ?? "")) });
   }
   return out2.sort((a, b) => a.id.localeCompare(b.id));
+}
+async function listSkills(ctx) {
+  const res = await ctx.skill.list();
+  return skillCommands(Array.isArray(res) ? res : res?.data ?? []);
 }
 async function setupCommands(ctx, say) {
   const state2 = { commands: await listSkills(ctx) };
@@ -3886,7 +3915,7 @@ function createUsageFeed(opts) {
 var WAIT_MS = Number(process.env[envName("PERMISSION_WAIT_MS")]) || 2e4;
 var RESOURCES = 3;
 var RESOURCE_MAX = 160;
-var toldInProcess = () => globalThis.__bridgeChildWordsTold ??= /* @__PURE__ */ new Set();
+var toldInProcess = () => globalThis[`${GLOBAL_PREFIX}ChildWordsTold`] ??= /* @__PURE__ */ new Set();
 var askWord = (who, action, resources) => {
   const cut = resources.slice(0, RESOURCES).map((r) => {
     const one = r.replace(/\s+/g, " ").trim();
@@ -4022,8 +4051,8 @@ async function setup(ctx) {
   }
   try {
     await ctx.session.hook("prompt", async (p) => {
-      const word = await half.launch(String(p.sessionID), p.prompt.text);
-      if (word) p.prompt.text = withWord(p.prompt.text, word);
+      const word2 = await half.launch(String(p.sessionID), p.prompt.text);
+      if (word2) p.prompt.text = withWord(p.prompt.text, word2);
       const sid = String(p.sessionID);
       const counts = await rootOf(sid) === sid ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}

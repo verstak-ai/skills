@@ -13,7 +13,7 @@ function langOfServer(_url) {
 }
 
 // js/delivery/patterns/board.ts
-var BOARD_HEADER = { ru: "Channels", en: "Channels" };
+var BOARD_HEADER = { en: "Channels" };
 var BOARD_FORM = {
   boardHeader: /^\s*Channels(?:\s*\((\d+)\))?(?:\s|:|$)/m,
   boardEmpty: /^\s*No role (?:of|in) this graph (?:holds a channel|stands anywhere)/m,
@@ -37,12 +37,19 @@ var UNATTRIBUTED_RE = /hold no registered standing/i;
 
 // js/delivery/patterns/config.ts
 var SERVER_CHOICE = {
-  ru: /(?!)/,
   en: /^(en|ai|english|verstak)$/i
 };
 
 // js/delivery/patterns/deliver.ts
 var NOTICE_MARK = /DELIVERY BEHIND/;
+
+// js/delivery/patterns/launch.ts
+var LAUNCH_WORD = "start";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "imu"
+);
 
 // js/delivery/patterns/satprobe.ts
 var SAT_LOGIN_RE = /\/login\b|oauth|authoriz|sign.?in|log.?in|\b401\b/i;
@@ -62,7 +69,7 @@ var BRIDGE_SKILL = "establish-mcp";
 var BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
 var PLUGIN_FILE = "opencode-plugin.js";
 var PLUGIN_COPY_FILE = `${PRODUCT}.js`;
-var SKILL_STAMP_FILE = "SKILL.md";
+var SKILL_STAMP_MASK = "*/**";
 var SKILL_SET = "verstak-ai/skills";
 var PLUGIN_NAME = PRODUCT;
 var SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
@@ -76,9 +83,9 @@ var CLIENTS = {
 var SERVER_URLS = {
   en: "https://mcp.verstak.ai/"
 };
-var DEFAULT_SERVER_URL = SERVER_URLS.en;
+var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
 var SATELLITE_CODE = "const p=require('path').join(require('os').homedir(),'.verstak-bridge','verstak-bridge.mjs');process.argv.splice(1,0,p);import(require('url').pathToFileURL(p).href)";
-var HOOKS_SECTION = "Step 4 — Hooks";
+var HOOKS_SECTION = { en: "Step 4 — Hooks" };
 
 // js/delivery/protocol.ts
 var TOOL_PREFIX = `${PRODUCT}_`;
@@ -86,13 +93,15 @@ var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
-var SERVER_PROTOCOL = {
-  refusal: "verstak/refusal",
-  fields: "verstak/structured"
+var FRAME_MARK = `[${PRODUCT}]`;
+var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var serverProtocol = {
+  refusal: "verstak/refusal"
 };
+var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "2.9.1";
+var VERSION = "2.10.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -265,7 +274,7 @@ var DOCTOR = {
     claudeUnreadable: (p) => `Claude Code: ${p} is unreadable`,
     codexNoManifest: () => "no manifest",
     codexManifest: (v, hit) => `v${v}, ${hit ? "the bridge entry is in the manifest" : "no bridge entry in the manifest"}`,
-    codexPlugin: (plugin, market, word2, dir) => `Codex: plugin ${plugin}@${market} — ${word2}; ${dir}`,
+    codexPlugin: (plugin, market, word3, dir) => `Codex: plugin ${plugin}@${market} — ${word3}; ${dir}`,
     codexNoPlugin: (cache) => `Codex: no verstak plugin in the cache (${cache})`,
     claudeEntry: (name, cmd, args) => `Claude Code: entry "${name}" → ${cmd} ${args}`,
     claudeNoManual: () => "Claude Code: no manual bridge entry in the user config (the standard one is in the plugin)",
@@ -302,12 +311,12 @@ var HARNESS = {
       const alt = harness === "codex" ? "the Codex plugin entry takes no absolute path, and a second entry beside it would make two bridges" : `or an entry with the absolute node path, independent of PATH: ${entry ? `claude mcp remove "${entry}" --scope user, then ` : ""}claude mcp add --scope user "${entry ?? "verstak-bridge"}" -- ${abs} "${bridge}"${entry ? "" : " — and disable the plugin entry plugin:verstak:verstak in /mcp so the bridge is one"}; the path is tied to this node install — change it, rewrite the entry`;
       return `    fix: ${shell}; ${alt}`;
     },
-    launchNotFound: (who, cmd, absolute) => `TODO: ${who}: the command "${cmd}" is not found${absolute ? "" : " in this shell's PATH"} or not executable — the harness will not raise the bridge (spawn ENOENT)`,
+    launchNotFound: (who, cmd, absolute) => `${who}: the command "${cmd}" is not found${absolute ? "" : " in this shell's PATH"} or not executable — the harness will not raise the bridge (spawn ENOENT)`,
     launchAbsolute: (who, cmd) => `${who}: the command ${cmd} is executable and independent of PATH`,
     launchFound: (who, cmd, found) => `${who}: "${cmd}" → ${found}`,
     launchProfile: (who, cmd, found, dir) => `${who}: "${cmd}" → ${found} — in this shell's PATH; the directory ${dir} is put there by the shell profile or a version manager, and a harness started outside a shell (an app, a service) may not see it. The harness's PATH cannot be seen from here; if the harness says spawn ENOENT — the fix is on the next line`,
     openCodeRuntime: () => "OpenCode: the plugin's bridge runs on OpenCode's own runtime — independent of node in PATH",
-    secondPath: (where, name, url, remove) => `TODO: ${where}: the entry "${name}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
+    secondPath: (where, name, url, remove) => `${where}: the entry "${name}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
     deleteFrom: (file) => `delete it from ${file}`,
     connector: (name, file) => `Claude Code: the connector "${name}" is in the connection history (${file}, claudeAiMcpEverConnected; the line stays after removal) — claude.ai connectors come into every Claude Code session next to the bridge, and the connector's address is not on disk. If it is installed and leads to the graph server, it is a second path around the bridge → remove it in claude.ai (Settings → Connectors) or disable it in Claude Code (/mcp)`,
     skillsOtherChannel: (pi) => `by the channel the set was installed with (pi — ${pi}; the order — SETUP.md, section "Update")`,
@@ -316,7 +325,7 @@ var HARNESS = {
     skillsCurrent: (root, v) => `skills: ${root} — v${v}, not behind the bridge`,
     skillsBelowBridge: (bridge) => `BEHIND the bridge v${bridge}: the method in the agent's context is older than the bridge`,
     skillsBelowRelease: (release) => `BEHIND the release v${release}, level with the bridge: the whole delivery is behind (the bridge — the update subcommand)`,
-    skillsBehind: (root, v, why, how2) => `TODO: skills: ${root} — v${v}, ${why} → update the set: ${how2}; then a new session`,
+    skillsBehind: (root, v, why, how2) => `skills: ${root} — v${v}, ${why} → update the set: ${how2}; then a new session`,
     ocUnreadable: (file) => `OpenCode: ${file} is unreadable`,
     ocDisabled: (name, file) => `OpenCode: the mcp entry "${name}" in ${file} leads to Verstak but is disabled — not in play`,
     ocBridge: (name, file, path) => `OpenCode: the mcp entry "${name}" in ${file} calls ${path} — it looks like the delivery bridge. If it is, its tools are namespaced, and the bridge is shared by the service's sessions: the entry may go out under a neighbouring session's signature. Then remove it from this file by hand: opencode mcp has list, add, auth, logout — there is no remove command. The delivery surface is the plugin`,
@@ -497,7 +506,7 @@ var CALLBACK = { en: CALLBACK_EN };
 var DEVICE_CLIENT = {
   en: {
     bareRefusal: (id, status) => `the sign-in server refused a sign-in code to the client ${id}: ${status} with no word why — a move for the operator of the sign-in server`,
-    namedRefused: (id, word2) => `the sign-in server refused the client ${id} named by VERSTAK_BRIDGE_DEVICE_CLIENT (${word2}) — fix the variable or the client on the server`,
+    namedRefused: (id, word3) => `the sign-in server refused the client ${id} named by VERSTAK_BRIDGE_DEVICE_CLIENT (${word3}) — fix the variable or the client on the server`,
     unset: (id) => `sign-in by code is not set up on this server: there is no client ${id} — a move for the operator of the sign-in server`
   }
 };
@@ -609,14 +618,14 @@ var ROOM = {
   en: {
     said: (author) => `message from ${author}`,
     saidPending: (author) => `message from ${author} in flight — the text follows`,
-    aside: (author, addressee, word2) => `${author} → ${addressee}: message [${word2}]`,
-    asideRun: (author, addressee, count, word2) => `${author} → ${addressee}: ${count} (last [${word2}])`,
-    asideBody: (author, addressee, word2) => `${author} → ${addressee}: text of message [${word2}]`,
+    aside: (author, addressee, word3) => `${author} → ${addressee}: message [${word3}]`,
+    asideRun: (author, addressee, count, word3) => `${author} → ${addressee}: ${count} (last [${word3}])`,
+    asideBody: (author, addressee, word3) => `${author} → ${addressee}: text of message [${word3}]`,
     messages: (n) => `${n} ${n === 1 ? "message" : "messages"}`,
     body: (refersTo, author) => `text of message [${refersTo}] from ${author}`,
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
-    closing: (author, endsAt) => `the lead ${author} proposes to close the case by ${endsAt}{; evidence: evidence}`,
+    closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
     closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId}) (former name verstak_room)`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
@@ -625,7 +634,7 @@ var ROOM = {
     progress: (key, done, verdict, note3, author) => `[${key}] [${done}] = ${verdict}${note3} · ${author}`,
     opened: (author) => `case opened by ${author}`,
     joined: (who) => `entered ${who}`,
-    left: (who) => `left ${who}{; reason: reason}`,
+    left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
     node: (seq3, name, realm, reasoning) => `node #${seq3} ${name} (${realm}) in the case${reasoning}`,
@@ -745,7 +754,7 @@ var STAND = {
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: verstak_channel(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
-    boardUnknown: (start, _ru, en) => `Refused: the board's form is not recognized — no "${en}" header, no word about an empty graph, no seat lines; no controlling moves (connect, knock, hook) on a guess. The answer begins: ${start}`,
+    boardUnknown: (start, own, others) => `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock, hook) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name, karta) => `Refused: the board has ${n} seats named ${name} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) => `Refused: the board declares ${declared} seats, ${parsed} were read, and your own is not among them — the unread line may be it, or a seat another session listens on; connect would rotate it blind, and take=true would take it. Repeat when the board reads, or stand under another name.`,
     boardCountFound: (declared, parsed) => `The board declares ${declared} seats, ${parsed} were read — the parser missed a line; your own seat is found, going on.`,
@@ -1098,7 +1107,7 @@ var sessionCwd = () => currentScope().origin?.cwd ?? process.cwd();
 // js/shared/seam.ts
 import { createHash as createHash2 } from "node:crypto";
 import { connect } from "node:net";
-var SEAM_PROTOCOL = 2;
+var SEAM_PROTOCOL = 1;
 var SEAM_REATTACH_GRACE_MS = 5e3;
 var DAEMON_ENV = envName("BRIDGE_DAEMON");
 var NO_DAEMON_ENV = envName("BRIDGE_NO_DAEMON");
@@ -1163,7 +1172,7 @@ function checkHello(f) {
   if (!h || h.t !== "hello") return "the first frame is not a hello";
   if (h.seam !== SEAM_PROTOCOL)
     return `seam protocol ${String(h.seam)} is not spoken here (this side speaks ${SEAM_PROTOCOL})`;
-  if (h.product !== PRODUCT)
+  if (h.product !== void 0 && h.product !== PRODUCT)
     return `the thin bridge belongs to the delivery ${String(h.product)} (this side is ${PRODUCT})`;
   if (!Array.isArray(h.argv) || typeof h.cwd !== "string" || typeof h.pid !== "number")
     return "the hello lacks argv, cwd or pid";
@@ -1378,8 +1387,8 @@ function pipeNonce(authDir) {
     }
   }
   for (let i = 0; i < 50; i++) {
-    const word2 = readFileSync3(file, "utf8").trim();
-    if (word2) return word2;
+    const word3 = readFileSync3(file, "utf8").trim();
+    if (word3) return word3;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
   }
   throw new Error(`${file} stays empty — the pipe name is unknown`);
@@ -1796,16 +1805,15 @@ function flushStdout(out7 = sessionStream()) {
 }
 
 // js/bridge/config.ts
-var ENGLISH_SERVER_URL = SERVER_URLS.en;
-var PRODUCTION_URLS = new Set([DEFAULT_SERVER_URL, ENGLISH_SERVER_URL].map(strip));
+var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
 function strip(url) {
   return url.replace(/\/+$/, "");
 }
 var isProductionServer = (url) => PRODUCTION_URLS.has(strip(url));
-function resolveServerChoice(word2) {
-  const w = word2.trim();
-  if (SERVER_CHOICE.ru.test(w)) return DEFAULT_SERVER_URL;
-  if (SERVER_CHOICE.en.test(w)) return ENGLISH_SERVER_URL;
+function resolveServerChoice(word3) {
+  const w = word3.trim();
+  const chosen = LANGS.find((l) => SERVER_CHOICE[l].test(w));
+  if (chosen) return SERVER_URLS[chosen];
   try {
     return new URL(w).href;
   } catch {
@@ -1874,7 +1882,8 @@ function readArgs(argv2) {
     pat: null,
     patSource: null,
     serverSource: "argument",
-    // Flag only: an older bridge fails loudly on an unknown flag but would ignore a variable.
+    // Flag only: an older bridge fails loudly on an unknown flag but would ignore a variable
+    // and stand as a full seat with a hold record.
     satellite: false,
     tools: null
   };
@@ -2467,16 +2476,16 @@ async function codeThrough(meta, redirectUri, clientId) {
       throw new DeviceUnset(words(DEVICE_CLIENT).bareRefusal(id, e.status), void 0, e.status);
     }
     if (!clientRefused(e)) throw e;
-    const word2 = e.error;
+    const word3 = e.error;
     if (id === CFG.deviceClientId) {
-      throw new DeviceUnset(words(DEVICE_CLIENT).namedRefused(id, String(word2)), word2);
+      throw new DeviceUnset(words(DEVICE_CLIENT).namedRefused(id, String(word3)), word3);
     }
     if (id !== named) return await codeThrough(meta, redirectUri, void 0);
     if (CFG.deviceRegister) {
       log(`device client ${id} refused (${errorMessage(e)}) — registering one`);
       return await issueDeviceCode(meta, await registerDeviceClient(meta, redirectUri));
     }
-    throw new DeviceUnset(words(DEVICE_CLIENT).unset(id), word2);
+    throw new DeviceUnset(words(DEVICE_CLIENT).unset(id), word3);
   }
 }
 async function registerDeviceClient(meta, redirectUri) {
@@ -2805,16 +2814,16 @@ function deviceSide(meta, redirectUri, resume, onCode, called) {
           });
           return;
         } catch (e) {
-          const word2 = e instanceof TokenError ? e.oauthError : void 0;
-          if (word2 === "access_denied") {
+          const word3 = e instanceof TokenError ? e.oauthError : void 0;
+          if (word3 === "access_denied") {
             throw new Error("authorization refused on the other device", { cause: e });
           }
-          if (word2 === "slow_down") {
+          if (word3 === "slow_down") {
             code = { ...code, interval_ms: code.interval_ms + SLOW_DOWN_MS };
             onCode(code);
-          } else if (word2 && word2 !== "authorization_pending") {
+          } else if (word3 && word3 !== "authorization_pending") {
             renew = true;
-          } else if (!word2) debug(`device poll: ${errorMessage(e)} — asking again`);
+          } else if (!word3) debug(`device poll: ${errorMessage(e)} — asking again`);
         }
       }
       if (renew) {
@@ -2983,9 +2992,12 @@ async function interactiveFlow(meta, judged, note3, wantTab = true) {
         throw e;
       }
       log(
-        "the bridge that published this login is gone — listening on its link, so the tab the human has still lands"
+        `the bridge that published this login (pid ${standing.pid}) is gone — listening on its link, so the tab the human has still lands:
+  ${still.authorize_url}`
       );
-      grantLog("authorization flow taken over on the same link — waiting for the human");
+      grantLog(
+        `authorization flow of pid ${standing.pid} (gone) taken over on the same link — waiting for the human`
+      );
       const first2 = runFlow(meta, cb, still, wantTab);
       throw new AuthPending(still.authorize_url, note3, await firstCode(first2));
     }
@@ -4098,9 +4110,9 @@ function roomKind(frame2) {
       phase: null,
       known: false
     };
-  const word2 = kind === "said" || kind === "body";
-  const withheld = word2 && f.body_withheld === true;
-  const to = word2 ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
+  const word3 = kind === "said" || kind === "body";
+  const withheld = word3 && f.body_withheld === true;
+  const to = word3 ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
   const addresseeLeft = f.addressee_left === true || fields.addressee_left === true;
   if (to && !addresseeLeft && (withheld || mine.length && !to.addr.some((a) => mine.includes(a)))) {
     const counts = kind === "said";
@@ -4182,8 +4194,8 @@ function addressedToMine(frame2) {
     return !!a && mine.length > 0 && a.addr.some((x) => mine.includes(x));
   };
   if (rk?.kind === "body") {
-    const word2 = obj(f.word);
-    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame2)))
+    const word3 = obj(f.word);
+    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word3.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame2)))
       return true;
   } else if (
     // A word to me, a reply to my record (#5954), marked important; a word in flight
@@ -4355,7 +4367,7 @@ var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
 var HOSTED_CLIENTS = /* @__PURE__ */ new Set([PI_CLIENT, OPENCODE_CLIENT]);
 
 // js/shared/fields.ts
-var FIELDS_CAPABILITY = SERVER_PROTOCOL.fields;
+var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
 var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
 var obj2 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
 var asksFields = (initParams) => FIELDS_CAPABILITY in obj2(obj2(obj2(initParams).capabilities).experimental);
@@ -4567,7 +4579,8 @@ async function post2(msg, onMessage) {
     "content-type": "application/json",
     accept: "application/json, text/event-stream"
   };
-  if (lang() === "en") headers["accept-language"] = "en";
+  const locale = SERVER_LOCALE[lang()];
+  if (locale) headers["accept-language"] = locale;
   const token = CFG.pat ?? loadStore().tokens?.access_token ?? null;
   if (token) headers.authorization = `Bearer ${token}`;
   else if (loginPublished())
@@ -5107,7 +5120,7 @@ var caseOf2 = (frame2) => {
   return idOf3(room.id) || idOf3(room.seq);
 };
 var wordKey = (frame2, entry) => entry ? numberedKey(frame2, `${caseOf2(frame2)}|${entry}`) : "";
-var isWordOf = (held2, body, word2) => !!word2 && wordKey(held2, entryOf(held2)) === wordKey(body, word2);
+var isWordOf = (held2, body, word3) => !!word3 && wordKey(held2, entryOf(held2)) === wordKey(body, word3);
 var HumanWords = class {
   words = /* @__PURE__ */ new Set();
   /** A human word in flight — by its own entry. */
@@ -5119,8 +5132,8 @@ var HumanWords = class {
     if (this.words.size > HUMAN_WORDS_KEEP && !oldest.done) this.words.delete(oldest.value);
   }
   /** true — the body carries a human word in flight (word — its entry in the body's case); forgotten. */
-  forget(body, word2) {
-    const key = wordKey(body, word2);
+  forget(body, word3) {
+    const key = wordKey(body, word3);
     return !!key && this.words.delete(key);
   }
 };
@@ -5142,9 +5155,9 @@ var RoomBatch = class {
   /** Human words in flight: their body is the human's word, not a batch frame. */
   humanWords = new HumanWords();
   /** Take a word in flight out of the pending batch once its body came. */
-  dropWord(body, word2, dropped) {
+  dropWord(body, word3, dropped) {
     for (let i = this.held.length - 1; i >= 0; i--) {
-      if (!isWordOf(this.held[i].frame, body, word2)) continue;
+      if (!isWordOf(this.held[i].frame, body, word3)) continue;
       dropped(this.held[i].frame);
       this.held.splice(i, 1);
     }
@@ -5208,11 +5221,11 @@ function batchForWatchdogs(d, raw, frame2, emit2) {
   if (rk?.kind === "said" && rk.phase === "pending" && human)
     d.roomBatch.humanWords.remember(frame2);
   if (rk?.kind === "body") {
-    const word2 = idOf3(rec4(f.line).refers_to ?? f.in_reply_to);
-    if (d.roomBatch.humanWords.forget(frame2, word2) && rk.phase !== "aborted") {
+    const word3 = idOf3(rec4(f.line).refers_to ?? f.in_reply_to);
+    if (d.roomBatch.humanWords.forget(frame2, word3) && rk.phase !== "aborted") {
       human = true;
       frame2.origin = "human";
-      d.roomBatch.dropWord(frame2, word2, (said2) => {
+      d.roomBatch.dropWord(frame2, word3, (said2) => {
         for (const k of deliveryKeys(said2)) noteSeen(d.seenPath, k, d.seen);
       });
     }
@@ -5341,8 +5354,8 @@ function seatBaseOf(key) {
 function writeHoldRecord(key, rec5, paused = false, at2 = Date.now()) {
   if (CFG.satellite && !paused) return;
   try {
-    const session = H.session ?? rec5.session;
-    const was = rec5.left == null || (rec5.base ?? B.get(key)) == null ? onDisk(key) : null;
+    const was = onDisk(key);
+    const session = H.session ?? rec5.session ?? (was?.url === rec5.url ? was.session : void 0);
     const left2 = rec5.left ?? was?.left === true;
     writeFileSync9(
       holdFilePathFor(key),
@@ -5509,16 +5522,18 @@ var Door = class {
   seen;
   /** Since when no local client listens; null — someone listens. */
   idleAt = Date.now();
+  /** The bridge's memory plus the .seen file written by whoever delivered the frame. */
   marks = (k) => marksOf(this.seen, this.seenPath)(k);
   /** Stale and wake batches are per seat (#5838). */
   stale = new StaleBurst(this.marks);
   backlog = new Backlog(this.marks);
   /** Room batch for watchdogs, not notification clients (roomstack.ts, #5851). */
   roomBatch = new RoomBatch(this.marks);
-  /** Platform seat id (hello standings[].standing_id). */
+  /** Platform seat id (hello standings[].standing_id): a frame finds its door by it. */
   standingId = null;
   /** Seat address @handle:name — from hello, or derived from the main seat's handle for a seat beside. */
   address = null;
+  /** address derived by the bridge, not named by hello. */
   addressDerived = false;
   /** Why the local socket did not come up; null — up or still coming up. */
   listenError = null;
@@ -6648,6 +6663,22 @@ function listenLine(key) {
 // js/bridge/hearing.ts
 import { readdirSync as readdirSync4, readFileSync as readFileSync14 } from "node:fs";
 import { join as join11 } from "node:path";
+
+// js/shared/canon.ts
+import { realpathSync as realpathSync2 } from "node:fs";
+import { sep } from "node:path";
+function canonDir(p) {
+  let real2 = p;
+  try {
+    real2 = realpathSync2.native(p);
+  } catch {
+  }
+  while (real2.length > 1 && (real2.endsWith("/") || real2.endsWith(sep))) real2 = real2.slice(0, -1);
+  return real2;
+}
+var sameDir = (a, b) => !!a && !!b && (a === b || canonDir(a) === canonDir(b));
+
+// js/bridge/hearing.ts
 var isSentinel = (karta) => !/^\d+$/.test(karta);
 function seatKarta(realm, karta, name = "") {
   const k = normKarta(karta);
@@ -6695,19 +6726,28 @@ function keysNamed(realm, name) {
     return [];
   }
 }
-async function localHolder(key) {
+var unsignedHere = (rec5, cwd) => !rec5.session && !rec5.left && rec5.client === harnessName() && sameDir(rec5.cwd, cwd);
+async function localHolder(key, cwd) {
   if (!await localSocketAlive(localSocketPathOf(key))) return null;
   if (doors().some((d) => d.key === key && d.ownsSocket)) return "self";
   const me = sessionOfBridge();
-  return me && readHoldRecord(key, true)?.session === me ? "session" : "other";
+  const rec5 = me ? readHoldRecord(key, true) : null;
+  if (!rec5) return "other";
+  return rec5.session === me || cwd != null && unsignedHere(rec5, cwd) ? "session" : "other";
 }
-async function heldLocallyByOther(realm, karta, name) {
-  for (const key of isSentinel(karta) ? keysNamed(realm, name) : [keyOf(realm, karta, name)])
-    if (await localHolder(key) === "other") return true;
-  return false;
+async function heldLocally(realm, karta, name, cwd) {
+  let own = false;
+  for (const key of isSentinel(karta) ? keysNamed(realm, name) : [keyOf(realm, karta, name)]) {
+    const h = await localHolder(key, cwd);
+    if (h === "other") return "other";
+    own ||= h === "session";
+  }
+  return own ? "session" : null;
 }
-async function askedHearing(realm, karta, name) {
-  if (await heldLocallyByOther(realm, karta, name)) return "other";
+async function askedHearing(realm, karta, name, cwd = H2.standCwd ?? sessionCwd()) {
+  const local = await heldLocally(realm, karta, name, cwd);
+  if (local === "other") return "other";
+  if (local === "session") return "free";
   const b = await callTool(tool("channel"), { action: "list", realm }).catch(() => null);
   return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name);
 }
@@ -6770,20 +6810,6 @@ async function deafRefusal(msg) {
   const why = p ? await deafSeatTaken(p) : null;
   return why ? words(DEAF).refusal(why) : null;
 }
-
-// js/shared/canon.ts
-import { realpathSync as realpathSync2 } from "node:fs";
-import { sep } from "node:path";
-function canonDir(p) {
-  let real2 = p;
-  try {
-    real2 = realpathSync2.native(p);
-  } catch {
-  }
-  while (real2.length > 1 && (real2.endsWith("/") || real2.endsWith(sep))) real2 = real2.slice(0, -1);
-  return real2;
-}
-var sameDir = (a, b) => !!a && !!b && (a === b || canonDir(a) === canonDir(b));
 
 // js/bridge/satellite.ts
 import { randomBytes as randomBytes3 } from "node:crypto";
@@ -6861,7 +6887,23 @@ function lockSet(root) {
 `).sort();
   return { name, stamp: lines.length ? sha8(createHash6("sha256").update(lines.join(""))) : null };
 }
-function treeStamp(root) {
+function allFiles(dir, at2 = "") {
+  let entries2;
+  try {
+    entries2 = readdirSync5(join13(dir, at2), { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return entries2.flatMap((e) => {
+    const rel = at2 ? `${at2}/${e.name}` : e.name;
+    return e.isDirectory() ? allFiles(dir, rel) : e.isFile() ? [rel] : [];
+  }).sort();
+}
+function treeStamp(root, mask = SKILL_STAMP_MASK) {
+  const [head, ...restParts] = mask.split("/");
+  const rest2 = restParts.join("/");
+  if (head !== "*" || !rest2 || rest2.includes("*") && rest2 !== "**")
+    throw new Error(`unsupported skill stamp mask: ${mask}`);
   const h = createHash6("sha256");
   let n = 0;
   let names2;
@@ -6871,14 +6913,20 @@ function treeStamp(root) {
     return null;
   }
   for (const name of names2) {
-    let body;
-    try {
-      body = readFileSync16(join13(root, name, SKILL_STAMP_FILE));
-    } catch {
-      continue;
+    const files = rest2 === "**" ? allFiles(join13(root, name)) : [rest2];
+    const bodies = [];
+    for (const rel of files) {
+      try {
+        bodies.push([rel, readFileSync16(join13(root, name, rel))]);
+      } catch {
+      }
     }
+    if (!bodies.length) continue;
     h.update(`${name}\0`);
-    h.update(body);
+    for (const [rel, body] of bodies) {
+      if (rest2 === "**") h.update(`${rel}\0`);
+      h.update(body);
+    }
     h.update("\0");
     n++;
   }
@@ -6922,10 +6970,11 @@ function placeFields(place = {}) {
   const harness = harnessName();
   const extra = extras2.get(placeKey(place)) ?? {};
   const { model, usage: usage2, satelliteOf, satelliteOfId } = P;
+  const locale = SERVER_LOCALE[lang()];
   return {
     ...model ? { model } : {},
-    // Seat language (#6080): only en is asked; otherwise the server default decides.
-    ...lang() === "en" ? { locale: "en" } : {},
+    // Seat language (#6080): asked only where the layer names a locale; otherwise the server default decides.
+    ...locale ? { locale } : {},
     ...CFG.satellite && satelliteOfId ? { satellite_of: satelliteOfId } : {},
     attrs: {
       ...extra,
@@ -7106,9 +7155,9 @@ function pickSatellite(entries2, of, karta, led, claim = () => true) {
   const callerId = same[0].id;
   const notes = [];
   if (led && isSatelliteOf(base, led)) {
-    const word2 = sw().alreadyHolds(led);
-    log(word2);
-    notes.push(word2);
+    const word3 = sw().alreadyHolds(led);
+    log(word3);
+    notes.push(word3);
     return { ok: true, name: led, caller, callerKarta, callerId, notes };
   }
   const taken = new Set(entries2.map((e) => nameOf(e.address)));
@@ -7365,6 +7414,47 @@ function localLeave(msg) {
 // js/bridge/resume.ts
 import { existsSync as existsSync4, readdirSync as readdirSync6, readFileSync as readFileSync18 } from "node:fs";
 import { join as join15 } from "node:path";
+
+// js/bridge/holdkeep.ts
+function keepHoldRecord() {
+  const s2 = state.standing;
+  const key = H2.currentKey;
+  if (!s2 || !key || !H2.currentUrl) return;
+  const alive5 = !!H2.holder?.alive;
+  const at2 = alive5 ? Date.now() : Math.max(H2.holder?.heardAt ?? 0, H2.heardAt);
+  const ch = { url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cwd: H2.standCwd };
+  const was = readHoldRecord(key, true);
+  if (was && at2 > (was.at ?? 0))
+    writeHoldRecord(
+      key,
+      {
+        ...was,
+        realm: s2.realm,
+        karta: s2.karta,
+        name: s2.name ?? "",
+        url: ch.url,
+        statusUrl: ch.statusUrl,
+        cwd: ch.cwd ?? was.cwd,
+        client: harnessName(),
+        key
+      },
+      false,
+      at2
+    );
+  if (!alive5) return;
+  for (const p of extraPlaces()) {
+    const r = readHoldRecord(p.door.key, true);
+    if (r) rememberExtraStatus(p.door.key, { ...ch, cwd: ch.cwd ?? r.cwd }, r.status ?? "");
+  }
+}
+function signHeldRecord() {
+  const key = H2.currentKey;
+  if (!key || !H2.holder?.alive || !sessionOfBridge()) return;
+  for (const k of [key, ...extraPlaces().map((p) => p.door.key)]) {
+    const rec5 = readHoldRecord(k);
+    if (rec5 && !rec5.session && rec5.url === H2.currentUrl) writeHoldRecord(k, rec5);
+  }
+}
 
 // js/bridge/resumewords.ts
 var resumeWords = new Proxy({}, {
@@ -7767,6 +7857,7 @@ var selectorOf = (msg) => ({
 function selectorFrom(msg) {
   const sel = selectorOf(msg);
   noteHarnessSession(sel.session);
+  signHeldRecord();
   return sel;
 }
 var isResumeCall = (msg) => msg?.method === method("resume");
@@ -7862,9 +7953,9 @@ async function ownByRecord(realm, karta, name, cwd) {
   const key = keyOf(realm, karta, name);
   const rec5 = readHoldRecord(key);
   const me = sessionOfBridge();
-  if (!rec5 || (rec5.session ?? null) !== me) return false;
-  if (!me && (rec5.client !== harnessName() || !sameDir(rec5.cwd, cwd))) return false;
-  return !await localSocketAlive(localSocketPathOf(key));
+  if (!rec5) return false;
+  const mine = me ? rec5.session === me || unsignedHere(rec5, cwd) : !rec5.session && rec5.client === harnessName() && sameDir(rec5.cwd, cwd);
+  return mine && !await localSocketAlive(localSocketPathOf(key));
 }
 async function holderOf(realm, karta, name, hearing, cwd) {
   await heardOnReturn();
@@ -7872,7 +7963,7 @@ async function holderOf(realm, karta, name, hearing, cwd) {
   if (wasEvicted(realm, karta, name)) return "taken";
   const key = keyOf(realm, karta, name);
   if (ledKey() === key) return "mine";
-  const local = await localHolder(key);
+  const local = await localHolder(key, cwd);
   if (local) return local === "self" ? "mine" : local === "session" ? "session" : "taken";
   if (theirsByRecord(key)) return "taken";
   const h = hearing(name);
@@ -8003,15 +8094,16 @@ function announceEvicted(code, text) {
 }
 async function takenBySession(key, url) {
   const me = sessionOfBridge();
-  if (!me) return false;
+  const ours = (r) => me ? r.session === me : !!r.session && r.client === harnessName() && sameDir(r.cwd, H2.standCwd ?? void 0);
   const changed = () => {
     const r = readHoldRecord(key, true);
-    return r && r.url !== url ? r.session === me : null;
+    return r && r.url !== url ? ours(r) : null;
   };
   for (; ; ) {
     const got = changed();
     if (got !== null) return got;
-    if (takerOf(key) !== me) return changed() ?? false;
+    const taker = takerOf(key);
+    if (me ? taker !== me : !taker) return changed() ?? false;
     await new Promise((res) => setTimeout(res, LOOK_MS));
   }
 }
@@ -8127,7 +8219,7 @@ function wireEviction(beside) {
 
 // js/bridge/refusal.ts
 function refusalOf(reply2) {
-  const r = reply2?.result?._meta?.[SERVER_PROTOCOL.refusal];
+  const r = reply2?.result?._meta?.[serverProtocol.refusal];
   if (!isObj(r) || !is.str(r.rule) || !is.num(r.status)) return null;
   return {
     ...typeof r.rule === "string" ? { rule: r.rule } : {},
@@ -8423,8 +8515,8 @@ function crossPlaceRefusal(msg) {
   const unresolved2 = unresolvedRefusal(realm);
   if (unresolved2) return refusal(msg, unresolved2);
   if (a.action !== "register") {
-    const word2 = besideRefusal(realm, "connect");
-    if (word2) return refusal(msg, word2);
+    const word3 = besideRefusal(realm, "connect");
+    if (word3) return refusal(msg, word3);
   }
   const karta = normKarta(a.karta ?? state.standing?.karta ?? "");
   const name = normName(a.name);
@@ -9120,39 +9212,6 @@ function readFallbacks(authDir) {
   return out7;
 }
 
-// js/bridge/holdkeep.ts
-function keepHoldRecord() {
-  const s2 = state.standing;
-  const key = H2.currentKey;
-  if (!s2 || !key || !H2.currentUrl) return;
-  const alive5 = !!H2.holder?.alive;
-  const at2 = alive5 ? Date.now() : Math.max(H2.holder?.heardAt ?? 0, H2.heardAt);
-  const ch = { url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cwd: H2.standCwd };
-  const was = readHoldRecord(key, true);
-  if (was && at2 > (was.at ?? 0))
-    writeHoldRecord(
-      key,
-      {
-        ...was,
-        realm: s2.realm,
-        karta: s2.karta,
-        name: s2.name ?? "",
-        url: ch.url,
-        statusUrl: ch.statusUrl,
-        cwd: ch.cwd ?? was.cwd,
-        client: harnessName(),
-        key
-      },
-      false,
-      at2
-    );
-  if (!alive5) return;
-  for (const p of extraPlaces()) {
-    const r = readHoldRecord(p.door.key, true);
-    if (r) rememberExtraStatus(p.door.key, { ...ch, cwd: ch.cwd ?? r.cwd }, r.status ?? "");
-  }
-}
-
 // js/bridge/runend.ts
 var R3 = scoped(() => ({
   run: null,
@@ -9345,12 +9404,12 @@ var OWNER_ENV = envName("BRIDGE_OWNER_ROLE");
 var HUMAN2 = /* @__PURE__ */ new Set(["me", "realm-owner"]);
 var OWNERS_PAGE = 100;
 var known = scoped(() => /* @__PURE__ */ new Map());
-var word = (what) => words(OWNER).refused(what, OWNER_ENV);
+var word2 = (what) => words(OWNER).refused(what, OWNER_ENV);
 async function ownerRefusal(realm, karta) {
   if (envOf(OWNER_ENV)?.trim() === "1") return null;
   const k = normKarta(karta);
   if (!k || k === "agent") return null;
-  if (HUMAN2.has(k)) return word(words(OWNER).human(k));
+  if (HUMAN2.has(k)) return word2(words(OWNER).human(k));
   if (!/^\d+$/.test(k)) return null;
   const key = `${String(realm ?? "")}|${k}`;
   let owner = known.get(key);
@@ -9360,7 +9419,7 @@ async function ownerRefusal(realm, karta) {
     owner = r;
     known.set(key, owner);
   }
-  return owner ? word(`karta=#${k}`) : null;
+  return owner ? word2(`karta=#${k}`) : null;
 }
 async function ownersOf(realm, k) {
   const s2 = await callTool(tool("search"), {
@@ -9473,6 +9532,13 @@ async function armRoleHook(p) {
 
 // js/bridge/standwords.ts
 var sw2 = () => words(STAND);
+function boardHeaders() {
+  const own = words(BOARD_HEADER);
+  return [
+    own,
+    LANGS.filter((l) => BOARD_HEADER[l] !== own).map((l) => BOARD_HEADER[l]).join(", ")
+  ];
+}
 function missWord(m, of) {
   const w = words(STAND_MISS);
   switch (m.why) {
@@ -9627,7 +9693,7 @@ async function runStand(msg) {
   }
   const led = besideTaken ? null : leadsOtherPlace(realm, karta, name);
   if (led && a.take !== true) {
-    const hearing2 = await askedHearing(realm, karta, name);
+    const hearing2 = await askedHearing(realm, karta, name, cwd);
     lines.push(otherPlaceWord(led, keyOf(realm, karta, name), name === ledName(), hearing2));
     return done(true);
   }
@@ -9653,7 +9719,7 @@ async function runStand(msg) {
   const hearing = (n) => boardHearing(bd, karta, n);
   if (!recognized || own.length > 1 || hearing(name) === "unknown" && a.take !== true) {
     lines.push(
-      !recognized ? sw2().boardUnknown(short(board.text, 160), BOARD_HEADER.ru, BOARD_HEADER.en) : own.length > 1 ? sw2().boardAmbiguous(own.length, name, karta) : sw2().boardCount(declared ?? 0, entries2.length)
+      !recognized ? sw2().boardUnknown(short(board.text, 160), ...boardHeaders()) : own.length > 1 ? sw2().boardAmbiguous(own.length, name, karta) : sw2().boardCount(declared ?? 0, entries2.length)
     );
     return done(true);
   }
@@ -10564,12 +10630,23 @@ function placeWord(msg) {
   const realm = typeof data?.place?.realm === "string" ? data.place.realm.trim() : "";
   return typeof data?.kind === "string" ? { kind: data.kind, key: typeof data.key === "string" ? data.key : void 0, realm } : null;
 }
+var harnessSession = null;
+function seeSession(msg) {
+  const s2 = msg.params?.session;
+  if ((msg.method === method("resume") || msg.method === method("check")) && typeof s2 === "string")
+    harnessSession = s2.trim() || harnessSession;
+  return msg;
+}
+var resumeParams = (key) => harnessSession ? { key, session: harnessSession } : { key };
 function lostPlaces(say2, log3) {
   const live = /* @__PURE__ */ new Map();
   const lost = /* @__PURE__ */ new Map();
   return {
     live,
-    /** The seat is taken again (held, beside) — its refusal lifted. */
+    /**
+     * The seat is taken again (held, beside) — its refusal lifted. A satellite's loss is
+     * lifted by any satellite seat of the same graph: the bridge picks the .sub-N name.
+     */
     regained(k, realm) {
       live.set(k, realm);
       for (const [lk, e] of lost)
@@ -10590,14 +10667,17 @@ function lostPlaces(say2, log3) {
         }
       });
     },
+    /** The thin bridge decides by it whether to learn graph names. */
     lostCount() {
       return lost.size;
     },
     /**
      * Fold a seat word reaching the thin bridge; returns heldKey after it. held with
-     * another key drops the old key from live. released from the daemon session
-     * while the harness lives is a daemon ending without successor, not the agent
-     * leaving: the key stays so the takeover resumes the seat by its hold record.
+     * another key drops the old key from live, else the next break would call it lost.
+     * released from the daemon session while the harness lives is a daemon ending
+     * without successor, not the agent leaving: the key stays so the takeover resumes
+     * the seat by its hold record. The agent's real leave goes through the thin
+     * bridge's own leave; death and eviction come as dead and evicted.
      */
     seen(place, heldKey2, daemonSession) {
       if ((place?.kind === "held" || place?.kind === "beside") && place.key) {
@@ -10616,6 +10696,7 @@ function lostPlaces(say2, log3) {
     /**
      * Refusal of a tool call for a lost seat; null — let it pass. Only calls into a
      * lost graph; an unresolved name is refused asking for the full address (#5838).
+     * The refusal carries the call's graph, not the first loss found.
      */
     refusal(msg) {
       if (!lost.size || msg.method !== "tools/call" || msg.params?.name === tool("stand"))
@@ -10743,7 +10824,7 @@ function thinMain(argv2) {
   let initCopy = null;
   let initSent = false;
   let initializedSeen = false;
-  let word2 = null;
+  let word3 = null;
   let leaving = null;
   let byeDone = null;
   let heldKey2 = null;
@@ -10784,9 +10865,9 @@ function thinMain(argv2) {
       const f = flights.get(k);
       flights.delete(k);
       if (f?.msg.method === method("suspend") && msg.result?.suspended === true) paused = true;
-      if (word2 && f?.msg.method === "tools/call" && Array.isArray(msg.result?.content)) {
-        msg.result.content.push({ type: "text", text: word2 });
-        word2 = null;
+      if (word3 && f?.msg.method === "tools/call" && Array.isArray(msg.result?.content)) {
+        msg.result.content.push({ type: "text", text: word3 });
+        word3 = null;
       }
     }
     const place = placeWord(msg);
@@ -10890,14 +10971,14 @@ function thinMain(argv2) {
       resuming.set(key(id), held2);
       closeGate(key(id));
       log(`the session is new — bringing its place ${held2.key} back from the hold record`);
-      send({ jsonrpc: "2.0", id, method: method("resume"), params: { key: held2.key } });
+      send({ jsonrpc: "2.0", id, method: method("resume"), params: resumeParams(held2.key) });
     }
   };
   const goLocal = (reason) => {
     if (mode === "local" || leaving) return;
     log(`${reason} — going as the full bridge inside this process`);
     markFallback(authDir, { build: BUILD, cwd: process.cwd(), why: reason });
-    word2 = `${BRIDGE_NAME} ${BUILD}: ${reason}; this bridge runs as the full bridge in its own process (the machine's daemon is the default; ${DAEMON_ENV}=0 runs the full bridge on purpose).`;
+    word3 = `${BRIDGE_NAME} ${BUILD}: ${reason}; this bridge runs as the full bridge in its own process (the machine's daemon is the default; ${DAEMON_ENV}=0 runs the full bridge on purpose).`;
     const input = new PassThrough2();
     const output = new PassThrough2();
     startEngine(cfg);
@@ -11044,7 +11125,7 @@ function thinMain(argv2) {
       cancelled.delete(key(msg.id));
       flights.set(key(msg.id), { id: msg.id, msg, acked: false });
     }
-    dispatch2(msg);
+    dispatch2(seeSession(msg));
   });
   const leave = (why) => leaving ??= windDown(why);
   const windDown = async (why) => {
@@ -12583,7 +12664,7 @@ function launchReport(out7, launches2) {
     const cmd = l.command || "node";
     const found = which(cmd, process.cwd());
     if (!found || !executable(found)) {
-      out7(hw().launchNotFound(l.who, cmd, isAbsolute4(cmd)));
+      out7(`${todo()} ${hw().launchNotFound(l.who, cmd, isAbsolute4(cmd))}`);
       const own = /^node/i.test(basename7(process.execPath)) ? process.execPath : null;
       out7(fix(l, own));
       continue;
@@ -12617,7 +12698,7 @@ var readJson = (p) => {
   }
 };
 var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => typeof v?.url === "string" && graphServer(v.url)).map(([n, v]) => [n, String(v.url)]);
-var say = (out7, where, name, url, remove) => out7(hw2().secondPath(where, name, url, remove));
+var say = (out7, where, name, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
   const file = join25(homedir11(), ".claude.json");
@@ -12725,7 +12806,7 @@ function skillsReport(out7, codexHomes2) {
     else {
       const below = compareVersions(v, VERSION) < 0;
       const why = below ? hw3().skillsBelowBridge(VERSION) : hw3().skillsBelowRelease(target);
-      out7(hw3().skillsBehind(root, v, why, how(kind)));
+      out7(`${todo()} ${hw3().skillsBehind(root, v, why, how(kind))}`);
     }
   }
 }
@@ -13052,14 +13133,14 @@ function codexPluginReport(home) {
   let found = 0;
   for (const { market, plugin, dir } of codexCopies(home)) {
     const manifest = join28(dir, ".codex-plugin", "plugin.json");
-    let word2 = dw().codexNoManifest();
+    let word3 = dw().codexNoManifest();
     if (existsSync14(manifest)) {
       try {
         const m = JSON.parse(readFileSync31(manifest, "utf8"));
         const hit = Object.values(m.mcpServers ?? {}).find(
           (v) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
         );
-        word2 = dw().codexManifest(m.version ?? "?", !!hit);
+        word3 = dw().codexManifest(m.version ?? "?", !!hit);
         if (hit)
           launches.push({
             who: `Codex ${plugin}@${market}`,
@@ -13067,11 +13148,11 @@ function codexPluginReport(home) {
             command: hit.command ?? ""
           });
       } catch {
-        word2 = dw().unreadable(manifest);
+        word3 = dw().unreadable(manifest);
       }
     }
     found++;
-    out3(dw().codexPlugin(plugin, market, word2, dir));
+    out3(dw().codexPlugin(plugin, market, word3, dir));
   }
   if (!found) out3(dw().codexNoPlugin(cache));
 }
@@ -13412,9 +13493,9 @@ function verdictLines(v) {
   if (lostSpelling(s2)) lines.push(rw2().lostSpelling(s2.writes.mine, s2.writes.twin));
   if (mute(s2)) lines.push(rw2().mute());
   if (s2.writes.theirs > 0 || lostSpelling(s2) || mute(s2))
-    lines.push(`  ${rw2().fixScope(HOOKS_SECTION)}`);
+    lines.push(`  ${rw2().fixScope(words(HOOKS_SECTION))}`);
   for (const h of s2.broken) lines.push(rw2().broken(h));
-  if (s2.broken.length) lines.push(`  ${rw2().fixBroken(HOOKS_SECTION)}`);
+  if (s2.broken.length) lines.push(`  ${rw2().fixBroken(words(HOOKS_SECTION))}`);
   return lines;
 }
 var RITUALS_USAGE = () => rw2().usage();
@@ -13425,8 +13506,8 @@ var isDir = (p) => {
     return false;
   }
 };
-var refuse = (word2) => {
-  process.stderr.write(`check-rituals: ${word2}
+var refuse = (word3) => {
+  process.stderr.write(`check-rituals: ${word3}
 ${RITUALS_USAGE()}
 `);
   process.exitCode = 2;
@@ -13490,16 +13571,16 @@ var out6 = (s2) => {
 };
 var cw2 = () => words(CLI);
 function runUse(argv2) {
-  let word2;
+  let word3;
   const rest2 = [];
   for (let i = 0; i < argv2.length; i++) {
     const a = argv2[i] ?? "";
     if (a === "--auth-dir") rest2.push(a, argv2[++i] ?? "");
-    else if (a.startsWith("--") || word2) rest2.push(a);
-    else word2 = a;
+    else if (a.startsWith("--") || word3) rest2.push(a);
+    else word3 = a;
   }
   setConfig(parseArgs(rest2));
-  const url = word2 ? resolveServerChoice(word2) : null;
+  const url = word3 ? resolveServerChoice(word3) : null;
   if (!url) {
     out6(cw2().useNoAddress());
     process.exitCode = 2;

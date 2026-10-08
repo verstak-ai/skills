@@ -6,7 +6,12 @@ function langOfServer(_url) {
 }
 
 // js/delivery/patterns/launch.ts
-var LAUNCH_LINE = /^[ \t]*start\s+(\S+)\s+(\S+)\s+(?:case\s+)?[№#]\s?(\d+)(?:[ \t]+from[ \t]+(@\S+))?(?=\s|$)/imu;
+var LAUNCH_WORD = "start";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "imu"
+);
 
 // js/delivery/product.ts
 var PRODUCT = "verstak";
@@ -30,7 +35,7 @@ var CLIENTS = {
 var SERVER_URLS = {
   en: "https://mcp.verstak.ai/"
 };
-var DEFAULT_SERVER_URL = SERVER_URLS.en;
+var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
 
 // js/delivery/protocol.ts
 var TOOL_PREFIX = `${PRODUCT}_`;
@@ -38,13 +43,11 @@ var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
-var SERVER_PROTOCOL = {
-  refusal: "verstak/refusal",
-  fields: "verstak/structured"
-};
+var FRAME_MARK = `[${PRODUCT}]`;
+var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "2.9.1";
+var VERSION = "2.10.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -153,14 +156,14 @@ var ROOM = {
   en: {
     said: (author) => `message from ${author}`,
     saidPending: (author) => `message from ${author} in flight — the text follows`,
-    aside: (author, addressee, word) => `${author} → ${addressee}: message [${word}]`,
-    asideRun: (author, addressee, count, word) => `${author} → ${addressee}: ${count} (last [${word}])`,
-    asideBody: (author, addressee, word) => `${author} → ${addressee}: text of message [${word}]`,
+    aside: (author, addressee, word2) => `${author} → ${addressee}: message [${word2}]`,
+    asideRun: (author, addressee, count, word2) => `${author} → ${addressee}: ${count} (last [${word2}])`,
+    asideBody: (author, addressee, word2) => `${author} → ${addressee}: text of message [${word2}]`,
     messages: (n2) => `${n2} ${n2 === 1 ? "message" : "messages"}`,
     body: (refersTo, author) => `text of message [${refersTo}] from ${author}`,
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
-    closing: (author, endsAt) => `the lead ${author} proposes to close the case by ${endsAt}{; evidence: evidence}`,
+    closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
     closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId}) (former name verstak_room)`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
@@ -169,7 +172,7 @@ var ROOM = {
     progress: (key, done, verdict, note, author) => `[${key}] [${done}] = ${verdict}${note} · ${author}`,
     opened: (author) => `case opened by ${author}`,
     joined: (who) => `entered ${who}`,
-    left: (who) => `left ${who}{; reason: reason}`,
+    left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
     node: (seq, name, realm, reasoning) => `node #${seq} ${name} (${realm}) in the case${reasoning}`,
@@ -649,9 +652,9 @@ function roomKind(frame) {
       phase: null,
       known: false
     };
-  const word = kind === "said" || kind === "body";
-  const withheld = word && f.body_withheld === true;
-  const to = word ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
+  const word2 = kind === "said" || kind === "body";
+  const withheld = word2 && f.body_withheld === true;
+  const to = word2 ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
   const addresseeLeft = f.addressee_left === true || fields.addressee_left === true;
   if (to && !addresseeLeft && (withheld || mine.length && !to.addr.some((a) => mine.includes(a)))) {
     const counts = kind === "said";
@@ -733,8 +736,8 @@ function addressedToMine(frame) {
     return !!a && mine.length > 0 && a.addr.some((x) => mine.includes(x));
   };
   if (rk?.kind === "body") {
-    const word = obj(f.word);
-    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
+    const word2 = obj(f.word);
+    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
       return true;
   } else if (
     // A word to me, a reply to my record (#5954), marked important; a word in flight
@@ -791,7 +794,7 @@ var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
 var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
 
 // js/shared/fields.ts
-var FIELDS_CAPABILITY = SERVER_PROTOCOL.fields;
+var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
 var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
 
 // js/shared/version.ts
@@ -822,8 +825,7 @@ var BUILD = buildOf(import.meta.url);
 var out = scoped(() => ({ stream: null }));
 
 // js/bridge/config.ts
-var ENGLISH_SERVER_URL = SERVER_URLS.en;
-var PRODUCTION_URLS = new Set([DEFAULT_SERVER_URL, ENGLISH_SERVER_URL].map(strip));
+var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
 function strip(url) {
   return url.replace(/\/+$/, "");
 }
@@ -982,6 +984,7 @@ function tail(frame, withReply) {
     parts.push(W().bodyRead(need(frame.body_read)));
   return parts.length ? `, ${parts.join(", ")}` : "";
 }
+var markFrame = (text) => `${FRAME_MARK} ${text}`;
 function frameToText(frame, raw) {
   if (!frame) return raw;
   const f = frame;
@@ -1142,7 +1145,7 @@ function setupChannel(pi) {
   function loud(text, fatal = true) {
     if (ctxRef?.hasUI) ctxRef.ui.notify(text, fatal ? "error" : "warning");
     pi.sendMessage(
-      { customType: LOGGERS.channel, content: text, display: true, details: { fatal } },
+      { customType: LOGGERS.channel, content: markFrame(text), display: true, details: { fatal } },
       { triggerTurn: true, deliverAs: "steer" }
     );
   }
@@ -1161,7 +1164,7 @@ function setupChannel(pi) {
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: [batchHead(got), ...batchLines(got)].join("\n"),
+        content: markFrame([batchHead(got), ...batchLines(got)].join("\n")),
         display: true,
         details: { count: got.map((f) => f.id ?? null) }
       },
@@ -1172,7 +1175,7 @@ function setupChannel(pi) {
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: ev.text ?? "",
+        content: markFrame(ev.text ?? ""),
         display: true,
         details: ev.kind === "stale" ? { stale: true } : { backlog: true }
       },
@@ -1226,7 +1229,7 @@ function setupChannel(pi) {
         pi.sendMessage(
           {
             customType: LOGGERS.channel,
-            content: frameToText(frame, raw),
+            content: markFrame(frameToText(frame, raw)),
             display: true,
             details: frame ?? { raw }
           },
@@ -1473,14 +1476,14 @@ function parseLaunch(text) {
   const [, realm, karta, no, of] = LINE.exec(text) ?? [];
   return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
 }
-function withWord(text, word) {
+function withWord(text, word2) {
   const m = LINE.exec(text);
   if (!m) return `${text}
-${word}`;
+${word2}`;
   const nl = text.indexOf("\n", m.index);
   return nl < 0 ? `${text}
-${word}` : `${text.slice(0, nl)}
-${word}${text.slice(nl)}`;
+${word2}` : `${text.slice(0, nl)}
+${word2}${text.slice(nl)}`;
 }
 async function enterCase(l, call, satelliteOf, placeName) {
   const W3 = words(LAUNCH);
@@ -1866,8 +1869,8 @@ function setupBridge(pi, onChannel) {
     }
     await raising;
     const live = bridge;
-    const word = live ? await enterCase(l, callVia(live), of, () => heldName) : W3.launchNoBridge(String(l.no));
-    return { action: "transform", text: withWord(event.text, word) };
+    const word2 = live ? await enterCase(l, callVia(live), of, () => heldName) : W3.launchNoBridge(String(l.no));
+    return { action: "transform", text: withWord(event.text, word2) };
   });
   pi.on("session_start", async (_event, ctx) => {
     notify = ctx.hasUI ? (t, l) => ctx.ui.notify(t, l ?? "info") : () => {
