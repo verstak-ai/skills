@@ -37,6 +37,7 @@ Dividing work and raising agents is the foreman's (`methods/foreman.md`), leadin
 
 **1. Find the cases.** In the graph the user named; otherwise `verstak_realm(action="list")`, and with several project graphs ask in one line which. Note each graph's short id (`rN`). Per graph:
 - `verstak_orient(realm=<graph>, lens="board", scope="graph")` — cases, addressed questions and seats in one slice; on a subject holon or role, `focus=<node>` instead of `scope`. Limits and paging: `verstak_orient(action="?")`; never present a cut slice as complete. A named subject of another kind → `verstak_case(action="at", realm=<graph>, node=<subject node>)`: the cases in its scope.
+- An older surface refuses `lens="board"` → per graph `verstak_case(action="at", realm=<graph>)` (open cases, newest first), then `read` the ones you need; say the summary came without the board.
 - `verstak_case(action="mine", realm=<graph>)` — where this session sits or is invited. An embedded agent's `mine` is its own seat, not the user's: the user's cases come from the board.
 
 Too many for a turn → closing, recently moved and named ones first; give the skipped count.

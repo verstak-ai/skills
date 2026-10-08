@@ -81,7 +81,7 @@ Plain words, no method vocabulary: what's happening → what's needed from them 
 
 ## The answer comes back
 
-**They decided** → `addressed_by` on the carrying node, carry the change through, release the question (`methods/inquiry.md`), send the reasoning down with the verdict. **They changed the work** → carry it first. **They didn't answer what was asked** → ask again on the same node. Read your report in the addressee's record before believing it landed. Asked for the chain → tell it as a story from `verstak_orient(focus=<node>)`, `verstak_history`, `verstak_case(action="read")`.
+**They decided** → `addressed_by` on the carrying node, carry the change through, release the question (`methods/inquiry.md`), send the reasoning down with the verdict. **They changed the work** → carry it first. **They didn't answer what was asked** → a new `ask` card on the same key, `in_reply_to` their answer (`methods/collaborate.md`, `Asking the user`). Read your report in the addressee's record before believing it landed. Asked for the chain → tell it as a story from `verstak_orient(focus=<node>)`, `verstak_history`, `verstak_case(action="read")`.
 
 ## Cleanup and the end
 
