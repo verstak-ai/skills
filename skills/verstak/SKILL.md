@@ -122,7 +122,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 
 **Keep** — fork: **whose fact, of what kind?**
 - how to act in this repo (ritual, command, order of steps) → `AGENTS.md`; not gotchas or lessons
-- a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference (or a `GOTCHAS.md` line, where `AGENTS.md` says so)
+- a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference, in `GOTCHAS.md` too (where `AGENTS.md` says so)
 - a lasting fact about the user beyond one project → **minding** (a project's infrastructure is a project fact)
 - "learn how this works here" → **entry**, then write by this fork
 - someone else's text → **intake**
