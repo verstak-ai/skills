@@ -199,7 +199,7 @@ for (const name of HOME_SKILLS) {
       // line starting with "## ", trailing blank lines counted.
       let end = lines.findIndex((l, i) => i > heads[0] && l.startsWith("## "));
       if (end === -1) end = lines.length;
-      const section = lines.slice(heads[0], end).map((l) => l + "\n").join("");
+      const section = lines.slice(heads[0], end).join("\n"); // the home: split and join by \n, the next heading's line excluded
       const length = [...section].length;
       if (length > MAP_BUDGET) {
         fail(where, `\`## Map\` is ${length} code points — over the conversation home's ${MAP_BUDGET} budget`);
