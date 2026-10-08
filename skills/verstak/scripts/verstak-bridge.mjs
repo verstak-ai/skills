@@ -101,7 +101,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "2.10.1";
+var VERSION = "3.0.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -570,6 +570,7 @@ var RESUME = {
     byRecord: () => "return by record",
     otherSeat: (key, led) => `${key}: the bridge leads another seat ${led}`,
     liveBridge: (key) => `${key}: held by a live bridge`,
+    ownNotTaken: (key, why) => `${key}: a former bridge of this session holds it, taking it failed — ${why}`,
     noHello: (key) => `${key}: hello did not come — the record is intact, the watchdog will repeat the return; if you do not wait — ${via}`,
     stale: (key) => `${key}: the record went stale — ${via} will take the seat`,
     registerRefused: (text) => `register refused — ${text}`,
@@ -1031,7 +1032,7 @@ var BUILD = buildOf(import.meta.url);
 
 // js/bridge/daemon.ts
 import { spawn as spawn3 } from "node:child_process";
-import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync14, readFileSync as readFileSync24, statSync as statSync7, unlinkSync as unlinkSync14 } from "node:fs";
+import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync14, readFileSync as readFileSync24, statSync as statSync8 } from "node:fs";
 import { join as join20 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 
@@ -2111,20 +2112,16 @@ function grantLogPath() {
 function grantLog(msg) {
   appendJournal(grantLogPath(), msg);
 }
+function rotateJournal(path, max) {
+  try {
+    if (statSync(path).size > max) renameSync3(path, `${path}.1`);
+  } catch {
+  }
+}
 function appendJournal(path, msg) {
   try {
     mkdirSync4(CFG.authDir, { recursive: true, mode: 448 });
-    let size = 0;
-    try {
-      size = statSync(path).size;
-    } catch {
-    }
-    if (size > 128e3) {
-      try {
-        unlinkSync3(path);
-      } catch {
-      }
-    }
+    rotateJournal(path, 128e3);
     appendFileSync(path, `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${msg}
 `, {
       mode: 384
@@ -4400,6 +4397,67 @@ function ownPlaceEnd(msg, name, action) {
   return name === tool("channel") && (action === "revoke" || action === "close") && String(msg.id ?? "").startsWith(OWN_CALL_PREFIX);
 }
 
+// js/bridge/toolsync.ts
+import { createHash as createHash6 } from "node:crypto";
+var LIST_CHANGED = "notifications/tools/list_changed";
+var T = scoped(() => ({
+  served: null,
+  // each harness session has its own list
+  told: false,
+  // list_changed said, and the harness has not reread yet
+  inFlight: 0,
+  // the harness's tools/list in flight (any page)
+  listing: /* @__PURE__ */ new WeakSet(),
+  // the harness's tools/list (first page) in flight
+  heldBack: /* @__PURE__ */ new WeakSet(),
+  // …in whose answer the server said list_changed
+  live: /* @__PURE__ */ new WeakSet()
+  // …answered to the harness with the server's live list
+}));
+function toolsPrint(result) {
+  const tools = result?.tools;
+  if (!Array.isArray(tools)) return null;
+  const shape = tools.map((t) => [t.name ?? "", JSON.stringify(t.inputSchema ?? null)]).sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+  return createHash6("sha256").update(JSON.stringify(shape)).digest("hex");
+}
+function noteServedTools(result, liveFor) {
+  const print = toolsPrint(result);
+  if (!print) return;
+  T.served = print;
+  T.told = false;
+  if (liveFor) T.live.add(liveFor);
+}
+var harnessListing = () => T.inFlight > 0;
+function watchHarnessListing(msg, emit2) {
+  T.inFlight++;
+  const first2 = !msg.params?.cursor;
+  if (first2) T.listing.add(msg);
+  if (first2) T.told = false;
+  return () => {
+    T.inFlight--;
+    if (T.heldBack.has(msg) && !T.live.has(msg))
+      tell(emit2, "the server said its tool list changed, and no fresh list reached the harness");
+  };
+}
+var isListChanged = (m) => m?.method === LIST_CHANGED && (m.id === void 0 || m.id === null);
+function tell(emit2, why, again = false) {
+  if (T.told && !again) return;
+  T.told = true;
+  log(`${why} — telling the harness (tools/list_changed)`);
+  emit2({ jsonrpc: "2.0", method: LIST_CHANGED });
+}
+function heardListChanged(sent, emit2) {
+  if (T.listing.has(sent)) return void T.heldBack.add(sent);
+  tell(emit2, `the server said its tool list changed (answering ${sent?.method})`);
+}
+async function recheckTools(ask2, emit2) {
+  if (!T.served) return;
+  const fresh2 = toolsPrint((await ask2().catch(() => null))?.result);
+  if (!fresh2 || fresh2 === T.served) return;
+  T.served = fresh2;
+  tell(emit2, "tool list changed under the re-opened session", true);
+}
+
 // js/bridge/names.ts
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
@@ -4572,7 +4630,8 @@ var TLS_REFUSALS = /* @__PURE__ */ new Set([
   "CERT_REVOKED",
   "ERR_TLS_CERT_ALTNAME_INVALID"
 ]);
-async function post2(msg, onMessage) {
+async function post2(msg, heard) {
+  const onMessage = (m) => isListChanged(m) ? heardListChanged(msg, emit) : heard(m);
   const unnamed = unnamedSeatRefusal(msg);
   if (unnamed) return void onMessage(unnamed);
   const headers = {
@@ -4785,7 +4844,7 @@ function superseded(frames) {
 
 // js/shared/frame-text.ts
 var W = () => words(ROOM);
-var T = () => words(FRAME_TEXT);
+var T2 = () => words(FRAME_TEXT);
 var rec2 = (v) => v && typeof v === "object" ? v : {};
 var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var ZACHIN = 40;
@@ -4877,7 +4936,7 @@ function batchLine(frame2, run, withZachin = true) {
   const line = rec2(f.line);
   const e = f.entry_id ?? line.entry_id ?? f.id;
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
-  const words2 = rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?");
+  const words2 = rk?.words ?? T2().frame(typeof f.id === "string" ? f.id : "?");
   const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
   const flat = [...textOf(frame2).replace(/\s+/g, " ").trim()];
   const text = flat.length > BATCH_TEXT ? flat.slice(0, BATCH_TEXT).join("") + "…" : flat.join("");
@@ -4905,9 +4964,9 @@ function caseCountLine(frames) {
   const mineN = frames.filter((f) => addressedToMine(f)).length;
   const gone = superseded(frames).size;
   const head = caseHead(frames[0], true);
-  const yours = mineN ? T().yoursBelow() : T().noneYours();
+  const yours = mineN ? T2().yoursBelow() : T2().noneYours();
   const n = frames.length - gone;
-  return T().count(head, n, mineN) + (gone ? T().supersededLines(gone) : "") + yours + batchPointer(frames) + ".";
+  return T2().count(head, n, mineN) + (gone ? T2().supersededLines(gone) : "") + yours + batchPointer(frames) + ".";
 }
 function caseCountLines(frames) {
   return casesOf(frames).map(caseCountLine).filter(Boolean);
@@ -4928,7 +4987,7 @@ function batchPointer(frames) {
     const args = (typeof realm === "string" && realm ? `realm="${realm}", ` : "") + `action="history", room=${typeof n === "number" ? String(n) : JSON.stringify(n)}`;
     since.set(args, Math.min(since.get(args) ?? e, e));
   }
-  return T().inFull([...since].map(([args, e]) => T().caseHistory(args, e - 1)).join("; "));
+  return T2().inFull([...since].map(([args, e]) => T2().caseHistory(args, e - 1)).join("; "));
 }
 
 // js/bridge/backlog.ts
@@ -6497,7 +6556,7 @@ function openHolder(url, key) {
 }
 
 // js/bridge/status.ts
-import { existsSync as existsSync5, readdirSync as readdirSync7, readFileSync as readFileSync20, statSync as statSync5 } from "node:fs";
+import { existsSync as existsSync5, readdirSync as readdirSync7, readFileSync as readFileSync20, statSync as statSync6 } from "node:fs";
 import { isAbsolute, join as join16 } from "node:path";
 
 // js/shared/busyargs.ts
@@ -6818,15 +6877,15 @@ import {
   readFileSync as readFileSync17,
   renameSync as renameSync8,
   rmSync,
-  statSync as statSync4,
+  statSync as statSync5,
   unlinkSync as unlinkSync11,
   writeFileSync as writeFileSync10
 } from "node:fs";
 import { join as join14 } from "node:path";
 
 // js/bridge/skillset.ts
-import { createHash as createHash6 } from "node:crypto";
-import { existsSync as existsSync3, readdirSync as readdirSync5, readFileSync as readFileSync16 } from "node:fs";
+import { createHash as createHash7 } from "node:crypto";
+import { existsSync as existsSync3, readdirSync as readdirSync5, readFileSync as readFileSync16, statSync as statSync4 } from "node:fs";
 import { homedir as homedir5 } from "node:os";
 import { dirname as dirname8, join as join13, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
@@ -6885,8 +6944,15 @@ function lockSet(root) {
   const name = typeof own === "string" && own.trim() ? own.trim() : SET;
   const lines = Object.entries(skills).filter(([, s2]) => s2?.source === name && typeof s2.skillFolderHash === "string").map(([n, s2]) => `${n}:${String(s2?.skillFolderHash)}
 `).sort();
-  return { name, stamp: lines.length ? sha8(createHash6("sha256").update(lines.join(""))) : null };
+  return { name, stamp: lines.length ? sha8(createHash7("sha256").update(lines.join(""))) : null };
 }
+var isFileAt = (p) => {
+  try {
+    return statSync4(p).isFile();
+  } catch {
+    return false;
+  }
+};
 function allFiles(dir, at2 = "") {
   let entries2;
   try {
@@ -6896,7 +6962,8 @@ function allFiles(dir, at2 = "") {
   }
   return entries2.flatMap((e) => {
     const rel = at2 ? `${at2}/${e.name}` : e.name;
-    return e.isDirectory() ? allFiles(dir, rel) : e.isFile() ? [rel] : [];
+    if (e.isDirectory()) return allFiles(dir, rel);
+    return e.isFile() || e.isSymbolicLink() && isFileAt(join13(dir, rel)) ? [rel] : [];
   }).sort();
 }
 function treeStamp(root, mask = SKILL_STAMP_MASK) {
@@ -6904,7 +6971,7 @@ function treeStamp(root, mask = SKILL_STAMP_MASK) {
   const rest2 = restParts.join("/");
   if (head !== "*" || !rest2 || rest2.includes("*") && rest2 !== "**")
     throw new Error(`unsupported skill stamp mask: ${mask}`);
-  const h = createHash6("sha256");
+  const h = createHash7("sha256");
   let n = 0;
   let names2;
   try {
@@ -7067,7 +7134,7 @@ function abandoned(lock, owner) {
   const pid = owner ? Number(owner.split(" ")[0]) : 0;
   if (pid && !alive2(pid)) return true;
   try {
-    return Date.now() - statSync4(lock).mtimeMs > LOCK_STALE_MS;
+    return Date.now() - statSync5(lock).mtimeMs > LOCK_STALE_MS;
   } catch {
     return false;
   }
@@ -7411,10 +7478,6 @@ function localLeave(msg) {
   })();
 }
 
-// js/bridge/resume.ts
-import { existsSync as existsSync4, readdirSync as readdirSync6, readFileSync as readFileSync18 } from "node:fs";
-import { join as join15 } from "node:path";
-
 // js/bridge/holdkeep.ts
 function keepHoldRecord() {
   const s2 = state.standing;
@@ -7454,6 +7517,183 @@ function signHeldRecord() {
     const rec5 = readHoldRecord(k);
     if (rec5 && !rec5.session && rec5.url === H2.currentUrl) writeHoldRecord(k, rec5);
   }
+}
+
+// js/bridge/lostplaces.ts
+function placeWord(msg) {
+  if (msg.method !== "notifications/message" || msg.params?.logger !== LOGGERS.channel) return null;
+  const data = msg.params?.data;
+  const realm = typeof data?.place?.realm === "string" ? data.place.realm.trim() : "";
+  return typeof data?.kind === "string" ? { kind: data.kind, key: typeof data.key === "string" ? data.key : void 0, realm } : null;
+}
+var harnessSession = null;
+function seeSession(msg) {
+  const s2 = msg.params?.session;
+  if ((msg.method === method("resume") || msg.method === method("check")) && typeof s2 === "string")
+    harnessSession = s2.trim() || harnessSession;
+  return msg;
+}
+var THIN_RESUME_ID = `${ID_PREFIX}thin-resume-`;
+var resumeParams = (key) => harnessSession ? { key, session: harnessSession } : { key };
+var resumeCall = (key, n) => ({
+  jsonrpc: "2.0",
+  id: `${THIN_RESUME_ID}${n}`,
+  method: method("resume"),
+  params: resumeParams(key)
+});
+function lostPlaces(say2, log3) {
+  const live = /* @__PURE__ */ new Map();
+  const lost = /* @__PURE__ */ new Map();
+  return {
+    live,
+    /**
+     * The seat is taken again (held, beside) — its refusal lifted. A satellite's loss is
+     * lifted by any satellite seat of the same graph: the bridge picks the .sub-N name.
+     */
+    regained(k, realm) {
+      live.set(k, realm);
+      for (const [lk, e] of lost)
+        if (lk === k || e.satellite && sameRealm(e.realm, realm)) lost.delete(lk);
+    },
+    lose(k, realm, why, satellite) {
+      const text = satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
+      lost.set(k, { realm, satellite, text });
+      live.delete(k);
+      log3(text);
+      say2({
+        jsonrpc: "2.0",
+        method: "notifications/message",
+        params: {
+          level: "warning",
+          logger: LOGGERS.channel,
+          data: { kind: "lost", key: k, text }
+        }
+      });
+    },
+    /** The thin bridge decides by it whether to learn graph names. */
+    lostCount() {
+      return lost.size;
+    },
+    /**
+     * Fold a seat word reaching the thin bridge; returns heldKey after it. held with
+     * another key drops the old key from live, else the next break would call it lost.
+     * released from the daemon session while the harness lives is a daemon ending
+     * without successor, not the agent leaving: the key stays so the takeover resumes
+     * the seat by its hold record. The agent's real leave goes through the thin
+     * bridge's own leave; death and eviction come as dead and evicted.
+     */
+    seen(place, heldKey2, daemonSession) {
+      if ((place?.kind === "held" || place?.kind === "beside") && place.key) {
+        if (place.kind === "held") {
+          if (heldKey2 && heldKey2 !== place.key) live.delete(heldKey2);
+          heldKey2 = place.key;
+        }
+        this.regained(place.key, place.realm);
+      } else if (place?.kind === "beside-gone" && place.key) live.delete(place.key);
+      else if (place && ["released", "dead", "evicted"].includes(place.kind) && (!place.key || place.key === heldKey2) && !(place.kind === "released" && daemonSession)) {
+        if (heldKey2) live.delete(heldKey2);
+        heldKey2 = null;
+      }
+      return heldKey2;
+    },
+    /**
+     * Refusal of a tool call for a lost seat; null — let it pass. Only calls into a
+     * lost graph; an unresolved name is refused asking for the full address (#5838).
+     * The refusal carries the call's graph, not the first loss found.
+     */
+    refusal(msg) {
+      if (!lost.size || msg.method !== "tools/call" || msg.params?.name === tool("stand"))
+        return null;
+      const r = msg.params?.arguments?.realm;
+      if (typeof r !== "string" || !r.trim()) return null;
+      const hit = [...lost.entries()].find(([, e]) => realmRelation(r, e.realm) === "same");
+      if (hit) return hit[1].text;
+      if ([...live.values()].some((x) => realmRelation(r, x) === "same")) return null;
+      return [...lost.values()].some((e) => realmRelation(r, e.realm) === "unknown") ? unresolvedWord(r, [...live.values()]) : null;
+    }
+  };
+}
+function realmListAsk() {
+  const asked = /* @__PURE__ */ new Set();
+  return {
+    /** The list call when losses exist; null — no losses or a call already in flight. */
+    ask(lostCount, id) {
+      if (!lostCount || asked.size) return null;
+      const call = {
+        jsonrpc: "2.0",
+        id: id(),
+        method: "tools/call",
+        params: { name: tool("realm"), arguments: { action: "list" } }
+      };
+      asked.add(JSON.stringify(call.id));
+      return call;
+    },
+    /** The answer to the own list call: true — consumed. */
+    reply(msg, log3) {
+      if (msg.method !== void 0 || msg.id === void 0 || msg.id === null) return false;
+      if (!asked.delete(JSON.stringify(msg.id))) return false;
+      const content = msg.result?.content;
+      const text = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
+      if (msg.error || msg.result?.isError)
+        log3(
+          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text || msg.error?.message || "?"}`
+        );
+      learnRealmList(text);
+      return true;
+    },
+    /** No answer will come (link broke) — allow asking again. */
+    forget() {
+      asked.clear();
+    }
+  };
+}
+
+// js/bridge/resumepick.ts
+import { existsSync as existsSync4, readdirSync as readdirSync6, readFileSync as readFileSync18 } from "node:fs";
+import { join as join15 } from "node:path";
+function recordsFor(sel) {
+  const dir = standingsDirOf(CFG.authDir);
+  if (!existsSync4(dir)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
+  const mine = harnessName();
+  const led = ledKey();
+  const byKey = [];
+  const byCwd = [];
+  const sameDir2 = [];
+  const legacy = [];
+  const left2 = [];
+  const neighbour = [];
+  for (const f of readdirSync6(dir).filter((x) => x.endsWith(".hold"))) {
+    try {
+      const rec5 = JSON.parse(readFileSync18(join15(dir, f), "utf8"));
+      if (!rec5 || rec5.client !== mine) continue;
+      const key = keyOf(rec5.realm, rec5.karta, rec5.name);
+      const keyed2 = !!sel.key && key === sel.key;
+      const inDir = sameDir(rec5.cwd, sel.cwd);
+      const stoodBy = !!sel.session && rec5.session === sel.session;
+      if (!keyed2 && !inDir && !stoodBy) continue;
+      const fresh2 = readHoldRecord(key);
+      if (!fresh2) continue;
+      if (inDir) sameDir2.push(key);
+      if (fresh2.left) {
+        left2.push(key);
+        continue;
+      }
+      const stoodHere = key === led || !!sel.session && fresh2.session === sel.session;
+      const theirs = !!sel.session && !!fresh2.session && fresh2.session !== sel.session;
+      if (keyed2 && theirs) neighbour.push(key);
+      else if (keyed2) byKey.push(fresh2);
+      else if (stoodHere) byCwd.push(fresh2);
+      else if (!fresh2.session) legacy.push(fresh2);
+    } catch {
+    }
+  }
+  return {
+    own: [...byKey, ...byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0))],
+    sameDir: sameDir2,
+    legacy,
+    left: left2,
+    neighbour
+  };
 }
 
 // js/bridge/resumewords.ts
@@ -7659,6 +7899,17 @@ function takeLapsed() {
   RJ.lapsed = false;
   return was;
 }
+async function busyBack(rec5) {
+  if (!rec5.status) return "";
+  const me = sessionOfBridge();
+  if (!me || rec5.session !== me) {
+    rememberStatus("");
+    return resumeWords.busyForeign();
+  }
+  const st = await publishStatus(rec5.status);
+  const kept2 = st.doing ?? rec5.status;
+  return st.ok ? resumeWords.busyRestored(kept2) : resumeWords.busyNotRestored(short(st.body));
+}
 async function resumeFromDisk(realm, karta, name) {
   const key = keyOf(realm, karta, name);
   const rec5 = readHoldRecord(key);
@@ -7677,16 +7928,7 @@ async function resumeFromDisk(realm, karta, name) {
     const hello = await awaitHello(4e3);
     if (hello && holdsKey(key)) {
       const pending2 = Number(hello.pending) || 0;
-      const me = sessionOfBridge();
-      let busy = "";
-      if (rec5.status && me && rec5.session === me) {
-        const st = await publishStatus(rec5.status);
-        const kept3 = st.doing ?? rec5.status;
-        busy = st.ok ? resumeWords.busyRestored(kept3) : resumeWords.busyNotRestored(short(st.body));
-      } else if (rec5.status) {
-        rememberStatus("");
-        busy = resumeWords.busyForeign();
-      }
+      const busy = await busyBack(rec5);
       log(`standing resumed from disk (${key}), pending ${pending2}`);
       standingLog(`resumed-from-disk ${key}: pending ${pending2}`);
       return { word: resumeWords.fromDisk(pending2, busy), pending: pending2 };
@@ -7705,49 +7947,9 @@ async function resumeFromDisk(realm, karta, name) {
   if (rec5.cwd) noteStandCwd(prevCwd);
   return null;
 }
-function recordsFor(sel) {
-  const dir = standingsDirOf(CFG.authDir);
-  if (!existsSync4(dir)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
-  const mine = harnessName();
-  const led = ledKey();
-  const byKey = [];
-  const byCwd = [];
-  const sameDir2 = [];
-  const legacy = [];
-  const left2 = [];
-  const neighbour = [];
-  for (const f of readdirSync6(dir).filter((x) => x.endsWith(".hold"))) {
-    try {
-      const rec5 = JSON.parse(readFileSync18(join15(dir, f), "utf8"));
-      if (!rec5 || rec5.client !== mine) continue;
-      const key = keyOf(rec5.realm, rec5.karta, rec5.name);
-      const keyed2 = !!sel.key && key === sel.key;
-      const inDir = sameDir(rec5.cwd, sel.cwd);
-      const stoodBy = !!sel.session && rec5.session === sel.session;
-      if (!keyed2 && !inDir && !stoodBy) continue;
-      const fresh2 = readHoldRecord(key);
-      if (!fresh2) continue;
-      if (inDir) sameDir2.push(key);
-      if (fresh2.left) {
-        left2.push(key);
-        continue;
-      }
-      const stoodHere = key === led || !!sel.session && fresh2.session === sel.session;
-      const theirs = !!sel.session && !!fresh2.session && fresh2.session !== sel.session;
-      if (keyed2 && theirs) neighbour.push(key);
-      else if (keyed2) byKey.push(fresh2);
-      else if (stoodHere) byCwd.push(fresh2);
-      else if (!fresh2.session) legacy.push(fresh2);
-    } catch {
-    }
-  }
-  return {
-    own: [...byKey, ...byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0))],
-    sameDir: sameDir2,
-    legacy,
-    left: left2,
-    neighbour
-  };
+var T3 = { takeOwn: null };
+function wireTakeOwn(fn) {
+  T3.takeOwn = fn;
 }
 var legacyWord = (names2) => names2.map((n) => resumeWords.legacy(n)).join("; ");
 async function freeLegacy(recs) {
@@ -7766,10 +7968,11 @@ async function backToParked(key, how2) {
     resumed: true,
     key,
     pending: Number(hello?.pending) || 0,
-    word: resumeWords.returnedParked(hello ? Number(hello.pending) || 0 : null)
+    word: resumeWords.returnedParked(hello ? Number(hello.pending) || 0 : null),
+    own: true
   };
 }
-async function resumeBy(sel, register = true) {
+async function resumeBy(sel, register = true, takeOwn = false) {
   const { own: recs, sameDir: sameDir2, legacy: legacyRecs, left: left2, neighbour } = recordsFor(sel);
   if (!recs.length) {
     const legacy = await freeLegacy(legacyRecs);
@@ -7795,17 +7998,37 @@ async function resumeBy(sel, register = true) {
   for (const rec5 of recs) {
     const key = keyOf(rec5.realm, rec5.karta, rec5.name);
     if (holdsKey(key))
-      return { resumed: true, key, pending: 0, word: resumeWords.alreadyHolding() };
+      return { resumed: true, key, pending: 0, word: resumeWords.alreadyHolding(), own: true };
     if (isParked(rec5.realm, rec5.karta, rec5.name)) return backToParked(key, resumeWords.byRecord());
     if (led && led !== key) {
       skipped.push(resumeWords.otherSeat(key, led));
       continue;
     }
-    if (await localSocketAlive(localSocketPathOf(key))) {
+    const holder = await localHolder(key, sel.cwd ?? sessionCwd());
+    if (holder === "session" && takeOwn && !CFG.satellite && T3.takeOwn) {
+      const said2 = await T3.takeOwn(rec5, sel.cwd);
+      const now2 = ledKey();
+      if (now2 && holdsKey(now2)) {
+        const hello = await awaitHello(4e3);
+        const busy = now2 === key ? await busyBack(rec5) : "";
+        return {
+          resumed: true,
+          key: now2,
+          pending: Number(hello?.pending) || 0,
+          word: busy ? said2.replace(/\.$/, "") + busy : said2,
+          own: true
+        };
+      }
+      skipped.push(resumeWords.ownNotTaken(key, short(said2)));
+      continue;
+    }
+    if (holder) {
       skipped.push(resumeWords.liveBridge(key));
       elsewhere.push(key);
       continue;
     }
+    const me = sel.session ?? sessionOfBridge();
+    const proven = !!me && rec5.session === me || key === led && !rec5.session;
     const back = await resumeFromDisk(rec5.realm, rec5.karta, rec5.name);
     if (!back) {
       const kept2 = readHoldRecord(key);
@@ -7831,8 +8054,15 @@ async function resumeBy(sel, register = true) {
       .../* @__PURE__ */ new Set([...recs.map((r) => keyOf(r.realm, r.karta, r.name)), ...sameDir2])
     ].filter((k) => k !== key && readHoldRecord(k) !== null);
     if (others.length) lines.push(resumeWords.othersInDir(others.join(", ")));
-    lines.push(resumeWords.notYours());
-    return { resumed: true, key, pending: back.pending, word: lines.join("; "), others };
+    if (!proven) lines.push(resumeWords.notYours());
+    return {
+      resumed: true,
+      key,
+      pending: back.pending,
+      word: lines.join("; "),
+      others,
+      own: proven
+    };
   }
   return {
     resumed: false,
@@ -7865,7 +8095,8 @@ var isCheckCall = (msg) => msg?.method === method("check");
 async function runResume(msg) {
   const sel = selectorFrom(msg);
   if (!sel.key && !sel.cwd) return reply(msg, { resumed: false, word: resumeWords.noKeyNoCwd() });
-  const r = await resumeBy(sel);
+  const replay = typeof msg.id === "string" && msg.id.startsWith(THIN_RESUME_ID);
+  const r = await resumeBy(sel, true, !replay);
   if (r.resumed) afterResume(r.key);
   return reply(msg, r);
 }
@@ -8590,7 +8821,7 @@ function statusAddress(realm) {
 // js/bridge/status.ts
 var isDirectory = (p) => {
   try {
-    return isAbsolute(p) && statSync5(p).isDirectory();
+    return isAbsolute(p) && statSync6(p).isDirectory();
   } catch {
     return false;
   }
@@ -9061,7 +9292,7 @@ function tellNotice(notice) {
     params: { level: "warning", logger: LOGGERS.bridge, data: { kind: "stale", text: notice } }
   });
 }
-function startFreshnessWatch(authDir, serverUrl, tell = tellNotice, onChecked = () => {
+function startFreshnessWatch(authDir, serverUrl, tell2 = tellNotice, onChecked = () => {
 }) {
   if (updatesDisabled()) return;
   const explicit = !!process.env[envName("BRIDGE_RELEASES_URL")]?.trim();
@@ -9092,7 +9323,7 @@ function startFreshnessWatch(authDir, serverUrl, tell = tellNotice, onChecked = 
     if (latest?.error && notice === told) return;
     told = notice;
     log(notice);
-    tell(notice);
+    tell2(notice);
   };
   const delay = Number(process.env[envName("BRIDGE_UPDATE_DELAY_MS")] ?? 2e3);
   setTimeout(() => void tick(), Number.isFinite(delay) ? delay : 2e3).unref();
@@ -9262,182 +9493,8 @@ function localEnd(msg) {
   return closeRun(words(RUN_END).pluginEnd(), false).then((failed) => answer2({ ended: true, failed })).catch((e) => answer2({ ended: false, word: e.message }));
 }
 
-// js/bridge/session.ts
-import { createInterface as createInterface2 } from "node:readline";
-
-// js/bridge/audience.ts
-function refusedAudience(upstream) {
-  const head = `upstream refuses even a freshly obtained access token (${upstream}) — not an expiry; the token's audience/resource may not match what the server validates`;
-  const s2 = loadStore();
-  if (!s2.tokens?.by_code) {
-    return `${head} (operator lever: ${envName("BRIDGE_RESOURCE")}), or the server's token validation is off`;
-  }
-  const resource = s2.meta ? resourceOf(s2.meta) : CFG.serverUrl;
-  return `${head}: this grant came by sign-in by code through client ${s2.tokens.client_id ?? "?"}, so its audience is that client's default audience on the sign-in server, which must be ${resource} — a move for the operator of the sign-in server; ${envName("BRIDGE_RESOURCE")} does not reach a grant by code`;
-}
-
-// js/bridge/standtool.ts
-var STAND_TOOL_NAME = tool("stand");
-var str2 = (description) => ({ type: "string", description });
-var standTool = () => {
-  const w = words(STAND_TOOL);
-  return {
-    name: STAND_TOOL_NAME,
-    description: w.description(),
-    inputSchema: {
-      type: "object",
-      properties: {
-        realm: str2(w.realm()),
-        karta: str2(w.karta()),
-        name: str2(w.name()),
-        room: str2(w.room()),
-        model: str2(w.model()),
-        mute_siblings: { type: "boolean", description: w.muteSiblings() },
-        take: { type: "boolean", description: w.take() },
-        room_karta: str2(w.roomKarta()),
-        repeat_knock: { type: "boolean", description: w.repeatKnock() },
-        satellite_of: str2(w.satelliteOf()),
-        status: str2(w.status()),
-        cwd: str2(w.cwd())
-      },
-      required: ["realm"]
-      // karta only takes a seat; busyness on a held seat goes without it (graph @nks/nks-dev, node #6509)
-    }
-  };
-};
-
-// js/bridge/moment.ts
-var WRITE_TOOL = new RegExp(`^${escapeRe(TOOL_PREFIX)}(add_[a-z_]+|batch)$`);
-var momentLine = () => words(MOMENT).moment();
-var statusLine = () => words(MOMENT).status();
-var leaveLine = () => words(MOMENT).leave();
-function annotateToolList(reply2) {
-  const tools = reply2?.result?.tools;
-  if (!Array.isArray(tools)) return;
-  const at2 = tools.findIndex((t) => t?.name === STAND_TOOL_NAME);
-  if (at2 >= 0) tools[at2] = standTool();
-  else tools.push(standTool());
-  for (const t of tools) {
-    if (t && t.name === tool("channel") && typeof t.description === "string") {
-      if (!t.description.includes(leaveLine()))
-        t.description = `${leaveLine()}
-
-${t.description}`;
-      if (!t.description.includes(statusLine()))
-        t.description = `${statusLine()}
-${t.description}`;
-      continue;
-    }
-    if (!t || typeof t.name !== "string" || !WRITE_TOOL.test(t.name)) continue;
-    const d = typeof t.description === "string" ? t.description : "";
-    if (d.includes(momentLine())) continue;
-    t.description = d ? `${momentLine()}
-
-${d}` : momentLine();
-  }
-}
-
-// js/bridge/narrow.ts
-var PLACE_MOVES = /* @__PURE__ */ new Set(["mint", "connect", "sessions"]);
-var PLACE_FIELDS = ["ttl_seconds", "mute_siblings"];
-function clientName2() {
-  const info = state.initParams?.clientInfo;
-  return typeof info?.name === "string" ? info.name : "";
-}
-function toolSet() {
-  return CFG.tools ? /* @__PURE__ */ new Set([...CFG.tools, STAND_TOOL_NAME]) : null;
-}
-var ownRealmList = (msg) => String(msg.id ?? "").startsWith(`${ID_PREFIX}thin-realms-`) && msg.params?.name === tool("realm") && String(msg.params?.arguments?.action ?? "") === "list";
-function outsideSetRefusal(msg) {
-  if (msg?.method !== "tools/call" || msg.id === void 0 || msg.id === null) return null;
-  if (ownRealmList(msg)) return null;
-  const set = toolSet();
-  const name = String(msg.params?.name ?? "");
-  if (!set || set.has(name)) return null;
-  const list2 = [...set].sort().join(", ");
-  const text = words(NARROW).outsideSet(name, list2);
-  return {
-    jsonrpc: "2.0",
-    id: msg.id,
-    result: { isError: true, content: [{ type: "text", text }] }
-  };
-}
-function withoutPlaceMoves(text) {
-  return text.replace(
-    ACTION_LIST_RE,
-    (_, head, list2) => head + list2.split("|").map((s2) => s2.trim()).filter((s2) => !PLACE_MOVES.has(s2)).join(" | ")
-  );
-}
-function withoutSchema(t) {
-  const { outputSchema: _, ...rest2 } = t;
-  return rest2;
-}
-function channelForHarness(t) {
-  const schema = t.inputSchema;
-  const props = schema?.properties;
-  if (!schema || !props) return t;
-  const kept2 = {};
-  for (const [k, v] of Object.entries(props)) if (!PLACE_FIELDS.includes(k)) kept2[k] = v;
-  const action = kept2.action;
-  if (action) {
-    const a = { ...action };
-    if (typeof a.description === "string") a.description = withoutPlaceMoves(a.description);
-    if (Array.isArray(a.enum)) a.enum = a.enum.filter((x) => !PLACE_MOVES.has(String(x)));
-    kept2.action = a;
-  }
-  const next = { ...schema, properties: kept2 };
-  if (Array.isArray(schema.required))
-    next.required = schema.required.filter((r) => !PLACE_FIELDS.includes(String(r)));
-  return { ...t, inputSchema: next };
-}
-function narrowToolList(reply2) {
-  const tools = reply2?.result?.tools;
-  if (!Array.isArray(tools) || clientName2() === SURFACE_CLIENT) return reply2;
-  const set = toolSet();
-  const fields = harnessAsksFields();
-  const shown = tools.filter((t) => !set || set.has(String(t?.name))).map((t) => t?.name === tool("channel") ? channelForHarness(t) : t).map((t) => fields || !t || !("outputSchema" in t) ? t : withoutSchema(t));
-  return { ...reply2, result: { ...reply2.result, tools: shown } };
-}
-
-// js/bridge/owner.ts
-var OWNER_ENV = envName("BRIDGE_OWNER_ROLE");
-var HUMAN2 = /* @__PURE__ */ new Set(["me", "realm-owner"]);
-var OWNERS_PAGE = 100;
-var known = scoped(() => /* @__PURE__ */ new Map());
-var word2 = (what) => words(OWNER).refused(what, OWNER_ENV);
-async function ownerRefusal(realm, karta) {
-  if (envOf(OWNER_ENV)?.trim() === "1") return null;
-  const k = normKarta(karta);
-  if (!k || k === "agent") return null;
-  if (HUMAN2.has(k)) return word2(words(OWNER).human(k));
-  if (!/^\d+$/.test(k)) return null;
-  const key = `${String(realm ?? "")}|${k}`;
-  let owner = known.get(key);
-  if (owner === void 0) {
-    const r = await ownersOf(realm, k);
-    if (typeof r === "string") return words(OWNER).unread(k, short(r, 160));
-    owner = r;
-    known.set(key, owner);
-  }
-  return owner ? word2(`karta=#${k}`) : null;
-}
-async function ownersOf(realm, k) {
-  const s2 = await callTool(tool("search"), {
-    realm,
-    q: "",
-    node_type: "karta",
-    manifested_as: "svatantra",
-    limit: OWNERS_PAGE,
-    include_description: false
-  });
-  if (s2.isError) return s2.text;
-  const seqs = [...s2.text.matchAll(/\(#(\d+)[,)]/g)].map((m) => m[1]);
-  if (seqs.length >= OWNERS_PAGE) return words(OWNER).incomplete();
-  return seqs.includes(k);
-}
-
 // js/bridge/stand.ts
-import { statSync as statSync6 } from "node:fs";
+import { statSync as statSync7 } from "node:fs";
 import { isAbsolute as isAbsolute2 } from "node:path";
 
 // js/bridge/hookfields.ts
@@ -9590,38 +9647,84 @@ async function knock(k) {
   return sw2().knockDone(room, !!prior, short(s2.text, 200));
 }
 
+// js/bridge/owner.ts
+var OWNER_ENV = envName("BRIDGE_OWNER_ROLE");
+var HUMAN2 = /* @__PURE__ */ new Set(["me", "realm-owner"]);
+var OWNERS_PAGE = 100;
+var known = scoped(() => /* @__PURE__ */ new Map());
+var word2 = (what) => words(OWNER).refused(what, OWNER_ENV);
+async function ownerRefusal(realm, karta) {
+  if (envOf(OWNER_ENV)?.trim() === "1") return null;
+  const k = normKarta(karta);
+  if (!k || k === "agent") return null;
+  if (HUMAN2.has(k)) return word2(words(OWNER).human(k));
+  if (!/^\d+$/.test(k)) return null;
+  const key = `${String(realm ?? "")}|${k}`;
+  let owner = known.get(key);
+  if (owner === void 0) {
+    const r = await ownersOf(realm, k);
+    if (typeof r === "string") return words(OWNER).unread(k, short(r, 160));
+    owner = r;
+    known.set(key, owner);
+  }
+  return owner ? word2(`karta=#${k}`) : null;
+}
+async function ownersOf(realm, k) {
+  const s2 = await callTool(tool("search"), {
+    realm,
+    q: "",
+    node_type: "karta",
+    manifested_as: "svatantra",
+    limit: OWNERS_PAGE,
+    include_description: false
+  });
+  if (s2.isError) return s2.text;
+  const seqs = [...s2.text.matchAll(/\(#(\d+)[,)]/g)].map((m) => m[1]);
+  if (seqs.length >= OWNERS_PAGE) return words(OWNER).incomplete();
+  return seqs.includes(k);
+}
+
+// js/bridge/standtool.ts
+var STAND_TOOL_NAME = tool("stand");
+var str2 = (description) => ({ type: "string", description });
+var standTool = () => {
+  const w = words(STAND_TOOL);
+  return {
+    name: STAND_TOOL_NAME,
+    description: w.description(),
+    inputSchema: {
+      type: "object",
+      properties: {
+        realm: str2(w.realm()),
+        karta: str2(w.karta()),
+        name: str2(w.name()),
+        room: str2(w.room()),
+        model: str2(w.model()),
+        mute_siblings: { type: "boolean", description: w.muteSiblings() },
+        take: { type: "boolean", description: w.take() },
+        room_karta: str2(w.roomKarta()),
+        repeat_knock: { type: "boolean", description: w.repeatKnock() },
+        satellite_of: str2(w.satelliteOf()),
+        status: str2(w.status()),
+        cwd: str2(w.cwd())
+      },
+      required: ["realm"]
+      // karta only takes a seat; busyness on a held seat goes without it (graph @nks/nks-dev, node #6509)
+    }
+  };
+};
+
 // js/bridge/stand.ts
 var R4 = scoped(() => ({ again: false }));
 var ledName = () => state.standing?.name ?? "";
 var isDirectory2 = (p) => {
   try {
-    return isAbsolute2(p) && statSync6(p).isDirectory();
+    return isAbsolute2(p) && statSync7(p).isDirectory();
   } catch {
     return false;
   }
 };
 var isStandCall = (msg) => msg?.method === "tools/call" && msg?.params?.name === tool("stand");
-wireEviction(async (place, cwd) => {
-  const r = await serialized(
-    () => runStand({
-      jsonrpc: "2.0",
-      id: `${ID_PREFIX}bridge-evicted`,
-      method: "tools/call",
-      params: {
-        name: tool("stand"),
-        arguments: {
-          realm: place.realm,
-          karta: String(place.karta),
-          name: baseOf2(place.realm, place.karta, place.name ?? ""),
-          // the base the seat was chosen from (#6706)
-          ...cwd && isDirectory2(cwd) ? { cwd } : {}
-        }
-      }
-    })
-  );
-  const text = (r.result?.content ?? []).map((c) => c.text ?? "");
-  return { ok: !r.result?.isError, text: text.join("\n") };
-});
 async function runStand(msg) {
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
@@ -9896,26 +9999,138 @@ async function runStand(msg) {
   return done();
 }
 
-// js/bridge/toolsync.ts
-import { createHash as createHash7 } from "node:crypto";
-var T2 = scoped(() => ({ served: null }));
-function toolsPrint(result) {
-  const tools = result?.tools;
-  if (!Array.isArray(tools)) return null;
-  const shape = tools.map((t) => [t.name ?? "", JSON.stringify(t.inputSchema ?? null)]).sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
-  return createHash7("sha256").update(JSON.stringify(shape)).digest("hex");
+// js/bridge/standwire.ts
+async function standAs(id, place, cwd) {
+  const { realm, karta, name } = place;
+  const where = cwd && isDirectory2(cwd) ? { cwd } : {};
+  const r = await runStand({
+    jsonrpc: "2.0",
+    id,
+    method: "tools/call",
+    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } }
+  });
+  const text = (r.result?.content ?? []).map((c) => c.text ?? "");
+  return { ok: !r.result?.isError, text: text.join("\n") };
 }
-function noteServedTools(result) {
-  const print = toolsPrint(result);
-  if (print) T2.served = print;
+wireEviction(
+  (place, cwd) => serialized(
+    () => standAs(
+      `${ID_PREFIX}bridge-evicted`,
+      { ...place, name: baseOf2(place.realm, place.karta, place.name ?? "") },
+      // the base the seat was chosen from (#6706)
+      cwd
+    )
+  )
+);
+wireTakeOwn(
+  async (rec5, cwd) => (await standAs(`${ID_PREFIX}bridge-resume`, rec5, cwd)).text.split("\n")[0]
+);
+
+// js/bridge/session.ts
+import { createInterface as createInterface2 } from "node:readline";
+
+// js/bridge/audience.ts
+function refusedAudience(upstream) {
+  const head = `upstream refuses even a freshly obtained access token (${upstream}) — not an expiry; the token's audience/resource may not match what the server validates`;
+  const s2 = loadStore();
+  if (!s2.tokens?.by_code) {
+    return `${head} (operator lever: ${envName("BRIDGE_RESOURCE")}), or the server's token validation is off`;
+  }
+  const resource = s2.meta ? resourceOf(s2.meta) : CFG.serverUrl;
+  return `${head}: this grant came by sign-in by code through client ${s2.tokens.client_id ?? "?"}, so its audience is that client's default audience on the sign-in server, which must be ${resource} — a move for the operator of the sign-in server; ${envName("BRIDGE_RESOURCE")} does not reach a grant by code`;
 }
-async function recheckTools(ask2, emit2) {
-  if (!T2.served) return;
-  const fresh2 = toolsPrint((await ask2().catch(() => null))?.result);
-  if (!fresh2 || fresh2 === T2.served) return;
-  T2.served = fresh2;
-  log("tool list changed under the re-opened session — telling the harness (tools/list_changed)");
-  emit2({ jsonrpc: "2.0", method: "notifications/tools/list_changed" });
+
+// js/bridge/moment.ts
+var WRITE_TOOL = new RegExp(`^${escapeRe(TOOL_PREFIX)}(add_[a-z_]+|batch)$`);
+var momentLine = () => words(MOMENT).moment();
+var statusLine = () => words(MOMENT).status();
+var leaveLine = () => words(MOMENT).leave();
+function annotateToolList(reply2) {
+  const tools = reply2?.result?.tools;
+  if (!Array.isArray(tools)) return;
+  const at2 = tools.findIndex((t) => t?.name === STAND_TOOL_NAME);
+  if (at2 >= 0) tools[at2] = standTool();
+  else tools.push(standTool());
+  for (const t of tools) {
+    if (t && t.name === tool("channel") && typeof t.description === "string") {
+      if (!t.description.includes(leaveLine()))
+        t.description = `${leaveLine()}
+
+${t.description}`;
+      if (!t.description.includes(statusLine()))
+        t.description = `${statusLine()}
+${t.description}`;
+      continue;
+    }
+    if (!t || typeof t.name !== "string" || !WRITE_TOOL.test(t.name)) continue;
+    const d = typeof t.description === "string" ? t.description : "";
+    if (d.includes(momentLine())) continue;
+    t.description = d ? `${momentLine()}
+
+${d}` : momentLine();
+  }
+}
+
+// js/bridge/narrow.ts
+var PLACE_MOVES = /* @__PURE__ */ new Set(["mint", "connect", "sessions"]);
+var PLACE_FIELDS = ["ttl_seconds", "mute_siblings"];
+function clientName2() {
+  const info = state.initParams?.clientInfo;
+  return typeof info?.name === "string" ? info.name : "";
+}
+function toolSet() {
+  return CFG.tools ? /* @__PURE__ */ new Set([...CFG.tools, STAND_TOOL_NAME]) : null;
+}
+var ownRealmList = (msg) => String(msg.id ?? "").startsWith(`${ID_PREFIX}thin-realms-`) && msg.params?.name === tool("realm") && String(msg.params?.arguments?.action ?? "") === "list";
+function outsideSetRefusal(msg) {
+  if (msg?.method !== "tools/call" || msg.id === void 0 || msg.id === null) return null;
+  if (ownRealmList(msg)) return null;
+  const set = toolSet();
+  const name = String(msg.params?.name ?? "");
+  if (!set || set.has(name)) return null;
+  const list2 = [...set].sort().join(", ");
+  const text = words(NARROW).outsideSet(name, list2);
+  return {
+    jsonrpc: "2.0",
+    id: msg.id,
+    result: { isError: true, content: [{ type: "text", text }] }
+  };
+}
+function withoutPlaceMoves(text) {
+  return text.replace(
+    ACTION_LIST_RE,
+    (_, head, list2) => head + list2.split("|").map((s2) => s2.trim()).filter((s2) => !PLACE_MOVES.has(s2)).join(" | ")
+  );
+}
+function withoutSchema(t) {
+  const { outputSchema: _, ...rest2 } = t;
+  return rest2;
+}
+function channelForHarness(t) {
+  const schema = t.inputSchema;
+  const props = schema?.properties;
+  if (!schema || !props) return t;
+  const kept2 = {};
+  for (const [k, v] of Object.entries(props)) if (!PLACE_FIELDS.includes(k)) kept2[k] = v;
+  const action = kept2.action;
+  if (action) {
+    const a = { ...action };
+    if (typeof a.description === "string") a.description = withoutPlaceMoves(a.description);
+    if (Array.isArray(a.enum)) a.enum = a.enum.filter((x) => !PLACE_MOVES.has(String(x)));
+    kept2.action = a;
+  }
+  const next = { ...schema, properties: kept2 };
+  if (Array.isArray(schema.required))
+    next.required = schema.required.filter((r) => !PLACE_FIELDS.includes(String(r)));
+  return { ...t, inputSchema: next };
+}
+function narrowToolList(reply2) {
+  const tools = reply2?.result?.tools;
+  if (!Array.isArray(tools) || clientName2() === SURFACE_CLIENT) return reply2;
+  const set = toolSet();
+  const fields = harnessAsksFields();
+  const shown = tools.filter((t) => !set || set.has(String(t?.name))).map((t) => t?.name === tool("channel") ? channelForHarness(t) : t).map((t) => fields || !t || !("outputSchema" in t) ? t : withoutSchema(t));
+  return { ...reply2, result: { ...reply2.result, tools: shown } };
 }
 
 // js/bridge/deliver.ts
@@ -9945,9 +10160,8 @@ function syntheticError(id, message, outcome = UpstreamError.UNKNOWN, holdOff = 
   };
 }
 var NET_BACKOFF_MS = (process.env[envName("BRIDGE_NET_BACKOFF_MS")] || "1000,2000,4000").split(",").map(Number).filter((n) => Number.isFinite(n) && n >= 0);
-var H3 = scoped(() => ({ listing: 0 }));
 onReinitialized(() => {
-  if (H3.listing > 0) return;
+  if (harnessListing()) return;
   return recheckTools(async () => {
     const id = `${ID_PREFIX}bridge-tools-${++state.reinitCounter}`;
     let got = null;
@@ -9990,12 +10204,11 @@ function withNotice(reply2) {
   return reply2;
 }
 async function deliver(msg) {
-  const listing = msg?.method === "tools/list";
-  if (listing) H3.listing++;
+  const listed = msg?.method === "tools/list" ? watchHarnessListing(msg, emit) : null;
   try {
     await deliverOne(msg);
   } finally {
-    if (listing) H3.listing--;
+    listed?.();
     settleOwnRevoke(msg);
   }
 }
@@ -10034,7 +10247,7 @@ async function deliverOne(msg) {
       annotateToolList(m);
       if (m.result && !msg.params?.cursor) saveServerCache({ tools: m.result });
       m = narrowToolList(m);
-      if (!msg.params?.cursor) noteServedTools(m.result);
+      if (!msg.params?.cursor) noteServedTools(m.result, msg);
     }
     if (isToolCall && hasId && m.id === msg.id) {
       heldReply = m;
@@ -10359,10 +10572,7 @@ async function daemonMain(argv2) {
   const journal = (line) => {
     try {
       mkdirSync14(run, { recursive: true, mode: 448 });
-      try {
-        if (statSync7(journalPath).size > JOURNAL_MAX) unlinkSync14(journalPath);
-      } catch {
-      }
+      rotateJournal(journalPath, JOURNAL_MAX);
       const text = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync5(
         journalPath,
@@ -10440,7 +10650,7 @@ async function daemonMain(argv2) {
     const home = homeBridgePath();
     let stamp;
     try {
-      const st = statSync7(home);
+      const st = statSync8(home);
       stamp = `${st.ino}:${st.size}:${st.mtimeMs}`;
     } catch {
       return;
@@ -10622,128 +10832,6 @@ function spawnDaemon(file, authDir, successor) {
 // js/bridge/thin.ts
 import { createInterface as createInterface3 } from "node:readline";
 import { PassThrough as PassThrough2 } from "node:stream";
-
-// js/bridge/lostplaces.ts
-function placeWord(msg) {
-  if (msg.method !== "notifications/message" || msg.params?.logger !== LOGGERS.channel) return null;
-  const data = msg.params?.data;
-  const realm = typeof data?.place?.realm === "string" ? data.place.realm.trim() : "";
-  return typeof data?.kind === "string" ? { kind: data.kind, key: typeof data.key === "string" ? data.key : void 0, realm } : null;
-}
-var harnessSession = null;
-function seeSession(msg) {
-  const s2 = msg.params?.session;
-  if ((msg.method === method("resume") || msg.method === method("check")) && typeof s2 === "string")
-    harnessSession = s2.trim() || harnessSession;
-  return msg;
-}
-var resumeParams = (key) => harnessSession ? { key, session: harnessSession } : { key };
-function lostPlaces(say2, log3) {
-  const live = /* @__PURE__ */ new Map();
-  const lost = /* @__PURE__ */ new Map();
-  return {
-    live,
-    /**
-     * The seat is taken again (held, beside) — its refusal lifted. A satellite's loss is
-     * lifted by any satellite seat of the same graph: the bridge picks the .sub-N name.
-     */
-    regained(k, realm) {
-      live.set(k, realm);
-      for (const [lk, e] of lost)
-        if (lk === k || e.satellite && sameRealm(e.realm, realm)) lost.delete(lk);
-    },
-    lose(k, realm, why, satellite) {
-      const text = satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
-      lost.set(k, { realm, satellite, text });
-      live.delete(k);
-      log3(text);
-      say2({
-        jsonrpc: "2.0",
-        method: "notifications/message",
-        params: {
-          level: "warning",
-          logger: LOGGERS.channel,
-          data: { kind: "lost", key: k, text }
-        }
-      });
-    },
-    /** The thin bridge decides by it whether to learn graph names. */
-    lostCount() {
-      return lost.size;
-    },
-    /**
-     * Fold a seat word reaching the thin bridge; returns heldKey after it. held with
-     * another key drops the old key from live, else the next break would call it lost.
-     * released from the daemon session while the harness lives is a daemon ending
-     * without successor, not the agent leaving: the key stays so the takeover resumes
-     * the seat by its hold record. The agent's real leave goes through the thin
-     * bridge's own leave; death and eviction come as dead and evicted.
-     */
-    seen(place, heldKey2, daemonSession) {
-      if ((place?.kind === "held" || place?.kind === "beside") && place.key) {
-        if (place.kind === "held") {
-          if (heldKey2 && heldKey2 !== place.key) live.delete(heldKey2);
-          heldKey2 = place.key;
-        }
-        this.regained(place.key, place.realm);
-      } else if (place?.kind === "beside-gone" && place.key) live.delete(place.key);
-      else if (place && ["released", "dead", "evicted"].includes(place.kind) && (!place.key || place.key === heldKey2) && !(place.kind === "released" && daemonSession)) {
-        if (heldKey2) live.delete(heldKey2);
-        heldKey2 = null;
-      }
-      return heldKey2;
-    },
-    /**
-     * Refusal of a tool call for a lost seat; null — let it pass. Only calls into a
-     * lost graph; an unresolved name is refused asking for the full address (#5838).
-     * The refusal carries the call's graph, not the first loss found.
-     */
-    refusal(msg) {
-      if (!lost.size || msg.method !== "tools/call" || msg.params?.name === tool("stand"))
-        return null;
-      const r = msg.params?.arguments?.realm;
-      if (typeof r !== "string" || !r.trim()) return null;
-      const hit = [...lost.entries()].find(([, e]) => realmRelation(r, e.realm) === "same");
-      if (hit) return hit[1].text;
-      if ([...live.values()].some((x) => realmRelation(r, x) === "same")) return null;
-      return [...lost.values()].some((e) => realmRelation(r, e.realm) === "unknown") ? unresolvedWord(r, [...live.values()]) : null;
-    }
-  };
-}
-function realmListAsk() {
-  const asked = /* @__PURE__ */ new Set();
-  return {
-    /** The list call when losses exist; null — no losses or a call already in flight. */
-    ask(lostCount, id) {
-      if (!lostCount || asked.size) return null;
-      const call = {
-        jsonrpc: "2.0",
-        id: id(),
-        method: "tools/call",
-        params: { name: tool("realm"), arguments: { action: "list" } }
-      };
-      asked.add(JSON.stringify(call.id));
-      return call;
-    },
-    /** The answer to the own list call: true — consumed. */
-    reply(msg, log3) {
-      if (msg.method !== void 0 || msg.id === void 0 || msg.id === null) return false;
-      if (!asked.delete(JSON.stringify(msg.id))) return false;
-      const content = msg.result?.content;
-      const text = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
-      if (msg.error || msg.result?.isError)
-        log3(
-          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text || msg.error?.message || "?"}`
-        );
-      learnRealmList(text);
-      return true;
-    },
-    /** No answer will come (link broke) — allow asking again. */
-    forget() {
-      asked.clear();
-    }
-  };
-}
 
 // js/bridge/raise.ts
 import { spawn as spawn4 } from "node:child_process";
@@ -10966,12 +11054,12 @@ function thinMain(argv2) {
     if (held2 && paused)
       log(`the session is new — its place ${held2.key} is paused and waits on its pause record`);
     else if (held2) {
-      const id = `${ID_PREFIX}thin-resume-${++replays}`;
-      replayIds.add(key(id));
-      resuming.set(key(id), held2);
-      closeGate(key(id));
+      const call = resumeCall(held2.key, ++replays);
+      replayIds.add(key(call.id));
+      resuming.set(key(call.id), held2);
+      closeGate(key(call.id));
       log(`the session is new — bringing its place ${held2.key} back from the hold record`);
-      send({ jsonrpc: "2.0", id, method: method("resume"), params: resumeParams(held2.key) });
+      send(call);
     }
   };
   const goLocal = (reason) => {
@@ -12037,7 +12125,7 @@ import { homedir as homedir10 } from "node:os";
 import { basename as basename7, dirname as dirname13, isAbsolute as isAbsolute4 } from "node:path";
 
 // js/cli/subagents.ts
-import { existsSync as existsSync10, readdirSync as readdirSync11, readFileSync as readFileSync27, statSync as statSync8 } from "node:fs";
+import { existsSync as existsSync10, readdirSync as readdirSync11, readFileSync as readFileSync27, statSync as statSync9 } from "node:fs";
 import { homedir as homedir9 } from "node:os";
 import { basename as basename6, delimiter, dirname as dirname12, isAbsolute as isAbsolute3, join as join24, resolve as resolve8 } from "node:path";
 
@@ -12430,7 +12518,7 @@ function which(cmd, cwd) {
     for (const ext of exts) {
       const p = join24(dir, cmd + ext);
       try {
-        if (statSync8(p).isFile()) return p;
+        if (statSync9(p).isFile()) return p;
       } catch {
       }
     }
@@ -13255,7 +13343,7 @@ async function runDoctor(argv2) {
 }
 
 // js/cli/rituals.ts
-import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync12, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync9 } from "node:fs";
+import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync12, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync10 } from "node:fs";
 import { tmpdir as tmpdir2 } from "node:os";
 import { join as join31, resolve as resolve10 } from "node:path";
 
@@ -13501,7 +13589,7 @@ function verdictLines(v) {
 var RITUALS_USAGE = () => rw2().usage();
 var isDir = (p) => {
   try {
-    return statSync9(p).isDirectory();
+    return statSync10(p).isDirectory();
   } catch {
     return false;
   }

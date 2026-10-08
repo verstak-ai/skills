@@ -47,7 +47,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "2.10.1";
+var VERSION = "3.0.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -863,6 +863,22 @@ var SAFE_ACTIONS = {
   [tool("realm")]: /* @__PURE__ */ new Set(["list"])
 };
 
+// js/bridge/toolsync.ts
+var T = scoped(() => ({
+  served: null,
+  // each harness session has its own list
+  told: false,
+  // list_changed said, and the harness has not reread yet
+  inFlight: 0,
+  // the harness's tools/list in flight (any page)
+  listing: /* @__PURE__ */ new WeakSet(),
+  // the harness's tools/list (first page) in flight
+  heldBack: /* @__PURE__ */ new WeakSet(),
+  // …in whose answer the server said list_changed
+  live: /* @__PURE__ */ new WeakSet()
+  // …answered to the harness with the server's live list
+}));
+
 // js/bridge/transport.ts
 var state = scoped(() => ({
   sessionId: null,
@@ -927,7 +943,7 @@ function superseded(frames) {
 
 // js/shared/frame-text.ts
 var W = () => words(ROOM);
-var T = () => words(FRAME_TEXT);
+var T2 = () => words(FRAME_TEXT);
 var rec2 = (v) => v && typeof v === "object" ? v : {};
 var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var ZACHIN = 40;
@@ -1020,7 +1036,7 @@ function batchLine(frame, run, withZachin = true) {
   const line = rec2(f.line);
   const e = f.entry_id ?? line.entry_id ?? f.id;
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
-  const words2 = rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?");
+  const words2 = rk?.words ?? T2().frame(typeof f.id === "string" ? f.id : "?");
   const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
   const flat = [...textOf(frame).replace(/\s+/g, " ").trim()];
   const text = flat.length > BATCH_TEXT ? flat.slice(0, BATCH_TEXT).join("") + "…" : flat.join("");
@@ -1043,9 +1059,9 @@ function caseCountLine(frames) {
   const mineN = frames.filter((f) => addressedToMine(f)).length;
   const gone = superseded(frames).size;
   const head = caseHead(frames[0], true);
-  const yours = mineN ? T().yoursBelow() : T().noneYours();
+  const yours = mineN ? T2().yoursBelow() : T2().noneYours();
   const n2 = frames.length - gone;
-  return T().count(head, n2, mineN) + (gone ? T().supersededLines(gone) : "") + yours + batchPointer(frames) + ".";
+  return T2().count(head, n2, mineN) + (gone ? T2().supersededLines(gone) : "") + yours + batchPointer(frames) + ".";
 }
 function caseCountLines(frames) {
   return casesOf(frames).map(caseCountLine).filter(Boolean);
@@ -1066,7 +1082,7 @@ function batchPointer(frames) {
     const args = (typeof realm === "string" && realm ? `realm="${realm}", ` : "") + `action="history", room=${typeof n2 === "number" ? String(n2) : JSON.stringify(n2)}`;
     since.set(args, Math.min(since.get(args) ?? e, e));
   }
-  return T().inFull([...since].map(([args, e]) => T().caseHistory(args, e - 1)).join("; "));
+  return T2().inFull([...since].map(([args, e]) => T2().caseHistory(args, e - 1)).join("; "));
 }
 
 // js/bridge/backlog.ts
