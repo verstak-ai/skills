@@ -4,7 +4,7 @@
 // is refused asking for the full address (#5838). Another owner of the same slug is
 // another graph. Seats are key → graph as the agent named it: the main one by `held`,
 // others by `beside` (`beside-gone` drops one); a lost seat also gets a `lost` notice.
-import { LOGGERS, LOST, method, tool } from "../delivery/index.ts";
+import { ID_PREFIX, LOGGERS, LOST, method, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { learnRealmList, realmRelation, sameRealm, unresolvedWord } from "./realms.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -36,9 +36,22 @@ export function seeSession(msg: JsonRpcMessage): JsonRpcMessage {
     harnessSession = s.trim() || harnessSession;
   return msg;
 }
+/**
+ * Id prefix of the seat return the thin bridge sends itself after a daemon change (same in
+ * earlier releases): such a return never takes from a live holder, even of its own
+ * session — the holder may be a bridge whose harness is still alive (resume.ts).
+ */
+export const THIN_RESUME_ID = `${ID_PREFIX}thin-resume-`;
 /** The return params in a new daemon session: the key and the named harness session. */
-export const resumeParams = (key: string): { key: string; session?: string } =>
+const resumeParams = (key: string): { key: string; session?: string } =>
   harnessSession ? { key, session: harnessSession } : { key };
+/** The seat return in a new daemon session — the thin bridge's call number n. */
+export const resumeCall = (key: string, n: number): JsonRpcMessage & { id: string } => ({
+  jsonrpc: "2.0",
+  id: `${THIN_RESUME_ID}${n}`,
+  method: method("resume"),
+  params: resumeParams(key),
+});
 
 export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) => void) {
   const live = new Map<string, string>();

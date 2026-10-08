@@ -12,6 +12,7 @@
 import type { Plugin } from "@opencode/plugin";
 
 import { LOGGERS, OPENCODE, PLUGIN, PRODUCT } from "../delivery/index.ts";
+import { markFrame } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { withWord } from "../shared/launch.ts";
 import { setupChannel } from "./channel.ts";
@@ -106,7 +107,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       // Counts of records that woke no turn ride the prompt that starts one (#6574); the root's only into the root.
       const sid = String(p.sessionID);
       const counts = (await rootOf(sid)) === sid ? ch?.ride(sid) : null;
-      if (counts) p.prompt.text = `${p.prompt.text}\n\n${counts}`;
+      if (counts) p.prompt.text = `${p.prompt.text}\n\n${markFrame(counts)}`;
     });
   } catch (e) {
     say(W.launchDown((e as Error).message), "error");

@@ -3,6 +3,8 @@
 // stdio (main.ts); the thin bridge's fallback and the machine daemon feed it
 // streams (thin.ts, shared/seam.ts). A foreign bridge's session lives in its
 // own scope (shared/scope.ts).
+import "./standwire.ts"; // a taken seat and an own return stand by the same stand tool
+
 import { createInterface } from "node:readline";
 import { type Writable } from "node:stream";
 

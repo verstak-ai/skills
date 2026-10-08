@@ -4,17 +4,12 @@
 // plugin's `resume` request, which may name the harness session); the plugin's `check` request is the hearing watchdog.
 // A bridge leading another seat never takes a foreign record: holdStanding of another
 // key would kill the led one.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-
 import { envName, LOGGERS, method, tool } from "../delivery/index.ts";
-import { sameDir as oneDir } from "../shared/canon.ts";
-import { envOf, scoped } from "../shared/scope.ts";
-import { standingsDirOf } from "../shared/standings.ts";
+import { envOf, scoped, sessionCwd } from "../shared/scope.ts";
 import { listens, nameOf, readBoard, undelivered } from "./board.ts";
 import { callTool, short } from "./call.ts";
-import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
+import { localHolder } from "./hearing.ts";
 import {
   awaitHello,
   holdsKey,
@@ -41,7 +36,9 @@ import {
 } from "./holdrecord.ts";
 import { holdWords } from "./holdwords.ts";
 import { returnToStanding } from "./leave.ts";
+import { THIN_RESUME_ID } from "./lostplaces.ts";
 import { placeFields } from "./placefields.ts";
+import { recordsFor, type ResumeSelector } from "./resumepick.ts";
 import { resumeWords } from "./resumewords.ts";
 import { publishStatus } from "./status.ts";
 import { standingLog } from "./store.ts";
@@ -57,6 +54,19 @@ export function takeLapsed(): boolean {
   const was = RJ.lapsed;
   RJ.lapsed = false;
   return was;
+}
+
+/** The record's busy line — back if the same session said it; otherwise erased (#6017). */
+async function busyBack(rec: HoldRecord): Promise<string> {
+  if (!rec.status) return "";
+  const me = sessionOfBridge();
+  if (!me || rec.session !== me) {
+    rememberStatus(""); // the former holder's line is not ours: drop it from the record
+    return resumeWords.busyForeign();
+  }
+  const st = await publishStatus(rec.status);
+  const kept = st.doing ?? rec.status; // the line from the answer, not from the record
+  return st.ok ? resumeWords.busyRestored(kept) : resumeWords.busyNotRestored(short(st.body));
 }
 
 /**
@@ -87,16 +97,7 @@ export async function resumeFromDisk(
     const hello = await awaitHello(4000);
     if (hello && holdsKey(key)) {
       const pending = Number(hello.pending) || 0;
-      const me = sessionOfBridge();
-      let busy = "";
-      if (rec.status && me && rec.session === me) {
-        const st = await publishStatus(rec.status);
-        const kept = st.doing ?? rec.status; // the line from the answer, not from the record
-        busy = st.ok ? resumeWords.busyRestored(kept) : resumeWords.busyNotRestored(short(st.body));
-      } else if (rec.status) {
-        rememberStatus(""); // the former holder's line is not ours: drop it from the record
-        busy = resumeWords.busyForeign();
-      }
+      const busy = await busyBack(rec);
       log(`standing resumed from disk (${key}), pending ${pending}`);
       standingLog(`resumed-from-disk ${key}: pending ${pending}`);
       return { word: resumeWords.fromDisk(pending, busy), pending };
@@ -122,78 +123,14 @@ export async function resumeFromDisk(
   return null;
 }
 
-export interface ResumeSelector {
-  /** Standing key — preferred: the exact record. */
-  key?: string;
-  /** Session directory — fallback: this harness's records stood by this session, freshest first. */
-  cwd?: string;
-  /** The harness session of this bridge: by directory only its own records count (#6017). */
-  session?: string;
-}
-
 /**
- * Own hold records under the selector, same harness: by key first, then by
- * directory, freshest first. Key is a preference, directory a fallback, not "or": a
- * stale key (bridge killed between released and held) must not mute a live record.
- * By directory only records stood by THIS session or the seat this bridge leads
- * count (#6017); a seat released by `left` never does — only stand by name returns it.
- * `sameDir` — all same-directory records of this harness; `legacy` — records of an
- * earlier build without a session, named aloud but not taken.
+ * Take the own seat the same way as the stand tool by its name (standwire.ts passes it
+ * here so imports do not close a loop): returns the answer's first line.
  */
-function recordsFor(sel: ResumeSelector): {
-  own: HoldRecord[];
-  sameDir: string[];
-  legacy: HoldRecord[];
-  left: string[];
-  neighbour: string[];
-} {
-  const dir = standingsDirOf(CFG.authDir);
-  if (!existsSync(dir)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
-  const mine = harnessName();
-  const led = ledKey();
-  const byKey: HoldRecord[] = [];
-  const byCwd: HoldRecord[] = [];
-  const sameDir: string[] = [];
-  const legacy: HoldRecord[] = [];
-  const left: string[] = [];
-  const neighbour: string[] = [];
-  for (const f of readdirSync(dir).filter((x) => x.endsWith(".hold"))) {
-    try {
-      const rec = JSON.parse(readFileSync(join(dir, f), "utf8")) as HoldRecord;
-      // Another harness's record: a bridge of another harness in the same copy keeps its seat.
-      if (!rec || rec.client !== mine) continue;
-      const key = keyOf(rec.realm, rec.karta, rec.name);
-      const keyed = !!sel.key && key === sel.key;
-      const inDir = oneDir(rec.cwd, sel.cwd); // /tmp and /private/tmp are one directory (#5048)
-      // Stood by this session — taken outside the directory too: sessions move (#6550).
-      const stoodBy = !!sel.session && rec.session === sel.session;
-      if (!keyed && !inDir && !stoodBy) continue;
-      // Read by key as stand does: an expired record is erased and not read.
-      const fresh = readHoldRecord(key);
-      if (!fresh) continue;
-      if (inDir) sameDir.push(key);
-      if (fresh.left) {
-        left.push(key);
-        continue;
-      }
-      const stoodHere = key === led || (!!sel.session && fresh.session === sel.session);
-      // By key too, a neighbour's seat is not taken: another named session stood on it (#6706).
-      const theirs = !!sel.session && !!fresh.session && fresh.session !== sel.session;
-      if (keyed && theirs) neighbour.push(key);
-      else if (keyed) byKey.push(fresh);
-      else if (stoodHere) byCwd.push(fresh);
-      else if (!fresh.session) legacy.push(fresh);
-    } catch {
-      /* foreign or broken file */
-    }
-  }
-  return {
-    own: [...byKey, ...byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0))],
-    sameDir,
-    legacy,
-    left,
-    neighbour,
-  };
+type TakeOwn = (rec: HoldRecord, cwd: string | undefined) => Promise<string>;
+const T: { takeOwn: TakeOwn | null } = { takeOwn: null };
+export function wireTakeOwn(fn: TakeOwn): void {
+  T.takeOwn = fn;
 }
 
 /** Word on earlier-build records without a session: returned by name, not by directory. */
@@ -219,6 +156,8 @@ export interface ResumeOutcome {
   key?: string;
   pending?: number;
   word: string;
+  /** The seat is proven own (this session stood on it, the bridge holds or leads it): no not-yours word. */
+  own?: boolean;
   /** Other hold records of the same directory (keys) (graph @nks/nks-dev, node #5366). */
   others?: string[];
   /** Earlier-build seat names without a session in the directory: named, not returned. */
@@ -236,14 +175,22 @@ async function backToParked(key: string, how: string): Promise<ResumeOutcome> {
     key,
     pending: Number(hello?.pending) || 0,
     word: resumeWords.returnedParked(hello ? Number(hello.pending) || 0 : null),
+    own: true,
   };
 }
 
 /**
  * Return a seat by key or session directory: own record → socket at the same
- * address, register, busy line back. Held — said so; parked — back to it.
+ * address, register, busy line back. Held — said so; parked — back to it. A socket
+ * held by a former bridge of this same session is taken the stand-tool way only with
+ * `takeOwn` (a new bridge's return), not by the hearing watchdog of the bridge that lost
+ * it: the session is already heard, and its two bridges would pull the seat every tick.
  */
-export async function resumeBy(sel: ResumeSelector, register = true): Promise<ResumeOutcome> {
+export async function resumeBy(
+  sel: ResumeSelector,
+  register = true,
+  takeOwn = false,
+): Promise<ResumeOutcome> {
   const { own: recs, sameDir, legacy: legacyRecs, left, neighbour } = recordsFor(sel);
   if (!recs.length) {
     const legacy = await freeLegacy(legacyRecs);
@@ -270,17 +217,43 @@ export async function resumeBy(sel: ResumeSelector, register = true): Promise<Re
   for (const rec of recs) {
     const key = keyOf(rec.realm, rec.karta, rec.name);
     if (holdsKey(key))
-      return { resumed: true, key, pending: 0, word: resumeWords.alreadyHolding() };
+      return { resumed: true, key, pending: 0, word: resumeWords.alreadyHolding(), own: true };
     if (isParked(rec.realm, rec.karta, rec.name)) return backToParked(key, resumeWords.byRecord());
     if (led && led !== key) {
       skipped.push(resumeWords.otherSeat(key, led));
       continue;
     }
-    if (await localSocketAlive(localSocketPathOf(key))) {
+    // Whose live socket — the stand tool's judgement (hearing.ts): a former bridge of this
+    // same session means the seat is the session's, taken the stand-tool way without take
+    // (#6702). Directory as in stand: the named one, else the session's, not the record's.
+    const holder = await localHolder(key, sel.cwd ?? sessionCwd());
+    if (holder === "session" && takeOwn && !CFG.satellite && T.takeOwn) {
+      const said = await T.takeOwn(rec, sel.cwd);
+      const now = ledKey();
+      if (now && holdsKey(now)) {
+        const hello = await awaitHello(4000);
+        // Stood beside (name.N): the stand word names the seat itself; the record's line is not its.
+        const busy = now === key ? await busyBack(rec) : "";
+        return {
+          resumed: true,
+          key: now,
+          pending: Number(hello?.pending) || 0,
+          word: busy ? said.replace(/\.$/, "") + busy : said,
+          own: true,
+        };
+      }
+      skipped.push(resumeWords.ownNotTaken(key, short(said)));
+      continue;
+    }
+    if (holder) {
       skipped.push(resumeWords.liveBridge(key));
       elsewhere.push(key);
       continue;
     }
+    // Own proven before the return: this session stood on the record, or the bridge leads
+    // the seat and no other named session stood on it.
+    const me = sel.session ?? sessionOfBridge();
+    const proven = (!!me && rec.session === me) || (key === led && !rec.session);
     const back = await resumeFromDisk(rec.realm, rec.karta, rec.name);
     if (!back) {
       const kept = readHoldRecord(key);
@@ -307,9 +280,16 @@ export async function resumeBy(sel: ResumeSelector, register = true): Promise<Re
       ...new Set([...recs.map((r) => keyOf(r.realm, r.karta, r.name)), ...sameDir]),
     ].filter((k) => k !== key && readHoldRecord(k) !== null);
     if (others.length) lines.push(resumeWords.othersInDir(others.join(", ")));
-    // Leave, not revoke: the platform refuses to revoke the seat that founded the channel.
-    lines.push(resumeWords.notYours());
-    return { resumed: true, key, pending: back.pending, word: lines.join("; "), others };
+    // Not proven own — leave, not revoke: the platform refuses to revoke the seat that founded the channel.
+    if (!proven) lines.push(resumeWords.notYours());
+    return {
+      resumed: true,
+      key,
+      pending: back.pending,
+      word: lines.join("; "),
+      others,
+      own: proven,
+    };
   }
   return {
     resumed: false,
@@ -356,11 +336,16 @@ function selectorFrom(msg: JsonRpcMessage): ResumeSelector {
 export const isResumeCall = (msg: JsonRpcMessage): boolean => msg?.method === method("resume");
 export const isCheckCall = (msg: JsonRpcMessage): boolean => msg?.method === method("check");
 
-/** The plugin's `resume {key?, cwd?, session?}` request: return the own seat from disk. */
+/**
+ * The plugin's `resume {key?, cwd?, session?}` request: return the own seat from disk.
+ * A seat at a live former bridge of the own session is taken only by the plugin's return,
+ * not by the thin bridge's after a daemon change (lostplaces.ts).
+ */
 export async function runResume(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const sel = selectorFrom(msg);
   if (!sel.key && !sel.cwd) return reply(msg, { resumed: false, word: resumeWords.noKeyNoCwd() });
-  const r = await resumeBy(sel);
+  const replay = typeof msg.id === "string" && msg.id.startsWith(THIN_RESUME_ID);
+  const r = await resumeBy(sel, true, !replay);
   if (r.resumed) afterResume(r.key); // a satellite after a pause takes the run's cases (suspend.ts)
   return reply(msg, r);
 }

@@ -42,7 +42,7 @@ import { syntheticError } from "./deliver.ts";
 import { fullBridgeSigint, installCrashWords, startEngine } from "./engine.ts";
 import { NOT_SENT, UNKNOWN } from "./errors.ts";
 import { markFallback } from "./fallback.ts";
-import { lostPlaces, placeWord, realmListAsk, resumeParams, seeSession } from "./lostplaces.ts";
+import { lostPlaces, placeWord, realmListAsk, resumeCall, seeSession } from "./lostplaces.ts";
 import { type Raise, raiseDaemon, SELF } from "./raise.ts";
 import { type BridgeSession, openSession } from "./session.ts";
 import { sleep } from "./store.ts";
@@ -263,12 +263,12 @@ export function thinMain(argv: string[]): void {
     if (held && paused)
       log(`the session is new — its place ${held.key} is paused and waits on its pause record`);
     else if (held) {
-      const id = `${ID_PREFIX}thin-resume-${++replays}`;
-      replayIds.add(key(id));
-      resuming.set(key(id), held);
-      closeGate(key(id));
+      const call = resumeCall(held.key, ++replays);
+      replayIds.add(key(call.id));
+      resuming.set(key(call.id), held);
+      closeGate(key(call.id));
       log(`the session is new — bringing its place ${held.key} back from the hold record`);
-      send({ jsonrpc: "2.0", id, method: method("resume"), params: resumeParams(held.key) });
+      send(call);
     }
   };
 

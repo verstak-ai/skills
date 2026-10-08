@@ -4,6 +4,8 @@ import type { Lang } from "../lang.ts";
 
 export interface OpencodeKeepWords {
   resumed: (key: string) => string;
+  /** The bridge proved this session stood on the seat. */
+  resumedOwn: (key: string) => string;
   elsewhere: (keys: string) => string;
   notBack: (place: string, why: string) => string;
   noKeyNoDir: () => string;
@@ -50,8 +52,10 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. ` +
       'Check the name against the one derived for this session: if it is someone else\'s, release it with verstak_channel(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one verstak_stand; ' +
       "a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.",
+    resumedOwn: (key) =>
+      `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
     elsewhere: (keys) =>
-      `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not this session's bridge: ` +
+      `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: ` +
       "hearing and the busy line here hold no seat. Call verstak_stand with this name, no take needed: the seat of this same session's previous bridge " +
       "the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.",
     notBack: (place, why) =>

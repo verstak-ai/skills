@@ -106,19 +106,22 @@ export function grantLog(msg: string): void {
   appendJournal(grantLogPath(), msg);
 }
 
-/** A line in a machine journal beside the grant: time, pid, build; past 128 KB it starts over. */
+/**
+ * A journal past the limit starts over and the former one moves to `<journal>.1`: the
+ * overflow falls on a noisy moment — a daemon change — and a journal erased whole
+ * would lose exactly what is read after it.
+ */
+export function rotateJournal(path: string, max: number): void {
+  try {
+    if (statSync(path).size > max) renameSync(path, `${path}.1`);
+  } catch {}
+}
+
+/** A line in a machine journal beside the grant: time, pid, build; past 128 KB it moves to `.1`. */
 export function appendJournal(path: string, msg: string): void {
   try {
     mkdirSync(CFG.authDir, { recursive: true, mode: 0o700 });
-    let size = 0;
-    try {
-      size = statSync(path).size;
-    } catch {}
-    if (size > 128_000) {
-      try {
-        unlinkSync(path);
-      } catch {}
-    }
+    rotateJournal(path, 128_000);
     appendFileSync(path, `${new Date().toISOString()} pid=${process.pid} ${BUILD} ${msg}\n`, {
       mode: 0o600,
     });

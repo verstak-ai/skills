@@ -4,7 +4,7 @@
 // skills differ exactly when the bridge updated and the set did not. stamp — 8 hex,
 // tells sets apart within a version.
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -62,6 +62,14 @@ function lockSet(root: string): { name: string; stamp: string | null } {
   return { name, stamp: lines.length ? sha8(createHash("sha256").update(lines.join(""))) : null };
 }
 
+const isFileAt = (p: string): boolean => {
+  try {
+    return statSync(p).isFile();
+  } catch {
+    return false;
+  }
+};
+
 /** Every file under dir, relative to it with "/" separators, sorted. */
 function allFiles(dir: string, at = ""): string[] {
   let entries;
@@ -73,7 +81,9 @@ function allFiles(dir: string, at = ""): string[] {
   return entries
     .flatMap((e) => {
       const rel = at ? `${at}/${e.name}` : e.name;
-      return e.isDirectory() ? allFiles(dir, rel) : e.isFile() ? [rel] : [];
+      if (e.isDirectory()) return allFiles(dir, rel);
+      // A file symlink is read through, as the one-file mask reads it; a directory link is not walked.
+      return e.isFile() || (e.isSymbolicLink() && isFileAt(join(dir, rel))) ? [rel] : [];
     })
     .sort();
 }

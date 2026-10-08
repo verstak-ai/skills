@@ -9,11 +9,27 @@ import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
 import { LANGS } from "../delivery/lang.ts";
+import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
+import { RESUME } from "../delivery/words/resume.ts";
 import { REPO } from "./built.mjs";
 
 const DIR = join(REPO, "js", "delivery", "words");
 const FILES = readdirSync(DIR).filter((f) => f.endsWith(".ts"));
 const FOREIGN = new RegExp("\\p{Script=Cyrillic}|is" + "kron", "iu");
+
+test("proven own-seat recovery needs no foreign-seat warning", () => {
+  const text = OPENCODE_KEEP.en.resumedOwn("@owner:seat");
+  assert.match(text, /Verstak:.*@owner:seat.*your own/);
+  assert.doesNotMatch(text, /someone else|verstak_channel|verstak_stand/);
+});
+
+test("failed same-session takeover retains the seat and refusal reason", () => {
+  assert.equal(
+    RESUME.en.ownNotTaken("@owner:seat", "refused"),
+    "@owner:seat: a former bridge of this session holds it, taking it failed — refused",
+  );
+  assert.match(OPENCODE_KEEP.en.elsewhere("@owner:seat"), /serving this session now/);
+});
 
 test("the delivery layer has word dictionaries", () => {
   assert.ok(FILES.length > 0, `no dictionaries under ${DIR}`);

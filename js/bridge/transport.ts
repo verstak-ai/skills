@@ -8,7 +8,8 @@ import { closedUnder, errorCode, errorMessage, UpstreamError } from "./errors.ts
 import { loginPublished } from "./oauth/flow.ts";
 import { repeatable } from "./repeat.ts";
 import { loadStore, saveServerCache } from "./store.ts";
-import { debug, log } from "./streams.ts";
+import { debug, emit, log } from "./streams.ts";
+import { heardListChanged, isListChanged } from "./toolsync.ts";
 import { type JsonRpcMessage } from "./types.ts";
 import { unnamedSeatRefusal } from "./unnamed.ts";
 
@@ -111,11 +112,11 @@ const TLS_REFUSALS = new Set([
 ]);
 
 // One POST to the server for one JSON-RPC message. Forwards every message the
-// server answers with (JSON body or a per-request SSE stream) via onMessage.
-export async function post(
-  msg: JsonRpcMessage,
-  onMessage: (m: JsonRpcMessage) => void,
-): Promise<void> {
+// server answers with (JSON body or a per-request SSE stream) via onMessage —
+// except tools/list_changed, which goes to the harness whoever asked (toolsync.ts, #6819).
+export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => void): Promise<void> {
+  const onMessage = (m: JsonRpcMessage): void =>
+    isListChanged(m) ? heardListChanged(msg, emit) : heard(m);
   const unnamed = unnamedSeatRefusal(msg);
   if (unnamed) return void onMessage(unnamed);
   const headers: Record<string, string> = {

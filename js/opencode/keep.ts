@@ -54,9 +54,10 @@ export interface KeptSlot {
  * A word to the agent about a seat the bridge returned itself. The session's first call
  * waits for the return and goes before the word: the word asks to check that write's author.
  */
-export function resumedWord(key: string): string {
+export function resumedWord(key: string, own = false): string {
   // Other seats of the same directory are not named: their key would call the session to a foreign seat.
-  return words(OPENCODE_KEEP).resumed(key);
+  // A seat the bridge proved own is not suspected foreign.
+  return own ? words(OPENCODE_KEEP).resumedOwn(key) : words(OPENCODE_KEEP).resumed(key);
 }
 
 /** A word to a session whose seat is held by another bridge: the return failed, and how to get it back. */
@@ -177,7 +178,8 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
       doors.say(W.sessionResumed(root, r.word), "info");
       // The name was taken from the directory's record, which does not tell standings of one role apart (#5366);
       // a child whose seat returned by its own key after a reload — silently: it waits (#6625).
-      if (typeof r.key === "string" && !quiet) doors.tell(root, resumedWord(r.key), slot.child);
+      if (typeof r.key === "string" && !quiet)
+        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
       return "held";
     } catch (e) {
       marked.delete(root);
@@ -209,7 +211,8 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
     if (r?.resumed) {
       doors.say(W.watchResumed(root, r.word), "info");
       // The same return without the agent's move (#5366).
-      if (typeof r.key === "string") doors.tell(root, resumedWord(r.key), slot.child);
+      if (typeof r.key === "string")
+        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
     } else if (r?.reopened) doors.say(W.watchReopened(root, r.word), "warning");
     else if (r?.stuck) doors.say(r.word, "error"); // the bridge sends the word into the session itself (kind=lost), once
   }

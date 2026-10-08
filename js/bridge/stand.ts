@@ -11,7 +11,7 @@
 import { statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 
-import { ID_PREFIX, tool } from "../delivery/index.ts";
+import { tool } from "../delivery/index.ts";
 import { scoped, sessionCwd } from "../shared/scope.ts";
 import { alive, listens, nameOf, readBoard } from "./board.ts";
 import {
@@ -20,12 +20,10 @@ import {
   callTool as call,
   leadsOtherPlace,
   otherPlaceWord,
-  serialized,
   short,
   unresolvedRefusal,
 } from "./call.ts";
 import { CFG } from "./config.ts";
-import { wireEviction } from "./evicted.ts";
 import { seatField } from "./fields.ts";
 import {
   askedHearing,
@@ -83,7 +81,9 @@ const R = scoped(() => ({ again: false }));
 /** The name of the seat the bridge leads — for the one-standing-per-bridge refusal. */
 const ledName = (): string => state.standing?.name ?? "";
 
-const isDirectory = (p: string): boolean => {
+export { STAND_TOOL_NAME, standTool } from "./standtool.ts";
+
+export const isDirectory = (p: string): boolean => {
   try {
     return isAbsolute(p) && statSync(p).isDirectory();
   } catch {
@@ -93,28 +93,6 @@ const isDirectory = (p: string): boolean => {
 
 export const isStandCall = (msg: JsonRpcMessage): boolean =>
   msg?.method === "tools/call" && msg?.params?.name === tool("stand");
-
-/** Seat taken (evicted.ts, #6706): stand beside on name.N the same way as the stand tool with that name. */
-wireEviction(async (place, cwd) => {
-  const r = await serialized(() =>
-    runStand({
-      jsonrpc: "2.0",
-      id: `${ID_PREFIX}bridge-evicted`,
-      method: "tools/call",
-      params: {
-        name: tool("stand"),
-        arguments: {
-          realm: place.realm,
-          karta: String(place.karta),
-          name: baseOf(place.realm, place.karta, place.name ?? ""), // the base the seat was chosen from (#6706)
-          ...(cwd && isDirectory(cwd) ? { cwd } : {}),
-        },
-      },
-    }),
-  );
-  const text = ((r.result?.content ?? []) as { text?: string }[]).map((c) => c.text ?? "");
-  return { ok: !r.result?.isError, text: text.join("\n") };
-});
 
 export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // Busyness on a seat the bridge already holds — the line only (#6509).
