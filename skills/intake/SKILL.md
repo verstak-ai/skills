@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Bring EXTERNAL WORD into an NKS realm — the agent-facing shabda-intake. Use whenever the user hands over ANY external text (a post, article, news item, forwarded message, quote, transcript) to be recorded into a realm, not only issues/docs/code. Triggers: 'запиши пост', 'внеси новость', 'добавь в летопись', 'record this post', 'log this news', 'впусти внешнее слово', 'засей граф из issue/доков', 'intake', 'shabda intake'. Source-independent: post, issue, docs, code, conversation enter through an adapter under one discipline — form to node type, epistemic mode by kind of source, provenance source_kind=shabda, dedup, anchor, verify. Distinct from writing (a node from a distinction you already hold), verstakify (derived config) and product-roadmap (composes this with a GitHub adapter). Needs the nks_* MCP tools."
+description: "Bring EXTERNAL WORD into an NKS realm — the agent-facing shabda-intake. Use whenever the user hands over ANY external text (a post, article, news item, forwarded message, quote, transcript) to be recorded into a realm, not only issues/docs/code. Triggers: 'запиши пост', 'внеси новость', 'добавь в летопись', 'record this post', 'log this news', 'впусти внешнее слово', 'засей граф из issue/доков', 'intake', 'shabda intake'. Source-independent: post, issue, docs, code, conversation enter through an adapter under one discipline — form to node type, epistemic mode by kind of source, provenance source_kind=shabda, dedup, anchor, verify. Distinct from writing (a node from a distinction you already hold), verstakify (derived config) and product-roadmap (composes this with a GitHub adapter). Needs the verstak_* MCP tools."
 ---
 
 # NKS Intake
@@ -60,7 +60,7 @@ Model the node accordingly: `attrs.source_kind="shabda"`, the given_as the conte
 
 ## 3. Dedup before you write
 
-Before each insert, `nks_semantic_search(q=<the claim as a phrase>, realm=…)` against the existing graph (the *ground*, not only the prior backlog). Near-zero distance = the realm already carries this — link or update, do not duplicate. Locate-before-write is mandatory: intake's failure mode is N near-identical nodes, one per restated issue.
+Before each insert, `verstak_semantic_search(q=<the claim as a phrase>, realm=…)` against the existing graph (the *ground*, not only the prior backlog). Near-zero distance = the realm already carries this — link or update, do not duplicate. Locate-before-write is mandatory: intake's failure mode is N near-identical nodes, one per restated issue.
 
 ## 4. Anchor every node to its source
 
@@ -77,9 +77,9 @@ Anchoring is the **inquiry** skill's law (an unanchored vimarsha is invisible) �
 
 ## 5. Verify by пратьякша and graduate the mode
 
-Intake is not done when the claim is written — it's done when it's been *reconciled with reality* (the сверка kriya). For each kalpita node, observe directly on the three levels: `nks_look` (recall — what's written), `nks_orient(lens="tensions")`/neighborhood (awareness — what pulls), `nks_orient(lens="trace")` (reflection — where it travels). Then graduate:
+Intake is not done when the claim is written — it's done when it's been *reconciled with reality* (the сверка kriya). For each kalpita node, observe directly on the three levels: `verstak_look` (recall — what's written), `verstak_orient(lens="tensions")`/neighborhood (awareness — what pulls), `verstak_orient(lens="trace")` (reflection — where it travels). Then graduate:
 
-- **claim matches reality** → assert the thesis: `nks_update` the epistemic mode up (kalpita → pratyakshita/pramanita), or let it stand as confirmed;
+- **claim matches reality** → assert the thesis: `verstak_update` the epistemic mode up (kalpita → pratyakshita/pramanita), or let it stand as confirmed;
 - **claim contradicts reality** → that's a tension, not a fact: leave it `badhita`, or raise a `vyabhichara`/`samshaya` (сверка routes found counter-examples to vyabhichara, not samshaya), or fix the incident;
 - **mode merely drifted** → update the recording mode.
 
@@ -101,7 +101,7 @@ Never the whole source — not the whole tracker, not "all the docs", not the en
 
 ## After writing
 
-Read the `CHECKS:` block each factory prints (orphan, missing anchor). A fresh intake phenomenon stays `not_orphan`-flagged until a kriya picks it up — wire it. Then `nks_orient(lens="trace", focus=<seq>)` on key phenomena: did the lifecycle connect?
+Read the `CHECKS:` block each factory prints (orphan, missing anchor). A fresh intake phenomenon stays `not_orphan`-flagged until a kriya picks it up — wire it. Then `verstak_orient(lens="trace", focus=<seq>)` on key phenomena: did the lifecycle connect?
 
 ## What intake is NOT
 

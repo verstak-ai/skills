@@ -1,6 +1,6 @@
 ---
 name: weaving
-description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on arrows, splitting kriyas with multiple actors, reconnecting arrows after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when nks_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count (large leaked/relay-gap sections in lens=\"tensions\"). Distinct from design: design creates structure from goals, weaving completes structure that already exists."
+description: "Use this skill when doing semantic work on an existing NKS graph: closing lifecycles, writing sense on arrows, splitting kriyas with multiple actors, reconnecting arrows after phenomenon distinctions, or any work where the graph exists structurally but needs semantic completeness. Triggers: 'проткать', 'прошить', 'ткачество', 'weave', 'close lifecycle', 'fix tensions', 'sense на стрелках', references to leaked/relay-gap/orphan tensions, or when verstak_orient(lens=\"tensions\") shows structural problems. Also triggers when entry shows a realm with high tension count (large leaked/relay-gap sections in lens=\"tensions\"). Distinct from design: design creates structure from goals, weaving completes structure that already exists."
 ---
 
 # NKS Weaving
@@ -11,7 +11,7 @@ Design creates. Weaving completes.
 
 ## Route by resolving move first (response_kind)
 
-`nks_orient(lens="tensions")` groups every tension by its **resolving move** — and not all four are yours:
+`verstak_orient(lens="tensions")` groups every tension by its **resolving move** — and not all four are yours:
 
 | Group | Move | Yours? |
 |---|---|---|
@@ -35,7 +35,7 @@ Boundary renders as information ("this is the edge"), never a tension to close. 
 
 ### Carrier transitions are acts, not tensions
 
-A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practice starts) and an *ascent in certainty* (`Kl→An→Pt→Pm`) are **legitimate weaving acts** — make them when the graph implies them; they are not tensions. Only **suspicious** transitions surface, and only as **reverify**-class: a `Warning` on write and a self-extinguishing `LocalCheck` (response_kind=reverify) in `nks_look` — resurrection (`atita→vartamana`, unexplained), `Pm→An/Kl` without a reverify event, death-without-being (`anagata→atita` skipping `vartamana`; kind-aware — a risk's `Ag→At` is legitimate realization). Resolve by touching the node's mode; never restructure, and never read it as a standing tension or a counter.
+A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practice starts) and an *ascent in certainty* (`Kl→An→Pt→Pm`) are **legitimate weaving acts** — make them when the graph implies them; they are not tensions. Only **suspicious** transitions surface, and only as **reverify**-class: a `Warning` on write and a self-extinguishing `LocalCheck` (response_kind=reverify) in `verstak_look` — resurrection (`atita→vartamana`, unexplained), `Pm→An/Kl` without a reverify event, death-without-being (`anagata→atita` skipping `vartamana`; kind-aware — a risk's `Ag→At` is legitimate realization). Resolve by touching the node's mode; never restructure, and never read it as a standing tension or a counter.
 
 ## When to weave (not design)
 
@@ -56,12 +56,12 @@ A step *forward along a node's carrier* (e.g. `anagata→vartamana` as a practic
 ```
 TRIGGER: lens="trace" shows broken lifecycle OR lens="tensions" shows leaked/relay-gap
 DO:
-  1. Identify the break: nks_orient(lens="trace", focus=<phenomenon>) → find the gap
+  1. Identify the break: verstak_orient(lens="trace", focus=<phenomenon>) → find the gap
   2. Send-analysis: utpatti without consumer → who should pick up?
   3. Receive-analysis: ahara without producer → where does it come from?
   4. If connecting phenomenon doesn't exist → create sachverhalt
-  5. Wire: nks_arrow(action="link") ahara/utpatti
-  6. Verify: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
+  5. Wire: verstak_arrow(action="link") ahara/utpatti
+  6. Verify: verstak_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
 ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
 
@@ -72,7 +72,7 @@ ANTI-PATTERN: suppressing tension with attrs instead of closing structure
 ```
 TRIGGER: arrow has no sense, or sense duplicates target name
 DO:
-  1. Read both endpoints: nks_look on source and target
+  1. Read both endpoints: verstak_look on source and target
   2. Ask: WHY does this connection exist? What does the target DO for the source?
   3. Write sense based on arrow type:
      - next → praśna: yes/no question agent answers from their situation
@@ -83,7 +83,7 @@ DO:
        ✗ "principle of lifecycle closure" (duplicates phenomenon name)
      - arose_from → "what gave birth to this question"
      - ahara → "what this kriya consumes and why"
-  4. nks_arrow(action="link") or nks_arrow(action="update") to write sense on the arrow
+  4. verstak_arrow(action="link") or verstak_arrow(action="update") to write sense on the arrow
 SIGNAL of bad sense: it says the same thing as the target phenomenon's name
 ```
 
@@ -92,7 +92,7 @@ SIGNAL of bad sense: it says the same thing as the target phenomenon's name
 ```
 TRIGGER: kriya has 2+ actor arrows, or description implies two actors with different motivations
 SIGNALS:
-  - Two actor arrows visible in nks_look
+  - Two actor arrows visible in verstak_look
   - Description contains "and then another agent/role..."
   - pariṇāma describes TWO qualitative transitions
   - Different time scales within one kriya
@@ -112,11 +112,11 @@ BASIS: call = communication, not nesting (π-calculus scope extrusion)
 TRIGGER: phenomenon was one, now distinguished into two (or more). Old arrows point at the undistinguished whole.
 EXAMPLE: "Config" split into "Runtime Config" + "Build Config". Kriya K has ahara → "Config". Which config does K consume?
 DO:
-  1. Find all arrows pointing at the old phenomenon: nks_look
+  1. Find all arrows pointing at the old phenomenon: verstak_look
   2. For each arrow: which distinguished phenomenon is correct?
-  3. nks_arrow(action="reconnect") to redirect (atomic, never half-reconnected)
+  3. verstak_arrow(action="reconnect") to redirect (atomic, never half-reconnected)
   4. If old phenomenon is now empty of arrows → visarjana or delete
-  5. nks_look on affected kriyas — check the CHECKS: block (reconnect is an edit, so re-look)
+  5. verstak_look on affected kriyas — check the CHECKS: block (reconnect is an edit, so re-look)
 ```
 
 ### 5. Lifecycle closure
@@ -139,7 +139,7 @@ DO:
      c. Or defer: kriya in anagata+upeksha = placeholder, lifecycle formally closed
      d. Or recognize inherited closure (1d): don't patch a child individually
         when its contains-umbrella owns the lifecycle
-  3. RE-TRACE: nks_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
+  3. RE-TRACE: verstak_orient(lens="trace", focus=<phenomenon>) → lifecycle connected?
   4. If still broken → loop
 PRINCIPLE: every ding is born and dies. Deferred closure via modes is OK. Suppression via attrs is never OK.
 ```
@@ -147,29 +147,29 @@ PRINCIPLE: every ding is born and dies. Deferred closure via modes is OK. Suppre
 ## Decision tree: which operation?
 
 ```
-Start: nks_orient(realm=..., lens="tensions", verbose=true)
+Start: verstak_orient(realm=..., lens="tensions", verbose=true)
 
 leaked phenomenon?
-  → nks_orient(lens="trace", focus=<phenomenon>)   # auto-forward for a phenomenon
+  → verstak_orient(lens="trace", focus=<phenomenon>)   # auto-forward for a phenomenon
     → lifecycle broken? → Operation 5 (lifecycle closure)
     → lifecycle connected but no consumer? → Operation 1 (estafeta priming)
 
 relay-gap?
-  → nks_orient(lens="trace", focus=<consuming kriya>)   # auto-backward for a kriya — trace and relay are one lens now
+  → verstak_orient(lens="trace", focus=<consuming kriya>)   # auto-backward for a kriya — trace and relay are one lens now
     → missing producer → Operation 1 (add producer or inlet)
 
 orphan phenomenon?
-  → nks_look: does it belong to any kriya?
+  → verstak_look: does it belong to any kriya?
     → no → wire to relevant kriya or delete
     → yes but arrows have no sense → Operation 2 (sense writing)
 
 no-actor on kriya?
-  → nks_look: who performs this?
-    → one role → nks_arrow(action="link") actor
+  → verstak_look: who performs this?
+    → one role → verstak_arrow(action="link") actor
     → two roles → Operation 3 (decomposition)
 
 no structural tension but graph feels incomplete?
-  → Read kriyas manually: nks_look on key kriyas
+  → Read kriyas manually: verstak_look on key kriyas
     → arrows without sense? → Operation 2
     → two actors? → Operation 3
     → phenomena that were split? → Operation 4
@@ -194,9 +194,9 @@ But weaving is NOT only Phase 2. Enter from:
 
 - Cap NKS calls at ~7 per response unless batching
 - Re-orient every 5-10 nodes
-- After an edit (reconnect/update): nks_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
+- After an edit (reconnect/update): verstak_look on the affected node — failed checks render in CHECKS:. After a create: the CHECKS arrive in the factory's own response.
 - After weaving into an existing node: re-read its **body**, not only its CHECKS — is what it says still true of what it describes? No detector covers this: the registry catches structure that tears, and prose gone false tears nothing (description non-empty, node just touched, arrows whole, modes right). Heaviest on contract nodes — a protocol, route, frame or address format exists so nobody goes to the source, so stale there misleads with authority.
-- After lifecycle work: nks_orient(lens="trace", focus=…) to confirm connected
+- After lifecycle work: verstak_orient(lens="trace", focus=…) to confirm connected
 - Before calling a weave finished: what else did this touch? **integrity** propagates that wave; one node repaired while its neighbours still describe the old shape is half-done.
 - Batch order: phenomena → kriyas → arrows
 
@@ -207,4 +207,4 @@ But weaving is NOT only Phase 2. Enter from:
 - NOT creating vimarshas about what to build (that's questioning)
 - NOT suppressing tensions (that's never OK)
 
-Weaving DISCOVERS connections that were implied but not explicit. It reads the graph semantically — not just structure, but meaning — and makes the implicit explicit. When the other end of an implied connection isn't in view, **`nks_semantic_search(q=<the concept>)`** finds the node that belongs there by meaning — where tension-walking and keyword search won't surface it.
+Weaving DISCOVERS connections that were implied but not explicit. It reads the graph semantically — not just structure, but meaning — and makes the implicit explicit. When the other end of an implied connection isn't in view, **`verstak_semantic_search(q=<the concept>)`** finds the node that belongs there by meaning — where tension-walking and keyword search won't surface it.

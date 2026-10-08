@@ -1,7 +1,7 @@
 ---
 name: verstakify
 slash: true
-description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, memory guard, CLAUDE.md pointer — @AGENTS.md import, Windows-safe). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the nks_* MCP tools for the NKS steps."
+description: "Use when the user asks to verstakify a repo — bootstrap or refresh its AGENTS.md / CLAUDE.md to the verstak standard, apply the NKS methodology conventions, or wire the session-lifecycle rituals (orient-in-NKS on start, push→update-NKS hooks, quality gate, memory guard, CLAUDE.md pointer — @AGENTS.md import, Windows-safe). Triggers: \"verstakify\", \"verstakify this repo\", \"привести проект к стандарту\", \"завести/обновить AGENTS.md\", \"set up AGENTS.md\", \"bootstrap AGENTS\", \"apply the meta template\", \"наведи порядок в конфиге агента\". AGENTS.md is a derived view, not hand-written prose: each concern is audited against its source of truth and re-projected when stale, preserving authored judgment; fresh repos ask the user for the authored slots. Needs the verstak_* MCP tools for the NKS steps."
 ---
 
 # Verstakify
@@ -80,7 +80,7 @@ Each claim class has one authority. Verify there — don't recall:
 | Project structure, path aliases | filesystem + `tsconfig`/bundler config | glob / list |
 | Nature, production statement, relaxations | the user (authored) | confirm in conversation |
 | Reality carriers + how to observe them | the user (authored) | confirm in conversation — never derive |
-| Design decisions, why-clauses, open questions | NKS | `nks_orient` / `nks_search` |
+| Design decisions, why-clauses, open questions | NKS | `verstak_orient` / `verstak_search` |
 | Branch state, what's runnable | git + `HANDOVER.md` | `git status` / `log` |
 | Gotchas | authored (past pain) | sanity-check only — don't auto-derive |
 
@@ -213,18 +213,18 @@ the user what was found and settle the mode:
    sessions led by the suite won't persist to the realm by default).
 
 ### Step 2 — NKS bootstrap
-- Realm exists? If not: agree a name, then `nks_realm(action="create")`.
+- Realm exists? If not: agree a name, then `verstak_realm(action="create")`.
 - If the project has structure beyond the realm itself, a focus holon exists
   (named after the project's boundary, `contains`-linked from the realm root),
   and its `#seq` goes into *What this project is*. Design the boundary with the
-  `design` skill, create with `nks_add_holon`.
+  `design` skill, create with `verstak_add_holon`.
 - **The doer becomes a steward.** Create the repo's agent karta
-  (`nks_add_karta`, `manifested_as=adhikarin`, motivation distilled from the
+  (`verstak_add_karta`, `manifested_as=adhikarin`, motivation distilled from the
   Production statement) and draw its `steward` edge to the focus holon — an
   adhikarin without a steward edge is a live warning ("acts but answers for
   nothing"). Create the owner's svatantra karta if Step 1 found none, and bind
   it to the human it stands for — `user="me"` when the owner is the person
-  running this, otherwise their `sub` from `nks_admin(action="list_members")`.
+  running this, otherwise their `sub` from `verstak_admin(action="list_members")`.
   That binding is what makes the owner findable across every repo they own
   (**minding** §4); without it their roles stay unlinked per realm. Record both
   seqs in *What this project is* — the doc slot is the only path an agent can
@@ -282,7 +282,7 @@ arrays; deleting another suite's hooks breaks its rituals. Generate the JSON for
 *this* project — write it yourself:
 - **`SessionStart`** → reminder to orient in NKS before acting (skill `entry`),
   naming *this* realm slug, focus holon **and agent karta**: open the doer's
-  agenda (`nks_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
+  agenda (`verstak_orient(realm, focus="<agent-karta-seq>")`) — incoming `posed_to`
   vimarshas are the session's inbox; pick up or explicitly defer each.
 - **`PostToolUse`** with `"matcher": "Bash"` → when the command contains `git
   push`, reminder to **ask which kind of push this was** — where done means

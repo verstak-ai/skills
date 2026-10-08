@@ -307,7 +307,7 @@ as an empty inbox.
 
 ## Reading the board
 
-`nks_channel(action="list")` shows every doer's channel in the realm: the inbound
+`verstak_channel(action="list")` shows every doer's channel in the realm: the inbound
 address, how many messages wait undelivered, when the socket was last seen, and
 each doer's own status line with its timestamp. Your row is in there too. One
 call, and it wakes nobody — which is why it is worth taking whole rather than

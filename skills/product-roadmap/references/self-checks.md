@@ -62,7 +62,7 @@ without a verified artifact.
 ## Graph leverage (Steps 2, 5, 6)
 
 - [ ] **No zero-edge karta; every karta carries `manifested_as`.** Each created karta
-      has real `actor`/`steward` edges to the deeds it drives — `nks_look` each. A
+      has real `actor`/`steward` edges to the deeds it drives — `verstak_look` each. A
       worker/CI/cron "doer" is a ⚙️ phenomenon, not a karta.
 - [ ] **Runtime-operator layer not collapsed.** If the actors are only contributors +
       a generic end user, the layer was flattened: check the ground for internal
@@ -81,7 +81,7 @@ without a verified artifact.
 ## Re-run contract (existing realm)
 
 - [ ] Ground / backlog / directions updated **in place** (locate-before-write):
-      `nks_semantic_search` a sample of subsystems, capabilities, directions —
+      `verstak_semantic_search` a sample of subsystems, capabilities, directions —
       each exists exactly once; duplicates merged or deleted.
 - [ ] Realm absent → creation was *proposed* and approved, never silent.
 

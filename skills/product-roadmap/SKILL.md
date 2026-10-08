@@ -1,6 +1,6 @@
 ---
 name: product-roadmap
-description: "Use this skill to build a product roadmap for a GitHub repository — or a multi-repo product (a whole org, or a set of repos forming one product) — derived from its issues and PRs through an NKS reasoning graph. Triggers: 'roadmap from repo', 'build a roadmap from issues', 'roadmap from github', 'roadmap for my org', 'multi-repo roadmap', 'roadmap across repos', 'quick roadmap', 'roadmap teaser', 'собери роадмап из issues/PR', 'роадмап по продукту', 'что в этом репо делать дальше', product-roadmap. Role-plays the maintainer: verified present-state ground, weighted backlog as shabda, directions underway (bianhua), rendered as graph + markdown + local HTML. Composes verstakify, intake, and assembly. Needs the gh CLI and nks_* MCP tools."
+description: "Use this skill to build a product roadmap for a GitHub repository — or a multi-repo product (a whole org, or a set of repos forming one product) — derived from its issues and PRs through an NKS reasoning graph. Triggers: 'roadmap from repo', 'build a roadmap from issues', 'roadmap from github', 'roadmap for my org', 'multi-repo roadmap', 'roadmap across repos', 'quick roadmap', 'roadmap teaser', 'собери роадмап из issues/PR', 'роадмап по продукту', 'что в этом репо делать дальше', product-roadmap. Role-plays the maintainer: verified present-state ground, weighted backlog as shabda, directions underway (bianhua), rendered as graph + markdown + local HTML. Composes verstakify, intake, and assembly. Needs the gh CLI and verstak_* MCP tools."
 ---
 
 # Product Roadmap
@@ -61,7 +61,7 @@ publish without it.
 - **A local checkout of each in-scope repo** (`git clone --depth 1`; private:
   `gh repo clone`). Step 2 reads real code structure — modeling from `gh` metadata
   alone under-serves the product.
-- nks_* MCP tools; a realm per the re-run contract above.
+- verstak_* MCP tools; a realm per the re-run contract above.
 - Run heavy steps (product model, harvest, graph writes, assembly, render) via
   subagents; hand results between steps as **files on disk** and return short
   confirmations + paths — large returns drop the connection. Verify a
@@ -74,8 +74,8 @@ publish without it.
 - Identify the target — one `owner/repo` or the repo set (org or maintainer-named
   list) — and the product boundary in one line. Multiple repos: confirm they are
   one product and which are in scope.
-- Locate the realm + focus holon first (`nks_realm` list; `nks_orient` /
-  `nks_semantic_search`). Exists → orient in and treat the run as an incremental
+- Locate the realm + focus holon first (`verstak_realm` list; `verstak_orient` /
+  `verstak_semantic_search`). Exists → orient in and treat the run as an incremental
   refresh. Absent → propose creation, create only on the maintainer's go-ahead.
 - Exactly **one focus holon** named after the **product**, `contains`-linked from
   root — one holon even across many repos, never one per repo.
@@ -245,7 +245,7 @@ bianhua per single vimarsha; risks stay risks.
   capability is floating: either genuinely new ground (say so explicitly) or a sign
   Step 2 under-modeled (go seed the missing capability).
 - **Surface structural risks from the graph's own tensions**
-  (`nks_orient(lens="tensions")`): a capability with no producing flow, an estafeta
+  (`verstak_orient(lens="tensions")`): a capability with no producing flow, an estafeta
   relay-gap, a deed with no karta — the graph's self-diagnosis, distinct from
   backlog-derived risks; a flat ticket list structurally cannot produce these.
   **Multi-repo: a cross-repo dead-recipe or relay-gap is the highest-value
@@ -280,7 +280,7 @@ bianhua per single vimarsha; risks stay risks.
 The roadmap leads with the assembled cross-repo picture and what the graph found —
 the differentiated value on the first screen, not buried. Three artifacts:
 
-1. **Graph** — `nks_orient(lens="bianhua")`; the HTML renders it as a visual graph
+1. **Graph** — `verstak_orient(lens="bianhua")`; the HTML renders it as a visual graph
    view (spine + directions in dependency order + structural-risk flags).
 2. **`roadmap.md`**, in this order:
    - **"The product, assembled"** — subsystems (one per repo) + the cross-repo

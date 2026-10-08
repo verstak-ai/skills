@@ -2,7 +2,7 @@
 
 The shape `minding` fills at bootstrap (§3) and keeps true at reconcile (§2). Not a
 document to paste: a **node set to build**, designed so that a single
-`nks_orient(realm="@<handle>/mind")` prints the routing answer with no lens and no
+`verstak_orient(realm="@<handle>/mind")` prints the routing answer with no lens and no
 follow-up call.
 
 That design goal governs every choice below. The overview prints **root holons**,
@@ -11,7 +11,7 @@ carry everything recall needs, and nothing else needs to be cheap.
 
 ## 1 · The realm
 
-`nks_realm(action="create", slug="mind", name=<the person's own words>)`.
+`verstak_realm(action="create", slug="mind", name=<the person's own words>)`.
 
 Owner is the user, always personal — never transferred to an organization. An org
 has no personal contour; a team-scoped variant is deliberately out of scope.
@@ -21,7 +21,7 @@ has no personal contour; a team-scoped variant is deliberately out of scope.
 One **svatantra 主** karta, bound to the human identity:
 
 ```
-nks_add_karta(realm=…, name="👤 <role name in the user's words>",
+verstak_add_karta(realm=…, name="👤 <role name in the user's words>",
   motivation=<what drives them across all contours — not a job title>,
   manifested_as="svatantra", user="me",
   epistemic_mode="pratyakshita", ontic_mode="vartamana", volitive_mode="upeksha")
@@ -31,7 +31,7 @@ nks_add_karta(realm=…, name="👤 <role name in the user's words>",
 realm. Give it a `steward` edge to each contour holon it answers for.
 
 Do **not** re-create the roles the person holds in project realms — those live
-there and come back from `nks_me(action="kartas")` in one call. Duplicating them
+there and come back from `verstak_me(action="kartas")` in one call. Duplicating them
 here creates a second source of truth that drifts.
 
 ## 2b · The people of your contours
@@ -41,7 +41,7 @@ counterparties, clients and household of that boundary. Model each as the
 **role they play in your contour**, with its own motivation (a person's name is
 still not a karta — **writing** Decision 2b):
 
-- `user=<their sub>` when they are on the platform (`nks_admin(action="search_users")`
+- `user=<their sub>` when they are on the platform (`verstak_admin(action="search_users")`
   finds it) — that binding is what lets the graph know it is the same person you
   meet in a project realm;
 - `manifested_as="agantuka"` 客 for anyone who answers on their own time from
@@ -80,7 +80,7 @@ home for facts that otherwise live on one machine and die with it.
 A realm is addressable outside the graph, so it is a `ding`.
 
 ```
-nks_add_phenomenon(realm=…, name="🗂 <realm name>", given_as="ding",
+verstak_add_phenomenon(realm=…, name="🗂 <realm name>", given_as="ding",
   description=<what it is FOR, and when to route a question here>,
   attrs={"key": true, "address": "@owner/slug", "state": "live|dormant"},
   arrows=[{arrow_type:"context", target:<contour holon>, volitive_mode:…}],
@@ -99,7 +99,7 @@ the reason).
 ## 5 · Disposable classes — one rule, not N cards
 
 ```
-nks_add_phenomenon(realm=…, given_as="grundsatz", attrs={"key": true},
+verstak_add_phenomenon(realm=…, given_as="grundsatz", attrs={"key": true},
   name="⚖️ Realms matching <pattern> are disposable",
   description="<pattern> marks throwaway realms — benchmark runs, experiments.
     Never route a question there, never index them individually, retire on sight.",
@@ -193,7 +193,7 @@ immediately; a second map does not, until the first one is being read.
 ## 10 · What never goes in
 
 - the realm list, access levels, roles, org membership — derived, re-read live;
-- which kartas the person holds — `nks_me(action="kartas")`;
+- which kartas the person holds — `verstak_me(action="kartas")`;
 - a stored cross-realm agenda — derived every time (SKILL.md §4);
 - **a dossier on a person** — a description of what someone is *like*. The role,
   the binding and what is open with them are modelled (§2b); an assessment of the
@@ -206,11 +206,11 @@ immediately; a second map does not, until the first one is being read.
 
 Re-check when the nks-mcp surface changes; each row is one call.
 
-- [ ] `nks_me(action="whoami")` still prints the handle, and `action="kartas"` still
+- [ ] `verstak_me(action="whoami")` still prints the handle, and `action="kartas"` still
       returns cross-realm kartas addressed as `#seq · <realm-slug>`.
-- [ ] `user="me"` still exists on `nks_add_karta` and `nks_update` (the binding is
+- [ ] `user="me"` still exists on `verstak_add_karta` and `verstak_update` (the binding is
       what §2 and SKILL.md §2.3 rest on).
-- [ ] `nks_realm(action="list")`, `nks_org(action="list")` unchanged in shape.
+- [ ] `verstak_realm(action="list")`, `verstak_org(action="list")` unchanged in shape.
 - [ ] The realm address form `@owner/slug` still resolves, and an unknown address
       still fails with a legible `Realm not found` naming the address — SKILL.md §1
       reads that specific error as "not bootstrapped".

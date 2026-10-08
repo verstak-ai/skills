@@ -1,14 +1,14 @@
 ---
 name: establish-mcp
-description: "Reaching the NKS graph when the harness cannot: nks_* MCP tools are absent, MCP registration fails, or the native OAuth experience keeps failing the user. Ships and raises verstak-bridge — a stdio to streamable-HTTP MCP bridge with the full OAuth flow that never answers the harness with silence. Triggers: 'подключи граф', 'подними мост', 'nks тулы недоступны', 'mcp не подключается', 'oauth не проходит', 'oauth отваливается', 'connect to the graph', 'set up NKS MCP', 'raise the bridge', 'MCP tools missing', tool calls timing out while the server is alive, or a harness whose MCP config takes only command plus args. Composes entry (which needs the tools this skill provides) and verstakify (which wires registration into a repo)."
+description: "Reaching the NKS graph when the harness cannot: verstak_* MCP tools are absent, MCP registration fails, or the native OAuth experience keeps failing the user. Ships and raises verstak-bridge — a stdio to streamable-HTTP MCP bridge with the full OAuth flow that never answers the harness with silence. Triggers: 'подключи граф', 'подними мост', 'nks тулы недоступны', 'mcp не подключается', 'oauth не проходит', 'oauth отваливается', 'connect to the graph', 'set up NKS MCP', 'raise the bridge', 'MCP tools missing', tool calls timing out while the server is alive, or a harness whose MCP config takes only command plus args. Composes entry (which needs the tools this skill provides) and verstakify (which wires registration into a repo)."
 ---
 
 # Establish MCP — reaching the graph when the harness cannot
 
-Every other skill in this delivery assumes the `nks_*` MCP tools are already in
+Every other skill in this delivery assumes the `verstak_*` MCP tools are already in
 the session. This one exists for when they are not — or when they are there in
 name and fail in use. Its job ends where entry's begins: a session whose first
-`nks_orient` call answers.
+`verstak_orient` call answers.
 
 The server is remote (streamable HTTP + OAuth); nothing of it installs on the
 user's machine. What installs is this delivery — and it carries its own
@@ -87,7 +87,7 @@ opened browser is native support working; a `401` followed by silence is row 2.
    while idle, so an unused session does not decay into a dead grant.
 
 5. **Verify by calling, not by config.** Restart the harness's MCP layer and
-   run one real tool call (`nks_realm(action="list")` or an orient). The bridge
+   run one real tool call (`verstak_realm(action="list")` or an orient). The bridge
    is connected when the call answers; anything less is not done.
 
 ## What the bridge guarantees — and how to read its errors
@@ -133,7 +133,7 @@ Knobs, when the defaults pinch: `--timeout` ms per request (default 120000),
 ## First aid when the session is on mcp-remote
 
 A harness still bridged by `mcp-remote` (npx) fails in a known shape: every
-`nks_*` call times out while the server is alive on its other surfaces. That is
+`verstak_*` call times out while the server is alive on its other surfaces. That is
 the half-dead bridge — the process answers the harness on stdio while its TCP
 to the server is gone, and it neither errors nor reconnects.
 
