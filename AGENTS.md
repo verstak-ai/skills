@@ -1,177 +1,177 @@
-# verstak-ai/skills
-Agent-facing NKS and implementation-verification skill bundles (Claude Code skills), including `verstakify` — the skill that bootstraps any repo to this `AGENTS.md` standard.
+---
+'Nature': 'library — a reusable skill corpus consumed by agents in other repos; relaxed vs production: the prose has no behavioural tests (gate = format + surface lint, substance by human review of the diff); the bundled verstak-bridge is the exception and carries a behavioural suite (make test)'
+'Nature — source': 'derived'
+'Graph': '@nks/nks-dev (r5)'
+'Graph — source': 'derived'
+'Focus holon': '#844 "📦 verstak-ai/skills (agent skills)"'
+'Focus holon — source': 'derived'
+'Repository': 'github.com/verstak-ai/skills — the holon''s repository attr, from origin'
+'Repository — source': 'derived'
+'Agent role': '#931 "👨‍💻 Agent skill-repository developer" — adhikarin, steward of the holon (also of the sibling delivery holon #1506); inbox verstak_orient(focus="931")'
+'Agent role — source': 'derived'
+'Owner role': '#1226 "👑 Product owner" — svatantra, the posed_to address for out-of-mandate questions'
+'Owner role — source': 'derived'
+'Stack': 'Markdown skill corpus (one door, methods, references, templates) packed into verstak.skill; the bridge in TypeScript under js/ (the sibling core + our delivery layer), built by esbuild into dependency-free files; Node + bash for build and gate; Claude Code plugin marketplace versioned by release-please'
+'Stack — source': 'derived'
+'Gate': 'make check (validate + check-bundles + check-surface + check-core + lint + format-check + typecheck + check-js + test); CI runs the same targets'
+'Gate — source': 'derived'
+'Consumers': 'agents in other repos that load the installed skill every session; they learn of breakage only as method drift, never a crash; the bridge''s failures land on a human whose browser login went nowhere'
+'Consumers — source': 'derived'
+'Cost of breakage': 'a wrong instruction (e.g. a tool the surface dropped) silently degrades every agent that loads the skill; keeping the corpus in sync with the tool surface is the core maintenance obligation'
+'Cost of breakage — source': 'derived'
+'Reality': 'REALITY.md at the root — read when needed (the Reality section below)'
+'Reality — source': 'derived'
+'Layout': 'code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844'
+'Layout — source': 'derived'
+'Cross-project memory': 'personal graph @handle/mind — never a global instructions file or the memory directory'
+'Cross-project memory — source': 'derived: template default'
+'Feedback reflection': 'yes — default'
+'Feedback reflection — source': 'derived: template default'
+'Workflow-suite interop': 'none'
+'Workflow-suite interop — source': 'derived'
+'Agreement': 'none'
+'Agreement — source': 'derived'
+---
+# `verstak-ai/skills`
+The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
 
-## What this project is
-- **Nature**: `library` — reusable Claude Code skill bundles consumed by agents in other repos. Relaxed vs production: content is prose + methodology, so for the skills there are no behavioural tests. The gates are (1) human review of the `SKILL.md` diff plus the skills' own discipline and (2) a lightweight CI that validates the frontmatter contract and bundle sync (`make check`). The one shipped **code** artifact — `verstak-bridge` — is the exception and carries a real behavioural suite (`make test`): its failures are silent for the agent and land on a human whose browser login went nowhere. Breakage is otherwise silent, not loud (see Production statement) — CI catches the mechanical classes: malformed frontmatter, drifted bundles, manifest lists out of step with the tree, and tool names / enum values that the committed surface snapshot does not carry.
-- **NKS realm**: `r5` (`@nks/nks-dev`) — every session starts with `verstak_orient` here. `r5` is the immutable short id and survives a rename; never pass the bare slug `nks-dev` (deprecated, ambiguous across owners). Verify the `REALM:` header on the first orient.
-- **Focus holon**: `#844 «📦 verstak-ai/skills (скиллы агента)»`.
-- **Agent karta**: `#931 «👨‍💻 Разработчик скилл-репозиториев агента»` — adhikarin, steward of #844 (also stewards the sibling delivery's skill set, holon #1506). Your inbox: `verstak_orient(realm="r5", focus="931")` at session start. No seq recorded here → the repo is not verstakified; run verstakify before acting.
-- **Owner karta**: `#1226 «👑 Владелец продукта»` (svatantra 主) — out-of-mandate questions go there as `posed_to` vimarshas.
-- **Stack**: Markdown `SKILL.md` files under `skills/<name>/`, packaged into derived `<name>.skill` zip bundles via `make build`. Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), versioned by semver in `.claude-plugin/plugin.json` — bumped by **release-please**, which maintains a release PR from the Conventional Commits on `main` (feat→minor, feat!/BREAKING→major, else patch); merging that PR writes the version, tags `vX.Y.Z`, and cuts a GitHub Release with a `CHANGELOG.md` entry (`.github/workflows/release-please.yml` + `release-please-config.json`, never by hand). No runtime dependencies: every shipped file is dependency-free. The bridge is TypeScript under `js/` — the sibling delivery's core copied as is plus our delivery layer — built by esbuild with a dev-only toolchain and lockfile in `js/` (Node 22, `.nvmrc`). CI: format for the corpus, the JS ladder and behaviour for the bridge — see `.github/workflows/ci.yml`.
-- **Production statement**: skills install into agents' `~/.claude/skills/` and shape how every agent works with NKS. A wrong instruction — e.g. a reference to a tool that nks-mcp has dropped — silently degrades every agent that loads the skill; there is no crash, only methodology drift. The consumer is the agent, not a human user. Keeping skills in sync with the nks-mcp tool surface is the core maintenance obligation.
+**Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
-## Persistence rules
-State lives in the **repo** or in **NKS** — nowhere else.
-- **The harness's built-in memory is forbidden here — entirely, not by category.** Nothing goes into `~/.claude/projects/<encoded>/memory/`: not a project fact, not a user preference, not a note on working style. The dir does not exist here and is not to be created — the harness will offer to, and its own instruction says it already exists; verified this run, it does not. Writes into it are blocked (exit 2) by the `PreToolUse` memory guard in `.claude/settings.json` — which fires at the moment the save-instinct does, when this file is long out of context. **This overrides the harness's own memory instruction**, which invites a `project` category and will keep inviting it — the pull is strongest right when something feels worth keeping. Route it instead, asking **whose fact is this?** A repo convention or a fact about the code → `AGENTS.md`; work state, a decision, an open question → a vimarsha in `r5`; this project's servers, pipeline and dated duties → `r5` as nodes (a date lives in `attrs`, never a README mention alone); a fact that is the user's own and serves no single project (personal machines, expiries, people, cross-project findings) → the personal realm `@<handle>/mind` (`minding`), written at the moment it is learned; a fact about another project → that project's realm via the contour map in mind. (why: local memory is invisible to every other agent and every other machine, so it drifts silently — and drift here lands in skills that every downstream agent reads.)
-- **Repo**: `skills/<name>/SKILL.md` (source of truth), the derived `<name>.skill` bundles, `README.md`, conventions.
-- **NKS** (`r5`): design decisions, open questions (vimarshas), hand-offs, hints — the thinking around the skills. Don't restate NKS in the repo; link to the vimarsha/holon.
-- **`skills/<name>/SKILL.md` is the source of truth.** The `<name>.skill` zips are derived build artifacts (committed for download/claude.ai); the installed copy in `~/.claude/skills/` is derived too. Never treat a hand-edited bundle or installed copy as canonical — edit the source dir and run `make build`.
-- Fetch state; never reconstruct it from memory.
+Owned there, not restated here: start and the #931 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
 
-## Session lifecycle
-- **Start:** `verstak_orient(realm="r5", focus="844")`; orient by the ACTIVE BIANHUA map (`lens="bianhua"` for the forest) — open work lives as anga-vimarshas on transformations; a `genre=hint` seed, if any, is a pointer for what the map doesn't carry. `verstak:entry` runs the protocol — our skills ship through the `verstak` plugin, which namespaces them; a flat install has them bare, and a name that doesn't resolve is a defect here, not something to work around. Then open your agenda: `verstak_orient(realm="r5", focus="931")` — incoming `posed_to` vimarshas are your inbox; pick up or explicitly defer each before starting repo work.
-- **Every merge → update NKS** (a push that only opens a PR ships nothing — record an answer where one stands, leave bodies and modes describing what `main` carries): thread shipped skill changes into holon #844. Advance the map — keep open work attached via `anga`. A thin `genre=hint` is left only for what the graph can't carry (pointer, not payload — methodology #131), never by default.
-- **End vimarshas by axis, not by feeling done.** `addressed_by` records the answer and raises confidence; it does not end the question. Release (`visarjana`) is a separate volitional act, and what it takes first depends on the question — a distinction is answered by its form, a behavioral claim needs the observation on its carrier. Release it yourself when three things hold together — the answer stands in the realm as a node rather than in your recollection, the repo shows it, and reality shows it as far as reality is reachable (where it isn't, the user's word stands in its place, and you asked for it). Short of all three, prepare the release and present it to the owner (#1226) instead of assuming it. Release is not the only ending — park, supersede, or crystallize what the question taught. Each node's `Carrier:` line states which mode actually closes it; read it rather than reaching for `visarjana` by habit.
-- **Every skill is a pair — map both halves, and map the kriya by steps.** The **phenomenon** (`given_as=vollzug`, «Скилл <name>», #845…) carries the method as an artefact: it names *what the method is* and how kriyas touch it, and does **not** retell the protocol — a phenomenon description that reads as a summary of `SKILL.md` is transcription, not modelling. The **applying kriya** (#924…) carries the method as it runs, and is decomposed **step by step**: one sub-kriya per protocol phase (`contains`-child) with its own pariṇāma, `ahara`/`utpatti`, `actor`, `next` into each tool-kriya it calls (MCP contour — #296 `verstak_orient`, #309 `verstak_search`, #859 `verstak_arrow`…), and `upadhi` to any skill it composes (e.g. autonomous's close → weaving #848). A phase whose actor is **not** the agent — owner acceptance of telos, goal, or gate — is its own kriya (#1583, #1619, #1658, #1678): one kriya, one actor. New skill → new phenomenon + applying kriya, decomposed the same way; a changed protocol → the sub-kriyas move with it. The applying kriya and its `contains`-children are the **traversable model** — the protocol is represented as structure (steps, inputs, actors, edges), never as prose copied from the file; the obligation is that the pair *corresponds to* the shipped `SKILL.md`, which stays the source of truth.
-- **Why the step-map is load-bearing:** it is the instrument for steering skill development. A tool rename's blast radius, a skill's real composition, and the method's correspondence-or-drift against the **methodology** canon become graph traversals instead of re-readings of prose — mismatch surfaces as a structural tension, not as a hunch. Prose in `SKILL.md` stays the source of truth; the graph is the model of that truth, and a model you can't query can't steer anything.
-- **Keep git refs out of NKS** — no SHAs, branch names, or PR numbers in nodes.
-- **Skill ↔ tool sync is the recurring driver:** when nks-mcp renames or drops a tool (zontik #833 waves), the matching skill edits land here, ideally in the same atomic unit of time.
+## Persistence
+- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
+- The memory directory (`~/.claude/projects/-Users-...-skills/memory/`) does not exist here; don't create it — not for a project fact, a preference or a note on working style. The harness's own memory instruction says it exists and invites a `project` category; this file overrides it. The `PreToolUse` memory guard blocks writes (exit 2). Where a fact goes: the door, `Routes`, Keep — here work state and questions are vimarshas in `r5`, this project's servers and dated duties are `r5` nodes with the date in `attrs`.
+- `skills/verstak/` is the source of truth. `verstak.skill`, `~/.claude/skills/` and the plugin cache are derived: never read one as the method or edit it.
+- Rituals (start, push, merge, memory guard) are wired in `.claude/settings.json`; add beside other suites' entries. Hook text is English.
 
-### After a green push: self-review
-Format gate green and the iteration done → re-read your own diff before calling it finished. Here the diff is prose, so the questions are prose questions: does any line instruct into a refusal the surface actually makes; does a rule scold where it should name the checkable sign; is a step's obligation stated or only implied; did a fix to one node's wording leave the same wording standing on a sibling. Fix in the **same branch** and push again, or say plainly that nothing surfaced. Don't invent findings to look diligent.
+## Where things live
+| Concern | Home |
+|---|---|
+| Skill source, bridge, build, manifests, conventions | repo (`skills/verstak/`, `scripts/`, `.claude-plugin/`), this file |
+| Gotchas | graph nodes on #844 |
+| Branch state, work in flight | git + PR with the case number; node modes and the transformation's seed (`methods/writing.md`, Decision 5) |
+| Decisions, plans, questions of substance | `r5`: nodes, vimarshas `anga` to the transformations on #844 |
+| The model of each shipped method | `r5`: its pair (below) |
+| One-off tasks, conversation | a case |
+| Commit history, PRs, SHAs | git, never the graph |
 
-### Branch discipline
-One branch through to its merge — commit follow-ups into it, don't chain new branches before it merges.
+No `HANDOVER.md`.
 
-**Start every branch from a freshly fetched `origin/main`:** `git fetch origin && git switch -c <name> origin/main`. Never from wherever you happen to be standing. Merges here are **squashes**, so a merged branch's own commits exist nowhere on `main` — branch off one and you replay work that is already there, and the PR conflicts with itself. This bites hardest right after a merge, when the tree looks current and isn't.
+## Graph work here
+- **Every method is a pair in `r5`, mapped by steps.** The **phenomenon** (`given_as=vollzug`, "Method NAME", #845…) names what the method is and how kriyas touch it — never a summary of the method file. The **applying kriya** (#924…) is the method as it runs: one `contains`-child per protocol phase, each with its own pariṇāma, `ahara`/`utpatti`, `actor`, `next` into each tool-kriya it calls (#296, #309, #859…) and `upadhi` to each method it composes (autonomous's close → weaving #848).
+- A phase whose actor is not the agent — owner acceptance of a telos, goal or gate — is its own kriya (#1583, #1619, #1658, #1678): one kriya, one actor.
+- New method → a new pair, decomposed the same way; a changed protocol → its sub-kriyas move with it. The pair corresponds to the shipped file, which stays the source of truth. (why: the step map steers skill development — a tool rename's blast radius, a method's real composition and its drift from the methodology canon become traversals, and a mismatch surfaces as a tension, not a hunch.)
+- **Releasing a vimarsha** (`visarjana`) is yours only when the answer stands as a node, the repo shows it, and reality shows it as far as reachable (where not, the user's word, asked for). Short of all three, prepare the release and present it to #1226. Each node's `Carrier:` line names the mode that closes it.
+- **Skill ↔ tool sync is the recurring driver:** a tool renamed or dropped on the surface (the #833 waves) → the matching skill edits land here in the same unit of time.
 
-That form also works in a **worktree**, where the usual `git checkout main` fails outright (`main` is checked out in the primary clone) — which is exactly the wrong turn that produced the conflict this rule exists to prevent. After merge in a worktree: fetch, verify your work is on `origin/main`, and start the next branch from it; branch deletion belongs to the clone that holds `main`. Then update NKS (#844 + end what the merge settled, by axis).
-
-## Working principles
-1. **Think before editing.** Orient in `r5`; read the bianhua map. Inspect the real source in `skills/<name>/SKILL.md` — not the derived `.skill` zip, not the installed copy, not assumptions.
-2. **Surgical changes.** Touch only the skill steps the task needs. Match each bundle's existing register and terminology. Don't mass-rewrite a bundle for one fix unless asked.
-3. **Sync over invention, and verify before asserting a limit.** A skill instruction must match the live nks-mcp tool surface — verify tool names exist before writing them into a skill. "There is no way to do X" is a claim about your own toolbox, never about the platform: check it, then ask whoever demonstrably does the thing — sibling kartas hold live channels (`verstak_channel(action="list")` shows who) and answer in minutes, so waking one is cheaper than deducing their surface. **Merged is not deployed**, and a tool's own description can lag the platform it describes: where prose and observed behaviour disagree, behaviour wins, and the gap goes to whoever owns that surface. (why: an unchecked claim written into a skill becomes a surface other agents then read as fact.)
-4. **Ask in prose, never in a picker.** Every question to the user — clarification, a fork in the road, an owner's call on a telos — is asked as plain text in the reply. Do not use the AskUserQuestion tool (option widgets, multiple-choice cards) here: it flattens a question that needs its context into pre-chewed options and costs a round-trip to say no to. State the question, name the real alternatives and your recommendation, and let the answer come back as text.
-5. **Terminology is load-bearing.** Skills teach vocabulary to every downstream agent. Use the realm's current terms (`phenomenon`, not the retired `entity`); a typed primitive (target of given_as / ahara / upadhi / context) is a `phenomenon`, a generic graph object is a `node`.
-6. **Skill prose instructs; it never moralises.** Write a rule as the question worth asking plus its checkable signs — not as an accusation aimed at the agent about to read it. That agent cannot argue with the text, only comply, so a harsh rule doesn't make it careful, it makes it avoid the move entirely. Where a rule can be over- *or* under-applied, say outright which of the two errors costs more; otherwise the agent optimises against whichever one the text scolds louder.
+## Reality
+Before saying "works", switching a mode or ending a question, read your claim class's row in `REALITY.md`; it goes whole into a `verifier` or `reviewer` brief. First row: Format — `make check` against the committed `verstak.skill` and `skills/verstak/`. Its Ceiling (whether a reader of a skill then acts differently) is never closed as verified.
 
 ## Shared surfaces
 Touching one obliges checking the others. Found by graph traversal, not by grep — a rule with several consumers looks like one ordinary node.
 
 | Surface | Consumers | Note |
 |---|---|---|
-| `skills/verstakify/references/agents-template.md` | every repo verstakify will ever bootstrap | changing a section changes configs already generated — that is what the contract counter is for |
-| Frontmatter contract (`scripts/validate-skills.mjs`) | every `SKILL.md` file | three keys and no others; the validator is the contract, read it before adding a key |
-| `assistant`'s `## Map` section, the `assistant` and `widgets` names and their one-line descriptions | the verstak.ai conversation home, which loads them by name and lifts the Map into its prompt | one `## Map` heading, at most 1500 code points; `make validate` holds it |
+| `skills/verstak/templates/agents-template.md` | every repo align will ever bootstrap | changing a section changes configs already generated — that is what the contract counter is for |
+| Frontmatter contract (`scripts/validate-skills.mjs`) | the one `SKILL.md` door | three keys and no others; methods, references and templates have no frontmatter |
+| `methods/assistant.md`'s `## Map`, the `assistant`, `minding` and `widgets` methods, their descriptions in `scripts/build-home.mjs` | the verstak.ai conversation home, which reads `home/` by name and lifts the Map into its prompt | one `## Map` heading, at most 1500 code points; the home sees no door, method or reference, so a new pointer in these methods needs a rewrite in `build-home.mjs` or the build fails |
 | `collaborate` address-line contract | this skill + the bridge that relays a human onto an agent's channel | deliberately duplicated: neither side can read the other's copy, so drift is caught by meaning alone |
-| grundsatz nodes in `#844` (writing/placement rules) | several applying kriyas each, via `upadhi` | a duplicate principle grows here unseen — one rule under two nodes with disjoint consumers, fixed on one and stale on the other |
-| The sibling delivery's skill set (holon #1506) | its own deployment, on a separate NKS instance | a realm address hardcoded in a skill does not survive the crossing |
+| grundsatz nodes in #844 (writing/placement rules) | several applying kriyas each, via `upadhi` | a duplicate principle grows here unseen — one rule under two nodes with disjoint consumers, fixed on one and stale on the other |
+| Sibling delivery (holon #1506) | its own deployment, on a separate graph instance | a realm address hardcoded in a skill does not survive the crossing |
 | The bridge core `js/{bridge,shared,opencode,extension,watchdog,cli}` | the sibling delivery, which owns it; our build | copied byte for byte, pinned by `js/core.lock`; a core change lands upstream with its suite and comes here by `scripts/sync-core.sh` |
 | The export set of `js/delivery/index.ts` | every core file (it imports the layer by this one path) | a missing or reshaped export is a `make typecheck` error in the core; a new core export lands here in the same sync |
-
-## Reality — what a claim is verified against
-| Claim class | Canonical carrier | How to observe | Who can |
-|---|---|---|---|
-| Format — frontmatter parses, bundles match source, manifests match the tree | the committed `<name>.skill` zips + `skills/` | `make check` | agent |
-| Surface sync (loud half) — every tool name and enum value the corpus writes exists on the surface | `fixtures/surface.json` (snapshot; refreshed via `make surface`) | `make check-surface`; the silent half — behavioural claims — stays with human review | agent |
-| Channel format — the corpus passes a consuming channel's own loader | that channel's loader (claude.ai plugin upload) | only by attempting the upload; `make validate` carries rules learned from observed refusals as superset bans (e.g. no `<`/`>` in descriptions) | user |
-| Delivery — the method actually reaches an agent | the installed plugin in the harness cache | `cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json` against `gh release view` | agent |
-| Delivery (claude.ai) — a release actually reaches that channel | the uploaded `verstak.zip` in a claude.ai account | a human uploads the release asset and watches it install — agent-unreachable; the user's word is the carrier | user |
-| Substance — a skill's instruction matches the tool surface | the live nks-mcp surface | attempt the call the skill prescribes and read the refusal or the result | agent |
-| Graph correspondence — the model matches the shipped method | `r5` | `verstak_orient(lens="tensions", focus="844")` before and after | agent |
-| Transport (mechanism) — the bridge's OAuth machinery: discovery, DCR, PKCE, the loopback listener, code exchange, refresh rotation, session recovery, the machine daemon | `js/tests/bridge.test.mjs` against the local fake in `js/tests/fake-server.mjs`, over the dev build | `make test` — the bridge is spawned as a harness spawns it, and the test plays the human's click on the login link | agent |
-| Core behaviour — standing, channel, watchdogs, OpenCode and pi halves | the sibling delivery's suite at the commit in `js/core.lock` | that repository's CI on the pinned commit; here only the build of the same bytes and the layer's contracts are tested | agent |
-| Transport (the real crossing) — the bundled bridge carries an agent to *this* graph through *this* identity provider | a live instance + a human browser | agent-observable up to the authorize URL; the consent click against the real IdP and the first answered `nks_*` call are agent-unreachable — the user's word after a live run is the carrier. The fake proves the mechanism, never the crossing | agent + user |
-
-**Ceiling**: whether an agent that *read* a skill then acts differently. Nothing here observes it: the reader is another agent in another session, and the effect shows up as method drift, not as a failure. Today its only carriers are a case in `@nks/feedback` and the user's word. The intended carrier is an agentic check — in CI, or subagents asked a comprehension question about the skill — and until it exists this class is never closed as verified.
-
-**This table grows by use.** The moment a session teaches you a carrier nobody named, an observation that turned out reachable, or one that turned out not to be (→ *Ceiling*), write the row *then*, before the work that taught it is closed. (why: an unrecorded carrier is one the next agent doesn't find, so the same claim gets accepted on weaker evidence next time.)
-
-## NKS ↔ repo: where things live
-| Concern | Repo | NKS |
-|---|---|---|
-| `skills/<name>/SKILL.md` (source of truth) + derived `.skill` bundles | ✓ | |
-| `.claude-plugin/marketplace.json`, build (`Makefile`, `scripts/`, `.githooks/`) | ✓ | |
-| README, conventions | ✓ (AGENTS.md) | |
-| Design decisions, open questions | | ✓ (vimarshas) |
-| Plans, hand-offs | | ✓ (bianhua map + anga-vimarshas on #844; thin `genre=hint` only for off-map remainder) |
-| Commit history, SHAs, PRs | git | (never NKS) |
-
-## The bootstrap template lives in the `verstakify` skill
-The fill-in `AGENTS.md` skeleton for future repos is `skills/verstakify/references/agents-template.md`; the bootstrap protocol is `skills/verstakify/SKILL.md`. **This** repo's own config is `AGENTS.md` (the file you are reading). Edit the template/protocol to improve bootstrapping for all future repos — don't confuse them with this file.
+| The skill layout: `js/delivery/product.ts` (`BRIDGE_SKILL`, `BRIDGE_FILE`, `PLUGIN_FILE`, `SKILL_STAMP_MASK`), the output paths in `js/build.mjs`, `js/tests/built.mjs`, `scripts/check-outputs-frozen.sh`, `.mcp.json`, `SETUP.md` | the core's set recognition (`verstak/SKILL.md` + `verstak/scripts/verstak-bridge.mjs`), self-update downloads, doctor, the plugin's MCP entry, installers | one layout named in several places; moving the bridge moves all of them, and bridges already released keep fetching their own path |
 
 ## Stack
-Markdown `skills/<name>/SKILL.md` (+ optional `skills/<name>/references/*.md`) per skill — **edit these directly, they are plain files and fully greppable.** Each is packed into a derived `<name>.skill` zip (top-level `<name>/` dir containing `SKILL.md`) by `make build`. The code is the bridge under `js/` (its outputs are committed under `skills/establish-mcp/scripts/` and `extensions/`) plus the build and gate scripts (`scripts/*.sh`, `scripts/*.mjs`), run by `make` and CI. The only lockfile is the dev toolchain's, `js/package-lock.json`.
+- Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), semver in `.claude-plugin/plugin.json`, bumped by **release-please** from the Conventional Commits on `main` (feat → minor, feat!/BREAKING → major, else patch): merging its release PR writes the version, tags `vX.Y.Z` and cuts a GitHub Release with a `CHANGELOG.md` entry. Never by hand.
+- No runtime dependencies: every shipped file is dependency-free. The bridge is TypeScript under `js/` — the sibling delivery's core copied as is plus our English delivery layer `js/delivery/` — built by esbuild with a dev-only toolchain and the only lockfile in `js/` (Node 22, `.nvmrc`; never at the root: Claude Code runs `npm ci` on a plugin whose root carries one).
+- The committed JS outputs (`skills/verstak/scripts/verstak-bridge.mjs`, `skills/verstak/scripts/opencode-plugin.js`, `extensions/verstak.js`) are a **release build**, written only by the release job (`make build-release` in `bundle-sync`); a working copy builds dev into `dist/dev/`, which the tests run.
+- CI: format and surface lint for the corpus, the JS ladder (core boundary, lint, format, types, release-build check) and behaviour for the bridge — `.github/workflows/ci.yml`.
 
 ## Commands
-Edit the source under `skills/<name>/` directly — no unzip dance. The `<name>.skill` zips are regenerated, not hand-edited.
+Edit the source under `skills/verstak/` directly — no unzip dance.
 
 | Task | Command |
 |---|---|
-| Find / search across skills | `grep`/`Grep` over `skills/` (it's plain text) |
-| Edit a skill | edit `skills/<name>/SKILL.md` |
-| Rebuild the `.skill` bundles | `make build` (deterministic; or auto via the pre-commit hook) |
-| Build the claude.ai plugin archive | `make plugin` (→ `dist/verstak.zip`, gitignored) |
-| Enable the auto-rebuild hook | `make hooks` (sets `core.hooksPath -> .githooks`) |
-| Verify a bundle's contents | `unzip -l <name>.skill` |
+| Search the corpus | `grep` over `skills/` (plain text) |
+| Rebuild the bundle and `home/` | `make build` (dev JS build into `dist/dev/`, then `verstak.skill` and `home/`; the pre-commit hook does it) |
+| Enable the pre-commit hook, once per clone | `make hooks` (`core.hooksPath -> .githooks`) |
 | Install the JS toolchain, once per clone | `make deps` (`npm ci` in `js/`) |
-| Run the CI gate locally | `make check` (= `validate` + `check-bundles` + `check-surface` + `check-core` + `lint` + `format-check` + `typecheck` + `check-js` + `test`) |
+| Inspect the bundle | `unzip -l verstak.skill` |
+| Full gate | `make check` = `validate` + `check-bundles` + `check-surface` + `check-core` + `lint` + `format-check` + `typecheck` + `check-js` + `test` |
+| Frontmatter, inventories, links, banned text | `make validate` |
+| Bundle ↔ source | `make check-bundles` |
+| Corpus ↔ surface snapshot (offline) | `make check-surface` |
 | Core boundary and pin | `make check-core` (no delivery name in the core; the core equals `js/core.lock`) |
-| Sync the core from the sibling | `scripts/sync-core.sh <sibling-repo-dir> <ref>` |
-| Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, gitignored) |
+| Sync the core from the sibling | `scripts/sync-core.sh SIBLING_REPO_DIR REF` |
+| Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
 | Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the committed outputs carry no dev mark) |
-| Validate skill frontmatter only | `make validate` (pure Node, no deps) |
-| Check committed bundles ↔ source | `make check-bundles` |
-| Lint corpus ↔ surface snapshot | `make check-surface` (offline, against `fixtures/surface.json`) |
-| Run the bridge's behavioural tests | `make test` (offline; builds `dist/dev`, spawns the bridge against a local fake MCP + OAuth server, then the layer's own suites) |
-| Refresh the surface snapshot | `make surface` (network + authorized grant; speaks through the bundled verstak-bridge) |
+| Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs`) |
+| Refresh the surface snapshot (network + authorized grant, through the bundled bridge) | `make surface` |
 
-The pre-commit hook (`.githooks/pre-commit`) rebuilds and stages the `.skill` bundles on every commit, so committed zips never drift from source. Run `make hooks` once per clone to enable it. For the corpus the automated gate is **format and surface-consistency**, not behaviour: `make validate` parses each `SKILL.md` frontmatter (catching malformed YAML such as an unescaped quote in a `description`) and lints the AGENTS.md inventory line and README table against the `skills/` tree; `make check-bundles` confirms each `<name>.skill` contains a `<name>/` tree byte-identical to its source; `make check-surface` checks every `nks_*` name and enum value in the corpus against `fixtures/surface.json` — the committed snapshot of the live tool surface, refreshed by `make surface` when nks-mcp changes. For the bridge the gate *is* behavioural: `make test` spawns `verstak-bridge` over stdio against a local fake NKS + OAuth server and drives whole flows through it. All of them run in GitHub CI on every push/PR (`.github/workflows/ci.yml`). The substance of a skill — whether its prose and tool references are right — is still gated by human review of the diff.
+`make validate` also bans Cyrillic and the retired delivery name in every tracked text file except `CHANGELOG.md`.
 
 ## Project structure
-- `skills/<name>/SKILL.md` — **source of truth**, one dir per skill (`minding`, `entry`, `establish-mcp`, `writing`, `design`, `weaving`, `inquiry`, `assembly`, `integrity`, `reality-audit`, `intake`, `autonomous`, `collaborate`, `feedback`, `foreman`, `assistant`, `widgets`, `verstakify`, `product-roadmap`); `references/*` optional (`minding`, `verstakify`, `writing`, `product-roadmap` ship them; `collaborate` ships a runnable `references/watchdog.mjs`); `establish-mcp` ships the built `scripts/verstak-bridge.mjs` (the stdio↔https OAuth bridge with its daemon, watchdogs and doctor) and `scripts/opencode-plugin.js` — derived from `js/`, never edited by hand.
-- `*.skill` — derived zip bundles (committed for manual / claude.ai install). Build output of `make build`; do not hand-edit.
-- `.claude-plugin/marketplace.json` — plugin marketplace manifest (`verstak@verstak-ai`); `metadata.version` and the plugin entry's `version` both mirror `plugin.json` (release-please writes all three; `make validate` fails if they diverge). No component lists — the plugin's skills auto-discover from `skills/` (`strict: true`, plugin.json authoritative).
-- `.claude-plugin/plugin.json` — the `verstak` plugin manifest; its `version` is what Claude Code reads to deliver updates (bumped by release-please when the release PR merges, never by hand).
-- `release-please-config.json` + `.release-please-manifest.json` + `.github/workflows/release-please.yml` — release-please: it maintains a release PR from the Conventional Commits on `main`; merging that PR writes the version into `plugin.json`/`marketplace.json`, tags `vX.Y.Z`, and cuts a GitHub Release with a `CHANGELOG.md` entry; a follow-up job then builds `dist/verstak.zip` (`make plugin`) and attaches it to the Release — the claude.ai delivery artifact (that channel is manual-upload only, no auto-delivery).
-- `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (product names, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs`, the dev toolchain (`package.json`, lockfile, `tsconfig.json`, eslint, prettier).
+- `skills/verstak/SKILL.md` — **source of truth**, one skill (`verstak`); the door selects plain Markdown methods.
+- `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `minding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `widgets`, `writing`).
+- `skills/verstak/references/*.md`, `skills/verstak/templates/*` — supporting material without frontmatter. `templates/agents-template.md` + `methods/align.md` bootstrap other repos; this file is this repo's own config — don't confuse them.
+- `skills/verstak/scripts/verstak-bridge.mjs` — the stdio↔https OAuth bridge with its daemon, watchdogs and doctor; `skills/verstak/scripts/opencode-plugin.js` — the OpenCode plugin. Both derived from `js/`, never edited by hand.
+- `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (product names and the skill layout, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs`, the dev toolchain (`package.json`, lockfile, `tsconfig.json`, eslint, prettier).
 - `extensions/verstak.js` — the built pi extension (pi loads `extensions/`).
-- `Makefile`, `scripts/build-skills.sh`, `scripts/build-plugin.sh`, `js/build.mjs`, `.githooks/pre-commit` — the build.
-- `scripts/validate-skills.mjs` (frontmatter contract + manifest-list lint, pure Node), `scripts/check-bundles.sh` (bundle ↔ source sync), `scripts/check-surface.mjs` + `fixtures/surface.json` (corpus ↔ tool-surface lint; refreshed by `scripts/export-surface.mjs` through the bundled bridge), `scripts/check-core.mjs` + `scripts/check-core-lock.mjs` (core boundary and pin), `scripts/check-outputs-frozen.sh` (the committed outputs change only in the release PR; wired once the first release ships them), `.github/workflows/ci.yml` — the gate.
-- `js/tests/` — `node:test` suites: `bridge.test.mjs` drives the built bridge over stdio (full bridge and machine daemon), `fake-server.mjs` stands in for an OAuth-protected MCP server and answers the consent request the test makes on the human's behalf; `core-gate`, `delivery-words`, `delivery`, `coexist` test the core boundary and pin, the dictionaries' shape, the version and names, and a second product built from the same core. Black box on purpose — they run the dev build in `dist/dev`, or any copy named by `VERSTAK_BRIDGE_PATH` (the committed release build, an installed one, a past revision you want to watch fail).
-- `README.md` — short human-facing pointer.
-- `.claude/settings.json` — committed session rituals: the `PreToolUse` memory guard (blocks writes into the local memory dir), `SessionStart` (orient in `r5`, open the #931 inbox), `PostToolUse` on `Bash` (the push → update-NKS reminder, including the borrowed-vocabulary re-read). `settings.local.json` is gitignored. Hook text is English — its reader is an agent, like `skills/**`.
-- `CLAUDE.md` — a **symlink to `AGENTS.md`**, not a copy: Claude Code reads `CLAUDE.md`, every other harness reads `AGENTS.md`, and one file answers both. Editing `CLAUDE.md` edits `AGENTS.md` — there is no second file to keep in sync, and no import line to preserve.
-- `.claude/agents/` — delegation roles (`reader`, `worker`, `verifier`); the `description` field is what routes them, so it stays trigger-shaped.
-- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the plugin archive and the dev build), `node_modules/`. Scratch is **not** ignored: there is no `tmp/` here, so keep working files out of the tree or out of the commit yourself.
+- `.mcp.json` — the plugin's MCP server `verstak`: the bundled bridge, `node ${CLAUDE_PLUGIN_ROOT}/skills/verstak/scripts/verstak-bridge.mjs`.
+- `verstak.skill` — the only derived bundle (a top-level `verstak/` tree), committed for manual install.
+- `home/` — the verstak.ai conversation home's flat home catalogue (`assistant`, `minding`, `widgets`): `home/NAME/SKILL.md`, generated by `make build` (`scripts/build-home.mjs`) from `skills/verstak/methods/NAME.md` with frontmatter added and every pointer into the rest of the skill rewritten — derived, never edited. Outside `skills/`, so plugin auto-discovery never ships it.
+- `.claude-plugin/plugin.json` — its `version` is what Claude Code reads to deliver updates. `.claude-plugin/marketplace.json` — `metadata.version` and the plugin entry's `version` mirror it (`make validate` fails on divergence); no component lists, skills auto-discover from `skills/`.
+- `release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml` — releases; `CHANGELOG.md` is written by them.
+- `Makefile`, `scripts/build-skills.sh`, `js/build.mjs`, `.githooks/pre-commit` — the build. `scripts/validate-skills.mjs`, `scripts/check-bundles.sh`, `scripts/check-surface.mjs` + `fixtures/surface.json` (refreshed by `scripts/export-surface.mjs`), `scripts/check-core.mjs` + `scripts/check-core-lock.mjs` (core boundary and pin), `scripts/check-outputs-frozen.sh` (the committed outputs change only in the release PR; wired once the first release ships them), `.github/workflows/ci.yml` — the gate.
+- `js/tests/` — `node:test` suites: `bridge.test.mjs` drives the built bridge over stdio (full bridge and machine daemon), `fake-server.mjs` stands in for an OAuth-protected MCP server and answers the consent the test gives on the human's behalf; `core-gate`, `delivery-words`, `delivery`, `coexist` test the core boundary and pin, the dictionaries' shape, the version and names, and a second product built from the same core. Black box: they run `dist/dev`, or any copy named by `VERSTAK_BRIDGE_PATH`.
+- `DERIVATION.md` — the skills ← canon re-projection map and the four-layer language contract. `SETUP.md` — the agent-executable installer. `README.md` — short, for people.
+- `REALITY.md` — claim carriers. `CLAUDE.md` — a **symlink** to this file: one file answers every harness; keep it a symlink.
+- `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — delegation roles; their `description` routes them, so it stays trigger-shaped.
+- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules/`. Scratch is **not** ignored: keep working files out of the tree.
 
 ## Code conventions
-- **`SKILL.md` frontmatter**: `name:` (kebab, matches the skill dir) + `description:` carrying explicit trigger phrases — that description is what routes the skill, so keep triggers concrete. Add `slash: true` when the skill is meant to be typed as `/<name>` in OpenCode v2.
-- **Skill names are bare** — no `nks-`/`verstak-` prefix. The `verstak` plugin namespaces them (`/verstak:<skill>`), so a prefix would only stutter. Trade-off: flat installs (`npx skills`, manual unzip) drop skills into `~/.claude/skills/<name>/` under the bare name and can collide there — the plugin is the canonical, collision-proof channel (see NKS #844).
-- **Source of truth = `skills/<name>/SKILL.md`.** Edit it directly, then `make build` to regenerate the `<name>.skill` zip (which must contain `<name>/SKILL.md`, not a bare `SKILL.md`, or it won't install). New skill → add a `skills/<name>/` dir — it ships via plugin auto-discovery; never add component lists (`skills`, `commands`, …) to `marketplace.json`/`plugin.json` — a second copy of the truth drifts, and the format gate fails it.
-- **No realm seq-references in skills.** Skills ship to users who (almost certainly) have no access to `methodology`/`nks-dev`, and seq numbers are realm-instance-specific — a `#N` or `verstak_look(node_id=…, realm="methodology")` in a skill is dead weight or a wrong pointer downstream. Name concepts by name; keep syntax placeholders (`#42`, `#N`, GitHub `#123`) only. (The former exception-holder `methodology-work` ships only from the sibling delivery now.) Built outputs under `skills/establish-mcp/scripts/` and `extensions/` keep the core's code comments, graph references included: they are the sibling's source, not our prose, and are never edited here.
-- **A `references/*.md` file is read when something goes wrong, not when the step is being done.** So the minimum an agent needs to *execute* a step — the actual call, the one trap that bites on the first try — belongs in the `SKILL.md` body; the reference carries the surface's full shape, the failure table, the per-harness detail. Witnessed twice on live watches: the harness call for holding a socket sat only in `collaborate/references/channel.md`, and neither the doer standing the watch nor the one deriving it from us ever opened that file at the moment of connecting. Placing it in a reference reads as tidy and costs the step.
-- **Tool references must be live.** Any `verstak_*` tool a skill names must exist in the current nks-mcp surface. Dropped tools (`verstak_validate`, `verstak_reflect`) must not appear; shipped behavior (validate-on-create → `CHECKS:` in the create response) belongs in create-flow guidance. See nks-dev #849 / #833.
-- **Prefer the stable door to the retold detail — and know which class of drift you are avoiding.** Two things can go out of step with the tool surface, and they are not caught by the same net. A **name or a parameter** drifts loudly and mechanically: a rename breaks the string, and a check can find it. A **claim about behaviour** — when a call refuses, what a flag does to recall, which combinations are rejected — drifts *silently*, because every name in the sentence stays valid while the sentence becomes false. Nothing greps for that. So when a step needs the tool's own detail, point at the door that always answers — `action="?"`, the tool's own description, the hints in its output — instead of transcribing what the surface said today. Retell only what you are prepared to keep true, and keep the surface's own words as the authority a reader can re-open. (why: a behavioural claim written into a skill is read as fact by every agent who loads it, long after the surface moved — witnessed, a skill denied a create gate the factory had been enforcing all along, and the agent that believed it hit the refusal the skill promised could not happen.)
-- **Terminology**: `phenomenon` for the typed primitive, `node` for the generic; `kriya`/`holon`/`karta`/`vimarsha` per the realm ontology. Don't reintroduce retired terms.
-- **Test discipline**: for the corpus, CI validates format and surface-consistency (`make check` — frontmatter parseability + manifest lists + bundle sync + tool-name/enum lint against the surface snapshot); it does not check substance. For the bridge, a change of core behaviour is the sibling's: it lands upstream with its suite and arrives by `scripts/sync-core.sh`. Ours is the delivery layer and the build: a change there belongs in `js/tests/` in the same commit — and write the test so it **fails on the old code first** (`VERSTAK_BRIDGE_PATH=<old copy> make test`); a test that never went red proves only that it runs. Substance review is still manual: read the diffed `SKILL.md` — behavioural claims about tools are exactly what no lint sees. The skill set ships by auto-discovery from `skills/`; `make validate` fails if a manifest re-introduces a component list.
-- **Frontmatter must be parseable YAML.** `description` values are double-quoted; **escape any inner quote as `\"`** (an unescaped `"` terminates the scalar early — the exact bug `make validate` guards). Keep frontmatter flat and single-line. Three keys are allowed and no others: `name` and `description` (both required), plus optional `slash: true` — a plain unquoted boolean, which is how OpenCode v2 decodes it; quoted `"true"` fails the gate. `scripts/validate-skills.mjs` is the contract, so read it there before adding a key. No `<`/`>` anywhere in a `description`: the claude.ai plugin loader rejects XML-tag-shaped descriptions and the refusal takes down the whole plugin install, not just the one skill — write placeholders without angle brackets (`@handle/mind`, not `@<handle>/mind`). `make validate` enforces this.
+- Graph references: `(graph @nks/nks-dev, node #N)` in scripts, tests and this file. **Never under `skills/`**: skills ship to users without access to this graph or `methodology`, and seqs are instance-specific — name concepts by name; keep only syntax placeholders (`#42`, `#N`, GitHub `#123`). The built outputs under `skills/verstak/scripts/` and `extensions/` keep the core's code comments as they are: the sibling's source, not our prose.
+- **`SKILL.md` frontmatter** is parseable, flat, single-line YAML with three keys and no others: `name` (kebab, matches the dir), `description` (double-quoted, inner quotes escaped `\"`, explicit trigger phrases — it routes the skill), optional `slash: true` (plain boolean; quoted `"true"` fails). No `<` or `>` in a description: the claude.ai plugin loader rejects the whole plugin. `scripts/validate-skills.mjs` is the contract — read it before adding a key.
+- **One skill, `verstak`**: `/verstak:verstak` from the plugin, `/verstak` from a flat install; methods are selected by the door. New method → `methods/NAME.md` without frontmatter, routed from the door, plus its graph pair; never component lists in `marketplace.json`/`plugin.json`.
+- **Inspect the real source** before editing: `skills/verstak/`, not the zip, not an installed copy. Touch only the steps the task needs; match the file's register and terminology; no mass rewrite for one fix.
+- **Tool references must be live**: every `verstak_*` name a method writes exists on the current surface; dropped tools don't appear; shipped behaviour (validate-on-create → `CHECKS:`) belongs in create-flow guidance (graph @nks/nks-dev, #849, #833).
+- **Verify before asserting a limit**: "there is no way to do X" is a claim about your toolbox — check it, then ask whoever demonstrably does it (sibling roles on live channels answer in minutes). Merged is not deployed; a tool's description can lag its platform — behaviour wins, and the gap goes to that surface's owner.
+- **Prefer the stable door to the retold detail.** A renamed name or parameter drifts loudly — `make check-surface` finds it; a claim about behaviour (when a call refuses, what a flag does) drifts silently. Point at the door that always answers — `action="?"`, the tool's description, the hints in its output — and retell only what you will keep true.
+- **A `references/*.md` file is read when something goes wrong, not while doing the step**: the actual call and the first-try trap belong in the method body; the reference carries full shape, failure table, per-harness detail. (why: witnessed twice — the socket-holding call sat only in `references/collaborate-channel.md`, and no doer opened it while connecting.)
+- **Skill prose instructs, never moralises**: a rule is the question worth asking plus its checkable signs. Where a rule can be over- or under-applied, say which error costs more.
+- **Terminology is load-bearing**: `phenomenon` for the typed primitive (target of `given_as`/`ahara`/`upadhi`/`context`), `node` for the generic; `kriya`/`holon`/`karta`/`vimarsha` per the realm ontology; no retired terms (`entity`).
+- **Test discipline**: the corpus is gated on format and surface consistency only; its substance is human review of the diff — behavioural claims are what no lint sees. For the bridge, a core behaviour change is the sibling's: it lands upstream with its suite and arrives by `scripts/sync-core.sh`. Ours is the delivery layer and the build: a change there lands in `js/tests/` in the same commit, seen red first on the old code (`VERSTAK_BRIDGE_PATH=OLD_COPY make test`).
 
 ## What to update when
-- `AGENTS.md` — repo conventions, structure, or the skill set change (the inventory line is linted against the tree — CI fails on drift).
+- `AGENTS.md` — repo conventions, structure or the method set change; the inventory lines are linted against the tree.
+- `REALITY.md` — a carrier appears, changes or turns out unreachable; dated measurements go to the graph.
 - `js/core.lock` and the core — when the sibling delivery's core moves: `scripts/sync-core.sh`, then `make check`; a new or reshaped export in its `delivery/index.ts` lands in ours in the same commit.
-- `fixtures/surface.json` — when the nks-mcp tool surface changes (rename/drop/new enum): `make surface`, review the diff, commit.
-- `README.md` — the skill table, whenever the skill set changes (new/renamed/retired skill).
-- `DERIVATION.md` — the skills ← canon re-projection map (+ the four-layer language contract): walk it after any methodology-canon change; extend it when a new canon landmark gets projected into a skill.
-- `skills/verstakify/` (`SKILL.md` + `references/agents-template.md`) — when improving the bootstrap protocol/template for all future repos.
-- `skills/verstakify/references/superpowers-interop.md` — when superpowers renames its skills/paths/gates (re-verify checklist inside).
-- `skills/verstakify/references/delegation.md` — when Claude Code / OpenCode agent-file surfaces change (dirs, frontmatter keys, model aliases/inheritance; re-verify checklist inside).
-- `skills/verstakify/references/harness-surfaces.md` — when a harness changes where it reads instructions or fires automation (Claude Code hooks file, Codex `[hooks]`/`AGENTS.override.md`, OpenCode plugin dir + event list; re-verify checklist inside). A harness gaining or losing a surface changes what verstakify can promise.
-- `skills/collaborate/SKILL.md` — when the bridge that relays a human onto an agent's channel changes the shape of its address line (`re <realm>#<seq> v<version> · karta #<seq>`). That contract deliberately lives in two places — the bridge's own contour and this skill — because agents reading the skill have no access to that realm, so neither side can point at the other and drift is caught by meaning alone. A field added, dropped, or renamed there must land here in the same breath.
-- NKS (`r5`, #844) — every push: bring **both halves** of every touched skill to the shipped state — the phenomenon («Скилл <name>», vollzug) and its applying kriya with its step-by-step sub-kriyas (tool `next`-edges and composition `upadhi` included) — and end what the push settled, by axis.
+- `fixtures/surface.json` — the tool surface renames, drops or adds a name or enum: `make surface`, review the diff, commit.
+- `README.md` — the skill and method tables, whenever the set changes.
+- `DERIVATION.md` — walk it after any methodology-canon change; extend it when a new canon landmark is projected into a skill.
+- `methods/align.md` + `templates/agents-template.md` — improving the bootstrap for all future repos; a change that makes generated files wrong raises the contract.
+- `references/align-superpowers-interop.md`, `references/align-delegation.md`, `references/align-harness-surfaces.md` — when superpowers, the harnesses' agent-file surfaces, or where a harness reads instructions and fires automation change (re-verify checklists inside).
+- `methods/collaborate.md` — when the bridge that relays a human onto an agent's channel changes its address line (`re #SEQ vVERSION`): the contract lives there and here, and neither side can read the other's — a field added, dropped or renamed lands here in the same breath.
+- `r5`, #844 — every merge: both halves of every touched method to the shipped state (phenomenon, applying kriya and its step sub-kriyas with `next` and `upadhi` edges), then what the merge settled, ended by axis.
 
 ## Git workflow
-- **Conventional commits** (`feat:`/`fix:`/`chore:`/`docs:`…). Branches `feat/…`, `fix/…`, `chore/…`; PR titles same format.
-- **The PR title is the only commit that reaches `main`.** Merges here are squashes, so release-please reads the title and nothing else — your branch's own `feat:` commits are invisible to both the version and the `CHANGELOG`. Give the PR the **highest** type its branch carries (any `feat:` in the branch makes it a `feat:` PR, however many fixes surround it), and write the title knowing it becomes the changelog line. Witnessed: a branch carrying four `feat:` commits shipped as a patch with a one-line changelog, because its title said `fix:`.
-- **No co-author trailer.**
-- **Format gate**: run `make check` before committing (CI runs the same on every push/PR). It catches malformed frontmatter, drifted bundles, stale manifest lists and surface drift, not substance — still review the `SKILL.md` diff by eye.
-- **Never push to `main`.** Every change reaches `main` through a PR — no exceptions, no "it's a one-liner".
-- **Pushing your branch and opening its PR are your own responsibility.** Don't ask for permission, and don't offer them as a choice ("push or keep working?") — that is the same ask in a different coat. Work that is done gets pushed and gets its PR in the same breath; a finished change sitting unpushed is not finished. Keep committing follow-ups into the open PR. The remote here is `github.com`, so the PR is opened with **`gh pr create`** — the forge decides the CLI (`fj` for Forgejo, `glab` for GitLab), never habit.
-- **After the PR is open, follow it yourself.** Nothing else in flight is not a reason to idle or to ask what's next: watch the checks (`gh pr checks <n> --watch`) and watch whether it merged. Push fixes into the same branch when they go red. Keep your channel's socket open while you wait — a review comment, a question, or the merge can each reach you there instead of at your next tact.
-- **Merging is the user's alone.** Never merge — not on green checks, not on approval, not on a one-liner. Only the user signals it.
-- **Definition of done**: change merged to `main` on `github.com/verstak-ai/skills` via its PR. On merge, update NKS #844 — end what it settled by axis, advance the bianhua they drive.
-- **PR description: short and in English.** A few lines — what changed and why it's right. Not a retelling of the diff, not an essay; the reasoning belongs in NKS, the detail in the commit messages.
-- **Always name the remote**: `git push -u origin <branch>`, `git switch -c <name> origin/main`. `origin` → `verstak-ai/skills` is the only remote this repo has anything to do with.
-- **Never** `--force` or `git reset --hard` without explicit instruction.
+- Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`…); branches `feat/…`, `fix/…`, `chore/…`; PR titles likewise.
+- **The PR title is the only commit that reaches `main`**: merges are squashes, so release-please reads the title alone. Give it the **highest** type the branch carries (any `feat:` → a `feat:` PR) and write it as the changelog line. (why: witnessed — four `feat:` commits shipped as a patch under a `fix:` title.)
+- PR body: one or two lines in English and the case number. No co-author trailer.
+- The gate is one call: `make check`; CI runs the same targets on every push and PR. Pre-commit rebuilds and stages `verstak.skill`; the prose has no linter, formatter or type check — review the `SKILL.md` diff by eye.
+- **Branch from a freshly fetched `origin/main`**, naming the remote every time: `git fetch origin && git worktree add DIR -b BRANCH origin/main`. Squash merges mean a branch off a merged branch replays work already on `main` and the PR conflicts with itself — sharpest right after a merge. In a worktree `git checkout main` fails (the primary clone holds it); branch deletion belongs to that clone.
+- Self-review here reads prose: does a line instruct into a refusal the surface makes; does a rule scold where it should name the checkable sign; is a step's obligation stated or only implied; did a fix to one node's wording leave the same wording on a sibling.
+- **Never push to `main`.** Push your branch and open its PR yourself (`gh pr create`), without asking or offering it as a choice; follow-ups go into the open PR.
+- Forge CLI `gh`. Follow the PR: `gh pr checks N --watch`, fix red in the branch, keep your channel's socket open while you wait. **Done**: merged to `main` on `github.com/verstak-ai/skills` via its PR — `gh pr view N --json state` or the merge hook tells you. **Merging is the user's alone**: never merge, not on green checks, not on approval.
+- Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
 
-*(verstakify: contract 1 — re-run when the installed contract is higher, or when the sources this file derives from have moved since.)*
+## Local overrides
+- **Graph access, until the verstak bridge ships:** `r5` lives on the sibling deployment and is reached through that deployment's bridge and door; its tools carry that deployment's prefix instead of `verstak_`. Read the prefix off your own tool list: the tool whose name ends in `_orient` (and `_case`, `_stand`, `_look`…) — whatever stands before that suffix replaces `verstak_` in every call the door and methods name. No such tool listed → the bridge isn't connected: `methods/establish-mcp.md`. Names written into `skills/` stay `verstak_*`.
+- **Role files**: `.claude/agents/` still holds the contract-1 `reader`, `worker`, `verifier`; the six roles with their satellite entries are projected with the bridge PR. Until then brief a missing role as a generic subagent with its body from `references/align-delegation.md`.
+- **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
+
+*(verstak align: contract `2`, stamped `2026-10-07` — re-run when the installed
+verstak skill names a higher contract, or when the sources this file derives from
+have moved since that date.)*

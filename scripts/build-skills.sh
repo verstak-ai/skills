@@ -2,7 +2,7 @@
 # Regenerate <name>.skill bundles from skills/<name>/ (the source of truth).
 #
 # Each bundle is a zip whose single top-level entry is <name>/ (so it installs as
-# ~/.claude/skills/<name>/ and uploads to claude.ai as a Skill). The .skill files are
+# ~/.claude/skills/<name>/). The .skill files are
 # committed derived artifacts — never hand-edit them; edit skills/<name>/SKILL.md and rebuild.
 #
 # Deterministic: files are copied and stamped with a fixed mtime before zipping, so a rebuild
@@ -12,7 +12,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
-for d in skills/*/; do
+for d in skills/verstak/; do
   name="$(basename "$d")"
   tmp="$(mktemp -d)"
   cp -R "skills/$name" "$tmp/$name"
@@ -23,3 +23,6 @@ for d in skills/*/; do
 done
 
 echo "Built: $(ls -1 *.skill | tr '\n' ' ')"
+
+# The conversation home's flat catalogue, generated from the same methods.
+node scripts/build-home.mjs

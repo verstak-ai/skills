@@ -34,7 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify committed bundles match skills/ (content, not raw bytes)
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Verify committed bundles and home/ match skills/ (content, not raw bytes)
         run: make check-bundles
 
   surface-lint:
@@ -79,11 +82,3 @@ jobs:
       - run: sudo sysctl -w net.ipv4.ip_local_port_range="44000 60999"
       - name: Drive the bridge over stdio against a local fake server, and the layer's own contracts
         run: make test
-
-  plugin-archive:
-    name: Plugin archive builds
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build the claude.ai plugin archive (its first real run must not be at release time)
-        run: make plugin

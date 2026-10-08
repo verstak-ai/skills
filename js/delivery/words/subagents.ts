@@ -75,7 +75,7 @@ export const SUBAGENT: Readonly<Record<Lang, SubagentWords>> = {
     noCommand: (name, command) =>
       `the command of entry "${name}" "${command}" is not found on this machine (PATH) → install Node 22+ or add the node directory to PATH: Claude Code launches it via PATH`,
     noBridge: (bridge, home) =>
-      `no bridge at the entry path: ${bridge} → install it (the establish-mcp skill places a home copy at ${home}), then repeat doctor`,
+      `no bridge at the entry path: ${bridge} → install it (the verstak skill's establish-mcp method places a home copy at ${home}), then repeat doctor`,
     callerBridges: (need, fix) =>
       `the caller's bridges are not removed (${need || "no disallowedTools"}) — the subagent would inherit their tools, and its writes would go out under the caller's seat → replace the line: disallowedTools: ${fix}`,
     ownRemoved: (own) =>

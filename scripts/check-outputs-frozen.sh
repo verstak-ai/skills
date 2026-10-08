@@ -21,8 +21,8 @@ cd "$(dirname "$0")/.."
 RELEASE_AUTHOR="41898282+github-actions[bot]@users.noreply.github.com"
 RELEASE_COMMITTER="noreply@github.com"
 outputs=(
-  skills/establish-mcp/scripts/verstak-bridge.mjs
-  skills/establish-mcp/scripts/opencode-plugin.js
+  skills/verstak/scripts/verstak-bridge.mjs
+  skills/verstak/scripts/opencode-plugin.js
   extensions/verstak.js
 )
 release_branch() { [[ "$1" == release-please--* ]]; }

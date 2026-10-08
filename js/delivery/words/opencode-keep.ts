@@ -119,7 +119,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       "from another machine — ssh -L <port>:127.0.0.1:<port>, or a personal token in ~/.verstak-bridge/token",
     needLoginError: (open, elsewhere) =>
       `Verstak: sign-in to the graph is needed — ${open} and repeat the call. ` +
-      `The address is local to the OpenCode machine: ${elsewhere} (the establish-mcp skill).`,
+      `The address is local to the OpenCode machine: ${elsewhere} (the verstak skill, its establish-mcp method).`,
     openAndFinish: (url) => `open ${url} and finish it`,
     finishItInBrowser: () => "finish it in the browser",
     needLogin: (open, elsewhere) =>

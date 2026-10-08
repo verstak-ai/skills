@@ -61,9 +61,9 @@ function scalarError(value) {
   return `unterminated ${q === '"' ? "double" : "single"}-quoted value`;
 }
 
-function validateSkill(name) {
-  const where = `skills/${name}/SKILL.md`;
-  const path = join(skillsDir, name, "SKILL.md");
+function validateSkill(name, base = "skills") {
+  const where = `${base}/${name}/SKILL.md`;
+  const path = join(root, base, name, "SKILL.md");
   if (!existsSync(path)) {
     fail(where, "missing SKILL.md");
     return;
@@ -126,12 +126,14 @@ function validateSkill(name) {
       }
     }
     if (key === "description") {
+      if (!value.startsWith('"') || !value.endsWith('"')) {
+        fail(where, "`description` must be double-quoted");
+      }
       const unquoted = value.replace(/^"([\s\S]*)"$/, "$1").replace(/^'([\s\S]*)'$/, "$1");
       if (unquoted.trim().length === 0) fail(where, "`description` must be non-empty");
       // The agentskills spec caps description at 1024 — "characters" per the
       // docs, but byte-counting implementations (OpenCode) truncate or reject
-      // at 1024 UTF-8 BYTES, and our descriptions are part-Cyrillic (2
-      // bytes/char). Gate on the RENDERED value's bytes (what a YAML parser
+      // at 1024 UTF-8 BYTES. Gate on the RENDERED value's bytes (what a YAML parser
       // hands the harness); warn from 900 so there is headroom before the
       // cliff instead of a surprise at it.
       let rendered = unquoted;
@@ -167,19 +169,29 @@ const skillNames = readdirSync(skillsDir).filter((n) =>
 if (skillNames.length === 0) fail("skills/", "no skill directories found");
 for (const name of skillNames.sort()) validateSkill(name);
 
-// 1b. Conversation-home contract: the verstak.ai home loads these skills by
-//     name, reads each description as a single line, and lifts the assistant's
-//     `## Map` section into its own prompt under a fixed budget. A missing
-//     skill, a second Map heading or an overgrown Map fails silently there.
-const HOME_SKILLS = ["assistant", "widgets"];
+// 1b. Conversation-home contract: the verstak.ai home reads a flat catalogue
+//     from home/ (SKILLS_SUBDIR=home), loads these skills by name, reads each
+//     description as a single line, and lifts the assistant's `## Map` section
+//     into its own prompt under a fixed budget. A missing skill, a second Map
+//     heading or an overgrown Map fails silently there. home/ is generated from
+//     skills/verstak/methods/ by scripts/build-home.mjs; check-bundles holds the sync.
+const HOME_SKILLS = ["assistant", "minding", "widgets"];
 const MAP_BUDGET = 1500;
+const homeDir = join(root, "home");
+const homeNames = existsSync(homeDir)
+  ? readdirSync(homeDir).filter((n) => statSync(join(homeDir, n)).isDirectory()).sort()
+  : [];
+for (const name of homeNames) if (!HOME_SKILLS.includes(name)) {
+  fail(`home/${name}`, "not part of the conversation home's catalogue");
+}
 for (const name of HOME_SKILLS) {
-  const where = `skills/${name}/SKILL.md`;
-  const path = join(skillsDir, name, "SKILL.md");
+  const where = `home/${name}/SKILL.md`;
+  const path = join(homeDir, name, "SKILL.md");
   if (!existsSync(path)) {
     fail(where, "missing — the conversation home loads this skill by name");
     continue;
   }
+  validateSkill(name, "home");
   const lines = readFileSync(path, "utf8").split("\n");
   const closeIdx = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
   const descLines = lines.slice(1, closeIdx).filter((l) => l.startsWith("description:"));
@@ -188,8 +200,8 @@ for (const name of HOME_SKILLS) {
   }
 }
 {
-  const where = "skills/assistant/SKILL.md";
-  const path = join(skillsDir, "assistant", "SKILL.md");
+  const where = "home/assistant/SKILL.md";
+  const path = join(homeDir, "assistant", "SKILL.md");
   if (existsSync(path)) {
     const lines = readFileSync(path, "utf8").split("\n");
     const heads = lines.flatMap((l, i) => (/^## Map\s*$/.test(l) ? [i] : []));
@@ -270,9 +282,9 @@ try {
 // the tree held 18) — so the lists are linted against readdir, not trusted.
 try {
   const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
-  const m = /one dir per skill \(([^)]*)\)/.exec(agents);
+  const m = /one skill \(([^)]*)\)/.exec(agents);
   if (!m) {
-    fail("AGENTS.md", "inventory line not found (\"one dir per skill (…)\" in Project structure)");
+    fail("AGENTS.md", "inventory line not found (\"one skill (…)\" in Project structure)");
   } else {
     const listed = new Set([...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]));
     const onDisk = new Set(skillNames);
@@ -281,6 +293,20 @@ try {
     }
     for (const name of listed) if (!onDisk.has(name)) {
       fail("AGENTS.md", `inventory line names \`${name}\` but skills/${name}/ does not exist`);
+    }
+  }
+} catch (e) {
+  fail("AGENTS.md", `could not read: ${e.message}`);
+}
+try {
+  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  const m = /home catalogue \(([^)]*)\)/.exec(agents);
+  if (!m) {
+    fail("AGENTS.md", "home inventory line not found (\"home catalogue (…)\" in Project structure)");
+  } else {
+    const listed = [...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]).sort();
+    if (listed.join() !== HOME_SKILLS.join()) {
+      fail("AGENTS.md", `home inventory line lists ${listed.join(", ")}; the catalogue is ${HOME_SKILLS.join(", ")}`);
     }
   }
 } catch (e) {
@@ -299,33 +325,72 @@ try {
   fail("README.md", `could not read: ${e.message}`);
 }
 
-// Text ban: no Cyrillic and no retired delivery name in the bridge's sources, its
-// gate and its built outputs (tracked, or new and not ignored). Working-tree
-// contents, not history. The multi-skill corpus still carries Russian; the ban
-// widens to every text file but CHANGELOG.md when the one-skill corpus lands.
-const BANNED_TEXT_UNDER = [
-  "js/", "scripts/", "extensions/", "skills/establish-mcp/scripts/",
-  ".github/", ".githooks/", "Makefile", ".nvmrc", "release-please-config.json",
-];
-{
-  const ls = (args) =>
-    execFileSync("git", ["ls-files", "-z", ...args], { cwd: root, encoding: "utf8" })
-      .split("\0")
-      .filter(Boolean);
-  const files = new Set([...ls([]), ...ls(["--others", "--exclude-standard"])]);
-  const retired = new RegExp("is" + "kron", "i");
-  for (const file of files) {
-    if (!BANNED_TEXT_UNDER.some((p) => file === p || (p.endsWith("/") && file.startsWith(p)))) continue;
-    if (file === "CHANGELOG.md" || !existsSync(join(root, file))) continue;
-    if (statSync(join(root, file)).isDirectory()) continue;
-    const buffer = readFileSync(join(root, file));
-    if (buffer.includes(0)) continue;
-    const text = buffer.toString("utf8");
-    if (text.includes("\uFFFD")) continue;
-    for (const [index, line] of text.split("\n").entries()) {
-      if (/\p{Script=Cyrillic}/u.test(line)) fail(`${file}:${index + 1}`, "Cyrillic is not allowed");
-      if (retired.test(line)) fail(`${file}:${index + 1}`, "retired delivery name is not allowed");
+// The door is the only skill; methods, references and templates are plain Markdown.
+if (skillNames.length !== 1 || skillNames[0] !== "verstak") {
+  fail("skills/", "only the verstak skill directory may ship");
+}
+const contentFiles = [];
+function walk(dir) {
+  if (!existsSync(dir)) return;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) walk(path);
+    else if (entry.isFile()) contentFiles.push(path.slice(root.length + 1));
+  }
+}
+walk(join(skillsDir, "verstak"));
+const methodsDir = join(skillsDir, "verstak/methods");
+if (!existsSync(methodsDir)) fail("skills/verstak/methods", "missing methods directory");
+const methodNames = (existsSync(methodsDir) ? readdirSync(methodsDir) : [])
+  .filter((name) => name.endsWith(".md")).map((name) => name.slice(0, -3)).sort();
+const doorPath = join(skillsDir, "verstak/SKILL.md");
+const door = existsSync(doorPath) ? readFileSync(doorPath, "utf8") : "";
+for (const file of contentFiles) {
+  const text = readFileSync(join(root, file), "utf8");
+  if (/^skills\/verstak\/(methods|references)\//.test(file)
+      && /^\uFEFF?---\s*\r?\n/.test(text)) {
+    fail(`${file}:1`, "must not have frontmatter");
+  }
+  for (const match of text.matchAll(/(?<![\w/.-])(?:methods|references|templates)\/[a-z][a-z0-9-]*\.(?:md|html)\b/g)) {
+    if (!existsSync(join(skillsDir, "verstak", match[0]))) {
+      fail(`${file}:${text.slice(0, match.index).split("\n").length}`, `missing ${match[0]}`);
     }
+  }
+}
+for (const name of methodNames) {
+  // The door names methods in bold (**name**) once it has said that a bold name means methods/<name>.md.
+  if (!door.includes(`methods/${name}.md`) && !door.includes(`**${name}**`)) {
+    fail("skills/verstak/SKILL.md:1", `must route to ${name} (methods/${name}.md or **${name}**)`);
+  }
+}
+for (const file of ["AGENTS.md", "README.md"]) {
+  const text = readFileSync(join(root, file), "utf8");
+  const inventory = file === "AGENTS.md"
+    ? /methods list \(([^)]*)\)/.exec(text)?.[1]
+    : /## Methods\n([\s\S]*?)(?=\n## |$)/.exec(text)?.[1];
+  if (!inventory) {
+    fail(file, "missing methods inventory");
+    continue;
+  }
+  const listed = new Set([...inventory.matchAll(file === "AGENTS.md" ? /`([a-z-]+)`/g : /^\| `([a-z-]+)` \|/gm)].map((m) => m[1]));
+  for (const name of methodNames) if (!listed.has(name)) fail(file, `method ${name} missing from inventory`);
+  for (const name of listed) if (!methodNames.includes(name)) fail(file, `method ${name} has no methods file`);
+}
+
+// Inspect working-tree contents of text (tracked, or new and not ignored), not
+// history or binary bundles, so the local gate sees work before it is staged.
+const ls = (args) =>
+  execFileSync("git", ["ls-files", "-z", ...args], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+for (const file of new Set([...ls([]), ...ls(["--others", "--exclude-standard"]), ...contentFiles])) {
+  if (file === "CHANGELOG.md" || !existsSync(join(root, file))) continue;
+  if (statSync(join(root, file)).isDirectory()) continue;
+  const buffer = readFileSync(join(root, file));
+  if (buffer.includes(0)) continue;
+  const text = buffer.toString("utf8");
+  if (text.includes("\uFFFD")) continue;
+  for (const [index, line] of text.split("\n").entries()) {
+    if (/\p{Script=Cyrillic}/u.test(line)) fail(`${file}:${index + 1}`, "Cyrillic is not allowed");
+    if (new RegExp("is" + "kron", "i").test(line)) fail(`${file}:${index + 1}`, "retired delivery name is not allowed");
   }
 }
 
@@ -341,4 +406,4 @@ if (errors.length > 0) {
   console.error("");
   process.exit(1);
 }
-console.log(`✓ ${skillNames.length} skills valid: ${skillNames.sort().join(", ")}`);
+console.log(`✓ ${skillNames.length} skills valid: ${skillNames.sort().join(", ")}; home: ${HOME_SKILLS.join(", ")}`);

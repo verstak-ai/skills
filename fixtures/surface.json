@@ -1,170 +1,52 @@
 {
-  "server": {
-    "name": "nks",
-    "version": "0.25.0"
-  },
+  "server": {"name": "verstak", "version": "0.97.1"},
   "protocolVersion": "2025-06-18",
-  "amended": "verstak_case and lens=board added by hand from the sibling delivery surface (make surface failed: dead grant, upstream 404); replace with make surface",
-  "tools": [
-    "verstak_add_bianhua",
-    "verstak_add_holon",
-    "verstak_add_karta",
-    "verstak_add_kriya",
-    "verstak_add_phenomenon",
-    "verstak_add_vimarsha",
-    "verstak_admin",
-    "verstak_arrow",
-    "verstak_batch",
-    "verstak_case",
-    "verstak_channel",
-    "verstak_delete_node",
-    "verstak_history",
-    "verstak_look",
-    "verstak_me",
-    "verstak_org",
-    "verstak_orient",
-    "verstak_realm",
-    "verstak_search",
-    "verstak_semantic_search",
-    "verstak_update"
-  ],
+  "resource": "https://mcp.verstak.ai",
+  "derived_from": "prefix swap of the sibling delivery's snapshot; refresh with make surface once mcp.verstak.ai serves",
+  "tools": ["verstak_add_bianhua", "verstak_add_holon", "verstak_add_karta", "verstak_add_kriya", "verstak_add_phenomenon", "verstak_add_vimarsha", "verstak_admin", "verstak_arrow", "verstak_batch", "verstak_case", "verstak_channel", "verstak_delete_node", "verstak_history", "verstak_look", "verstak_me", "verstak_org", "verstak_orient", "verstak_realm", "verstak_search", "verstak_semantic_search", "verstak_stand", "verstak_update"],
   "enums": {
-    "lens": [
-      "bianhua",
-      "board",
-      "path",
-      "tensions",
-      "topology",
-      "trace",
-      "vimarshas"
-    ],
-    "op_type": [
-      "create_edge",
-      "create_node",
-      "delete_edge",
-      "delete_node",
-      "update_edge",
-      "update_node"
-    ],
-    "node_type": [
-      "bianhua",
-      "holon",
-      "karta",
-      "kriya",
-      "phenomenon",
-      "vimarsha"
-    ],
-    "given_as": [
-      "bildung",
-      "ding",
-      "grundsatz",
-      "sachverhalt",
-      "sinn",
-      "vollzug"
-    ],
-    "epistemic_mode": [
-      "anumita",
-      "badhita",
-      "kalpita",
-      "pramanita",
-      "pratyakshita"
-    ],
-    "ontic_mode": [
-      "anagata",
-      "atita",
-      "nashta",
-      "vartamana",
-      "vikalpa"
-    ],
-    "volitive_mode": [
-      "adhimoksha",
-      "chanda",
-      "upeksha",
-      "virodha",
-      "visarjana"
-    ],
-    "arrow_type": [
-      "actor",
-      "addressed_by",
-      "ahara",
-      "anantara",
-      "anga",
-      "arose_from",
-      "contains",
-      "context",
-      "derived_from",
-      "group",
-      "next",
-      "posed_to",
-      "realized_as",
-      "specifies",
-      "steward",
-      "supersedes",
-      "upadhi",
-      "utpatti",
-      "vimarsha_of"
-    ],
-    "direction": [
-      "from",
-      "to"
-    ],
-    "quantifier": [
-      "*",
-      "+",
-      "1",
-      "?"
-    ],
-    "genre": [
-      "hetu-dosha",
-      "hint",
-      "prati-paksha",
-      "risk",
-      "samshaya",
-      "semantic-drift",
-      "vyabhichara"
-    ],
-    "manifested_as": [
-      "adhikarin",
-      "agantuka",
-      "pratibimba",
-      "svatantra"
-    ],
-    "action": [
-      "add_bianhua",
-      "add_holon",
-      "add_karta",
-      "add_kriya",
-      "add_phenomenon",
-      "add_vimarsha",
-      "arrow_delete",
-      "arrow_link",
-      "arrow_reconnect",
-      "arrow_update",
-      "delete_node",
-      "restore_edge",
-      "restore_node",
-      "update_node"
-    ],
-    "role": [
-      "admin",
-      "inquirer",
-      "reader",
-      "writer"
-    ],
-    "payload": [
-      "full",
-      "minimal",
-      "ntfy",
-      "titled"
-    ],
-    "base_role": [
-      "none",
-      "reader",
-      "writer"
-    ],
-    "org_role": [
-      "admin",
-      "member"
-    ]
+    "lens": ["bianhua", "board", "path", "tensions", "topology", "trace", "vimarshas"],
+    "op_type": ["create_edge", "create_node", "delete_edge", "delete_node", "update_edge", "update_node"],
+    "node_type": ["bianhua", "holon", "karta", "kriya", "phenomenon", "vimarsha"],
+    "given_as": ["bildung", "ding", "grundsatz", "sachverhalt", "sinn", "vollzug"],
+    "epistemic_mode": ["anumita", "badhita", "kalpita", "pramanita", "pratyakshita"],
+    "ontic_mode": ["anagata", "atita", "nashta", "vartamana", "vikalpa"],
+    "volitive_mode": ["adhimoksha", "chanda", "upeksha", "virodha", "visarjana"],
+    "arrow_type": ["actor", "addressed_by", "ahara", "anantara", "anga", "arose_from", "contains", "context", "derived_from", "group", "next", "posed_to", "realized_as", "specifies", "steward", "supersedes", "upadhi", "utpatti", "vimarsha_of"],
+    "direction": ["from", "to"],
+    "quantifier": ["*", "+", "1", "?"],
+    "genre": ["hetu-dosha", "hint", "prati-paksha", "risk", "samshaya", "semantic-drift", "vyabhichara"],
+    "manifested_as": ["adhikarin", "agantuka", "pratibimba", "svatantra"],
+    "action": ["add_bianhua", "add_holon", "add_karta", "add_kriya", "add_phenomenon", "add_vimarsha", "arrow_delete", "arrow_link", "arrow_reconnect", "arrow_update", "delete_node", "restore_edge", "restore_node", "update_node"],
+    "role": ["admin", "inquirer", "reader", "writer"],
+    "base_role": ["none", "reader", "writer"],
+    "org_role": ["admin", "member"]
+  },
+  "args": {
+    "verstak_add_bianhua": ["anantara_after", "anga", "arrows", "attrs", "continues_room", "epistemic_mode", "in_room", "name", "ontic_mode", "open_room", "parent_room", "realm", "reasoning", "telos", "volitive_mode"],
+    "verstak_add_holon": ["arrows", "attrs", "continues_room", "description", "epistemic_mode", "in_room", "name", "ontic_mode", "open_room", "parent_id", "parent_room", "realm", "reasoning", "volitive_mode"],
+    "verstak_add_karta": ["arrows", "attrs", "continues_room", "epistemic_mode", "group_of", "in_room", "manifested_as", "motivation", "name", "ontic_mode", "open_room", "parent_room", "realm", "reasoning", "user", "volitive_mode"],
+    "verstak_add_kriya": ["arrows", "attrs", "continues_room", "description", "epistemic_mode", "essence", "in_room", "name", "ontic_mode", "open_room", "parent_id", "parent_room", "realm", "reasoning", "volitive_mode"],
+    "verstak_add_phenomenon": ["arrows", "attrs", "continues_room", "description", "epistemic_mode", "given_as", "in_room", "name", "ontic_mode", "open_room", "parent_id", "parent_room", "realm", "reasoning", "volitive_mode"],
+    "verstak_add_vimarsha": ["arrows", "attrs", "continues_room", "description", "epistemic_mode", "genre", "in_room", "name", "ontic_mode", "open_room", "parent_room", "posed_by", "posed_to", "realm", "reasoning", "vimarsha_of", "volitive_mode"],
+    "verstak_admin": ["action", "active", "channel", "limit", "node_id", "offset", "one_shot", "org", "payload", "q", "realm", "role", "scope_vimarsha", "sub", "ttl_seconds", "url", "user_id", "webhook_id"],
+    "verstak_arrow": ["action", "arrow_type", "attrs", "basis_version", "epistemic_mode", "from", "ontic_mode", "quantifier", "realm", "reasoning", "sense", "source", "target", "to", "volitive_mode"],
+    "verstak_batch": ["compensates", "continues_room", "in_room", "open_room", "operations", "parent_room", "realm", "reasoning"],
+    "verstak_case": ["about", "action", "as_of", "attrs", "client_id", "done", "evidence", "from_standing", "from_start", "full", "holon", "in_reply_to", "karta", "keep_cursor", "key", "limit", "node", "note", "offset", "payload", "realm", "reason", "relation", "room", "say_kind", "since", "stack", "standing", "text", "to", "verdict", "with"],
+    "verstak_channel": ["action", "all", "as_person", "attrs", "channel", "cursor", "group_by", "in_reply_to", "karta", "kinds", "limit", "locale", "message", "model", "mute_siblings", "name", "realm", "satellite_of", "since", "standing", "text", "ttl_seconds", "until", "view"],
+    "verstak_delete_node": ["basis_version", "compensates", "node_id", "realm", "reasoning"],
+    "verstak_history": ["action", "arrow_type", "basis_version", "event_id", "limit", "node_id", "node_type", "op_type", "realm", "reasoning", "since", "source", "target"],
+    "verstak_look": ["breadcrumb", "node_id", "raw", "realm"],
+    "verstak_me": ["action", "handle", "since", "until"],
+    "verstak_org": ["action", "attrs", "base_role", "confirm", "handle", "limit", "name", "offset", "org", "org_role", "q", "realm", "role", "sub", "user_id"],
+    "verstak_orient": ["action", "arrow_types", "depth", "direction", "focus", "genre", "include_closed", "include_schema", "lens", "limit", "max_depth", "offset", "realm", "scope", "since", "standing", "to", "verbose"],
+    "verstak_realm": ["action", "attrs", "confirm", "include_archived", "name", "public_read_role", "realm", "slug"],
+    "verstak_search": ["actor", "anga_of", "attrs_filter", "context_holon", "epistemic_mode", "genre", "given_as", "has_tension", "include_description", "include_tensions", "limit", "manifested_as", "node_type", "offset", "ontic_mode", "parent_contains", "posed_to", "q", "realm", "sort", "steward_of", "transitive", "untouched_days", "vimarsha_of", "volitive_mode"],
+    "verstak_semantic_search": ["epistemic_mode", "genre", "given_as", "hybrid", "limit", "node_type", "ontic_mode", "q", "realm", "volitive_mode"],
+    "verstak_stand": ["cwd", "karta", "model", "mute_siblings", "name", "realm", "repeat_knock", "room", "room_karta", "satellite_of", "status", "take"],
+    "verstak_update": ["attrs", "basis_version", "continues_room", "description", "epistemic_mode", "essence", "genre", "given_as", "in_room", "manifested_as", "motivation", "name", "node_id", "ontic_mode", "open_room", "parent_room", "realm", "reasoning", "telos", "user", "volitive_mode"]
+  },
+  "combinators": {
+    "verstak_add_bianhua": [], "verstak_add_holon": [], "verstak_add_karta": [], "verstak_add_kriya": [], "verstak_add_phenomenon": [], "verstak_add_vimarsha": [], "verstak_admin": [], "verstak_arrow": [], "verstak_batch": [], "verstak_case": [], "verstak_channel": [], "verstak_delete_node": [], "verstak_history": [], "verstak_look": [], "verstak_me": [], "verstak_org": [], "verstak_orient": [], "verstak_realm": [], "verstak_search": [], "verstak_semantic_search": [], "verstak_stand": [], "verstak_update": []
   }
 }

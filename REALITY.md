@@ -1,0 +1,18 @@
+# Reality — what a claim is checked against
+A claim is settled by its canonical carrier — what the work becomes when it runs — not by the source meant to produce it; tests are a rung of evidence, not the carrier. A row marked `(proposed — case #N)` awaits the owner's confirmation; a claim checked on it is at most `provisional`.
+
+| Claim class | Canonical carrier | How to observe | Who can |
+|---|---|---|---|
+| Format — frontmatter parses, bundle matches source, inventories match the tree | the committed `verstak.skill` zip + `skills/verstak/` | `make check` | agent |
+| Surface sync (loud half) — every tool name and enum value the corpus writes exists on the surface | `fixtures/surface.json` (snapshot; refreshed via `make surface`) | `make check-surface`; the silent half — behavioural claims — stays with human review | agent |
+| Delivery — the method actually reaches an agent | the installed plugin in the harness cache | `cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json` against `gh release view --repo verstak-ai/skills --json tagName` | agent |
+| Substance — a skill's instruction matches the tool surface | the live tool surface (until the verstak bridge ships, the sibling deployment's — AGENTS.md, Local overrides) | attempt the call the skill prescribes and read the refusal or the result | agent |
+| Graph correspondence — the model matches the shipped method | `r5` | `verstak_orient(realm="r5", lens="tensions", focus="844")` before and after | agent |
+| Transport (mechanism) — the bridge's OAuth machinery: discovery, DCR, PKCE, the loopback listener, code exchange, refresh rotation, session recovery, the machine daemon | `js/tests/bridge.test.mjs` against the local fake in `js/tests/fake-server.mjs`, over the dev build | `make test` — the bridge is spawned as a harness spawns it, and the test plays the human's click on the login link | agent |
+| Core behaviour — standing, channel, watchdogs, OpenCode and pi halves | the sibling delivery's suite at the commit in `js/core.lock` | that repository's CI on the pinned commit; here only the build of the same bytes and the layer's contracts are tested | agent |
+| Release build — the committed JS outputs are what the release job built | `skills/verstak/scripts/verstak-bridge.mjs`, `skills/verstak/scripts/opencode-plugin.js`, `extensions/verstak.js` | `make check-js` (no dev mark, the bridge marked release) | agent |
+| Transport (the real crossing) — the bundled bridge carries an agent to *this* graph through *this* identity provider | a live instance + a human browser | agent-observable up to the authorize URL; the consent click against the real IdP and the first answered graph call are agent-unreachable — the user's word after a live run is the carrier. A live run for a release includes the upgrade from the previous release with its bridges still running (seat kept, not stood beside). The fake proves the mechanism, never the crossing | agent + user |
+
+**Ceiling**: whether an agent that *read* a skill then acts differently. Nothing here observes it: the reader is another agent in another session, and the effect shows up as method drift, not as a failure. Today its only carriers are a case in `@nks/feedback` and the user's word. The intended carrier is an agentic check — in CI, or subagents asked a comprehension question about the skill — and until it exists this class is never closed as verified.
+
+**This table grows by use.** A session that learns a carrier, a reachable or unreachable observation, or a wrong command here proposes the row then, before the work that taught it is closed; dated measurements are graph nodes.

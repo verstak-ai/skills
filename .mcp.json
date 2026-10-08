@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "nks": {
-      "type": "http",
-      "url": "https://nks.lab.mirari.ru/mcp"
+    "verstak": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/verstak/scripts/verstak-bridge.mjs"]
     }
   }
 }

@@ -21,8 +21,8 @@ const CHECK = process.argv.includes("--check");
 
 // The paths follow js/delivery/product.ts: BRIDGE_SKILL/scripts/{BRIDGE_FILE,PLUGIN_FILE}
 // and extensions/<PRODUCT>.js, where pi loads extensions from.
-const BRIDGE = "skills/establish-mcp/scripts/verstak-bridge.mjs";
-const PLUGIN = "skills/establish-mcp/scripts/opencode-plugin.js";
+const BRIDGE = "skills/verstak/scripts/verstak-bridge.mjs";
+const PLUGIN = "skills/verstak/scripts/opencode-plugin.js";
 const EXTENSION = "extensions/verstak.js";
 /** Build outputs — paths from the repo root (committed) and from dist/dev (dev). */
 const OUTPUTS = [BRIDGE, EXTENSION, PLUGIN];

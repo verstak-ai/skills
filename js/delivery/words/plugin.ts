@@ -20,7 +20,7 @@ export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
     noBridge: (tried) =>
       "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " +
       tried +
-      ". Set VERSTAK_BRIDGE_PATH or install the bridge with the establish-mcp skill.",
+      ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
     bridgeLine: (line) => `Verstak/bridge: ${line}`,
     notRaised: (message) => `Verstak: the bridge did not come up — ${message}`,
     refusalNoText: (name) => `${name}: refusal without text`,

@@ -78,7 +78,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     statusBridge: (path) => `bridge: ${path}`,
     statusLoginPending: (open, elsewhere) =>
       `sign-in: NOT DONE — ${open}. ` +
-      `The address is local: ${elsewhere} (the establish-mcp skill).`,
+      `The address is local: ${elsewhere} (the verstak skill, its establish-mcp method).`,
     openInBrowser: (url) => `open ${url} in a browser`,
     finishInBrowser: () => "finish the sign-in in the browser",
     statusLoginDone: () => "sign-in: done, the server answers",

@@ -6,7 +6,7 @@
 //   node scripts/export-surface.mjs [server-url]
 //
 // Speaks to the server through the delivery's own bridge
-// (skills/establish-mcp/scripts/verstak-bridge.mjs), so auth, refresh and liveness
+// (skills/verstak/scripts/verstak-bridge.mjs), so auth, refresh and liveness
 // are the bridge's problem, not this script's.
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
@@ -14,8 +14,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const bridge = join(root, "skills/establish-mcp/scripts/verstak-bridge.mjs");
-const args = process.argv[2] ? [process.argv[2]] : [];
+const bridge = join(root, "skills/verstak/scripts/verstak-bridge.mjs");
+const args = [process.argv[2] || "https://mcp.verstak.ai/"];
 
 const child = spawn("node", [bridge, ...args], { stdio: ["pipe", "pipe", "inherit"] });
 const replies = new Map();
@@ -74,6 +74,7 @@ for (const t of tools) walk(t.inputSchema, null);
 const surface = {
   server: init.result?.serverInfo ?? null,
   protocolVersion: init.result?.protocolVersion ?? null,
+  resource: args[0].replace(/\/$/, ""),
   tools: tools.map((t) => t.name).sort(),
   enums,
 };

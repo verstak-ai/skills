@@ -59,20 +59,3 @@ jobs:
           git commit -m "chore: rebuild the shipped JS and bundles for the stamped version"
           git push
 
-  # The claude.ai delivery artifact: that channel has no marketplace and no
-  # auto-delivery (org sync requires a private repo), so every release carries
-  # the plugin archive as an asset for manual upload.
-  plugin-asset:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
-      - name: Build the plugin archive
-        run: make plugin
-      - name: Attach it to the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" dist/verstak.zip --clobber

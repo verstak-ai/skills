@@ -86,7 +86,8 @@ export interface DoctorWords {
 export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
   en: {
     title: (build) => `verstak doctor — ${build}`,
-    homeNone: (home) => `home copy: none (${home}) — establish-mcp places it on connect`,
+    homeNone: (home) =>
+      `home copy: none (${home}) — the verstak skill's establish-mcp method places it on connect`,
     homeSame: (home) => `home copy: ${home} — the same build as this file`,
     homeDiffers: (home, v, hash, selfPath) => {
       const fix = selfPath
@@ -151,7 +152,8 @@ export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
     claudeEntry: (name, cmd, args) => `Claude Code: entry "${name}" → ${cmd} ${args}`,
     claudeNoManual: () =>
       "Claude Code: no manual bridge entry in the user config (the standard one is in the plugin)",
-    ocNoPlugin: (copy) => `OpenCode: no plugin (${copy}) — establish-mcp places it on connect`,
+    ocNoPlugin: (copy) =>
+      `OpenCode: no plugin (${copy}) — the verstak skill's establish-mcp method places it on connect`,
     ocNoPackaged: (copy) =>
       `OpenCode: the plugin ${copy} is installed; there is no plugin next to this delivery file, nothing to compare with`,
     ocSame: (copy) => `OpenCode: the plugin ${copy} — the same build as in the delivery`,

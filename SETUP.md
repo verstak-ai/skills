@@ -9,55 +9,33 @@ and waiting is part of a normal run, not a dead end; see **Troubleshooting**.
 
 verstak is two parts:
 
-1. **Skills** — plain-markdown method bundles from this repo (readable before install).
-2. **Graph MCP server** — the remote NKS reasoning graph at
-   `https://nks.lab.mirari.ru/mcp`, exposed as `nks_*` tools.
+1. **The skill** — one plain-markdown skill, `verstak` (a door and the methods it routes
+   into), readable before install.
+2. **verstak-bridge** — the stdio MCP bridge shipped inside that skill
+   (`skills/verstak/scripts/verstak-bridge.mjs`). It is the only path to the graph
+   server (`https://mcp.verstak.ai/` by default) and publishes its `verstak_*` tools.
 
-Authentication uses **OAuth exclusively** — never substitute another scheme. *Who*
-performs it depends on the surface, and getting that wrong is the most common way a run
-fails:
-
-- **Terminal Claude Code, Codex, Cursor** — the login is yours. Start the browser flow,
-  wait for the callback, finish in the same run. A "this session is non-interactive"
-  notice is about a missing TTY only; the `script` wrapper in step 2 supplies one, so run
-  it rather than handing the login back.
-- **Claude Desktop, claude.ai** — the authorization is a click in the app's own UI, and it
-  is the user's to make. No CLI command, deep link, or SDK call presses it. Do **not** run
-  `claude mcp login` here: it authorizes the terminal binary's credential store, which the
-  app never reads, so you would report success over a connector that is still dark.
+Sign-in is the bridge's own: OAuth through a local link it prints, or a personal token.
+No harness login command and no connector button is involved.
 
 Report the literal blocker rather than claiming an install succeeded.
 
 **Reporting to the user:** a progress report is two things — what is done, and the one
-action that is theirs (a click, an approval, a restart). Everything else on this page —
-credential stores, dual server entries, plugin-bundled vs. account connectors, tool
-namespaces — is routing knowledge for *you*. Do not recite it; bring it up only when the
-user asks why something failed.
+action that is theirs (a click on the sign-in link, an approval, a restart). Everything
+else on this page is routing knowledge for *you*; bring it up only when the user asks
+why something failed.
 
 ## 0. Detect your harness
 
-Identify which agent you are running as — Claude Code in a terminal, a session hosted
-inside the Claude Desktop app, Cursor, Codex, or other — and follow that path below.
+Identify which agent you are running as — Claude Code (terminal or desktop-hosted),
+Claude Desktop chat, Codex, OpenCode, pi, Cursor, or other — and follow that branch below.
 
-For Claude Code the split that matters is terminal vs. desktop-hosted. Read it from
-context first — no command needed. Desktop-/web-hosted sessions show themselves: the
-session already lists claude.ai-account connectors (MCP tools namespaced
-`mcp__<uuid>__…`), and its harness notes route connector auth to "claude.ai connector
-settings". A bare terminal session shows neither.
+## 1. Install the skill
 
-Only if context is silent, check `echo "$CLAUDE_CODE_ENTRYPOINT"` — `claude-desktop`
-means desktop-hosted; anything else (e.g. `cli`) is a plain terminal. macOS backup
-signal: `__CFBundleIdentifier` = `com.anthropic.claudefordesktop`. Permission
-classifiers commonly deny environment reads — a denied check is a signal to fall back
-to context or ask the user, not a blocker to clear.
+Every harness has its own channel; none is the main one.
 
-## 1. Install the skills
-
-**The plugin is the way in, and this one CLI install serves every Claude Code surface** —
-terminal and desktop-hosted alike. Run it whatever step 0 detected; the surfaces diverge
-only at step 2, over who authorizes the connector. It namespaces every skill under
-`verstak`, so nothing collides, and it carries the graph server with it. Everything else
-on this page is for harnesses that have no plugin channel.
+**Claude Code** — the plugin. It namespaces the skill under `verstak` and brings the
+bridge as its MCP server (step 2).
 
 ```sh
 claude plugin marketplace add verstak-ai/skills
@@ -67,269 +45,264 @@ claude plugin install verstak@verstak-ai
 (Inside an interactive session: `/plugin marketplace add verstak-ai/skills` then
 `/plugin install verstak@verstak-ai`.)
 
-**Codex** (global install, all skills, Codex only):
+**Codex, OpenCode, Cursor, any other agent** (flat install):
 
 ```sh
-npx --yes skills add verstak-ai/skills --global --agent codex --skill '*' --yes
+npx skills add verstak-ai/skills --all --global
 ```
 
-**Cursor / any other supported agent** (original flat install):
+`--all` already means every skill to every harness; `--global` is required — without it
+the skill lands in the current repository. The content lands once in `~/.agents/skills/`,
+harness directories get symlinks to it.
+
+**pi** — one command installs the skill and the `verstak` extension:
 
 ```sh
-npx skills add verstak-ai/skills --all
+pi install git:github.com/verstak-ai/skills
 ```
+
+The extension raises the bridge itself and registers the `verstak_*` tools; step 2 is not
+needed for pi. Update: `pi update git:github.com/verstak-ai/skills`.
+
+**Claude Desktop chat** — the user uploads `verstak.skill` (from the root of
+`https://github.com/verstak-ai/skills`) in the app's skill settings. The bridge is placed
+separately — step 2, "Bring up the bridge by hand".
 
 ## 2. Connect the graph server
 
-**Claude Code + plugin from step 1: the server arrives configured, but not logged in.**
-The plugin bundles it (`.mcp.json` in the plugin root) as **`plugin:verstak:nks`** — use
-that name in every `claude mcp` command; `claude mcp list` prints it with its status.
+### Claude Code with the plugin
 
-**The login is yours to start.** Nothing triggers it on its own — the server sits at
-`needs authentication` until you run:
+The plugin carries an MCP entry (`.mcp.json` in the plugin root) named
+**`plugin:verstak:verstak`**: not a remote server but **the bridge from the plugin
+itself**, a stdio process `node …/skills/verstak/scripts/verstak-bridge.mjs` that Claude
+Code raises at session start. Nothing to copy or register; a plugin update brings the new
+bridge to the next session.
 
-```sh
-claude mcp login plugin:verstak:nks
-```
+**Sign-in starts with the first call.** Until there is a grant, every `verstak_*` tool
+answers with an error carrying the sign-in address (`http://127.0.0.1:PORT/login…`); the
+bridge also prints it on stderr and tries to open a browser. The user opens it and signs
+in; the next call goes through. The grant lands in `~/.verstak-bridge/` and the bridge
+refreshes it, idle too.
 
-The command needs a TTY to wait for the browser; in a shell without one, wrap it:
-
-```sh
-script -q /dev/null claude mcp login plugin:verstak:nks      # macOS / BSD
-script -qec "claude mcp login plugin:verstak:nks" /dev/null  # Linux (util-linux)
-```
-
-If something tells you this session is non-interactive: that is about a missing TTY only.
-Wrap the login in `script`, as above, and run it. Do not hand the login back to the user.
-
-Run it in the background if your harness would otherwise block on it, and read its output:
-the command prints the authorization URL before it waits. If no browser opens, hand that
-URL to the user — it is single-use and bound to the waiting process, so do not re-run the
-login while they still have it open.
-
-This path authorizes the **terminal CLI only**. MCP credentials are scoped per surface:
-a token minted by `claude mcp login` lands in the terminal binary's store, and the
-desktop app never reads it. If step 0 detected a desktop-hosted session, do not take
-this path for your own surface — the login would succeed, `claude mcp list` would say
-`Connected`, and your host app would still show the server unauthorized. Use the
-**Claude Desktop** flow below instead.
-
-Then verify:
+Verify:
 
 ```sh
-claude mcp list    # plugin:verstak:nks: https://nks.lab.mirari.ru/mcp (HTTP) - ✔ Connected
+claude mcp list    # plugin:verstak:verstak: node …/verstak-bridge.mjs (stdio) - ✔ Connected
+claude -p "Call verstak_me and print its result." --allowedTools "mcp__plugin_verstak_verstak__verstak_me"
 ```
 
-That line proves the login completed, not that the tools reached a session — MCP config
-is read at session start. Ask for the restart (step 3), and confirm now from one fresh
-non-interactive session using the current read-only identity call:
+(The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.) What
+is installed and whether it works: the bridge's `doctor` subcommand, on the path
+`claude mcp list` prints.
+
+**A harness without stdio MCP servers** (the claude.ai web app and the like) cannot raise
+the bridge, and there is no other path to the graph. Tell the user plainly: the graph
+needs a harness that runs local stdio MCP servers — Claude Code, Claude Desktop, Codex,
+OpenCode, pi, Cursor.
+
+### Codex
+
+After the flat install, register the bridge (copy it first — "Bring up the bridge by
+hand" below):
 
 ```sh
-claude -p 'Call nks_me(action="whoami") and print its result.' \
-  --allowedTools "mcp__plugin_verstak_nks__nks_me"
+codex mcp add verstak -- node "$HOME/.verstak-bridge/verstak-bridge.mjs"
 ```
 
-(The tool name is the server name with each `:` turned into `_`, prefixed `mcp__`.)
+`codex mcp list` then shows `verstak`, `command node`, `Auth: Unsupported` — normal: the
+bridge holds its own grant; skip `codex mcp login`. The first `verstak_*` call without a
+grant answers with the sign-in address.
 
-**Claude Desktop: step 1 already installed the plugin. Only the connector's
-authorization is left, and it is the user's click — walk them through it, do not script
-around it.** The Customize/connector surface syncs through the claude.ai account, not
-from the CLI's `~/.claude`, and nothing in a shell reaches it. Your whole job here is
-detection (step 0), the walkthrough, and verification:
+**Non-interactive runs.** `codex exec` refuses approvals by default and MCP calls need
+them: they fail with `MCP tool call requires approval, but approval policy is never` — the
+tools are visible and not callable. Approve them through the harness's approval setting;
+the flag that also removes the sandbox is for externally isolated environments only.
 
-> Open **Customize → Plugins → verstak → Connectors**, and press **Connect** on **nks**.
-> The OAuth consent opens in the browser and returns you to the app.
-
-If **verstak** is not in that plugin list, the app has not picked up the CLI install yet
-— reload it (**Cmd+R** / **Ctrl+R**) or restart it, then open the path again.
-
-When the user confirms, check your own session before asking for anything: on this
-surface the connector's tools (`mcp__<connector-id>__nks_*`) usually hot-load into the
-live session. If they appeared, call `nks_me(action="whoami")` right away — a reply is
-full verification, no restart needed. Ask for a restart (step 3) only if the tools did
-not appear.
-
-Afterwards `claude mcp list` shows **two** entries for the same URL. That is the correct
-end state, not a half-finished install — and it is internal; do not report it:
-
-```text
-claude.ai nks:      https://nks.lab.mirari.ru/mcp - ✔ Connected
-plugin:verstak:nks: https://nks.lab.mirari.ru/mcp (HTTP) - ! Needs authentication
-```
-
-The claude.ai-account connector is the live one, and it is what publishes the `nks_*`
-tools. The plugin-bundled `plugin:verstak:nks` stays unauthenticated on this surface
-permanently — leave it alone. Its tools are namespaced by the connector's own id, not by
-the plugin name, so do not look for `mcp__plugin_verstak_nks__*` and do not conclude from
-its status line that the setup failed. **Verify by calling `nks_me(action="whoami")`** —
-check for working tools, never for a status line.
-
-**claude.ai (web): the same UI route**, on the same plugin page. A plugin installed on
-claude.ai is not picked up by the desktop app until that app restarts — which also
-makes claude.ai the fallback when the desktop's Connect button misbehaves (see
-Troubleshooting).
-
-**Codex:** inspect the existing entry before changing it:
+**Codex hears the channel through the app-server door.** A seat's frame enters a running
+thread only if the thread lives under a local app-server daemon. The daemon starts from a
+managed Codex install (`$CODEX_HOME/packages/standalone/current/codex`). Keep `CODEX_HOME`
+short — a unix socket path is limited; a home inside `~/Library/Application Support/…` is
+too long, so make a short home pointing at the real one — and start the daemon:
 
 ```sh
-codex mcp get nks
+H="$HOME/.codex"                     # the real home
+mkdir -p /tmp/cxh && ln -sfn "$H/packages" /tmp/cxh/packages && ln -sfn "$H/auth.json" /tmp/cxh/auth.json
+cp "$H/config.toml" /tmp/cxh/config.toml
+CODEX_HOME=/tmp/cxh codex app-server daemon start
 ```
 
-If it is absent, add it:
+Codex sessions started with the same `CODEX_HOME` attach to the daemon; one started with
+another home has no door, and the agent cannot fix that from inside — this is the user's
+move before the session starts. `node ~/.verstak-bridge/verstak-bridge.mjs doctor` under the
+same `CODEX_HOME` says whether the door is open.
+
+**The thread's sandbox is the user's move too.** `watchdog-codex`, run from the agent's
+shell, connects to the bridge's local socket under `~/.verstak-bridge/standings/`; Codex's
+default sandbox does not let it through. Start the thread with full access, or with a
+sandbox that admits `~/.verstak-bridge`. Then the watchdog lives inside one command
+(`node "BRIDGE" watchdog-codex KEY & sleep 90; kill %1`) — a separate `nohup … &` is killed
+with its command. Holding the seat: the `verstak` skill, its `collaborate` method. Without
+the daemon, `watchdog-exit` remains.
+
+### OpenCode
+
+Not an `mcp` entry in the config, but **the delivery's plugin**: an `mcp` entry would
+rename every tool to `ENTRY.TOOL`, and its bridge is shared across sessions, so one
+session's write could leave under another's seat. `node ~/.verstak-bridge/verstak-bridge.mjs
+doctor`, run from the project directory, names a stray entry; the user removes it from the
+file doctor names. Two files, both from the installed `verstak` skill:
 
 ```sh
-codex mcp add nks --url https://nks.lab.mirari.ru/mcp
+mkdir -p ~/.verstak-bridge ~/.config/opencode/plugins
+src=$(dirname "$(find -L ~/.agents/skills ~/.claude -path '*verstak/scripts/opencode-plugin.js' 2>/dev/null | head -1)")
+[ -n "$src" ] && [ -f "$src/verstak-bridge.mjs" ] || { echo "no OpenCode plugin in the installed skill — update it (npx skills add verstak-ai/skills --all --global) and repeat"; false; }
+cp "$src/verstak-bridge.mjs" ~/.verstak-bridge/verstak-bridge.mjs
+cp "$src/opencode-plugin.js" ~/.config/opencode/plugins/verstak.js
 ```
 
-If it already has that URL, keep it. If the name exists with another URL, stop and
-report the conflict instead of overwriting the user's server. `Auth: OAuth` in
-`codex mcp list` describes server capability; it does not prove that a credential is
-present. Start OAuth explicitly and wait for the command to exit:
+OpenCode 2 loads file plugins from `~/.config/opencode/plugins/`. The plugin has no
+imports, takes the bridge from `~/.verstak-bridge/verstak-bridge.mjs` (or
+`VERSTAK_BRIDGE_PATH`) and runs it on OpenCode's own Bun — no Node needed. After a
+delivery update repeat both copies; `node "$src/verstak-bridge.mjs" doctor` says whether a
+copy lags.
+
+**Sign-in.** Until there is a grant, the session has the `verstak_bridge` tool, which names
+the sign-in address, and every `verstak_*` tool refuses with the same address. The address
+is local to the OpenCode machine; from another machine use the sign-in-by-code page if the
+error offers one, or `ssh -L PORT:127.0.0.1:PORT HOST`. After sign-in the tools come up by
+themselves. Every installed skill becomes a `/` palette command. The plugin keeps a
+directory with a held seat loaded; turn that off with `VERSTAK_KEEPALIVE_MS=0` in the
+OpenCode service's environment. Verify:
 
 ```sh
-codex mcp login nks
+opencode run --format json "Call the verstak_me tool and print the person's name"
 ```
 
-The command prints a single-use browser URL and listens on its localhost callback. Let
-the browser flow finish; do not re-run login while that URL is open. Success is exit code
-0 with `Successfully logged in to MCP server 'nks'.`
+### Bring up the bridge by hand
 
-The current session will not gain tools loaded after it started, so verify through one
-fresh, ephemeral, read-only Codex session. The sandbox and the prompt keep it read-only;
-the approval override spares you a prompt per call:
-
-```sh
-codex exec --ephemeral --skip-git-repo-check --sandbox read-only \
-  -c 'approval_policy="never"' \
-  -c 'mcp_servers.nks.default_tools_approval_mode="approve"' \
-  'Verification only. Call nks_me(action="whoami") and nks_realm(action="list"). Do not call shell or any other tools. Report the authenticated identity and the number of realms.'
-```
-
-Adding `-c 'mcp_servers.nks.enabled_tools=[...]'` to narrow the surface looks tidier and
-can cost you the verification: on Codex 0.146.0 that filter left the session with no NKS
-tools at all, and the same command without it found `nks_me` and ran it. If a run reports
-no tools, drop any `enabled_tools` line before concluding that login failed.
-
-Setup is verified only when that command exits 0, prints the authenticated identity, and
-returns a realm count. Then continue to step 3.
-
-**Claude Code without the plugin** (`--scope user`: the graph follows the user, not one
-project — the default scope would register it project-locally):
-
-```sh
-claude mcp add --scope user --transport http nks https://nks.lab.mirari.ru/mcp
-```
-
-**Cursor** — merge into `~/.cursor/mcp.json` (global — the graph follows the user;
-use the project-level `.cursor/mcp.json` only if the user explicitly wants it scoped):
-
-```json
-{ "mcpServers": { "nks": { "url": "https://nks.lab.mirari.ru/mcp" } } }
-```
-
-OAuth login triggers on first use in Cursor. In Claude Code it does not — an unauthorized
-server publishes no tools, so there is no first use to trigger it; run the login
-explicitly, under a pty as above.
-
-**Harness without native https+OAuth MCP** — its config accepts only `command` + `args`,
-or it has a URL field but no login command or button anywhere. Do not reach for
-`mcp-remote`: the delivery bundles its own bridge, **verstak-bridge** (shipped inside the
-`establish-mcp` skill installed in step 1). Copy it out of the versioned install path and
-register it as an ordinary stdio server:
+For Claude Code without the plugin, Codex, Claude Desktop, Cursor and any other harness
+with stdio MCP servers. Do not reach for `mcp-remote`: copy the bundled bridge out of the
+versioned install path into the stable home:
 
 ```sh
 mkdir -p ~/.verstak-bridge
-cp "$(dirname "$(find ~/.claude -path '*skills/establish-mcp/scripts/verstak-bridge.mjs' | head -1)")/verstak-bridge.mjs" ~/.verstak-bridge/
+src=$(find -L ~/.agents/skills ~/.claude -path '*verstak/scripts/verstak-bridge.mjs' 2>/dev/null | head -1)
+cp "$src" ~/.verstak-bridge/verstak-bridge.mjs && echo "copied from $src"
 ```
+
+`-L` carries weight: a global `npx skills` install keeps the content in `~/.agents/skills/`
+behind symlinks, and `find` without `-L` does not enter them.
+
+**Claude Desktop** puts no skill on disk, so take the bridge from the delivery — `main`
+carries the last release's build, and the bridge updates itself afterwards (section 3):
+
+```sh
+mkdir -p ~/.verstak-bridge
+curl -fsSL https://raw.githubusercontent.com/verstak-ai/skills/main/skills/verstak/scripts/verstak-bridge.mjs -o ~/.verstak-bridge/verstak-bridge.mjs
+```
+
+On Windows, PowerShell (`curl.exe`, not the `Invoke-WebRequest` alias):
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.verstak-bridge" | Out-Null
+curl.exe -fsSL https://raw.githubusercontent.com/verstak-ai/skills/main/skills/verstak/scripts/verstak-bridge.mjs -o "$HOME\.verstak-bridge\verstak-bridge.mjs"
+(Get-Command node).Source    # the absolute node path, for the entry's command
+```
+
+**Claude Code without the plugin** (`--scope user`: the graph follows the user, not one
+project):
+
+```sh
+claude mcp add --scope user verstak -- node "$HOME/.verstak-bridge/verstak-bridge.mjs"
+```
+
+**Codex** — the command in its branch above. **Cursor** — merge into `~/.cursor/mcp.json`;
+**Claude Desktop** — into `claude_desktop_config.json` (`~/Library/Application
+Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows; restart the app); other
+harnesses — their stdio server config:
 
 ```json
-{ "mcpServers": { "nks": { "command": "node", "args": ["/abs/path/to/.verstak-bridge/verstak-bridge.mjs"] } } }
+{ "mcpServers": { "verstak": { "command": "node", "args": ["/absolute/path/to/.verstak-bridge/verstak-bridge.mjs"] } } }
 ```
 
-Put that entry in the harness's **user-level** config file (home directory), not the
-project one — the graph follows the user.
+The path is absolute: `~` is not expanded there. On Windows write `C:\\Users\\NAME\\…` or
+`C:/Users/NAME/…`. A windowed app does not see the shell's `PATH`: with Node under nvm and
+the like, put the absolute node path in `command`. Put the entry in the harness's
+**user-level** config, not the project one — the graph follows the user.
 
-With no URL argument the bridge points at `https://mcp.verstak.ai/`; on the first
-call it runs the full OAuth flow in the browser, keeps tokens fresh in `~/.verstak-bridge/`
-(also while idle), and turns any upstream failure into a visible error instead of a
-silent hang. Needs Node 22+. Details and the decision ladder: the `establish-mcp` skill.
+With no URL argument the bridge points at `https://mcp.verstak.ai/`, or at the address in
+`~/.verstak-bridge/server` (`node ~/.verstak-bridge/verstak-bridge.mjs use URL`);
+`VERSTAK_BRIDGE_URL` or a URL argument beats both. On the first call it runs the OAuth
+flow, keeps the grant fresh in `~/.verstak-bridge/` (idle too), and turns any upstream
+failure into a visible error instead of a hang. Many agents on one machine share one grant:
+one click signs in the whole machine. Needs Node 22+. Diagnosis and the decision ladder:
+the `verstak` skill, its `establish-mcp` method.
 
-## 3. Restart
+### A personal token
 
-Tell the user installation is done and ask them to restart the session so the new
-skills and connection are picked up. Skip the ask if step 2 already verified live
-(desktop hot-load) — then the only thing left to say is done, and what comes next
-(step 4). This is the end of what you can do here.
+When there is no browser (CI, headless VMs), or sign-in does not open, does not finish,
+or every call keeps returning 401. The user issues the token in the graph's web interface
+and hands it to you — never invent, guess or reuse one. Give it to the bridge; everything
+else stays as it was:
 
-## 4. First session: verstakify
+```sh
+mkdir -p ~/.verstak-bridge && (umask 077; printf '%s\n' "$VERSTAK_TOKEN" > ~/.verstak-bridge/token)
+node ~/.verstak-bridge/verstak-bridge.mjs doctor    # reports whether the server accepts the token
+```
 
-In the fresh session, the user says `verstakify` (or `/verstak:verstakify` with the
-Claude Code plugin). The agent then verifies identity with
-`nks_me(action="whoami")`, discovers realms with `nks_realm(action="list")`, orients into
-the selected realm, brings the repo to the verstak standard (`AGENTS.md` + session
-rituals), and seeds the graph with the structure the codebase already shows.
+`VERSTAK_BRIDGE_TOKEN` in the bridge's environment beats the file. With a token the bridge
+does no discovery, no browser and no update check, and reads a 401 as "token rejected".
+Remove the token and the bridge returns to OAuth. Never put it in a committed file or a URL.
+
+## 3. Update
+
+The bridge updates itself: at each start it compares its version with the home copy
+`~/.verstak-bridge/verstak-bridge.mjs` — a newer self goes into the home, a newer home runs
+instead; periodically it asks this repository's releases and, if there is a newer one,
+downloads the bridge, the OpenCode plugin (if installed) and this file into the home, and
+tells the agent with a `DELIVERY BEHIND` line in a tool response. On demand:
+
+```sh
+node ~/.verstak-bridge/verstak-bridge.mjs update
+```
+
+Where a plugin brings the bridge (Claude Code, pi), there may be no home copy: the path of
+the running bridge is printed in the `[verstak-bridge]` block of a `verstak_stand`
+response; call `update` and `doctor` by it.
+
+The bridge does not update the skill — the harness channel does. After `update` repeat
+step 1 of your branch (`/plugin marketplace update verstak-ai` and `/reload-plugins` in
+Claude Code; `npx skills add verstak-ai/skills --all --global` again;
+`pi update git:github.com/verstak-ai/skills`), then restart the session: a bridge of the
+previous build lives until its session ends.
+
+## 4. Restart
+
+Tell the user installation is done and ask them to restart the session so the skill and
+the connection are picked up, then to start the new session with the `verstak` door
+(`/verstak:verstak` with the Claude Code plugin). This is the end of what you can do here.
+
+## 5. First session
+
+In the fresh session the user calls the `verstak` door and says what they want in their
+own words. The agent checks the connection — `verstak_realm(action="list")` answers with
+the graphs — and the door leads from there: a repository without `AGENTS.md` gets the
+`align` method, which brings it to the verstak standard (`AGENTS.md` + session rituals) and
+seeds the graph with the structure the codebase already shows.
 
 ## Troubleshooting
 
 - **A command was refused, or is waiting on approval** → a permission decision, not an
-  installation failure. Do not rephrase the command and do not switch to a different
-  install path — a flat install is another product, not a workaround. Say which step you
-  are on, the exact command, and what approving it does; then stop and wait. On approval,
-  re-run that command and continue — steps that already succeeded are not repeated.
-  Seen in the wild: `claude plugin install` blocked by an auto-mode permission
-  classifier on the first attempt — same handling, approve and re-run. Also seen: the
-  step 0 env check and even read-only MCP calls denied by the same classifier — for
-  detection, don't re-ask; context signals (step 0) answer it without any command.
-- **Desktop: `plugin:verstak:nks` still says `Needs authentication` after a successful
-  setup** → expected, and permanent. The plugin does not authorize its own bundled
-  server; the connector that works is the separate `claude.ai nks` entry. Two entries
-  against the same URL is the normal end state (step 2). Judge the install by whether
-  `nks_me(action="whoami")` answers, not by that line.
-- **Desktop: Connect button greyed out or missing** → known upstream behavior for
-  plugin-bundled OAuth servers. Do the Connect on **claude.ai** instead, then restart the
-  desktop app to pick it up.
-- **Terminal says `Connected`, desktop shows unauthorized** → not a broken install. MCP
-  credentials are per surface: the terminal login authorized the terminal binary's store,
-  which the desktop app never reads. Authorize the desktop through its own path (step 2,
-  Claude Desktop).
-- **`Couldn't register with nks's sign-in service` (may cite an `ofid_…` reference)** →
-  a rate limit on the sign-in service, most often tripped by disconnecting and
-  reconnecting straight away. **Wait a minute, press Connect again.** Nothing is broken
-  and nothing needs reinstalling.
-- **`Couldn't connect` immediately, without ever showing a login page** → the sign-in
-  service was never reached, so this is not something the install can fix. Retry once; if
-  it repeats, report it with the exact message — it is a server-side problem. (A login
-  page that appears and *then* fails is a different fault; say which one you saw.)
-- **Credential suddenly wiped (401s, empty token, no refresh token in the store)** →
-  refresh-rotation race: several Claude binaries (terminal CLI, desktop-bundled engine,
-  parallel sessions) share one credential entry, and whichever refreshes second presents
-  an already-rotated refresh token, killing the token family. Do not probe the same
-  server from several binaries around token expiry. Recover with
-  `claude mcp logout plugin:verstak:nks`, then one login from the surface you actually
-  use.
-- **Plugin installed (CLI or claude.ai), missing from the desktop's plugin list** →
-  reload the app (**Cmd+R** / **Ctrl+R**) or restart it.
-- **401 / auth error, or an OAuth login that will not complete** → try the login once
-  more (`/mcp` → authenticate, or restart the session); on Claude Desktop, the Customize
-  step in step 2. If it repeats, clear the stored credential instead of logging
-  in on top of it — `claude mcp logout plugin:verstak:nks` for the plugin, or
-  `codex mcp logout nks` for Codex — then run the matching OAuth login once. If it still
-  fails, report the exact OAuth error and stop. If you are reinstalling the Claude plugin
-  too, log out *before* removing it, or the qualified server name stops resolving.
-- **`claude mcp login nks` → no such server** → with the plugin the server is
-  `plugin:verstak:nks`. Run `claude mcp list` and copy the name from there.
-- **`stdin isn't a terminal, so authentication can't be completed here`** → your shell has
-  no TTY, not a broken login. Re-run it under `script` as in step 2; the localhost
-  callback finishes the flow without any input. **Terminal path only** — on a
-  desktop-hosted session there is no login for you to run in the first place.
-- **`nks_*` tools not visible** → the MCP config loads on session start, so restart the
-  session and verify again. Tools stay invisible in the session that authorized the
-  server — expected, not a failed login.
-- **A native connector's OAuth keeps failing the user** (repeated re-auth after idle,
-  calls hanging while the server is alive on other surfaces) → switch that harness to the
-  bundled bridge (see step 2, "Harness without native https+OAuth MCP"): its token store
-  is its own (`~/.verstak-bridge/`), isolated from shared credential entries, its refresh
-  runs in the background even while idle, and failures surface as errors, never hangs.
-- **Skill name collision on flat installs** → another skill pack already uses a bare
-  name like `design`. Rename that directory, or use the Claude Code plugin channel,
-  which namespaces everything under `verstak`.
+  installation failure. Do not rephrase the command and do not switch install paths. Say
+  which step you are on, the exact command, and what approving it does; then wait. On
+  approval re-run it and continue.
+- **No `verstak_*` tools in the session** → MCP config loads at session start: restart the
+  session and check again. Then `node BRIDGE doctor` from the project directory — it names
+  every mismatch with its fix.
+- **Every call answers with a sign-in link** → no grant yet: give the link to the user,
+  repeat the call after they sign in. One link per machine, valid while any bridge listens.
+- **Sign-in keeps failing** → a personal token (section 2).
+- **An error names `verstak-bridge` and a verdict** → do what it says; quote the build from
+  `node BRIDGE --version` when reporting a breakage.
+- **Skill name collision on flat installs** → another pack ships a skill named `verstak`.
+  Rename that directory, or use the Claude Code plugin channel, which namespaces it.

@@ -26,18 +26,18 @@ export const GLOBAL_PREFIX = `__${PRODUCT}`;
 
 /**
  * The skill carrying the bridge and the bridge file in its `scripts/`: the set root is
- * recognised by them. The multi-skill layout ships the bridge in `establish-mcp`; the
- * one-skill layout moves it to `verstak`.
+ * recognised by them — `verstak/SKILL.md` beside `verstak/scripts/verstak-bridge.mjs`,
+ * the one skill of the set.
  */
-export const BRIDGE_SKILL = "establish-mcp";
+export const BRIDGE_SKILL = PRODUCT;
 export const BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
 /** The OpenCode plugin in the delivery (beside the bridge) and its copy's name in OpenCode's `plugins/`. */
 export const PLUGIN_FILE = "opencode-plugin.js";
 export const PLUGIN_COPY_FILE = `${PRODUCT}.js`;
 /**
  * Stamp mask of the set from its root: `*` is a skill directory, then a file path inside
- * the skill or `**` for all its files. Every file of every skill is measured, so an edit
- * under references/ (or, in the one-skill layout, methods/) moves the stamp too.
+ * the skill or `**` for all its files. Every file of the skill is measured, so an edit
+ * under methods/, references/ or templates/ moves the stamp too.
  */
 export const SKILL_STAMP_MASK = "*/**";
 /** The delivery's skill set: the `npx skills` source, the releases repository. */

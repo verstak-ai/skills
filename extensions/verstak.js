@@ -22,7 +22,7 @@ var BRIDGE_NAME = `${PRODUCT}-bridge`;
 var HOME_DIR = `.${BRIDGE_NAME}`;
 var HOME_BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
 var GLOBAL_PREFIX = `__${PRODUCT}`;
-var BRIDGE_SKILL = "establish-mcp";
+var BRIDGE_SKILL = PRODUCT;
 var BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
 var PLUGIN_COPY_FILE = `${PRODUCT}.js`;
 var SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
@@ -138,7 +138,7 @@ var PI = {
 // js/delivery/words/plugin.ts
 var PLUGIN = {
   en: {
-    noBridge: (tried) => "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge with the establish-mcp skill.",
+    noBridge: (tried) => "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
     bridgeLine: (line) => `Verstak/bridge: ${line}`,
     notRaised: (message) => `Verstak: the bridge did not come up — ${message}`,
     refusalNoText: (name) => `${name}: refusal without text`,

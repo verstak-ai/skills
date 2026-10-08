@@ -19,7 +19,7 @@ export interface RitualWords {
 }
 
 const ruleEn = (section: string): string =>
-  `the rule is the verstakify skill, "${section}"; the sample is its references/harness-surfaces.md`;
+  `the rule is the verstak skill's align method, "${section}"; the sample is its references/align-harness-surfaces.md`;
 
 export const RITUALS: Readonly<Record<Lang, RitualWords>> = {
   en: {

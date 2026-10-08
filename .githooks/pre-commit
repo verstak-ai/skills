@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # On every commit: lint and format the staged js/ sources, rebuild the dev build of
 # the shipped JS into dist/dev (outside the index — tests run it), and keep the
-# committed .skill bundles in sync with skills/<name>/. The committed JS outputs are
-# a release build written by make build-release; this hook never touches them.
+# committed verstak.skill bundle and home/ in sync with skills/verstak/. The committed
+# JS outputs are a release build written by make build-release; this hook never touches them.
 # Enable once with: make hooks   (sets core.hooksPath -> .githooks)
 set -euo pipefail
 
@@ -18,4 +18,4 @@ if [[ -n "$(git diff --cached --name-only -- js/)" ]]; then
   node js/build.mjs >/dev/null
 fi
 bash "$root/scripts/build-skills.sh" >/dev/null
-git add -- "$root"/*.skill
+git add -- "$root/verstak.skill" "$root/home"

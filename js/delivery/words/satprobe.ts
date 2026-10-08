@@ -21,7 +21,7 @@ export interface SatProbeWords {
 export const SAT_PROBE: Readonly<Record<Lang, SatProbeWords>> = {
   en: {
     loginAdvice: () =>
-      "log in: call any verstak_* tool in the main session and open the login link from its answer (or put a personal token in ~/.verstak-bridge/token — the establish-mcp skill), then repeat doctor",
+      "log in: call any verstak_* tool in the main session and open the login link from its answer (or put a personal token in ~/.verstak-bridge/token — the verstak skill, its establish-mcp method), then repeat doctor",
     exited: (code) => `exited with code ${code}`,
     refusalLogin: (label, what, advice) =>
       `probe "${label}": ${what} — the satellite is not logged in: the machine grant is dead or revoked → ${advice}`,

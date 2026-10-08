@@ -1,4 +1,4 @@
-.PHONY: build validate check-bundles check-surface surface check test hooks plugin deps check-core lint format format-check typecheck build-js build-release check-js check-frozen
+.PHONY: build validate check-bundles check-surface surface check test hooks deps check-core lint format format-check typecheck build-js build-release check-js check-frozen
 
 # Run the full CI gate locally: frontmatter contract + bundle sync + surface lint
 # + the JS ladder (core boundary → lint → format → types → shipped outputs are a
@@ -17,7 +17,7 @@ deps:
 validate:
 	@node scripts/validate-skills.mjs
 
-# Verify committed .skill bundles match their source skills/<name>/.
+# Verify the committed verstak.skill bundle matches skills/verstak/.
 check-bundles:
 	@bash scripts/check-bundles.sh
 
@@ -79,16 +79,12 @@ check-frozen:
 surface:
 	@node scripts/export-surface.mjs
 
-# The dev build of the shipped JS, then the <name>.skill bundles from skills/
-# (they carry the committed — release — outputs).
+# The dev build of the shipped JS, then the verstak.skill bundle and home/ from
+# skills/verstak/ (the bundle carries the committed — release — outputs).
 build: build-js
 	@bash scripts/build-skills.sh
 
-# Build the claude.ai plugin archive (dist/verstak.zip). CI attaches it to each GitHub Release.
-plugin:
-	@bash scripts/build-plugin.sh
-
-# Enable the repo's pre-commit hook (lint-staged, dev build, .skill bundles).
+# Enable the repo's pre-commit hook (lint-staged, dev build, verstak.skill and home/).
 hooks:
 	@git config core.hooksPath .githooks
 	@echo "core.hooksPath -> .githooks"

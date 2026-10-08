@@ -12,7 +12,13 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
 fail=0
-for d in skills/*/; do
+for bundle in *.skill; do
+  if [[ "$bundle" != "verstak.skill" ]]; then
+    echo "✗ $bundle: unexpected bundle (only verstak.skill ships)"
+    fail=1
+  fi
+done
+for d in skills/verstak/; do
   name="$(basename "$d")"
   bundle="$name.skill"
   if [[ ! -f "$bundle" ]]; then
@@ -25,6 +31,9 @@ for d in skills/*/; do
   if [[ ! -d "$tmp/$name" ]]; then
     echo "✗ $bundle: must contain a top-level '$name/' directory (won't install otherwise)"
     fail=1
+  elif [[ $(find "$tmp" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ') != 1 ]]; then
+    echo "✗ $bundle: unexpected entries outside '$name/'"
+    fail=1
   elif ! diff -r "skills/$name" "$tmp/$name" >/dev/null 2>&1; then
     echo "✗ $bundle: contents differ from skills/$name/ — run 'make build' and commit:"
     diff -r "skills/$name" "$tmp/$name" | sed 's/^/    /'
@@ -33,9 +42,15 @@ for d in skills/*/; do
   rm -rf "$tmp"
 done
 
+# home/ — the conversation home's flat catalogue — is generated from
+# skills/verstak/methods/ and must not drift from it.
+if ! node scripts/build-home.mjs --check; then
+  fail=1
+fi
+
 if [[ $fail -ne 0 ]]; then
   echo ""
-  echo "Bundles are out of sync. Run 'make build' (or enable the hook with 'make hooks') and commit."
+  echo "Bundles or home/ are out of sync. Run 'make build' (or enable the hook with 'make hooks') and commit."
   exit 1
 fi
 echo "✓ all .skill bundles in sync with skills/"
