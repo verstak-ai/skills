@@ -106,7 +106,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 | Core boundary and pin | `make check-core` (no delivery name in the core; the core equals `js/core.lock`) |
 | Sync the core from the sibling | `scripts/sync-core.sh SIBLING_REPO_DIR REF` |
 | Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
-| Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the committed outputs carry no dev mark) |
+| Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the release mark and embedded versions against `js/delivery/version.ts`) |
 | Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs`) |
 | Refresh the surface snapshot (network + authorized grant, through the bundled bridge) | `make surface` |
 
