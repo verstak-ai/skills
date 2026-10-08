@@ -4,10 +4,11 @@ name: CI
 # unescaped quote in a description) installs silently into every agent that loads
 # the skill, degrading methodology with no crash. This workflow is the loud gate:
 # it validates the frontmatter contract and proves the committed .skill bundles
-# match their source. One artifact is code — the bundled verstak-bridge — and it
-# carries a behavioural suite, because its failures (a dead callback listener, a
-# burnt refresh grant) are silent for the agent and only visible to a human whose
-# login went nowhere.
+# match their source. One artifact is code — the bundled verstak-bridge, built from
+# js/ (the sibling delivery's core plus our delivery layer) — and it carries a
+# behavioural suite, because its failures (a dead callback listener, a burnt
+# refresh grant) are silent for the agent and only visible to a human whose login
+# went nowhere.
 
 on:
   push:
@@ -25,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
       - run: make validate
 
   bundles-in-sync:
@@ -35,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
       - name: Verify committed bundles and home/ match skills/ (content, not raw bytes)
         run: make check-bundles
 
@@ -46,17 +47,38 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
       - name: Lint tool names and enum values against fixtures/surface.json
         run: make check-surface
 
-  bridge-tests:
-    name: verstak-bridge behaves
+  core-boundary:
+    name: Bridge core names no delivery and matches its pinned copy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-      - name: Drive the bridge over stdio against a local fake NKS + OAuth server
+          node-version-file: .nvmrc
+      - run: make check-core
+
+  js:
+    name: verstak-bridge builds and behaves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+      - run: make deps
+      - run: make lint
+      - run: make format-check
+      - run: make typecheck
+      - name: The committed outputs are a release build
+        run: make check-js
+      # Loopback listeners and the daemon's sockets take ephemeral ports; a wide,
+      # high range keeps parallel suites from colliding with fixed test ports.
+      - run: sudo sysctl -w net.ipv4.ip_local_port_range="44000 60999"
+      - name: Drive the bridge over stdio against a local fake server, and the layer's own contracts
         run: make test

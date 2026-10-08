@@ -84,11 +84,11 @@ Use a local agent harness that can run the stdio bridge; the browser app cannot.
 - `skills/verstak/SKILL.md` — the door, with skill frontmatter.
 - `skills/verstak/methods/*.md` — methods, without frontmatter.
 - `skills/verstak/references/*.md` and `templates/*.md` — supporting material, without frontmatter.
-- `skills/verstak/scripts/verstak-bridge.mjs` — the unchanged stdio-to-HTTP OAuth bridge.
+- `skills/verstak/scripts/verstak-bridge.mjs`, `opencode-plugin.js` — the stdio-to-HTTP OAuth bridge and the OpenCode plugin, built from `js/` (the shared core plus the English delivery layer); `extensions/verstak.js` — the pi extension. Never edited by hand.
 - `verstak.skill` — the only committed derived bundle; contains the complete `verstak/` tree.
 - `home/` — the verstak.ai conversation home's flat catalogue: `assistant`, `minding` and `widgets` as standalone `SKILL.md` files, generated from their methods; not part of the plugin.
 - `.claude-plugin/` — Claude Code plugin and marketplace metadata.
 
-Run `make build` to regenerate the bundle and `home/`, `make check` for the full local gate,
+Run `make deps` once for the `js/` toolchain, `make build` to regenerate the bundle and `home/`, `make check` for the full local gate,
 or `make hooks` to rebuild automatically before commits. `make surface` refreshes
 the snapshot from `https://mcp.verstak.ai/` when that server is available.

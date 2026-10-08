@@ -15,9 +15,47 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
+      pr: ${{ steps.release.outputs.pr }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  # release-please stamps VERSION in js/delivery/version.ts (extra-files generic)
+  # inside the release PR, but it cannot rebuild the derived artifacts — the
+  # shipped JS outputs built from that source and the committed .skill bundles
+  # that carry them — and a derived file that lags its source is exactly what
+  # make check-js / check-bundles guard against. So the release branch gets
+  # everything rebuilt here, right after release-please (re)writes it; a later
+  # regeneration of the branch re-runs this job through the same main push.
+  bundle-sync:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.pr }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ fromJSON(needs.release-please.outputs.pr).headBranchName }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+      - run: make deps
+      # The committed outputs are written only here, as the release build (the
+      # release channel stamped in): every install channel takes main, and only
+      # such a bridge refreshes a machine's home copy; a working copy builds dev
+      # into dist/dev.
+      - name: Rebuild the shipped JS and the bundles for the stamped version
+        run: make build-release
+      - name: Commit them back to the release branch
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: rebuild the shipped JS and bundles for the stamped version"
+          git push
+

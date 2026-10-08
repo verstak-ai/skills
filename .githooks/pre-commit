@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
-# Keep the committed verstak.skill bundle and home/ in sync with skills/verstak/ on every commit.
+# On every commit: lint and format the staged js/ sources, rebuild the dev build of
+# the shipped JS into dist/dev (outside the index — tests run it), and keep the
+# committed verstak.skill bundle and home/ in sync with skills/verstak/. The committed
+# JS outputs are a release build written by make build-release; this hook never touches them.
 # Enable once with: make hooks   (sets core.hooksPath -> .githooks)
 set -euo pipefail
 
 root="$(git rev-parse --show-toplevel)"
+cd "$root"
+
+if [[ -n "$(git diff --cached --name-only -- js/)" ]]; then
+  if [[ ! -d js/node_modules ]]; then
+    echo "pre-commit: js/ is staged but js/node_modules is missing — run 'make deps' (lint and build need the js/ toolchain)" >&2
+    exit 1
+  fi
+  (cd js && npx --no-install lint-staged)
+  node js/build.mjs >/dev/null
+fi
 bash "$root/scripts/build-skills.sh" >/dev/null
 git add -- "$root/verstak.skill" "$root/home"

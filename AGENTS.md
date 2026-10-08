@@ -11,9 +11,9 @@
 'Agent role — source': 'derived'
 'Owner role': '#1226 "👑 Product owner" — svatantra, the posed_to address for out-of-mandate questions'
 'Owner role — source': 'derived'
-'Stack': 'Markdown skill corpus (one door, methods, references, templates) packed into verstak.skill; dependency-free Node + bash for the bridge, build and gate; Claude Code plugin marketplace versioned by release-please'
+'Stack': 'Markdown skill corpus (one door, methods, references, templates) packed into verstak.skill; the bridge in TypeScript under js/ (the sibling core + our delivery layer), built by esbuild into dependency-free files; Node + bash for build and gate; Claude Code plugin marketplace versioned by release-please'
 'Stack — source': 'derived'
-'Gate': 'make check (validate + check-bundles + check-surface + test); CI runs the same targets'
+'Gate': 'make check (validate + check-bundles + check-surface + check-core + lint + format-check + typecheck + check-js + test); CI runs the same targets'
 'Gate — source': 'derived'
 'Consumers': 'agents in other repos that load the installed skill every session; they learn of breakage only as method drift, never a crash; the bridge''s failures land on a human whose browser login went nowhere'
 'Consumers — source': 'derived'
@@ -79,10 +79,15 @@ Touching one obliges checking the others. Found by graph traversal, not by grep 
 | `collaborate` address-line contract | this skill + the bridge that relays a human onto an agent's channel | deliberately duplicated: neither side can read the other's copy, so drift is caught by meaning alone |
 | grundsatz nodes in #844 (writing/placement rules) | several applying kriyas each, via `upadhi` | a duplicate principle grows here unseen — one rule under two nodes with disjoint consumers, fixed on one and stale on the other |
 | Sibling delivery (holon #1506) | its own deployment, on a separate graph instance | a realm address hardcoded in a skill does not survive the crossing |
+| The bridge core `js/{bridge,shared,opencode,extension,watchdog,cli}` | the sibling delivery, which owns it; our build | copied byte for byte, pinned by `js/core.lock`; a core change lands upstream with its suite and comes here by `scripts/sync-core.sh` |
+| The export set of `js/delivery/index.ts` | every core file (it imports the layer by this one path) | a missing or reshaped export is a `make typecheck` error in the core; a new core export lands here in the same sync |
+| The skill layout: `js/delivery/product.ts` (`BRIDGE_SKILL`, `BRIDGE_FILE`, `PLUGIN_FILE`, `SKILL_STAMP_MASK`), the output paths in `js/build.mjs`, `js/tests/built.mjs`, `scripts/check-outputs-frozen.sh`, `.mcp.json`, `SETUP.md` | the core's set recognition (`verstak/SKILL.md` + `verstak/scripts/verstak-bridge.mjs`), self-update downloads, doctor, the plugin's MCP entry, installers | one layout named in several places; moving the bridge moves all of them, and bridges already released keep fetching their own path |
 
 ## Stack
 - Distributed as a Claude Code plugin marketplace (`verstak@verstak-ai`), semver in `.claude-plugin/plugin.json`, bumped by **release-please** from the Conventional Commits on `main` (feat → minor, feat!/BREAKING → major, else patch): merging its release PR writes the version, tags `vX.Y.Z` and cuts a GitHub Release with a `CHANGELOG.md` entry. Never by hand.
-- No runtime dependencies, no lockfiles; CI is pure Node + bash: format for the corpus, behaviour for the bridge.
+- No runtime dependencies: every shipped file is dependency-free. The bridge is TypeScript under `js/` — the sibling delivery's core copied as is plus our English delivery layer `js/delivery/` — built by esbuild with a dev-only toolchain and the only lockfile in `js/` (Node 22, `.nvmrc`; never at the root: Claude Code runs `npm ci` on a plugin whose root carries one).
+- The committed JS outputs (`skills/verstak/scripts/verstak-bridge.mjs`, `skills/verstak/scripts/opencode-plugin.js`, `extensions/verstak.js`) are a **release build**, written only by the release job (`make build-release` in `bundle-sync`); a working copy builds dev into `dist/dev/`, which the tests run.
+- CI: format and surface lint for the corpus, the JS ladder (core boundary, lint, format, types, release-build check) and behaviour for the bridge — `.github/workflows/ci.yml`.
 
 ## Commands
 Edit the source under `skills/verstak/` directly — no unzip dance.
@@ -90,14 +95,19 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 | Task | Command |
 |---|---|
 | Search the corpus | `grep` over `skills/` (plain text) |
-| Rebuild the bundle | `make build` (deterministic; the pre-commit hook does it) |
+| Rebuild the bundle and `home/` | `make build` (dev JS build into `dist/dev/`, then `verstak.skill` and `home/`; the pre-commit hook does it) |
 | Enable the pre-commit hook, once per clone | `make hooks` (`core.hooksPath -> .githooks`) |
+| Install the JS toolchain, once per clone | `make deps` (`npm ci` in `js/`) |
 | Inspect the bundle | `unzip -l verstak.skill` |
-| Full gate | `make check` = `make validate` + `make check-bundles` + `make check-surface` + `make test` |
+| Full gate | `make check` = `validate` + `check-bundles` + `check-surface` + `check-core` + `lint` + `format-check` + `typecheck` + `check-js` + `test` |
 | Frontmatter, inventories, links, banned text | `make validate` |
 | Bundle ↔ source | `make check-bundles` |
 | Corpus ↔ surface snapshot (offline) | `make check-surface` |
-| Bridge behaviour (offline, local fake graph + OAuth server) | `make test` |
+| Core boundary and pin | `make check-core` (no delivery name in the core; the core equals `js/core.lock`) |
+| Sync the core from the sibling | `scripts/sync-core.sh SIBLING_REPO_DIR REF` |
+| Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
+| Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the committed outputs carry no dev mark) |
+| Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs`) |
 | Refresh the surface snapshot (network + authorized grant, through the bundled bridge) | `make surface` |
 
 `make validate` also bans Cyrillic and the retired delivery name in every tracked text file except `CHANGELOG.md`.
@@ -106,20 +116,23 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `skills/verstak/SKILL.md` — **source of truth**, one skill (`verstak`); the door selects plain Markdown methods.
 - `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `minding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `widgets`, `writing`).
 - `skills/verstak/references/*.md`, `skills/verstak/templates/*` — supporting material without frontmatter. `templates/agents-template.md` + `methods/align.md` bootstrap other repos; this file is this repo's own config — don't confuse them.
-- `skills/verstak/scripts/verstak-bridge.mjs` — the stdio↔https OAuth bridge, code under the same source-of-truth rule.
+- `skills/verstak/scripts/verstak-bridge.mjs` — the stdio↔https OAuth bridge with its daemon, watchdogs and doctor; `skills/verstak/scripts/opencode-plugin.js` — the OpenCode plugin. Both derived from `js/`, never edited by hand.
+- `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (product names and the skill layout, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs`, the dev toolchain (`package.json`, lockfile, `tsconfig.json`, eslint, prettier).
+- `extensions/verstak.js` — the built pi extension (pi loads `extensions/`).
+- `.mcp.json` — the plugin's MCP server `verstak`: the bundled bridge, `node ${CLAUDE_PLUGIN_ROOT}/skills/verstak/scripts/verstak-bridge.mjs`.
 - `verstak.skill` — the only derived bundle (a top-level `verstak/` tree), committed for manual install.
 - `home/` — the verstak.ai conversation home's flat home catalogue (`assistant`, `minding`, `widgets`): `home/NAME/SKILL.md`, generated by `make build` (`scripts/build-home.mjs`) from `skills/verstak/methods/NAME.md` with frontmatter added and every pointer into the rest of the skill rewritten — derived, never edited. Outside `skills/`, so plugin auto-discovery never ships it.
 - `.claude-plugin/plugin.json` — its `version` is what Claude Code reads to deliver updates. `.claude-plugin/marketplace.json` — `metadata.version` and the plugin entry's `version` mirror it (`make validate` fails on divergence); no component lists, skills auto-discover from `skills/`.
 - `release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml` — releases; `CHANGELOG.md` is written by them.
-- `Makefile`, `scripts/build-skills.sh`, `.githooks/pre-commit` — the build. `scripts/validate-skills.mjs`, `scripts/check-bundles.sh`, `scripts/check-surface.mjs` + `fixtures/surface.json` (refreshed by `scripts/export-surface.mjs`), `.github/workflows/ci.yml` — the gate.
-- `tests/` — the bridge's black-box suite (`node:test`): `bridge.test.mjs` drives the real script over stdio, `fake-nks.mjs` stands in for an OAuth-protected MCP server and answers the consent the test gives on the human's behalf. `VERSTAK_BRIDGE_PATH` (resolved from the invoking directory) points it at any other copy.
+- `Makefile`, `scripts/build-skills.sh`, `js/build.mjs`, `.githooks/pre-commit` — the build. `scripts/validate-skills.mjs`, `scripts/check-bundles.sh`, `scripts/check-surface.mjs` + `fixtures/surface.json` (refreshed by `scripts/export-surface.mjs`), `scripts/check-core.mjs` + `scripts/check-core-lock.mjs` (core boundary and pin), `scripts/check-outputs-frozen.sh` (the committed outputs change only in the release PR; wired once the first release ships them), `.github/workflows/ci.yml` — the gate.
+- `js/tests/` — `node:test` suites: `bridge.test.mjs` drives the built bridge over stdio (full bridge and machine daemon), `fake-server.mjs` stands in for an OAuth-protected MCP server and answers the consent the test gives on the human's behalf; `core-gate`, `delivery-words`, `delivery`, `coexist` test the core boundary and pin, the dictionaries' shape, the version and names, and a second product built from the same core. Black box: they run `dist/dev`, or any copy named by `VERSTAK_BRIDGE_PATH`.
 - `DERIVATION.md` — the skills ← canon re-projection map and the four-layer language contract. `SETUP.md` — the agent-executable installer. `README.md` — short, for people.
 - `REALITY.md` — claim carriers. `CLAUDE.md` — a **symlink** to this file: one file answers every harness; keep it a symlink.
 - `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — delegation roles; their `description` routes them, so it stays trigger-shaped.
-- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`. Scratch is **not** ignored: keep working files out of the tree.
+- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules/`. Scratch is **not** ignored: keep working files out of the tree.
 
 ## Code conventions
-- Graph references: `(graph @nks/nks-dev, node #N)` in scripts, tests and this file. **Never under `skills/`**: skills ship to users without access to this graph or `methodology`, and seqs are instance-specific — name concepts by name; keep only syntax placeholders (`#42`, `#N`, GitHub `#123`).
+- Graph references: `(graph @nks/nks-dev, node #N)` in scripts, tests and this file. **Never under `skills/`**: skills ship to users without access to this graph or `methodology`, and seqs are instance-specific — name concepts by name; keep only syntax placeholders (`#42`, `#N`, GitHub `#123`). The built outputs under `skills/verstak/scripts/` and `extensions/` keep the core's code comments as they are: the sibling's source, not our prose.
 - **`SKILL.md` frontmatter** is parseable, flat, single-line YAML with three keys and no others: `name` (kebab, matches the dir), `description` (double-quoted, inner quotes escaped `\"`, explicit trigger phrases — it routes the skill), optional `slash: true` (plain boolean; quoted `"true"` fails). No `<` or `>` in a description: the claude.ai plugin loader rejects the whole plugin. `scripts/validate-skills.mjs` is the contract — read it before adding a key.
 - **One skill, `verstak`**: `/verstak:verstak` from the plugin, `/verstak` from a flat install; methods are selected by the door. New method → `methods/NAME.md` without frontmatter, routed from the door, plus its graph pair; never component lists in `marketplace.json`/`plugin.json`.
 - **Inspect the real source** before editing: `skills/verstak/`, not the zip, not an installed copy. Touch only the steps the task needs; match the file's register and terminology; no mass rewrite for one fix.
@@ -129,11 +142,12 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **A `references/*.md` file is read when something goes wrong, not while doing the step**: the actual call and the first-try trap belong in the method body; the reference carries full shape, failure table, per-harness detail. (why: witnessed twice — the socket-holding call sat only in `references/collaborate-channel.md`, and no doer opened it while connecting.)
 - **Skill prose instructs, never moralises**: a rule is the question worth asking plus its checkable signs. Where a rule can be over- or under-applied, say which error costs more.
 - **Terminology is load-bearing**: `phenomenon` for the typed primitive (target of `given_as`/`ahara`/`upadhi`/`context`), `node` for the generic; `kriya`/`holon`/`karta`/`vimarsha` per the realm ontology; no retired terms (`entity`).
-- **Test discipline**: the corpus is gated on format and surface consistency only; its substance is human review of the diff — behavioural claims are what no lint sees. A bridge behaviour change lands in `tests/bridge.test.mjs` in the same commit, seen red first on the old code (`VERSTAK_BRIDGE_PATH=OLD_COPY make test`).
+- **Test discipline**: the corpus is gated on format and surface consistency only; its substance is human review of the diff — behavioural claims are what no lint sees. For the bridge, a core behaviour change is the sibling's: it lands upstream with its suite and arrives by `scripts/sync-core.sh`. Ours is the delivery layer and the build: a change there lands in `js/tests/` in the same commit, seen red first on the old code (`VERSTAK_BRIDGE_PATH=OLD_COPY make test`).
 
 ## What to update when
 - `AGENTS.md` — repo conventions, structure or the method set change; the inventory lines are linted against the tree.
 - `REALITY.md` — a carrier appears, changes or turns out unreachable; dated measurements go to the graph.
+- `js/core.lock` and the core — when the sibling delivery's core moves: `scripts/sync-core.sh`, then `make check`; a new or reshaped export in its `delivery/index.ts` lands in ours in the same commit.
 - `fixtures/surface.json` — the tool surface renames, drops or adds a name or enum: `make surface`, review the diff, commit.
 - `README.md` — the skill and method tables, whenever the set changes.
 - `DERIVATION.md` — walk it after any methodology-canon change; extend it when a new canon landmark is projected into a skill.

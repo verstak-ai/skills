@@ -13,10 +13,10 @@
 // skills actually use (two flat, single-line keys), which both catches malformed
 // YAML and keeps the frontmatter simple.
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsDir = join(root, "skills");
@@ -377,11 +377,13 @@ for (const file of ["AGENTS.md", "README.md"]) {
   for (const name of listed) if (!methodNames.includes(name)) fail(file, `method ${name} has no methods file`);
 }
 
-// Inspect working-tree contents of tracked text, not history or binary bundles.
-// Include the new delivery before staging so the local gate sees concurrent work.
-const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
-for (const file of new Set([...tracked, ...contentFiles])) {
+// Inspect working-tree contents of text (tracked, or new and not ignored), not
+// history or binary bundles, so the local gate sees work before it is staged.
+const ls = (args) =>
+  execFileSync("git", ["ls-files", "-z", ...args], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+for (const file of new Set([...ls([]), ...ls(["--others", "--exclude-standard"]), ...contentFiles])) {
   if (file === "CHANGELOG.md" || !existsSync(join(root, file))) continue;
+  if (statSync(join(root, file)).isDirectory()) continue;
   const buffer = readFileSync(join(root, file));
   if (buffer.includes(0)) continue;
   const text = buffer.toString("utf8");
