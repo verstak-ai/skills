@@ -44,6 +44,8 @@ Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive
 | historical concept or principle | Pm | At | Up | historical — a qualifier, not an ending |
 | external text, past | Pm | Va | Up | an authoritative briefing |
 | external text, project | An | Ag | Ch | a design document |
+| proposed transformation | Kl/An | Ag | Ch | ahead · wanted — an agent's assumption until the owner accepts name and telos |
+| accepted transformation | Kl/An | Ag | Ad | ahead · held — the owner's act, their words in `reasoning` |
 
 Describing what works → start from "observation"; intending → from "intent".
 
@@ -95,7 +97,7 @@ Forward along the carrier and rising confidence (Kl → An → Pt → Pm) are le
 7. **Phased out → retired:** Pt/Va/Vi → Pt/At/Vs.
 8. **Unwanted → accepted:** Vi → Up, ontic untouched — the owner's act. A kriya consuming the defect moves it to At instead.
 9. **Vimarsha → accepted as is:** Ch/Ad → Up; back to Ch when its anchor changes.
-10. **Proposed → in force:** Ch → Ad — the owner's act.
+10. **Proposed → in force (principle) or accepted (transformation):** Ch → Ad — the owner's act.
 11. **Stub → intent:** Up → Ch or Ad.
 12. **Loss:** Va → Na, At → Na — ontically carried kinds only.
 

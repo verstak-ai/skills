@@ -28,9 +28,9 @@ The gate never blocks a method's applying kriya with its phases as `contains` ch
 | **names a role with a motivation** | `karta` | `verstak_add_karta` |
 | **transforms the system qualitatively** — a becoming with a telos | `bianhua` | `verstak_add_bianhua` |
 
-A **kriya** ("action") is a contestable claim about a transition — "given X, actor A produces Y" — not an instruction. A **phenomenon** is what presents itself to an action (the noema to the kriya's noesis); it exists *for* a kriya — if none consumes, produces or applies it, you are writing an orphan. A **vimarsha** is an open question holding a tension. A **holon** is a boundary, defined by the questions about its edge. A **karta** is a role with a motivation, not a person. A **bianhua** (变化) is a qualitative transformation.
+A **kriya** ("action") is a contestable claim about a transition — "given X, actor A produces Y" — not an instruction. A **phenomenon** is what presents itself to an action (the noema to the kriya's noesis); it exists *for* a kriya — if none consumes, produces or applies it, you are writing an orphan. A **vimarsha** is an open question holding a tension. A **holon** is a boundary, defined by the questions about its edge. A **karta** is a role with a motivation, not a person.
 
-**bianhua is assembly-level** (`methods/assembly.md`), not a routine write. Test: "the system will become X, which it is not yet". Never one per vimarsha. Search first (`lens="bianhua"`, `verstak_semantic_search(node_type="bianhua")`): a duplicate transformation is worse than a missing one. The owner accepts its name and telos.
+A **bianhua** (变化) is assembly-level (`methods/assembly.md`), not a routine write. Test: "the system will become X, which it is not yet". Never one per vimarsha. Search first (`lens="bianhua"`, `verstak_semantic_search(node_type="bianhua")`): a duplicate transformation is worse than a missing one. You may create one as an assumption: `kalpita`/`anumita`, `anagata`, `chanda`; `adhimoksha` is only the owner's acceptance of its name and telos.
 
 Traps:
 - **Phenomenon disguised as a kriya.** "Token creation" is an act; "Access token" is what it produces. A name carrying a before/after is a kriya; what *persists* through it is a phenomenon.
@@ -55,7 +55,7 @@ Traps:
 
 `vollzug` is HOW, `grundsatz` is WHY; `sinn` names what IS, `grundsatz` what MUST BE. **A method or principle is never `ahara`/`utpatti`** (the API refuses): it is applied — `upadhi` only.
 
-**`sinn` is the cheapest cell, so the easiest place to hide.** What a kriya goes *through* is a `ding` or `sachverhalt` with an `upadhi`; what it eats or produces is `ahara`/`utpatti`; `sinn` is for a concept that does nothing and nothing is done through. **A node isn't written until you've named what pulls on it** — which kriya breaks if it disappears? None → you're hiding a thing in a concept to avoid owning its lifecycle. A lone `context` arrow answers nothing; the orphan check stays.
+**`sinn` is the cheapest cell, so the easiest place to hide.** What a kriya goes *through* is a `ding` or `sachverhalt` with an `upadhi`; what it eats or produces is `ahara`/`utpatti`; `sinn` is for a concept that does nothing and nothing is done through. **A node isn't written until you've named what pulls on it** — which kriya breaks if it disappears? None → you're hiding a thing in a concept to avoid owning its lifecycle.
 
 ## Decision 2b: manifested_as (roles only)
 

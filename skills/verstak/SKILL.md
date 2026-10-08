@@ -219,7 +219,7 @@ They apply unasked.
 | Moment | Move |
 |---|---|
 | the change touches more than one thing, or an integration surface | **integrity** |
-| a structural choice is open; "think it through", "we want X" | **design**: write it into the graph this turn; only a new telos waits for the owner |
+| a structural choice is open; "think it through", "we want X" | **design**: write it into the graph this turn; a new transformation is `chanda` until accepted |
 | about to say "verified", "done", "works" | **reality-audit**: name level and carrier |
 | a task ends, or code and graph diverge | **reconcile** |
 | the method or a tool let you down | **feedback**, without dropping the work: an instance, not an opinion |

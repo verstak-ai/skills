@@ -62,10 +62,10 @@ Tensions whose move is to answer or end a question (e.g. unresolved risks) carry
 
 ### 5. Produce 形 — and arrive at understanding
 
-**The transformation is the owner's interface** — vimarshas and cases are the agent's units. Its name and telos are about the only thing the user must accept in the graph, and it is created only after that nod: interactively, propose both in your answer; autonomously, in a vimarsha `posed_to` the owner role (the agenda). Never one for a single vimarsha: `lens="bianhua"` + `verstak_semantic_search(node_type="bianhua", q=<the shift>)` → attach as `anga`; no confident match → ask in plain text, naming the transformations you see and why none fits.
+**The transformation is the owner's interface** — vimarshas and cases are the agent's units. Its name and telos are about the only thing the owner must accept in the graph. You may create it yourself, with modes that mark it as your assumption: `kalpita` (`anumita` when the field shows it), `anagata`, `chanda`, never `adhimoksha`. Propose name and telos: interactively in your answer; autonomously in a vimarsha `posed_to` the owner role (the agenda). A proposal is not acceptance: `adhimoksha` comes only from the owner's acceptance, their words in `reasoning`. Never one for a single vimarsha: `lens="bianhua"` + `verstak_semantic_search(node_type="bianhua", q=<the shift>)` → attach as `anga`; no confident match → ask in plain text, naming the transformations you see and why none fits.
 
 Then build the map:
-- **Create** (once accepted) **or refresh** each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisites>)`; `telos` = "the system becomes …". No anga-vimarsha → empty (the factory warns): attach drivers or don't create it.
+- **Create** (as a proposal, above) **or refresh** each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisites>)`; `telos` = "the system becomes …". No anga-vimarsha → empty (the factory warns): attach drivers or don't create it.
 - **Run integrity** on each freshly accepted transformation (`methods/integrity.md`).
 - **Order** with `anantara` (B only after A) — the critical path.
 - **Record the emerging pattern**: a phenomenon with `given_as=bildung`, `arose_from` its source. No `bildung` ⇒ the assembly didn't land (`methods/inquiry.md`, §6).

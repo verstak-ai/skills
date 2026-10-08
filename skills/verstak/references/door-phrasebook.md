@@ -63,7 +63,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## assembly — "I'm drowning"
 
 **Gets:** directions with goals and order, questions folded under them, an agenda of what only they decide. "pull it all together" · "what do I have to decide myself?"
-**Elsewhere:** "plan from the goal" → design · "fix the links" → weaving · "close this one question" → inquiry. A new direction's name and goal: propose, get a nod.
+**Elsewhere:** "plan from the goal" → design · "fix the links" → weaving · "close this one question" → inquiry. A new direction: create it as your proposal (`chanda`) and offer its name and goal; it is held only once the owner accepts.
 
 ## integrity — "who does this affect"
 

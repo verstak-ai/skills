@@ -4,7 +4,7 @@
 
 The graph is a stable projection of the spec: a decision or risk outside it won't survive the session; behaviour that lives only in it is unverified — external sources, public boundaries and runtime evidence are what it's checked against.
 
-**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; all you design is `anagata`+`chanda` (`vartamana` only for what already runs); risks; a vimarsha `posed_to` whoever must answer. Every arrow carries `sense`. Only a *new* transformation waits: proposed in words, created after the owner's nod (below).
+**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; all you design is `anagata`+`chanda` (`vartamana` only for what already runs); risks; a vimarsha `posed_to` whoever must answer. Every arrow carries `sense`. A *new* transformation you may create too, but as your assumption, never as accepted (below).
 
 ## Routing boundary
 
@@ -29,7 +29,7 @@ A designed node is born **planned, not done** — the design triad, and the "don
 
 ## A kriya born of will belongs to a transformation
 
-A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`): an existing one that fits takes the design's kriyas as `anga` now. A **new** one is proposed, not created: name and telos in your answer to the user, or, without the user, in a vimarsha `posed_to` the owner role. Create it (`chanda`) only after the nod — creating it while saying acceptance is pending is the error (`methods/assembly.md`, step 5).
+A kriya recorded because the user wants it to exist (or stop), not from testimony ("it works this way"), is part of a **bianhua** — a qualitative transformation whose `telos` names what the system becomes. Attach its driving vimarshas (the *path*) and the kriya itself (the *arrival*) by `anga` (grammar: `methods/writing.md`, Decision 5). Search the forest first (`lens="bianhua"`): an existing one that fits takes the design's kriyas as `anga` now. None fits → create one, with modes that say it is your assumption, not the owner's will: `kalpita` (`anumita` if derived from the field), `anagata`, `chanda` — never `adhimoksha`. Propose its name and telos in your answer to the user, or, without the user, in a vimarsha `posed_to` the owner role. A proposal is not acceptance: only the owner's acceptance moves it to `adhimoksha`, recorded with their words in `reasoning`. Until then its kriyas hang on it by `anga` as usual (`methods/assembly.md`, step 5).
 
 ## Four phases
 
@@ -87,7 +87,7 @@ For a and b, link `addressed_by` from the vimarsha; acceptance ends by mode, not
 
 Only for graphs designing external systems (not a methodology or CJM), once all is designed, `anagata`, and idle.
 
-1. **Put the work on a transformation** (above): `anga` to an existing one first; a new one only after the owner's nod.
+1. **Put the work on a transformation** (above): `anga` to an existing one first; else a new one at `chanda`, proposed to the owner.
 2. **Stage the flow**: staged delivery (test → staging → full) is ONE delivery transformation whose stages are sub-transformations (`anga`) ordered by `anantara`, each gathering its kriyas — the owner reads it as the release plan.
 3. **Work runs in a case**: `verstak_case(action="at", node=<transformation>)`; none → `open_room` on the transformation's (or stage's) write.
 4. **Set the work by reference** (`methods/architect.md`, step 5) — addressed to the `adhikarin` stewarding the holon (`steward` arrow) or the owner at strategic scale, never a `pratibimba`. Order comes from `anantara` and happens-before, not a list.
