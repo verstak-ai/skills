@@ -86,8 +86,9 @@ Use a local agent harness that can run the stdio bridge; the browser app cannot.
 - `skills/verstak/references/*.md` and `templates/*.md` — supporting material, without frontmatter.
 - `skills/verstak/scripts/verstak-bridge.mjs` — the unchanged stdio-to-HTTP OAuth bridge.
 - `verstak.skill` — the only committed derived bundle; contains the complete `verstak/` tree.
+- `home/` — the verstak.ai conversation home's flat catalogue: `assistant`, `minding` and `widgets` as standalone `SKILL.md` files, generated from their methods; not part of the plugin.
 - `.claude-plugin/` — Claude Code plugin and marketplace metadata.
 
-Run `make build` to regenerate the bundle, `make check` for the full local gate,
+Run `make build` to regenerate the bundle and `home/`, `make check` for the full local gate,
 or `make hooks` to rebuild automatically before commits. `make surface` refreshes
 the snapshot from `https://mcp.verstak.ai/` when that server is available.

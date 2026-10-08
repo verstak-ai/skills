@@ -61,9 +61,9 @@ function scalarError(value) {
   return `unterminated ${q === '"' ? "double" : "single"}-quoted value`;
 }
 
-function validateSkill(name) {
-  const where = `skills/${name}/SKILL.md`;
-  const path = join(skillsDir, name, "SKILL.md");
+function validateSkill(name, base = "skills") {
+  const where = `${base}/${name}/SKILL.md`;
+  const path = join(root, base, name, "SKILL.md");
   if (!existsSync(path)) {
     fail(where, "missing SKILL.md");
     return;
@@ -169,19 +169,29 @@ const skillNames = readdirSync(skillsDir).filter((n) =>
 if (skillNames.length === 0) fail("skills/", "no skill directories found");
 for (const name of skillNames.sort()) validateSkill(name);
 
-// 1b. Conversation-home contract: the verstak.ai home loads these skills by
-//     name, reads each description as a single line, and lifts the assistant's
-//     `## Map` section into its own prompt under a fixed budget. A missing
-//     skill, a second Map heading or an overgrown Map fails silently there.
-const HOME_SKILLS = ["assistant", "widgets"];
+// 1b. Conversation-home contract: the verstak.ai home reads a flat catalogue
+//     from home/ (SKILLS_SUBDIR=home), loads these skills by name, reads each
+//     description as a single line, and lifts the assistant's `## Map` section
+//     into its own prompt under a fixed budget. A missing skill, a second Map
+//     heading or an overgrown Map fails silently there. home/ is generated from
+//     skills/verstak/methods/ by scripts/build-home.mjs; check-bundles holds the sync.
+const HOME_SKILLS = ["assistant", "minding", "widgets"];
 const MAP_BUDGET = 1500;
+const homeDir = join(root, "home");
+const homeNames = existsSync(homeDir)
+  ? readdirSync(homeDir).filter((n) => statSync(join(homeDir, n)).isDirectory()).sort()
+  : [];
+for (const name of homeNames) if (!HOME_SKILLS.includes(name)) {
+  fail(`home/${name}`, "not part of the conversation home's catalogue");
+}
 for (const name of HOME_SKILLS) {
-  const where = `skills/${name}/SKILL.md`;
-  const path = join(skillsDir, name, "SKILL.md");
+  const where = `home/${name}/SKILL.md`;
+  const path = join(homeDir, name, "SKILL.md");
   if (!existsSync(path)) {
     fail(where, "missing — the conversation home loads this skill by name");
     continue;
   }
+  validateSkill(name, "home");
   const lines = readFileSync(path, "utf8").split("\n");
   const closeIdx = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
   const descLines = lines.slice(1, closeIdx).filter((l) => l.startsWith("description:"));
@@ -190,8 +200,8 @@ for (const name of HOME_SKILLS) {
   }
 }
 {
-  const where = "skills/assistant/SKILL.md";
-  const path = join(skillsDir, "assistant", "SKILL.md");
+  const where = "home/assistant/SKILL.md";
+  const path = join(homeDir, "assistant", "SKILL.md");
   if (existsSync(path)) {
     const lines = readFileSync(path, "utf8").split("\n");
     const heads = lines.flatMap((l, i) => (/^## Map\s*$/.test(l) ? [i] : []));
@@ -289,6 +299,20 @@ try {
   fail("AGENTS.md", `could not read: ${e.message}`);
 }
 try {
+  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  const m = /home catalogue \(([^)]*)\)/.exec(agents);
+  if (!m) {
+    fail("AGENTS.md", "home inventory line not found (\"home catalogue (…)\" in Project structure)");
+  } else {
+    const listed = [...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]).sort();
+    if (listed.join() !== HOME_SKILLS.join()) {
+      fail("AGENTS.md", `home inventory line lists ${listed.join(", ")}; the catalogue is ${HOME_SKILLS.join(", ")}`);
+    }
+  }
+} catch (e) {
+  fail("AGENTS.md", `could not read: ${e.message}`);
+}
+try {
   const readme = readFileSync(join(root, "README.md"), "utf8");
   const rows = new Set([...readme.matchAll(/^\| \*\*([a-z-]+)\*\* \|/gm)].map((x) => x[1]));
   for (const name of skillNames) if (!rows.has(name)) {
@@ -380,4 +404,4 @@ if (errors.length > 0) {
   console.error("");
   process.exit(1);
 }
-console.log(`✓ ${skillNames.length} skills valid: ${skillNames.sort().join(", ")}`);
+console.log(`✓ ${skillNames.length} skills valid: ${skillNames.sort().join(", ")}; home: ${HOME_SKILLS.join(", ")}`);

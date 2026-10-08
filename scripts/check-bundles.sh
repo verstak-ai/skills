@@ -42,9 +42,15 @@ for d in skills/verstak/; do
   rm -rf "$tmp"
 done
 
+# home/ — the conversation home's flat catalogue — is generated from
+# skills/verstak/methods/ and must not drift from it.
+if ! node scripts/build-home.mjs --check; then
+  fail=1
+fi
+
 if [[ $fail -ne 0 ]]; then
   echo ""
-  echo "Bundles are out of sync. Run 'make build' (or enable the hook with 'make hooks') and commit."
+  echo "Bundles or home/ are out of sync. Run 'make build' (or enable the hook with 'make hooks') and commit."
   exit 1
 fi
 echo "✓ all .skill bundles in sync with skills/"

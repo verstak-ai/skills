@@ -33,7 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify committed bundles match skills/ (content, not raw bytes)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify committed bundles and home/ match skills/ (content, not raw bytes)
         run: make check-bundles
 
   surface-lint:

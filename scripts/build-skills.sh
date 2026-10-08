@@ -23,3 +23,6 @@ for d in skills/verstak/; do
 done
 
 echo "Built: $(ls -1 *.skill | tr '\n' ' ')"
+
+# The conversation home's flat catalogue, generated from the same methods.
+node scripts/build-home.mjs

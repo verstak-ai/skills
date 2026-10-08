@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Keep the committed verstak.skill bundle in sync with skills/verstak/ on every commit.
+# Keep the committed verstak.skill bundle and home/ in sync with skills/verstak/ on every commit.
 # Enable once with: make hooks   (sets core.hooksPath -> .githooks)
 set -euo pipefail
 
 root="$(git rev-parse --show-toplevel)"
 bash "$root/scripts/build-skills.sh" >/dev/null
-git add -- "$root/verstak.skill"
+git add -- "$root/verstak.skill" "$root/home"
