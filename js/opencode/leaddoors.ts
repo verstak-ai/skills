@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK answers without a schema */
 import { method } from "../delivery/index.ts";
 import type { Bridge } from "../shared/bridge-client.ts";
+import { markFrame } from "../shared/frame-text.ts";
 import { W } from "./leadwords.ts";
 import type { Context } from "./plugin.ts";
 import { ownPlace, type Place, type SatelliteSlot } from "./satellite.ts";
@@ -100,6 +101,7 @@ export function teller(ctx: Context, say: Say): LeadDoors["tell"] {
   return async (sessionID, text, wake) => {
     const s: any = ctx.session;
     const delivery = "steer";
+    text = markFrame(text);
     try {
       if (typeof s.synthetic === "function")
         await s.synthetic({ sessionID, text, delivery, resume: wake });

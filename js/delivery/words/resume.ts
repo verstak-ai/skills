@@ -15,6 +15,8 @@ export interface ResumeWords {
   byRecord: () => string;
   otherSeat: (key: string, led: string) => string;
   liveBridge: (key: string) => string;
+  /** A former bridge of this session holds the socket, but takeover failed. */
+  ownNotTaken: (key: string, why: string) => string;
   noHello: (key: string) => string;
   stale: (key: string) => string;
   registerRefused: (text: string) => string;
@@ -62,6 +64,8 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     byRecord: () => "return by record",
     otherSeat: (key, led) => `${key}: the bridge leads another seat ${led}`,
     liveBridge: (key) => `${key}: held by a live bridge`,
+    ownNotTaken: (key, why) =>
+      `${key}: a former bridge of this session holds it, taking it failed — ${why}`,
     noHello: (key) =>
       `${key}: hello did not come — the record is intact, the watchdog will repeat the return; if you do not wait — ${via}`,
     stale: (key) => `${key}: the record went stale — ${via} will take the seat`,

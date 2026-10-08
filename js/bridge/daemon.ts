@@ -12,9 +12,10 @@
 //                   daemon checks releases. Handover: no new requests (unacked ones are
 //                   resent to the successor), in-flight calls awaited, seat doors closed
 //                   without "released" and without clearing busy
-//   journal         <grant dir>/run/daemon.log
+//   journal         <grant dir>/run/daemon.log; an overfull one moves to daemon.log.1
+//                   instead of being erased (store.ts rotateJournal)
 import { spawn } from "node:child_process";
-import { appendFileSync, mkdirSync, readFileSync, statSync, unlinkSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { type Server, type Socket } from "node:net";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,6 +46,7 @@ import { beginHandover, beginSessionHandover } from "./holdstate.ts";
 import { pauseForHandover } from "./pauserecord.ts";
 import { endUnreturnedPause } from "./runend.ts";
 import { type BridgeSession, openSession } from "./session.ts";
+import { rotateJournal } from "./store.ts";
 import { log, setProcessLog } from "./streams.ts";
 import { localSuspend, pauseSettled } from "./suspend.ts";
 import {
@@ -102,9 +104,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
   const journal = (line: string): void => {
     try {
       mkdirSync(run, { recursive: true, mode: 0o700 });
-      try {
-        if (statSync(journalPath).size > JOURNAL_MAX) unlinkSync(journalPath);
-      } catch {}
+      rotateJournal(journalPath, JOURNAL_MAX);
       // The journal line already starts with time and build, so the log stamp is dropped.
       const text = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync(
