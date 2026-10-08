@@ -32,7 +32,7 @@ The user in the chat and the user as a frame through their bridge carry **the sa
 
 1. **Split by tier**: product questions (what, in what order) from architectural ones (how, what breaks); whole, they stick in two queues.
 2. **Record what the task changes, not the task** (the door, `One-off task`): the decision at once, in modes of intent (`methods/writing.md`), on the node it changes — search first.
-3. **Set it in a case**: `verstak_case(action="talk", realm, with=<role or seat>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` with `to`.
+3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat, not the role.
 
 The assignment derives from the node, not from the user's wish in your words. **Don't stamp your own urgency** — ranking is the queue owner's act; say what delay costs.
 
@@ -64,6 +64,8 @@ Classed by **what you do with them**:
 | **A boundary between mandates** | up whole, your own included |
 | ✗ **A phantom escalation**: inside the agent's own mandate | down, with the boundary named |
 | ✗ **Someone else's question**: already asked of the user | not restated (the door, `Communication`) |
+
+**A choice goes as a card**: an `ask` in the subject's case (`methods/collaborate.md`, `Asking the user`), one card per choice — three choices are three cards, not one wall of text. `ack` the user's answer in the same move and carry it down into the graph and the tasking.
 
 Someone else's will grounds an escalation, not difficulty. Passing up too much is noisy and self-correcting; holding back what was needed is silent and permanent — the costlier error. So **record what you held back**: the decision in the node body; what came, from whom and why you held it, in `reasoning`.
 

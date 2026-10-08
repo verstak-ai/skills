@@ -121,7 +121,7 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's. Work on the user's word or a reality signal isn't split.
 
-**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible) as a vimarsha `posed_to` their role, pointing at moved nodes; report it in the shared case. **Up**: a waiting message (the door, `Ledger`); across holons, a vimarsha anchored in their territory **and** `posed_to` them.
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible) as a vimarsha `posed_to` their role, pointing at moved nodes; report it in the shared case. **Up**: a `partial` line on your key, its outcome the next line (the door, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
 
 A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
 
@@ -158,13 +158,13 @@ Without the user's word there is no handover; a session's end is an absence.
 
 ## 5 · Escalation
 
-Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments.
+Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question (`Asking the user`) — no case → open one on the subject node.
 
 **A question doesn't end the round**: in the same turn continue with what the answer doesn't touch; three questions are three gates. All hangs on it → one list on the node, wake-up armed.
 
 **Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
-The owner's answer counts once woven in: record it, carry the change through, release the node — or ask again on the same node. In `webhook` mode, subscribe to the escalated vimarsha (`Exchange`, step 6). Write vimarshas a cold session can resume from.
+The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `webhook` mode, subscribe to the escalated vimarsha (`Exchange`, step 6). Write vimarshas a cold session can resume from.
 
 ## Surviving context compaction
 

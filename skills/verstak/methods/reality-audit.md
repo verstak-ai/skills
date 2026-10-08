@@ -52,7 +52,7 @@ A material change after step 1 invalidates the tail: rebuild, repeat the affecte
 
 This is the verdict set for any method or role judging a claim. Report a claims × verdicts table with the canonical path and the command or test evidence — real telemetry only, never estimated tokens, cost, duration or coverage. A green subset omitting the failing case is no observation, not a fix. Structural health never raises a behavioural verdict.
 
-**Where verdicts go.** The table as a message in the case; in the graph as modes — rising confidence and `anagata → vartamana` only for `verified`, its text stating only the observation's ceiling (what was observed, where the carrier's reach ends). A `provisional` or `blocked` claim that will wait may be a ledger line (→ door, `Ledger`).
+**Where verdicts go.** The table as a message in the case; in the graph as modes — rising confidence and `anagata → vartamana` only for `verified`, its text stating only the observation's ceiling (what was observed, where the carrier's reach ends). A `provisional` or `blocked` claim that will wait is a `partial` line, "on whom, waiting for what" (→ door, `Ledger`).
 
 **What each level earns:** reading code → `anumita`; a focused internal or mock test → at most `pratyakshita`; `pramanita` for a behavioural claim → the second level on the canonical carrier with the falsifier executed.
 

@@ -1,6 +1,6 @@
 # collaborate — hold your role's seat, listen, talk in cases
 
-**Use when:** your seat stops hearing or speaking — undelivered frames, `not listening` on your row, no `hello`, a write without an author, a frame cut off, `verstak_stand` missing or refused; you are leaving or removing a seat; the work crosses your mandate, you need another actor's answer, or two agents are about to build the same thing ("nobody can hear me", "this isn't my area", "who owns this"). The door's `Start` normally takes the seat. This file is seat and exchange mechanics; behaviour in a case is the door's (`Cross-cutting norms`).
+**Use when:** your seat stops hearing or speaking — undelivered frames, `not listening` on your row, no `hello`, a write without an author, a frame cut off, `verstak_stand` missing or refused; you are leaving or removing a seat; the work crosses your mandate, you need another actor's answer or the user's choice, or two agents are about to build the same thing ("nobody can hear me", "this isn't my area", "who owns this"). The door's `Start` normally takes the seat. This file is seat and exchange mechanics; behaviour in a case is the door's (`Cross-cutting norms`).
 
 **Grounding:** a standing is one actor holding the role here and now; the role outlives it, and the standing is what gets addressed. `manifested_as` decides who answers and who decides; your seat attests authorship.
 
@@ -79,10 +79,10 @@ Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role
 
 1. **Recognise the boundary.** Will you finish it yourself, reversibly, within your mandate? If not, take your part and hand over the rest along mandate lines — not for parallelism; a second mind is for contesting (review, acceptance) or work too big for one context.
 2. **Find the actor in the graph, then the seat.** Holon → `verstak_orient(focus=<holon>)` names its steward; roles → `verstak_search(q="", node_type="karta")`; live seat → the board. `manifested_as` decides what to ask: `adhikarin` 能 (mandated) takes work, `svatantra` 主 (owner) grants sanction, `agantuka` 客 (guest) answers on its own clock, `pratibimba` 象 (depicted) is not addressed. A seatless role is still a full address.
-3. **Talk in a case.** Shared case → `verstak_case(action="say", room=<case #N>, to=<addressee>, text=…)`. Otherwise `verstak_case(action="talk", realm, with=<seat or role>, about=<subject>, text=…)`: the same `about` returns the pair's case, a new one opens one. A subject's cases: `at` with `node`; yours: `mine`. Address with `to` and `in_reply_to`, not a salutation. A person with no seat in the case → `verstak_channel(action="send", realm, karta=<their role>, standing=<their bridge>, text=…)`, as a stopgap.
+3. **Talk in a case.** Shared case → `verstak_case(action="say", room=<case #N>, to=<addressee>, text=…)`. Otherwise `verstak_case(action="talk", realm, with=<seat or role>, about=<subject>, text=…)`: the same `about` returns the pair's case, a new one opens one. A subject's cases: `at` with `node`; yours: `mine`. Address with `to` and `in_reply_to`, not a salutation; `to` is the participant's seat, not its role. A person with no seat in the case → `verstak_channel(action="send", realm, karta=<their role>, standing=<their bridge>, text=…)`, as a stopgap.
 4. **A vimarsha only for substance** (`methods/writing.md`): anchored where the addressee orients, `posed_to` them, with "Answered when"; continue by editing it; an edit wakes no one, so say it in the case. Announce a take with "taking: …" in the case.
 5. **Wait under a bound** (the door, `Ledger`). The answer arrives through the watch the write wakes, or the socket; missed → it is in the case (`read`) or the queue (`verstak_channel(action="history")`).
-6. **Converge or escalate.** Two bounces → the question or the mandate is wrong. Look for a both-and move one level up; if none, keep the contradiction recorded (`prati-paksha`, counter-thesis), undiluted. A decision outside your mandate — refusal, ordering, scope, the irreversible, production, money — goes to the role holding it (usually the "Owner role"): in the case where it sits, else its seat bridge from the board, not via `me`; with a recommendation and counter-arguments — hand over the decision, never the thinking.
+6. **Converge or escalate.** Two bounces → the question or the mandate is wrong. Look for a both-and move one level up; if none, keep the contradiction recorded (`prati-paksha`, counter-thesis), undiluted. A decision outside your mandate — refusal, ordering, scope, the irreversible, production, money — goes to the role holding it (usually the "Owner role"): in the case where it sits, else its seat bridge from the board, not via `me`; with a recommendation and counter-arguments — hand over the decision, never the thinking. A choice for the user goes as an `ask` card (`Asking the user`).
 
    Owner unreachable, or a cross-graph message refused → `references/collaborate-channel.md`, "Reaching an unbound owner".
 
@@ -90,6 +90,17 @@ Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role
 7. **Close with a write.** An answer of substance counts once it is in the graph (`addressed_by` or a body edit; release per `methods/inquiry.md`). The assignee states the observed outcome and clears its waiting line by the same key; dependants get the delta. What the exchange taught goes into a node; frames are not kept.
 
 **A person on the other end** (known by provenance): within your mandate their message carries what your user's does, but the irreversible needs sanction already given; in a shared case the lead decides what of it propagates.
+
+### Asking the user
+
+A choice the work waits on from the user now is an `ask` card in the case — not a free-text message, not a channel line. Sitting in the case: `verstak_case(action="ask", room=<case #N>, key=<subject>, karta=<the user's role>, text=<question>, payload={form, options, recommendation})`.
+- **One card, one question about one subject**; the key names the subject; several choices → several cards. The text stands alone: the user sees the card outside the case (the window, the bot) and decides from it — what is chosen and what it hinges on.
+- **Form by kind.** `choice`: short options `{id, label, context}`, each branch's cost or consequence in `context`. `yes_no`: no options. `free`: no options; the user answers in their own words. The recommendation is `{option, why}` — your pick and the reason; always for `choice` and `yes_no` (`yes` or `no`). Fields and limits: `verstak_case(action="?")`.
+- **The answer is the user's move**, on the card itself; no agent's seat answers for them.
+- **Accept it with `ack`** in your next move — `in_reply_to=<the answer's [N]>`, text: what you accepted and what you'll do now — then do it; the decision goes into the graph. Until then the answer stands unaccepted. Any seat of the asking role may ack: one that took the work over acks its open answers.
+- **Re-ask on the same key, never in prose.** The answer put the question in doubt → a new card `in_reply_to` that answer. The user asks to clarify (a message `in_reply_to` the card) → a new card `in_reply_to` the old one, the clarification in its text and the options' `context`: a re-ask replaces the question; prose leaves them the old card.
+- **Withdraw** a question that lost its point before an answer: a `line` on its key (`withdraw` takes back invitations, not questions).
+- A question of substance future readers need is a vimarsha (`methods/writing.md`). "Never a picker" means the harness's tool in conversation; a card is a case entry the user reads and answers themselves.
 
 ## Leaving a seat — two different leavings
 

@@ -36,7 +36,7 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **Addresses.** `case #N` as `verstak_case` prints it goes into `room`; `#N` alone marks a node; a seat address (`@handle:name`, for `verstak_stand`) is never `verstak_case`'s `room`. Your cases: `action="mine"`; the graph's open cases: `at`; within a holon or on a node: `at` with `node=<node>` — reading a node says nothing about its cases.
 
-**A case is born on a graph write.** Writing the subject's node (`verstak_add_*`, `verstak_batch`, `verstak_update`), add `open_room`: one line, the case's name and intent — no fields, no transformation link, no "Answered when". Writing into a running case: `in_room`, and you must sit in it (`mine`) or the server refuses. Only `talk` with `about=<subject>` opens a case by itself (`methods/collaborate.md`, `Exchange`). Moves: `read`, `history`, `say`, `talk`, `line`, `propose_close`, `object`, `join`, `leave`, `invite`, `withdraw`, `mine`, `at` — details via `action="?"`.
+**A case is born on a graph write.** Writing the subject's node (`verstak_add_*`, `verstak_batch`, `verstak_update`), add `open_room`: one line, the case's name and intent — no fields, no transformation link, no "Answered when". Writing into a running case: `in_room`, and you must sit in it (`mine`) or the server refuses. Only `talk` with `about=<subject>` opens a case by itself (`methods/collaborate.md`, `Exchange`). Moves: `read`, `history`, `say`, `talk`, `line`, `ask`, `ack`, `propose_close`, `object`, `join`, `leave`, `invite`, `withdraw`, `mine`, `at` — details via `action="?"`.
 
 **Enter with `at`, then `read`, then the linked nodes.** `read` gives the lead, any close proposal, the latest line per subject, participants, whom the case waits on, who may object until when. The work's state is in the linked nodes' modes and vimarshas — open them before the messages. `history` (`keep_cursor=true`; `from_start=true` for before you joined) is how it got here, not a way in.
 
@@ -57,7 +57,7 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **An objection serves the case.** `object` with `in_reply_to` the proposal, reason `not_done`, `unverified` or `other`, and a message; the first one withdraws the proposal. Don't argue: attest what was named, propose again. After `ends_at` it's late — treat its substance as new work.
 
-**Assignments — the setting side** (the door, `One-off task`). `say` with `to`: what, what counts as done, by when. Open until an outcome, withdrawal or transfer message exists. An agent without a seat in the case is invited (`invite`), not messaged on the channel.
+**Assignments — the setting side** (the door, `One-off task`): `say` `to` the assignee's seat, not its role. Open while the key's latest line is `partial` (seen in `read`) or a message has no outcome, withdrawal or transfer (only in `history`). An agent without a seat in the case is invited (`invite`), not messaged on the channel.
 
 ## The round
 
@@ -71,7 +71,7 @@ The lead lives **by signal**: an inbox vimarsha (orient on your role); a message
 **1. Assess from the graph.** `verstak_orient(focus=<your role>)`; `lens="bianhua"` — transformations, what they rest on, what waits; `lens="tensions", focus=<your holon>`; `lens="trace"` on a boundary-crossing phenomenon. Open the hits, walk their arrows to decisions and incidents. In a case, `read` first, then its nodes. Whole, then focus. Record what changes a decision as a vimarsha on the exact node (`methods/writing.md`), not a channel report.
 
 **2. Tell whose it is.**
-- *The owner's decision* (telos, course, rejection, accepting the unwanted): options, premises, cost as a node with "Answered when:"; wait. A release tag too: the steward asks in the case — holon, version X.Y.Z, what changes outside, migrations, production env, rollback, monitors; neighbours answer about the joint; you don't read the holon's code. Working graph → `posed_to` the owner role; a graph read as a product → the node stands unaddressed, the call goes by conversation.
+- *The owner's decision* (telos, course, rejection, accepting the unwanted): options, premises, cost as a node with "Answered when:"; wait. A choice the work waits on now also goes to the owner as `ask` cards in the subject's case, one per choice; `ack` the answer and carry it into the graph and the tasking (`methods/collaborate.md`, `Asking the user`). A release tag too: the steward asks in the case — holon, version X.Y.Z, what changes outside, migrations, production env, rollback, monitors; neighbours answer about the joint; you don't read the holon's code. Working graph → `posed_to` the owner role; a graph read as a product → the node stands unaddressed, the call goes by conversation.
 - *Cross-cutting*: yours — design it.
 - *Inside a holon*: `posed_to` the steward along the `steward` arrow, even if you know the answer.
 - *"How" while "what" is unwritten*: name your premise or ask the task-setter. Probe: "if they say 'we're not doing it', what's left of my answer?"

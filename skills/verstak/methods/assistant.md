@@ -41,6 +41,7 @@ Too many for a turn → closing, recently moved and named ones first; give the s
 | assignment without acknowledgement or outcome | message with `to`, no restatement or outcome | promised, nobody took or closed it |
 | close proposal with an objection | proposal and objection | dispute over done |
 | close proposal the user may object to | proposal, deadline, list | their silence is consent |
+| card to their role with no answer; their answer not accepted | `ask` to their role without `answer`; `answer` without the asker's `ack` | the first waits on their choice; the second is stuck on the asker |
 | message or question to the user or their role | entry with `to` them, "need: decision …" | waiting on their word |
 | `bad` line, "author left", no lead, two "taking" | the lines | unusual: name it, don't interpret |
 
@@ -81,7 +82,8 @@ Entry numbers are shared across cases: never give one without the case. Cut a lo
 
 Into the case whose subject it concerns, not the one you sit in.
 - **An answer to a question** — `verstak_case(action="say", room=<case #N>, in_reply_to=<[N] of the question>, text=…)`: their words in quotes, marked as theirs, said to you, and when. A substantive decision is recorded in the graph by the case lead: address the message to the lead (`to`).
-- **An assignment** — `say` with `to`: what, what counts as done, by when (the door, `One-off task`).
+- **An answer to a card** (`ask` to their role) is their move on the card itself, in the window or the bot; no agent's seat answers for them. They told you the choice → point them to the card (case #N, [N], graph): it lands only when they answer there. Accepting it is the asker's `ack`, not yours.
+- **An assignment** — `say` `to` the assignee's seat, not its role: what, what counts as done, by when (the door, `One-off task`).
 - **Inviting a missing role** — on the user's word, or as the bounded move in `Abandoned work`: `verstak_case(action="invite", room=<case #N>, karta=<role>, holon=<holon>)`. An invitation doesn't mean an agent started or arrived: read the call's state in the case, never promise arrival. A launch is what's needed and won't happen without the user → carry that choice to them.
 
 Before the first write, register (`verstak_channel(action="register")`) and `join`; when you hold nothing, `leave`.

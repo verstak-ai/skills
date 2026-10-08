@@ -68,7 +68,7 @@ Decide deliberately: is the vimarsha part of a **bianhua** (a qualitative transf
 | leave it as is, with deliberate reasoning | choose otherwise against a recorded direction |
 | attach a driver to a transformation | accept the unwanted — risk, defect, incident |
 
-The right column carries the owner's will: escalate, don't resolve it to clear the field.
+The right column carries the owner's will: escalate, don't resolve it to clear the field. The vimarsha stays `posed_to` the owner role; a choice the work waits on now also goes as an `ask` card in the subject's case, one per vimarsha (`methods/collaborate.md`, `Asking the user`). Their `answer` → `ack`, then write: their stance as the vimarsha's mode, who said it and when in `reasoning`.
 
 ## 6. A session must arrive at understanding
 

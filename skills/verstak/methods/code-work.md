@@ -47,7 +47,7 @@ Then cleanup; next task → `Before code`.
 
 ## Working principles
 
-1. **Think before code.** Name assumptions; unsure → ask what exactly is unclear, in text, never via a picker. Push back on a false premise or when a simpler move exists. Out of mandate → `posed_to` the owner role.
+1. **Think before code.** Name assumptions; unsure → ask what exactly is unclear, in text (in a case, an `ask` card: `methods/collaborate.md`, `Asking the user`), never via the harness's picker. Push back on a false premise or when a simpler move exists. Out of mandate → `posed_to` the owner role.
 2. **Simplicity first**: the minimum; no speculative features or one-off abstractions; validate at boundaries.
 3. **Stay inside the repo.** Outside the working directory: only reading carriers, the temp directory, the delivery's home. Another holon → a vimarsha on its node (`anga` to the transformation) and `verstak_case(action="talk", about=<subject>)` to its steward. Don't read, clone or survey repos outside your mandate: integration comes from the graph or the steward; what is in neither is a `posed_to` vimarsha.
 4. **A second implementation is an event**: find both via `methods/integrity.md`, name them to the user, propose reunifying or a named fork; a new consumer gets its arrows in the same move.

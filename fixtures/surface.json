@@ -32,7 +32,7 @@
     "verstak_admin": ["action", "active", "channel", "limit", "node_id", "offset", "one_shot", "org", "payload", "q", "realm", "role", "scope_vimarsha", "sub", "ttl_seconds", "url", "user_id", "webhook_id"],
     "verstak_arrow": ["action", "arrow_type", "attrs", "basis_version", "epistemic_mode", "from", "ontic_mode", "quantifier", "realm", "reasoning", "sense", "source", "target", "to", "volitive_mode"],
     "verstak_batch": ["compensates", "continues_room", "in_room", "open_room", "operations", "parent_room", "realm", "reasoning"],
-    "verstak_case": ["about", "action", "as_of", "attrs", "done", "evidence", "from_standing", "from_start", "full", "holon", "in_reply_to", "karta", "keep_cursor", "key", "limit", "node", "note", "offset", "realm", "reason", "relation", "room", "say_kind", "since", "stack", "standing", "text", "to", "verdict", "with"],
+    "verstak_case": ["about", "action", "as_of", "attrs", "client_id", "done", "evidence", "from_standing", "from_start", "full", "holon", "in_reply_to", "karta", "keep_cursor", "key", "limit", "node", "note", "offset", "payload", "realm", "reason", "relation", "room", "say_kind", "since", "stack", "standing", "text", "to", "verdict", "with"],
     "verstak_channel": ["action", "all", "as_person", "attrs", "channel", "cursor", "group_by", "in_reply_to", "karta", "kinds", "limit", "locale", "message", "model", "mute_siblings", "name", "realm", "satellite_of", "since", "standing", "text", "ttl_seconds", "until", "view"],
     "verstak_delete_node": ["basis_version", "compensates", "node_id", "realm", "reasoning"],
     "verstak_history": ["action", "arrow_type", "basis_version", "event_id", "limit", "node_id", "node_type", "op_type", "realm", "reasoning", "since", "source", "target"],
