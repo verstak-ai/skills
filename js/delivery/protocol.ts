@@ -32,9 +32,8 @@ export const STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 /**
  * Server protocol keys not derived from the product name: the server's surface names them
- * (api refusal — `_meta[refusal]`). TODO(server): `refusal` is assumed by the product rule;
- * confirm it, and `STRUCTURED_CAPABILITY`, from the initialize answer of mcp.verstak.ai.
- * Until confirmed, a mismatch only drops the bridge to prose parsing.
+ * (api refusal — `_meta[refusal]`). Confirmed 2026-10-08 against mcp.verstak.ai 0.108.0: its
+ * initialize answer names `verstak/structured` and `verstak/refusal` in capabilities.experimental.
  */
 export const serverProtocol = {
   refusal: "verstak/refusal",
