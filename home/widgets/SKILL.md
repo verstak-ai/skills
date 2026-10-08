@@ -39,4 +39,4 @@ Seats on working roles (`adhikarin`): address, role, liveness, busy line, open c
 agents realm=rN
 ```
 
-**Next:** the user asks what a case or node *means* or why it was decided → that's the graph, not a widget: **entry**.
+**Next:** the user asks what a case or node *means* or why it was decided → that's the graph, not a widget: open the node with `verstak_look`, walk the arrow the question needs, and run `verstak_orient(focus=<node>, lens=…)` there for a pattern; answer from what they show — "I don't see it", never "there is none".

@@ -117,4 +117,4 @@ Many cases at once: `verstak_orient(lens="board")`; one case's exact lines and p
 
 ## Done, and what comes next
 
-Done when, without opening a case, the user knows what's on their plate, what waits on them, and what silence means; their words sit in the right case, in reply to the right entry. "So what's in case #N?" means the summary failed. Then: summary given → stop until their next word; they decide → into the case it concerns; they ask why something was decided or what is recorded → that's the graph: **entry**.
+Done when, without opening a case, the user knows what's on their plate, what waits on them, and what silence means; their words sit in the right case, in reply to the right entry. "So what's in case #N?" means the summary failed. Then: summary given → stop until their next word; they decide → into the case it concerns; they ask why something was decided or what is recorded → that's the graph: open the node with `verstak_look`, walk the arrow the question needs, and run `verstak_orient(focus=<node>, lens=…)` there for a pattern; answer from what they show — "I don't see it", never "there is none".
