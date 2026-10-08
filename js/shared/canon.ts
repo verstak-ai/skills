@@ -1,5 +1,6 @@
 // Canonical directory path for comparison and hashing (graph @nks/nks-dev, node #5048):
-// OpenCode gives the same directory as /private/tmp/… or /tmp/… (a symlink on macOS).
+// OpenCode 2.0.24 gives the same directory as /private/tmp/… or /tmp/… (a symlink on macOS),
+// so plain string comparison missed own sessions.
 // Links resolved, trailing separator dropped; on failure the string as given.
 import { realpathSync } from "node:fs";
 import { sep } from "node:path";

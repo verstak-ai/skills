@@ -1,4 +1,6 @@
-// Fan-out of one graph event over a role's seats (graph @nks/nks-dev, node #5829).
+// Fan-out of one graph event over a role's seats (graph @nks/nks-dev, node #5829): each
+// copy has its own frame id and the same event_id; stale copies of dead seats reach the
+// live seat on socket reopen. The doer hears the event once.
 import { statSync } from "node:fs";
 
 import { type Frame } from "../shared/channel.ts";
@@ -6,7 +8,11 @@ import { eventIn, eventKeyOf, type Marks, sameCopy, seenIds } from "../shared/se
 import { type Door } from "./door.ts";
 import { log } from "./streams.ts";
 
-/** Last read of each .seen file keyed by its stamp (inode, size, mtime); reread only when the stamp changes. */
+/**
+ * Last read of each .seen file keyed by its stamp (inode, size, mtime); reread only when the
+ * stamp changes (any writer's append, or a trim by rename). A key found in bridge memory
+ * never touches the file.
+ */
 const lastRead = new Map<string, { stamp: string; ids: Set<string> }>();
 
 function givenIds(seenPath: string): Set<string> {
@@ -40,7 +46,8 @@ export const marksOf =
 
 /**
  * The event key if this copy need not be offered: the event is already in the turn,
- * or a copy of the same kind is offered no later than this one.
+ * or a copy of the same kind is offered no later than this one. A frame evicted from the
+ * ring undelivered holds no event: the next copy is offered.
  */
 function redundantEvent(
   frame: Frame | null,
@@ -51,12 +58,15 @@ function redundantEvent(
   if (eventIn(frame, marksOf(d.seen, d.seenPath))) return ev;
   // An older undelivered copy in the ring is offered first and evicted first.
   if (d.ring.some((r) => sameCopy(r.frame, frame))) return ev;
-  // A live copy carries the event itself and pulls stale copies of its kind out of the batch (graph @nks/nks-dev, node #5842).
+  // A stale copy is held by a same-kind copy in the pending batch (one delivery). The batch
+  // never holds a live copy: it carries the event itself and pulls stale copies of its kind
+  // out of the batch (graph @nks/nks-dev, node #5842).
   if (frame.stale === true) return d.stale.holdsCopy(frame) ? ev : "";
   d.stale.dropCopies(frame);
   return "";
 }
 
+/** A copy not worth offering (redundantEvent) is logged, and true. */
 export function redundantCopy(
   frame: Frame | null,
   d: Pick<Door, "ring" | "seen" | "seenPath" | "stale">,

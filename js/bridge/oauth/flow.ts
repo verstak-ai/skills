@@ -234,10 +234,14 @@ export async function interactiveFlow(
         cb.close(); // never leave a listener with no login behind it
         throw e;
       }
+      // Its marker may be the dead bridge's, so no tab opens here and no opener
+      // says the link: this log is where it is said (#6928).
       log(
-        "the bridge that published this login is gone — listening on its link, so the tab the human has still lands",
+        `the bridge that published this login (pid ${standing.pid}) is gone — listening on its link, so the tab the human has still lands:\n  ${still.authorize_url}`,
       );
-      grantLog("authorization flow taken over on the same link — waiting for the human");
+      grantLog(
+        `authorization flow of pid ${standing.pid} (gone) taken over on the same link — waiting for the human`,
+      );
       const first = runFlow(meta, cb, still, wantTab);
       throw new AuthPending(still.authorize_url, note, await firstCode(first));
     }

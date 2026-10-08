@@ -1,6 +1,7 @@
 // The machine daemon's idle window: it leaves after the last session; a pending
 // login holds it at most as long as an orphaned bridge (graph @nks/nks-dev, nodes
-// #6620, #4794).
+// #6620, #4794). The login record stays: the next bridge takes the login over at the
+// same link, so the human's tab still completes.
 import { pendingFlow } from "./oauth/flow.ts";
 import { ORPHAN_FLOW_MS } from "./oauth/pacing.ts";
 import { log } from "./streams.ts";

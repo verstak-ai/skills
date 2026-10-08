@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { CONNECTOR_PATTERN, HARNESS, type HarnessWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { graphServer, projectRoot } from "./subagents.ts";
+import { todo } from "./subwords.ts";
 
 type Out = (s: string) => void;
 
@@ -28,7 +29,7 @@ const httpEntries = (servers: unknown): [string, string][] =>
     .map(([n, v]) => [n, String(v.url)]);
 
 const say = (out: Out, where: string, name: string, url: string, remove: string): void =>
-  out(hw().secondPath(where, name, url, remove));
+  out(`${todo()} ${hw().secondPath(where, name, url, remove)}`);
 
 // A claude.ai connector has no address on disk, only the name it was connected under.
 const CONNECTOR_RE = CONNECTOR_PATTERN;

@@ -113,7 +113,8 @@ export function syntheticError(
 }
 
 // Network blips are retried with backoff: unsent calls always, answer-lost ones
-// only when they are reads (graph @nks/nks-dev, node #4664).
+// only when they are reads (graph @nks/nks-dev, node #4664): a write has no version
+// fence and would land twice.
 const NET_BACKOFF_MS = (process.env[envName("BRIDGE_NET_BACKOFF_MS")] || "1000,2000,4000")
   .split(",")
   .map(Number)
@@ -144,7 +145,8 @@ function isRead(msg: JsonRpcMessage): boolean {
 }
 
 // initialize/tools/list blocked by network or login are answered from the last
-// cached server answer (graph @nks/nks-dev, node #4790).
+// cached server answer (graph @nks/nks-dev, node #4790): a harness refused here treats the
+// server as dead until restart; the next call reinitializes and carries the login link.
 function lastServerAnswer(msg: JsonRpcMessage): JsonRpcMessage | null {
   const cache = loadServerCache();
   const result =
@@ -162,8 +164,8 @@ function lastServerAnswer(msg: JsonRpcMessage): JsonRpcMessage | null {
   return shown;
 }
 
-// Own clients read a handshake refusal themselves and keep the plain refusal
-// (graph @nks/nks-dev, node #4790).
+// Own clients read a handshake refusal themselves and retry the handshake until login,
+// so they keep the plain refusal (graph @nks/nks-dev, node #4790).
 function ownClient(): boolean {
   const info = (state.initParams as { clientInfo?: { name?: unknown } } | null)?.clientInfo;
   return typeof info?.name === "string" && OWN_CLIENTS.has(info.name);
@@ -279,6 +281,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         return;
       }
       if (isStand) {
+        // The bridge's own tool: board, seat, hook, knock — by the agent's calls, in one move.
         emit(withNotice(await serialized(() => runStand(msg))));
         return;
       }
@@ -336,13 +339,14 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         });
         return;
       }
-      expectOwnRevoke(msg); // close 4001 may outrun the reply
+      expectOwnRevoke(msg); // close 4001 may outrun the reply: the bridge must know it revoked
       if (
         msg.method === "tools/call" &&
         msg.params?.name === tool("channel") &&
         msg.params.arguments
       )
-        msg.params.arguments = withPlaceFields(msg.params.arguments); // graph @nks/nks-dev, node #5174
+        // Seat fields go on the five raw channel calls too (graph @nks/nks-dev, node #5174).
+        msg.params.arguments = withPlaceFields(msg.params.arguments);
       // Raw connect/mint runs under an intent until the hold record (graph @nks/nks-dev, node #6706).
       endTaking =
         msg.params?.name === tool("channel") ? beginTaking(msg.params.arguments ?? {}) : null;
@@ -374,7 +378,8 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
             );
           }
         }
-        // connect/mint: the bridge takes the socket; a case join is remembered (graph @nks/nks-dev, node #6573).
+        // connect/mint: the bridge takes the socket and appends how to listen; a successful
+        // case join is remembered by a satellite (graph @nks/nks-dev, node #6573).
         noteCaseEntry(msg.params?.name, msg.params?.arguments, held);
         const reply = absorbCloseReply(msg, absorbRevokeReply(msg, absorbChannelReply(msg, held)));
         emit(forHarness(withNotice(reply)));

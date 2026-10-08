@@ -1,6 +1,6 @@
 // The standing name is the seat's address (graph @nks/nks-dev, node #5068): an explicit
 // name is taken exactly or refused aloud; a derived name (host.repo.model) over the
-// server's limit is cut with a note.
+// server's limit is cut with a note. A silently cut explicit name would address ANOTHER seat.
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import { hostname } from "node:os";
@@ -11,13 +11,16 @@ import { words } from "../shared/lang.ts";
 import { NAME_MAX } from "../shared/satname.ts";
 import { sessionCwd } from "../shared/scope.ts";
 
+// The server's standing-name rule (observed via a 400 refusal), shared with the OpenCode plugin.
 export { NAME_MAX };
 
 const nw = (): NameWords => words(NAMES);
 
 /**
- * Role as the board prints it, name without padding — one normalization for writing
- * the binding and for comparing (graph @nks/nks-dev, node #5154).
+ * Role as the board prints it (bare digits or a sentinel: agent, me, realm-owner), name
+ * without padding — one normalization for writing the binding and for comparing: a raw
+ * record missed its normalized twin and the bridge did not know its own socket
+ * (graph @nks/nks-dev, node #5154).
  */
 export const normKarta = (k: unknown): string =>
   String(k ?? "")
@@ -101,8 +104,8 @@ const real = (p: string): string => {
 };
 
 /**
- * Repo name for the session directory; a linked worktree takes it from the main
- * copy, a bare repo from origin (graph @nks/nks-dev, node #5108).
+ * Repo name for the session directory; a linked worktree's toplevel is the task dir, so it
+ * takes the name from the main copy, a bare repo from origin (graph @nks/nks-dev, node #5108).
  */
 export function repoName(cwd: string = sessionCwd()): string {
   const top = git(["rev-parse", "--show-toplevel"], cwd);
@@ -119,7 +122,9 @@ export function repoName(cwd: string = sessionCwd()): string {
 /**
  * host.repo.model — what a fresh session restores without memory; the model is a
  * parameter (only the agent knows it), its vendor prefix dropped; the repo comes
- * from the harness session's cwd (graph @nks/nks-dev, node #5108).
+ * from the harness session's cwd: the OpenCode plugin launches the bridge from the server's
+ * cwd (graph @nks/nks-dev, node #5108). At launch the branch is nearly always main and tells
+ * nothing apart; the model tells sessions of one machine over one repo apart.
  */
 export function deriveParts(model?: string, cwd: string = sessionCwd()): NameParts {
   const host = hostname().split(".")[0];

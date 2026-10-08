@@ -1,7 +1,8 @@
 // The intent to take a seat (graph @nks/nks-dev, node #6706): connect or mint runs
 // under it through the hold record. In memory, a 4000 ahead of the own connect's reply
-// is this bridge turning the address, not an eviction; on file, an earlier bridge of
-// the same session waits for that connect's outcome rather than for time.
+// is this bridge turning the address, not an eviction; on file (named sessions), an earlier
+// bridge of the same session, on 4000, waits for that connect's outcome (a hold record with
+// the new address or an erased intent) rather than for time: a slow connect makes no two seats.
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 

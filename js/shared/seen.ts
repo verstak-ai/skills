@@ -2,6 +2,8 @@
 // beside the standing key (standings.ts). Written by whoever HANDED the frame out (a
 // write to a local socket is not delivery); read by all (graph @nks/nks-dev, nodes
 // #4469, #4881). The file outlives the bridge (#5831); sweep.ts removes stale files.
+// Writers: the Monitor watchdog on printing, the exit watchdog on exiting on it, the bridge
+// on notifying pi or OpenCode; the bridge reads it to spot platform repeats.
 import { appendFileSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 
 import { addressedToMine } from "./addressed.ts";
@@ -22,7 +24,8 @@ const evOf = (v: unknown): string =>
  * Graph event mark in the delivered memory: `ev:<event_id>`; "" — no event. Two frames
  * carry an event: via=graph with event_id in an object body (role inbox) and via=room
  * with event_id on the envelope (graph @nks/nks-dev, node #6563). One event goes to
- * every seat of the role, each copy with its own frame id (#5829).
+ * every seat of the role, each copy with its own frame id (#5829). A doer's word that
+ * happens to hold such JSON is never an event.
  */
 export function eventKeyOf(frame: Frame | null | undefined): string {
   const via = frame?.provenance?.via;
@@ -36,6 +39,7 @@ export function eventKeyOf(frame: Frame | null | undefined): string {
 // One event enters the turn once, as text or as a count (graph @nks/nks-dev, nodes
 // #5842, #6563, #6574). The rule is the two functions below and only they:
 // deliveryKeys — what delivery marks, eventIn — whether a mark already quenches a copy.
+// Whoever puts the frame into the turn writes the marks at that moment; counting checks eventIn.
 
 /** Mark reader: the delivered memory, own or with a batch's local marks on top. */
 export type Marks = (key: string) => boolean;
@@ -117,8 +121,9 @@ export const sameCopy = (a: Frame | null | undefined, b: Frame): boolean =>
 /**
  * A batch showing the first `keep` frames (`Infinity` — all): a copy whose event is in
  * the turn (`has`) or enters as text in this batch is dropped, as is a tact followed by
- * a newer one (`foldedTacts`). `kept` — frames delivered as text or count, once each;
- * `keys` — delivery marks of the whole batch, dropped included.
+ * a newer one (`foldedTacts`); the next frame takes its slot. `kept` — frames delivered as
+ * text or count, once each; `keys` — delivery marks of the whole batch, dropped included,
+ * written by whoever puts the batch into the turn.
  */
 export function splitBatch(
   all: readonly Frame[],
@@ -172,7 +177,8 @@ export function noteSeen(seenPath: string, id: string, seen: Set<string>): void 
 
 /**
  * Trim the memory to a tail of SEEN_KEEP marks, oldest first. The tail merges with the
- * file, which holds other writers' marks; freshness is append order, and an own mark
+ * file, which holds other writers' marks (dropping them would wake on delivered frames
+ * again); freshness is append order, and an own mark
  * no longer in the file counts as older than everything in it.
  */
 function compact(seenPath: string, seen: Set<string>): void {

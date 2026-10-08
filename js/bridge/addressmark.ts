@@ -2,10 +2,12 @@
 // frame itself (graph @nks/nks-dev, nodes #6574, #6867; question memory — askmemory.ts).
 //
 // A body carries no addressee signs: the word in flight addressed it. Likewise what
-// closes a question to me. The exit watchdog leaves on the first frame and the second
+// closes a question to me (a withdrawal, an answer by another seat of my role, a re-ask
+// to another): it has no addressee. The exit watchdog leaves on the first frame and the second
 // reaches a new process, so the bridge marks the second addressed and remembers the
 // first on disk (.seen for words, .asks for questions — askdisk.ts) across restarts.
-// The bridge's decision on a question frame is final: the frame carries asks_decided.
+// The bridge's decision on a question frame is final: the frame carries asks_decided, and
+// plugins and watchdogs do not re-decide it with their own question memory.
 import { addressedToMine, wordKeyOf } from "../shared/addressed.ts";
 import { closesMine, noteAsk } from "../shared/askmemory.ts";
 import { ASK_KINDS } from "../shared/asks.ts";

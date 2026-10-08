@@ -1,9 +1,20 @@
 // Words of the stand tool's answer in the session language (graph @nks/nks-dev, node #6080).
-import { STAND, STAND_MISS, type StandWords } from "../delivery/index.ts";
+import { BOARD_HEADER, LANGS, STAND, STAND_MISS, type StandWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import type { StatusMiss } from "./status.ts";
 
 export const sw = (): StandWords => words(STAND);
+
+/** The board header in the session language, then in the layer's other languages. */
+export function boardHeaders(): [string, string] {
+  const own = words(BOARD_HEADER);
+  return [
+    own,
+    LANGS.filter((l) => BOARD_HEADER[l] !== own)
+      .map((l) => BOARD_HEADER[l])
+      .join(", "),
+  ];
+}
 
 /** Why a status call without karta did not become a busy line alone — the one real reason. */
 function missWord(m: StatusMiss, of?: string): string {

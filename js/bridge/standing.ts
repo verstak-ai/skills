@@ -168,7 +168,9 @@ async function replayBeside(): Promise<boolean> {
 
 /**
  * The seat id from the channel tool's register answer: seats[0].seat_id of
- * structuredContent (fields.ts), else the prose form (FORM.seatId). Neither — null.
+ * structuredContent (fields.ts), else the prose form (FORM.seatId): the id on the line
+ * after the seat-id line (observed on server 0.74.0; the English form is assumed).
+ * Neither — null: the id is never guessed.
  */
 export function standingIdOf(reply: JsonRpcMessage | null): string | null {
   return (

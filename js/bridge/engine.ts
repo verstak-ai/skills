@@ -88,5 +88,6 @@ export function startEngine(cfg: Config, opts: { freshness?: boolean } = {}): vo
   const proxy = proxyWord();
   if (proxy) log(proxy);
   startTokenKeepalive();
+  // Delivery lag is the bridge's to tell (graph @nks/nks-dev, node #4509).
   if (opts.freshness !== false) startFreshnessWatch(CFG.authDir, CFG.serverUrl);
 }

@@ -31,6 +31,7 @@ export function unheardListenBlock(realm?: string): string | null {
   return words(LISTEN).unheard(listenLine(key));
 }
 
+/** The own harness's single listen line for seat `key`. */
 function listenLine(key: string): string {
   const W = words(LISTEN);
   const self = fileURLToPath(import.meta.url);

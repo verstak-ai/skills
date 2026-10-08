@@ -4,7 +4,8 @@
 // reopens it at the same address without hello (another holder may have turned it:
 // the server answers 404). The socket is shared by the channel's seats, so the main
 // seat and the seats of other graphs go deaf together. Right after leaving, the board
-// may still read the bridge's own closed socket as listening. A taken seat (4000)
+// may still read the bridge's own closed socket as listening. Signing would go through
+// records, a raw register and a rebind after a session change. A taken seat (4000)
 // is evicted.ts.
 import { DEAF, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
@@ -29,7 +30,10 @@ export function signedRealm(msg: JsonRpcMessage): string | null {
   return typeof a.realm === "string" ? a.realm : null;
 }
 
-/** Channel seats whose socket is gone or reopening without hello; empty while hearing. */
+/**
+ * Channel seats whose socket is gone or reopening without hello; empty while hearing or
+ * when there never was a socket (a register-only binding).
+ */
 function deafPlaces(): Place[] {
   const s = state.standing;
   if (!s) return [];

@@ -5,9 +5,13 @@
 //
 //   one per grant   life lock and listenSeam socket; a second exits DAEMON_BUSY_EXIT
 //   sessions        Map id → engine session in its own scope (session.ts, shared/scope.ts)
-//   idle            the last session gone — the daemon leaves after the idle window
+//   idle            the last session gone — the daemon leaves after the idle window;
+//                   a login awaiting a click holds it only up to a limit (daemon-idle.ts)
 //   update          a newer home copy or thin bridge — places are handed to a successor
-//                   (resume.ts, suspend.ts, handoff.ts), then the daemon leaves
+//                   (resume.ts, suspend.ts, handoff.ts), then the daemon leaves; only the
+//                   daemon checks releases. Handover: no new requests (unacked ones are
+//                   resent to the successor), in-flight calls awaited, seat doors closed
+//                   without "released" and without clearing busy
 //   journal         <grant dir>/run/daemon.log
 import { spawn } from "node:child_process";
 import { appendFileSync, mkdirSync, readFileSync, statSync, unlinkSync } from "node:fs";
@@ -101,6 +105,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
       try {
         if (statSync(journalPath).size > JOURNAL_MAX) unlinkSync(journalPath);
       } catch {}
+      // The journal line already starts with time and build, so the log stamp is dropped.
       const text = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync(
         journalPath,
@@ -157,8 +162,9 @@ export async function daemonMain(argv: string[]): Promise<void> {
     server?.close();
     // Thin bridges wait for the successor instead of raising a daemon themselves.
     for (const so of sockets) writeFrame(so, { t: "handover", why });
-    spawnDaemon(to, authDir, true);
-    // A satellite with a live thin bridge is paused, not ended (pauserecord.ts).
+    spawnDaemon(to, authDir, true); // the successor waits for this one to release the entrance
+    // A satellite with a live thin bridge is paused, not ended (pauserecord.ts); one whose
+    // bridge died ends as before.
     const paused: [Scope, number][] = [];
     for (const [id, e] of engines) {
       if (!e.scope) continue;
@@ -170,8 +176,10 @@ export async function daemonMain(argv: string[]): Promise<void> {
     }
     await Promise.allSettled([...sessions.values()].map((s) => s.end(`daemon handover: ${why}`)));
     await Promise.allSettled([...answering]); // handover pause answers go out before the cut
+    // The cut makes thin bridges settle verdicts, resend unacked requests and reattach.
     for (const so of sockets) so.end();
-    // Seat sockets are kept until the successor evicts them (graph @nks/nks-dev, node #6586).
+    // Seat sockets are kept until the successor evicts them; frames arriving meanwhile are
+    // spooled to it (graph @nks/nks-dev, node #6586).
     await handoffsSettled();
     await Promise.allSettled([...answering]); // pauses asked after the cut, too
     // A bridge gone during handover without returning ends its paused run (runend.ts).
@@ -201,8 +209,8 @@ export async function daemonMain(argv: string[]): Promise<void> {
     if (newer(v)) void handover(home, `the home copy is v${v}, this daemon v${VERSION}`);
   };
 
-  // A newer thin bridge: its session is accepted, then all are handed to the newest
-  // of the home copy and that bridge's file.
+  // A newer thin bridge: its session is accepted (else its call would wait), then all are
+  // handed to the newest of the home copy and that bridge's file.
   const newerBridge = (hello: SeamHello): void => {
     if (updatesDisabled()) return;
     const theirs = /^v(\d+\.\d+\.\d+)/.exec(hello.build)?.[1] ?? null;
@@ -324,6 +332,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
     }
   }
   log(`listening ${seamSocketPath(authDir)}${successor ? " (successor)" : ""}`);
+  // Marks of sessions run past the daemon and killed without exit (doctor, fallback.ts).
   pruneFallbacks(authDir);
 
   // One process engine for all sessions; the release check tells every session and
@@ -349,7 +358,8 @@ export async function daemonMain(argv: string[]): Promise<void> {
     log(`${sig} — ending ${sessions.size} session(s)`);
     server?.close();
     // A session whose bridge is alive is a holder change, not a leave; a dead
-    // bridge's seat is released (graph @nks/nks-dev, node #6485).
+    // bridge's seat is released (graph @nks/nks-dev, node #6485). A live bridge (attached or
+    // in the reattach window) raises a new daemon and returns the seat by its hold record.
     for (const id of sessions.keys()) {
       if (!attached.has(id) && !ownPidAlive(bridgePids.get(id))) continue;
       const scope = engines.get(id)?.scope;

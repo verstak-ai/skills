@@ -1,7 +1,8 @@
 // Session usage in the seat's attrs (graph @nks/nks-dev, nodes #6271, #6401): the
 // OpenCode plugin and the pi extension send numbers by method("usage"), the bridge
 // puts them under attrs.usage (placefields.ts) and replays its register — at most
-// once a minute and only on a notable shift. The last snapshot bypasses the
+// once a minute and only on a notable shift (register is a server call; the numbers move
+// every step). The last snapshot bypasses the
 // threshold before the seat is left or closed: a closed seat answers 404.
 import { envName, method, USAGE } from "../delivery/index.ts";
 import { HOSTED_CLIENTS } from "../shared/clients.ts";

@@ -1,4 +1,5 @@
-// The skill's moment on the call surface (graph @nks/nks-dev, node #4238).
+// The skill's moment on the call surface (graph @nks/nks-dev, node #4238): proxying tools/list,
+// the bridge prepends a line to write tools; it names no graph nodes, the reader may lack the graph.
 import { MOMENT, tool, TOOL_PREFIX } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { escapeRe } from "../shared/regex.ts";
@@ -7,6 +8,7 @@ import { type JsonRpcMessage } from "./types.ts";
 
 const WRITE_TOOL = new RegExp(`^${escapeRe(TOOL_PREFIX)}(add_[a-z_]+|batch)$`);
 
+// The same line stands in the door skill's moment map: keep both in step.
 export const momentLine = (): string => words(MOMENT).moment();
 
 /** The bridge's own move on the channel tool: busyness (#6509). */
@@ -18,6 +20,7 @@ export const leaveLine = (): string => words(MOMENT).leave();
 export function annotateToolList(reply: JsonRpcMessage): void {
   const tools = reply?.result?.tools;
   if (!Array.isArray(tools)) return;
+  // The stand tool exists only through the bridge, so its presence marks the transport.
   // Always THIS build's definition: a list from the shared cache may have been written by another bridge.
   const at = tools.findIndex((t) => t?.name === STAND_TOOL_NAME);
   if (at >= 0) tools[at] = standTool();

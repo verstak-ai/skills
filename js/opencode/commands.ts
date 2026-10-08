@@ -3,13 +3,16 @@
 // Every skill with `slash: true` in its frontmatter is typed by the human as /name. OpenCode 2
 // drops that key and builds the palette only from commands, so the plugin registers a command
 // per such skill: it loads the skill with the skill tool and hands the human's words over as is.
-// The key is read from the SKILL.md itself, so the command set equals the installed set.
-import { readFileSync } from "node:fs";
+// The key is read from the SKILL.md itself, so the command set equals the delivery's installed set.
+import { readFileSync, realpathSync } from "node:fs";
+import { dirname } from "node:path";
 
-import { OPENCODE } from "../delivery/index.ts";
+import { BRIDGE_SKILL, OPENCODE } from "../delivery/index.ts";
 import { snippet } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
+import { skillLock } from "../shared/skilllock.ts";
 import type { Context } from "./plugin.ts";
+import { bridgeRoot } from "./skillread.ts";
 import { type Say } from "./tools.ts";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK answers without a schema */
@@ -38,14 +41,37 @@ export function commandText(id: string, args: string): string {
   return words(OPENCODE).commandHead(id) + args.trim();
 }
 
-async function listSkills(ctx: Context): Promise<SkillCommand[]> {
-  const res: any = await ctx.skill.list();
-  const list: any[] = Array.isArray(res) ? res : (res?.data ?? []);
+const canon = (p: string): string | null => {
+  try {
+    return realpathSync(p);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * The delivery's own skills among the listed (#6815 item 5): those in a root whose bridge
+ * skill carries this delivery's bridge file; where the root's install lock names the bridge
+ * skill's source, only the skills of that source. Another delivery's root lists none here.
+ */
+export function skillCommands(list: any[]): SkillCommand[] {
+  const roots = new Map<string, string | null>();
+  for (const s of list) {
+    const root = bridgeRoot(s);
+    const c = root ? canon(root) : null;
+    if (!c) continue;
+    const source = skillLock(c)?.[BRIDGE_SKILL]?.source;
+    roots.set(c, typeof source === "string" ? source : null);
+  }
   const out: SkillCommand[] = [];
   for (const s of list) {
     const id = String(s?.id ?? "");
     const path = typeof s?.path === "string" ? s.path : null;
     if (!id || !path) continue;
+    const root = canon(dirname(dirname(path)));
+    if (!root || !roots.has(root)) continue;
+    const source = roots.get(root);
+    if (source && skillLock(root)?.[id]?.source !== source) continue;
     let text: string;
     try {
       text = readFileSync(path, "utf8");
@@ -56,6 +82,11 @@ async function listSkills(ctx: Context): Promise<SkillCommand[]> {
     out.push({ id, description: snippet(String(s?.description ?? "")) });
   }
   return out.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+async function listSkills(ctx: Context): Promise<SkillCommand[]> {
+  const res: any = await ctx.skill.list();
+  return skillCommands(Array.isArray(res) ? res : (res?.data ?? []));
 }
 
 export async function setupCommands(ctx: Context, say: Say): Promise<CommandsHalf> {

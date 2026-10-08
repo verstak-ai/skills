@@ -1,4 +1,4 @@
-import { ID_PREFIX } from "../delivery/index.ts";
+import { ID_PREFIX, SERVER_LOCALE } from "../delivery/index.ts";
 import { withFieldsAsked } from "../shared/fields.ts";
 import { lang } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
@@ -123,7 +123,8 @@ export async function post(
     accept: "application/json, text/event-stream",
   };
   // The api's prose language follows an English bridge (shared/lang.ts); otherwise the server's default.
-  if (lang() === "en") headers["accept-language"] = "en";
+  const locale = SERVER_LOCALE[lang()];
+  if (locale) headers["accept-language"] = locale;
   // A PAT outranks the store: with it the grant on disk is not read at all (#4267).
   const token = CFG.pat ?? loadStore().tokens?.access_token ?? null;
   if (token) headers.authorization = `Bearer ${token}`;
@@ -160,7 +161,8 @@ export async function post(
     });
   let res: Response;
   try {
-    // The connection closed under the request before the reply (#6630): one repeat,
+    // The connection closed under the request before the reply (a pooled keep-alive
+    // connection the server had closed, #6630): one repeat,
     // only for a request whose repeat applies nothing twice (repeat.ts).
     res = await send().catch((e: unknown) => {
       if (!closedUnder(e) || !repeatable(msg)) throw e;

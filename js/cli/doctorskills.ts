@@ -15,6 +15,7 @@ import { compareVersions } from "../shared/semver.ts";
 import { VERSION, versionIn } from "../shared/version.ts";
 import { codexCopies } from "./codexcache.ts";
 import { PLUGIN_KEY_RE } from "./installnames.ts";
+import { todo } from "./subwords.ts";
 
 type Out = (s: string) => void;
 type Kind = "claude" | "codex" | "flat" | "other";
@@ -75,7 +76,7 @@ export function skillsReport(out: Out, codexHomes: string[]): void {
       // Below the bridge: the method is older than the bridge; level with it but below the release: both lag.
       const below = compareVersions(v, VERSION) < 0;
       const why = below ? hw().skillsBelowBridge(VERSION) : hw().skillsBelowRelease(target);
-      out(hw().skillsBehind(root, v, why, how(kind)));
+      out(`${todo()} ${hw().skillsBehind(root, v, why, how(kind))}`);
     }
   }
 }

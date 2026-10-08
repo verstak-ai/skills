@@ -8,8 +8,9 @@ import { HOLD_RECORD_MAX_AGE_MS } from "./holdrecord.ts";
 
 /**
  * A bridge killed without goodbye leaves `.key` and `.sock`, which mislead a watchdog
- * listing keys; before laying its own key, each other one is probed by one connect
- * and removed if nobody answers.
+ * listing keys (to a socket nobody listens on, or to a "several standings" refusal);
+ * before laying its own key, each other one is probed by one connect and removed if
+ * nobody answers.
  */
 /** Whether someone listens on a local standing socket: a live bridge holds it, a dead one left the file. */
 export function localSocketAlive(sock: string): Promise<boolean> {
@@ -29,7 +30,7 @@ export function localSocketAlive(sock: string): Promise<boolean> {
 /**
  * How long the given-memory (.seen) of an unheld server seat lives: it outlives the
  * bridge because the platform replays the seat's queue the next day too (#5831), but
- * not forever.
+ * not forever, or the directory would keep a file for every name.
  */
 const SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -58,7 +59,8 @@ export function sweepStale(authDir: string, mine: string): void {
     } catch {}
   }
   // Hold records past the seat's idle limit are dead at the platform. A record whose key
-  // lies beside is held: its age counts from its socket's departure (holdkeep.ts, #6649).
+  // lies beside is held: its age counts from its socket's departure (holdkeep.ts, #6649);
+  // a dead key there is removed by the probe below.
   for (const f of readdirSync(dir).filter((x) => x.endsWith(".hold"))) {
     if (existsSync(join(dir, `${basename(f, ".hold")}.key`))) continue;
     try {

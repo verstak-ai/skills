@@ -1,6 +1,9 @@
 // Room frames by the kinds dictionary, batched for watchdogs by the bridge
 // (graph @nks/nks-dev, nodes #5851, #6574): a batch leaves by window, when full,
 // or before an interrupting frame, as a note head (at: 0) and frames marked batch.
+// Notification clients (pi, OpenCode) route frames themselves. The head counts per case;
+// lines below are only those addressed to the seat. A frame without event_kind goes at
+// once, untouched by the dictionary; the door ring still gets every frame (hold.ts).
 import { envName } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { askFromPerson } from "../shared/asks.ts";
@@ -12,7 +15,7 @@ import { type ChannelEvent, type Door } from "./door.ts";
 import { HumanWords, idOf, isWordOf } from "./humanwords.ts";
 import { log } from "./streams.ts";
 
-/** The variable is a seam for probes, not a human knob. */
+/** Batch window; the variable is a seam for probes, not a human knob. */
 const ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 60_000;
 /** A full batch leaves at once: no frame is ever dropped. */
 const ROOM_BATCH_CAP = 20;
@@ -122,7 +125,9 @@ export function batchForWatchdogs(
   const f = rec(frame);
   // An ask from a person's seat is routed by addressing (asks.ts askFromPerson).
   let human = (frame.origin ?? classifyOrigin(frame)) === "human" && !askFromPerson(frame);
-  // Two-phase word (graph @nks/nks-dev, node #5953): the body wakes one event, the word in flight leaves the batch.
+  // Two-phase word (graph @nks/nks-dev, node #5953): the word in flight and an abort are
+  // batched; the body is the human's word, a separate event, and the word in flight leaves
+  // the pending batch — one event wakes, carrying the text.
   if (rk?.kind === "said" && rk.phase === "pending" && human)
     d.roomBatch.humanWords.remember(frame);
   if (rk?.kind === "body") {
@@ -135,7 +140,8 @@ export function batchForWatchdogs(
       });
     }
   }
-  // A human's word goes now unless addressed to another (graph @nks/nks-dev, node #6081);
+  // A human's word goes now whatever its stack, unless addressed to another (graph
+  // @nks/nks-dev, node #6081);
   // anything not addressed to the seat is batched (graph @nks/nks-dev, node #6574).
   if (
     (!human || rk?.phase || rk?.aside) &&

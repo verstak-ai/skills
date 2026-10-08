@@ -1,7 +1,9 @@
 // One graph, one name (graph @nks/nks-dev, node #5838). A graph is written as
 // @owner/slug, a short id rN or a bare slug; only the canonical @owner/slug is
-// compared, and an unresolved name is itself, never "the same graph". The short id
-// is learnt from hello first (places.ts), the graph list is the fallback.
+// compared, and an unresolved name is itself, never "the same graph" (else r5 and a
+// foreign slug would merge into one seat). The short id is learnt from hello first
+// (standings[].realm is always @owner/slug, places.ts); the graph list is the fallback
+// when matching is needed before hello.
 
 import { REALMS } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
@@ -49,6 +51,7 @@ export const unknownRealm = (a: unknown, b: unknown): boolean =>
 export const unresolvedWord = (realm: unknown, held: string[]): string =>
   words(REALMS).unresolved(trimmed(realm), held.join(", "));
 
+/** Remember that this graph name is that @owner/slug (hello, the graph list). */
 export function learnRealm(alias: unknown, canonical: string): void {
   const t = trimmed(alias);
   if (t && !t.startsWith("@") && CANON_RE.test(canonical)) aliases.set(t, canonical);

@@ -1,6 +1,6 @@
-// An api refusal as data (graph @nks/nks-dev, node #6637): `_meta[SERVER_PROTOCOL.refusal]`
+// An api refusal as data (graph @nks/nks-dev, node #6637): `_meta[serverProtocol.refusal]`
 // = {rule, status, data} on channel and admin refusals; without it the consumer reads prose.
-import { SERVER_PROTOCOL } from "../delivery/index.ts";
+import { serverProtocol } from "../delivery/index.ts";
 import { is, isObj } from "./fields.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
@@ -11,9 +11,9 @@ export interface Refusal {
   data?: Record<string, unknown>;
 }
 
-/** The refusal's `_meta[SERVER_PROTOCOL.refusal]` when well-formed, otherwise null. */
+/** The refusal's `_meta[serverProtocol.refusal]` when well-formed, otherwise null. */
 export function refusalOf(reply: JsonRpcMessage | null): Refusal | null {
-  const r: unknown = reply?.result?._meta?.[SERVER_PROTOCOL.refusal];
+  const r: unknown = reply?.result?._meta?.[serverProtocol.refusal];
   if (!isObj(r) || !is.str(r.rule) || !is.num(r.status)) return null;
   return {
     ...(typeof r.rule === "string" ? { rule: r.rule } : {}),
@@ -24,8 +24,9 @@ export function refusalOf(reply: JsonRpcMessage | null): Refusal | null {
 
 /**
  * register refused by a seat-opening race: 409 without a rule ("opened concurrently;
- * register again"). The rule comes from ProblemDetail errors[0], not the root, so a
- * 409 with a root-only rule also lands here and gets one retry.
+ * register again"). The rule comes from ProblemDetail errors[0], not the root (the MCP
+ * server reads no root rule), so a 409 with a root-only rule also lands here and gets one retry,
+ * whose refusal comes back as is.
  */
 export const openedConcurrently = (reply: JsonRpcMessage | null): boolean => {
   const r = reply?.result?.isError ? refusalOf(reply) : null;

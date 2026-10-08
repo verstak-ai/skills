@@ -4,13 +4,14 @@
 // the standing skill — the board, the derived name, connect and register (or register
 // alone when this bridge already holds the socket: a live standing is not rotated
 // without cause), the role's inbox hook, a knock into the human's seat by the full
-// address from the wire (once per session), busyness. One answer: name, watchdog
-// command, waiting frames, hook, knock receipt. A call with status on a seat the bridge
-// already holds is busyness only (status.ts, #6509).
+// address from the wire (once per session: a second join is a repeat, not a talk), busyness.
+// One answer: name, watchdog command, waiting frames, hook, knock receipt. A call with
+// status on a seat the bridge already holds is busyness only (status.ts, #6509).
+// No stand tool in a session means tools bypass the bridge or the bridge is an old build.
 import { statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 
-import { BOARD_HEADER, ID_PREFIX, tool } from "../delivery/index.ts";
+import { ID_PREFIX, tool } from "../delivery/index.ts";
 import { scoped, sessionCwd } from "../shared/scope.ts";
 import { alive, listens, nameOf, readBoard } from "./board.ts";
 import {
@@ -70,7 +71,7 @@ import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
-import { needRealmKarta, sw } from "./standwords.ts";
+import { boardHeaders, needRealmKarta, sw } from "./standwords.ts";
 import { busyLine, publishStatus, standStatusOnly, TAKE_PATH, TURNED_GUIDANCE } from "./status.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -175,11 +176,12 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const derived = asked || sat ? "" : (fitted?.name ?? "");
   let name = asked || sat?.name || derived;
   const base = sat ? "" : name; // base of a seat beside: the derived or explicit name (#6706)
-  realm = await seatRealm(realm, name); // one graph form (#5838) (hearing.ts)
+  realm = await seatRealm(realm, name); // one graph form (#5838); own seat keeps its spelling (hearing.ts)
   karta = seatKarta(realm, karta, name); // "agent" — the own seat's role, before any check (hearing.ts)
   // The bridge already stands on a separate seat of this name — go there (#5407); take=true calls the name itself.
   const led0 = state.standing && !otherRealm(state.standing.realm, realm) ? state.standing : null;
-  // The bridge remembers the base of a seat beside (#6706); it cannot be guessed from the name's shape.
+  // The bridge remembers the base of a seat beside (#6706); it cannot be guessed from the name's
+  // shape: glm-5.3 is not a seat beside glm-5.
   const ledSuffix =
     !!base &&
     !!led0 &&
@@ -206,7 +208,8 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const led = besideTaken ? null : leadsOtherPlace(realm, karta, name);
   if (led && a.take !== true) {
     // Another session listens on the asked seat — take=true is not advised: evicting it is the human's word (#6706).
-    const hearing = await askedHearing(realm, karta, name);
+    // An unread board gives no take=true advice either: the bridge does not know who listens.
+    const hearing = await askedHearing(realm, karta, name, cwd);
     lines.push(otherPlaceWord(led, keyOf(realm, karta, name), name === ledName(), hearing));
     return done(true);
   }
@@ -243,7 +246,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   if (!recognized || own.length > 1 || (hearing(name) === "unknown" && a.take !== true)) {
     lines.push(
       !recognized
-        ? sw().boardUnknown(short(board.text, 160), BOARD_HEADER.ru, BOARD_HEADER.en)
+        ? sw().boardUnknown(short(board.text, 160), ...boardHeaders())
         : own.length > 1
           ? sw().boardAmbiguous(own.length, name, karta)
           : sw().boardCount(declared ?? 0, entries.length),
@@ -279,7 +282,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const take = a.take === true || ownSession;
   const sub = !!sat || baseOf(realm, karta, name) !== name; // seat beside and satellite: no role inbox hook
   // Seats of the former name standard (host.repo.branch) of the same host and repo are
-  // orphans: cases and inbox hooks hold their address, nobody listens. The former name is
+  // orphans after the move to host.repo.model: cases and inbox hooks hold their address, nobody listens. The former name is
   // told by a third part equal to a local branch — otherwise it is a neighbour on another
   // model, and its seat must not be touched.
   const stem = name.split(".").slice(0, 2).join(".");

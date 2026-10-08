@@ -90,12 +90,13 @@ export function localStatus(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null
   // The seat of the call's graph (#5838); without a graph — the main one.
   const realm = typeof a.realm === "string" ? a.realm : "";
   return (async () => {
-    await resolveAgainstLed(realm);
+    await resolveAgainstLed(realm); // the call's graph, in the same form as the seat's graph
     return reply(...(await statusWord(text, realm)));
   })();
 }
 
 // Taking args — shared/busyargs.ts; model sends the call down the full path (register, hook, hello).
+// satellite_of is not a taking arg: it is checked against the held satellite seat below.
 
 /**
  * Why a status call did not become a busy line alone — for the refusal when karta is
@@ -114,7 +115,8 @@ export type StatusOnly = { reply: JsonRpcMessage } | { miss: StatusMiss | null; 
 
 /**
  * The stand tool with status on the seat this bridge leads (#6509): only the busy line —
- * no board, connect, register, hook or knock; an empty line clears. Busyness follows the
+ * no board, connect, register, hook or knock; an empty line clears. Role and name are the
+ * seat's own or omitted. Busyness follows the
  * standing, not the live socket (#5033, #5035): after eviction it is published while the
  * bridge has the seat's status address. Otherwise — miss, and the call takes the full
  * path of stand.ts.
@@ -126,7 +128,7 @@ export async function standStatusOnly(msg: JsonRpcMessage): Promise<StatusOnly> 
   const extra = takingArgs(a);
   const realm = typeof a.realm === "string" ? a.realm.trim() : "";
   if (!realm) return { miss: null };
-  await resolveAgainstLed(realm);
+  await resolveAgainstLed(realm); // the call's graph, in the same form as the seat's graph
   const held = ledIn(realm);
   if (!held) return { miss: { why: "none" } };
   if (extra.length) return { miss: { why: "args", args: extra } };
@@ -153,7 +155,8 @@ export async function standStatusOnly(msg: JsonRpcMessage): Promise<StatusOnly> 
   // otherwise it is our own reopening and the hearing comes back by itself.
   const why = wasEvicted(r, k, n) ? words(STATUS).evictedWhy() : words(STATUS).reopeningWhy();
   const body = isError || heard ? said : `${said}; ${why}`;
-  // After eviction there is no hearing here, and a watchdog command would be untrue.
+  // The bridge holds the socket but no watchdog is attached — hence the listen command here;
+  // after eviction there is no hearing here, and a watchdog command would be untrue.
   const listen = isError || !heard ? null : unheardListenBlock(realm);
   return { reply: replyTo(msg)(listen ? `${body}\n${listen}` : body, isError) };
 }
@@ -189,6 +192,7 @@ export async function publishStatus(
     return { ok: false, body: words(STATUS).notHeld() };
   }
   // Several seats on the channel and this one's id unknown — the line would land on all.
+  // With one seat a line without id lands on it, as before.
   if (!everyPlace && !addr.standingId && heldPlaces().length > 1)
     return { ok: false, body: words(STATUS).noSeatId(addr.key) };
   const st = await publishStatusTo(addr.url, text, 5000, everyPlace ? null : addr.standingId);
@@ -205,7 +209,10 @@ export async function publishStatus(
 /** The whole path of moving the hearing (graph @nks/nks-dev, node #5395). */
 export const TAKE_PATH = (): string => words(STATUS).takePath();
 
-/** Refusal 404: someone's connect turned the address; whose is unknown, so no holder list here. */
+/**
+ * Refusal 404: someone's connect turned the address; whose is unknown and the hold record
+ * is shared, so no holder list here.
+ */
 export const TURNED_GUIDANCE = (): string => words(STATUS).turnedGuidance();
 
 const slugOf = (realm: string): string => realm.replace(/^@[^/]+\//, "");

@@ -1,8 +1,10 @@
 // A role seat without a name (graph @nks/nks-dev, node #6748): the server takes
 // connect, mint and register with an empty name and seats it as "@handle" — the
 // human's own address, with nothing to revoke it. The bridge sends no such call on
-// any path; the check sits at the exit to the server (transport.ts). The only
-// exception is the human's own seat on their word, karta "me" or "realm-owner".
+// any path (agent move or its own: stand, resume, satellite pause, re-register); the check
+// sits at the exit to the server (transport.ts). The only exception is the human's own
+// seat on their word, karta "me" or "realm-owner"; a numbered owner-role karta without a
+// name is refused even then (the check is synchronous and cannot ask the server its kind).
 import { envName, tool, UNNAMED } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { envOf } from "../shared/scope.ts";

@@ -1,7 +1,10 @@
 // Wake-up batch: what accumulates goes out as one event, not frame by frame
 // (graph @nks/nks-dev, nodes #5140, #5838). A window opens on hello with pending > 0
 // or on a platform frame; on expiry one kind=backlog event carries the frames by
-// received_at. Each seat has its own window (door.ts).
+// received_at. Each seat has its own window (door.ts) and marks the batch in its own .seen.
+// hello with pending flushes the whole queue at once (else one turn per frame); a platform
+// wake frame should bring what arrives beside it. Bodies are capped like stale ones; the
+// rest via history.
 import { BACKLOG, envName } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame, isDirectWord } from "../shared/channel.ts";
@@ -10,7 +13,7 @@ import { words } from "../shared/lang.ts";
 import { type Marks, splitBatch } from "../shared/seen.ts";
 import { type ChannelEvent } from "./door.ts";
 
-/** The variable is a seam for probes, not a human's knob. */
+/** The accumulation window; the variable is a seam for probes, not a human's knob. */
 const BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 const BACKLOG_KEEP = 20;
 const BODY_CAP = 800;
@@ -66,6 +69,7 @@ export class Backlog {
   private close(): void {
     this.timer = null;
     const all = this.all.splice(0);
+    // Each event once, as text or count (seen.ts splitBatch); keys are the batch's marks.
     const { shown, kept, keys } = splitBatch(all, BACKLOG_KEEP, this.has);
     const got = shown.sort((a, b) => (at(a) < at(b) ? -1 : at(a) > at(b) ? 1 : 0));
     const count = kept.length;

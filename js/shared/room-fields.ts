@@ -27,8 +27,8 @@ export const mineOf = (frame: Rec): string[] =>
   [str(frame.to_standing_id), str(frame.to_standing)].filter(Boolean);
 
 /**
- * Invite of my role (api 0.89.6): line fields carry karta {id, name, seq, realm}
- * (observed in production), the frame my karta_seq. A seq belongs to a graph, so
+ * Invite of my role (api 0.89.6): the key carries the role node id, line fields carry
+ * karta {id, name, seq, realm} (observed in production), the frame my karta_seq. A seq belongs to a graph, so
  * graphs named on both sides must match.
  */
 export function myRole(frame: Rec, fields: Rec): boolean {

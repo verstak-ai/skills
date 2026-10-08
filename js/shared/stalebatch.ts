@@ -1,5 +1,6 @@
 // Stale batch text (graph @nks/nks-dev, nodes #4881, #5033) — composed by whoever hands
-// it out, at that moment (seen.ts): an event already in the turn is not repeated.
+// it out, at that moment (seen.ts): the bridge notifying pi and OpenCode, the watchdog
+// printing or threading it. An event already in the turn is not repeated (eventIn).
 import { STALE } from "../delivery/index.ts";
 import { addressedToMine } from "./addressed.ts";
 import { type Frame } from "./channel.ts";

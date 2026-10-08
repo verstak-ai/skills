@@ -3,6 +3,7 @@
 import { tool } from "../delivery/index.ts";
 import { fallback, incomplete, is, isObj } from "./fields.ts";
 
+/** A role hook — webhooks[] of the list_webhooks and user_webhooks answer. */
 export interface Hook {
   id?: number;
   kind?: string;

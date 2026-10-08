@@ -289,7 +289,8 @@ const socketAnswers = (path: string): Promise<boolean> =>
 /**
  * Raise the daemon entrance of this grant directory. Order: the entrance is private
  * (else EUNSAFE); the socket does not answer (else EADDRINUSE); the life lock is taken
- * (held by a live own process within DAEMON_RISE_MS — EADDRINUSE); only then the dead
+ * (held by a live own process within DAEMON_RISE_MS — EADDRINUSE; a foreign or dead pid,
+ * or one past the ceiling, is a stale lock); only then the dead
  * socket is removed and a new 0600 one listens. The lock goes with the server or process.
  */
 export async function listenSeam(authDir: string, onSocket: (s: Socket) => void): Promise<Server> {

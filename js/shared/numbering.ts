@@ -7,6 +7,9 @@ import { type Frame } from "./channel.ts";
 export const numberingOf = (frame: Frame): string =>
   (frame as Record<string, unknown>).numbering === "case" ? "case" : "";
 
-/** Memory key by record number, in the frame's count; the old count keeps the key as it was. */
+/**
+ * Memory key by record number, in the frame's count; the old count keeps the key as it was,
+ * so what was written before the switch stays intact.
+ */
 export const numberedKey = (frame: Frame, key: string): string =>
   key && numberingOf(frame) ? `case:${key}` : key;

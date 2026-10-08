@@ -2,8 +2,11 @@
 // Started with --satellite, it takes only `<caller seat>.sub-<N>` beside the caller,
 // role from the call's karta, no role inbox hook, a short idle window and no hold
 // record; when the run ends (stdin closed) it leaves the seat (session.ts).
+// Claude Code keeps one connection per frontmatter entry name: parallel runs with the same
+// entry share one process and one seat (the `led` path below).
 // N is picked under a machine-wide claim: a name file with the holder's pid, chosen
-// under a short lock of the claims directory, so bridges standing at once differ.
+// under a short lock of the claims directory, so bridges standing at once differ
+// (each reads the board before the other's connect, so "first free" alone would collide).
 import { randomBytes } from "node:crypto";
 import {
   mkdirSync,
@@ -34,7 +37,8 @@ export const SATELLITE_TTL_S = Number(process.env[envName("BRIDGE_SATELLITE_TTL"
 
 const sw = (): SatelliteWords => words(SATELLITE);
 
-// The satellite name rule is shared with the OpenCode plugin (shared/satname.ts).
+// The satellite name rule is shared with the OpenCode plugin (shared/satname.ts); a repeated
+// stand of the same run knows its name by isSatelliteOf.
 export { isSatelliteOf, satelliteName };
 
 export type SatellitePick =
@@ -52,7 +56,8 @@ const claimDir = (): string => join(CFG.authDir, "satellites");
 // By name, not graph: the graph is spelled several ways in a call (@owner/slug, slug, rN).
 const claimFile = (name: string): string =>
   join(claimDir(), `${name.replace(/[^A-Za-z0-9._-]+/g, "_")}.claim`);
-// Written with the harness bridge's pid (sessionPid): in the daemon it is the thin bridge's.
+// Written with the harness bridge's pid (sessionPid): in the daemon it is the thin bridge's,
+// so a claim lives as long as its bridge and two sessions of one daemon never share a name.
 /** This session's claims — dropped on leaving the seat and at session end. */
 const claims = scoped(() => new Set<string>());
 /** All claims of the process — file → pid; process exit drops them all. */
@@ -156,8 +161,9 @@ function takeLock(lock: string, owner: string | null): string | null {
 
 /**
  * Pick under the claims directory lock (an atomic mkdir with an owner token inside):
- * bridges of this machine pick N in turn. When the pick is not guaranteed, the
- * second value is the reason.
+ * bridges of this machine pick N in turn; an abandoned lock is taken by `takeLock`, only
+ * our own is removed at the end. When the pick is not guaranteed (no directory, claim not
+ * written, wait over LOCK_WAIT_MS, lock lost) the second value is the reason — logged and noted.
  */
 async function underClaimLock<T>(
   fn: (claim: (name: string) => boolean) => T,
@@ -221,7 +227,8 @@ async function underClaimLock<T>(
 }
 
 /**
- * The satellite seat by the board: the caller's seat must stand on it; the name is
+ * The satellite seat by the board: the caller's seat (any role — the satellite's role is
+ * the call's karta) must stand on it; the name is
  * the first `.sub-N` absent from the board and not claimed by another live bridge.
  * `led` — the seat this bridge already leads: a satellite of the same base returns to it.
  */
@@ -249,7 +256,7 @@ export function pickSatellite(
   const notes: string[] = [];
   if (led && isSatelliteOf(base, led)) {
     // A repeat of the run or a parallel run sharing the bridge entry: Claude Code
-    // shares the server connection by entry name, and the call names no run.
+    // shares the server connection by entry name, and the call names no run — so name both.
     const word = sw().alreadyHolds(led);
     log(word);
     notes.push(word);
@@ -292,7 +299,7 @@ export async function satelliteGate(
   );
   if (!pick.ok) return pick;
   if (unsure && pick.name !== led) pick.notes.push(sw().claimsUnsure(unsure, pick.name));
-  // Only a one-role board (list with karta) prints the seat id.
+  // Only a one-role board (list with karta) prints the seat id, as the last line under the seat.
   if (!pick.callerId) {
     const k = await call(tool("channel"), { action: "list", realm, karta: pick.callerKarta });
     if (!k.isError)

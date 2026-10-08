@@ -2,7 +2,7 @@
 // the seat's socket until the successor evicts it (handoff.ts) and writes frames that
 // arrive after the door closed here, a JSON line each, beside the seat key (0600).
 // Entries: {open} — handover began, {frame} — a frame as it came, {done} — the socket
-// went. The successor replays them after hello through hold.ts; .seen drops repeats.
+// went (evicted or closed at the limit). The successor replays them after hello through hold.ts; .seen drops repeats.
 import { appendFileSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
 import { dirname } from "node:path";
 
@@ -16,7 +16,7 @@ export const HANDOFF_MS = Number(process.env[envName("BRIDGE_DAEMON_HANDOFF_MS")
 /** How long the successor waits for the spool's end: the outgoing one's limit plus its exit. */
 const DRAIN_MS = HANDOFF_MS + 5_000;
 const DRAIN_TICK_MS = 200;
-/** Older spooled frames are replayed as stale, not live. */
+/** Older spooled frames (the seat was gone for long) are replayed marked stale, not live. */
 const SPOOL_LIVE_MS = DRAIN_MS;
 
 interface Entry {

@@ -11,9 +11,10 @@
 //                            session (reattach by local session id), probe (build only)
 //   daemon → thin   welcome  daemon build and pid, local session id, resumed, ack
 //                   refuse   wrong seam version or session not accepted — with a reason
-//   both ways       rpc      JSON-RPC as is
+//   both ways       rpc      JSON-RPC as is, the bridge's own methods and notifications too
 //   daemon → thin   ack      the request with this id was taken by the session (sent to
-//                            the kernel before the request reaches the session)
+//                            the kernel before the request reaches the session: no ack —
+//                            the session never saw the request)
 //   thin → daemon   bye      session end on the harness's word (stdin closed, SIGTERM)
 //   daemon → thin   bye-ok   the session left: everything in flight answered
 //   daemon → thin   log      a session line for the thin bridge's stderr
@@ -27,7 +28,7 @@ import { connect, type Socket } from "node:net";
 import { ENV_PREFIX, envName, PRODUCT } from "../delivery/index.ts";
 
 /** Wire version. Different versions do not talk: the daemon refuses, the thin bridge runs full. */
-export const SEAM_PROTOCOL = 2;
+export const SEAM_PROTOCOL = 1;
 
 /** How long the daemon keeps a session whose socket closed without bye, awaiting reattach. */
 export const SEAM_REATTACH_GRACE_MS = 5_000;
@@ -50,8 +51,12 @@ export interface RpcMessage {
 export interface SeamHello {
   t: "hello";
   seam: number;
-  /** The thin bridge's delivery (since seam protocol 2, graph @nks/nks-dev, node #6815). */
-  product: string;
+  /**
+   * The thin bridge's delivery (graph @nks/nks-dev, node #6815). An additive field of
+   * protocol 1: a hello without it comes from an earlier release of this delivery, and a
+   * daemon of an earlier release ignores it — so an update never drops a thin bridge to full.
+   */
+  product?: string;
   /** Thin bridge build, `vX.Y.Z+hash`. */
   build: string;
   /** The thin bridge's file — which copy the harness launched. */
@@ -222,7 +227,7 @@ export function checkHello(f: unknown): string | null {
   if (!h || h.t !== "hello") return "the first frame is not a hello";
   if (h.seam !== SEAM_PROTOCOL)
     return `seam protocol ${String(h.seam)} is not spoken here (this side speaks ${SEAM_PROTOCOL})`;
-  if (h.product !== PRODUCT)
+  if (h.product !== undefined && h.product !== PRODUCT)
     return `the thin bridge belongs to the delivery ${String(h.product)} (this side is ${PRODUCT})`;
   if (!Array.isArray(h.argv) || typeof h.cwd !== "string" || typeof h.pid !== "number")
     return "the hello lacks argv, cwd or pid";

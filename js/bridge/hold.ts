@@ -261,7 +261,7 @@ export function releaseStanding(
   const busy = keepBusy ? null : H.currentStatusUrl;
   letGo(H.holder, handover && !forget ? (key ?? null) : null, reason, busy); // before eviction (#6586)
   H.holder = null;
-  for (const w of [...H.helloWaiters]) w(null);
+  for (const w of [...H.helloWaiters]) w(null); // no hello will come from a released socket
   H.door?.close();
   H.door = null;
   Object.assign(H, { parked: false, unheard: false });
@@ -427,7 +427,7 @@ function openHolder(url: string, key: string): void {
         standingLog(`evicted ${key}: close ${code}`);
         H.evictedKey = key;
         dropOwnHoldRecord(key, url); // address rotated: own record is dead, the evictor's stays
-        E.next?.(key, url, code); // evicted.ts
+        E.next?.(key, url, code); // the eviction word and the next move: evicted.ts
       },
       onDeadToken: (code) => {
         if (H.revokingOwn) {

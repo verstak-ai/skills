@@ -9,7 +9,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { BRIDGE_FILE, BRIDGE_SKILL, SKILL_SET, SKILL_STAMP_FILE } from "../delivery/index.ts";
+import { BRIDGE_FILE, BRIDGE_SKILL, SKILL_SET, SKILL_STAMP_MASK } from "../delivery/index.ts";
 import { SKILLS_ROOT_ENV } from "../shared/clients.ts";
 import { currentScope, envOf } from "../shared/scope.ts";
 import { skillLock } from "../shared/skilllock.ts";
@@ -62,8 +62,32 @@ function lockSet(root: string): { name: string; stamp: string | null } {
   return { name, stamp: lines.length ? sha8(createHash("sha256").update(lines.join(""))) : null };
 }
 
-/** Plugin and any other root: hash of each skill's stamp file, in name order. */
-function treeStamp(root: string): string | null {
+/** Every file under dir, relative to it with "/" separators, sorted. */
+function allFiles(dir: string, at = ""): string[] {
+  let entries;
+  try {
+    entries = readdirSync(join(dir, at), { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return entries
+    .flatMap((e) => {
+      const rel = at ? `${at}/${e.name}` : e.name;
+      return e.isDirectory() ? allFiles(dir, rel) : e.isFile() ? [rel] : [];
+    })
+    .sort();
+}
+
+/**
+ * The set's fingerprint by the layer's mask `*\/<path>` or `*\/**`: per skill directory
+ * (sorted), the named file — or every file, each under its relative path. The `*\/<file>`
+ * form hashes exactly as the earlier one-file stamp did.
+ */
+export function treeStamp(root: string, mask: string = SKILL_STAMP_MASK): string | null {
+  const [head, ...restParts] = mask.split("/");
+  const rest = restParts.join("/");
+  if (head !== "*" || !rest || (rest.includes("*") && rest !== "**"))
+    throw new Error(`unsupported skill stamp mask: ${mask}`);
   const h = createHash("sha256");
   let n = 0;
   let names: string[];
@@ -73,14 +97,21 @@ function treeStamp(root: string): string | null {
     return null;
   }
   for (const name of names) {
-    let body: Buffer;
-    try {
-      body = readFileSync(join(root, name, SKILL_STAMP_FILE));
-    } catch {
-      continue;
+    const files = rest === "**" ? allFiles(join(root, name)) : [rest];
+    const bodies: [string, Buffer][] = [];
+    for (const rel of files) {
+      try {
+        bodies.push([rel, readFileSync(join(root, name, rel))]);
+      } catch {
+        /* no such file in this skill */
+      }
     }
+    if (!bodies.length) continue;
     h.update(`${name}\0`);
-    h.update(body);
+    for (const [rel, body] of bodies) {
+      if (rest === "**") h.update(`${rel}\0`);
+      h.update(body);
+    }
     h.update("\0");
     n++;
   }

@@ -6,7 +6,8 @@
 //     bridge, the OpenCode plugin and SETUP.md home and say so by notification and a tool
 //     answer line — skills are updated by the harness channel and the human must be told;
 //   • the update subcommand (cli/update.ts) — the same on demand, without the cache.
-// Freshness comes only from the delivery repository's releases, never from the graph server.
+// Freshness comes only from the delivery repository's releases, never from the graph server:
+// another server instance or fork gets no updates from here.
 import { spawn } from "node:child_process";
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -45,8 +46,8 @@ export const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 export const FAILED_RETRY_MS = 15 * 60 * 1000;
 /**
  * Retry after a failure: not before a floor (the machine clock may run ahead of GitHub's
- * reset) and with a per-bridge spread so bridges do not hit the API in one second.
- * The variables are for probes only.
+ * reset; without the floor the retry would fire every second) and with a per-bridge spread
+ * so bridges do not hit the API in one second. The variables are for probes only.
  */
 const envMs = (name: string, dflt: number): number => {
   const v = Number(process.env[name]);
@@ -109,8 +110,9 @@ export function syncHome(self = selfPath()): HomeSync {
   const homeVersion = versionOf(home);
   const cmp = homeVersion ? compareVersions(VERSION, homeVersion) : 1;
   // Only a release build refreshes home (graph @nks/nks-dev, node #6650): a working-copy
-  // build is "newer" but unaccepted. At an equal version a release replaces an EXPLICIT
-  // dev build; an unmarked home is a pre-mark release (7.2.7 and earlier), left alone.
+  // build is "newer" but unaccepted, and at home it would take every session of the machine
+  // daemon. At an equal version a release replaces an EXPLICIT dev build; an unmarked home
+  // is a pre-mark release (7.2.7 and earlier), left alone.
   const healsDev = cmp === 0 && devBuildIn(readText(home)) && !mine.equals(readBytes(home));
   if ((cmp > 0 || healsDev) && releaseBuild()) {
     writeAtomic(home, mine);
@@ -232,8 +234,9 @@ export function checkExpiresAt(latest: Latest): number {
 
 /**
  * What is fresh: from the cache while valid (checkExpiresAt), otherwise from releases
- * (resolveTag). Something fresh is downloaded home in the same move. A network failure
- * is no bridge error: it is cached as a word and retried soon.
+ * (resolveTag: the machine-wide tag, the API, the releases page). Something fresh is
+ * downloaded home in the same move. A network failure is no bridge error: it is cached as
+ * a word and retried soon.
  */
 export async function checkLatest(authDir: string, force = false): Promise<Latest | null> {
   const cached = readLatest(authDir);

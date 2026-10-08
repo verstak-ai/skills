@@ -12,7 +12,7 @@
 //                 is resent after the reattach; a daemon without ack — always unknown. A
 //                 verdicted id is remembered: its late answer is dropped. Reattach by the
 //                 local session id; a new session replays initialize and resumes the held
-//                 seat by its hold record, harness calls wait for these moves (a paused
+//                 seat by its hold record (resume with its key and the harness session), harness calls wait for these moves (a paused
 //                 satellite takes no seat); not back — a lost notice and a spoken refusal of
 //                 each tool call into its graph, except the stand tool.
 //   end           stdin closed, SIGTERM — bye to the daemon with a bounded wait.
@@ -42,7 +42,7 @@ import { syntheticError } from "./deliver.ts";
 import { fullBridgeSigint, installCrashWords, startEngine } from "./engine.ts";
 import { NOT_SENT, UNKNOWN } from "./errors.ts";
 import { markFallback } from "./fallback.ts";
-import { lostPlaces, placeWord, realmListAsk } from "./lostplaces.ts";
+import { lostPlaces, placeWord, realmListAsk, resumeParams, seeSession } from "./lostplaces.ts";
 import { type Raise, raiseDaemon, SELF } from "./raise.ts";
 import { type BridgeSession, openSession } from "./session.ts";
 import { sleep } from "./store.ts";
@@ -268,7 +268,7 @@ export function thinMain(argv: string[]): void {
       resuming.set(key(id), held);
       closeGate(key(id));
       log(`the session is new — bringing its place ${held.key} back from the hold record`);
-      send({ jsonrpc: "2.0", id, method: method("resume"), params: { key: held.key } });
+      send({ jsonrpc: "2.0", id, method: method("resume"), params: resumeParams(held.key) });
     }
   };
 
@@ -292,7 +292,7 @@ export function thinMain(argv: string[]): void {
     local = { session, input };
     mode = "local";
     replay(toLocal);
-    askRealms();
+    askRealms(); // the replay's seat losses surface here too: ask in the local session
     for (const m of queue.splice(0)) dispatch(m);
   };
 
@@ -436,7 +436,7 @@ export function thinMain(argv: string[]): void {
       cancelled.delete(key(msg.id));
       flights.set(key(msg.id), { id: msg.id, msg, acked: false });
     }
-    dispatch(msg);
+    dispatch(seeSession(msg)); // the session the plugin names goes into the seat's return (lostplaces.ts)
   });
 
   const leave = (why: string): Promise<void> => (leaving ??= windDown(why));

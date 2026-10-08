@@ -1,6 +1,7 @@
 // Who shook hands with the bridge — the harness name from clientInfo.name (graph
 // @nks/nks-dev, nodes #5047, #4895): it tells whether frames arrive as notifications
-// (pi, OpenCode) or only via the local watchdog (Claude Code, Codex).
+// (pi, OpenCode) or only via the local watchdog (Claude Code, Codex), and whose hold
+// record is its own.
 import { HARNESS_VERSION_ENV, HOSTED_CLIENTS, NOTIFIED_CLIENTS } from "../shared/clients.ts";
 import { envOf } from "../shared/scope.ts";
 import { state } from "./transport.ts";

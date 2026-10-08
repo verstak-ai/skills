@@ -1,8 +1,10 @@
 // Session seats as the thin bridge sees them (thin.ts) and their loss on a daemon
 // change: a lost seat is refused for every tool call into its graph except stand,
 // until retaken; graphs are compared canonically (realms.ts), an unresolved name
-// is refused asking for the full address (#5838).
-import { LOGGERS, LOST, tool } from "../delivery/index.ts";
+// is refused asking for the full address (#5838). Another owner of the same slug is
+// another graph. Seats are key → graph as the agent named it: the main one by `held`,
+// others by `beside` (`beside-gone` drops one); a lost seat also gets a `lost` notice.
+import { LOGGERS, LOST, method, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { learnRealmList, realmRelation, sameRealm, unresolvedWord } from "./realms.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -20,12 +22,33 @@ export function placeWord(
     : null;
 }
 
+/**
+ * The harness session the plugin names to the bridge (resume, check methods): the thin
+ * bridge keeps it and carries it into the seat's return in a new daemon session — without
+ * it the hold record would land unsigned and the session would take its own seat for
+ * another's (graph @nks/nks-dev, node #6702).
+ */
+let harnessSession: string | null = null;
+/** Remember the harness session from its call; the call passes as is. */
+export function seeSession(msg: JsonRpcMessage): JsonRpcMessage {
+  const s = msg.params?.session;
+  if ((msg.method === method("resume") || msg.method === method("check")) && typeof s === "string")
+    harnessSession = s.trim() || harnessSession;
+  return msg;
+}
+/** The return params in a new daemon session: the key and the named harness session. */
+export const resumeParams = (key: string): { key: string; session?: string } =>
+  harnessSession ? { key, session: harnessSession } : { key };
+
 export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) => void) {
   const live = new Map<string, string>();
   const lost = new Map<string, { realm: string; satellite: boolean; text: string }>();
   return {
     live,
-    /** The seat is taken again (held, beside) — its refusal lifted. */
+    /**
+     * The seat is taken again (held, beside) — its refusal lifted. A satellite's loss is
+     * lifted by any satellite seat of the same graph: the bridge picks the .sub-N name.
+     */
     regained(k: string, realm: string): void {
       live.set(k, realm);
       for (const [lk, e] of lost)
@@ -46,14 +69,17 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
         },
       });
     },
+    /** The thin bridge decides by it whether to learn graph names. */
     lostCount(): number {
       return lost.size;
     },
     /**
      * Fold a seat word reaching the thin bridge; returns heldKey after it. held with
-     * another key drops the old key from live. released from the daemon session
-     * while the harness lives is a daemon ending without successor, not the agent
-     * leaving: the key stays so the takeover resumes the seat by its hold record.
+     * another key drops the old key from live, else the next break would call it lost.
+     * released from the daemon session while the harness lives is a daemon ending
+     * without successor, not the agent leaving: the key stays so the takeover resumes
+     * the seat by its hold record. The agent's real leave goes through the thin
+     * bridge's own leave; death and eviction come as dead and evicted.
      */
     seen(
       place: { kind: string; key?: string; realm: string } | null,
@@ -81,6 +107,7 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
     /**
      * Refusal of a tool call for a lost seat; null — let it pass. Only calls into a
      * lost graph; an unresolved name is refused asking for the full address (#5838).
+     * The refusal carries the call's graph, not the first loss found.
      */
     refusal(msg: JsonRpcMessage): string | null {
       if (!lost.size || msg.method !== "tools/call" || msg.params?.name === tool("stand"))
@@ -100,7 +127,8 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
 
 /**
  * The thin bridge's own realm list calls: without the list every unresolved name
- * is refused. Asked when losses exist; a refusal instead of the list goes loudly to log.
+ * is refused. Asked with the bridge's own id when losses exist: at takeover at once, or
+ * when a resume answer reveals a loss; a refusal instead of the list goes loudly to log.
  */
 export function realmListAsk() {
   const asked = new Set<string>(); // JSON.stringify(id) of own calls awaiting an answer

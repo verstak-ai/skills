@@ -2,6 +2,8 @@
 // socket closed, busyness cleared; address, queue and hooks intact.
 // Three causes: the doer's word (channel leave), deafness (no local listener
 // past the threshold where the harness hears only through one), session end.
+// Mail piles up at the platform and arrives as a stale tail on return; pi and OpenCode
+// get frames by notification and are never deaf.
 import { envName, LEAVE, LOGGERS, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
@@ -66,8 +68,8 @@ export async function leaveStanding(reason: string, byWord = false): Promise<str
   if (!parked) return W.notHolding();
   K.beside = beside;
   K.status = publishedStatus();
-  const st = await publishStatus("", undefined, true);
-  // Restored only when the same session returns (#6017).
+  const st = await publishStatus("", undefined, true); // cleared on all seats of the channel
+  // Kept in the hold record; restored only when the same session returns (#6017).
   if (st.ok && K.status) rememberStatus(K.status);
   // A leave by word holds: only a stand by name raises the seat again (#6017).
   if (byWord) for (const k of leaving) markLeft(k, true);
@@ -125,7 +127,8 @@ export function returnToStanding(how: string): boolean {
 
 /**
  * A socket reopened at the same address hears only once its hello arrives; without
- * it in time another may have turned the address — the seat is released (#6706).
+ * it in time another may have turned the address (answered with 404, not a close code)
+ * — the seat is released (#6706).
  */
 export async function heardOnReturn(): Promise<void> {
   if (!H.unheard || (await awaitHello(4000))) return;
@@ -135,7 +138,10 @@ export async function heardOnReturn(): Promise<void> {
   releaseStanding(why, false, false, true);
 }
 
-/** Deafness watch: nobody listening past the threshold on a watchdog-only harness — leave the seat. */
+/**
+ * Deafness watch: nobody listening past the threshold on a watchdog-only harness — leave the
+ * seat. An attaching watchdog returns it: the socket reopens at the same address.
+ */
 export function startDeafnessWatch(): void {
   // A liveness probe attaches and drops at once; only a listener that stays returns the seat (#5140).
   onListenerAttached(() =>

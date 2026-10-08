@@ -29,6 +29,7 @@ import { lastAgentWork, noteAgentWork } from "./work.ts";
 /** How long a daemon session handing seats over waits for calls in flight; the thin bridge answers the rest. */
 const HANDOVER_WAIT_MS = Number(process.env[envName("BRIDGE_HANDOVER_WAIT_MS")]) || 10_000;
 
+/** Where the session reads the harness's lines and writes its answers. */
 export interface SessionIO {
   input: NodeJS.ReadableStream;
   output: Writable;
@@ -41,6 +42,7 @@ export interface BridgeSession {
   readonly ended: Promise<void>;
   /** null — this process's own session. */
   readonly origin: SessionOrigin | null;
+  /** The daemon runs in this scope what it tells the session on its own. */
   readonly scope: Scope | null;
   /** Last agent tool call, ms epoch (0 — none) (graph @nks/nks-dev, node #6510). */
   lastWork(): number;
@@ -56,6 +58,7 @@ export interface SessionOrigin {
   patSha?: string | null;
 }
 
+/** Options of a foreign bridge's session: its id in the journal and where its log goes. */
 export interface SessionOptions {
   id?: string;
   log?: (line: string) => void;
@@ -63,6 +66,8 @@ export interface SessionOptions {
 
 let counter = 0;
 
+// Session keys (isSessionEnvKey) come from the harness bridge, the rest from the process, as
+// does env read at module load (probe *_MS knobs).
 // The personal token is not a session key: the daemon has its own, and a different one is refused.
 function applyOrigin(origin: SessionOrigin): void {
   const cfg = readArgs(origin.argv);
@@ -76,7 +81,8 @@ function applyOrigin(origin: SessionOrigin): void {
 /**
  * Open a bridge session over streams. Without origin — this process's session
  * (setConfig already called); with origin — a foreign bridge's session in its
- * own scope, throwing on bad argv or a foreign token.
+ * own scope, throwing on bad argv or a foreign token. End of input is the session's
+ * leave (like stdin closing); whether the process exits is the owner's call.
  */
 export function openSession(
   io: SessionIO,
@@ -99,8 +105,11 @@ export function openSession(
 function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null): BridgeSession {
   setSessionOutput(io.output);
   guardStream(io.output); // before the first write: a broken pipe is news, not a crash
-  holdFromEnv(); // (graph @nks/nks-dev, node #5140)
-  // (graph @nks/nks-dev, node #4895); a satellite's seat signs the run's writes, so it keeps no deafness watch.
+  // A socket from env without connect (debug), or the seat returned by the session dir
+  // (graph @nks/nks-dev, node #5140).
+  holdFromEnv();
+  // Nobody listening, the bridge leaves the seat itself (graph @nks/nks-dev, node #4895); a
+  // satellite's seat signs the run's writes, so it keeps no deafness watch.
   if (!CFG.satellite) startDeafnessWatch();
 
   const rl = createInterface({ input: io.input, terminal: false });
@@ -123,6 +132,7 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
       if (msg.method === "tools/call" && !String(msg.id ?? "").startsWith(ID_PREFIX))
         noteAgentWork();
       // Pipelined clients send calls before the initialize answer; they wait behind the handshake, in order (graph @nks/nks-dev, node #4308).
+      // Sent early, they would reach the server without Mcp-Session-Id and get 400.
       const run = () =>
         deliver(msg).catch((e) => log(`unexpected: ${(e as Error)?.stack || errorMessage(e)}`));
       let p: Promise<void>;
@@ -151,6 +161,8 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
   // the killed bridge leaves the machine holding a retired refresh token. That
   // is the price SIGKILL always pays; SIGTERM, stdin-close, and SIGINT no longer do.
   // The harness closes stdin AND sends SIGTERM: the second leave waits for the first (graph @nks/nks-dev, node #5140).
+  // Otherwise it exits before the first takes busyness off the board. A daemon session's
+  // input is not its process: the daemon awaits it.
   let leaving: Promise<void> | null = null;
   let markEnded!: () => void;
   const ended = new Promise<void>((resolve) => (markEnded = resolve));
@@ -169,7 +181,8 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
     if (paused) await pauseSettled(); // a late re-arm of the pause turned the address — wait for its write
     await flushStdout(io.output); // an answer half-written is an answer not given
     if (origin) {
-      // A daemon session: login and token rotation belong to the daemon process, which outlives it.
+      // A daemon session: login and token rotation belong to the daemon process, which outlives it;
+      // satellite names are freed with the session.
       releaseSatelliteClaims();
       return;
     }

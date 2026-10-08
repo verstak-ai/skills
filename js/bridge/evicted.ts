@@ -1,13 +1,16 @@
 // Seat taken by close 4000 (graph @nks/nks-dev, nodes #6706, #5402): a session never
-// stays deaf silently. Taken by a new bridge of the same harness session — yield quietly;
-// taken by another session — stand beside as name.N with hearing and say so.
+// stays deaf silently. Taken by a new bridge of the same harness session (restart,
+// compaction: its hold record names the session) — yield quietly; taken by another
+// session — stand beside as name.N with hearing and say so.
+import { sameDir } from "../shared/canon.ts";
 import { scoped } from "../shared/scope.ts";
+import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
 import { signedRealm } from "./deaf.ts";
 import { type ChannelEvent } from "./door.ts";
 import { UpstreamError } from "./errors.ts";
 import { broadcast, ledKey, notify, releaseStanding, wasEvicted } from "./hold.ts";
-import { readHoldRecord, sessionOfBridge } from "./holdrecord.ts";
+import { type HoldRecord, readHoldRecord, sessionOfBridge } from "./holdrecord.ts";
 import { H, whenEvicted } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { otherRealm } from "./realms.ts";
@@ -39,20 +42,28 @@ function announceEvicted(code: number, text: string): void {
 
 /**
  * Whether this session's new bridge took the seat — a hold record under the same key
- * with another url. While its connect is in flight (intent in taking.ts) wait for the
- * outcome: the intent is written before connect, so without it the taker is foreign.
+ * with another url. While its connect is in flight (intent in taking.ts; 4000 outruns its
+ * reply) wait for the outcome, not a deadline: the intent is written before connect, so
+ * without it the taker is foreign. A bridge with no session named yields quietly to a named
+ * session of the same harness and directory: that session took the unsigned record as its
+ * own, and standing beside would leave a second seat with no listener (graph @nks/nks-dev,
+ * node #6702). With no session on either side it is a taking, as before.
  */
 async function takenBySession(key: string, url: string): Promise<boolean> {
   const me = sessionOfBridge();
-  if (!me) return false;
+  const ours = (r: HoldRecord): boolean =>
+    me
+      ? r.session === me
+      : !!r.session && r.client === harnessName() && sameDir(r.cwd, H.standCwd ?? undefined);
   const changed = (): boolean | null => {
     const r = readHoldRecord(key, true);
-    return r && r.url !== url ? r.session === me : null;
+    return r && r.url !== url ? ours(r) : null;
   };
   for (;;) {
     const got = changed();
     if (got !== null) return got;
-    if (takerOf(key) !== me) return changed() ?? false; // the record may land just before the intent is erased
+    const taker = takerOf(key);
+    if (me ? taker !== me : !taker) return changed() ?? false; // the record may land just before the intent is erased
     await new Promise((res) => setTimeout(res, LOOK_MS));
   }
 }
@@ -123,7 +134,8 @@ async function yieldPlace(key: string, url: string, code: number): Promise<void>
 
 /**
  * Stand beside and tell the session the outcome. Seats of other graphs on the taken
- * channel stand again on the new one. On failure the seat is remembered: the next
+ * channel are dropped by the beside connect and stand again on the new one in the same move,
+ * named in the word. On failure the seat is remembered: the next
  * harness call retries before signing with the taken seat (standing.ts).
  */
 async function besideAndSay(

@@ -77,7 +77,11 @@ export function parseBoard(text: string): BoardEntry[] {
 /** Own half of `@handle:name`, compared whole: `endsWith(":proba")` would match neighbour `x.proba`. */
 export const nameOf = (address: string): string => address.slice(address.indexOf(":") + 1);
 
-/** Server prose forms of the board and hook list, both languages (graph @nks/nks-dev, nodes #4514, #6637). */
+/**
+ * Server prose forms of the board and hook list, both languages (graph @nks/nks-dev,
+ * nodes #4514, #6637): a fallback until the server gives fields; the bridge on an
+ * English surface asks accept-language: en. Russian forms observed, English assumed.
+ */
 export const FORM = BOARD_FORM;
 
 /** Whether the seat listens per the board — presence, not traffic. */

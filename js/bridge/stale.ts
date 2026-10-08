@@ -1,6 +1,9 @@
 // Stale frames go as one batch per window, with bodies (graph @nks/nks-dev, nodes
-// #4881, #5033): a stale: true frame is worth no move but is not lost. Each seat has
-// its own batch (door.ts, #5838): one graph's stale frames do not reach another's watchdog.
+// #4881, #5033): a stale: true frame (a predecessor's mail after revoke, or a service replay
+// after a session rebuild) is worth no move but is not lost. The batch is one event: one
+// burst under Monitor, one prompt in pi and OpenCode, log and .seen for the exit watchdog.
+// Each seat has its own batch (door.ts, #5838): one graph's stale frames do not reach
+// another's watchdog.
 import { type Frame } from "../shared/channel.ts";
 import { type Marks, sameCopy } from "../shared/seen.ts";
 import { staleBatch } from "../shared/stalebatch.ts";
@@ -28,7 +31,8 @@ export class StaleBurst {
       this.timer = null;
       const all = this.burst.splice(0);
       if (!all.length) return; // a live copy of the same event took them all
-      // Text and marks by the seat's memory now; watchdogs judge it themselves at print time (shared/stalebatch.ts).
+      // Text and marks by the seat's memory now, as the bridge delivers it (pi, OpenCode);
+      // watchdogs judge the frames themselves at print time (shared/stalebatch.ts).
       const { text, keys } = staleBatch(all, this.has);
       if (!text) return; // all already in play: marks only grow, the watchdog decides the same
       flush({ kind: "stale", frames: all, marks: keys, text });

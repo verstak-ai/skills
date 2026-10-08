@@ -1,6 +1,7 @@
 // The hold record on disk (graph @nks/nks-dev, node #5061): a restarted bridge returns the
-// place by name instead of rotating it with connect. The secret lies 0600 beside the
-// standing key, like the grant; revoke and a dead token erase it (hold.ts).
+// place by name instead of rotating it with connect, so address, hooks and queue stay the
+// same. The secret lies 0600 beside the standing key, like the grant; revoke and a dead
+// token erase it (hold.ts).
 import { mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -11,7 +12,7 @@ import { log } from "./streams.ts";
 
 const holdFilePathFor = (key: string): string => holdFilePathOf(CFG.authDir, key);
 
-/** Standing key from its three names; unsafe path characters become underscores. */
+/** Standing key from its three names, in the same form as keyFor in hold.ts. */
 export function keyOf(realm: string, karta: string | number, name: string): string {
   return `${name || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
 }
@@ -63,7 +64,8 @@ function onDisk(key: string): HoldRecord | null {
 /**
  * Only the bridge that chose the place knows its base; names carry dots (`glm-5.3`), so it
  * cannot be guessed (#6706). It also lives in a separate file beside the hold record, which
- * eviction and a dead token erase; the base does not age.
+ * eviction and a dead token erase; the base does not age, so a new take of the place (or a
+ * restarted bridge) reads it from there.
  */
 const B = scoped(() => new Map<string, string>());
 export function noteSeatBase(key: string, base: string): void {
@@ -97,8 +99,10 @@ export function seatBaseOf(key: string): string | null {
 }
 
 /**
- * The session in the record is only one named to THIS bridge process (or passed explicitly):
- * a bridge without a named session does not inherit one from disk (#6017).
+ * The session in the record is one named to THIS bridge process (or passed explicitly):
+ * a bridge without a named session does not inherit one from disk (#6017) — except a record
+ * of the same url: the seat goes on (return from disk, busyness, mark) and the session that
+ * stood on it is not erased (#6702).
  * `left` persists from disk until a new hold says `left: false`.
  */
 export function writeHoldRecord(
@@ -110,8 +114,8 @@ export function writeHoldRecord(
   // A satellite's place lives for the run (satellite.ts); only a plugin-reload pause restores it from disk (suspend.ts).
   if (CFG.satellite && !paused) return;
   try {
-    const session = H.session ?? rec.session;
-    const was = rec.left == null || (rec.base ?? B.get(key)) == null ? onDisk(key) : null;
+    const was = onDisk(key);
+    const session = H.session ?? rec.session ?? (was?.url === rec.url ? was.session : undefined);
     const left = rec.left ?? was?.left === true;
     writeFileSync(
       holdFilePathFor(key),

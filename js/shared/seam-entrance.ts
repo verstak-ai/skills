@@ -1,5 +1,6 @@
 // Seam entrance (wire — seam.ts): where the daemon socket lies, whose directory it is
-// and who raises the daemon. Shared by both sides.
+// and who raises the daemon. Shared by both sides: the thin bridge looks for the daemon
+// at the same path the daemon listens on.
 //
 //   <grant dir>/run/       private seam directory: 0700, this user, not a link
 //                          (privateDirProblem); otherwise refused
@@ -28,7 +29,8 @@ const SUN_PATH_MAX = 103;
 // A Windows pipe name is visible to every user: its unpredictable part is a random
 // word in the private seam directory (Node sets no pipe ACL — a limit in REALITY.md).
 // Published atomically via link(), not rename, so a second writer cannot replace a
-// word the first already read; a reader finding it empty rereads.
+// word the first already read (daemon and bridge would diverge on the name); a reader
+// finding it empty (an older non-atomic writer) rereads.
 function pipeNonce(authDir: string): string {
   const run = seamRunDir(authDir);
   const file = join(run, "pipe");

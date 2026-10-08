@@ -6,10 +6,11 @@
 // without a satellite seat, was unheard too: leads.ts hears only leads (#6550 item 4).
 // The stream is the service's: ours is a session whose directory equals this instance's as a
 // STRING, not after realpath — each spelling has its own instance, and only it knows whether the
-// child is a lead. A word is claimed in a process-wide set under a delivery-neutral key, so two
-// plugins of two deliveries in one OpenCode tell the parent once (#6815 item 7). Cost: a non-background child's word lands after the human's answer; a shutdown before session.get loses it.
+// child is a lead. A word is claimed in a process-wide set keyed by the delivery: copies of one
+// delivery tell the parent once, and another delivery — which knows only its own leads — never
+// silences this one (#6815 item 7). Cost: a non-background child's word lands after the human's answer; a shutdown before session.get loses it.
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK events and answers without a schema */
-import { envName } from "../delivery/index.ts";
+import { envName, GLOBAL_PREFIX } from "../delivery/index.ts";
 import { sleep } from "./bridge-io.ts";
 import { homeOf } from "./host.ts";
 import { W } from "./leadwords.ts";
@@ -28,9 +29,9 @@ export interface WaitDoors {
   isLead(child: string): boolean;
 }
 
-/** Words told in this process by any delivery's plugin; the key is delivery-neutral on purpose. */
+/** Words told in this process by this delivery's plugins. */
 const toldInProcess = (): Set<string> =>
-  ((globalThis as any).__bridgeChildWordsTold ??= new Set<string>());
+  ((globalThis as any)[`${GLOBAL_PREFIX}ChildWordsTold`] ??= new Set<string>());
 
 export const askWord = (who: string, action: string, resources: string[]): string => {
   const cut = resources.slice(0, RESOURCES).map((r) => {

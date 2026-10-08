@@ -19,7 +19,7 @@ import { envName, OPENCODE, PLUGIN } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { askFromPerson } from "../shared/asks.ts";
 import { classifyOrigin, type Frame, isDirectWord } from "../shared/channel.ts";
-import { batchHead, batchLines, frameToText } from "../shared/frame-text.ts";
+import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, eventIn } from "../shared/seen.ts";
@@ -123,7 +123,7 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
       return null;
     }
     try {
-      const r: any = await ctx.session.prompt({ sessionID: id, text, delivery });
+      const r: any = await ctx.session.prompt({ sessionID: id, text: markFrame(text), delivery });
       say(W.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
       return { session: id, inbox: typeof inbox === "string" ? inbox : null };

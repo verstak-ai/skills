@@ -12,7 +12,7 @@ import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, LOGGERS, PLUGIN, PRODUCT } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
-import { batchHead, batchLines, frameToText } from "../shared/frame-text.ts";
+import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { byKind, roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, eventIn, isTact, onlyTacts, tactAt } from "../shared/seen.ts";
@@ -43,7 +43,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
   function loud(text: string, fatal = true) {
     if (ctxRef?.hasUI) ctxRef.ui.notify(text, fatal ? "error" : "warning");
     pi.sendMessage(
-      { customType: LOGGERS.channel, content: text, display: true, details: { fatal } },
+      { customType: LOGGERS.channel, content: markFrame(text), display: true, details: { fatal } },
       { triggerTurn: true, deliverAs: "steer" },
     );
   }
@@ -66,7 +66,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: [batchHead(got), ...batchLines(got)].join("\n"),
+        content: markFrame([batchHead(got), ...batchLines(got)].join("\n")),
         display: true,
         details: { count: got.map((f) => f.id ?? null) },
       },
@@ -79,7 +79,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: ev.text ?? "",
+        content: markFrame(ev.text ?? ""),
         display: true,
         details: ev.kind === "stale" ? { stale: true } : { backlog: true },
       },
@@ -143,7 +143,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
         pi.sendMessage(
           {
             customType: LOGGERS.channel,
-            content: frameToText(frame, raw),
+            content: markFrame(frameToText(frame, raw)),
             display: true,
             details: frame ?? { raw },
           },

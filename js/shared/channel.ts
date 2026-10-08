@@ -275,7 +275,8 @@ export function holdSocket(o: HoldOptions): Holder {
       o.onFrame(raw, frame && typeof frame === "object" ? frame : null);
     });
     // A drop at the upgrade gives ONLY error on some runtimes, no close (measured on
-    // Node 22); the delay leaves close a chance to name its code — dead-token codes come by it.
+    // Node 22): a holder waiting for close alone dies with the empty event loop.
+    // The delay leaves close a chance to name its code — dead-token codes come by it.
     sock.addEventListener("error", () =>
       setTimeout(() => void dropped(1006), ERROR_GUESS_DELAY_MS),
     );

@@ -1,11 +1,13 @@
 // Memory of questions to me (graph @nks/nks-dev, nodes #6867, #6868): which question on
 // a case key is asked to me and still open. It closes when the last line of its key is
-// no longer it: a withdrawal, an answer by another seat of my role, a re-ask to another;
-// an acceptance closes it silently.
+// no longer it: a withdrawal, an answer by another seat of my role, a re-ask to another
+// (each told to the seat in words); an acceptance closes it silently. A fresh question on
+// a key where mine already closed is not to me.
 //
 // The store is a set of strings: per process, and the seat's .asks for the bridge
-// (bridge/askdisk.ts). Entries: open — `<base>#<ask number>`, closed —
-// `off:<base>#<number>`; base — reader's seat, case and line key in the frame's count (#6576).
+// (bridge/askdisk.ts), so the exit watchdog and a restarted bridge see closings.
+// Entries: open — `<base>#<ask number>`, closed — `off:<base>#<number>`; base — reader's
+// seat, case and line key in the frame's count (#6576).
 import { askedMine, byMe } from "./asks.ts";
 import { type Frame } from "./channel.ts";
 import { numberedKey } from "./numbering.ts";

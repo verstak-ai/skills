@@ -23,7 +23,10 @@ const alive = (pid: number): boolean => {
   }
 };
 
-/** Remove marks of killed processes, so a reused pid is not read as a session. */
+/**
+ * Remove marks of killed processes, so a reused pid is not read as a session. Called by
+ * the next bridge running past the daemon and by the daemon at start.
+ */
 export function pruneFallbacks(authDir: string): void {
   let names: string[] = [];
   try {
@@ -38,7 +41,7 @@ export function pruneFallbacks(authDir: string): void {
   }
 }
 
-/** Mark this session as running past the daemon; the mark leaves with the process. */
+/** Mark this session as running past the daemon; the mark leaves with the process. A write failure does not stop the bridge. */
 export function markFallback(authDir: string, f: Omit<Fallback, "pid" | "since">): void {
   const file = join(fallbackDir(authDir), `${process.pid}.json`);
   try {

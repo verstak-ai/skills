@@ -3,7 +3,8 @@
 // incoming address; a seat of another graph on the same channel has none — the address
 // (hook_token) belongs to the channel and its graph, so the role hook there goes on the
 // channel with body {"channel":"self"}, delivered inside the service to that graph's
-// role seats. channel is passed only if the admin tool schema declares it.
+// role seats on live sockets, with the seat's to_standing_id. channel is passed only if
+// the admin tool schema declares it.
 import { HOOK, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { callTool as call, short } from "./call.ts";
@@ -35,6 +36,7 @@ export async function armRoleHook(p: HookPlace): Promise<string> {
   if (!recognized) return w.unrecognized(short(hooks.text, 120));
   if (!p.heardHere) return w.otherHolder();
   if (p.beside) {
+    // No own address: the hook goes on the channel, if the tool can.
     const params = await adminParamNames();
     const noAddress = w.noAddress(p.channelRealm);
     if (!params) return w.noSchema(noAddress);

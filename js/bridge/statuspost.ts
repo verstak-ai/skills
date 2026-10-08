@@ -48,7 +48,7 @@ export function trimToWord(text: string, max: number): string {
 /**
  * The taken line and the trimming from a successful reply's body. Without doing,
  * the sent line — or, under trimmed_to_limit, the derived one: the sent line is
- * never passed off as the taken one.
+ * never passed off as the taken one nor stored in the hold record.
  */
 function acceptedIn(body: string, sent: string): Pick<StatusOutcome, "doing" | "trimmed"> {
   let parsed: Obj = {};
@@ -90,7 +90,8 @@ export async function publishStatusTo(
   let res: Response;
   try {
     // The line is set, not accumulated, so a repeat is harmless — one, and only on a
-    // connection closed under the request; a surface reply is not repeated.
+    // connection closed under the request (a pooled keep-alive the server closed); a surface
+    // reply is not repeated.
     res = await post().catch((e: unknown) => {
       if (!closedUnder(e) || signal.aborted) throw e;
       return post();

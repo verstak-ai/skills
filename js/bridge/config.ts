@@ -7,6 +7,7 @@ import {
   DEFAULT_SERVER_URL,
   envName,
   HOME_DIR,
+  LANGS,
   SERVER_CHOICE,
   SERVER_URLS,
   tool,
@@ -19,19 +20,17 @@ import { log } from "./streams.ts";
 import { type Config } from "./types.ts";
 
 export { DEFAULT_SERVER_URL };
-/** The English production address (graph @nks/nks-dev, node #5040). */
-export const ENGLISH_SERVER_URL = SERVER_URLS.en;
-/** Only behind production addresses does the bridge follow delivery releases. */
-const PRODUCTION_URLS = new Set([DEFAULT_SERVER_URL, ENGLISH_SERVER_URL].map(strip));
+/** Only behind production addresses (graph @nks/nks-dev, node #5040) does the bridge follow delivery releases. */
+const PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
 function strip(url: string): string {
   return url.replace(/\/+$/, "");
 }
 export const isProductionServer = (url: string): boolean => PRODUCTION_URLS.has(strip(url));
-/** The human's word for the address: `ru` and `en` name the production ones, else a full URL. */
+/** The human's word for the address: a language's word names its production address, else a full URL. */
 export function resolveServerChoice(word: string): string | null {
   const w = word.trim();
-  if (SERVER_CHOICE.ru.test(w)) return DEFAULT_SERVER_URL;
-  if (SERVER_CHOICE.en.test(w)) return ENGLISH_SERVER_URL;
+  const chosen = LANGS.find((l) => SERVER_CHOICE[l].test(w));
+  if (chosen) return SERVER_URLS[chosen];
   try {
     return new URL(w).href;
   } catch {
@@ -61,7 +60,8 @@ export function writeServerChoice(authDir: string, url: string): string {
   return path;
 }
 
-// One config per session scope; CFG proxies to the current scope's config.
+// One config per session scope; CFG proxies to the current scope's config. The full bridge
+// keeps it in the process scope; the daemon sets one per session from that session's argv/env.
 const cfgSlot = scoped(() => ({ cfg: null as Config | null }));
 export const CFG: Config = new Proxy({} as Config, {
   get: (_, k) => (cfgSlot.cfg ? Reflect.get(cfgSlot.cfg, k) : undefined),
@@ -114,7 +114,8 @@ export function readArgs(argv: string[]): Config {
     pat: null,
     patSource: null,
     serverSource: "argument",
-    // Flag only: an older bridge fails loudly on an unknown flag but would ignore a variable.
+    // Flag only: an older bridge fails loudly on an unknown flag but would ignore a variable
+    // and stand as a full seat with a hold record.
     satellite: false,
     tools: null,
   };
@@ -160,6 +161,7 @@ export function readArgs(argv: string[]): Config {
 /**
  * Personal access token, bypassing OAuth (graph @nks/nks-dev, node #4267): the
  * BRIDGE_TOKEN variable, then the `token` file beside the grant (never argv: ps shows it).
+ * With a PAT there is no discovery, browser or refresh: a 401 means the token was rejected.
  */
 function readPat(cfg: Config): void {
   const fromEnv = envOf(envName("BRIDGE_TOKEN"))?.trim();

@@ -1,6 +1,7 @@
 // The agent's last work — the point for the seat's heartbeat (graph @nks/nks-dev,
 // node #6510): the moment of the agent's last tools/call from the harness; service
-// moves of the plugin and the bridge do not count. Per session (shared/scope.ts).
+// moves of the plugin and the bridge (check, usage, the replayed handshake) do not count.
+// Per session (shared/scope.ts): the daemon keeps one per session, published per seat.
 import { scoped } from "../shared/scope.ts";
 
 const W = scoped(() => ({ at: 0 }));

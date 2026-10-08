@@ -38,7 +38,8 @@ export function unlinkOwned(path: string, stamp: string | null): void {
 
 /**
  * Close a socket server without removing another's socket at the same path: libuv
- * unlinks the bound path on close, so a foreign socket is moved aside and back.
+ * unlinks the bound path on close, so a foreign socket is moved aside and back with the
+ * same inode; the close is synchronous.
  */
 export function closeServerKeeping(path: string, stamp: string | null, close: () => void): void {
   const now = stampOf(path);

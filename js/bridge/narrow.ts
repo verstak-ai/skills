@@ -1,8 +1,10 @@
 // What the harness sees of the tool list: the list weighs on every agent request,
 // so the bridge narrows only the harness's copy — the shared reply cache keeps the
-// full list. Two narrowings: the tool set, only by `--tools a,b,c`; the channel
-// tool's schema for every bridge, without the seat moves the bridge makes itself.
-// The surface export client gets the raw list.
+// full list, and the bridge itself still calls any move on the server. Two narrowings: the
+// tool set, only by `--tools a,b,c` (without it the harness sees every tool); the channel
+// tool's schema for every bridge, without the seat moves the bridge makes itself (register
+// and revoke stay). The surface export client gets the raw list: the fake server cuts
+// arguments by that snapshot.
 import { ACTION_LIST_RE, ID_PREFIX, NARROW, tool } from "../delivery/index.ts";
 import { SURFACE_CLIENT } from "../shared/clients.ts";
 import { words } from "../shared/lang.ts";
@@ -30,7 +32,8 @@ export function toolSet(): Set<string> | null {
 /**
  * The bridge's own realm list after a lost seat (lostplaces.ts) passes the session
  * input; matched by the whole call, not the id prefix, so a harness call outside
- * --tools is not let through.
+ * --tools is not let through. The bridge's other own moves (replay, resume) go to the
+ * server directly, bypassing the session input, and never meet this check.
  */
 const ownRealmList = (msg: JsonRpcMessage): boolean =>
   String(msg.id ?? "").startsWith(`${ID_PREFIX}thin-realms-`) &&
@@ -53,7 +56,10 @@ export function outsideSetRefusal(msg: JsonRpcMessage): JsonRpcMessage | null {
   };
 }
 
-/** outputSchema reaches only a harness that asked for answer fields (fields.ts, graph @nks/nks-dev, node #6731). */
+/**
+ * outputSchema reaches only a harness that asked for answer fields (fields.ts, graph
+ * @nks/nks-dev, node #6731): the harness checks structuredContent against it.
+ */
 type Tool = {
   name?: string;
   description?: string;
@@ -61,6 +67,7 @@ type Tool = {
   outputSchema?: Record<string, unknown>;
 };
 
+/** Drops the bridge's moves from the action list "one of: a | b | c" in a description. */
 function withoutPlaceMoves(text: string): string {
   return text.replace(
     ACTION_LIST_RE,

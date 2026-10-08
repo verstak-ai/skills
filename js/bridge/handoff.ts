@@ -1,5 +1,7 @@
 // Handing a seat's socket to the successor on daemon change (graph @nks/nks-dev, nodes #6586, #6482):
 // the leaving daemon keeps the socket until the successor's 4000 or the limit; frames go to the spool.
+// The server counts a frame delivered once written, until it reads the close frame, so a
+// closed socket would lose a word silently.
 import { HANDOFF, LOGGERS } from "../delivery/index.ts";
 import { EVICTED_CODE, type Frame, type Holder } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
@@ -32,6 +34,8 @@ function keepUntilEvicted(holder: Holder, key: string, statusUrl: string | null)
     };
     timer = setTimeout(() => {
       // No successor: the busy line leaves with the seat (graph @nks/nks-dev, nodes #5059, #6017).
+      // A later bridge gets the seat back from the hold record, the line only in the same named
+      // harness session (resume.ts); a bridge without a session name (Claude Code) gets none.
       const cleared = statusUrl ? clearBusy(key, statusUrl, door) : undefined;
       end(`no successor took the socket in ${HANDOFF_MS / 1000}s — closed`, cleared);
       holder.close("the successor did not take the place");
@@ -52,6 +56,7 @@ function keepUntilEvicted(holder: Holder, key: string, statusUrl: string | null)
 /**
  * Clears the busy line of a seat no successor took. An empty POST hits every seat of
  * the channel, so a listening door means a late successor and the line is left alone.
+ * One window remains: the successor opened the service socket but has not raised its door.
  */
 async function clearBusy(key: string, statusUrl: string, door: string): Promise<void> {
   if (await localSocketAlive(door)) {
@@ -62,7 +67,10 @@ async function clearBusy(key: string, statusUrl: string, door: string): Promise<
   log(`place ${key}: ${st.ok ? "busy line cleared" : `busy line not cleared — ${st.body}`}`);
 }
 
-/** Lets a seat's socket go: kept until eviction when handed over (keepFor), else closed. */
+/**
+ * Lets a seat's socket go: kept until eviction when handed over (keepFor), else closed.
+ * `statusUrl` — the seat's busy line, cleared if no successor comes.
+ */
 export function letGo(
   holder: Holder | null,
   keepFor: string | null,
@@ -75,7 +83,8 @@ export function letGo(
 
 /**
  * Feeds the leaving daemon's spool through this holder. A frame of a seat the bridge
- * does not hold is not given to the primary seat — it becomes a note to the doer.
+ * does not hold is not given to the primary seat nor marked in its .seen — it becomes a
+ * note to the doer.
  */
 export function takeSpool(
   key: string,

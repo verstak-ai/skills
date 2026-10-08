@@ -1,8 +1,9 @@
 // An agent does not take the owner's role (主 svatantra) without the human's word
 // (graph @nks/nks-dev, node #6550, rule 2). The role's kind is read only through the
 // server's search filter manifested_as="svatantra", taking seqs "(#N," from its lines,
-// never its prose; there is no machine field for it (graph @nks/nks-dev, node #6631).
-// The human's word is the BRIDGE_OWNER_ROLE=1 setting of the bridge's environment.
+// never its prose, which changes with the locale; there is no machine field for it
+// (graph @nks/nks-dev, node #6631). The human's word is the BRIDGE_OWNER_ROLE=1 setting
+// of the harness bridge's environment, never an argument of the agent's call.
 import { envName, OWNER, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { envOf, scoped } from "../shared/scope.ts";
@@ -10,6 +11,7 @@ import { callTool, short } from "./call.ts";
 import { normKarta } from "./names.ts";
 
 export const OWNER_ENV = envName("BRIDGE_OWNER_ROLE");
+// The human's own role: the same boundary.
 const HUMAN = new Set(["me", "realm-owner"]);
 /** The largest page the search tool accepts. */
 const OWNERS_PAGE = 100;

@@ -1,5 +1,6 @@
 // Folding of key lines in a batch to the agent (graph @nks/nks-dev, nodes #6718, #6715):
-// one function for every batch, because all of them count a case in one line
+// one function for every batch (watchdog room window, wake-up, stale, pi and OpenCode
+// plugins, the Codex watchdog), because all of them count a case in one line
 // (frame-text.ts caseCountLine).
 import { addressedToMine } from "./addressed.ts";
 import { type Frame } from "./channel.ts";
@@ -11,8 +12,10 @@ const idOf = (v: unknown): string =>
 
 /**
  * Work lines superseded in the batch: a progress frame followed in the batch by a
- * line of the same key (room.id, line.key) with a larger entry_id. Anything not
- * progress, a line addressed to the seat and a bad verdict are never folded.
+ * line of the same key (room.id, line.key) with a larger entry_id. A frame has no
+ * "supersedes" flag: any later line of the key supersedes. Anything not progress
+ * (enter, leave, word, close…), a line addressed to the seat and a bad verdict are
+ * never folded and fold nothing.
  * Every frame, superseded ones too, is marked delivered.
  */
 export function superseded(frames: Frame[]): Set<Frame> {

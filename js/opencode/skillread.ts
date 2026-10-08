@@ -4,8 +4,8 @@
 // set lies outside it: SKILL.md comes through the skill tool, its references/*.md
 // do not. The plugin lifts that ask for reading only, and only inside the
 // directory of a delivery skill — one of the installed set that carries the delivery's
-// bridge, told by its root and by the install lock's source (shared/skilllock.ts; no readable lock —
-// nothing); a glob or grep, only in a skill no symlink of which leads out; an ask, only
+// bridge, told by its root and by the install lock's source (shared/skilllock.ts; no lock — only
+// the bridge skill itself, a lock that does not parse — nothing); a glob or grep, only in a skill no symlink of which leads out; an ask, only
 // for a call of its own session.
 //
 // Observed on OpenCode 2.0.24 (isolated --standalone): the permission "evaluate" hook
@@ -22,7 +22,7 @@ import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 
 import { BRIDGE_FILE, BRIDGE_SKILL } from "../delivery/index.ts";
-import { skillLock } from "../shared/skilllock.ts";
+import { hasSkillLock, skillLock } from "../shared/skilllock.ts";
 import type { Context } from "./plugin.ts";
 
 /** Tools that only read; any other tool keeps OpenCode's own ask. */
@@ -115,18 +115,22 @@ async function skillDirs(ctx: Context): Promise<string[]> {
   }
   // The delivery's sets: roots whose bridge skill carries the bridge. A skill is the set's
   // only when the install lock of the root names it with the bridge skill's source:
-  // a root shares its directory with any other set. No lock proves nothing, and a lock
-  // that does not parse is a refusal — either root opens nothing.
+  // a root shares its directory with any other set. A root with no lock (a hand install)
+  // opens only its bridge skill — the bridge it carries tells it; a lock that does not
+  // parse is a refusal — that root opens nothing.
   const sets = new Map<string, ReturnType<typeof skillLock>>();
+  const lockless = new Set<string>();
   for (const s of list) {
     const root = bridgeRoot(s);
     const c = root ? canon(root) : null;
-    if (c) sets.set(c, skillLock(c));
+    if (!c) continue;
+    sets.set(c, skillLock(c));
+    if (!hasSkillLock(c)) lockless.add(c);
   }
   return listed
     .filter(({ id, dir }) => {
       const lock = sets.get(dirname(dir));
-      if (!lock) return false;
+      if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname(dir));
       const source = lock[BRIDGE_SKILL]?.source;
       return typeof source === "string" && lock[id]?.source === source;
     })

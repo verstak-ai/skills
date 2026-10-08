@@ -38,6 +38,7 @@ const hideAddresses = (text: string): string =>
 /**
  * A connect/mint reply passed through the bridge: hold its socket and append what
  * the server cannot know — the exact listen command and the busy-file path.
+ * Returns the appended reply, else the original.
  */
 export function absorbChannelReply(msg: JsonRpcMessage, reply: JsonRpcMessage): JsonRpcMessage {
   const a = msg?.params?.arguments;

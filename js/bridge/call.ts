@@ -1,4 +1,5 @@
-// The bridge's own tool calls (board, connect, register), absorbed like proxied ones.
+// The bridge's own tool calls (board, connect, register), absorbed like proxied ones;
+// an accepted register is remembered by the standing.
 import { CALL, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
@@ -20,7 +21,9 @@ import { type JsonRpcMessage } from "./types.ts";
 /**
  * One seat per bridge in a graph; a seat in another graph stands beside on the same
  * channel (graph @nks/nks-dev, nodes #5154, #5838). Returns the led key when another
- * seat is asked, else null. Realms compare in canonical @owner/slug form.
+ * seat is asked, else null. Realms compare in canonical @owner/slug form; an unresolved
+ * name never gets here (unresolvedRefusal). In another graph the rule compares against
+ * the seat this bridge already leads there, if any.
  */
 export function leadsOtherPlace(realm: unknown, karta: unknown, name: unknown): string | null {
   const led = ledKey();
@@ -53,7 +56,8 @@ export const heldRealms = (): string[] =>
   [state.standing, ...state.places].filter((s) => !!s).map((s) => canonRealm(s?.realm));
 
 /**
- * An unresolved realm name against the led seats is neither "same" nor "other":
+ * An unresolved realm name against the led seats is neither "same" (it would block a seat
+ * beside) nor "other" (it would bypass the one-seat rule):
  * refuse aloud asking for @owner/slug (graph @nks/nks-dev, nodes #5154, #5838).
  */
 export function unresolvedRefusal(realm: unknown): string | null {
@@ -65,7 +69,8 @@ export function unresolvedRefusal(realm: unknown): string | null {
 }
 
 /**
- * Who listens on the asked seat; when not "free", take=true is not advised
+ * Who listens on the asked seat; "unknown" — the board did not read, or a direct call reads
+ * no board. When not "free", take=true is not advised
  * (graph @nks/nks-dev, node #6706).
  */
 export type AskedHearing = "free" | "other" | "unknown";
@@ -165,7 +170,7 @@ export const callTool = (name: string, args: Record<string, unknown>): Promise<A
 
 async function answer(name: string, args: Record<string, unknown>): Promise<Answer> {
   let { msg, got } = await ask(name, args);
-  // Seat-open race (409 without rule): register once more.
+  // Seat-open race (409 without rule, refusal.ts): register once more, only once.
   if (name === tool("channel") && args.action === "register" && openedConcurrently(got))
     ({ msg, got } = await ask(name, args));
   if (!got) return { text: words(CALL).noReply(), isError: true };
@@ -187,7 +192,8 @@ async function answer(name: string, args: Record<string, unknown>): Promise<Answ
 export const short = (s: string, n = 300): string => (s.length > n ? `${s.slice(0, n)}…` : s);
 
 // Seat moves (stand, resume, check) run one at a time, per session
-// (graph @nks/nks-dev, node #5140).
+// (graph @nks/nks-dev, node #5140): a stand colliding with a watchdog tick would give two
+// holdStanding and a stray released. Daemon sessions do not wait for each other.
 const Q = scoped(() => ({ chain: Promise.resolve() as Promise<unknown> }));
 export function serialized<T>(fn: () => Promise<T>): Promise<T> {
   const p = Q.chain.then(fn, fn);

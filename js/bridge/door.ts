@@ -33,7 +33,7 @@ const RING = 20; // frames a late-attaching client gets retroactively
 export const ENV_KEY = "env";
 
 export interface ChannelEvent {
-  // held — the bridge took the socket (OpenCode plugin holding, #5140); backlog — a wake batch; lost, resumed — synthesized by the plugin (#5366);
+  // held — the bridge took the socket (OpenCode plugin holding, #5140); backlog — a wake batch; lost — hearing lost, resumed — seat returned without the agent's move (both synthesized by the plugin, #5366);
   // handover — the machine daemon hands the seat to a successor: the door reopens at the same path (watchdog/client.ts)
   // prettier-ignore
   kind: "attached" | "frame" | "note" | "dead" | "alive" | "evicted" | "stale" | "released" | "held" | "backlog" | "lost" | "resumed" | "handover" | "beside" | "beside-gone";
@@ -44,7 +44,10 @@ export interface ChannelEvent {
   code?: number;
   version?: string;
   buffered?: number;
-  /** kind="attached": this seat's delivered-memory file — the watchdog reads it instead of deriving the path. */
+  /**
+   * kind="attached": this seat's delivered-memory file — the watchdog reads it instead of
+   * deriving the path (it does not know the server).
+   */
   seen?: string;
   /** kind="stale": frames received while unheard or replayed, judged by the watchdog (shared/stalebatch.ts); kind="backlog": shown frames by received_at. */
   frames?: Frame[];
@@ -67,9 +70,11 @@ export interface ChannelEvent {
 }
 
 export interface DoorHooks {
+  /** A local client attached: the watchdog is back at the seat. */
   onAttach: () => void;
   /** An event a late attacher must learn rather than read as silence (seat taken). */
   lateEvent: () => ChannelEvent | null;
+  /** The local socket did not come up: a word to the doer. */
   onError: (text: string) => void;
 }
 
@@ -81,16 +86,18 @@ export class Door {
   seen: Set<string>;
   /** Since when no local client listens; null — someone listens. */
   idleAt: number | null = Date.now();
+  /** The bridge's memory plus the .seen file written by whoever delivered the frame. */
   readonly marks: Marks = (k) => marksOf(this.seen, this.seenPath)(k);
   /** Stale and wake batches are per seat (#5838). */
   readonly stale = new StaleBurst(this.marks);
   readonly backlog = new Backlog(this.marks);
   /** Room batch for watchdogs, not notification clients (roomstack.ts, #5851). */
   readonly roomBatch = new RoomBatch(this.marks);
-  /** Platform seat id (hello standings[].standing_id). */
+  /** Platform seat id (hello standings[].standing_id): a frame finds its door by it. */
   standingId: string | null = null;
   /** Seat address @handle:name — from hello, or derived from the main seat's handle for a seat beside. */
   address: string | null = null;
+  /** address derived by the bridge, not named by hello. */
   addressDerived = false;
   /** Why the local socket did not come up; null — up or still coming up. */
   listenError: string | null = null;
@@ -181,7 +188,8 @@ export class Door {
         sock.on("error", () => gone(sock));
         this.hooks.onAttach();
         // Replay only ring frames no local client has delivered yet (the delivering client
-        // marks them); frames held in a room batch come with it; a tact superseded later in
+        // marks them; the file is reread), so a re-armed watchdog never hands the same ring
+        // twice; frames held in a room batch come with it; a tact superseded later in
         // the ring is folded and marked by the bridge (#6569).
         const folded = foldedTacts(this.ring.map((r) => r.frame));
         for (const f of folded) if (f.id) noteSeen(this.seenPath, String(f.id), this.seen);
@@ -261,6 +269,7 @@ export class Door {
    * removes old files by age.
    */
   close(): void {
+    // An undelivered batch goes out now rather than being lost silently.
     this.flushBatches();
     this.stale.drop();
     for (const c of this.clients) {
@@ -278,6 +287,7 @@ export class Door {
       } catch {}
     };
     // Only own files: a successor of the same seat may sit at the same path (doorfiles.ts).
+    // A socket not up yet (no stamp) is closed as is.
     if (process.platform === "win32" || !this.stamps.sock) shut();
     else closeServerKeeping(this.socketPath, this.stamps.sock, shut);
     unlinkOwned(keyFilePathOf(this.authDir, this.key), this.stamps.key);

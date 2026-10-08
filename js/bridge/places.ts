@@ -1,6 +1,8 @@
 // Channel seats in other graphs (graph nks-dev: #5838, answering #5837): one
 // service socket (hold.ts); here the seats beside the one it was taken for —
 // each with its own door, hold record and re-register line (standing.ts).
+// register on the same channel in another graph adds a seat; hello lists them all;
+// a write is signed by the seat of its own graph.
 import { LOGGERS, PLACES } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
@@ -160,7 +162,8 @@ const unresolved = (realm: string): boolean => !canonRealm(realm).startsWith("@"
 
 /**
  * hello lists the channel's seats {realm, standing, standing_id, karta_seq}: each
- * recognized one gives its door the id; a seat's rN or slug graph learns its canonical form.
+ * recognized one gives its door the id; a seat's rN or slug graph learns its canonical form
+ * when name and role match exactly one hello seat.
  */
 export function learnFromHello(hello: Frame | null, primary: Place | null): void {
   const listed = Array.isArray(hello?.standings) ? hello.standings : [];

@@ -33,6 +33,7 @@ const R = scoped(() => ({
 export function closeRun(why: string, handover: boolean): Promise<string[]> {
   return (R.run ??= (async () => {
     // Socket and key go FIRST, before any network call: a harness killing us soon must not find a live key (graph @nks/nks-dev, node #4895).
+    // Else the watchdog would follow a dead socket; case exits and revoke are session calls, no socket needed.
     const addr = statusAddress();
     const places = satellitePlaces();
     // A satellite paused for a plugin reload (suspend.ts) keeps seat, cases and busy for the new bridge.
@@ -41,21 +42,25 @@ export function closeRun(why: string, handover: boolean): Promise<string[]> {
     const spent = closing || paused ? usagePlace() : null;
     // A satellite keeps no hold record; others keep it with the term counted from now (graph @nks/nks-dev, node #6649).
     if (!CFG.satellite) keepHoldRecord();
+    // A paused seat keeps its busyness even if nobody takes the handover socket.
     releaseStanding(why, CFG.satellite && !paused, false, false, paused);
     if (paused) R.held = { places, addr };
     // The satellite leaves its cases while still on the board; the last usage snapshot goes before revoke
-    // (graph @nks/nks-dev, nodes #6573, #6593, #6401).
+    // (graph @nks/nks-dev, nodes #6573, #6593, #6401). On a daemon change without a pause the lost
+    // seat closes too; a handover with a live bridge pauses itself (daemon.ts, pauseForHandover).
     await Promise.all([paused ? null : leaveJoinedCases(), flushUsage(spent)]);
     const failed = paused ? [] : await revokeSatellitePlaces(places);
+    // Busyness ends with the session, else the board shows a doer where nobody is; a satellite's
+    // goes even on handover (it has no return from disk).
     if (addr && closing) await publishStatusTo(addr.url, "", 3000).catch(() => {});
     return failed;
   })());
 }
 
 /**
- * A daemon handover pause the bridge did not return to: the thin bridge left in
- * the handover window, the seat untaken — the run ends as without a pause. A live
- * bridge is waited for up to `waitMs`.
+ * A daemon handover pause the bridge did not return to: the thin bridge left (stdin
+ * closed, bye, death) in the handover window, the seat untaken — the run ends as
+ * without a pause. A live bridge is waited for up to `waitMs`.
  */
 export async function endUnreturnedPause(bridgePid: number, waitMs: number): Promise<void> {
   const key = handoverPauseKey();

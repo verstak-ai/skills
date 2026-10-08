@@ -1,13 +1,16 @@
 // Which MCP requests the bridge repeats itself when the connection closed under them
-// before the reply (graph @nks/nks-dev, node #6630): only where a second delivery
-// applies nothing. Harness writes are not repeated: their outcome stays "unknown"
-// (deliver.ts). Nor is connect: a read one already turned the seat address.
+// before the reply (graph @nks/nks-dev, node #6630) — a pooled keep-alive closed by the
+// server: ECONNRESET under Bun, UND_ERR_SOCKET under Node. The server may have read the
+// request, so only where a second delivery applies nothing. Harness writes are not
+// repeated: their outcome stays "unknown" (deliver.ts). Nor is connect: a read one
+// already turned the seat address.
 import { ID_PREFIX, tool } from "../delivery/index.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
 /** ids of the bridge's own calls (call.ts), not the harness's. */
 export const OWN_CALL_PREFIX = `${ID_PREFIX}bridge-call-`;
 
+/** Tools that only read: a repeated call changes nothing. */
 export const READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(tool));
 
 /**

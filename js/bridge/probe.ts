@@ -19,7 +19,10 @@ const SELF = (() => {
   }
 })();
 
-/** `--version` of the thin bridge: this file's build, then its grant dir's daemon; the first line as always. */
+/**
+ * `--version` of the thin bridge (the default): this file's build, then its grant dir's
+ * daemon, one line each; the first line as always.
+ */
 export async function versionLines(args: string[]): Promise<string[]> {
   const lines = [BUILD];
   if (!daemonWanted()) return lines;

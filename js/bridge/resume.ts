@@ -1,7 +1,7 @@
 // Seat return from disk (graph @nks/nks-dev, nodes #5061, #5140, #6017): a restarted
 // bridge takes its seat by the hold record instead of rotating it with connect.
 // Doors: by name (stand.ts calls resumeFromDisk); by key or session directory (the
-// plugin's `resume` request); the plugin's `check` request is the hearing watchdog.
+// plugin's `resume` request, which may name the harness session); the plugin's `check` request is the hearing watchdog.
 // A bridge leading another seat never takes a foreign record: holdStanding of another
 // key would kill the led one.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -29,6 +29,7 @@ import {
   rememberStatus,
   resumeStanding,
 } from "./hold.ts";
+import { signHeldRecord } from "./holdkeep.ts";
 import {
   type HoldRecord,
   keyOf,
@@ -104,7 +105,8 @@ export async function resumeFromDisk(
     noteResuming(-1);
   }
   // A dead token already erased the record; a missed hello keeps it for the watchdog.
-  // holdStanding rewrote it with a fresh `at`, so the old one is restored below.
+  // holdStanding rewrote it with a fresh `at`, so the old one is restored below: else every
+  // failed attempt would extend its life indefinitely.
   const onDisk = readHoldRecord(key);
   const kept = onDisk !== null;
   log(
@@ -131,8 +133,10 @@ export interface ResumeSelector {
 
 /**
  * Own hold records under the selector, same harness: by key first, then by
- * directory, freshest first. By directory only records stood by THIS session or
- * the seat this bridge leads count (#6017); a seat released by `left` never does.
+ * directory, freshest first. Key is a preference, directory a fallback, not "or": a
+ * stale key (bridge killed between released and held) must not mute a live record.
+ * By directory only records stood by THIS session or the seat this bridge leads
+ * count (#6017); a seat released by `left` never does — only stand by name returns it.
  * `sameDir` — all same-directory records of this harness; `legacy` — records of an
  * earlier build without a session, named aloud but not taken.
  */
@@ -156,6 +160,7 @@ function recordsFor(sel: ResumeSelector): {
   for (const f of readdirSync(dir).filter((x) => x.endsWith(".hold"))) {
     try {
       const rec = JSON.parse(readFileSync(join(dir, f), "utf8")) as HoldRecord;
+      // Another harness's record: a bridge of another harness in the same copy keeps its seat.
       if (!rec || rec.client !== mine) continue;
       const key = keyOf(rec.realm, rec.karta, rec.name);
       const keyed = !!sel.key && key === sel.key;
@@ -195,7 +200,10 @@ function recordsFor(sel: ResumeSelector): {
 export const legacyWord = (names: string[]): string =>
   names.map((n) => resumeWords.legacy(n)).join("; ");
 
-/** Earlier-build seats to offer back: not held by a live bridge of another session (#6594). */
+/**
+ * Earlier-build seats to offer back: not held by a live bridge of another session (#6594);
+ * a call with a held name would give attribution without hearing.
+ */
 async function freeLegacy(recs: HoldRecord[]): Promise<string[]> {
   const free: string[] = [];
   for (const r of recs) {
@@ -341,6 +349,7 @@ const selectorOf = (msg: JsonRpcMessage): ResumeSelector => ({
 function selectorFrom(msg: JsonRpcMessage): ResumeSelector {
   const sel = selectorOf(msg);
   noteHarnessSession(sel.session);
+  signHeldRecord();
   return sel;
 }
 
@@ -399,6 +408,7 @@ export async function runCheck(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     D.reopens = 0;
     return reply(msg, { holding: true, key, listening, pending, word: resumeWords.listening() });
   }
+  // The undelivered count is only a word in the answer; the hearing flag decides.
   // The board reads the seat deaf: reopen at the same address, at most REOPEN_LIMIT
   // times in a row, then say it aloud instead of tearing a live socket forever.
   if (D.reopens >= REOPEN_LIMIT) {

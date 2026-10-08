@@ -1,6 +1,7 @@
 // Where standing sockets lie — ONE convention for the bridge and its watchdogs. The
 // root is the bridge's grant directory (`--auth-dir`, the BRIDGE_AUTH_DIR variable,
-// else the home directory); a watchdog must derive the same place as the bridge.
+// else the home directory); a watchdog must derive the same place as the bridge, or it
+// reports "no standing held" about a bridge that holds one.
 import { createHash } from "node:crypto";
 import { lstatSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
@@ -87,8 +88,9 @@ export const spoolFilePathOf = (authDir: string, key: string): string =>
 
 /**
  * Memory of delivered frame ids, beside the key file (on Windows the socket is a pipe,
- * not a path). With `server` — per server (`<key hash>.<origin hash>.seen`), since the
- * grant directory is shared across servers (#5831); without — the old name.
+ * not a path). With `server` — per server (`<key hash>.<origin hash>.seen`), outliving the
+ * bridge: the seat key names no server and the grant directory is shared across servers
+ * (#5831); without — the old name, a memory that lives as long as the bridge.
  */
 export function seenFilePathOf(authDir: string, key: string, server = ""): string {
   if (!server) return join(standingsDirOf(authDir), `${hashOf(key)}.seen`);

@@ -22,7 +22,8 @@ export function wordKeyOf(frame: Frame): string {
     roomKind(frame)?.kind === "body"
       ? str(line.refers_to) || str(f.in_reply_to) || str(obj(f.word).entry_id)
       : str(line.entry_id ?? f.entry_id);
-  // Record numbers are per case: the key is in the frame's count (#6576).
+  // Record numbers are per case: the key is in the frame's count, and a renumbering
+  // forgets the old keys (#6576).
   return numberedKey(
     frame,
     `${mineOf(f)[0] ?? ""}|${str(obj(f.room).id) || str(obj(f.room).seq)}|${entry}`,
@@ -109,7 +110,8 @@ export function addressedToMine(frame: Frame | null | undefined): boolean {
     if (rk?.phase === "pending") rememberWord(wordKeyOf(frame));
     return true;
   }
-  // A question to my role or seat (#6867), or what closes a question to me.
+  // A question to my role or seat (#6867), or what closes a question to me (withdrawal,
+  // another seat's answer, a re-ask to another); answer and accept go by addressee above.
   if (rk?.kind === "ask" && askedMine(f, fields)) return true;
   if (closesAsk || (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true)) return true;
   // An invite to me or its withdrawal: key invite:<my seat>; a role invite — to my role.

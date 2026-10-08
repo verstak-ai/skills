@@ -28,6 +28,10 @@ function lockPlaces(root: string, stateHome = process.env.XDG_STATE_HOME): strin
   return places;
 }
 
+/** Whether root has a lock at all — parsing or not. */
+export const hasSkillLock = (root: string, stateHome = process.env.XDG_STATE_HOME): boolean =>
+  lockPlaces(root, stateHome).some((p) => existsSync(p));
+
 /** The lock's skills for root; no lock, or one that does not parse — null. */
 export function skillLock(root: string, stateHome = process.env.XDG_STATE_HOME): SkillLock | null {
   const place = lockPlaces(root, stateHome).find((p) => existsSync(p));

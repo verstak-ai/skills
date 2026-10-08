@@ -139,8 +139,8 @@ function writeReleaseTag(c: ReleaseTag): void {
 /**
  * The fresh tag. The background check takes it from the machine-wide cache while it is
  * under an hour old (force — the update subcommand — always asks). The API is asked
- * first; any API failure falls back to the releases page; a known limit keeps the API
- * untouched until its reset.
+ * first (with the shared cache, about one request an hour); any API failure falls back
+ * to the releases page; a known limit keeps the API untouched until its reset.
  */
 export async function resolveTag(force: boolean): Promise<string | null> {
   const cached = readReleaseTag();

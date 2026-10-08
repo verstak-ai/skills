@@ -1,5 +1,6 @@
 // The stand tool's knock into the human's seat by the full address from the wire
-// (stand.ts); the rule — graph @nks/nks-dev, node #4342.
+// (stand.ts); the rule — graph @nks/nks-dev, node #4342: one knock, one repeat no sooner
+// than two minutes later, then a word to the human.
 import { envName, tool } from "../delivery/index.ts";
 import { scoped } from "../shared/scope.ts";
 import { callTool as call, short } from "./call.ts";

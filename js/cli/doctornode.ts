@@ -10,6 +10,7 @@ import { envName, HARNESS, type HarnessWords } from "../delivery/index.ts";
 import { homeBridgePath } from "../shared/home.ts";
 import { words } from "../shared/lang.ts";
 import { which } from "./subagents.ts";
+import { todo } from "./subwords.ts";
 
 export interface Launch {
   who: string;
@@ -49,7 +50,7 @@ export function launchReport(out: (s: string) => void, launches: Launch[]): void
     const cmd = l.command || "node";
     const found = which(cmd, process.cwd());
     if (!found || !executable(found)) {
-      out(hw().launchNotFound(l.who, cmd, isAbsolute(cmd)));
+      out(`${todo()} ${hw().launchNotFound(l.who, cmd, isAbsolute(cmd))}`);
       const own = /^node/i.test(basename(process.execPath)) ? process.execPath : null;
       out(fix(l, own));
       continue;

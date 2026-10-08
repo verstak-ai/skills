@@ -1,7 +1,9 @@
 // Satellite pause for an OpenCode plugin reload (graph @nks/nks-dev, nodes #6625, #6550).
+// A reload kills subagent bridges, and a satellite's end leaves its cases and drops the seat.
 // The plugin's `suspend` request before a stop: the bridge writes a pause record
 // (pauserecord.ts) and goes without leaving cases, seat or busy line; the new
-// instance's bridge returns the seat by key (resume.ts) and takes the run's cases.
+// instance's bridge returns the seat by key (resume.ts) and takes the run's cases,
+// leaving them at its own end.
 import { method, SUSPEND, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { callTool as call } from "./call.ts";
@@ -24,7 +26,8 @@ export function localSuspend(msg: JsonRpcMessage): Promise<JsonRpcMessage> | nul
   if (msg?.method !== method("suspend")) return null;
   const answer = (result: unknown): JsonRpcMessage => ({ jsonrpc: "2.0", id: msg.id, result });
   const s = state.standing;
-  // A daemon handover pause becomes the harness's pause; the socket already went to the handover.
+  // A daemon handover pause becomes the harness's pause (same window re-arm, the busy line
+  // waits); the socket already went to the handover.
   const drained = P.kind === "handover";
   if (drained) P.kind = "suspend";
   else if (P.kind && P.answer) return Promise.resolve(answer({ suspended: true, ...P.answer }));
@@ -48,7 +51,10 @@ export function localSuspend(msg: JsonRpcMessage): Promise<JsonRpcMessage> | nul
 /**
  * The seat's idle window on a pause is the hold record's lifetime (#6550): the
  * satellite window would kill the seat over a longer reload. Only connect sets ttl
- * and it evicts a live socket, so the socket is left first.
+ * and it evicts a live socket, so the socket is left first; the bridge holds the new
+ * address and writes the record. In a daemon handover (drained) connect evicts the
+ * handover's socket and the new one goes to the handover too, with the busy line.
+ * On refusal or cap the window stays as it was.
  */
 const PAUSE_TTL_S = Math.floor(HOLD_RECORD_MAX_AGE_MS / 1000);
 const REARM_CAP_MS = 1_000;
@@ -89,7 +95,9 @@ const SETTLE_CAP_MS = 3_000;
 
 /**
  * End of a paused bridge (session.ts): a connect that lost the cap still runs at
- * the server, so wait for it and rewrite the record with the fresh address and cases.
+ * the server (the address turns while the record keeps the old, dead one; a case entry
+ * answered after the pause is not in it), so wait for it and rewrite the record with
+ * the fresh address and cases.
  */
 export async function pauseSettled(): Promise<void> {
   if (!P.kind) return;

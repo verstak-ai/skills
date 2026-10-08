@@ -1,16 +1,27 @@
 // Whether another session listens on a seat (graph @nks/nks-dev, node #6706): a live local
 // socket held by another session, or a listening row on the board; an unread board is "unknown".
+// One answer for every path: the take=true advice, raw connect, mint and register, and
+// the seat beside in the stand tool.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { HEARING, tool } from "../delivery/index.ts";
+import { sameDir } from "../shared/canon.ts";
 import { words } from "../shared/lang.ts";
+import { sessionCwd } from "../shared/scope.ts";
 import { standingsDirOf } from "../shared/standings.ts";
 import { type Board, type BoardEntry, listens, nameOf, readBoard } from "./board.ts";
 import { type AskedHearing, callTool as call, resolveAgainstLed } from "./call.ts";
+import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
 import { doors, holdsStanding, isParked, ledKey, localSocketPathOf, wasEvicted } from "./hold.ts";
-import { holdRecordsNamed, keyOf, readHoldRecord, sessionOfBridge } from "./holdrecord.ts";
+import {
+  type HoldRecord,
+  holdRecordsNamed,
+  keyOf,
+  readHoldRecord,
+  sessionOfBridge,
+} from "./holdrecord.ts";
 import { H } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
 import { resolveRealms, sameRealm } from "./realms.ts";
@@ -68,6 +79,8 @@ export function boardHearing(bd: Board | null, karta: string, name: string): Ask
   const at = bd.entries.filter((e) => ofSeat(e, karta, name));
   if (at.some(listens)) return "other";
   const unread = bd.declared != null && bd.declared !== bd.entries.length;
+  // A board not parsed whole (header count off, seat not among parsed rows) is "unknown", not
+  // "free": neither the take=true advice nor a pass without take.
   return unread && (at.length === 0 || isSentinel(karta)) ? "unknown" : "free";
 }
 
@@ -87,26 +100,64 @@ function keysNamed(realm: string, name: string): string[] {
   }
 }
 
-/** Who holds the seat's live local socket: this bridge, a former bridge of this session, another, or none. */
-export async function localHolder(key: string): Promise<"self" | "session" | "other" | null> {
+/**
+ * An unsigned record of this harness from this directory — its holder named no session
+ * (a return from disk before the plugin's word, a record of an earlier build): for a named
+ * session of the harness the seat is its own, not another live session's (graph
+ * @nks/nks-dev, node #6702). A live bridge signs the record once its session is named
+ * (resume.ts), and the plugin names it before the first tool call (opencode/keep.ts).
+ */
+export const unsignedHere = (rec: HoldRecord, cwd: string): boolean =>
+  !rec.session && !rec.left && rec.client === harnessName() && sameDir(rec.cwd, cwd);
+
+/**
+ * Who holds the seat's live local socket: this bridge, a former bridge of this session (its
+ * record, or an unsigned record of this harness and `cwd` for a named session), another, or
+ * none. A harness without session names counts only this bridge's socket as its own.
+ */
+export async function localHolder(
+  key: string,
+  cwd?: string,
+): Promise<"self" | "session" | "other" | null> {
   if (!(await localSocketAlive(localSocketPathOf(key)))) return null;
   if (doors().some((d) => d.key === key && d.ownsSocket)) return "self";
   const me = sessionOfBridge();
-  return me && readHoldRecord(key, true)?.session === me ? "session" : "other";
+  const rec = me ? readHoldRecord(key, true) : null;
+  if (!rec) return "other";
+  return rec.session === me || (cwd != null && unsignedHere(rec, cwd)) ? "session" : "other";
 }
 
-async function heldLocallyByOther(realm: string, karta: string, name: string): Promise<boolean> {
-  for (const key of isSentinel(karta) ? keysNamed(realm, name) : [keyOf(realm, karta, name)])
-    if ((await localHolder(key)) === "other") return true;
-  return false;
+/** The seat's live local socket is held by another session's bridge, this session's former one, or none. */
+async function heldLocally(
+  realm: string,
+  karta: string,
+  name: string,
+  cwd: string,
+): Promise<"other" | "session" | null> {
+  let own = false;
+  for (const key of isSentinel(karta) ? keysNamed(realm, name) : [keyOf(realm, karta, name)]) {
+    const h = await localHolder(key, cwd);
+    if (h === "other") return "other";
+    own ||= h === "session";
+  }
+  return own ? "session" : null;
 }
 
+/**
+ * Who listens on the seat: another session, nobody, or the bridge does not know. Judged as
+ * the stand tool does (separate.ts): the directory named by the call, else the standing's or
+ * the session's; a former bridge of this session is its own though the board reads it
+ * listening (graph @nks/nks-dev, node #6702).
+ */
 export async function askedHearing(
   realm: string,
   karta: string,
   name: string,
+  cwd: string = H.standCwd ?? sessionCwd(),
 ): Promise<AskedHearing> {
-  if (await heldLocallyByOther(realm, karta, name)) return "other";
+  const local = await heldLocally(realm, karta, name, cwd);
+  if (local === "other") return "other";
+  if (local === "session") return "free";
   const b = await call(tool("channel"), { action: "list", realm }).catch(() => null);
   return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name);
 }
@@ -136,7 +187,10 @@ export async function rawSeatRefusal(msg: JsonRpcMessage): Promise<string | null
   return w.rawSeatRefusal(who, action);
 }
 
-/** This bridge itself listens on the seat; an evicted or parked seat is not its own. */
+/**
+ * This bridge itself listens on the seat; an evicted or parked seat is not its own: a parked
+ * seat may have been taken by another session meanwhile.
+ */
 export function ledHere(realm: string, karta: string, name: string): boolean {
   if (holdsStanding(realm, karta, name)) return true;
   return (

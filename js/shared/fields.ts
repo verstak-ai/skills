@@ -1,12 +1,13 @@
 // Response fields on request (graph @nks/nks-dev, nodes #6637, #6731, #6707): the server
 // gives structuredContent and outputSchema only to a client that declared the fields
 // capability in initialize. The bridge always asks for itself and passes the fields
-// to the harness only when the harness asked.
+// to the harness only when the harness asked. A harness given fields may pass the model
+// the fields without text; the OpenCode plugin and the pi extension declare the key.
 
-import { SERVER_PROTOCOL } from "../delivery/index.ts";
+import { STRUCTURED_CAPABILITY } from "../delivery/index.ts";
 
 /** Capability key of response fields. */
-export const FIELDS_CAPABILITY = SERVER_PROTOCOL.fields;
+export const FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
 
 /** Capabilities of a bridge client that receives the fields (OpenCode plugin, pi extension). */
 export const FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };

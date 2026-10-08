@@ -71,9 +71,9 @@ function verdictLines(v: Verdict): string[] {
   if (lostSpelling(s)) lines.push(rw().lostSpelling(s.writes.mine, s.writes.twin));
   if (mute(s)) lines.push(rw().mute());
   if (s.writes.theirs > 0 || lostSpelling(s) || mute(s))
-    lines.push(`  ${rw().fixScope(HOOKS_SECTION)}`);
+    lines.push(`  ${rw().fixScope(words(HOOKS_SECTION))}`);
   for (const h of s.broken) lines.push(rw().broken(h));
-  if (s.broken.length) lines.push(`  ${rw().fixBroken(HOOKS_SECTION)}`);
+  if (s.broken.length) lines.push(`  ${rw().fixBroken(words(HOOKS_SECTION))}`);
   return lines;
 }
 

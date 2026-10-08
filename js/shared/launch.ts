@@ -16,6 +16,8 @@ export interface Launch {
   of: string | null;
 }
 
+// Any line may carry it, not only the first: OpenCode prepends its own line to a
+// subagent's prompt.
 const LINE = LAUNCH_LINE;
 
 /** The launch line with a case among the text's lines; none — null. */
