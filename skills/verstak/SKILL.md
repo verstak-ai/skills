@@ -149,7 +149,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "what's hanging in my cases", "tidy up abandoned cases" → **assistant**; "what's open" (questions), "close / park this question" → **inquiry**
 
 **Reach someone**
-- a seat address from the window, "stand beside me", "start graph role case #N" → `Start`
+- a seat address from the window, "stand beside me", "verstak graph role case #N" → `Start`
 - "connect the graph", "I don't see the tools" → **establish-mcp**
 - "I can't be heard", "writes have no author", "ask the other agent", "escalate" → **collaborate**
 - "what's on my plate", "how are things", "what's up with case #N", "pass this on" → **assistant**

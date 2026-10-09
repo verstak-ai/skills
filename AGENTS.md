@@ -172,6 +172,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **Role files**: `.claude/agents/` still holds the contract-1 `reader`, `worker`, `verifier`; the six roles with their satellite entries are projected with the bridge PR. Until then brief a missing role as a generic subagent with its body from `references/align-delegation.md`.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `2`, stamped `2026-10-07` — re-run when the installed
+*(verstak align: contract `3`, stamped `2026-10-09` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*

@@ -101,13 +101,19 @@ test("the launch line has this delivery's own word: the sibling's line does not 
   assert.notEqual(LAUNCH_WORD, "start", "the sibling delivery's launch word");
   assert.match(`${LAUNCH_WORD} @o/g #931 case #12 from @a:b`, LAUNCH_LINE);
   assert.doesNotMatch("start @o/g #931 case #12", LAUNCH_LINE);
+  assert.doesNotMatch("Verstak review PR #143", LAUNCH_LINE);
   const spelled = [];
   for (const f of [
-    "SKILL.md",
-    ...readdirSync(join(REPO, "skills/verstak/methods")).map((n) => `methods/${n}`),
-    ...readdirSync(join(REPO, "skills/verstak/references")).map((n) => `references/${n}`),
+    "skills/verstak/SKILL.md",
+    ...readdirSync(join(REPO, "skills/verstak/methods")).map((n) => `skills/verstak/methods/${n}`),
+    ...readdirSync(join(REPO, "skills/verstak/references")).map(
+      (n) => `skills/verstak/references/${n}`,
+    ),
+    ".claude/settings.json",
   ]) {
-    for (const m of read(`skills/verstak/${f}`).matchAll(/`(\w+) <graph> <role> case #N/g))
+    for (const m of read(f).matchAll(
+      /\b(\w+) (?:<graph>|graph|GRAPH) (?:<role>|role|ROLE) case #N/g,
+    ))
       spelled.push(`${f}: ${m[1]}`);
   }
   assert.ok(spelled.length > 0);
