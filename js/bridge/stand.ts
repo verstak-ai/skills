@@ -3,9 +3,10 @@
 // reaches the server: the bridge runs it with the same calls an agent used to make by
 // the standing skill — the board, the derived name, connect and register (or register
 // alone when this bridge already holds the socket: a live standing is not rotated
-// without cause), the role's inbox hook, a knock into the human's seat by the full
+// without cause), a knock into the human's seat by the full
 // address from the wire (once per session: a second join is a repeat, not a talk), busyness.
-// One answer: name, watchdog command, waiting frames, hook, knock receipt. A call with
+// No role inbox hook is armed (#6973); the role queue is read by orientation.
+// One answer: name, watchdog command, waiting frames, knock receipt. A call with
 // status on a seat the bridge already holds is busyness only (status.ts, #6509).
 // No stand tool in a session means tools bypass the bridge or the bridge is an old build.
 import { statSync } from "node:fs";
@@ -24,7 +25,6 @@ import {
   unresolvedRefusal,
 } from "./call.ts";
 import { CFG } from "./config.ts";
-import { seatField } from "./fields.ts";
 import {
   askedHearing,
   boardHearing,
@@ -47,7 +47,6 @@ import {
   wasEvicted,
 } from "./hold.ts";
 import { keyOf, noteSeatBase } from "./holdrecord.ts";
-import { armRoleHook } from "./hook.ts";
 import { knock, resetKnocks } from "./knock.ts";
 import { heardOnReturn, returnToStanding } from "./leave.ts";
 import { listenBlock } from "./listen.ts";
@@ -212,8 +211,8 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     lines.push(sw().boardUnread(short(board.text)));
     return done(true);
   }
-  // Fields or server prose (board.ts, #4514). Controlling moves — rotation, knock,
-  // hook — only on a recognized unambiguous form; otherwise an honest refusal.
+  // Fields or server prose (board.ts, #4514). Controlling moves — rotation and knock —
+  // only on a recognized unambiguous form; otherwise an honest refusal.
   const bd = readBoard(board);
   const { entries, recognized, declared } = bd;
   let own = entries.filter((e) => ofSeat(e, karta, name));
@@ -258,9 +257,8 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // Before connect: this choice's base into the record and the base file (#6706).
   if (base) noteSeatBase(keyOf(realm, karta, name), root);
   const take = a.take === true || ownSession;
-  const sub = !!sat || baseOf(realm, karta, name) !== name; // seat beside and satellite: no role inbox hook
   // Seats of the former name standard (host.repo.branch) of the same host and repo are
-  // orphans after the move to host.repo.model: cases and inbox hooks hold their address, nobody listens. The former name is
+  // orphans after the move to host.repo.model: cases hold their address, nobody listens. The former name is
   // told by a third part equal to a local branch — otherwise it is a neighbour on another
   // model, and its seat must not be touched.
   const stem = name.split(".").slice(0, 2).join(".");
@@ -281,7 +279,6 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   for (const e of legacy) nameNotes.push(sw().legacy(e.address, realm, karta));
   if (unread) lines.push(sw().boardCountFound(declared ?? 0, entries.length));
   const mine = own[0];
-  let incoming = mine?.incoming ?? null;
 
   // 2. The seat. This bridge holds the socket — register. Another session's seat does not
   // get here — a seat beside was chosen above (#6706); a former bridge of this session —
@@ -381,10 +378,6 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
       lines.push(sw().refused("connect", short(c.text)));
       return done(true);
     }
-    incoming =
-      seatField(c.structured, "connect")?.inbound ??
-      /https?:\/\/\S+\/channel\/in\/\S+/.exec(c.text)?.[0] ??
-      incoming;
     const r = await register();
     if (r.isError) {
       lines.push(sw().takenButRegister(short(r.text)));
@@ -421,22 +414,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     : null;
   if (localFault) lines.push(sw().noLocalSocket(localFault));
 
-  // 4. The role's inbox hook — so a vimarsha posed_to arrives by the same socket.
-  const main = state.standing;
-  lines.push(
-    await armRoleHook({
-      realm,
-      karta,
-      name,
-      incoming,
-      heardHere,
-      sub,
-      beside: !!main && otherRealm(realm, main.realm), // a seat on a channel opened in another graph
-      channelRealm: main?.realm ?? realm,
-    }),
-  );
-
-  // 5. Knock into the human's seat — by the full address from the wire (knock.ts, #4342).
+  // 4. Knock into the human's seat — by the full address from the wire (knock.ts, #4342).
   if (room && !heardHere) {
     lines.push(sw().knockNotHere(room));
   } else if (room) {
@@ -451,7 +429,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     );
   }
 
-  // 6. Busyness follows the standing the bridge leads, not the live socket (#5033):
+  // 5. Busyness follows the standing the bridge leads, not the live socket (#5033):
   // also after eviction, while the bridge has the status address.
   if (typeof a.status === "string" && a.status.trim() && !hasStatusAddressFor(realm, karta, name)) {
     lines.push(sw().statusElsewhere(TAKE_PATH()));

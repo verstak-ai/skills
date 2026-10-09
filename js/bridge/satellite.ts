@@ -1,6 +1,6 @@
 // Satellite bridge — a subagent's own seat (graph @nks/nks-dev, nodes #6002, #6001).
 // Started with --satellite, it takes only `<caller seat>.sub-<N>` beside the caller,
-// role from the call's karta, no role inbox hook, a short idle window and no hold
+// role from the call's karta, a short idle window and no hold
 // record; when the run ends (stdin closed) it leaves the seat (session.ts).
 // Claude Code keeps one connection per frontmatter entry name: parallel runs with the same
 // entry share one process and one seat (the `led` path below).

@@ -34,11 +34,11 @@ Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (�
 
 | Wake mode | Who wakes you | Cadence | When there's nothing |
 |---|---|---|---|
-| `webhook` | the graph, on an inbox change | per event | check the hook is armed (one whose sender died sleeps forever), arm a bounded fallback, sleep |
+| `channel` | a frame to its addressee and the case's participants | per event | check the seat hears, arm a bounded fallback, sleep |
 | `sleep-poll` | you | 5–10 min in a wave; longer when nobody waits | sleep again |
 | interactive | the user | — | end the turn with a change if a signal came, a word about your standing if not |
 
-**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `webhook` a channel and a listener (`references/align-harness-surfaces.md`); neither → interactive.
+**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (`references/align-harness-surfaces.md`); neither → interactive. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause, not a wake-up for every seat of the role.
 
 No agent role (the door's `Start`) → `methods/align.md` instead.
 
@@ -166,7 +166,7 @@ Not yours: refusal, the order between questions, scope and telos, production and
 
 **Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
-The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `webhook` mode, subscribe to the escalated vimarsha (`Exchange`, step 6). Write vimarshas a cold session can resume from.
+The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
 
 ## Surviving context compaction
 
