@@ -2,5 +2,5 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "verstak",
   "description": "One verstak methodology skill — orient, write, design, and weave a graph through the verstak_* MCP tools.",
-  "version": "3.0.0"
+  "version": "3.0.1"
 }
