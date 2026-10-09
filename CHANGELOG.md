@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/verstak-ai/skills/compare/v3.0.0...v3.0.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **verstak:** report the receipt, not the hope — recorded, waiting or taken, never 'sent' beyond it ([#131](https://github.com/verstak-ai/skills/issues/131)) ([951eb76](https://github.com/verstak-ai/skills/commit/951eb76508cda0fec38646a525e2f8cf8dbc2ea6))
+
 ## [3.0.0](https://github.com/verstak-ai/skills/compare/v2.10.1...v3.0.0) (2026-10-08)
 
 

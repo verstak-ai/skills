@@ -47,7 +47,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "3.0.0";
+var VERSION = "3.0.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
