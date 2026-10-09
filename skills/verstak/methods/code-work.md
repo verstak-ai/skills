@@ -15,7 +15,7 @@ Graph → integration scope → design → code. Task by references and a check;
 ## Branch and worktree
 
 - One branch until its merge, follow-ups included, in **its own worktree**, from a fresh trunk: `git fetch origin && git worktree add <dir> -b <branch> origin/main`. A `checkout` in the shared checkout wipes others' work.
-- Pushed → the PR in the same move (draft if unfinished); watch the checks and the merge signal; fix red in the branch.
+- Pushed → the PR in the same move (draft if unfinished); watch the checks and the merge signal in the background, never by a blocking poll in your own turn; fix red in the branch.
 - After merge: `git worktree remove` yours, `git branch -d` merged branches, remove your temp files, `git pull` in the main checkout; confirm cleanup before the next task. Leave others' worktrees alone.
 
 ## Self-review
