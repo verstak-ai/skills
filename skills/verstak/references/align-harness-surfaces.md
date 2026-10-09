@@ -189,7 +189,7 @@ export default {
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
       "Addresses (AGENTS.md frontmatter): graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
       "owner role #<Owner role>. Take a seat only to stand watch, with one verstak_stand. " +
-      "A launch line of the form start GRAPH ROLE case #N enters that case. " +
+      "A launch line of the form verstak GRAPH ROLE case #N enters that case. " +
       "A subagent works on its own satellite bridge (verstak_stand with satellite_of, then join and leave on it); " +
       "on the bridge of the agent that launched it, it writes nothing to the graph.";
     const ac = new AbortController();

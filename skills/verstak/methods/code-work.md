@@ -29,7 +29,7 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 - Brief with references, not your retelling: diff, repository, focus holon and steward, the nodes the diff embodies. It runs `methods/integrity.md` Mode 1 read-only and returns findings plus an integration report: what is touched, relays, open questions, neighbours' readiness, whom to wake (`methods/collaborate.md`); unknown → `unknown`.
 - `NEEDS_CONTEXT` is a graph defect: finish design, weave, pose vimarshas, review again. Reject a finding by recording why.
 - A behavioural claim closes on a cold `verifier` briefed with claim, carrier and falsifier from `REALITY.md`; wait for its verdict (`methods/reality-audit.md`). No such role → observe the carrier yourself, never the source.
-- Launch line: `start <graph> <role> case #N` of its child case (the door, `Work goes to subagents`). A graph review canon in `AGENTS.md` wins where it speaks.
+- Launch line: `verstak <graph> <role> case #N` of its child case (the door, `Work goes to subagents`). A graph review canon in `AGENTS.md` wins where it speaks.
 
 ## After merge
 
