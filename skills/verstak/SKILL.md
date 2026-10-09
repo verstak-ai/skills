@@ -69,7 +69,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 **Graph craft is yours:** reading, writing, weaving, integration (**integrity**) stay with whoever decides. Subagents take the volume — code, the gate, review, verification; check their advice against the node's neighbourhood.
 
-**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case.
+**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
 
 ### Case laws
 

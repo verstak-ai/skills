@@ -50,7 +50,7 @@ Without a request, a frame or a `posed_to`, don't patrol the field or put out te
 
 ### Debts at three moments
 
-Going on watch, the platform's periodic wake-up, the user asking. Only your own: the queue from `verstak_orient(focus=<role>)`; `verstak_case(action="mine")` and `read`; earlier seats (`verstak_channel(action="list", realm, karta=<role>)`, your "machine.repo" prefix, no satellites) with `mine` and `standing` each; **the role's cases** from its board `verstak_orient(lens="board", focus=<role>)`, section "Cases": one marked `lead_gone` or `ownerless` is a role case nobody leads, and it is yours whichever seat opened it (an earlier session name, a satellite, another person under the same role); one with a live sibling as lead is theirs; `gh` (branch without PR, PR without merge, merges since the last release tag). To the user: a short list (what, on whom, how long) when asked, else only on change. Too many open keys in a case you lead → split it (`methods/architect.md`). A debt is visible, not blocking.
+Going on watch, the platform's periodic wake-up, the user asking. Only your own: the queue from `verstak_orient(focus=<role>)`; `verstak_case(action="mine")` and `read`; earlier seats (`verstak_channel(action="list", realm, karta=<role>)`, your "machine.repo" prefix, no satellites) with `mine` and `standing` each; **the role's cases** from its board `verstak_orient(lens="board", focus=<role>)`, section "Cases": one marked `lead_gone` or `ownerless` is a role case nobody leads, and it is yours whichever seat opened it (an earlier session name, a satellite, another person under the same role); one with a live sibling as lead is theirs; your own `partial` line "on the owner…" or "on <role>…" with no `ask` card is a mute request nobody receives — post the card (§5) or drop the line; `gh` (branch without PR, PR without merge, merges since the last release tag). To the user: a short list (what, on whom, how long) when asked, else only on change. Too many open keys in a case you lead → split it (`methods/architect.md`). A debt is visible, not blocking.
 
 **An abandoned role case is worked through and closed, not hoarded.** Join (joining a case without a lead makes you its lead), `read` it (`history` for one key) and answer four questions: lessons → a node (`methods/writing.md`); none → say so in a line; done but the graph doesn't know → catch the graph up (`methods/reconcile.md`); not done and not in the graph → a vimarsha or the transformation's map. Then `propose_close` with the evidence: what remains lives in the graph, not the case. Another role's open line is not yours to close — call its role. Leaving yourself, hand the lead over or propose closing (the door, `Case laws`), or your case becomes the next `lead_gone`.
 
@@ -134,7 +134,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 **Work ends at integration, not at the commit.**
 
 - **Open the branch and PR yourself**, unasked; subagents carry commits, `push`, PR and merge are the watch's.
-- **Review first** (a subagent against the gates), then readiness in the case as a delta; integration work also gets an interface review from the adjacent surface's agent.
+- **Review first** (a subagent against the gates); a non-blocking finding goes in the same move into a node (a vimarsha) or is released in words with the reason — as a case line it won't survive. Then readiness in the case as a delta; integration work also gets an interface review from the adjacent surface's agent.
 - **Built isn't rolled out** until production shows the marker. **Take the merge signal yourself**; after it: §4, a delta to the neighbour whose ground shifted, `pull`, cleanup.
 
 **The right to merge is granted**: by the case lead in a shared case, by relay vimarshas across holons, by `anantara` across transformations. Merge once what you wait on is discharged; tell those below.
@@ -143,7 +143,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 ## 4 · Closing the work round
 
-- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case. No round closes over an unmerged branch without the wait named.
+- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, propose closing in that same move (the door, `Case laws`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
 - A resolved vimarsha: `addressed_by` → `visarjana` (`methods/inquiry.md`); crystallize what became standing knowledge.
 - **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (`methods/reality-audit.md`) and a body matching what was built; diverged → the artifact wins and the node says so.
 - **Weave the follow-through** (`methods/weaving.md`): `verstak_orient(lens="tensions", focus=<touched holon>)` — close the cycles the change opened, `sense` on new arrows; address-class lines go to the agenda.
@@ -153,7 +153,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 1. **Reconcile** (`methods/reconcile.md`): true modes, remaining debts as vimarshas.
 2. **Hand over** in the seed and in the case: what was taken, promised to whom, open.
-3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening hands over the lead (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
+3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
 4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`). No `revoke`: it deafens the seat when mail matters most and removes a successor's seat on the same name.
 
 Without the user's word there is no handover; a session's end is an absence.
