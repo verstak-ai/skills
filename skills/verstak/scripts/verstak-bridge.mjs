@@ -20,10 +20,6 @@ var BOARD_FORM = {
   listens: /(^|·)\s*listening/,
   alive: /\blive\b|listening/,
   undelivered: /undelivered\s+(\d+)/,
-  hooksHeader: /^\s*Webhooks(?:\s|:|\(|$)/m,
-  hooksEmpty: /no webhooks (?:are )?registered/i,
-  hookActive: /\bactive\b/,
-  hookState: /\bactive\b|\bpaused\b/,
   seatId: /id of this (?:seat|place)[^\n]*\n\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
 };
 
@@ -44,11 +40,11 @@ var SERVER_CHOICE = {
 var NOTICE_MARK = /DELIVERY BEHIND/;
 
 // js/delivery/patterns/launch.ts
-var LAUNCH_WORD = "start";
+var LAUNCH_WORD = "verstak";
 var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 var LAUNCH_LINE = new RegExp(
   `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
-  "imu"
+  "mu"
 );
 
 // js/delivery/patterns/satprobe.ts
@@ -101,7 +97,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.0.1";
+var VERSION = "3.1.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -399,25 +395,6 @@ var HOLD = {
   }
 };
 
-// js/delivery/words/hook.ts
-var EN = "Role inbox hook";
-var HOOK = {
-  en: {
-    sub: () => `${EN}: not armed for a separate seat — the main seat listens to the role's mail, cases deliver their own.`,
-    wakesMe: () => `${EN}: in place and wakes this standing.`,
-    unrecognized: (text) => `${EN}: the hook list is not recognized — left alone (${text}).`,
-    otherHolder: () => `${EN}: not armed — another holder has the hearing.`,
-    noAddress: (channelRealm) => `this graph's seat has no incoming address of its own (the address is the channel's, opened in graph ${channelRealm})`,
-    noSchema: (noAddress) => `${EN}: not armed — ${noAddress}, and the verstak_admin schema could not be read (tools/list did not answer or has no verstak_admin) — whether it declares channel is unknown; no blind hook on the channel (channel=self) — repeat verstak_stand for this graph.`,
-    noChannelParam: (noAddress) => `${EN}: not armed — ${noAddress}, and verstak_admin(action="add_webhook") on this surface declares no channel parameter; nothing to arm a channel hook (channel=self) with — this graph's role mail does not come over the socket.`,
-    channelFailed: (text) => `${EN}: not armed on the channel (channel=self) — ${text}`,
-    channelArmed: (text) => `${EN}: armed on the channel (channel=self) — this graph's role mail goes into the same socket to this graph's seat (${text}).`,
-    noIncoming: () => `${EN}: not armed — the standing's incoming address did not read.`,
-    failed: (text) => `${EN}: not armed — ${text}`,
-    armed: (text) => `${EN}: armed on the seat's incoming address (${text}).`
-  }
-};
-
 // js/delivery/words/leave.ts
 var LEAVE = {
   en: {
@@ -436,7 +413,8 @@ var LEAVE = {
     nobodyListens: (min) => `nobody has listened for ${min} min`,
     byDoerWord: () => "by the doer's word",
     refusedBeside: (beside, led, realm) => `Refused (bridge): the seat ${beside} stands on the bridge's shared channel beside ${led} — leaving would close the socket for all seats of the channel. To leave all — leave in the graph ${realm ?? "of the main seat"}; to remove only this seat — revoke.`,
-    refusedOther: (realm, led, ledRealm) => `Refused (bridge): this bridge holds no seat in the graph ${realm} — nothing to leave; its seat ${led} in the graph ${ledRealm} is untouched.`
+    refusedOther: (realm, led, ledRealm) => `Refused (bridge): this bridge holds no seat in the graph ${realm} — nothing to leave; its seat ${led} in the graph ${ledRealm} is untouched.`,
+    refusedNamed: (standing, led) => `Refused (bridge): ${standing} is not this bridge's seat, the call was not sent; leave releases only this bridge's seat${led ? ` (${led}, untouched)` : " (it holds no seat now)"}; a spare seat of your own account is removed by revoke(karta, standing=${standing}) — only on the user's word: revoke destroys the seat's incoming address and hooks.`
   }
 };
 
@@ -627,7 +605,7 @@ var ROOM = {
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
     closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
-    closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId}) (former name verstak_room)`,
+    closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,
@@ -698,7 +676,7 @@ var SATELLITE = {
     derivesName: () => "Refused (bridge): the bridge derives the satellite's name — name, take and room do not go with satellite_of.",
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
     claimsUnsure: (unsure, name) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
-    seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, no role inbox hook, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
+    seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) => `Refused (satellite bridge): ${action} bypassing verstak_stand — only verstak_stand with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
     onlyOwn: (action, own, karta, realm) => `Refused (satellite bridge): ${action} — only its own seat ${own} (role #${karta}, graph ${realm}); a satellite neither takes nor releases the caller's seat or any other.`,
@@ -726,10 +704,16 @@ var SAT_PROBE = {
 };
 
 // js/delivery/words/separate.ts
+var probe = (base) => `ask it by word — verstak_channel(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — verstak_stand(name=${base}, take=true) and enter its cases (verstak_case(action="mine", standing=${base})); do not ask the user`;
+var HOLDER = {
+  live: "another live session of your own name (the same role, the same account)",
+  record: "another session of your own name (the same role, the same account; its bridge does not answer here — the probe tells whether it is alive)",
+  board: "another session of the same role"
+};
 var SEPARATE = {
   en: {
     ownSession: (base) => `the seat ${base} was held by a former bridge of this same harness session (a restart or a compaction) — this session's own seat, the bridge took it back itself`,
-    beside: (base, name, own) => `another session holds the seat ${base} — leaving its seat alone and not signing with it; standing beside as ${name} with hearing${own ? " (a former bridge of this same session held it — taken back)" : ""}: it is this session's own seat, its frames come here; evicting that session (take=true) — only on the user's word`,
+    beside: (base, name, own, kin) => `${kin ? HOLDER[kin] : "another session"} holds the seat ${base} — leaving its seat alone and not signing with it; standing beside as ${name} with hearing${own ? " (a former bridge of this same session held it — taken back)" : ""}: it is this session's own seat, its frames come here; ` + (kin === "board" ? `check the holder's account on the board against your own seat's address: the same — ${probe(base)}; another — evicting that session (take=true) only on the user's word` : kin ? probe(base) : "evicting that session (take=true) — only on the user's word"),
     unknown: (name) => `Refused (bridge): the board was not read in full — the bridge does not know whether another session listens on the seat ${name}; not standing blind and not advising take=true. Repeat when the board reads, or pass another name.`,
     noFree: (base) => `Refused (bridge): another session holds the seat ${base}, and every seat beside ${base}.2…99 is taken — the bridge will not sign with another's seat without hearing; clear the dead seats or pass another name.`
   }
@@ -755,7 +739,7 @@ var STAND = {
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: verstak_channel(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
-    boardUnknown: (start, own, others) => `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock, hook) on a guess. The answer begins: ${start}`,
+    boardUnknown: (start, own, others) => `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name, karta) => `Refused: the board has ${n} seats named ${name} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) => `Refused: the board declares ${declared} seats, ${parsed} were read, and your own is not among them — the unread line may be it, or a seat another session listens on; connect would rotate it blind, and take=true would take it. Repeat when the board reads, or stand under another name.`,
     boardCountFound: (declared, parsed) => `The board declares ${declared} seats, ${parsed} were read — the parser missed a line; your own seat is found, going on.`,
@@ -822,17 +806,17 @@ var STAND_MISS = {
 // js/delivery/words/standtool.ts
 var STAND_TOOL = {
   en: {
-    description: () => `[bridge] Take a standing in one call: the bridge reads the board, derives the name (machine.repo.model), takes the seat (connect and register; only register if this bridge already holds the socket), arms the role's inbox hook with its own incoming address, with room knocks a join frame into the user's seat by the full address from the wire (a repeat — only repeat_knock=true, once, no sooner than 2 minutes) and returns the name, the watchdog command, the number of waiting frames, the hook state and the knock receipt. A seat in another graph stands beside on the same channel (register): the session hears all its graphs, and a write in each is signed by that graph's seat. Then — start the watchdog with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) only sets the busyness line — no board, connect, register, hook or knock; an empty status clears; the former verstak_channel(action="status") is kept for compatibility. The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.`,
+    description: () => `[bridge] Take a standing in one call: the bridge reads the board, derives the name (machine.repo.model), takes the seat (connect and register; only register if this bridge already holds the socket), with room knocks a join frame into the user's seat by the full address from the wire (a repeat — only repeat_knock=true, once, no sooner than 2 minutes) and returns the name, the watchdog command, the number of waiting frames and the knock receipt. Read the role queue with verstak_orient(focus=role) on entry and when occasion calls; frames go to the addressee and case participants. A seat in another graph stands beside on the same channel (register): the session hears all its graphs, and a write in each is signed by that graph's seat. Then — start the watchdog with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) only sets the busyness line — no board, connect, register or knock; an empty status clears; the former verstak_channel(action="status") is kept for compatibility. The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.`,
     realm: () => "Graph address: @owner/slug or rN.",
     karta: () => "The agent's role (#N from AGENTS.md or the launch line). Needed to take a seat; for busyness on a held seat it may be omitted.",
     name: () => "Your own half of the standing's name; without it machine.repo.model is derived — the model from the model parameter.",
     room: () => "The user's seat address @handle:name (the user's window gives it); the bridge knocks a join there to stand beside the user.",
     model: () => "The model the agent runs on (id or name, for example claude-opus-5 or opus-5) — the third part of the derived name; without it the name is machine.repo.",
     muteSiblings: () => "Do not hear the echo of other standings of the same role.",
-    take: () => "A deliberate move: to displace a live holder of ANOTHER session — only on the user's word (without take a name, derived or explicit, that another session holds stands beside on name.N with hearing; the bridge takes back by itself a seat a former bridge of this same harness session holds — no take needed); or to change this bridge's seat in a graph (one seat per bridge in a graph: another role or another name without take is a refusal aloud, the former seat stays on the board without hearing). A seat in another graph does not need take — it stands beside.",
+    take: () => "A deliberate move: to displace a live holder of ANOTHER session — of your own name (the same role, the same account) by yourself when it stays silent 5 minutes to a probe by word (verstak_channel send), of another's (another role or account) — only on the user's word (without take a name, derived or explicit, that another session holds stands beside on name.N with hearing; the bridge takes back by itself a seat a former bridge of this same harness session holds — no take needed); or to change this bridge's seat in a graph (one seat per bridge in a graph: another role or another name without take is a refusal aloud, the former seat stays on the board without hearing). A seat in another graph does not need take — it stands beside.",
     roomKarta: () => "The role of the user whose seat it is (#N) if the seat is not on the board; usually the role of the user who sent the seat address.",
     repeatKnock: () => "A deliberate repeat of the knock at the same user seat: allowed once and no sooner than 2 minutes after the first; without it a repeated call sends no second join.",
-    satelliteOf: () => "Only for a subagent's satellite bridge (the bridge entry with --satellite in the agent file): the caller's seat @handle:name from the brief. The bridge stands beside as the satellite seat <caller's name>.sub-N (the first free N), with the role from karta (the brief names it, the caller's role is not inherited), without a role inbox hook; the seat lives for the run. name, take and room are not passed with it.",
+    satelliteOf: () => "Only for a subagent's satellite bridge (the bridge entry with --satellite in the agent file): the caller's seat @handle:name from the brief. The bridge stands beside as the satellite seat <caller's name>.sub-N (the first free N), with the role from karta (the brief names it, the caller's role is not inherited); the seat lives for the run. name, take and room are not passed with it.",
     status: () => "The seat's busyness, up to 64 characters: on taking — the first line; on a seat this bridge already holds — the main way to update busyness (the call sets only it); an empty string clears.",
     cwd: () => "The harness session's directory, an existing absolute path — the repo for the name is derived from it (git toplevel, in a linked worktree — of the main copy, otherwise its basename) and branches are read when looking for seats of the former name, when the bridge is not started from the working copy; the OpenCode plugin supplies it itself. Without it — the bridge's cwd; a nonexistent or relative one is a refusal aloud."
   }
@@ -1678,12 +1662,12 @@ function streamSeamSession(id, open, onLost, onLog) {
 var fail = (code, message) => Object.assign(new Error(message), { code });
 var DAEMON_RISE_MS = 15e3;
 var socketAnswers = (path) => new Promise((r) => {
-  const probe = connect2(path);
-  probe.once("connect", () => {
-    probe.destroy();
+  const probe2 = connect2(path);
+  probe2.once("connect", () => {
+    probe2.destroy();
     r(true);
   });
-  probe.once("error", () => r(false));
+  probe2.once("error", () => r(false));
 });
 async function listenSeam(authDir, onSocket) {
   const bad = seamEntranceProblem(authDir);
@@ -4759,8 +4743,8 @@ async function post2(msg, heard) {
 }
 var reinit = scoped(() => ({ inFlight: null }));
 var reinitHooks = [];
-var onReinitialized = (hook2) => {
-  reinitHooks.push(hook2);
+var onReinitialized = (hook) => {
+  reinitHooks.push(hook);
 };
 async function reinitialize() {
   if (reinit.inFlight) return reinit.inFlight;
@@ -4787,7 +4771,7 @@ async function reinitialize() {
       await post2({ jsonrpc: "2.0", method: "notifications/initialized" }, () => {
       });
       log(`session re-established (${state.sessionId || "no session id"})`);
-      for (const hook2 of reinitHooks) void hook2();
+      for (const hook of reinitHooks) void hook();
     } finally {
       reinit.inFlight = null;
     }
@@ -5486,14 +5470,14 @@ function dropHoldRecord(key) {
 function localSocketAlive(sock) {
   return new Promise((resolve11) => {
     if (process.platform !== "win32" && !existsSync(sock)) return resolve11(false);
-    const probe = connectLocal(sock);
+    const probe2 = connectLocal(sock);
     const done = (v) => {
-      probe.destroy();
+      probe2.destroy();
       resolve11(v);
     };
-    probe.once("connect", () => done(true));
-    probe.once("error", () => done(false));
-    probe.setTimeout(1e3, () => done(false));
+    probe2.once("connect", () => done(true));
+    probe2.once("error", () => done(false));
+    probe2.setTimeout(1e3, () => done(false));
   });
 }
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
@@ -5563,10 +5547,10 @@ function sweepStale(authDir, mine) {
       drop();
       continue;
     }
-    const probe = connectLocal(sock);
-    probe.once("connect", () => probe.destroy());
-    probe.once("error", drop);
-    probe.setTimeout(1e3, () => probe.destroy());
+    const probe2 = connectLocal(sock);
+    probe2.once("connect", () => probe2.destroy());
+    probe2.once("error", drop);
+    probe2.setTimeout(1e3, () => probe2.destroy());
   }
 }
 
@@ -7455,6 +7439,14 @@ function startDeafnessWatch() {
     void leaveStanding(words(LEAVE).nobodyListens(min));
   }, TICK_MS).unref();
 }
+function namesOwnSeat(standing) {
+  const s2 = state.standing;
+  if (!s2) return false;
+  const address = H2.door?.address ?? null;
+  if (standing === ledKey() || standing === address) return true;
+  if (standing.startsWith("@")) return false;
+  return !!s2.name && nameOf(standing) === s2.name;
+}
 function localLeave(msg) {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
   if (msg.params?.arguments?.action !== "leave") return null;
@@ -7474,6 +7466,9 @@ function localLeave(msg) {
       return answer2(W3.refusedBeside(beside, String(ledKey()), state.standing?.realm), true);
     if (state.standing && otherRealm(realm, state.standing.realm))
       return answer2(W3.refusedOther(String(realm), String(ledKey()), state.standing.realm), true);
+    const named = msg.params.arguments.standing;
+    if (typeof named === "string" && named.trim() && !namesOwnSeat(named.trim()))
+      return answer2(W3.refusedNamed(named.trim(), H2.door?.address ?? ledKey()), true);
     return answer2(await leaveStanding(W3.byDoerWord(), true));
   })();
 }
@@ -8188,18 +8183,19 @@ async function ownByRecord(realm, karta, name, cwd) {
   const mine = me ? rec5.session === me || unsignedHere(rec5, cwd) : !rec5.session && rec5.client === harnessName() && sameDir(rec5.cwd, cwd);
   return mine && !await localSocketAlive(localSocketPathOf(key));
 }
+var isTaken = (h) => h === "live" || h === "record" || h === "board" || h === "taken";
 async function holderOf(realm, karta, name, hearing, cwd) {
   await heardOnReturn();
   if (holdsStanding(realm, karta, name) || isParked(realm, karta, name)) return "mine";
-  if (wasEvicted(realm, karta, name)) return "taken";
+  if (wasEvicted(realm, karta, name)) return "board";
   const key = keyOf(realm, karta, name);
   if (ledKey() === key) return "mine";
   const local = await localHolder(key, cwd);
-  if (local) return local === "self" ? "mine" : local === "session" ? "session" : "taken";
-  if (theirsByRecord(key)) return "taken";
+  if (local) return local === "self" ? "mine" : local === "session" ? "session" : "live";
+  if (theirsByRecord(key)) return "record";
   const h = hearing(name);
   if (h === "unknown") return "unknown";
-  return h === "other" && !await ownByRecord(realm, karta, name, cwd) ? "taken" : "free";
+  return h === "other" && !await ownByRecord(realm, karta, name, cwd) ? "board" : "free";
 }
 function theirsByRecord(key) {
   const rec5 = readHoldRecord(key);
@@ -8209,18 +8205,19 @@ async function placeFor(realm, karta, base, hearing, cwd, taken = /* @__PURE__ *
   const holder = async (name) => taken.has(name) ? "taken" : await holderOf(realm, karta, name, hearing, cwd);
   const first2 = await holder(base);
   if (first2 === "unknown") return { refusal: sep2().unknown(base) };
-  if (first2 !== "taken") {
+  if (!isTaken(first2)) {
     const own = first2 === "session";
     return { name: base, own, note: own ? sep2().ownSession(base) : null };
   }
+  const kin = first2 === "taken" ? null : first2;
   for (let n = 2; n <= 99; n++) {
     const cand = suffixed(root, n);
     if (cand === base) continue;
     const h = await holder(cand);
-    if (h === "taken") continue;
+    if (isTaken(h)) continue;
     if (h === "unknown") return { refusal: sep2().unknown(cand) };
     const own = h === "session";
-    return { name: cand, own, note: sep2().beside(base, cand, own) };
+    return { name: cand, own, kin, note: sep2().beside(base, cand, own, kin) };
   }
   return { refusal: sep2().noFree(base) };
 }
@@ -8235,7 +8232,7 @@ async function seatFor(realm, karta, base, hearing, besideRealm, cwd, root = bas
     const resumed = await resumeFromDisk(realm, karta, at2);
     if (resumed)
       return {
-        choice: at2 === base ? choice : { ...choice, note: sep2().beside(base, at2, true) },
+        choice: at2 === base ? choice : { ...choice, note: sep2().beside(base, at2, true, choice.kin ?? null) },
         resumed
       };
     taken.add(at2);
@@ -9497,96 +9494,6 @@ function localEnd(msg) {
 import { statSync as statSync7 } from "node:fs";
 import { isAbsolute as isAbsolute2 } from "node:path";
 
-// js/bridge/hookfields.ts
-var hook = (v) => {
-  if (!isObj(v) || typeof v.active !== "boolean") return null;
-  if (!is.num(v.id) || !is.str(v.kind) || !is.num(v.target_karta_seq) || !is.bool(v.reaches_you))
-    return null;
-  const reaches = v.reaches;
-  if (reaches !== void 0) {
-    if (!Array.isArray(reaches)) return null;
-    if (!reaches.every((r) => isObj(r) && is.strOrNull(r.standing) && is.bool(r.you))) return null;
-  }
-  if (v.reaches_you === void 0 && reaches === void 0) return null;
-  return v;
-};
-function hooksField(sc, action = "list_webhooks") {
-  const what = `${tool("admin")} ${action}`;
-  if (!isObj(sc) || incomplete(sc) || sc.action !== action || !Array.isArray(sc.webhooks))
-    return fallback(what, sc);
-  const out7 = sc.webhooks.map(hook);
-  return out7.every((h) => h) ? out7 : fallback(what, sc);
-}
-var reachesYou = (h) => h.reaches_you ?? (h.reaches ?? []).some((r) => r.you === true);
-
-// js/bridge/hooklist.ts
-async function adminParamNames() {
-  const id = `${ID_PREFIX}bridge-admin-schema-${++state.reinitCounter}`;
-  let got = null;
-  try {
-    await post2({ jsonrpc: "2.0", id, method: "tools/list", params: {} }, (m) => {
-      if (m.id === id) got = m;
-    });
-  } catch {
-    return null;
-  }
-  const result = got?.result;
-  const tools = result?.tools;
-  if (!Array.isArray(tools)) return null;
-  const admin = tools.find((t) => t?.name === tool("admin"));
-  if (!admin) return null;
-  return new Set(Object.keys(admin.inputSchema?.properties ?? {}));
-}
-function fromProse(text, isError, name) {
-  const blocks = text.split(/\n(?=\s*#\d+\s*→)/).slice(1);
-  const recognized = !isError && (FORM.hooksHeader.test(text) && blocks.every((b) => FORM.hookState.test(b)) || FORM.hooksEmpty.test(text));
-  const nameRe = new RegExp(`:${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z0-9._-])`);
-  return {
-    recognized,
-    wakesMe: recognized && blocks.some((b) => FORM.hookActive.test(b) && nameRe.test(b))
-  };
-}
-async function readRoleHooks(realm, karta, name) {
-  const hooks = await callTool(tool("admin"), { action: "list_webhooks", realm, node_id: karta });
-  const fields = hooks.isError ? null : hooksField(hooks.structured);
-  const read = fields ? { recognized: true, wakesMe: fields.some((h) => h.active && reachesYou(h)) } : fromProse(hooks.text, hooks.isError, name);
-  return { ...read, text: hooks.text };
-}
-
-// js/bridge/hook.ts
-async function armRoleHook(p) {
-  const { realm, karta, name } = p;
-  const hooks = await readRoleHooks(realm, karta, name);
-  const { recognized, wakesMe } = hooks;
-  const w = words(HOOK);
-  if (p.sub) return w.sub();
-  if (wakesMe) return w.wakesMe();
-  if (!recognized) return w.unrecognized(short(hooks.text, 120));
-  if (!p.heardHere) return w.otherHolder();
-  if (p.beside) {
-    const params = await adminParamNames();
-    const noAddress = w.noAddress(p.channelRealm);
-    if (!params) return w.noSchema(noAddress);
-    if (!params.has("channel")) return w.noChannelParam(noAddress);
-    const h2 = await callTool(tool("admin"), {
-      action: "add_webhook",
-      realm,
-      node_id: karta,
-      channel: "self"
-    });
-    return h2.isError ? w.channelFailed(short(h2.text)) : w.channelArmed(short(h2.text, 120));
-  }
-  if (!p.incoming) return w.noIncoming();
-  const h = await callTool(tool("admin"), {
-    action: "add_webhook",
-    realm,
-    node_id: karta,
-    // No ttl_seconds: 0 lifts the term only in update_webhook; on add it is rejected (graph @nks/nks-dev, node #5380).
-    url: p.incoming
-  });
-  return h.isError ? w.failed(short(h.text)) : w.armed(short(h.text, 120));
-}
-
 // js/bridge/standwords.ts
 var sw2 = () => words(STAND);
 function boardHeaders() {
@@ -9848,7 +9755,6 @@ async function runStand(msg) {
   }
   if (base) noteSeatBase(keyOf(realm, karta, name), root);
   const take = a.take === true || ownSession;
-  const sub = !!sat || baseOf2(realm, karta, name) !== name;
   const stem = name.split(".").slice(0, 2).join(".");
   const branches = new Set(
     git(["branch", "--format=%(refname:short)"], cwd).split("\n").map((x) => sanitize(x.trim())).filter(Boolean)
@@ -9864,7 +9770,6 @@ async function runStand(msg) {
   for (const e of legacy) nameNotes.push(sw2().legacy(e.address, realm, karta));
   if (unread) lines.push(sw2().boardCountFound(declared ?? 0, entries2.length));
   const mine = own[0];
-  let incoming = mine?.incoming ?? null;
   let how2;
   let heardHere;
   const reopening = !sat && !holdsStanding(realm, karta, name) && ledHere(realm, karta, name);
@@ -9935,7 +9840,6 @@ async function runStand(msg) {
       lines.push(sw2().refused("connect", short(c.text)));
       return done(true);
     }
-    incoming = seatField(c.structured, "connect")?.inbound ?? /https?:\/\/\S+\/channel\/in\/\S+/.exec(c.text)?.[0] ?? incoming;
     const r = await register();
     if (r.isError) {
       lines.push(sw2().takenButRegister(short(r.text)));
@@ -9963,20 +9867,6 @@ async function runStand(msg) {
   }
   const localFault = heardHere ? doors().find((d) => d.key === heldKey(realm))?.listenError ?? null : null;
   if (localFault) lines.push(sw2().noLocalSocket(localFault));
-  const main = state.standing;
-  lines.push(
-    await armRoleHook({
-      realm,
-      karta,
-      name,
-      incoming,
-      heardHere,
-      sub,
-      beside: !!main && otherRealm(realm, main.realm),
-      // a seat on a channel opened in another graph
-      channelRealm: main?.realm ?? realm
-    })
-  );
   if (room && !heardHere) {
     lines.push(sw2().knockNotHere(room));
   } else if (room) {

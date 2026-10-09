@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.0](https://github.com/verstak-ai/skills/compare/v3.0.1...v3.1.0) (2026-10-09)
+
+
+### Features
+
+* **bridge:** core from the sibling 7.8.0 — leave refuses another seat by name, beside-seat probe, no role inbox hook ([#141](https://github.com/verstak-ai/skills/issues/141)) ([53b4e21](https://github.com/verstak-ai/skills/commit/53b4e21692155edf7388facadf2eec16a76277d9))
+
+
+### Bug Fixes
+
+* **align:** the plugin sample gives fj pr merge the same no-op flags as the hook filter ([#139](https://github.com/verstak-ai/skills/issues/139)) ([f324d55](https://github.com/verstak-ai/skills/commit/f324d558776360574bde4b9cf80fcab0f9db4451))
+* **bridge:** verstak's own launch word — a subagent line reads 'verstak &lt;graph&gt; &lt;role&gt; case #N'; align contract 3 ([#143](https://github.com/verstak-ai/skills/issues/143)) ([96c5600](https://github.com/verstak-ai/skills/commit/96c5600d596d3762481aa8bde4894b9f04723686))
+* **verstak:** a line on the key of your own open ask withdraws it — the card is already the wait ([#142](https://github.com/verstak-ai/skills/issues/142)) ([da41a42](https://github.com/verstak-ai/skills/commit/da41a425e8c6277e5fedc8e9a4c99af658c85b33))
+* **verstak:** a subagent with an open ask hands its key to the lead before leaving ([#140](https://github.com/verstak-ai/skills/issues/140)) ([cd779ed](https://github.com/verstak-ai/skills/commit/cd779eda01e64bad256a88ec3911d1474ed3e120))
+* **verstak:** cleanup is by name — a machine-wide prune deletes others' work ([#137](https://github.com/verstak-ai/skills/issues/137)) ([5fdebfc](https://github.com/verstak-ai/skills/commit/5fdebfc0af828118bce073e52571c0697b02881d))
+* **verstak:** debts are the role's, not the seat's — abandoned role cases are worked through and closed ([#136](https://github.com/verstak-ai/skills/issues/136)) ([5f81e50](https://github.com/verstak-ai/skills/commit/5f81e5091c0845b8f7520a47d8c33e03ffdcd49d))
+* **verstak:** integrity runs integration with a live neighbour as a case ([#144](https://github.com/verstak-ai/skills/issues/144)) ([8942827](https://github.com/verstak-ai/skills/commit/894282760de29a0d9154266e5ea4526bbf058aa1))
+* **verstak:** port vahta after 7.8.0 — case closes at merge, findings as nodes; empty subagent answer is unverified; drop the room alias ([#145](https://github.com/verstak-ai/skills/issues/145)) ([5f656af](https://github.com/verstak-ai/skills/commit/5f656affc378e72a0e5635e8553edd0654e1c75b))
+* **verstak:** refresh the tool-surface snapshot; restore is no batch action ([#146](https://github.com/verstak-ai/skills/issues/146)) ([04cebac](https://github.com/verstak-ai/skills/commit/04cebacf2c66d436c1c44d434f9c101f964b647b))
+* **verstak:** waits on CI, builds and rollouts run in the background — a waiting turn hears nothing ([#133](https://github.com/verstak-ai/skills/issues/133)) ([b0065fe](https://github.com/verstak-ai/skills/commit/b0065fe15bbc640e86b245a197cca205923ce222))
+
 ## [3.0.1](https://github.com/verstak-ai/skills/compare/v3.0.0...v3.0.1) (2026-10-09)
 
 
