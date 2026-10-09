@@ -95,3 +95,24 @@ test("one language, whatever the server", () => {
   for (const url of [DEFAULT_SERVER_URL, "https://example.org/mcp", "not a url"])
     assert.equal(langOfServer(url), "en");
 });
+
+test("the launch line has this delivery's own word: the sibling's line does not raise this plugin", async () => {
+  const { LAUNCH_LINE, LAUNCH_WORD } = await import("../delivery/patterns/launch.ts");
+  assert.notEqual(LAUNCH_WORD, "start", "the sibling delivery's launch word");
+  assert.match(`${LAUNCH_WORD} @o/g #931 case #12 from @a:b`, LAUNCH_LINE);
+  assert.doesNotMatch("start @o/g #931 case #12", LAUNCH_LINE);
+  const spelled = [];
+  for (const f of [
+    "SKILL.md",
+    ...readdirSync(join(REPO, "skills/verstak/methods")).map((n) => `methods/${n}`),
+    ...readdirSync(join(REPO, "skills/verstak/references")).map((n) => `references/${n}`),
+  ]) {
+    for (const m of read(`skills/verstak/${f}`).matchAll(/`(\w+) <graph> <role> case #N/g))
+      spelled.push(`${f}: ${m[1]}`);
+  }
+  assert.ok(spelled.length > 0);
+  assert.deepEqual(
+    spelled.filter((s) => !s.endsWith(`: ${LAUNCH_WORD}`)),
+    [],
+  );
+});

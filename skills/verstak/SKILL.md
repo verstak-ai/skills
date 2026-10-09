@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 2 — run /verstak align unprompted if a repo's stamp is below 2, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 3 — run /verstak align unprompted if a repo's stamp is below 3, a date, or missing."
 slash: true
 ---
 
@@ -27,9 +27,9 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. A bare slug is no address (**entry**, Part II). No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
 
-2. **A seat only for a watch** — the word "watch", a `start` with a seat address or case, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
+2. **A seat only for a watch** — the word "watch", a `start` with a seat address, a `verstak … case #N` launch line, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also knocks on the user's seat. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants.
-   - **`start <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
+   - **`verstak <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. An `ask` of yours still open is not done: before `leave`, tell the case's lead which key awaits an answer (any seat of your role may `ack` it), or leave the question to the lead in the first place. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
    - **Occupied seat.** Never sign with a seat another holder listens on; yours after a compaction or restart returns by itself; another live session's → stand beside as `name.N`; take back your own name (same role, same account) once a 5-minute probe goes unanswered, another's only on the user's word (**collaborate**, 3a). Don't finish without a seat; a refusal, no `verstak_stand` → **collaborate**.
 
@@ -37,8 +37,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `2`** (the description's number; **align**, `Contract`).
-   - **Stamp below `2`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `3`** (the description's number; **align**, `Contract`).
+   - **Stamp below `3`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -69,7 +69,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 **Graph craft is yours:** reading, writing, weaving, integration (**integrity**) stay with whoever decides. Subagents take the volume — code, the gate, review, verification; check their advice against the node's neighbourhood.
 
-**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `start <graph> <role> case #N`; its result stays in that case.
+**Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case.
 
 ### Case laws
 

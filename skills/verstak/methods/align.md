@@ -8,7 +8,7 @@ You produce `AGENTS.md` (read every session), `REALITY.md` (carriers, read befor
 
 Templates: `templates/agents-template.md` and `templates/reality-template.md`. Fill the `<…>` slots, drop optional rows that don't apply, strip every `<!-- … -->` note and angle bracket. The template carries **repository facts only**; its first paragraph loads the `verstak` skill, so even a harness without a start hook reaches the door. Generic code work (before code, reviews, after merge, working principles) is `methods/code-work.md`, read through the door: never project it into `AGENTS.md`.
 
-**Contract: `2`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+**Contract: `3`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
 
 **Check the installed delivery first** — every run, and before concluding a method's instruction is wrong:
 
