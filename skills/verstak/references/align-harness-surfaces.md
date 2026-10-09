@@ -169,7 +169,7 @@ export default {
       const note = (ran(push, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/) && !tagsOnly.test(out)) || quiet
         ? "[verstak] A push ships nothing: self-review the diff, run the vocabulary pass over the PR text, get the cold review of the stage."
         : ran("gh pr merge", "-h|--help|--auto|--disable-auto", /(Merged|Squashed and merged|Rebased and merged) pull request/) ||
-            ran("fj pr merge", "-h|--help", /Merged PR #/) || ((exit ?? 0) === 0 && pull.test(cmd))
+            ran("fj pr merge", "-h|--help|--auto|--disable-auto", /Merged PR #/) || ((exit ?? 0) === 0 && pull.test(cmd))
           ? "[verstak] Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes."
           : "";
       if (!note || !(await mine(input.sessionID)) || !once(input.id)) return;
