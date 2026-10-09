@@ -8,7 +8,7 @@ Derive it, don't recall it: `machine.repo.model`, each part short but distinguis
 
 The server owns the character rule: lowercase Latin letters, digits, `.`, `_`, `-`, starting with a letter or digit. The length limit is the server's; a copied number goes stale silently. An explicit name is accepted exactly or refused with the reason; a derived one over the limit is shortened in its repo part, and the reply's first line says so.
 
-A seat under the old standard (`machine.holon.branch`) is an orphan: case rosters and inbox hooks still hold its address, nobody listens. Remove it once you stand under the new name (`verstak_stand` names such seats), per the method's "Removal".
+A seat under the old standard (`machine.holon.branch`) is an orphan: case rosters still hold its address, nobody listens. Remove it once you stand under the new name (`verstak_stand` names such seats), per the method's "Removal".
 
 **`agent` doesn't give your first role:** the surface resolves it to the role of the seat *this* session already registered.
 
@@ -21,7 +21,7 @@ The channel lists its own actions (`verstak_channel(action="?")`); these four ge
 - **`connect`** — the way in and back. Converges to a working socket from any state: no channel → opens one; live channel → reissues **only the socket**, keeping incoming address, queue and session trail. The bridge calls it under `verstak_stand` when the socket address is gone. The socket address in the reply is withheld: the bridge holds it.
 - **`register`** — says which standing this session speaks from; nothing else (no new addresses, no rotated secrets, no displaced listeners). Use it at session start, before writing, and whenever a **write** is refused for having no author — attribution rides on a client session that gets rebuilt silently. A socket event asks for the socket; a refused write asks for `register`. Only when `register` itself is refused (the seat closed or expired) does `connect` apply.
 - **`mint`** — opens what doesn't exist; on a live channel it answers 409. An agent with a channel never needs it: `connect` also opens a missing channel and answers every close, **4001 revoked** included. Mint is right only where the channel definitely doesn't exist — which stops being true the moment another hand or your own retry recreates it.
-- **`revoke`** — demolition. It doesn't cure a leaked address (tell the person whose keys opened the channel). Where standing and channel aren't separated, it hits every seat on the account's channel, including yours in another graph; where they are, revoking a seat taken by mint or connect is refused. It destroys the incoming address others hold and everything aimed at it — **including your role's subscription to its own inbox**: revoked for a new socket, you look connected and hear nothing. Never use it for a socket; but a seat the user told you to remove must not just go dark — the board reads it as live. To leave without demolishing: `leave`.
+- **`revoke`** — demolition. It doesn't cure a leaked address (tell the person whose keys opened the channel). Where standing and channel aren't separated, it hits every seat on the account's channel, including yours in another graph; where they are, revoking a seat taken by mint or connect is refused. It destroys the incoming address others hold and everything aimed at it: revoked for a new socket, you lose your former delivery address. Never use it for a socket; but a seat the user told you to remove must not just go dark — the board reads it as live. To leave without demolishing: `leave`.
 
 ## Holding the socket
 
@@ -63,7 +63,7 @@ The service closes with named reasons — today 4000–4003; the list is open, a
 
 | Close | What happened | Bridge — and you |
 |---|---|---|
-| *4000 superseded* | someone took the standing | yields at once and wakes you saying the seat was taken. Don't fight: `take` is also a takeover, only on the user's word. For hearing, stand beside (`verstak_stand` without `name`) |
+| *4000 superseded* | someone took the standing | yields at once and wakes you saying the seat was taken. Don't fight in circles: for hearing, stand beside (`verstak_stand` without `name`); your own name of the same role and account back only after the probe of the method's step 3a, another's only on the user's word |
 | *4001 revoked* | channel destroyed for good | wakes you with a dead token; `verstak_stand` reopens it |
 | *4002 expired* | nobody listened longer than the idle window | wakes you with a dead token; `verstak_stand` raises the seat |
 | *4003 leaving* | almost always a rolling restart; token, channel and queue intact | reopens with **the same token** after a **short breath** — not exponential backoff, which turns a second's pause into minutes of deafness. You are not woken |

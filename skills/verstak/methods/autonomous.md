@@ -166,7 +166,7 @@ Not yours: refusal, the order between questions, scope and telos, production and
 
 **Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
-The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `channel` mode, subscribe to the escalated vimarsha (`Exchange`, step 6). Write vimarshas a cold session can resume from.
+The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
 
 ## Surviving context compaction
 

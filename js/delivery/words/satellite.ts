@@ -47,7 +47,7 @@ export const SATELLITE: Readonly<Record<Lang, SatelliteWords>> = {
     claimsUnsure: (unsure, name) =>
       `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
     seat: (caller, karta, ttl) =>
-      `satellite seat of ${caller}: role #${karta}, no role inbox hook, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
+      `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) =>
       `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) =>

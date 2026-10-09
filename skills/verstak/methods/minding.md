@@ -95,7 +95,7 @@ verstak_search(realm=R, q="", posed_to=seq,
 - **Read the "N of M" header** and page until N = M: a cut agenda looks complete.
 - **Sweep `@handle/mind` too** — duties posed to the user's own owner role live only there.
 
-The user appears in each graph through one **owner role** (`svatantra` 主) bound via `user` — their cross-graph identity; unbound roles don't show (hence §2 step 3). Agent roles they run stay unbound. A webhook on the bound role (`verstak_admin(action="add_webhook", node_id=role, …)`) turns the sweep into a push. Cost scales with live areas. **Never store the agenda**: it would state yesterday's obligations with today's confidence.
+The user appears in each graph through one **owner role** (`svatantra` 主) bound via `user` — their cross-graph identity; unbound roles don't show (hence §2 step 3). Agent roles they run stay unbound. Read the role queue with `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants, not every seat of the role. Cost scales with live areas. **Never store the agenda**: it would state yesterday's obligations with today's confidence.
 
 ## Privacy — mind doesn't leave
 
