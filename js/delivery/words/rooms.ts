@@ -58,7 +58,7 @@ export const ROOM: Readonly<Record<Lang, RoomWords>> = {
     closing: (author, endsAt, evidence) =>
       `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
     closingMay: (entryId) =>
-      `you may object — verstak_case(action="object", in_reply_to=${entryId}) (former name verstak_room)`,
+      `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,
