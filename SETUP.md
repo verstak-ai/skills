@@ -78,16 +78,24 @@ itself**, a stdio process `node …/skills/verstak/scripts/verstak-bridge.mjs` t
 Code raises at session start. Nothing to copy or register; a plugin update brings the new
 bridge to the next session.
 
-**Sign-in starts with the first call.** Until there is a grant, every `verstak_*` tool
-answers with an error carrying the sign-in address (`http://127.0.0.1:PORT/login…`); the
-bridge also prints it on stderr and tries to open a browser. The user opens it and signs
-in; the next call goes through. The grant lands in `~/.verstak-bridge/` and the bridge
-refreshes it, idle too.
+**Sign-in.** Until there is a grant, every `verstak_*` tool answers with an error carrying
+the sign-in address (`http://127.0.0.1:PORT/login…`); the bridge also prints it on stderr
+and tries to open a browser. The user opens it and signs in; the next call goes through.
+The grant lands in `~/.verstak-bridge/` and the bridge refreshes it, idle too.
+
+**First install, no grant on the machine:** the bridge may refuse the harness's connection
+itself, so the session has no `verstak_*` tools to call. The same error, link included,
+comes in the harness's notice that the server failed, and from a shell in
+`claude mcp list`. Hand that link to the user. After they sign in, the session still holds
+the failed connection: ask them to reconnect the server `plugin:verstak:verstak` in `/mcp`
+(their move; `/reload-plugins` doesn't do it, a restart isn't needed). The sign: `verstak_*`
+tools appear in this session.
 
 Verify:
 
 ```sh
 claude mcp list    # plugin:verstak:verstak: node …/verstak-bridge.mjs (stdio) - ✔ Connected
+                   # (starts its own bridge: says the install works, not that this session has tools)
 claude -p "Call verstak_me and print its result." --allowedTools "mcp__plugin_verstak_verstak__verstak_me"
 ```
 
@@ -296,8 +304,9 @@ seeds the graph with the structure the codebase already shows.
   installation failure. Do not rephrase the command and do not switch install paths. Say
   which step you are on, the exact command, and what approving it does; then wait. On
   approval re-run it and continue.
-- **No `verstak_*` tools in the session** → MCP config loads at session start: restart the
-  session and check again. Then `node BRIDGE doctor` from the project directory — it names
+- **No `verstak_*` tools in the session** → right after the first sign-in: the user
+  reconnects `plugin:verstak:verstak` in `/mcp`. Otherwise MCP config loads at session
+  start: restart the session and check again. Then `node BRIDGE doctor` from the project directory — it names
   every mismatch with its fix.
 - **Every call answers with a sign-in link** → no grant yet: give the link to the user,
   repeat the call after they sign in. One link per machine, valid while any bridge listens.
