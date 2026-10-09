@@ -8,7 +8,7 @@ The agent is the **agent role** from AGENTS.md (a `karta`), steward of the repos
 
 **Two rounds.** The **duty round** is cheap and frequent: wake, see what changed, decide, sleep. The **work round** is expensive and rare: grasp, mark, ship, relay, integrate, weave, close.
 
-**Graph craft is the watch's own** — reading, writing, weaving, integration; subagents take the volume: code, the gate, review, verification (the door, `Work goes to subagents`).
+**Graph craft is the watch's own** — reading, writing, weaving, integration; subagents take the volume: code, the gate, review, verification (the door, `Work goes to subagents`). **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
 
 **Count a stage by an outside sign**, not an inside one ("connected", "reported"):
 
