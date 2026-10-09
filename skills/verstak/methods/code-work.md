@@ -49,7 +49,7 @@ Then cleanup; next task → `Before code`.
 
 With each finished piece — merged, delivered, answered, released — not at session end; a wake-up tick is the reminder to walk this list.
 
-1. **Files**: the piece's worktree (`git worktree remove`), its merged branch (`git branch -d`), your scratch by name — gate logs, review trees, isolated run homes. Others' stay; unsure whose → ask.
+1. **Files**: the piece's worktree (`git worktree remove`), its merged branch (`git branch -d`), your scratch by name — gate logs, review trees, isolated run homes. Others' stay; unsure whose → ask. A machine-wide sweep is not cleanup of yours: `docker system|volume|image|builder prune` without a filter on your own label, or `git clean` outside your own tree, deletes others' work for good. Yours carries a mark you can filter on — a run label, a volume name, your compose project; nothing to filter on → name it and ask.
 2. **Cases**: `verstak_case(action="mine")`. Where no move of yours is awaited (task delivered, question answered, your share done): close your lines with their outcome (`line`); as lead, `propose_close` with evidence or hand the lead over (`methods/architect.md`) — and once it closes, `leave`. Stay only where you await an answer or lead something open.
 
 ## Working principles
