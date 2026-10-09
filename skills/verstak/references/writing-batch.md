@@ -17,4 +17,4 @@ Same as `arrow_link`, the new node the implicit source: `{arrow_type, target, se
 
 ## Mutating operations
 
-`arrow_update`, `arrow_delete`, `arrow_reconnect`, `update_node`, `delete_node`, `restore_node`, `restore_edge` need `params.basis_version`; a stale one rejects the delta. One `reasoning` per delta. Any failure writes nothing.
+`arrow_update`, `arrow_delete`, `arrow_reconnect`, `update_node`, `delete_node` need `params.basis_version`; a stale one rejects the delta. Restoring a node or an edge is not a batch action — `verstak_history`. One `reasoning` per delta. Any failure writes nothing.
