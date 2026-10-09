@@ -78,7 +78,7 @@ export function parseBoard(text: string): BoardEntry[] {
 export const nameOf = (address: string): string => address.slice(address.indexOf(":") + 1);
 
 /**
- * Server prose forms of the board and hook list, both languages (graph @nks/nks-dev,
+ * Server prose forms of the board, both languages (graph @nks/nks-dev,
  * nodes #4514, #6637): a fallback until the server gives fields; the bridge on an
  * English surface asks accept-language: en. Russian forms observed, English assumed.
  */

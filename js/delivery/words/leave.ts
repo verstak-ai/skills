@@ -19,6 +19,8 @@ export interface LeaveWords {
   byDoerWord: () => string;
   refusedBeside: (beside: string, led: string, realm: string | undefined) => string;
   refusedOther: (realm: string, led: string, ledRealm: string) => string;
+  /** led — this bridge's seat; none — the word that it holds none. */
+  refusedNamed: (standing: string, led: string | null) => string;
 }
 
 export const LEAVE: Readonly<Record<Lang, LeaveWords>> = {
@@ -46,5 +48,7 @@ export const LEAVE: Readonly<Record<Lang, LeaveWords>> = {
       `Refused (bridge): the seat ${beside} stands on the bridge's shared channel beside ${led} — leaving would close the socket for all seats of the channel. To leave all — leave in the graph ${realm ?? "of the main seat"}; to remove only this seat — revoke.`,
     refusedOther: (realm, led, ledRealm) =>
       `Refused (bridge): this bridge holds no seat in the graph ${realm} — nothing to leave; its seat ${led} in the graph ${ledRealm} is untouched.`,
+    refusedNamed: (standing, led) =>
+      `Refused (bridge): ${standing} is not this bridge's seat, the call was not sent; leave releases only this bridge's seat${led ? ` (${led}, untouched)` : " (it holds no seat now)"}; a spare seat of your own account is removed by revoke(karta, standing=${standing}) — only on the user's word: revoke destroys the seat's incoming address and hooks.`,
   },
 };

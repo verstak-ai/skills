@@ -95,7 +95,7 @@ export function localStatus(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null
   })();
 }
 
-// Taking args — shared/busyargs.ts; model sends the call down the full path (register, hook, hello).
+// Taking args — shared/busyargs.ts; model sends the call down the full path (register, hello).
 // satellite_of is not a taking arg: it is checked against the held satellite seat below.
 
 /**
@@ -115,7 +115,7 @@ export type StatusOnly = { reply: JsonRpcMessage } | { miss: StatusMiss | null; 
 
 /**
  * The stand tool with status on the seat this bridge leads (#6509): only the busy line —
- * no board, connect, register, hook or knock; an empty line clears. Role and name are the
+ * no board, connect, register or knock; an empty line clears. Role and name are the
  * seat's own or omitted. Busyness follows the
  * standing, not the live socket (#5033, #5035): after eviction it is published while the
  * bridge has the seat's status address. Otherwise — miss, and the call takes the full

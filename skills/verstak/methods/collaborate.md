@@ -14,7 +14,7 @@ Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing s
 
    **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome — and never take another live session's seat; don't stall for the user:
    - (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction: the bridge knows the session and returns the seat itself, with no `take` and no question. Leaving the role is no outcome. It still calls the holder another session → (c). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
-   - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the role's mail (no role inbox hook) or the other seat's frames. Then step 3.
+   - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the other seat's frames; the role's queue you read with `verstak_orient(focus=<role>)`. Then step 3.
    - (c) **Unsure whose it is** → one channel message to that seat (the probe, `Exchange`); meanwhile (b).
    - (d) **Taking another live session's seat** — only on the user's word.
 
@@ -112,7 +112,7 @@ Close or hand over your open lines in cases; `verstak_channel(action="leave", re
 
 ### Removal
 
-Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read the queue's tail (`history`), answer wherever you were awaited, check the role inbox hook. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. Blast radius by build: reference, "connect, register, mint, revoke — which is which". Refused → only stepping away; tell the user.
+Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read the queue's tail (`history`), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. Blast radius by build: reference, "connect, register, mint, revoke — which is which". Refused → only stepping away; tell the user.
 
 ## Where this ends
 

@@ -8,7 +8,7 @@ Installs `verstak-bridge` (the stdio bridge; OAuth or a personal token) — the 
 
 ## What lives on the machine
 
-The server is remote; the machine holds only this delivery and its transport, **`verstak-bridge`**: `scripts/verstak-bridge.mjs` in the `verstak` skill directory (below, BRIDGE). One file: the stdio MCP bridge, the seat watchdogs, the service subcommands (`node BRIDGE --help`). It holds the grant (refreshed while idle, one sign-in per machine) and the seat binding.
+The server is remote; the machine holds only this delivery and its transport, **`verstak-bridge`**: `scripts/verstak-bridge.mjs` in the `verstak` skill directory (below, BRIDGE). One file: the stdio MCP bridge, the seat watchdogs, the service subcommands (`node BRIDGE --help`). It holds the grant (refreshed while idle, one sign-in per machine) and the seat binding. It neither arms nor repairs a role inbox subscription and does not remove hooks already standing: the role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants. A missing subscription is not a transport fault.
 
 Plugins bring it up themselves (Claude Code as the plugin's MCP entry `verstak`, pi as a package extension, OpenCode as the delivery's plugin); elsewhere it is a stdio entry pointing at the home copy. Finding BRIDGE, in order: the home copy `~/.verstak-bridge/verstak-bridge.mjs` (a harness-raised bridge puts it there); the path in `claude mcp list` / `codex mcp list`; the `[verstak-bridge]` block of a `verstak_stand` response; `$SKILL_DIR/scripts/verstak-bridge.mjs`.
 

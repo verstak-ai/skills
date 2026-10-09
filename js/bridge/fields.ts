@@ -1,8 +1,8 @@
 // Server reply fields next to the prose (graph @nks/nks-dev, node #6637): read when present
 // and on form, else the prose template with a log line. Shape: structuredContent `{action, …}`
 // with api keys on success of the channel and admin tools; the refusal `_meta` key holds
-// {rule, status, data}. Secrets (socket, status url, hook url) are only in the text, never
-// in fields. Seats and common helpers here; hooks in hookfields.ts, refusals in refusal.ts.
+// {rule, status, data}. Secrets (socket, status url) are only in the text, never
+// in fields. Seats and common helpers here; refusals in refusal.ts.
 import { tool } from "../delivery/index.ts";
 import { asksFields } from "../shared/fields.ts";
 import { log } from "./streams.ts";

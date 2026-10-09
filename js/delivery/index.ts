@@ -66,7 +66,6 @@ export {
 export { HANDOFF, type HandoffWords } from "./words/handoff.ts";
 export { HEARING, type HearingWords } from "./words/hearing.ts";
 export { HOLD, type HoldWords } from "./words/hold.ts";
-export { HOOK, type HookWords } from "./words/hook.ts";
 export { LAUNCH, type LaunchWords } from "./words/launch.ts";
 export { LEAD, type LeadWords } from "./words/leads.ts";
 export { LEAVE, type LeaveWords } from "./words/leave.ts";
@@ -104,7 +103,7 @@ export {
 export { RUN_END, type RunEndWords } from "./words/runend.ts";
 export { SATELLITE, type SatelliteWords } from "./words/satellite.ts";
 export { SAT_PROBE, type SatProbeWords } from "./words/satprobe.ts";
-export { SEPARATE, type SeparateWords } from "./words/separate.ts";
+export { type Kin, SEPARATE, type SeparateWords } from "./words/separate.ts";
 export { STALE, type StaleWords } from "./words/stalebatch.ts";
 export { STAND, type StandWords } from "./words/stand.ts";
 export { STANDING, type StandingWords } from "./words/standing.ts";

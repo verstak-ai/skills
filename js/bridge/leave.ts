@@ -7,6 +7,7 @@
 import { envName, LEAVE, LOGGERS, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
+import { nameOf } from "./board.ts";
 import { resolveAgainstLed, unresolvedRefusal } from "./call.ts";
 import { notifiedClient } from "./client.ts";
 import { CFG } from "./config.ts";
@@ -160,6 +161,17 @@ export function startDeafnessWatch(): void {
   }, TICK_MS).unref();
 }
 
+/** Whether `standing` names this bridge's seat: its key, its address or its name (#6975). */
+function namesOwnSeat(standing: string): boolean {
+  const s = state.standing;
+  if (!s) return false;
+  const address = H.door?.address ?? null;
+  if (standing === ledKey() || standing === address) return true;
+  // A full address is judged by the own address only: unknown, `@other:name` is no proof (fail closed).
+  if (standing.startsWith("@")) return false;
+  return !!s.name && nameOf(standing) === s.name;
+}
+
 /** action="leave" of the channel tool — the doer's word, done by the bridge. */
 export function localLeave(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
@@ -181,6 +193,10 @@ export function localLeave(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null 
       return answer(W.refusedBeside(beside, String(ledKey()), state.standing?.realm), true);
     if (state.standing && otherRealm(realm, state.standing.realm))
       return answer(W.refusedOther(String(realm), String(ledKey()), state.standing.realm), true);
+    // leave releases this bridge's seat only; a named other seat is refused aloud (#6975).
+    const named: unknown = msg.params.arguments.standing;
+    if (typeof named === "string" && named.trim() && !namesOwnSeat(named.trim()))
+      return answer(W.refusedNamed(named.trim(), H.door?.address ?? ledKey()), true);
     return answer(await leaveStanding(W.byDoerWord(), true));
   })();
 }

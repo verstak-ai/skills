@@ -278,7 +278,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         return;
       }
       if (isStand) {
-        // The bridge's own tool: board, seat, hook, knock — by the agent's calls, in one move.
+        // The bridge's own tool: board, seat, knock — by the agent's calls, in one move.
         emit(withNotice(await serialized(() => runStand(msg))));
         return;
       }

@@ -69,6 +69,6 @@ Neither replaces the other: addressed but unanchored never surfaces where the su
 
 **Read the holon before placing**: `verstak_orient(realm=<destination>, focus=<the tool's holon>)`; find the tool's node with `verstak_search(realm=<destination>, q=<method or tool name>)`. No holon for the tool → the nearest boundary where it is applied. An anchor on a node that doesn't exist is worse than none.
 
-**You owe an account, not a fix**: write so someone who wasn't there can reproduce and decide. The role inbox hook wakes the addressee. A conversation about the fix happens in a case on the tool's node (`verstak_case(action="talk", about=<subject>)`), not in the report's body — the body is rewritten to current knowledge, not grown into correspondence.
+**You owe an account, not a fix**: write so someone who wasn't there can reproduce and decide. The report joins the role's queue, read with `verstak_orient(focus=<role>)` on entry and on cause. A conversation about the fix happens in a case on the tool's node (`verstak_case(action="talk", about=<subject>)`), not in the report's body — the body is rewritten to current knowledge, not grown into correspondence.
 
 Next moment: the report is placed and addressed → back to the interrupted work; the fix is its maintainer's.

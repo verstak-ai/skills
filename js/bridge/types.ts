@@ -78,7 +78,7 @@ export interface Config {
   patSource: string | null;
   /** Where the server address came from: argument, env, the choice file beside the grant, or default. */
   serverSource: "argument" | "env" | "file" | "default";
-  /** A satellite bridge (satellite.ts): a seat for a subagent run — no hold record, no hook, short ttl. */
+  /** A satellite bridge (satellite.ts): a seat for a subagent run — no hold record, short ttl. */
   satellite: boolean;
   /** `--tools`: the tool set the harness sees (narrow.ts); null — the default set. */
   tools: Set<string> | null;

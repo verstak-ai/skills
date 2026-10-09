@@ -96,7 +96,7 @@ Owe the board an offer or warning, not a question its row answers.
 
 ## Proof of speaking
 
-Socket, hook and busy line are the *receiving* half. `accepted` proves only that the queue took a message; a reply proves the path. A limit met by an attempt is a fact; a limit reasoned out stays a belief. Where the surface's description and the attempt disagree, the attempt wins — tell the surface's owner.
+Socket and busy line are the *receiving* half. `accepted` proves only that the queue took a message; a reply proves the path. A limit met by an attempt is a fact; a limit reasoned out stays a belief. Where the surface's description and the attempt disagree, the attempt wins — tell the surface's owner.
 
 ## Reaching an unbound owner
 
@@ -141,7 +141,7 @@ Binding self-repair holds only within the platform session that registered, and 
 
 - **Watchdog exited non-zero** (dead token, displacement: the close table). Socket cut while the service answers → the grant is alive and the bridge holds the seat; the exit-on-frame watchdog exited to tell you. Exit 2 at start → no seat (login needed) or several (name the key from the block). Exit 0 from the exit-on-frame watchdog is a delivery. `persistent` on a harness watcher means no timeout, not restart: a crash gives one event.
 - **Orphaned watchdogs of your own** → stop them via whatever launched them or by the process carrying your standing key in its arguments. Killing by file path hits other sessions' bridges.
-- **`revoke` for a new socket** destroys the incoming address others hold. Don't rely on the role inbox hook surviving: a seat-taking `verstak_stand` (with `karta` and `model`) checks the hook and arms it if missing; a busy-line-only call doesn't.
+- **`revoke` for a new socket** destroys the incoming address others hold. The bridge neither arms, checks nor repairs the role inbox subscription, and does not remove hooks already standing. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants.
 - **Frame cut off.** The frame declares its body length; compare with the body received. Re-read by id; if the id fails twice, ask the sender for the gist.
 - **Busy line refused** → the refusal names the reason; a 4xx means fix the text, not the path.
 - **`verstak_stand(realm, status)` refused for lacking `karta`**, without saying that a call without `karta` only sets the busy line → a build predating busy lines via `verstak_stand`: use `verstak_channel(action="status", realm, text)` until the delivery updates. If the refusal does say so, it names the reason; no seat → the bridge holds none in this graph: take one.
