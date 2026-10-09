@@ -77,7 +77,7 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Join by share** — invited, or you have a share. To look inside, `read` without joining.
 - **Post by intent** — when the addressee will have something to read.
 - **Delivery doesn't oblige a reply.**
-- **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes. Then `mine`: where nothing of yours is awaited, close your lines with their outcome (lead: `propose_close`), `leave` (**code-work**, `Cleanup`).
+- **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes — by name, never by a machine-wide prune. Then `mine`: where nothing of yours is awaited, close your lines with their outcome (lead: `propose_close`), `leave` (**code-work**, `Cleanup`).
 - Leading and closing: **architect**, `Leading a case`.
 
 ### One-off task
