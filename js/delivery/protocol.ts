@@ -1,12 +1,13 @@
 // Protocol names the bridge speaks with the server, the harness and its own plugins:
 // derived from the product name, except the keys the server's own surface confirms
 // (serverProtocol).
+import { TOOL_PREFIX } from "./config.ts";
 import type { Lang } from "./lang.ts";
 import { BRIDGE_NAME, PRODUCT } from "./product.ts";
 
-/** Tool prefix of the delivery's server. */
-export const TOOL_PREFIX = `${PRODUCT}_`;
-/** A server tool name: `tool("stand")` is `verstak_stand`. */
+/** Tool prefix of the delivery's server: the build's `verstak_`, or the machine's config.json. */
+export { TOOL_PREFIX };
+/** A server tool name: `tool("stand")` is `verstak_stand` under the build prefix. */
 export const tool = (name: string): string => `${TOOL_PREFIX}${name}`;
 
 /** A plugin-to-bridge method (OpenCode, pi): `method("resume")` is `verstak/resume`. */

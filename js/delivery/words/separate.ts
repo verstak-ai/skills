@@ -1,6 +1,7 @@
 // Choosing a seat (SEPARATE): this session's former bridge's own seat, a seat beside,
 // 'board unread' and 'everything beside is taken' refusals.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 /**
  * Who holds base when the bridge stood beside: live — a live bridge of another session in
@@ -11,7 +12,7 @@ import type { Lang } from "../lang.ts";
 export type Kin = "live" | "record" | "board" | null;
 
 const probe = (base: string): string =>
-  `ask it by word — verstak_channel(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — verstak_stand(name=${base}, take=true) and enter its cases (verstak_case(action="mine", standing=${base})); do not ask the user`;
+  `ask it by word — ${tool("channel")}(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — ${tool("stand")}(name=${base}, take=true) and enter its cases (${tool("case")}(action="mine", standing=${base})); do not ask the user`;
 
 const HOLDER: Record<NonNullable<Kin>, string> = {
   live: "another live session of your own name (the same role, the same account)",

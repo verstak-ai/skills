@@ -1,6 +1,7 @@
 // The OpenCode plugin about hearing and seats (OPENCODE_KEEP): return, hearing watchdog,
 // directory keepalive, loss marker, move, twins, sign-in.
 import type { Lang } from "../lang.ts";
+import { tool, TOOL_PREFIX } from "../protocol.ts";
 
 export interface OpencodeKeepWords {
   resumed: (key: string) => string;
@@ -50,17 +51,17 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
   en: {
     resumed: (key) =>
       `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. ` +
-      'Check the name against the one derived for this session: if it is someone else\'s, release it with verstak_channel(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one verstak_stand; ' +
+      `Check the name against the one derived for this session: if it is someone else's, release it with ${tool("channel")}(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one ${tool("stand")}; ` +
       "a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.",
     resumedOwn: (key) =>
       `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
     elsewhere: (keys) =>
       `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: ` +
-      "hearing and the busy line here hold no seat. Call verstak_stand with this name, no take needed: the seat of this same session's previous bridge " +
+      `hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: the seat of this same session's previous bridge ` +
       "the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.",
     notBack: (place, why) =>
       `Verstak: the seat ${place} did not return from disk: ${why}. ` +
-      "The hearing watchdog retries the return once; if you will not wait — verstak_stand.",
+      `The hearing watchdog retries the return once; if you will not wait — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word) => `Verstak: ${word}.`,
@@ -69,7 +70,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       `Verstak: returning the seat of session ${root} failed — ${message}`,
     retryFailed: (place, why) =>
       `Verstak: the seat ${place} did not return on the watchdog's retry either: ${why}. ` +
-      "The watchdog no longer raises it by itself — take the seat with verstak_stand.",
+      `The watchdog no longer raises it by itself — take the seat with ${tool("stand")}.`,
     noWhy: () => "the bridge did not say why",
     watchResumed: (root, word) =>
       `Verstak: the hearing watchdog returned the seat of session ${root} — ${word}`,
@@ -90,7 +91,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     tickFailed: (message) => `Verstak: the directory keepalive tact failed — ${message}`,
     lostWord: (hhmm, where) =>
       `Verstak: hearing was lost at ${hhmm} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. ` +
-      "The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — verstak_stand.",
+      `The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — ${tool("stand")}.`,
     movedWhy: (name) =>
       `this child session's errand ended with the parent's move to another folder: its seat${name ? ` ${name}` : ""} is revoked, the bridge is down; a write from here would go under the parent's seat`,
     revokedMoved: (name) =>
@@ -104,7 +105,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     thisSession: () => "of this session",
     seatLost: (key, dir, why) =>
       `Verstak: the seat ${key} was released — the plugin instance of directory ${dir} ` +
-      `was unloaded and did not come up (${why}). Return the seat: verstak_stand.`,
+      `was unloaded and did not come up (${why}). Return the seat: ${tool("stand")}.`,
     movedAway: (session, dir) =>
       `Verstak: session ${session} was moved to ${dir} — releasing its seat to that folder's instance`,
     takenFromNew: (session) =>
@@ -129,7 +130,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     needLogin: (open, elsewhere) =>
       `Verstak: sign-in needed — ${open}; ` +
       `the address is local: ${elsewhere}. ` +
-      "The verstak_* tools come up by themselves after sign-in.",
+      `The ${TOOL_PREFIX}* tools come up by themselves after sign-in.`,
     codeUntil: (link, until) => `${link} (the code is valid until ${until} UTC)`,
   },
 };

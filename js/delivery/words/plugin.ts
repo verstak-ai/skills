@@ -1,6 +1,7 @@
 // Words shared by the OpenCode plugin and the pi extension (PLUGIN): finding and raising
 // the bridge, the channel half.
 import type { Lang } from "../lang.ts";
+import { tool, TOOL_PREFIX } from "../protocol.ts";
 
 export interface PluginWords {
   noBridge: (tried: string) => string;
@@ -18,7 +19,7 @@ export interface PluginWords {
 export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
   en: {
     noBridge: (tried) =>
-      "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " +
+      `Verstak: the bridge was not found — there will be no ${TOOL_PREFIX}* tools in this session. Looked in: ` +
       tried +
       ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
     bridgeLine: (line) => `Verstak/bridge: ${line}`,
@@ -28,11 +29,11 @@ export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
       `Verstak: the tool list was not reread after the change on the server — ${message}`,
     listening: () => "Verstak: the channel is listening",
     dead: (code) =>
-      `Verstak: the channel was closed with code ${code} — the token is dead. Call verstak_channel(action="connect")` +
+      `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect")` +
       ", then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.",
     evicted: (code) =>
       `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. ` +
-      "The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, verstak_stand with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.",
+      `The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
     alive: (version) =>
       `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; ` +
       "if it fails, ask about the token.",

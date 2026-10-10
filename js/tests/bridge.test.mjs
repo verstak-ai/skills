@@ -41,12 +41,12 @@ const DAEMON = {
 };
 
 /** A clean environment: none of the caller's delivery variables, a scratch home. */
-function bridgeEnv(extra) {
+function bridgeEnv(extra, home = HOME) {
   const env = { ...process.env };
   for (const k of Object.keys(env)) if (k.startsWith("VERSTAK_")) delete env[k];
   return {
     ...env,
-    HOME,
+    HOME: home,
     VERSTAK_BRIDGE_NO_BROWSER: "1",
     VERSTAK_BRIDGE_NO_UPDATE: "1",
     VERSTAK_BRIDGE_TOKEN: "",
@@ -56,9 +56,11 @@ function bridgeEnv(extra) {
 
 // --- driving the bridge the way a harness does -----------------------------
 
-function startBridge(serverUrl, authDir, extraEnv = FULL) {
-  const proc = spawn(process.execPath, [BRIDGE, serverUrl, "--no-browser", "--auth-dir", authDir], {
-    env: bridgeEnv(extraEnv),
+// A null serverUrl launches the bridge without the address argument; home is its HOME.
+function startBridge(serverUrl, authDir, extraEnv = FULL, home = HOME) {
+  const url = serverUrl === null ? [] : [serverUrl];
+  const proc = spawn(process.execPath, [BRIDGE, ...url, "--no-browser", "--auth-dir", authDir], {
+    env: bridgeEnv(extraEnv, home),
     stdio: ["pipe", "pipe", "pipe"],
   });
   const waiters = new Map();
@@ -195,8 +197,8 @@ async function withFake(t, opts, fn) {
   const fake = await startFakeServer(opts);
   const dir = mkdtempSync(join(tmpdir(), "verstak-bridge-test-"));
   const bridges = [];
-  const spawnBridge = (env) => {
-    const b = startBridge(fake.mcpUrl, dir, env);
+  const spawnBridge = (env, { url = fake.mcpUrl, home = HOME } = {}) => {
+    const b = startBridge(url, dir, env, home);
     bridges.push(b);
     return b;
   };
@@ -573,4 +575,146 @@ test("doctor answers against a server and exits 0", async (t) => {
   assert.equal(r.status, 0, r.out);
   assert.match(r.out, /^verstak doctor — v/m);
   assert.ok(r.out.includes(fake.mcpUrl), r.out);
+});
+
+// --- the machine's config.json: default address and tool prefix (graph @nks/nks-dev, node #7243)
+
+/** A scratch HOME whose bridge home holds config.json with this text (none when null). */
+function homeWithConfig(text) {
+  const home = mkdtempSync(join(tmpdir(), "verstak-bridge-cfg-"));
+  mkdirSync(join(home, ".verstak-bridge"), { recursive: true });
+  if (text !== null) writeFileSync(join(home, ".verstak-bridge", "config.json"), text);
+  return home;
+}
+
+/** doctor's `server:` line, read off its output; the process is killed once it is out. */
+function doctorServerLine(home, args, extra = {}, choice = null) {
+  const dir = mkdtempSync(join(tmpdir(), "verstak-bridge-doctor-"));
+  if (choice) writeFileSync(join(dir, "server"), choice + "\n");
+  return new Promise((resolve, reject) => {
+    const p = spawn(process.execPath, [BRIDGE, "doctor", ...args, "--auth-dir", dir], {
+      env: bridgeEnv(extra, home),
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let out = "";
+    const timer = setTimeout(() => {
+      p.kill("SIGKILL");
+      reject(new Error(`doctor printed no server line: ${out}`));
+    }, 15_000);
+    const take = (c) => {
+      out += c;
+      const line = /^server: .*$/m.exec(out)?.[0];
+      if (!line) return;
+      clearTimeout(timer);
+      p.kill("SIGKILL");
+      resolve({ line, out });
+    };
+    p.stdout.on("data", take);
+    p.stderr.on("data", take);
+  });
+}
+
+test("config.json's server is where a bridge launched without an address goes", async (t) => {
+  await withFake(t, {}, async ({ fake, dir, spawnBridge }) => {
+    const home = homeWithConfig(JSON.stringify({ server: fake.mcpUrl }));
+    const bridge = spawnBridge(FULL, { url: null, home });
+    const pending = await bridge.call("initialize", 1, INIT_PARAMS);
+    assert.ok(
+      fake.state.counts.mcp >= 1,
+      `the bridge did not reach the configured server: ${bridge.stderr}`,
+    );
+    const link = loginLinkIn(pending.error?.message);
+    assert.ok(link, JSON.stringify(pending));
+    await click(link);
+    await grantLanded(dir);
+    assert.ok(toolNames(await bridge.call("tools/list", 2)).includes("verstak_orient"));
+  });
+});
+
+test("the URL argument, VERSTAK_BRIDGE_URL and the chosen server file beat config.json", async (t) => {
+  const fake = await startFakeServer();
+  t.after(() => fake.stop());
+  const home = homeWithConfig(JSON.stringify({ server: "http://127.0.0.1:9/from-config" }));
+  const fromFile = await doctorServerLine(home, []);
+  assert.match(fromFile.line, /^server: http:\/\/127\.0\.0\.1:9\/from-config /, fromFile.out);
+  const arg = await doctorServerLine(home, [fake.mcpUrl]);
+  assert.ok(arg.line.startsWith(`server: ${fake.mcpUrl} `), arg.out);
+  const env = await doctorServerLine(home, [], { VERSTAK_BRIDGE_URL: fake.mcpUrl });
+  assert.ok(env.line.startsWith(`server: ${fake.mcpUrl} `), env.out);
+  const chosen = await doctorServerLine(home, [], {}, fake.mcpUrl);
+  assert.ok(chosen.line.startsWith(`server: ${fake.mcpUrl} (choice file `), chosen.out);
+});
+
+test("config.json's tool_prefix names the bridge's tools and routes the calls", async (t) => {
+  await withFake(t, { tools: ["kit_orient"] }, async ({ dir, spawnBridge }) => {
+    const home = homeWithConfig(JSON.stringify({ tool_prefix: "kit_" }));
+    const bridge = spawnBridge(FULL, { home });
+    await authorize(bridge, dir);
+    const names = toolNames(await bridge.call("tools/list", 2));
+    assert.ok(names.includes("kit_orient") && names.includes("kit_stand"), names.join(", "));
+    assert.ok(
+      names.every((n) => n.startsWith("kit_")),
+      names.join(", "),
+    );
+    const forwarded = await bridge.call("tools/call", 3, { name: "kit_orient", arguments: {} });
+    assert.match(JSON.stringify(forwarded), /tools\/call/, "the server's tool did not reach it");
+    // The bridge's own tool is answered by the bridge, in words that name the prefix.
+    const own = JSON.stringify(
+      await bridge.call("tools/call", 4, { name: "kit_stand", arguments: {} }),
+    );
+    assert.match(own, /kit_stand needs realm and karta/, own);
+    assert.doesNotMatch(own, /verstak_/, own);
+  });
+});
+
+test("through the daemon: config.json's tool_prefix names the tools", async (t) => {
+  await withFake(t, { tools: ["kit_orient"] }, async ({ dir, spawnBridge }) => {
+    const home = homeWithConfig(JSON.stringify({ tool_prefix: "kit_" }));
+    const bridge = spawnBridge(DAEMON, { home });
+    await authorize(bridge, dir);
+    const names = toolNames(await bridge.call("tools/list", 2));
+    assert.ok(names.includes("kit_orient") && names.includes("kit_stand"), names.join(", "));
+    assert.ok(
+      names.every((n) => n.startsWith("kit_")),
+      names.join(", "),
+    );
+  });
+});
+
+test("without config.json the build's address and prefix stand", async (t) => {
+  const home = homeWithConfig(null);
+  const { line, out } = await doctorServerLine(home, []);
+  assert.match(line, /^server: https:\/\/mcp\.verstak\.ai\/ \(the default;/, out);
+  await withFake(t, {}, async ({ dir, spawnBridge }) => {
+    const bridge = spawnBridge(FULL, { home });
+    await authorize(bridge, dir);
+    const names = toolNames(await bridge.call("tools/list", 2));
+    assert.ok(
+      names.includes("verstak_stand") && names.includes("verstak_orient"),
+      names.join(", "),
+    );
+    assert.equal(bridge.stderr.includes("config.json"), false, bridge.stderr);
+  });
+});
+
+test("a malformed config.json is said on stderr and the build values stand", async (t) => {
+  await withFake(t, {}, async ({ dir, spawnBridge }) => {
+    const broken = spawnBridge(FULL, { home: homeWithConfig("{ server: ") });
+    await authorize(broken, dir);
+    const names = toolNames(await broken.call("tools/list", 2));
+    assert.ok(names.includes("verstak_stand"), names.join(", "));
+    assert.match(broken.stderr, /config\.json: not JSON/, broken.stderr);
+
+    const bad = JSON.stringify({ tool_prefix: "Kit Tools", server: "ftp://x" });
+    const badPrefix = spawnBridge(FULL, { home: homeWithConfig(bad) });
+    await badPrefix.call("initialize", 3, INIT_PARAMS);
+    const again = toolNames(await badPrefix.call("tools/list", 4));
+    assert.ok(again.includes("verstak_stand"), again.join(", "));
+    assert.match(badPrefix.stderr, /config\.json: "tool_prefix" must match/, badPrefix.stderr);
+    assert.match(
+      badPrefix.stderr,
+      /config\.json: "server" is not an http\(s\) URL/,
+      badPrefix.stderr,
+    );
+  });
 });

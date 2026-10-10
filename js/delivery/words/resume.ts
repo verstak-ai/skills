@@ -1,6 +1,7 @@
 // Returning a seat (RESUME): from disk and by record, the plugin watchdog's hearing check,
 // refusals; the core joins lists into a string.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface ResumeWords {
   failed: () => string;
@@ -39,7 +40,7 @@ export interface ResumeWords {
   fromDisk: (pending: number, busy: string) => string;
 }
 
-const via = "verstak_stand";
+const via = tool("stand");
 
 export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
   en: {
@@ -53,7 +54,7 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     noRecord: (key, cwd) =>
       `there is no own hold record ${key ? `with the key ${key}` : `for the directory ${cwd ?? "?"}`}`,
     rejoin: () =>
-      `the seat may have expired at the platform and left its cases — after ${via} check verstak_case(action="mine"); empty — join your cases again (verstak_case action="join")`,
+      `the seat may have expired at the platform and left its cases — after ${via} check ${tool("case")}(action="mine"); empty — join your cases again (${tool("case")} action="join")`,
     foreignDir: (foreign) =>
       `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
     neighbourKey: (keys) =>
@@ -72,7 +73,7 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     registerRefused: (text) => `register refused — ${text}`,
     othersInDir: (others) => `the same directory holds records of other seats too: ${others}`,
     notYours: () =>
-      'the seat is not yours — verstak_channel(action="leave") will release it, the channel stays intact',
+      `the seat is not yours — ${tool("channel")}(action="leave") will release it, the channel stays intact`,
     nothingToReturn: (skipped) => `nothing to return — ${skipped}`,
     noKeyNoCwd: () => "neither key nor cwd was passed",
     noSeatNoKeyNoCwd: () => "no seat, and neither key nor cwd was passed",

@@ -1,5 +1,6 @@
 // Watchdogs (WATCHDOG): the hearing sign, outcomes, the Codex door.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface WatchdogWords {
   doer: (text: string) => string;
@@ -43,11 +44,11 @@ export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
     backfilled: (count) => ` (${count} back-dated)`,
     frames: (n) => `${n} ${n === 1 ? "frame" : "frames"}`,
     noHeld: () =>
-      "the bridge holds no standing — name yourself with one call to verstak_stand(realm, karta, model): its answer names the listening command",
+      `the bridge holds no standing — name yourself with one call to ${tool("stand")}(realm, karta, model): its answer names the listening command`,
     severalHeld: (held) => `the bridge holds several standings — name the one you need: ${held}`,
     bridgeLetGo: () => "the bridge released the standing or went away — did the session end?",
     seatNotBack: (s, path) =>
-      `the seat did not return within ${s}s after the daemon change — socket ${path} is not up; to bring it back use verstak_stand`,
+      `the seat did not return within ${s}s after the daemon change — socket ${path} is not up; to bring it back use ${tool("stand")}`,
     noSocket: (path, s) => `the bridge did not bring up the local socket ${path} within ${s}s`,
     bridgeReleasedSocket: (text) => `the bridge released the socket: ${text}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
@@ -58,7 +59,7 @@ export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
     seatLost: () => "DOER: the standing is lost",
     aliveNote: () =>
       "DOER: the socket keeps being cut while the service answers — the bridge holds the seat",
-    codexLost: () => "Verstak: the standing is lost — name yourself again: verstak_stand",
+    codexLost: () => `Verstak: the standing is lost — name yourself again: ${tool("stand")}`,
     codexAlive: () =>
       "Verstak: the socket keeps being cut while the service answers — the bridge holds the seat",
     noThread: () =>

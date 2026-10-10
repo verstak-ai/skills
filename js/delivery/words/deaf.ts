@@ -1,6 +1,7 @@
 // A seat without hearing (DEAF): why a call is not signed by a seat another session may
 // have taken; the reason comes as an argument.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface DeafWords {
   takenByOther: (name: string) => string;
@@ -15,6 +16,6 @@ export const DEAF: Readonly<Record<Lang, DeafWords>> = {
     unknownHearing: (name) =>
       `the seat ${name} has no hearing (left, or the token died), and the bridge does not know whether another session listens on it`,
     refusal: (why) =>
-      `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with verstak_stand: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`,
+      `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`,
   },
 };

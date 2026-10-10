@@ -1,6 +1,8 @@
 // doctor (DOCTOR): build, home, server, grant, release, harness plugins, the machine
 // daemon.
+import { configPath, DEFAULT_SERVER_URL } from "../config.ts";
 import type { Lang } from "../lang.ts";
+import { BUILD_SERVER_URL } from "../product.ts";
 
 export interface DoctorWords {
   title: (build: string) => string;
@@ -98,7 +100,8 @@ export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
     srcArgument: () => "launch argument",
     srcEnv: () => "the VERSTAK_BRIDGE_URL variable",
     srcFile: (p) => `choice file ${p}`,
-    srcDefault: (p) => `the default; to change — node <bridge> use en | <url>, file ${p}`,
+    srcDefault: (p) =>
+      `the default${DEFAULT_SERVER_URL === BUILD_SERVER_URL ? "" : ` from ${configPath()}`}; to change — node <bridge> use en | <url>, file ${p}`,
     freshProd: () => "production address: self-update from the delivery releases is on",
     freshOther: () => "another instance: there are no updates from the delivery releases",
     server: (url, source) => `server: ${url} (${source})`,

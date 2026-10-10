@@ -1,6 +1,7 @@
 // The satellite bridge (SATELLITE): satellite seat choice refusals, notes about it, the raw
 // channel fence, the hearing word instead of a watchdog.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface SatelliteWords {
   empty: () => string;
@@ -51,7 +52,7 @@ export const SATELLITE: Readonly<Record<Lang, SatelliteWords>> = {
     noCallerId: (caller) =>
       `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) =>
-      `Refused (satellite bridge): ${action} bypassing verstak_stand — only verstak_stand with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
+      `Refused (satellite bridge): ${action} bypassing ${tool("stand")} — only ${tool("stand")} with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
     onlyOwn: (action, own, karta, realm) =>
       `Refused (satellite bridge): ${action} — only its own seat ${own} (role #${karta}, graph ${realm}); a satellite neither takes nor releases the caller's seat or any other.`,
     listen: (ttl) =>

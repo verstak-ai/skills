@@ -1,5 +1,6 @@
 // The pi extension (PI): door, the tools half, the bridge's home copy.
 import type { Lang } from "../lang.ts";
+import { TOOL_PREFIX } from "../protocol.ts";
 
 export interface PiWords {
   broken: (list: string) => string;
@@ -41,7 +42,7 @@ export const PI: Readonly<Record<Lang, PiWords>> = {
     launchNoBridge: (no) =>
       `Verstak: launch line — the bridge is not up, did not enter case #${no}.`,
     stillRaising: () =>
-      "Verstak: the bridge is still coming up — the verstak_* tools appear as soon as it answers.",
+      `Verstak: the bridge is still coming up — the ${TOOL_PREFIX}* tools appear as soon as it answers.`,
     versionUnreadable: () =>
       "Verstak: the delivery carries a bridge, but its version is unreadable — leaving the home copy alone.",
     homeNewer: (home, packaged) =>

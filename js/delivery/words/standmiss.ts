@@ -1,6 +1,7 @@
 // Why a status call without karta did not become a busy line (STAND_MISS); the argument
 // list as a ready string.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface StandMissWords {
   none: () => string;
@@ -24,8 +25,8 @@ export const STAND_MISS: Readonly<Record<Lang, StandMissWords>> = {
     satellite: (of) => `${ONLY_EN}: the bridge's seat is not a satellite of ${of}.`,
     cwd: (cwd) => `${ONLY_EN}: the directory ${cwd} does not exist or is not absolute.`,
     parked: () =>
-      `${ONLY_EN}, and this bridge left its seat by word (leave): return by verstak_stand with karta under the same name.`,
+      `${ONLY_EN}, and this bridge left its seat by word (leave): return by ${tool("stand")} with karta under the same name.`,
     elsewhere: () =>
-      `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by verstak_stand with karta.`,
+      `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by ${tool("stand")} with karta.`,
   },
 };

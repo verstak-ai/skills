@@ -48,7 +48,7 @@ node ~/.verstak-bridge/verstak-bridge.mjs doctor      # reports whether the toke
 
 ## Server: `use`
 
-Default: `https://mcp.verstak.ai/`. Another instance: `node ~/.verstak-bridge/verstak-bridge.mjs use URL` — written to `~/.verstak-bridge/server`, picked up by the argument-less plugin entry; `VERSTAK_BRIDGE_URL` or a URL argument beats it. Each address keeps its own grant: a new address means a new sign-in. Never guess an instance — the user or the repo's AGENTS.md names it.
+Default: `https://mcp.verstak.ai/`. Another instance: `node ~/.verstak-bridge/verstak-bridge.mjs use URL` — written to `~/.verstak-bridge/server`, picked up by the argument-less plugin entry; `VERSTAK_BRIDGE_URL` or a URL argument beats it. Below all of them, `~/.verstak-bridge/config.json` (`{"server": URL, "tool_prefix": "kit_"}`) replaces the build's default address and tool prefix for that machine; the tools then carry that prefix instead of `verstak_`, and doctor names the file as the default's source. Each address keeps its own grant: a new address means a new sign-in. Never guess an instance — the user or the repo's AGENTS.md names it.
 
 ## Updating
 

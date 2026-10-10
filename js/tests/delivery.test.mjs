@@ -6,17 +6,24 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 
+import { BUILD_TOOL_PREFIX, parseConfig } from "../delivery/config.ts";
 import { DEFAULT_LANG, langOfServer, LANGS } from "../delivery/lang.ts";
 import {
   BRIDGE_FILE,
   BRIDGE_NAME,
-  DEFAULT_SERVER_URL,
+  BUILD_SERVER_URL,
   HOME_BRIDGE_FILE,
   HOME_DIR,
   PRODUCT,
   SATELLITE_CODE,
 } from "../delivery/product.ts";
-import { FRAME_MARK, serverProtocol, STRUCTURED_CAPABILITY, tool } from "../delivery/protocol.ts";
+import {
+  FRAME_MARK,
+  serverProtocol,
+  STRUCTURED_CAPABILITY,
+  tool,
+  TOOL_PREFIX,
+} from "../delivery/protocol.ts";
 import { versionIn } from "../shared/version.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -82,8 +89,11 @@ test("the names our skills write stay the bridge's names", () => {
   assert.equal(HOME_DIR, ".verstak-bridge");
   assert.equal(HOME_BRIDGE_FILE, "verstak-bridge.mjs");
   assert.equal(BRIDGE_FILE, "verstak-bridge.mjs");
-  assert.equal(tool("stand"), "verstak_stand");
-  assert.equal(DEFAULT_SERVER_URL, "https://mcp.verstak.ai/");
+  // The build values; this process may run under a machine's config.json, so the live
+  // ones are held to the build only in the bridge's black-box suite.
+  assert.equal(BUILD_TOOL_PREFIX, "verstak_");
+  assert.equal(tool("stand"), `${TOOL_PREFIX}stand`);
+  assert.equal(BUILD_SERVER_URL, "https://mcp.verstak.ai/");
   assert.equal(STRUCTURED_CAPABILITY, "verstak/structured");
   assert.equal(serverProtocol.refusal, "verstak/refusal");
   assert.equal(FRAME_MARK, "[verstak]");
@@ -92,7 +102,7 @@ test("the names our skills write stay the bridge's names", () => {
 test("one language, whatever the server", () => {
   assert.deepEqual([...LANGS], ["en"]);
   assert.equal(DEFAULT_LANG, "en");
-  for (const url of [DEFAULT_SERVER_URL, "https://example.org/mcp", "not a url"])
+  for (const url of [BUILD_SERVER_URL, "https://example.org/mcp", "not a url"])
     assert.equal(langOfServer(url), "en");
 });
 
@@ -121,4 +131,21 @@ test("the launch line has this delivery's own word: the sibling's line does not 
     spelled.filter((s) => !s.endsWith(`: ${LAUNCH_WORD}`)),
     [],
   );
+});
+
+test("config.json keeps what is valid and says every refusal", () => {
+  const said = [];
+  const say = (w) => said.push(w);
+  assert.deepEqual(parseConfig('{"server":"https://x.example/mcp","tool_prefix":"kit_"}', say), {
+    server: "https://x.example/mcp",
+    tool_prefix: "kit_",
+  });
+  assert.deepEqual(said, []);
+  assert.deepEqual(parseConfig("[]", say), {});
+  assert.deepEqual(parseConfig('{"tool_prefix":"kit","server":"https://ok.example/","x":1}', say), {
+    server: "https://ok.example/",
+  });
+  assert.equal(said.length, 3, said.join("\n"));
+  assert.match(said[1], /unknown key "x"/);
+  assert.match(said[2], /"tool_prefix" must match/);
 });

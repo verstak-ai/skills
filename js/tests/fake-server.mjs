@@ -16,6 +16,7 @@ const token = (p) => `${p}-${b64url(randomBytes(9))}`;
 export async function startFakeServer(opts = {}) {
   const st = {
     accessTtl: opts.accessTtl ?? 3600,
+    tools: opts.tools ?? ["verstak_orient"],
     clients: new Map(),
     codes: new Map(),
     access: null,
@@ -201,7 +202,7 @@ export async function startFakeServer(opts = {}) {
         return json(res, 200, {
           jsonrpc: "2.0",
           id: msg.id,
-          result: { tools: [{ name: "verstak_orient" }] },
+          result: { tools: st.tools.map((name) => ({ name })) },
         });
       }
       return json(res, 200, {

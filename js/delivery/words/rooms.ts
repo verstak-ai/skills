@@ -1,6 +1,7 @@
 // Case record kinds and the short frame (ROOM), platform auto records by code (ROOM_AUTO),
 // case links by rel (ROOM_REL), a line's verdict (VERDICT); arguments are ready strings.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface RoomWords {
   said: (author: string) => string;
@@ -58,7 +59,7 @@ export const ROOM: Readonly<Record<Lang, RoomWords>> = {
     closing: (author, endsAt, evidence) =>
       `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
     closingMay: (entryId) =>
-      `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
+      `you may object — ${tool("case")}(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,

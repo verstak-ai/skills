@@ -1,5 +1,6 @@
 // Subcommands (CLI): --help, the home alignment line, update, use.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface CliWords {
   usage: (build: string, rituals: string) => string;
@@ -27,7 +28,7 @@ export const CLI: Readonly<Record<Lang, CliWords>> = {
     usage: (build, rituals) => `verstak ${build}
   node verstak-bridge.mjs [bridge] [server-url] [--timeout <ms>] [--auth-dir <dir>] [--no-browser] [--debug] [--satellite] [--tools <a,b,c>]
       (--satellite — the bridge of a subagent run from an agent file: only the satellite seat <caller's seat>.sub-N)
-      (--tools — which tools the harness sees, verstak_stand always; without the flag — all)
+      (--tools — which tools the harness sees, ${tool("stand")} always; without the flag — all)
   node verstak-bridge.mjs watchdog [key] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs watchdog-exit [key] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs watchdog-codex [key] [--auth-dir <dir>] [--lang en]   (from the Codex shell: CODEX_THREAD_ID, CODEX_HOME)
