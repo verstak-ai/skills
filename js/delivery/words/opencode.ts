@@ -1,6 +1,7 @@
 // The OpenCode plugin (OPENCODE): door, the tools half, the bridge state tool, slash
 // commands, frame attachment.
 import type { Lang } from "../lang.ts";
+import { tool, TOOL_PREFIX } from "../protocol.ts";
 
 export interface OpencodeWords {
   channelDown: (message: string) => string;
@@ -61,7 +62,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       `Verstak: reading the delivery's skill files did not open — ${message}`,
     hearingLost: (hhmm, message) =>
       `Verstak: hearing lost at ${hhmm} — the standing's bridge exited (${message}). ` +
-      "The hearing watchdog raises the bridge and returns the seat from disk; if you will not wait — verstak_stand.",
+      `The hearing watchdog raises the bridge and returns the seat from disk; if you will not wait — ${tool("stand")}.`,
     fromCache: () => "from the previous list",
     fromServer: () => "from the server",
     cached: (n) => `Verstak: tools from the previous list: ${n}; checking with the server.`,
@@ -73,8 +74,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     idleShort: (idle, watch) =>
       `VERSTAK_BRIDGE_IDLE_MS (${idle}) is not longer than the hearing watchdog's tact (${watch}): a slot may be reaped before its seat returns`,
     statusDescription: () =>
-      "State of the Verstak bridge in this OpenCode session: whether sign-in is done, the authorization address, how many verstak_* tools are up. " +
-      "Call it when there are no verstak_* tools or they answer with a sign-in refusal.",
+      `State of the Verstak bridge in this OpenCode session: whether sign-in is done, the authorization address, how many ${TOOL_PREFIX}* tools are up. ` +
+      `Call it when there are no ${TOOL_PREFIX}* tools or they answer with a sign-in refusal.`,
     statusBridge: (path) => `bridge: ${path}`,
     statusLoginPending: (open, elsewhere) =>
       `sign-in: NOT DONE — ${open}. ` +
@@ -83,7 +84,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     finishInBrowser: () => "finish the sign-in in the browser",
     statusLoginDone: () => "sign-in: done, the server answers",
     statusLoginWaiting: () => "sign-in: the bridge has not answered yet (handshake in progress)",
-    statusTools: (n, source) => `verstak_* tools: ${n} (${source})`,
+    statusTools: (n, source) => `${TOOL_PREFIX}* tools: ${n} (${source})`,
     statusBridges: (live, sessions) => `live bridges: ${live}, sessions with a bridge: ${sessions}`,
     commandHead: (id) =>
       `Load the skill \`${id}\` with the \`skill\` tool (id: \`${id}\`) and act strictly by it. ` +
@@ -102,7 +103,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
     childGone: (frame, id, text) =>
       `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; ` +
-      `the frame stays in the standing's history (verstak_channel history); the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
+      `the frame stays in the standing's history (${tool("channel")} history); the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
     sessionClosed: (id, frame) =>
       `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
     nowhere: (frame, text) =>

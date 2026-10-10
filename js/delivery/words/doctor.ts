@@ -1,6 +1,14 @@
 // doctor (DOCTOR): build, home, server, grant, release, harness plugins, the machine
 // daemon.
+import {
+  BUILD_TOOL_PREFIX,
+  CONFIG_SERVER,
+  configPath,
+  DEFAULT_SERVER_URL,
+  TOOL_PREFIX,
+} from "../config.ts";
 import type { Lang } from "../lang.ts";
+import { BUILD_SERVER_URL } from "../product.ts";
 
 export interface DoctorWords {
   title: (build: string) => string;
@@ -97,11 +105,14 @@ export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
     },
     srcArgument: () => "launch argument",
     srcEnv: () => "the VERSTAK_BRIDGE_URL variable",
-    srcFile: (p) => `choice file ${p}`,
-    srcDefault: (p) => `the default; to change — node <bridge> use en | <url>, file ${p}`,
+    srcFile: (p) =>
+      `choice file ${p}${CONFIG_SERVER ? ` — it shadows "server" in ${configPath()}; delete the choice file to let config.json apply` : ""}`,
+    srcDefault: (p) =>
+      `the default${DEFAULT_SERVER_URL === BUILD_SERVER_URL ? "" : ` from ${configPath()}`}; to change — node <bridge> use en | <url>, file ${p}`,
     freshProd: () => "production address: self-update from the delivery releases is on",
     freshOther: () => "another instance: there are no updates from the delivery releases",
-    server: (url, source) => `server: ${url} (${source})`,
+    server: (url, source) =>
+      `server: ${url} (${source})\n  tool prefix: ${TOOL_PREFIX} (${TOOL_PREFIX === BUILD_TOOL_PREFIX ? "the build's" : `from ${configPath()}`}; read at process start — a running daemon keeps its own)`,
     unreachable: (why) => `  unreachable: ${why}`,
     wantsOAuth: () => " (asks for OAuth)",
     noTokenProbe: () => " (a probe without a token — a refusal is expected)",

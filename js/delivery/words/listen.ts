@@ -1,6 +1,7 @@
 // The bridge block in connect and verstak_stand answers (LISTEN): the own-harness listening
 // line, watchdog commands; watchdog flags as a ready string.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface ListenWords {
   block: (listen: string) => string;
@@ -20,7 +21,7 @@ export const LISTEN: Readonly<Record<Lang, ListenWords>> = {
       `[verstak-bridge] The bridge holds this standing's socket — there is no one to hand it to` +
       ` (a line above saying no one listens describes the moment before this holding).` +
       `\n${listen}` +
-      `\nBusy line: verstak_stand(realm, status) on this seat — an empty status clears it.` +
+      `\nBusy line: ${tool("stand")}(realm, status) on this seat — an empty status clears it.` +
       `\nFrames also come as MCP notifications (logger verstak-channel).`,
     unheard: (listen) =>
       `[verstak-bridge] No watchdog is attached to this seat — frames pile up. ${listen}`,

@@ -1,6 +1,7 @@
 // The verstak_stand answer (STAND): refusals, header, the seat's move, hello, knock; the
 // board header comes as an argument (BOARD_HEADER).
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface StandWords {
   needRealmKarta: (tail: string) => string;
@@ -53,7 +54,7 @@ const left = (window: number, waited: number): number => Math.ceil((window - wai
 export const STAND: Readonly<Record<Lang, StandWords>> = {
   en: {
     needRealmKarta: (tail) =>
-      "Refused (bridge): verstak_stand needs realm and karta — the graph and the role from AGENTS.md or the launch line." +
+      `Refused (bridge): ${tool("stand")} needs realm and karta — the graph and the role from AGENTS.md or the launch line.` +
       tail,
     badCwd: (cwd, relative) =>
       `Refused (bridge): cwd must be an existing absolute directory — got "${cwd}"${relative ? " (a relative path would resolve against the bridge's cwd, not the session's)" : ""}.`,
@@ -65,7 +66,7 @@ export const STAND: Readonly<Record<Lang, StandWords>> = {
     noModel: () =>
       "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) =>
-      `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: verstak_channel(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
+      `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: ${tool("channel")}(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
     boardUnknown: (start, own, others) =>
       `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
@@ -85,7 +86,7 @@ export const STAND: Readonly<Record<Lang, StandWords>> = {
     howOwnSession: () =>
       "this session's own seat — taken back: a former bridge of this same harness session held it, connect (the socket is now this bridge's, the former one got 4000) and register",
     otherHolder: (holder) =>
-      `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: verstak_stand without name or with another name.`,
+      `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: ${tool("stand")} without name or with another name.`,
     howRegister: () => "this bridge already holds the socket — register",
     ttlRefused: (ttl, text) =>
       `The contour refused the ${ttl} s idle window (${text}) — the seat is taken with the contour's default window.`,
@@ -99,8 +100,8 @@ export const STAND: Readonly<Record<Lang, StandWords>> = {
             : "the seat was there — connect (the socket is now this bridge's) and register"
         : "connect and register",
     head: (place, karta, realm, how) =>
-      `[verstak_stand] standing ${place} — role #${karta}, graph ${realm}: ${how}.`,
-    note: (text) => `[verstak_stand] ${text}`,
+      `[${tool("stand")}] standing ${place} — role #${karta}, graph ${realm}: ${how}.`,
+    note: (text) => `[${tool("stand")}] ${text}`,
     noWatchdog: () =>
       "No watchdog command: the bridge does not hold this seat's socket yet — this session takes no frames and no invitations until the seat is back.",
     noSocket: () =>

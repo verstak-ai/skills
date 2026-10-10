@@ -64,12 +64,13 @@ export const CLIENTS = {
 
 /**
  * Server addresses. One production address; the core names it as its English one.
- * The endpoint is the root path.
+ * The endpoint is the root path. The default the bridge goes to is DEFAULT_SERVER_URL
+ * (config.ts): this build address unless the machine's config.json names another.
  */
 export const SERVER_URLS: Readonly<Record<Lang, string>> = {
   en: "https://mcp.verstak.ai/",
 };
-export const DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+export const BUILD_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
 
 /**
  * The `node -e` code of the one satellite-bridge entry form: home path from homedir,

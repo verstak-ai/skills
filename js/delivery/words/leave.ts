@@ -1,6 +1,7 @@
 // Leaving a seat and returning to it (LEAVE): the outcome, leave refusals, deafness; seat
 // keys as one string joined by ", ".
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface LeaveWords {
   notHolding: () => string;
@@ -31,12 +32,12 @@ export const LEAVE: Readonly<Record<Lang, LeaveWords>> = {
     seats: (keys) => `the seats ${keys} (they share the channel socket)`,
     seat: (key) => `the seat ${key}`,
     leftByWord: (which, line) =>
-      `left ${which}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up; the seat is released by word and will not return by itself — to bring it back: verstak_stand with the same name`,
+      `left ${which}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up; the seat is released by word and will not return by itself — to bring it back: ${tool("stand")} with the same name`,
     left: (which, line) =>
-      `left ${which}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up and arrives on return (the watchdog or verstak_stand)`,
+      `left ${which}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up and arrives on return (the watchdog or ${tool("stand")})`,
     satelliteReleased: () => "the satellite seat is released whole",
     leftSatellite: (place, line) =>
-      `left the satellite seat ${place}: the socket is closed, ${line}; the seat is released whole — neither the watchdog nor a return will raise it; to stand again — verstak_stand with satellite_of`,
+      `left the satellite seat ${place}: the socket is closed, ${line}; the seat is released whole — neither the watchdog nor a return will raise it; to stand again — ${tool("stand")} with satellite_of`,
     returned: (how, status) =>
       `the bridge is back on the seat (${how}) — the socket is reopened at the same address${status ? `, busyness "${status}" restored` : ""}`,
     noHello: () =>

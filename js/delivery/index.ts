@@ -1,6 +1,7 @@
 // The delivery layer: the core (js/) takes everything that tells this delivery
-// apart through this one path. Order is by file path: language, server prose forms
+// apart through this one path. Order is by file path: the machine's config, language, server prose forms
 // (patterns/), product name, protocol, version, words (words/).
+export { DEFAULT_SERVER_URL } from "./config.ts";
 export { DEFAULT_LANG, type Lang, langOfServer, LANGS } from "./lang.ts";
 export { BOARD_FORM, BOARD_HEADER } from "./patterns/board.ts";
 export { CASE_EXIT_CLOSED } from "./patterns/caseexit.ts";
@@ -15,7 +16,6 @@ export {
   BRIDGE_SKILL,
   CLIENTS,
   CONNECTOR_PATTERN,
-  DEFAULT_SERVER_URL,
   ENV_PREFIX,
   envName,
   GLOBAL_PREFIX,
