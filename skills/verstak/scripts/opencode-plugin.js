@@ -1,17 +1,14 @@
+// js/delivery/config.ts
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
 // js/delivery/lang.ts
 var LANGS = ["en"];
 var DEFAULT_LANG = "en";
 function langOfServer(_url) {
   return "en";
 }
-
-// js/delivery/patterns/launch.ts
-var LAUNCH_WORD = "verstak";
-var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
-  "mu"
-);
 
 // js/delivery/product.ts
 var PRODUCT = "verstak";
@@ -35,10 +32,76 @@ var CLIENTS = {
 var SERVER_URLS = {
   en: "https://mcp.verstak.ai/"
 };
-var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+var BUILD_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+
+// js/delivery/config.ts
+var BUILD_TOOL_PREFIX = `${PRODUCT}_`;
+var CONFIG_FILE = "config.json";
+var configPath = () => join(process.env[envName("BRIDGE_AUTH_DIR")]?.trim() || join(homedir(), HOME_DIR), CONFIG_FILE);
+var PREFIX_RE = /^[a-z][a-z0-9-]{0,30}_$/;
+var KEYS = /* @__PURE__ */ new Set(["server", "tool_prefix"]);
+var warn = (path, what) => {
+  process.stderr.write(`${BRIDGE_NAME}: ${path}: ${what}
+`);
+};
+function parseConfig(text, say) {
+  let raw;
+  try {
+    raw = JSON.parse(text);
+  } catch (e) {
+    say(`not JSON (${e.message}) — build defaults are used`);
+    return {};
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    say("not a JSON object — build defaults are used");
+    return {};
+  }
+  const o = raw;
+  const out2 = {};
+  for (const k of Object.keys(o)) if (!KEYS.has(k)) say(`unknown key "${k}" ignored`);
+  if (o.server !== void 0) {
+    let url = null;
+    try {
+      url = typeof o.server === "string" ? new URL(o.server) : null;
+    } catch {
+    }
+    if (url && (url.protocol === "https:" || url.protocol === "http:")) out2.server = url.href;
+    else say(`"server" is not an http(s) URL — the build address ${BUILD_SERVER_URL} is used`);
+  }
+  if (o.tool_prefix !== void 0) {
+    if (typeof o.tool_prefix === "string" && PREFIX_RE.test(o.tool_prefix))
+      out2.tool_prefix = o.tool_prefix;
+    else
+      say(
+        `"tool_prefix" must match ${PREFIX_RE} (e.g. "${BUILD_TOOL_PREFIX}") — the build prefix ${BUILD_TOOL_PREFIX} is used`
+      );
+  }
+  return out2;
+}
+function readConfig() {
+  const path = configPath();
+  let text;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch {
+    return {};
+  }
+  return parseConfig(text, (what) => warn(path, what));
+}
+var CONFIG = readConfig();
+var CONFIG_SERVER = CONFIG.server ?? null;
+var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
+var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
+
+// js/delivery/patterns/launch.ts
+var LAUNCH_WORD = "verstak";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "mu"
+);
 
 // js/delivery/protocol.ts
-var TOOL_PREFIX = `${PRODUCT}_`;
 var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
@@ -47,7 +110,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "3.1.0";
+var VERSION = "3.2.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -103,7 +166,7 @@ var CASE_LINE = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join9) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat verstak_stand and enter case #${no}: ${join9}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join10) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join10}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -117,21 +180,21 @@ var LEAD = {
   en: {
     cancelled: () => "its turn was cancelled in OpenCode (by the user or the launcher)",
     cancelledRefusal: () => "its turn was cancelled in OpenCode",
-    cascade: (who) => `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases and waits for frames of its case. To go on — a word into its case; to release it — verstak_channel(action="revoke", standing="${who}").`,
+    cascade: (who) => `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases and waits for frames of its case. To go on — a word into its case; to release it — ${tool("channel")}(action="revoke", standing="${who}").`,
     placeEvicted: () => "its satellite seat was evicted by another holder",
     placeClosed: () => "its satellite seat was revoked not through the launcher or closed by the platform (4001)",
     placeEvictedRefusal: () => "its satellite seat was evicted by another holder",
     placeClosedRefusal: () => "its satellite seat was revoked or closed by the platform (4001)",
     end: (who, why, done, said) => `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}The outcome is its last word:
 ${said || "(it left no text — see its case)"}`,
-    endKept: (who, kept2) => `${keptEn(who, kept2)}; to revoke it — verstak_channel(action="revoke", standing="${kept2}"), only on the user's word. `,
+    endKept: (who, kept2) => `${keptEn(who, kept2)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept2}"), only on the user's word. `,
     endPlain: () => "the subagent's bridge goes down: it leaves its cases, its seat is revoked (if it is not, I will say so separately). ",
     keptLine: keptEn,
     keptSaid: (who, place) => `Verstak: ${keptEn(who, place)}`,
-    unrevokedUnknown: (who) => `Verstak: the bridge of subagent ${who} is down; whether it revoked its seat it did not answer: if it is left on the board — revoke it with verstak_channel(action="revoke").`,
-    unrevoked: (who, places, first) => `Verstak: subagent ${who}'s seat was not revoked (network): ${places} — revoke it with verstak_channel(action="revoke", standing="${first}").`,
-    turn: (place) => `Verstak: subagent ${place} handed over a turn, not the errand — it goes on and waits for frames of its case; the outcome lands here at its end. To release it earlier — verstak_channel(action="revoke", standing="${place}").`,
-    notice: (child, place) => `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> is the end of a TURN of subagent ${place}, not of the errand: it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. To release it earlier — verstak_channel(action="revoke", standing="${place}").`,
+    unrevokedUnknown: (who) => `Verstak: the bridge of subagent ${who} is down; whether it revoked its seat it did not answer: if it is left on the board — revoke it with ${tool("channel")}(action="revoke").`,
+    unrevoked: (who, places, first) => `Verstak: subagent ${who}'s seat was not revoked (network): ${places} — revoke it with ${tool("channel")}(action="revoke", standing="${first}").`,
+    turn: (place) => `Verstak: subagent ${place} handed over a turn, not the errand — it goes on and waits for frames of its case; the outcome lands here at its end. To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
+    notice: (child, place) => `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> is the end of a TURN of subagent ${place}, not of the errand: it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) => `Verstak: subagent ${who} is released — its bridge is down: it leaves its cases and revokes its seat itself; the outcome landed here as a synthetic message.`,
     released: () => "Verstak: the launcher released you — the errand is over, the seat is revoked, you are taken out of the cases; standing again is not possible, write nothing more into the graph or cases.",
     away: (who, last) => `Verstak: subagent ${who} was taken down by the parent's move to another folder — the errand here ended not by its outcome, there will be no "ENDED": its bridge goes down: it leaves its cases, its seat is revoked; its session stayed in the previous folder. Its last word:
@@ -152,14 +215,14 @@ ${last || "(it left no text — see its case)"}`,
     reloadNoKey: () => "plugin reload, no seat key",
     reloadNotBack: () => "plugin reload, the satellite seat did not return by its key",
     identity: (name, action) => `Refused (plugin): ${name}${act(action)} is the user's identity, and the child session has no seat of its own: it does not get it through the root's bridge. The graph and cases can be read; who you are — ask the launcher.`,
-    writeUnderParent: (name, of) => `Refused (plugin): a child session writes only with its own satellite seat — ${name} would go under the parent's seat ${of}. Stand: verstak_stand(realm, karta, satellite_of="${of}"), then repeat; reading works as is.`,
+    writeUnderParent: (name, of) => `Refused (plugin): a child session writes only with its own satellite seat — ${name} would go under the parent's seat ${of}. Stand: ${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat; reading works as is.`,
     writeNoParent: () => "Refused (plugin): a child session writes only with its own satellite seat, and the parent's seat is unknown — the root holds no seat. It cannot have a seat of its own; reading works as is, writing — by a word to the launcher.",
     finalRefusal: (why, name) => `Refused (plugin): ${why} — the errand is over, the seat is revoked; ${name} goes neither with its seat nor with the launcher's, and standing again is not possible.`,
     releasedChild: () => "the launcher released this child session",
     endedChild: () => "this child session has ended",
     endedSatellite: () => "this child session has ended, its satellite seat is released",
     launcherSeat: () => "<the launcher's seat>",
-    endedRefusal: (why, name, action, of) => `Refused (plugin): ${why} — ${name}${act(action)} would go with the launcher's bridge and seat. Stand again: verstak_stand(realm, karta, satellite_of="${of}"), then repeat the call.`,
+    endedRefusal: (why, name, action, of) => `Refused (plugin): ${why} — ${name}${act(action)} would go with the launcher's bridge and seat. Stand again: ${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat the call.`,
     ask: (who, what) => `Verstak: subagent ${who} is waiting for a permission: ${what}. Only the user can answer this request — in the window of the subagent's session ${who}. You cannot answer it, and no message to the subagent unblocks it. Tell the user what is waiting and where: only they can answer or cancel the subagent's turn.`,
     more: (n2) => ` and ${n2} more`,
     action: () => "action",
@@ -176,7 +239,7 @@ var OPENCODE = {
     commandsDown: (message) => `Verstak: the skill commands did not come up — ${message}`,
     noPermissionHooks: () => "Verstak: this OpenCode has no permission hooks — files of the delivery's skills outside the working copy are read with an ask.",
     skillReadsDown: (message) => `Verstak: reading the delivery's skill files did not open — ${message}`,
-    hearingLost: (hhmm2, message) => `Verstak: hearing lost at ${hhmm2} — the standing's bridge exited (${message}). The hearing watchdog raises the bridge and returns the seat from disk; if you will not wait — verstak_stand.`,
+    hearingLost: (hhmm2, message) => `Verstak: hearing lost at ${hhmm2} — the standing's bridge exited (${message}). The hearing watchdog raises the bridge and returns the seat from disk; if you will not wait — ${tool("stand")}.`,
     fromCache: () => "from the previous list",
     fromServer: () => "from the server",
     cached: (n2) => `Verstak: tools from the previous list: ${n2}; checking with the server.`,
@@ -186,14 +249,14 @@ var OPENCODE = {
     unreadable: () => "unreadable",
     serverChanged: (n2) => `Verstak: the server changed its tools — now ${n2} in the session.`,
     idleShort: (idle, watch) => `VERSTAK_BRIDGE_IDLE_MS (${idle}) is not longer than the hearing watchdog's tact (${watch}): a slot may be reaped before its seat returns`,
-    statusDescription: () => "State of the Verstak bridge in this OpenCode session: whether sign-in is done, the authorization address, how many verstak_* tools are up. Call it when there are no verstak_* tools or they answer with a sign-in refusal.",
+    statusDescription: () => `State of the Verstak bridge in this OpenCode session: whether sign-in is done, the authorization address, how many ${TOOL_PREFIX}* tools are up. Call it when there are no ${TOOL_PREFIX}* tools or they answer with a sign-in refusal.`,
     statusBridge: (path) => `bridge: ${path}`,
     statusLoginPending: (open, elsewhere2) => `sign-in: NOT DONE — ${open}. The address is local: ${elsewhere2} (the verstak skill, its establish-mcp method).`,
     openInBrowser: (url) => `open ${url} in a browser`,
     finishInBrowser: () => "finish the sign-in in the browser",
     statusLoginDone: () => "sign-in: done, the server answers",
     statusLoginWaiting: () => "sign-in: the bridge has not answered yet (handshake in progress)",
-    statusTools: (n2, source) => `verstak_* tools: ${n2} (${source})`,
+    statusTools: (n2, source) => `${TOOL_PREFIX}* tools: ${n2} (${source})`,
     statusBridges: (live, sessions) => `live bridges: ${live}, sessions with a bridge: ${sessions}`,
     commandHead: (id) => `Load the skill \`${id}\` with the \`skill\` tool (id: \`${id}\`) and act strictly by it. The user typed this, not you; their words are below.
 
@@ -209,7 +272,7 @@ var OPENCODE = {
     tact: () => "attention tact",
     tactWaits: () => "Verstak: the attention tact waits for the end of the session's turn",
     tactWaitsFolded: () => "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
-    childGone: (frame, id, text) => `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; the frame stays in the standing's history (verstak_channel history); the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
+    childGone: (frame, id, text) => `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; the frame stays in the standing's history (${tool("channel")} history); the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
     sessionClosed: (id, frame) => `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
     nowhere: (frame, text) => `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; the frame stays in the standing's history — ` + text,
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
@@ -222,16 +285,16 @@ var OPENCODE = {
 // js/delivery/words/opencode-keep.ts
 var OPENCODE_KEEP = {
   en: {
-    resumed: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. Check the name against the one derived for this session: if it is someone else's, release it with verstak_channel(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one verstak_stand; a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.`,
+    resumed: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. Check the name against the one derived for this session: if it is someone else's, release it with ${tool("channel")}(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one ${tool("stand")}; a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.`,
     resumedOwn: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
-    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: hearing and the busy line here hold no seat. Call verstak_stand with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
-    notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries the return once; if you will not wait — verstak_stand.`,
+    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
+    notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries the return once; if you will not wait — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word2) => `Verstak: ${word2}.`,
     sessionResumed: (root, word2) => `Verstak: session ${root} — ${word2}`,
     resumeFailed: (root, message) => `Verstak: returning the seat of session ${root} failed — ${message}`,
-    retryFailed: (place, why) => `Verstak: the seat ${place} did not return on the watchdog's retry either: ${why}. The watchdog no longer raises it by itself — take the seat with verstak_stand.`,
+    retryFailed: (place, why) => `Verstak: the seat ${place} did not return on the watchdog's retry either: ${why}. The watchdog no longer raises it by itself — take the seat with ${tool("stand")}.`,
     noWhy: () => "the bridge did not say why",
     watchResumed: (root, word2) => `Verstak: the hearing watchdog returned the seat of session ${root} — ${word2}`,
     watchReopened: (root, word2) => `Verstak: the hearing watchdog reopened the socket of session ${root} — ${word2}`,
@@ -243,14 +306,14 @@ var OPENCODE_KEEP = {
     noId: (answer, title) => `Verstak: the directory was kept alive, but the service session's id was not parsed from the create answer (${answer}) — it stays a child session of the seat "${title}", remove it by hand`,
     notRemoved: (id) => `Verstak: the directory was kept alive, the service session ${id} was not removed — retrying on the next tact`,
     tickFailed: (message) => `Verstak: the directory keepalive tact failed — ${message}`,
-    lostWord: (hhmm2, where) => `Verstak: hearing was lost at ${hhmm2} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — verstak_stand.`,
+    lostWord: (hhmm2, where) => `Verstak: hearing was lost at ${hhmm2} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — ${tool("stand")}.`,
     movedWhy: (name) => `this child session's errand ended with the parent's move to another folder: its seat${name ? ` ${name}` : ""} is revoked, the bridge is down; a write from here would go under the parent's seat`,
     revokedMoved: (name) => `Verstak: ${name} is a subagent ended by the parent's move: the previous instance put its bridge down and revoked its seat, the outcome reached the parent as the word "moved"; no revoke is needed and none was sent.`,
     twinUp: (dir) => `Verstak: the instance of directory ${dir} was raised again — it returned the seat`,
     markerUntaken: (seconds) => `nobody took the marker of its seats within ${seconds} s`,
     unloaded: (dir, named, why) => `Verstak: directory ${dir} was unloaded with a seat (${named}) and not raised — ${why}`,
     thisSession: () => "of this session",
-    seatLost: (key, dir, why) => `Verstak: the seat ${key} was released — the plugin instance of directory ${dir} was unloaded and did not come up (${why}). Return the seat: verstak_stand.`,
+    seatLost: (key, dir, why) => `Verstak: the seat ${key} was released — the plugin instance of directory ${dir} was unloaded and did not come up (${why}). Return the seat: ${tool("stand")}.`,
     movedAway: (session, dir) => `Verstak: session ${session} was moved to ${dir} — releasing its seat to that folder's instance`,
     takenFromNew: (session) => `Verstak: the seat of session ${session} was taken from its new folder — it was moved`,
     parentMoved: () => "Refused (plugin): this session's parent was moved to another folder — its errand ended with the move, the parent's bridge is not raised here, and it has no seat of its own; this session's work goes on without the graph, or by a word to the launcher.",
@@ -260,7 +323,7 @@ var OPENCODE_KEEP = {
     needLoginError: (open, elsewhere2) => `Verstak: sign-in to the graph is needed — ${open} and repeat the call. The address is local to the OpenCode machine: ${elsewhere2} (the verstak skill, its establish-mcp method).`,
     openAndFinish: (url) => `open ${url} and finish it`,
     finishItInBrowser: () => "finish it in the browser",
-    needLogin: (open, elsewhere2) => `Verstak: sign-in needed — ${open}; the address is local: ${elsewhere2}. The verstak_* tools come up by themselves after sign-in.`,
+    needLogin: (open, elsewhere2) => `Verstak: sign-in needed — ${open}; the address is local: ${elsewhere2}. The ${TOOL_PREFIX}* tools come up by themselves after sign-in.`,
     codeUntil: (link, until) => `${link} (the code is valid until ${until} UTC)`
   }
 };
@@ -268,18 +331,21 @@ var OPENCODE_KEEP = {
 // js/delivery/words/plugin.ts
 var PLUGIN = {
   en: {
-    noBridge: (tried) => "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
+    noBridge: (tried) => `Verstak: the bridge was not found — there will be no ${TOOL_PREFIX}* tools in this session. Looked in: ` + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
     bridgeLine: (line) => `Verstak/bridge: ${line}`,
     notRaised: (message) => `Verstak: the bridge did not come up — ${message}`,
     refusalNoText: (name) => `${name}: refusal without text`,
     relistFailed: (message) => `Verstak: the tool list was not reread after the change on the server — ${message}`,
     listening: () => "Verstak: the channel is listening",
-    dead: (code) => `Verstak: the channel was closed with code ${code} — the token is dead. Call verstak_channel(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
-    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, verstak_stand with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
+    dead: (code) => `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
+    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
     alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
     note: (text) => `Verstak: ${text}`
   }
 };
+
+// js/delivery/words/resume.ts
+var via = tool("stand");
 
 // js/delivery/words/rooms.ts
 var ROOM = {
@@ -294,7 +360,7 @@ var ROOM = {
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
     closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
-    closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
+    closingMay: (entryId) => `you may object — ${tool("case")}(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,
@@ -344,13 +410,13 @@ var VERDICT = {
 };
 
 // js/delivery/words/status.ts
-var TAKE_PATH_EN = `verstak_stand with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: verstak_channel action="?", connect); after the move re-arm the watchdog with the command from the answer`;
-var TWO_ENTRIES_EN = "If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called verstak_stand with: no move is needed.";
+var TAKE_PATH_EN = `${tool("stand")} with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: ${tool("channel")} action="?", connect); after the move re-arm the watchdog with the command from the answer`;
+var TWO_ENTRIES_EN = `If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called ${tool("stand")} with: no move is needed.`;
 var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 
 // js/shared/lang.ts
-import { readFileSync } from "node:fs";
-import { join as join2 } from "node:path";
+import { readFileSync as readFileSync2 } from "node:fs";
+import { join as join3 } from "node:path";
 
 // js/shared/scope.ts
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -398,9 +464,9 @@ function envOf(k) {
 }
 
 // js/shared/standings.ts
-import { homedir } from "node:os";
-import { join, resolve } from "node:path";
-var defaultAuthDir = () => join(homedir(), HOME_DIR);
+import { homedir as homedir2 } from "node:os";
+import { join as join2, resolve } from "node:path";
+var defaultAuthDir = () => join2(homedir2(), HOME_DIR);
 var authDirFromEnv = () => envOf(envName("BRIDGE_AUTH_DIR"))?.trim() || defaultAuthDir();
 
 // js/shared/lang.ts
@@ -415,7 +481,7 @@ function resolve2() {
   const fromEnv = envOf(envName("BRIDGE_URL"))?.trim();
   if (fromEnv) return langOfServer(fromEnv);
   try {
-    const text = readFileSync(join2(authDirFromEnv(), "server"), "utf8").trim();
+    const text = readFileSync2(join3(authDirFromEnv(), "server"), "utf8").trim();
     if (text) return langOfServer(text);
   } catch {
   }
@@ -1091,8 +1157,8 @@ async function enterCase(l, call, satelliteOf, placeName) {
     await call(tool("stand"), stand);
   } catch (e) {
     const why = e.message;
-    const join9 = `${tool("case")}(action="join", room="${room}")`;
-    return W4.notSeated(why, l.no, join9);
+    const join10 = `${tool("case")}(action="join", room="${room}")`;
+    return W4.notSeated(why, l.no, join10);
   }
   const place = placeName() || W4.ownSeat();
   try {
@@ -1106,9 +1172,9 @@ async function enterCase(l, call, satelliteOf, placeName) {
 // js/shared/seen.ts
 var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
 function eventKeyOf(frame) {
-  const via = frame?.provenance?.via;
-  if (via === "room") return evOf(frame?.event_id);
-  if (via !== "graph") return "";
+  const via2 = frame?.provenance?.via;
+  if (via2 === "room") return evOf(frame?.event_id);
+  if (via2 !== "graph") return "";
   const body = frame?.body;
   if (!body || typeof body !== "object" || Array.isArray(body)) return "";
   return evOf(body.event_id);
@@ -1144,11 +1210,11 @@ var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
 
 // js/shared/version.ts
 import { createHash } from "node:crypto";
-import { readFileSync as readFileSync2 } from "node:fs";
+import { readFileSync as readFileSync3 } from "node:fs";
 import { fileURLToPath } from "node:url";
 function buildOf(selfUrl) {
   try {
-    const src = readFileSync2(fileURLToPath(selfUrl));
+    const src = readFileSync3(fileURLToPath(selfUrl));
     return `v${VERSION}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
     return `v${VERSION}`;
@@ -1156,7 +1222,7 @@ function buildOf(selfUrl) {
 }
 function buildOfFile(path) {
   try {
-    const src = readFileSync2(path);
+    const src = readFileSync3(path);
     const v = versionIn(src.toString("utf8")) ?? "?";
     return `v${v}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
@@ -1540,18 +1606,18 @@ function resultToContent(result) {
 
 // js/opencode/marker.ts
 import { createHash as createHash2 } from "node:crypto";
-import { mkdirSync, readdirSync, readFileSync as readFileSync4, statSync, unlinkSync, writeFileSync } from "node:fs";
-import { join as join3 } from "node:path";
+import { mkdirSync, readdirSync, readFileSync as readFileSync5, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { join as join4 } from "node:path";
 
 // js/opencode/procstart.ts
 import { execFileSync } from "node:child_process";
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync4 } from "node:fs";
 var CLK_TCK = 100;
 function linuxStart(pid) {
-  const stat = readFileSync3(`/proc/${pid}/stat`, "utf8");
+  const stat = readFileSync4(`/proc/${pid}/stat`, "utf8");
   const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
   const ticks = Number(fields[19]);
-  const btime = Number(/^btime (\d+)$/m.exec(readFileSync3("/proc/stat", "utf8"))?.[1]);
+  const btime = Number(/^btime (\d+)$/m.exec(readFileSync4("/proc/stat", "utf8"))?.[1]);
   return Number.isFinite(ticks) && btime ? (btime + ticks / CLK_TCK) * 1e3 : null;
 }
 function psStart(pid) {
@@ -1616,7 +1682,7 @@ function writeLostMarker(authDir2, slots, home) {
     const lost = { at: (/* @__PURE__ */ new Date()).toISOString(), entries };
     const rand = Math.random().toString(36).slice(2, 8);
     const name = `${PREFIX}.@${tagOf(home)}.${process.pid}.${rand}.json`;
-    writeFileSync(join3(authDir2, name), JSON.stringify(lost), { mode: 384 });
+    writeFileSync(join4(authDir2, name), JSON.stringify(lost), { mode: 384 });
     return entries;
   } catch {
     return [];
@@ -1625,7 +1691,7 @@ function writeLostMarker(authDir2, slots, home) {
 function markerWaits(authDir2, home) {
   try {
     return readdirSync(authDir2).some(
-      (f) => f.startsWith(`${PREFIX}.@${tagOf(home)}.`) && !otherLive(f, join3(authDir2, f))
+      (f) => f.startsWith(`${PREFIX}.@${tagOf(home)}.`) && !otherLive(f, join4(authDir2, f))
     );
   } catch {
     return false;
@@ -1640,7 +1706,7 @@ function readOwn(path, tag, home) {
   };
   let lost = null;
   try {
-    const text = readFileSync4(path, "utf8");
+    const text = readFileSync5(path, "utf8");
     if (tag !== null) drop();
     lost = JSON.parse(text);
   } catch {
@@ -1665,8 +1731,8 @@ function takeLostMarker(authDir2, home) {
   for (const f of files) {
     const tag = tagIn(f);
     if (tag !== null && tag !== mine) continue;
-    if (otherLive(f, join3(authDir2, f))) continue;
-    const lost = readOwn(join3(authDir2, f), tag, home);
+    if (otherLive(f, join4(authDir2, f))) continue;
+    const lost = readOwn(join4(authDir2, f), tag, home);
     const stale = !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS);
     for (const e of lost?.entries ?? []) {
       if (!e?.session || seen.has(e.session) || e.moved && stale) continue;
@@ -1733,21 +1799,21 @@ import {
   constants,
   mkdirSync as mkdirSync2,
   readdirSync as readdirSync3,
-  readFileSync as readFileSync5,
+  readFileSync as readFileSync6,
   statSync as statSync3,
   writeFileSync as writeFileSync2
 } from "node:fs";
-import { homedir as homedir3 } from "node:os";
-import { join as join6, resolve as resolve3 } from "node:path";
+import { homedir as homedir4 } from "node:os";
+import { join as join7, resolve as resolve3 } from "node:path";
 
 // js/shared/home.ts
-import { homedir as homedir2 } from "node:os";
-import { join as join4 } from "node:path";
-var homeBridgePath = () => join4(homedir2(), HOME_DIR, HOME_BRIDGE_FILE);
+import { homedir as homedir3 } from "node:os";
+import { join as join5 } from "node:path";
+var homeBridgePath = () => join5(homedir3(), HOME_DIR, HOME_BRIDGE_FILE);
 
 // js/opencode/devicewait.ts
 import { readdirSync as readdirSync2, statSync as statSync2 } from "node:fs";
-import { join as join5 } from "node:path";
+import { join as join6 } from "node:path";
 var UNTIL = /valid until (\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) UTC/;
 function deviceOf(message) {
   const link = /from another device: (\S+)/.exec(message)?.[1];
@@ -1761,7 +1827,7 @@ function loginStamp(dir) {
       (f) => f.endsWith(".auth-pending") || f.endsWith(".auth-pending.device")
     );
     if (!files.some((f) => f.endsWith(".auth-pending"))) return null;
-    return files.map((f) => `${f}:${statSync2(join5(dir, f)).mtimeMs}`).sort().join("|");
+    return files.map((f) => `${f}:${statSync2(join6(dir, f)).mtimeMs}`).sort().join("|");
   } catch {
     return null;
   }
@@ -1804,15 +1870,15 @@ function buildsLine(bridgePath, pluginUrl) {
   return W4.builds(buildOfFile(bridgePath) ?? W4.unreadable(), buildOf(pluginUrl));
 }
 function authDir() {
-  return process.env[envName("BRIDGE_AUTH_DIR")] || join6(homedir3(), HOME_DIR);
+  return process.env[envName("BRIDGE_AUTH_DIR")] || join7(homedir4(), HOME_DIR);
 }
 function cachePath() {
-  return join6(authDir(), "opencode-tools.json");
+  return join7(authDir(), "opencode-tools.json");
 }
 function grantStamp() {
   const dir = authDir();
   try {
-    return readdirSync3(dir).filter((f) => f.endsWith(".json") && f !== "opencode-tools.json").map((f) => `${f}:${statSync3(join6(dir, f)).mtimeMs}`).sort().join("|");
+    return readdirSync3(dir).filter((f) => f.endsWith(".json") && f !== "opencode-tools.json").map((f) => `${f}:${statSync3(join7(dir, f)).mtimeMs}`).sort().join("|");
   } catch {
     return "";
   }
@@ -1820,7 +1886,7 @@ function grantStamp() {
 var sleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
 function readCache() {
   try {
-    const list = JSON.parse(readFileSync5(cachePath(), "utf8"));
+    const list = JSON.parse(readFileSync6(cachePath(), "utf8"));
     return Array.isArray(list) && list.length ? list : null;
   } catch {
     return null;
@@ -1828,7 +1894,7 @@ function readCache() {
 }
 function writeCache(tools) {
   try {
-    mkdirSync2(join6(cachePath(), ".."), { recursive: true, mode: 448 });
+    mkdirSync2(join7(cachePath(), ".."), { recursive: true, mode: 448 });
     writeFileSync2(cachePath(), JSON.stringify(tools), { mode: 384 });
   } catch {
   }
@@ -2108,13 +2174,13 @@ var createHandoff = (d) => (session, to, home) => {
 
 // js/opencode/skillread.ts
 import { existsSync as existsSync2, lstatSync, readdirSync as readdirSync4, realpathSync as realpathSync3 } from "node:fs";
-import { homedir as homedir5 } from "node:os";
-import { basename as basename3, dirname as dirname2, isAbsolute, join as join8, relative, resolve as resolve5 } from "node:path";
+import { homedir as homedir6 } from "node:os";
+import { basename as basename3, dirname as dirname2, isAbsolute, join as join9, relative, resolve as resolve5 } from "node:path";
 
 // js/shared/skilllock.ts
-import { existsSync, readFileSync as readFileSync6, realpathSync as realpathSync2 } from "node:fs";
-import { homedir as homedir4 } from "node:os";
-import { basename as basename2, dirname, join as join7, resolve as resolve4 } from "node:path";
+import { existsSync, readFileSync as readFileSync7, realpathSync as realpathSync2 } from "node:fs";
+import { homedir as homedir5 } from "node:os";
+import { basename as basename2, dirname, join as join8, resolve as resolve4 } from "node:path";
 var canon = (p) => {
   try {
     return realpathSync2(p);
@@ -2124,11 +2190,11 @@ var canon = (p) => {
 };
 function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
   const places = [];
-  if (stateHome && canon(root) === canon(join7(homedir4(), ".agents", "skills")))
-    places.push(join7(stateHome, "skills", ".skill-lock.json"));
-  places.push(join7(dirname(root), ".skill-lock.json"));
+  if (stateHome && canon(root) === canon(join8(homedir5(), ".agents", "skills")))
+    places.push(join8(stateHome, "skills", ".skill-lock.json"));
+  places.push(join8(dirname(root), ".skill-lock.json"));
   if (basename2(root) === "skills" && basename2(dirname(root)) === ".agents")
-    places.push(join7(dirname(dirname(root)), "skills-lock.json"));
+    places.push(join8(dirname(dirname(root)), "skills-lock.json"));
   return places;
 }
 var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
@@ -2136,7 +2202,7 @@ function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
   const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
   if (!place) return null;
   try {
-    const lock = JSON.parse(readFileSync6(place, "utf8"));
+    const lock = JSON.parse(readFileSync7(place, "utf8"));
     return lock.skills ?? {};
   } catch {
     return null;
@@ -2166,7 +2232,7 @@ function canonReach(p) {
   let at = p;
   for (; ; ) {
     const c = canon2(at);
-    if (c) return tail2.length ? join8(c, ...tail2.reverse()) : c;
+    if (c) return tail2.length ? join9(c, ...tail2.reverse()) : c;
     if (!absent(at)) return null;
     const name = basename3(at);
     const up = dirname2(at);
@@ -2187,7 +2253,7 @@ function bridgeRoot(s) {
   const path = typeof s?.path === "string" ? s.path : null;
   if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute(path)) return null;
   const dir = dirname2(path);
-  if (basename3(dir) !== BRIDGE_SKILL || !existsSync2(join8(dir, "scripts", BRIDGE_FILE))) return null;
+  if (basename3(dir) !== BRIDGE_SKILL || !existsSync2(join9(dir, "scripts", BRIDGE_FILE))) return null;
   return dirname2(dir);
 }
 async function skillDirs(ctx) {
@@ -2230,7 +2296,7 @@ function leadsOut(dir) {
     }
     for (const e of entries) {
       if (++seen > WALK) return true;
-      const p = join8(d, e.name);
+      const p = join9(d, e.name);
       if (e.isSymbolicLink()) {
         const c = canon2(p);
         if (!c || !within(c, dir)) return true;
@@ -2240,7 +2306,7 @@ function leadsOut(dir) {
   return false;
 }
 function absolute(p, base) {
-  if (p === "~" || p.startsWith("~/")) return join8(homedir5(), p.slice(1));
+  if (p === "~" || p.startsWith("~/")) return join9(homedir6(), p.slice(1));
   if (isAbsolute(p)) return p;
   return base ? resolve5(base, p) : null;
 }
@@ -3730,7 +3796,7 @@ function setupChannel(ctx, say, freshestRoot) {
 }
 
 // js/opencode/commands.ts
-import { readFileSync as readFileSync7, realpathSync as realpathSync4 } from "node:fs";
+import { readFileSync as readFileSync8, realpathSync as realpathSync4 } from "node:fs";
 import { dirname as dirname3 } from "node:path";
 function slashOf(markdown) {
   if (!markdown.startsWith("---")) return false;
@@ -3769,7 +3835,7 @@ function skillCommands(list) {
     if (source && skillLock(root)?.[id]?.source !== source) continue;
     let text;
     try {
-      text = readFileSync7(path, "utf8");
+      text = readFileSync8(path, "utf8");
     } catch {
       continue;
     }
