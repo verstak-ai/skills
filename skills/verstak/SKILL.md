@@ -26,6 +26,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 1. **Addresses.** Graph, agent role, owner role: from `AGENTS.md`, the start hook, `start <graph> <role> <seat address>`, or the window's paste line (`Graph: … Seat address: … Chat: …`) — the last two win. A bare slug is no address (**entry**, Part II). No source → `verstak_realm(action="list")`, ask which project graph; none → Survey row "no project graph". Never guess graph or role.
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
+   Your tools carry another prefix than `verstak_` (the bridge's config sets it) → read it off your tool list and put it in place of `verstak_` wherever the methods write it.
 
 2. **A seat only for a watch** — the word "watch", a `start` with a seat address, a `verstak … case #N` launch line, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also knocks on the user's seat. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants.

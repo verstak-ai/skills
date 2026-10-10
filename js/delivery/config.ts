@@ -1,18 +1,20 @@
 // The machine's override of two build values (graph @nks/nks-dev, node #7243): the
 // default server address and the tool prefix, read once per process from config.json
-// in the bridge home. Without the file both stay the build's. A bad file is said on
+// in the bridge home (VERSTAK_BRIDGE_AUTH_DIR when set, as the server file and the
+// OpenCode plugin read it; --auth-dir is not seen here). Without the file both stay the build's. A bad file is said on
 // stderr and ignored whole or by key — never a crash.
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-import { BRIDGE_NAME, BUILD_SERVER_URL, HOME_DIR, PRODUCT } from "./product.ts";
+import { BRIDGE_NAME, BUILD_SERVER_URL, envName, HOME_DIR, PRODUCT } from "./product.ts";
 
 /** The build's tool prefix: `verstak_`. */
 export const BUILD_TOOL_PREFIX = `${PRODUCT}_`;
 /** The file's name in the bridge home. */
 export const CONFIG_FILE = "config.json";
-export const configPath = (): string => join(homedir(), HOME_DIR, CONFIG_FILE);
+export const configPath = (): string =>
+  join(process.env[envName("BRIDGE_AUTH_DIR")]?.trim() || join(homedir(), HOME_DIR), CONFIG_FILE);
 
 /** A tool prefix MCP names can carry: a lower-case letter first, an underscore last. */
 const PREFIX_RE = /^[a-z][a-z0-9-]{0,30}_$/;
@@ -76,6 +78,9 @@ function readConfig(): BridgeConfig {
 }
 
 const CONFIG = readConfig();
+
+/** config.json's own `server`, or null: doctor says when a higher source shadows it. */
+export const CONFIG_SERVER = CONFIG.server ?? null;
 
 /** The address with no argument, variable or chosen `server` file: the file's, else the build's. */
 export const DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;

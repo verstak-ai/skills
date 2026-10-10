@@ -246,14 +246,20 @@ failure into a visible error instead of a hang. Many agents on one machine share
 one click signs in the whole machine. Needs Node 22+. Diagnosis and the decision ladder:
 the `verstak` skill, its `establish-mcp` method.
 
-A machine that runs the bridge against another build of the server can change both build
-values in `~/.verstak-bridge/config.json`: `{"server": "https://…/", "tool_prefix": "kit_"}`,
-either key optional. `server` replaces the default address and stands below every source
+A machine whose server speaks this delivery's protocol under another address or tool prefix
+can change both build values in `~/.verstak-bridge/config.json` (in `VERSTAK_BRIDGE_AUTH_DIR`
+when that is set): `{"server": "https://…/", "tool_prefix": "kit_"}`, either key optional.
+The protocol keys (`verstak/structured`, `verstak/refusal`) stay fixed — a server of another
+delivery is no target. `server` replaces the default address and stands below every source
 above (argument, variable, `server` file); `tool_prefix` (lower case, ending in `_`) must be
 the prefix that server's tools carry — the bridge publishes and intercepts its own tools
-under it and names them so in its words; the skills keep writing `verstak_*`. A bridge and
-its daemon read the file once at start. Bad JSON or a bad value is said on stderr and the
-build value stands.
+under it and names them so in its words; the skills keep writing `verstak_*`. `use` writes
+`~/.verstak-bridge/server`, which beats config.json's `server`: delete that file to let
+config.json apply. A bridge and its daemon read the file once at start: after editing it,
+end the harness sessions or stop the daemon (`kill` the pid `doctor` prints under "machine
+daemon"), or new bridges and the running daemon disagree on the prefix. `doctor` prints the
+address, the prefix and where each came from. Bad JSON or a bad value is said on stderr and
+the build value stands.
 
 ### A personal token
 

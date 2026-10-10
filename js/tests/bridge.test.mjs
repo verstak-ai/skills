@@ -10,11 +10,19 @@
 
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { connect } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { pathToFileURL } from "node:url";
 
 import { BUILT_BRIDGE } from "./built.mjs";
 import { startFakeServer } from "./fake-server.mjs";
@@ -40,19 +48,28 @@ const DAEMON = {
   VERSTAK_BRIDGE_ORPHAN_FLOW_MS: "2000",
 };
 
-/** A clean environment: none of the caller's delivery variables, a scratch home. */
+// Every spawned process loads the network guard: past loopback is refused and logged here.
+const NET_GUARD = `--import=${pathToFileURL(join(import.meta.dirname, "no-network.mjs")).href}`;
+const NET_LOG = join(HOME, "blocked-network.log");
+
+/** A clean environment: none of the caller's delivery variables, a scratch home, the guard. */
 function bridgeEnv(extra, home = HOME) {
   const env = { ...process.env };
   for (const k of Object.keys(env)) if (k.startsWith("VERSTAK_")) delete env[k];
   return {
     ...env,
     HOME: home,
+    NODE_OPTIONS: NET_GUARD,
+    BRIDGE_TEST_NET_LOG: NET_LOG,
     VERSTAK_BRIDGE_NO_BROWSER: "1",
     VERSTAK_BRIDGE_NO_UPDATE: "1",
     VERSTAK_BRIDGE_TOKEN: "",
     ...extra,
   };
 }
+
+/** What the guard refused in the log at `path`, one attempt per line. */
+const blockedIn = (path = NET_LOG) => (existsSync(path) ? readFileSync(path, "utf8") : "");
 
 // --- driving the bridge the way a harness does -----------------------------
 
@@ -604,7 +621,7 @@ function doctorServerLine(home, args, extra = {}, choice = null) {
     const take = (c) => {
       out += c;
       const line = /^server: .*$/m.exec(out)?.[0];
-      if (!line) return;
+      if (!line || !/^ {2}tool prefix: .*$/m.test(out)) return;
       clearTimeout(timer);
       p.kill("SIGKILL");
       resolve({ line, out });
@@ -643,6 +660,22 @@ test("the URL argument, VERSTAK_BRIDGE_URL and the chosen server file beat confi
   assert.ok(env.line.startsWith(`server: ${fake.mcpUrl} `), env.out);
   const chosen = await doctorServerLine(home, [], {}, fake.mcpUrl);
   assert.ok(chosen.line.startsWith(`server: ${fake.mcpUrl} (choice file `), chosen.out);
+  assert.match(
+    chosen.line,
+    /shadows "server" in .*config\.json; delete the choice file/,
+    chosen.out,
+  );
+});
+
+test("with VERSTAK_BRIDGE_AUTH_DIR set, config.json is read there, not under HOME", async () => {
+  const home = homeWithConfig(JSON.stringify({ server: "http://127.0.0.1:9/from-home" }));
+  const authDir = mkdtempSync(join(tmpdir(), "verstak-bridge-authdir-"));
+  const fromAuth = JSON.stringify({ server: "http://127.0.0.1:9/from-auth", tool_prefix: "kit_" });
+  writeFileSync(join(authDir, "config.json"), fromAuth);
+  const { line, out } = await doctorServerLine(home, [], { VERSTAK_BRIDGE_AUTH_DIR: authDir });
+  assert.match(line, /^server: http:\/\/127\.0\.0\.1:9\/from-auth \(the default from /, out);
+  assert.ok(line.includes(join(authDir, "config.json")), out);
+  assert.match(out, /^ {2}tool prefix: kit_ \(from .*config\.json/m, out);
 });
 
 test("config.json's tool_prefix names the bridge's tools and routes the calls", async (t) => {
@@ -683,8 +716,11 @@ test("through the daemon: config.json's tool_prefix names the tools", async (t) 
 
 test("without config.json the build's address and prefix stand", async (t) => {
   const home = homeWithConfig(null);
-  const { line, out } = await doctorServerLine(home, []);
+  // doctor goes on to the production address: the guard refuses it into a log of its own.
+  const own = join(home, "blocked-network.log");
+  const { line, out } = await doctorServerLine(home, [], { BRIDGE_TEST_NET_LOG: own });
   assert.match(line, /^server: https:\/\/mcp\.verstak\.ai\/ \(the default;/, out);
+  assert.match(out, /^ {2}tool prefix: verstak_ \(the build's;/m, out);
   await withFake(t, {}, async ({ dir, spawnBridge }) => {
     const bridge = spawnBridge(FULL, { home });
     await authorize(bridge, dir);
@@ -717,4 +753,29 @@ test("a malformed config.json is said on stderr and the build values stand", asy
       badPrefix.stderr,
     );
   });
+});
+
+// --- the network guard ------------------------------------------------------
+
+test("the network guard refuses a spawned doctor's production address", async () => {
+  const home = homeWithConfig(null);
+  const own = join(home, "blocked-network.log");
+  const dir = mkdtempSync(join(tmpdir(), "verstak-bridge-doctor-"));
+  const r = await new Promise((resolve) => {
+    const p = spawn(process.execPath, [BRIDGE, "doctor", "--auth-dir", dir], {
+      env: bridgeEnv({ BRIDGE_TEST_NET_LOG: own }, home),
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let out = "";
+    p.stdout.on("data", (c) => (out += c));
+    p.stderr.on("data", (c) => (out += c));
+    p.on("exit", (status) => resolve({ status, out }));
+  });
+  assert.match(r.out, /unreachable: .*test network guard/, r.out);
+  assert.match(blockedIn(own), /https:\/\/mcp\.verstak\.ai\//);
+});
+
+// Last: every process above ran under the guard, and none tried to leave loopback.
+test("no spawned process reached past loopback", () => {
+  assert.equal(blockedIn(), "", "the guard refused these addresses");
 });
