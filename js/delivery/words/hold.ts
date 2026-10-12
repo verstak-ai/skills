@@ -1,6 +1,7 @@
 // The socket holder (HOLD); dead-token advice comes as an argument.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
+import { TAKE } from "./take.ts";
 
 export interface HoldWords {
   newSocket: () => string;
@@ -32,9 +33,10 @@ export const HOLD: Readonly<Record<Lang, HoldWords>> = {
       `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or ${tool("stand")}`,
     evicted: (code) =>
       `DOER: close ${code} — the seat was taken, another holder is listening; ` +
-      `the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, ${tool("stand")} without name stands beside on name.N; to retake the seat (take=true) — only on the user's word`,
+      `the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, ${tool("stand")} without name stands beside on name.N; ` +
+      `to retake the seat (take=true): ${TAKE.en.rule()}`,
     evictedBeside: (code, name, base) =>
-      `DOER: close ${code} — the seat ${name} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true) — only on the user's word`,
+      `DOER: close ${code} — the seat ${name} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true): ${TAKE.en.rule()}`,
     besideDone: (name, said) =>
       `Verstak: the seat ${name} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said}`,
     besideFailed: (name, base, said) =>

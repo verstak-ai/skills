@@ -33,8 +33,8 @@ export const DEAD_TOKEN_CODES = [4001, 4002];
 /**
  * Eviction: another holder owns the channel. Not a dead token and no reason to reopen —
  * the same address would evict the new holder and it us (observed ping-pong). The
- * holder yields aloud at once; retaking only on the human's word (graph @nks/nks-dev,
- * nodes #5033, #6550).
+ * holder yields aloud at once; retaking its own name only after a probe it stays silent
+ * to, another's only on the human's word (graph @nks/nks-dev, nodes #5033, #6550, #6976).
  */
 export const EVICTED_CODE = 4000;
 /** Rollout: the instance goes away, a longer breath. */

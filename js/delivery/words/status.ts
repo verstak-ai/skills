@@ -2,6 +2,7 @@
 // hearing move path.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
+import { TAKE } from "./take.ts";
 
 export interface StatusWords {
   busyLine: (label: string, line: string, nudge: string) => string;
@@ -20,7 +21,7 @@ export interface StatusWords {
 }
 
 const TAKE_PATH_EN =
-  `${tool("stand")} with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, ` +
+  `${tool("stand")} with take=true (${TAKE.en.rule()}) moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, ` +
   "and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 " +
   "(the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello " +
   `(help: ${tool("channel")} action="?", connect); after the move re-arm the watchdog with the command from the answer`;
@@ -38,7 +39,7 @@ export const STATUS: Readonly<Record<Lang, StatusWords>> = {
     placeUnnamed: (name) =>
       `of the seat${name ? ` "${name}"` : ""} (no @handle:name address yet — hello has not come)`,
     evictedWhy: () =>
-      `the hearing is with another holder — take it back by ${tool("stand")} with take=true only on the user's word`,
+      `the hearing is with another holder — take it back by ${tool("stand")} with take=true: ${TAKE.en.rule()}`,
     reopeningWhy: () =>
       "the socket is reopening — the line is published, the hearing comes back by itself",
     noSeatId: (key) =>

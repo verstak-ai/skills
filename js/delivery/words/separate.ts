@@ -2,6 +2,7 @@
 // 'board unread' and 'everything beside is taken' refusals.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
+import { TAKE } from "./take.ts";
 
 /**
  * Who holds base when the bridge stood beside: live — a live bridge of another session in
@@ -38,7 +39,7 @@ export const SEPARATE: Readonly<Record<Lang, SeparateWords>> = {
         ? `check the holder's account on the board against your own seat's address: the same — ${probe(base)}; another — evicting that session (take=true) only on the user's word`
         : kin
           ? probe(base)
-          : "evicting that session (take=true) — only on the user's word"),
+          : `evicting that session (take=true): ${TAKE.en.rule()}`),
     unknown: (name) =>
       `Refused (bridge): the board was not read in full — the bridge does not know whether another session listens on the seat ${name}; not standing blind and not advising take=true. Repeat when the board reads, or pass another name.`,
     noFree: (base) =>

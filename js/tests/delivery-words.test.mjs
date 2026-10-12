@@ -9,13 +9,40 @@ import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
 import { LANGS } from "../delivery/lang.ts";
+import { CALL } from "../delivery/words/call.ts";
+import { HOLD } from "../delivery/words/hold.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
+import { PLUGIN } from "../delivery/words/plugin.ts";
 import { RESUME } from "../delivery/words/resume.ts";
+import { SEPARATE } from "../delivery/words/separate.ts";
+import { STATUS } from "../delivery/words/status.ts";
 import { REPO } from "./built.mjs";
 
 const DIR = join(REPO, "js", "delivery", "words");
 const FILES = readdirSync(DIR).filter((f) => f.endsWith(".ts"));
 const FOREIGN = new RegExp("\\p{Script=Cyrillic}|is" + "kron", "iu");
+
+test("occupied-seat guidance distinguishes own-name recovery from foreign-seat takeover", () => {
+  const messages = [
+    CALL.en.heardAdvice(true, "asked", "led"),
+    HOLD.en.evicted(4000),
+    HOLD.en.evictedBeside(4000, "name", "base"),
+    PLUGIN.en.evicted(4000),
+    RESUME.en.gaveUp("seat", 3),
+    SEPARATE.en.beside("base", "base.2", false, null),
+    STATUS.en.evictedWhy(),
+    STATUS.en.takePath(),
+    STATUS.en.turnedGuidance(),
+    STATUS.en.notHeldNone(),
+    STATUS.en.notHeldList("seat"),
+  ];
+  for (const text of messages) {
+    assert.match(text, /your own name \(the same role, the same account\)/);
+    assert.match(text, /silent 5 minutes.*verstak_channel send/);
+    assert.match(text, /another's \(another role or account\) — only on the user's word/);
+    assert.doesNotMatch(text, /human/);
+  }
+});
 
 test("proven own-seat recovery needs no foreign-seat warning", () => {
   const text = OPENCODE_KEEP.en.resumedOwn("@owner:seat");

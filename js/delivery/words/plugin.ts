@@ -2,6 +2,7 @@
 // the bridge, the channel half.
 import type { Lang } from "../lang.ts";
 import { tool, TOOL_PREFIX } from "../protocol.ts";
+import { TAKE } from "./take.ts";
 
 export interface PluginWords {
   noBridge: (tried: string) => string;
@@ -33,7 +34,8 @@ export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
       ", then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.",
     evicted: (code) =>
       `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. ` +
-      `The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
+      `The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. ` +
+      `Evicting that session (take=true): ${TAKE.en.rule()}.`,
     alive: (version) =>
       `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; ` +
       "if it fails, ask about the token.",
