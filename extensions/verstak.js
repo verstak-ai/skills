@@ -1,17 +1,14 @@
+// js/delivery/config.ts
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
 // js/delivery/lang.ts
 var LANGS = ["en"];
 var DEFAULT_LANG = "en";
 function langOfServer(_url) {
   return "en";
 }
-
-// js/delivery/patterns/launch.ts
-var LAUNCH_WORD = "verstak";
-var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
-  "mu"
-);
 
 // js/delivery/product.ts
 var PRODUCT = "verstak";
@@ -35,10 +32,76 @@ var CLIENTS = {
 var SERVER_URLS = {
   en: "https://mcp.verstak.ai/"
 };
-var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+var BUILD_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+
+// js/delivery/config.ts
+var BUILD_TOOL_PREFIX = `${PRODUCT}_`;
+var CONFIG_FILE = "config.json";
+var configPath = () => join(process.env[envName("BRIDGE_AUTH_DIR")]?.trim() || join(homedir(), HOME_DIR), CONFIG_FILE);
+var PREFIX_RE = /^[a-z][a-z0-9-]{0,30}_$/;
+var KEYS = /* @__PURE__ */ new Set(["server", "tool_prefix"]);
+var warn = (path, what) => {
+  process.stderr.write(`${BRIDGE_NAME}: ${path}: ${what}
+`);
+};
+function parseConfig(text, say) {
+  let raw;
+  try {
+    raw = JSON.parse(text);
+  } catch (e) {
+    say(`not JSON (${e.message}) — build defaults are used`);
+    return {};
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    say("not a JSON object — build defaults are used");
+    return {};
+  }
+  const o = raw;
+  const out2 = {};
+  for (const k of Object.keys(o)) if (!KEYS.has(k)) say(`unknown key "${k}" ignored`);
+  if (o.server !== void 0) {
+    let url = null;
+    try {
+      url = typeof o.server === "string" ? new URL(o.server) : null;
+    } catch {
+    }
+    if (url && (url.protocol === "https:" || url.protocol === "http:")) out2.server = url.href;
+    else say(`"server" is not an http(s) URL — the build address ${BUILD_SERVER_URL} is used`);
+  }
+  if (o.tool_prefix !== void 0) {
+    if (typeof o.tool_prefix === "string" && PREFIX_RE.test(o.tool_prefix))
+      out2.tool_prefix = o.tool_prefix;
+    else
+      say(
+        `"tool_prefix" must match ${PREFIX_RE} (e.g. "${BUILD_TOOL_PREFIX}") — the build prefix ${BUILD_TOOL_PREFIX} is used`
+      );
+  }
+  return out2;
+}
+function readConfig() {
+  const path = configPath();
+  let text;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch {
+    return {};
+  }
+  return parseConfig(text, (what) => warn(path, what));
+}
+var CONFIG = readConfig();
+var CONFIG_SERVER = CONFIG.server ?? null;
+var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
+var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
+
+// js/delivery/patterns/launch.ts
+var LAUNCH_WORD = "verstak";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "mu"
+);
 
 // js/delivery/protocol.ts
-var TOOL_PREFIX = `${PRODUCT}_`;
 var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
@@ -47,7 +110,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "3.1.0";
+var VERSION = "3.2.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -103,7 +166,7 @@ var CASE_LINE = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join4) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat verstak_stand and enter case #${no}: ${join4}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join5) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join5}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -125,7 +188,7 @@ var PI = {
     raised: (server, version, n2) => `Verstak: the bridge is up (${server} ${version}), tools in the session: ${n2}.`,
     raisedSignedIn: (server, version, n2) => `Verstak: the bridge is up (${server} ${version}), tools in the session: ${n2} — sign-in done.`,
     launchNoBridge: (no) => `Verstak: launch line — the bridge is not up, did not enter case #${no}.`,
-    stillRaising: () => "Verstak: the bridge is still coming up — the verstak_* tools appear as soon as it answers.",
+    stillRaising: () => `Verstak: the bridge is still coming up — the ${TOOL_PREFIX}* tools appear as soon as it answers.`,
     versionUnreadable: () => "Verstak: the delivery carries a bridge, but its version is unreadable — leaving the home copy alone.",
     homeNewer: (home, packaged) => `Verstak: the home bridge is ${home}, the delivery's is ${packaged} — the home one is newer, leaving it alone.`,
     noVersion: () => "version unreadable",
@@ -138,18 +201,21 @@ var PI = {
 // js/delivery/words/plugin.ts
 var PLUGIN = {
   en: {
-    noBridge: (tried) => "Verstak: the bridge was not found — there will be no verstak_* tools in this session. Looked in: " + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
+    noBridge: (tried) => `Verstak: the bridge was not found — there will be no ${TOOL_PREFIX}* tools in this session. Looked in: ` + tried + ". Set VERSTAK_BRIDGE_PATH or install the bridge by the verstak skill's establish-mcp method.",
     bridgeLine: (line) => `Verstak/bridge: ${line}`,
     notRaised: (message) => `Verstak: the bridge did not come up — ${message}`,
     refusalNoText: (name) => `${name}: refusal without text`,
     relistFailed: (message) => `Verstak: the tool list was not reread after the change on the server — ${message}`,
     listening: () => "Verstak: the channel is listening",
-    dead: (code) => `Verstak: the channel was closed with code ${code} — the token is dead. Call verstak_channel(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
-    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, verstak_stand with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
+    dead: (code) => `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
+    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true) — only on the user's word.`,
     alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
     note: (text) => `Verstak: ${text}`
   }
 };
+
+// js/delivery/words/resume.ts
+var via = tool("stand");
 
 // js/delivery/words/rooms.ts
 var ROOM = {
@@ -164,7 +230,7 @@ var ROOM = {
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
     closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
-    closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
+    closingMay: (entryId) => `you may object — ${tool("case")}(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,
@@ -214,13 +280,13 @@ var VERDICT = {
 };
 
 // js/delivery/words/status.ts
-var TAKE_PATH_EN = `verstak_stand with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: verstak_channel action="?", connect); after the move re-arm the watchdog with the command from the answer`;
-var TWO_ENTRIES_EN = "If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called verstak_stand with: no move is needed.";
+var TAKE_PATH_EN = `${tool("stand")} with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: ${tool("channel")} action="?", connect); after the move re-arm the watchdog with the command from the answer`;
+var TWO_ENTRIES_EN = `If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called ${tool("stand")} with: no move is needed.`;
 var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 
 // js/shared/lang.ts
-import { readFileSync } from "node:fs";
-import { join as join2 } from "node:path";
+import { readFileSync as readFileSync2 } from "node:fs";
+import { join as join3 } from "node:path";
 
 // js/shared/scope.ts
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -268,9 +334,9 @@ function envOf(k) {
 }
 
 // js/shared/standings.ts
-import { homedir } from "node:os";
-import { join, resolve } from "node:path";
-var defaultAuthDir = () => join(homedir(), HOME_DIR);
+import { homedir as homedir2 } from "node:os";
+import { join as join2, resolve } from "node:path";
+var defaultAuthDir = () => join2(homedir2(), HOME_DIR);
 var authDirFromEnv = () => envOf(envName("BRIDGE_AUTH_DIR"))?.trim() || defaultAuthDir();
 
 // js/shared/lang.ts
@@ -285,7 +351,7 @@ function resolve2() {
   const fromEnv = envOf(envName("BRIDGE_URL"))?.trim();
   if (fromEnv) return langOfServer(fromEnv);
   try {
-    const text = readFileSync(join2(authDirFromEnv(), "server"), "utf8").trim();
+    const text = readFileSync2(join3(authDirFromEnv(), "server"), "utf8").trim();
     if (text) return langOfServer(text);
   } catch {
   }
@@ -761,9 +827,9 @@ function addressedToMine(frame) {
 // js/shared/seen.ts
 var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
 function eventKeyOf(frame) {
-  const via = frame?.provenance?.via;
-  if (via === "room") return evOf(frame?.event_id);
-  if (via !== "graph") return "";
+  const via2 = frame?.provenance?.via;
+  if (via2 === "room") return evOf(frame?.event_id);
+  if (via2 !== "graph") return "";
   const body = frame?.body;
   if (!body || typeof body !== "object" || Array.isArray(body)) return "";
   return evOf(body.event_id);
@@ -799,13 +865,13 @@ var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
 
 // js/shared/version.ts
 import { createHash } from "node:crypto";
-import { readFileSync as readFileSync2 } from "node:fs";
+import { readFileSync as readFileSync3 } from "node:fs";
 import { fileURLToPath } from "node:url";
 var releaseBuildIn = (text) => text.includes(`"${[BUILD_MARK, "release"].join(":")}"`);
 var devBuildIn = (text) => text.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
 function buildOf(selfUrl) {
   try {
-    const src = readFileSync2(fileURLToPath(selfUrl));
+    const src = readFileSync3(fileURLToPath(selfUrl));
     return `v${VERSION}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
     return `v${VERSION}`;
@@ -1510,8 +1576,8 @@ async function enterCase(l, call, satelliteOf, placeName) {
     await call(tool("stand"), stand);
   } catch (e) {
     const why = e.message;
-    const join4 = `${tool("case")}(action="join", room="${room}")`;
-    return W3.notSeated(why, l.no, join4);
+    const join5 = `${tool("case")}(action="join", room="${room}")`;
+    return W3.notSeated(why, l.no, join5);
   }
   const place = placeName() || W3.ownSeat();
   try {
@@ -1527,7 +1593,7 @@ import {
   accessSync,
   chmodSync,
   constants,
-  readFileSync as readFileSync3,
+  readFileSync as readFileSync4,
   renameSync,
   unlinkSync,
   writeFileSync
@@ -1536,9 +1602,9 @@ import { dirname, resolve as resolve3 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // js/shared/home.ts
-import { homedir as homedir2 } from "node:os";
-import { join as join3 } from "node:path";
-var homeBridgePath = () => join3(homedir2(), HOME_DIR, HOME_BRIDGE_FILE);
+import { homedir as homedir3 } from "node:os";
+import { join as join4 } from "node:path";
+var homeBridgePath = () => join4(homedir3(), HOME_DIR, HOME_BRIDGE_FILE);
 
 // js/extension/home-copy.ts
 var BRIDGE_PATH_ENV = envName("BRIDGE_PATH");
@@ -1572,7 +1638,7 @@ function refreshHomeBridge(notify, canSpeak) {
   const homePath = homeBridgePath();
   let packaged;
   try {
-    packaged = readFileSync3(packagedPath);
+    packaged = readFileSync4(packagedPath);
   } catch {
     return;
   }
@@ -1584,7 +1650,7 @@ function refreshHomeBridge(notify, canSpeak) {
   if (!releaseBuildIn(packaged.toString("utf8"))) return;
   let home;
   try {
-    home = readFileSync3(homePath);
+    home = readFileSync4(homePath);
   } catch {
     return;
   }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/verstak-ai/skills/compare/v3.1.0...v3.2.0) (2026-10-10)
+
+
+### Features
+
+* **bridge:** default server address and tool prefix from ~/.verstak-bridge/config.json ([#147](https://github.com/verstak-ai/skills/issues/147)) ([f16bccb](https://github.com/verstak-ai/skills/commit/f16bccbc23025a4f49f48e9d6e9b038ca2553799))
+
 ## [3.1.0](https://github.com/verstak-ai/skills/compare/v3.0.1...v3.1.0) (2026-10-09)
 
 

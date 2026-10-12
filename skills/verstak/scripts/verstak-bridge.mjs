@@ -2,8 +2,13 @@
 
 // js/shared/version.ts
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync as readFileSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
+
+// js/delivery/config.ts
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 // js/delivery/lang.ts
 var LANGS = ["en"];
@@ -11,6 +16,97 @@ var DEFAULT_LANG = "en";
 function langOfServer(_url) {
   return "en";
 }
+
+// js/delivery/product.ts
+var PRODUCT = "verstak";
+var UPPER = PRODUCT.toUpperCase();
+var ENV_PREFIX = `${UPPER}_`;
+var envName = (suffix) => `${ENV_PREFIX}${suffix}`;
+var BRIDGE_NAME = `${PRODUCT}-bridge`;
+var HOME_DIR = `.${BRIDGE_NAME}`;
+var HOME_BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
+var RUNTIME_PREFIX = PRODUCT;
+var GLOBAL_PREFIX = `__${PRODUCT}`;
+var BRIDGE_SKILL = PRODUCT;
+var BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
+var PLUGIN_FILE = "opencode-plugin.js";
+var PLUGIN_COPY_FILE = `${PRODUCT}.js`;
+var SKILL_STAMP_MASK = "*/**";
+var SKILL_SET = "verstak-ai/skills";
+var PLUGIN_NAME = PRODUCT;
+var SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
+var CONNECTOR_PATTERN = /verstak|nks\.lab\.mirari/i;
+var CLIENTS = {
+  opencode: `opencode-${PRODUCT}`,
+  pi: `pi-${PRODUCT}`,
+  doctor: `${PRODUCT}-doctor`,
+  watchdog: `${PRODUCT}-watchdog`
+};
+var SERVER_URLS = {
+  en: "https://mcp.verstak.ai/"
+};
+var BUILD_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
+var SATELLITE_CODE = "const p=require('path').join(require('os').homedir(),'.verstak-bridge','verstak-bridge.mjs');process.argv.splice(1,0,p);import(require('url').pathToFileURL(p).href)";
+var HOOKS_SECTION = { en: "Step 4 — Hooks" };
+
+// js/delivery/config.ts
+var BUILD_TOOL_PREFIX = `${PRODUCT}_`;
+var CONFIG_FILE = "config.json";
+var configPath = () => join(process.env[envName("BRIDGE_AUTH_DIR")]?.trim() || join(homedir(), HOME_DIR), CONFIG_FILE);
+var PREFIX_RE = /^[a-z][a-z0-9-]{0,30}_$/;
+var KEYS = /* @__PURE__ */ new Set(["server", "tool_prefix"]);
+var warn = (path, what) => {
+  process.stderr.write(`${BRIDGE_NAME}: ${path}: ${what}
+`);
+};
+function parseConfig(text, say2) {
+  let raw;
+  try {
+    raw = JSON.parse(text);
+  } catch (e) {
+    say2(`not JSON (${e.message}) — build defaults are used`);
+    return {};
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    say2("not a JSON object — build defaults are used");
+    return {};
+  }
+  const o = raw;
+  const out7 = {};
+  for (const k of Object.keys(o)) if (!KEYS.has(k)) say2(`unknown key "${k}" ignored`);
+  if (o.server !== void 0) {
+    let url = null;
+    try {
+      url = typeof o.server === "string" ? new URL(o.server) : null;
+    } catch {
+    }
+    if (url && (url.protocol === "https:" || url.protocol === "http:")) out7.server = url.href;
+    else say2(`"server" is not an http(s) URL — the build address ${BUILD_SERVER_URL} is used`);
+  }
+  if (o.tool_prefix !== void 0) {
+    if (typeof o.tool_prefix === "string" && PREFIX_RE.test(o.tool_prefix))
+      out7.tool_prefix = o.tool_prefix;
+    else
+      say2(
+        `"tool_prefix" must match ${PREFIX_RE} (e.g. "${BUILD_TOOL_PREFIX}") — the build prefix ${BUILD_TOOL_PREFIX} is used`
+      );
+  }
+  return out7;
+}
+function readConfig() {
+  const path = configPath();
+  let text;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch {
+    return {};
+  }
+  return parseConfig(text, (what) => warn(path, what));
+}
+var CONFIG = readConfig();
+var CONFIG_SERVER = CONFIG.server ?? null;
+var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
+var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/patterns/board.ts
 var BOARD_HEADER = { en: "Channels" };
@@ -51,40 +147,7 @@ var LAUNCH_LINE = new RegExp(
 var SAT_LOGIN_RE = /\/login\b|oauth|authoriz|sign.?in|log.?in|\b401\b/i;
 var SAT_OLD_FLAG_RE = /satellite|unknown (flag|option)/i;
 
-// js/delivery/product.ts
-var PRODUCT = "verstak";
-var UPPER = PRODUCT.toUpperCase();
-var ENV_PREFIX = `${UPPER}_`;
-var envName = (suffix) => `${ENV_PREFIX}${suffix}`;
-var BRIDGE_NAME = `${PRODUCT}-bridge`;
-var HOME_DIR = `.${BRIDGE_NAME}`;
-var HOME_BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
-var RUNTIME_PREFIX = PRODUCT;
-var GLOBAL_PREFIX = `__${PRODUCT}`;
-var BRIDGE_SKILL = PRODUCT;
-var BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
-var PLUGIN_FILE = "opencode-plugin.js";
-var PLUGIN_COPY_FILE = `${PRODUCT}.js`;
-var SKILL_STAMP_MASK = "*/**";
-var SKILL_SET = "verstak-ai/skills";
-var PLUGIN_NAME = PRODUCT;
-var SUB_ENTRY_PREFIX = `${PRODUCT}-sub`;
-var CONNECTOR_PATTERN = /verstak|nks\.lab\.mirari/i;
-var CLIENTS = {
-  opencode: `opencode-${PRODUCT}`,
-  pi: `pi-${PRODUCT}`,
-  doctor: `${PRODUCT}-doctor`,
-  watchdog: `${PRODUCT}-watchdog`
-};
-var SERVER_URLS = {
-  en: "https://mcp.verstak.ai/"
-};
-var DEFAULT_SERVER_URL = SERVER_URLS[DEFAULT_LANG];
-var SATELLITE_CODE = "const p=require('path').join(require('os').homedir(),'.verstak-bridge','verstak-bridge.mjs');process.argv.splice(1,0,p);import(require('url').pathToFileURL(p).href)";
-var HOOKS_SECTION = { en: "Step 4 — Hooks" };
-
 // js/delivery/protocol.ts
-var TOOL_PREFIX = `${PRODUCT}_`;
 var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
@@ -97,7 +160,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.1.0";
+var VERSION = "3.2.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -138,7 +201,7 @@ var ASK = {
 // js/delivery/words/backlog.ts
 var BACKLOG = {
   en: {
-    head: (count, expected, shown, direct) => `Wake-up: ${count} frames` + (expected ? ` (waiting in the queue: ${expected})` : "") + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ' — those addressed to the seat as text, the rest by count; in full and the rest — verstak_channel(action="history", view="log").' + (direct ? ` ${direct} direct messages are not here: each came on its own and whole.` : "")
+    head: (count, expected, shown, direct) => `Wake-up: ${count} frames` + (expected ? ` (waiting in the queue: ${expected})` : "") + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — those addressed to the seat as text, the rest by count; in full and the rest — ${tool("channel")}(action="history", view="log").` + (direct ? ` ${direct} direct messages are not here: each came on its own and whole.` : "")
   }
 };
 
@@ -146,13 +209,13 @@ var BACKLOG = {
 var CALL = {
   en: {
     sameNamePrefix: () => "the same name under another role; ",
-    heardAdvice: (other, asked, led) => `${other ? `another session listens on the seat ${asked}` : `the bridge does not know whether another session listens on the seat ${asked}`} — leave it alone; this bridge's own seat is ${led}: stay on it or pass another name; to stand beside — verstak_stand without name; taking the seat (take=true) — only on the user's word`,
-    sameKeysAdvice: () => "the keys match — it is the same seat: repeat verstak_stand with take=true to reopen it deliberately",
-    sameNameAdvice: () => "the same name under another role (derived from the same directory) — pass another name, or verstak_stand with take=true to change this bridge's seat",
-    takeOtherAdvice: () => "to take another seat instead of this one — verstak_stand with take=true (the former stays on the board without hearing; remove what is not needed with revoke)",
+    heardAdvice: (other, asked, led) => `${other ? `another session listens on the seat ${asked}` : `the bridge does not know whether another session listens on the seat ${asked}`} — leave it alone; this bridge's own seat is ${led}: stay on it or pass another name; to stand beside — ${tool("stand")} without name; taking the seat (take=true) — only on the user's word`,
+    sameKeysAdvice: () => `the keys match — it is the same seat: repeat ${tool("stand")} with take=true to reopen it deliberately`,
+    sameNameAdvice: () => `the same name under another role (derived from the same directory) — pass another name, or ${tool("stand")} with take=true to change this bridge's seat`,
+    takeOtherAdvice: () => `to take another seat instead of this one — ${tool("stand")} with take=true (the former stays on the board without hearing; remove what is not needed with revoke)`,
     otherPlace: (led, asked, advice) => `Refused (bridge): this bridge already leads the seat ${led} — one seat per bridge in a graph, and the seat ${asked} would silently take it off the socket. ${advice}; holding both at once needs a second bridge, that is another harness session; a seat in another graph stands beside by itself.`,
-    besideConnect: (led) => `Refused (bridge): this bridge leads the seat ${led}, and a connect in another graph would open a second channel and take it off the socket. A seat in another graph stands beside on the same channel — verstak_stand(realm=…) or register.`,
-    besideStand: (led) => `Refused (bridge): this bridge leads the seat ${led}, but has no channel socket now (it left the seat or the seat was taken) — a seat of another graph cannot stand beside. First bring back ${led}: verstak_stand for its graph.`,
+    besideConnect: (led) => `Refused (bridge): this bridge leads the seat ${led}, and a connect in another graph would open a second channel and take it off the socket. A seat in another graph stands beside on the same channel — ${tool("stand")}(realm=…) or register.`,
+    besideStand: (led) => `Refused (bridge): this bridge leads the seat ${led}, but has no channel socket now (it left the seat or the seat was taken) — a seat of another graph cannot stand beside. First bring back ${led}: ${tool("stand")} for its graph.`,
     noReply: () => "no reply"
   }
 };
@@ -173,7 +236,7 @@ var CLI = {
     usage: (build, rituals) => `verstak ${build}
   node verstak-bridge.mjs [bridge] [server-url] [--timeout <ms>] [--auth-dir <dir>] [--no-browser] [--debug] [--satellite] [--tools <a,b,c>]
       (--satellite — the bridge of a subagent run from an agent file: only the satellite seat <caller's seat>.sub-N)
-      (--tools — which tools the harness sees, verstak_stand always; without the flag — all)
+      (--tools — which tools the harness sees, ${tool("stand")} always; without the flag — all)
   node verstak-bridge.mjs watchdog [key] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs watchdog-exit [key] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs watchdog-codex [key] [--auth-dir <dir>] [--lang en]   (from the Codex shell: CODEX_THREAD_ID, CODEX_HOME)
@@ -214,7 +277,7 @@ var DEAF = {
   en: {
     takenByOther: (name) => `the seat ${name} has no hearing (left, or the token died), and the board reads it listening — another session may have taken it`,
     unknownHearing: (name) => `the seat ${name} has no hearing (left, or the token died), and the bridge does not know whether another session listens on it`,
-    refusal: (why) => `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with verstak_stand: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
+    refusal: (why) => `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
   }
 };
 
@@ -230,11 +293,12 @@ var DOCTOR = {
     },
     srcArgument: () => "launch argument",
     srcEnv: () => "the VERSTAK_BRIDGE_URL variable",
-    srcFile: (p) => `choice file ${p}`,
-    srcDefault: (p) => `the default; to change — node <bridge> use en | <url>, file ${p}`,
+    srcFile: (p) => `choice file ${p}${CONFIG_SERVER ? ` — it shadows "server" in ${configPath()}; delete the choice file to let config.json apply` : ""}`,
+    srcDefault: (p) => `the default${DEFAULT_SERVER_URL === BUILD_SERVER_URL ? "" : ` from ${configPath()}`}; to change — node <bridge> use en | <url>, file ${p}`,
     freshProd: () => "production address: self-update from the delivery releases is on",
     freshOther: () => "another instance: there are no updates from the delivery releases",
-    server: (url, source) => `server: ${url} (${source})`,
+    server: (url, source) => `server: ${url} (${source})
+  tool prefix: ${TOOL_PREFIX} (${TOOL_PREFIX === BUILD_TOOL_PREFIX ? "the build's" : `from ${configPath()}`}; read at process start — a running daemon keeps its own)`,
     unreachable: (why) => `  unreachable: ${why}`,
     wantsOAuth: () => " (asks for OAuth)",
     noTokenProbe: () => " (a probe without a token — a refusal is expected)",
@@ -360,7 +424,7 @@ var CASE_LINE = {
 // js/delivery/words/handoff.ts
 var HANDOFF = {
   en: {
-    strayFrame: (id, to, key, raw) => `DOER: frame ${id} from the daemon-change spool is addressed to the seat ${to}, which has not returned — not a frame of the seat ${key}; to bring the seat back — verstak_stand in its graph. Frame: ${raw}`
+    strayFrame: (id, to, key, raw) => `DOER: frame ${id} from the daemon-change spool is addressed to the seat ${to}, which has not returned — not a frame of the seat ${key}; to bring the seat back — ${tool("stand")} in its graph. Frame: ${raw}`
   }
 };
 
@@ -370,7 +434,7 @@ var HEARING = {
     unresolvedAgent: (what) => `Refused (bridge): karta="agent" — the bridge leads no seat in this graph and does not know which role this session held the name under, and a seat under the sentinel matches neither the board nor a former hold (${what} could make a second seat or take another's). Name the role by number — the agent's role from AGENTS.md.`,
     otherListens: (seat2) => `another session listens on the seat ${seat2}`,
     unknownListens: (seat2) => `the bridge does not know whether another session listens on the seat ${seat2} (the board did not read, or not all of it)`,
-    rawSeatRefusal: (who, action) => `Refused (bridge): ${who} — ${action} ${action === "register" ? "would sign writes with another's seat" : "would take it"}; the call was not sent. Stand with verstak_stand: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
+    rawSeatRefusal: (who, action) => `Refused (bridge): ${who} — ${action} ${action === "register" ? "would sign writes with another's seat" : "would take it"}; the call was not sent. Stand with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
   }
 };
 
@@ -379,16 +443,16 @@ var HOLD = {
   en: {
     newSocket: () => "new socket",
     revokedOwn: () => "revoked by this session",
-    closedOwn: () => "the channel was closed by this session's own close — the seat is released, the token is alive; to stand again — verstak_stand",
+    closedOwn: () => `the channel was closed by this session's own close — the seat is released, the token is alive; to stand again — ${tool("stand")}`,
     resumeFailed: () => "resume from disk failed",
     tokenDead: () => "token dead",
-    parked: (reason) => `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or verstak_stand`,
-    evicted: (code) => `DOER: close ${code} — the seat was taken, another holder is listening; the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, verstak_stand without name stands beside on name.N; to retake the seat (take=true) — only on the user's word`,
-    evictedBeside: (code, name, base) => `DOER: close ${code} — the seat ${name} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, verstak_stand with the same call tells the seat and the watchdog command; evicting that session (take=true) — only on the user's word`,
+    parked: (reason) => `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or ${tool("stand")}`,
+    evicted: (code) => `DOER: close ${code} — the seat was taken, another holder is listening; the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, ${tool("stand")} without name stands beside on name.N; to retake the seat (take=true) — only on the user's word`,
+    evictedBeside: (code, name, base) => `DOER: close ${code} — the seat ${name} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true) — only on the user's word`,
     besideDone: (name, said2) => `Verstak: the seat ${name} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said2}`,
-    besideFailed: (name, base, said2) => `Verstak: the seat ${name} was taken (4000), and the bridge could not stand beside — no hearing: ${said2} The move — verstak_stand with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
-    evictedRefusal: (name, base) => `Refused (bridge): the seat ${name} was taken (4000), another holder listens on it, and the bridge could not stand beside yet — the write would go under its signature; the call was not sent. The move — verstak_stand with name=${base} without take: the bridge stands beside as ${base}.N with hearing; then repeat the call.`,
-    besideOther: (place, ok, said2) => ok ? `The seat of another graph ${place} was on the taken channel — it stands again on the new one. ${said2}` : `The seat of another graph ${place} was on the taken channel and did not stand again — no hearing there: ${said2} The move — verstak_stand in that graph with the same name.`,
+    besideFailed: (name, base, said2) => `Verstak: the seat ${name} was taken (4000), and the bridge could not stand beside — no hearing: ${said2} The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
+    evictedRefusal: (name, base) => `Refused (bridge): the seat ${name} was taken (4000), another holder listens on it, and the bridge could not stand beside yet — the write would go under its signature; the call was not sent. The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing; then repeat the call.`,
+    besideOther: (place, ok, said2) => ok ? `The seat of another graph ${place} was on the taken channel — it stands again on the new one. ${said2}` : `The seat of another graph ${place} was on the taken channel and did not stand again — no hearing there: ${said2} The move — ${tool("stand")} in that graph with the same name.`,
     takenBySession: () => "a new bridge of this same session took the seat — this instance lets the socket go, the hearing is the new one's",
     dead: (advice) => `DOER: ${advice}`,
     alive: (version) => `DOER: the socket keeps being cut while the service answers (${version}) — holding the seat, reopening less often; if it fails, ask about the token`
@@ -403,10 +467,10 @@ var LEAVE = {
     notCleared: (body) => `busyness not cleared (${body})`,
     seats: (keys) => `the seats ${keys} (they share the channel socket)`,
     seat: (key) => `the seat ${key}`,
-    leftByWord: (which2, line) => `left ${which2}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up; the seat is released by word and will not return by itself — to bring it back: verstak_stand with the same name`,
-    left: (which2, line) => `left ${which2}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up and arrives on return (the watchdog or verstak_stand)`,
+    leftByWord: (which2, line) => `left ${which2}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up; the seat is released by word and will not return by itself — to bring it back: ${tool("stand")} with the same name`,
+    left: (which2, line) => `left ${which2}: the socket is closed, ${line}; address, queue and hooks intact — mail piles up and arrives on return (the watchdog or ${tool("stand")})`,
     satelliteReleased: () => "the satellite seat is released whole",
-    leftSatellite: (place, line) => `left the satellite seat ${place}: the socket is closed, ${line}; the seat is released whole — neither the watchdog nor a return will raise it; to stand again — verstak_stand with satellite_of`,
+    leftSatellite: (place, line) => `left the satellite seat ${place}: the socket is closed, ${line}; the seat is released whole — neither the watchdog nor a return will raise it; to stand again — ${tool("stand")} with satellite_of`,
     returned: (how2, status) => `the bridge is back on the seat (${how2}) — the socket is reopened at the same address${status ? `, busyness "${status}" restored` : ""}`,
     noHello: () => "the socket reopened at the same address gave no hello — another may have turned the address",
     watchdogAttached: () => "a watchdog attached",
@@ -423,7 +487,7 @@ var LISTEN = {
   en: {
     block: (listen) => `[verstak-bridge] The bridge holds this standing's socket — there is no one to hand it to (a line above saying no one listens describes the moment before this holding).
 ${listen}
-Busy line: verstak_stand(realm, status) on this seat — an empty status clears it.
+Busy line: ${tool("stand")}(realm, status) on this seat — an empty status clears it.
 Frames also come as MCP notifications (logger verstak-channel).`,
     unheard: (listen) => `[verstak-bridge] No watchdog is attached to this seat — frames pile up. ${listen}`,
     monitor: (self, key, where) => `under Monitor — node "${self}" watchdog ${key}${where} with the largest timeout_ms, re-armed when it runs out (Claude Code)`,
@@ -439,8 +503,8 @@ Frames also come as MCP notifications (logger verstak-channel).`,
 // js/delivery/words/lostplaces.ts
 var LOST = {
   en: {
-    satellite: (key) => `Refused (bridge): the satellite's seat was lost in the machine daemon's change (${key}) — a satellite seat has no holding record, and writes would go unattributed; the call was not sent. Stand again: verstak_stand with satellite_of.`,
-    seat: (key, realm, why) => `Refused (bridge): the seat ${key} (graph ${realm}) did not come back after the machine daemon's change (${why}) — writes would go unattributed; the call was not sent. Bring it back: verstak_stand in that graph with the same name.`
+    satellite: (key) => `Refused (bridge): the satellite's seat was lost in the machine daemon's change (${key}) — a satellite seat has no holding record, and writes would go unattributed; the call was not sent. Stand again: ${tool("stand")} with satellite_of.`,
+    seat: (key, realm, why) => `Refused (bridge): the seat ${key} (graph ${realm}) did not come back after the machine daemon's change (${why}) — writes would go unattributed; the call was not sent. Bring it back: ${tool("stand")} in that graph with the same name.`
   }
 };
 
@@ -448,8 +512,8 @@ var LOST = {
 var MOMENT = {
   en: {
     moment: () => "[bridge] The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.",
-    status: () => '[bridge] Busyness is set by verstak_stand(realm, status) on a seat the bridge already holds — the main move; action="status" (realm, text up to 64 characters) is the former one, kept for compatibility: the bridge, the socket holder, executes it, the call does not go to the server; an empty text clears; a surface refusal comes whole.',
-    leave: () => `[bridge] action="leave" (realm) — leave the seat: the bridge executes it — the socket is closed, busyness cleared, address, queue and hooks intact; mail piles up and arrives on return (the watchdog or verstak_stand). For a subagent's satellite seat the leave is total: the seat is released whole, mail does not pile up, there is no return — standing again is only verstak_stand with satellite_of. The bridge itself leaves only where a frame reaches only through a watchdog (Claude Code, Codex) and the watchdog has not been armed for 15 minutes; in pi and OpenCode a frame comes as a notification, and the bridge does not abandon the seat. Busyness clears at the end of the session.`
+    status: () => `[bridge] Busyness is set by ${tool("stand")}(realm, status) on a seat the bridge already holds — the main move; action="status" (realm, text up to 64 characters) is the former one, kept for compatibility: the bridge, the socket holder, executes it, the call does not go to the server; an empty text clears; a surface refusal comes whole.`,
+    leave: () => `[bridge] action="leave" (realm) — leave the seat: the bridge executes it — the socket is closed, busyness cleared, address, queue and hooks intact; mail piles up and arrives on return (the watchdog or ${tool("stand")}). For a subagent's satellite seat the leave is total: the seat is released whole, mail does not pile up, there is no return — standing again is only ${tool("stand")} with satellite_of. The bridge itself leaves only where a frame reaches only through a watchdog (Claude Code, Codex) and the watchdog has not been armed for 15 minutes; in pi and OpenCode a frame comes as a notification, and the bridge does not abandon the seat. Busyness clears at the end of the session.`
   }
 };
 
@@ -533,14 +597,14 @@ var RELEASES = {
 };
 
 // js/delivery/words/resume.ts
-var via = "verstak_stand";
+var via = tool("stand");
 var RESUME = {
   en: {
     failed: () => "the return to the seat failed",
     returnedParked: (pending2) => pending2 === null ? "the return to the seat the bridge had left; hello did not come in 4 s" : `the return to the seat the bridge had left (frames waiting — ${pending2})`,
     legacy: (n) => `there is a seat of an earlier build without a session: ${n} — to bring it back: ${via}(name="${n}")`,
     noRecord: (key, cwd) => `there is no own hold record ${key ? `with the key ${key}` : `for the directory ${cwd ?? "?"}`}`,
-    rejoin: () => `the seat may have expired at the platform and left its cases — after ${via} check verstak_case(action="mine"); empty — join your cases again (verstak_case action="join")`,
+    rejoin: () => `the seat may have expired at the platform and left its cases — after ${via} check ${tool("case")}(action="mine"); empty — join your cases again (${tool("case")} action="join")`,
     foreignDir: (foreign) => `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
     neighbourKey: (keys) => `another session stood on the seat ${keys} — a return does not take a neighbour's seat; ${via} will take your own`,
     left: (left2) => `the seat was released by the holder's word (leave): ${left2} — it will not return by itself, to bring it back: ${via} with the same name`,
@@ -553,7 +617,7 @@ var RESUME = {
     stale: (key) => `${key}: the record went stale — ${via} will take the seat`,
     registerRefused: (text) => `register refused — ${text}`,
     othersInDir: (others) => `the same directory holds records of other seats too: ${others}`,
-    notYours: () => 'the seat is not yours — verstak_channel(action="leave") will release it, the channel stays intact',
+    notYours: () => `the seat is not yours — ${tool("channel")}(action="leave") will release it, the channel stays intact`,
     nothingToReturn: (skipped) => `nothing to return — ${skipped}`,
     noKeyNoCwd: () => "neither key nor cwd was passed",
     noSeatNoKeyNoCwd: () => "no seat, and neither key nor cwd was passed",
@@ -605,7 +669,7 @@ var ROOM = {
     bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
     bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
     closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
-    closingMay: (entryId) => `you may object — verstak_case(action="object", in_reply_to=${entryId})`,
+    closingMay: (entryId) => `you may object — ${tool("case")}(action="object", in_reply_to=${entryId})`,
     closingNot: () => "the objection is not yours to make",
     closed: (reason) => `case closed: ${reason}`,
     objection: (author, reason) => `${author} objects to closing: ${reason}`,
@@ -678,7 +742,7 @@ var SATELLITE = {
     claimsUnsure: (unsure, name) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
     seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
-    bypass: (action) => `Refused (satellite bridge): ${action} bypassing verstak_stand — only verstak_stand with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
+    bypass: (action) => `Refused (satellite bridge): ${action} bypassing ${tool("stand")} — only ${tool("stand")} with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
     onlyOwn: (action, own, karta, realm) => `Refused (satellite bridge): ${action} — only its own seat ${own} (role #${karta}, graph ${realm}); a satellite neither takes nor releases the caller's seat or any other.`,
     listen: (ttl) => `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. The first move — enter the case the brief names and retell the brief as your first message in it.`
   }
@@ -687,7 +751,7 @@ var SATELLITE = {
 // js/delivery/words/satprobe.ts
 var SAT_PROBE = {
   en: {
-    loginAdvice: () => "log in: call any verstak_* tool in the main session and open the login link from its answer (or put a personal token in ~/.verstak-bridge/token — the verstak skill, its establish-mcp method), then repeat doctor",
+    loginAdvice: () => `log in: call any ${TOOL_PREFIX}* tool in the main session and open the login link from its answer (or put a personal token in ~/.verstak-bridge/token — the verstak skill, its establish-mcp method), then repeat doctor`,
     exited: (code) => `exited with code ${code}`,
     refusalLogin: (label, what, advice) => `probe "${label}": ${what} — the satellite is not logged in: the machine grant is dead or revoked → ${advice}`,
     refusal: (label, what, msg) => `probe "${label}": ${what} returned a refusal: ${msg} → do what the refusal says and repeat doctor`,
@@ -704,7 +768,7 @@ var SAT_PROBE = {
 };
 
 // js/delivery/words/separate.ts
-var probe = (base) => `ask it by word — verstak_channel(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — verstak_stand(name=${base}, take=true) and enter its cases (verstak_case(action="mine", standing=${base})); do not ask the user`;
+var probe = (base) => `ask it by word — ${tool("channel")}(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — ${tool("stand")}(name=${base}, take=true) and enter its cases (${tool("case")}(action="mine", standing=${base})); do not ask the user`;
 var HOLDER = {
   live: "another live session of your own name (the same role, the same account)",
   record: "another session of your own name (the same role, the same account; its bridge does not answer here — the probe tells whether it is alive)",
@@ -731,13 +795,13 @@ var s = (ms2) => Math.round(ms2 / 1e3);
 var left = (window, waited) => Math.ceil((window - waited) / 1e3);
 var STAND = {
   en: {
-    needRealmKarta: (tail2) => "Refused (bridge): verstak_stand needs realm and karta — the graph and the role from AGENTS.md or the launch line." + tail2,
+    needRealmKarta: (tail2) => `Refused (bridge): ${tool("stand")} needs realm and karta — the graph and the role from AGENTS.md or the launch line.` + tail2,
     badCwd: (cwd, relative) => `Refused (bridge): cwd must be an existing absolute directory — got "${cwd}"${relative ? " (a relative path would resolve against the bridge's cwd, not the session's)" : ""}.`,
     badName: (asked, fault, max) => `Refused (bridge): name "${asked}" — ${fault}; the name rule: lowercase latin letters, digits, dot, underscore, hyphen, the first sign a letter or digit, at most ${max} signs. A name is never cut silently: a shorter name would address another seat.`,
     cutPart: (k) => k === "repo" ? "repo" : k === "host" ? "host" : "model",
     nameCut: (full, max, name, what) => `the derived name ${full} is longer than the ${max}-sign limit — cut to ${name} (dropped: ${what}); want another — pass name`,
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
-    legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: verstak_channel(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
+    legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: ${tool("channel")}(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text) => `Refused: the board did not read — ${text}`,
     boardUnknown: (start, own, others) => `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name, karta) => `Refused: the board has ${n} seats named ${name} for role #${karta} — the form is ambiguous, the state cannot be told.`,
@@ -748,13 +812,13 @@ var STAND = {
     howBeside: (led) => `a seat of another graph — stands beside on the channel this bridge holds (${led}): register`,
     howReturned: () => "back to the seat the bridge had left — the socket reopened at the same address, register",
     howOwnSession: () => "this session's own seat — taken back: a former bridge of this same harness session held it, connect (the socket is now this bridge's, the former one got 4000) and register",
-    otherHolder: (holder) => `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: verstak_stand without name or with another name.`,
+    otherHolder: (holder) => `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: ${tool("stand")} without name or with another name.`,
     howRegister: () => "this bridge already holds the socket — register",
     ttlRefused: (ttl, text) => `The contour refused the ${ttl} s idle window (${text}) — the seat is taken with the contour's default window.`,
     takenButRegister: (text) => `The seat is taken, but register refused — ${text}`,
     howConnect: (mine, listensElsewhere, take) => mine ? listensElsewhere ? "another holder listened on the seat — connect by take (the socket is now this bridge's, the former holder got 4000) and register" : take ? "connect by take — a new entry cycle, the knock count reset — and register" : "the seat was there — connect (the socket is now this bridge's) and register" : "connect and register",
-    head: (place, karta, realm, how2) => `[verstak_stand] standing ${place} — role #${karta}, graph ${realm}: ${how2}.`,
-    note: (text) => `[verstak_stand] ${text}`,
+    head: (place, karta, realm, how2) => `[${tool("stand")}] standing ${place} — role #${karta}, graph ${realm}: ${how2}.`,
+    note: (text) => `[${tool("stand")}] ${text}`,
     noWatchdog: () => "No watchdog command: the bridge does not hold this seat's socket yet — this session takes no frames and no invitations until the seat is back.",
     noSocket: () => "The bridge holds no socket — nothing to listen with; check the connect answer.",
     besideNoDoor: () => "The seat is recorded, but it has no door — the bridge's channel socket is not alive; this graph's frames will not come here.",
@@ -798,22 +862,22 @@ var STAND_MISS = {
     name: (asked, held2) => `${ONLY_EN}: the call names ${asked}, and the bridge holds ${held2} here — name it or leave name out.`,
     satellite: (of) => `${ONLY_EN}: the bridge's seat is not a satellite of ${of}.`,
     cwd: (cwd) => `${ONLY_EN}: the directory ${cwd} does not exist or is not absolute.`,
-    parked: () => `${ONLY_EN}, and this bridge left its seat by word (leave): return by verstak_stand with karta under the same name.`,
-    elsewhere: () => `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by verstak_stand with karta.`
+    parked: () => `${ONLY_EN}, and this bridge left its seat by word (leave): return by ${tool("stand")} with karta under the same name.`,
+    elsewhere: () => `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by ${tool("stand")} with karta.`
   }
 };
 
 // js/delivery/words/standtool.ts
 var STAND_TOOL = {
   en: {
-    description: () => `[bridge] Take a standing in one call: the bridge reads the board, derives the name (machine.repo.model), takes the seat (connect and register; only register if this bridge already holds the socket), with room knocks a join frame into the user's seat by the full address from the wire (a repeat — only repeat_knock=true, once, no sooner than 2 minutes) and returns the name, the watchdog command, the number of waiting frames and the knock receipt. Read the role queue with verstak_orient(focus=role) on entry and when occasion calls; frames go to the addressee and case participants. A seat in another graph stands beside on the same channel (register): the session hears all its graphs, and a write in each is signed by that graph's seat. Then — start the watchdog with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) only sets the busyness line — no board, connect, register or knock; an empty status clears; the former verstak_channel(action="status") is kept for compatibility. The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.`,
+    description: () => `[bridge] Take a standing in one call: the bridge reads the board, derives the name (machine.repo.model), takes the seat (connect and register; only register if this bridge already holds the socket), with room knocks a join frame into the user's seat by the full address from the wire (a repeat — only repeat_knock=true, once, no sooner than 2 minutes) and returns the name, the watchdog command, the number of waiting frames and the knock receipt. Read the role queue with ${tool("orient")}(focus=role) on entry and when occasion calls; frames go to the addressee and case participants. A seat in another graph stands beside on the same channel (register): the session hears all its graphs, and a write in each is signed by that graph's seat. Then — start the watchdog with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) only sets the busyness line — no board, connect, register or knock; an empty status clears; the former ${tool("channel")}(action="status") is kept for compatibility. The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.`,
     realm: () => "Graph address: @owner/slug or rN.",
     karta: () => "The agent's role (#N from AGENTS.md or the launch line). Needed to take a seat; for busyness on a held seat it may be omitted.",
     name: () => "Your own half of the standing's name; without it machine.repo.model is derived — the model from the model parameter.",
     room: () => "The user's seat address @handle:name (the user's window gives it); the bridge knocks a join there to stand beside the user.",
     model: () => "The model the agent runs on (id or name, for example claude-opus-5 or opus-5) — the third part of the derived name; without it the name is machine.repo.",
     muteSiblings: () => "Do not hear the echo of other standings of the same role.",
-    take: () => "A deliberate move: to displace a live holder of ANOTHER session — of your own name (the same role, the same account) by yourself when it stays silent 5 minutes to a probe by word (verstak_channel send), of another's (another role or account) — only on the user's word (without take a name, derived or explicit, that another session holds stands beside on name.N with hearing; the bridge takes back by itself a seat a former bridge of this same harness session holds — no take needed); or to change this bridge's seat in a graph (one seat per bridge in a graph: another role or another name without take is a refusal aloud, the former seat stays on the board without hearing). A seat in another graph does not need take — it stands beside.",
+    take: () => `A deliberate move: to displace a live holder of ANOTHER session — of your own name (the same role, the same account) by yourself when it stays silent 5 minutes to a probe by word (${tool("channel")} send), of another's (another role or account) — only on the user's word (without take a name, derived or explicit, that another session holds stands beside on name.N with hearing; the bridge takes back by itself a seat a former bridge of this same harness session holds — no take needed); or to change this bridge's seat in a graph (one seat per bridge in a graph: another role or another name without take is a refusal aloud, the former seat stays on the board without hearing). A seat in another graph does not need take — it stands beside.`,
     roomKarta: () => "The role of the user whose seat it is (#N) if the seat is not on the board; usually the role of the user who sent the seat address.",
     repeatKnock: () => "A deliberate repeat of the knock at the same user seat: allowed once and no sooner than 2 minutes after the first; without it a repeated call sends no second join.",
     satelliteOf: () => "Only for a subagent's satellite bridge (the bridge entry with --satellite in the agent file): the caller's seat @handle:name from the brief. The bridge stands beside as the satellite seat <caller's name>.sub-N (the first free N), with the role from karta (the brief names it, the caller's role is not inherited); the seat lives for the run. name, take and room are not passed with it.",
@@ -823,8 +887,8 @@ var STAND_TOOL = {
 };
 
 // js/delivery/words/status.ts
-var TAKE_PATH_EN = `verstak_stand with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: verstak_channel action="?", connect); after the move re-arm the watchdog with the command from the answer`;
-var TWO_ENTRIES_EN = "If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called verstak_stand with: no move is needed.";
+var TAKE_PATH_EN = `${tool("stand")} with take=true — only on the user's word — moves the hearing and the status address here ONCE: the address stays with THIS bridge instance, and a watchdog raised after it does not carry it off — by design: the watchdog is a local client of the socket and makes no connect of its own. The former holder gets close 4000 (the evicted one need not take the seat back the same way — it gets a seat beside, name.N); connect does not touch the seat's incoming address and queue, what waited comes in hello (help: ${tool("channel")} action="?", connect); after the move re-arm the watchdog with the command from the answer`;
+var TWO_ENTRIES_EN = `If the seat is yours and a bridge of this same session holds it (the session has two verstak entries, the plugin's and the user's), call status with the same tool set you called ${tool("stand")} with: no move is needed.`;
 var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 var NOT_HELD_EN = "Refused (bridge): this bridge holds no seat, it has no status address.";
 var STATUS = {
@@ -832,13 +896,13 @@ var STATUS = {
     busyLine: (label, line, nudge) => `busyness ${label}: ${line || "(cleared)"}${nudge}`,
     placeDerived: (place) => `${place} (address derived, hello did not name it)`,
     placeUnnamed: (name) => `of the seat${name ? ` "${name}"` : ""} (no @handle:name address yet — hello has not come)`,
-    evictedWhy: () => "the hearing is with another holder — take it back by verstak_stand with take=true only on the user's word",
+    evictedWhy: () => `the hearing is with another holder — take it back by ${tool("stand")} with take=true only on the user's word`,
     reopeningWhy: () => "the socket is reopening — the line is published, the hearing comes back by itself",
-    noSeatId: (key) => `Refused (bridge): the bridge does not yet know the id of the seat ${key} (hello did not name it) — without it the line would land on all seats of the channel; repeat verstak_stand for this graph.`,
+    noSeatId: (key) => `Refused (bridge): the bridge does not yet know the id of the seat ${key} (hello did not name it) — without it the line would land on all seats of the channel; repeat ${tool("stand")} for this graph.`,
     takePath: () => TAKE_PATH_EN,
     turnedGuidance: () => TURNED_EN,
     notHeld: () => NOT_HELD_EN,
-    notHeldNone: () => `${NOT_HELD_EN} Introduce yourself with one call verstak_stand(realm, karta, model, status) — busyness can be passed right in it. If another holder listens on the seat, verstak_stand will say so; then ${TAKE_PATH_EN}.`,
+    notHeldNone: () => `${NOT_HELD_EN} Introduce yourself with one call ${tool("stand")}(realm, karta, model, status) — busyness can be passed right in it. If another holder listens on the seat, ${tool("stand")} will say so; then ${TAKE_PATH_EN}.`,
     notHeldList: (list2) => `${NOT_HELD_EN} Seats of this graph on this machine are held by live bridges: ${list2}. ${TURNED_EN}`,
     whereCwd: (cwd) => `directory ${cwd}`,
     whereClient: (client) => `harness ${client}`
@@ -965,10 +1029,10 @@ var WATCHDOG = {
     listeningCodex: (key, thread) => `listening on standing ${key}; putting frames into thread ${thread}`,
     backfilled: (count) => ` (${count} back-dated)`,
     frames: (n) => `${n} ${n === 1 ? "frame" : "frames"}`,
-    noHeld: () => "the bridge holds no standing — name yourself with one call to verstak_stand(realm, karta, model): its answer names the listening command",
+    noHeld: () => `the bridge holds no standing — name yourself with one call to ${tool("stand")}(realm, karta, model): its answer names the listening command`,
     severalHeld: (held2) => `the bridge holds several standings — name the one you need: ${held2}`,
     bridgeLetGo: () => "the bridge released the standing or went away — did the session end?",
-    seatNotBack: (s2, path) => `the seat did not return within ${s2}s after the daemon change — socket ${path} is not up; to bring it back use verstak_stand`,
+    seatNotBack: (s2, path) => `the seat did not return within ${s2}s after the daemon change — socket ${path} is not up; to bring it back use ${tool("stand")}`,
     noSocket: (path, s2) => `the bridge did not bring up the local socket ${path} within ${s2}s`,
     bridgeReleasedSocket: (text) => `the bridge released the socket: ${text}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
@@ -976,7 +1040,7 @@ var WATCHDOG = {
     unaddressed: () => "a batch with nothing addressed to the seat — the count waits for the next wake-up",
     seatLost: () => "DOER: the standing is lost",
     aliveNote: () => "DOER: the socket keeps being cut while the service answers — the bridge holds the seat",
-    codexLost: () => "Verstak: the standing is lost — name yourself again: verstak_stand",
+    codexLost: () => `Verstak: the standing is lost — name yourself again: ${tool("stand")}`,
     codexAlive: () => "Verstak: the socket keeps being cut while the service answers — the bridge holds the seat",
     noThread: () => "DOER: no CODEX_THREAD_ID — run this watchdog from the Codex session shell: that is where Codex puts the thread id into the environment",
     noDoor: (path) => `DOER: no door (${path}) — this thread is not under an app-server daemon. This is the USER's move before the session starts, not yours: the daemon and the Codex session must start with one short CODEX_HOME (recipe in SETUP, section Codex). Tell them so; until there is a door, listen with watchdog-exit`,
@@ -998,7 +1062,7 @@ var releaseBuild = () => CHANNEL_MARK.endsWith(":release");
 var devBuildIn = (text) => text.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
 function buildOf(selfUrl) {
   try {
-    const src = readFileSync(fileURLToPath(selfUrl));
+    const src = readFileSync2(fileURLToPath(selfUrl));
     return `v${VERSION}+${createHash("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
     return `v${VERSION}`;
@@ -1016,14 +1080,14 @@ var BUILD = buildOf(import.meta.url);
 
 // js/bridge/daemon.ts
 import { spawn as spawn3 } from "node:child_process";
-import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync14, readFileSync as readFileSync24, statSync as statSync8 } from "node:fs";
-import { join as join20 } from "node:path";
+import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync14, readFileSync as readFileSync25, statSync as statSync8 } from "node:fs";
+import { join as join21 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 
 // js/shared/home.ts
-import { homedir } from "node:os";
-import { join } from "node:path";
-var homeBridgePath = () => join(homedir(), HOME_DIR, HOME_BRIDGE_FILE);
+import { homedir as homedir2 } from "node:os";
+import { join as join2 } from "node:path";
+var homeBridgePath = () => join2(homedir2(), HOME_DIR, HOME_BRIDGE_FILE);
 
 // js/shared/regex.ts
 var escapeRe = (s2) => s2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -1264,18 +1328,18 @@ function connectSeam(path, hello, timeoutMs) {
 
 // js/shared/seam-entrance.ts
 import { createHash as createHash4, randomBytes } from "node:crypto";
-import { linkSync, mkdirSync as mkdirSync2, readFileSync as readFileSync3, renameSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join as join4, resolve as resolve3 } from "node:path";
+import { linkSync, mkdirSync as mkdirSync2, readFileSync as readFileSync4, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, join as join5, resolve as resolve3 } from "node:path";
 
 // js/shared/standings.ts
 import { createHash as createHash3 } from "node:crypto";
 import { lstatSync, mkdirSync } from "node:fs";
-import { homedir as homedir2 } from "node:os";
-import { join as join3, resolve as resolve2 } from "node:path";
+import { homedir as homedir3 } from "node:os";
+import { join as join4, resolve as resolve2 } from "node:path";
 
 // js/shared/lang.ts
-import { readFileSync as readFileSync2 } from "node:fs";
-import { join as join2 } from "node:path";
+import { readFileSync as readFileSync3 } from "node:fs";
+import { join as join3 } from "node:path";
 var isLang = (v) => LANGS.includes(v ?? "");
 function forcedLang() {
   const v = envOf(envName("BRIDGE_LANG"))?.trim().toLowerCase();
@@ -1287,7 +1351,7 @@ function resolve() {
   const fromEnv = envOf(envName("BRIDGE_URL"))?.trim();
   if (fromEnv) return langOfServer(fromEnv);
   try {
-    const text = readFileSync2(join2(authDirFromEnv(), "server"), "utf8").trim();
+    const text = readFileSync3(join3(authDirFromEnv(), "server"), "utf8").trim();
     if (text) return langOfServer(text);
   } catch {
   }
@@ -1304,18 +1368,18 @@ var lang = () => S.current ??= resolve();
 var words = (dict) => dict[lang()];
 
 // js/shared/standings.ts
-var defaultAuthDir = () => join3(homedir2(), HOME_DIR);
+var defaultAuthDir = () => join4(homedir3(), HOME_DIR);
 var authDirFromEnv = () => envOf(envName("BRIDGE_AUTH_DIR"))?.trim() || defaultAuthDir();
-var standingsDirOf = (authDir) => join3(authDir, "standings");
+var standingsDirOf = (authDir) => join4(authDir, "standings");
 var hashOf = (key) => createHash3("sha256").update(key).digest("hex").slice(0, 16);
 function socketPathOf(authDir, key) {
   if (process.platform === "win32") return `\\\\.\\pipe\\${RUNTIME_PREFIX}-${hashOf(key)}`;
-  const near = join3(standingsDirOf(authDir), `${hashOf(key)}.sock`);
+  const near = join4(standingsDirOf(authDir), `${hashOf(key)}.sock`);
   if (Buffer.byteLength(near) <= SOCKET_PATH_MAX) return near;
-  return join3(shortSocketDir(), `${hashOf(resolve2(authDir) + "\0" + key)}.sock`);
+  return join4(shortSocketDir(), `${hashOf(resolve2(authDir) + "\0" + key)}.sock`);
 }
 var SOCKET_PATH_MAX = 103;
-var shortSocketDir = () => join3(
+var shortSocketDir = () => join4(
   "/tmp",
   `${RUNTIME_PREFIX}-${typeof process.getuid === "function" ? process.getuid() : "u"}`
 );
@@ -1337,28 +1401,28 @@ function privateDirProblem(dir) {
   if (st.mode & 63) return W3.openToOthers(dir);
   return null;
 }
-var keyFilePathOf = (authDir, key) => join3(standingsDirOf(authDir), `${hashOf(key)}.key`);
-var holdFilePathOf = (authDir, key) => join3(standingsDirOf(authDir), `${hashOf(key)}.hold`);
-var baseFilePathOf = (authDir, key) => join3(standingsDirOf(authDir), `${hashOf(key)}.base`);
-var takingFilePathOf = (authDir, key) => join3(standingsDirOf(authDir), `${hashOf(key)}.taking`);
-var spoolFilePathOf = (authDir, key) => join3(standingsDirOf(authDir), `${hashOf(key)}.spool`);
+var keyFilePathOf = (authDir, key) => join4(standingsDirOf(authDir), `${hashOf(key)}.key`);
+var holdFilePathOf = (authDir, key) => join4(standingsDirOf(authDir), `${hashOf(key)}.hold`);
+var baseFilePathOf = (authDir, key) => join4(standingsDirOf(authDir), `${hashOf(key)}.base`);
+var takingFilePathOf = (authDir, key) => join4(standingsDirOf(authDir), `${hashOf(key)}.taking`);
+var spoolFilePathOf = (authDir, key) => join4(standingsDirOf(authDir), `${hashOf(key)}.spool`);
 function seenFilePathOf(authDir, key, server = "") {
-  if (!server) return join3(standingsDirOf(authDir), `${hashOf(key)}.seen`);
+  if (!server) return join4(standingsDirOf(authDir), `${hashOf(key)}.seen`);
   let origin = server;
   try {
     origin = new URL(server).origin;
   } catch {
   }
-  return join3(standingsDirOf(authDir), `${hashOf(key)}.${hashOf(origin).slice(0, 8)}.seen`);
+  return join4(standingsDirOf(authDir), `${hashOf(key)}.${hashOf(origin).slice(0, 8)}.seen`);
 }
 
 // js/shared/seam-entrance.ts
 var seamKey = (authDir) => createHash4("sha256").update(resolve3(authDir)).digest("hex").slice(0, 16);
-var seamRunDir = (authDir) => join4(resolve3(authDir), "run");
+var seamRunDir = (authDir) => join5(resolve3(authDir), "run");
 var SUN_PATH_MAX = 103;
 function pipeNonce(authDir) {
   const run = seamRunDir(authDir);
-  const file = join4(run, "pipe");
+  const file = join5(run, "pipe");
   mkdirSync2(run, { recursive: true, mode: 448 });
   const tmp = `${file}.${process.pid}-${randomBytes(6).toString("hex")}`;
   try {
@@ -1372,7 +1436,7 @@ function pipeNonce(authDir) {
     }
   }
   for (let i = 0; i < 50; i++) {
-    const word3 = readFileSync3(file, "utf8").trim();
+    const word3 = readFileSync4(file, "utf8").trim();
     if (word3) return word3;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
   }
@@ -1382,9 +1446,9 @@ function seamSocketPath(authDir) {
   const key = seamKey(authDir);
   if (process.platform === "win32")
     return `\\\\.\\pipe\\${RUNTIME_PREFIX}-daemon-${key}-${pipeNonce(authDir)}`;
-  const inRun = join4(seamRunDir(authDir), "daemon.sock");
+  const inRun = join5(seamRunDir(authDir), "daemon.sock");
   if (Buffer.byteLength(inRun) <= SUN_PATH_MAX) return inRun;
-  return join4(shortSocketDir(), `daemon-${key}.sock`);
+  return join5(shortSocketDir(), `daemon-${key}.sock`);
 }
 function seamEntranceProblem(authDir) {
   if (process.platform === "win32") return null;
@@ -1399,8 +1463,8 @@ function seamEntranceProblem(authDir) {
   const sockDir = dirname(seamSocketPath(authDir));
   return sockDir === run ? null : privateDirProblem(sockDir);
 }
-var seamRaiseLockPath = (authDir) => join4(seamRunDir(authDir), "daemon.raising");
-var seamDaemonLockPath = (authDir) => join4(seamRunDir(authDir), "daemon.lock");
+var seamRaiseLockPath = (authDir) => join5(seamRunDir(authDir), "daemon.raising");
+var seamDaemonLockPath = (authDir) => join5(seamRunDir(authDir), "daemon.lock");
 var ownPidAlive = (pid) => {
   if (!Number.isInteger(pid) || pid <= 0) return false;
   try {
@@ -1412,7 +1476,7 @@ var ownPidAlive = (pid) => {
 };
 var readLock = (path) => {
   try {
-    return JSON.parse(readFileSync3(path, "utf8"));
+    return JSON.parse(readFileSync4(path, "utf8"));
   } catch {
     return null;
   }
@@ -1718,9 +1782,9 @@ function compareVersions(a, b) {
 }
 
 // js/bridge/config.ts
-import { mkdirSync as mkdirSync3, readFileSync as readFileSync4, renameSync as renameSync2, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir as homedir3 } from "node:os";
-import { join as join5 } from "node:path";
+import { mkdirSync as mkdirSync3, readFileSync as readFileSync5, renameSync as renameSync2, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir4 } from "node:os";
+import { join as join6 } from "node:path";
 
 // js/bridge/streams.ts
 var FLUSH_STOP_MS = 5e3;
@@ -1805,10 +1869,10 @@ function resolveServerChoice(word3) {
     return null;
   }
 }
-var serverChoicePath = (authDir) => join5(authDir, "server");
+var serverChoicePath = (authDir) => join6(authDir, "server");
 function readServerChoice(authDir) {
   try {
-    const text = readFileSync4(serverChoicePath(authDir), "utf8").trim();
+    const text = readFileSync5(serverChoicePath(authDir), "utf8").trim();
     return text ? new URL(text).href : null;
   } catch {
     return null;
@@ -1855,7 +1919,7 @@ function readArgs(argv2) {
   const cfg = {
     serverUrl: "",
     timeoutMs: Number(envOf(envName("BRIDGE_TIMEOUT"))) || 12e4,
-    authDir: envOf(envName("BRIDGE_AUTH_DIR")) || join5(homedir3(), HOME_DIR),
+    authDir: envOf(envName("BRIDGE_AUTH_DIR")) || join6(homedir4(), HOME_DIR),
     clientName: BRIDGE_NAME,
     noBrowser: !!envOf(envName("BRIDGE_NO_BROWSER")),
     debug: !!envOf(envName("BRIDGE_DEBUG")),
@@ -1913,9 +1977,9 @@ function readPat(cfg) {
     cfg.patSource = envName("BRIDGE_TOKEN");
     return;
   }
-  const file = join5(cfg.authDir, "token");
+  const file = join6(cfg.authDir, "token");
   try {
-    const text = readFileSync4(file, "utf8").trim();
+    const text = readFileSync5(file, "utf8").trim();
     if (text) {
       cfg.pat = text;
       cfg.patSource = file;
@@ -2028,24 +2092,24 @@ import { createHash as createHash5 } from "node:crypto";
 import {
   appendFileSync,
   mkdirSync as mkdirSync4,
-  readFileSync as readFileSync5,
+  readFileSync as readFileSync6,
   renameSync as renameSync3,
   statSync,
   unlinkSync as unlinkSync3,
   writeFileSync as writeFileSync3
 } from "node:fs";
-import { join as join6 } from "node:path";
+import { join as join7 } from "node:path";
 var b64url = (buf) => Buffer.from(buf).toString("base64url");
 var sha256 = (s2) => createHash5("sha256").update(s2).digest();
 var sleep = (ms2) => new Promise((r) => setTimeout(r, ms2));
 function storePath() {
   const u = new URL(CFG.serverUrl);
   const h = b64url(sha256(u.origin + u.pathname)).slice(0, 10);
-  return join6(CFG.authDir, `${u.hostname}_${h}.json`);
+  return join7(CFG.authDir, `${u.hostname}_${h}.json`);
 }
 function loadStore() {
   try {
-    return JSON.parse(readFileSync5(storePath(), "utf8"));
+    return JSON.parse(readFileSync6(storePath(), "utf8"));
   } catch {
     return {};
   }
@@ -2076,7 +2140,7 @@ function serverCachePath() {
 }
 function loadServerCache() {
   try {
-    return JSON.parse(readFileSync5(serverCachePath(), "utf8"));
+    return JSON.parse(readFileSync6(serverCachePath(), "utf8"));
   } catch {
     return {};
   }
@@ -2091,7 +2155,7 @@ function saveServerCache(patch) {
   }
 }
 function grantLogPath() {
-  return join6(CFG.authDir, "grant.log");
+  return join7(CFG.authDir, "grant.log");
 }
 function grantLog(msg) {
   appendJournal(grantLogPath(), msg);
@@ -2114,7 +2178,7 @@ function appendJournal(path, msg) {
   }
 }
 function standingsLogPath() {
-  return join6(CFG.authDir, "standings.log");
+  return join7(CFG.authDir, "standings.log");
 }
 function standingLog(msg) {
   appendJournal(standingsLogPath(), msg);
@@ -2124,7 +2188,7 @@ function grantStatePath() {
 }
 function loadGrantState() {
   try {
-    return JSON.parse(readFileSync5(grantStatePath(), "utf8"));
+    return JSON.parse(readFileSync6(grantStatePath(), "utf8"));
   } catch {
     return {};
   }
@@ -2150,13 +2214,13 @@ function clearGrantState() {
 import {
   mkdirSync as mkdirSync5,
   readdirSync,
-  readFileSync as readFileSync6,
+  readFileSync as readFileSync7,
   renameSync as renameSync4,
   unlinkSync as unlinkSync4,
   writeFileSync as writeFileSync4
 } from "node:fs";
 import { connect as connect3 } from "node:net";
-import { basename, dirname as dirname2, join as join7 } from "node:path";
+import { basename, dirname as dirname2, join as join8 } from "node:path";
 
 // js/bridge/clock.ts
 var SKEW_NOISE_MS = 5e3;
@@ -2279,7 +2343,7 @@ function portListening(port, timeoutMs = 700) {
 }
 function readAuthLock() {
   try {
-    return JSON.parse(readFileSync6(authLockPath(), "utf8"));
+    return JSON.parse(readFileSync7(authLockPath(), "utf8"));
   } catch {
     return null;
   }
@@ -2325,7 +2389,7 @@ function sweepTabMarks() {
   const prefix = `${basename(authLockPath())}.tab-`;
   try {
     for (const f of readdirSync(dirname2(authLockPath()))) {
-      if (f.startsWith(prefix)) unlinkSync4(join7(dirname2(authLockPath()), f));
+      if (f.startsWith(prefix)) unlinkSync4(join8(dirname2(authLockPath()), f));
     }
   } catch {
   }
@@ -2333,7 +2397,7 @@ function sweepTabMarks() {
 function installAuthLockExitHook() {
   process.on("exit", () => {
     try {
-      const l = JSON.parse(readFileSync6(authLockPath(), "utf8"));
+      const l = JSON.parse(readFileSync7(authLockPath(), "utf8"));
       if (l.pid === process.pid && !l.authorize_url) unlinkSync4(authLockPath());
     } catch {
     }
@@ -2489,7 +2553,7 @@ async function registerDeviceClient(meta, redirectUri) {
 
 // js/bridge/oauth/discovery.ts
 import { spawn } from "node:child_process";
-import { join as join8 } from "node:path";
+import { join as join9 } from "node:path";
 async function fetchJson(url, opts = {}, timeoutMs = 15e3) {
   const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(timeoutMs) });
   noteServerDate(res);
@@ -2606,7 +2670,7 @@ function openBrowser(url) {
   }
 }
 function windowsOpener(url) {
-  const powershell = join8(
+  const powershell = join9(
     process.env.SystemRoot || "C:\\Windows",
     "System32",
     "WindowsPowerShell",
@@ -2829,11 +2893,11 @@ function deviceSide(meta, redirectUri, resume, onCode, called) {
 }
 
 // js/bridge/oauth/devicehandout.ts
-import { readFileSync as readFileSync7, renameSync as renameSync5, writeFileSync as writeFileSync5 } from "node:fs";
+import { readFileSync as readFileSync8, renameSync as renameSync5, writeFileSync as writeFileSync5 } from "node:fs";
 var freshPath = () => `${authLockPath()}.device`;
 function callerCode(state2) {
   try {
-    const f = JSON.parse(readFileSync7(freshPath(), "utf8"));
+    const f = JSON.parse(readFileSync8(freshPath(), "utf8"));
     return state2 && f.state === state2 ? f.code : void 0;
   } catch {
     return void 0;
@@ -3184,7 +3248,7 @@ function idleWatch(idleMs, busy, leave) {
 }
 
 // js/bridge/oauth/refreshlock.ts
-import { linkSync as linkSync2, mkdirSync as mkdirSync6, readFileSync as readFileSync8, unlinkSync as unlinkSync5, writeFileSync as writeFileSync6 } from "node:fs";
+import { linkSync as linkSync2, mkdirSync as mkdirSync6, readFileSync as readFileSync9, unlinkSync as unlinkSync5, writeFileSync as writeFileSync6 } from "node:fs";
 var REFRESH_LOCK_STALE_MS = 45e3;
 function refreshLockPath() {
   return storePath() + ".refreshing";
@@ -3218,7 +3282,7 @@ function acquireRefreshLock() {
   }
   let held2 = null;
   try {
-    held2 = JSON.parse(readFileSync8(refreshLockPath(), "utf8"));
+    held2 = JSON.parse(readFileSync9(refreshLockPath(), "utf8"));
   } catch {
   }
   if (held2 && pidAlive(held2.pid) && Date.now() - held2.started_at < REFRESH_LOCK_STALE_MS) {
@@ -3238,7 +3302,7 @@ function acquireRefreshLock() {
 }
 function releaseRefreshLock() {
   try {
-    const l = JSON.parse(readFileSync8(refreshLockPath(), "utf8"));
+    const l = JSON.parse(readFileSync9(refreshLockPath(), "utf8"));
     if (l.pid === process.pid) unlinkSync5(refreshLockPath());
   } catch {
   }
@@ -3748,7 +3812,7 @@ function holdSocket(o) {
 }
 
 // js/shared/seen.ts
-import { appendFileSync as appendFileSync2, readFileSync as readFileSync9, renameSync as renameSync6, writeFileSync as writeFileSync7 } from "node:fs";
+import { appendFileSync as appendFileSync2, readFileSync as readFileSync10, renameSync as renameSync6, writeFileSync as writeFileSync7 } from "node:fs";
 
 // js/shared/room-fields.ts
 var obj = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
@@ -4260,7 +4324,7 @@ function splitBatch(all2, keep, has) {
 }
 function seenIds(seenPath) {
   try {
-    return new Set(readFileSync9(seenPath, "utf8").split("\n").filter(Boolean));
+    return new Set(readFileSync10(seenPath, "utf8").split("\n").filter(Boolean));
   } catch {
     return /* @__PURE__ */ new Set();
   }
@@ -4286,12 +4350,12 @@ function compact(seenPath, seen) {
 }
 
 // js/bridge/askdisk.ts
-import { appendFileSync as appendFileSync3, readFileSync as readFileSync10 } from "node:fs";
+import { appendFileSync as appendFileSync3, readFileSync as readFileSync11 } from "node:fs";
 var asksPathOf = (seenPath) => seenPath.replace(/\.seen$/, "") + ".asks";
 var loaded = /* @__PURE__ */ new Map();
 function load(path) {
   try {
-    return new Set(readFileSync10(path, "utf8").split("\n").filter(Boolean));
+    return new Set(readFileSync11(path, "utf8").split("\n").filter(Boolean));
   } catch {
     return /* @__PURE__ */ new Set();
   }
@@ -4472,10 +4536,10 @@ var PART_MIN = 3;
 var CUT_ORDER = ["repo", "host", "model"];
 function fitName(parts) {
   const p = { ...parts };
-  const join32 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
+  const join33 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
   const cut = [];
   for (const k of CUT_ORDER) {
-    const over = join32().length - NAME_MAX;
+    const over = join33().length - NAME_MAX;
     if (over <= 0) break;
     const keep = Math.max(k === "model" ? 1 : PART_MIN, p[k].length - over);
     if (keep >= p[k].length) continue;
@@ -4483,7 +4547,7 @@ function fitName(parts) {
     cut.push(k);
   }
   return {
-    name: join32().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
+    name: join33().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
     cut
   };
 }
@@ -5344,13 +5408,13 @@ var StaleBurst = class {
 };
 
 // js/bridge/sweep.ts
-import { existsSync, readdirSync as readdirSync3, readFileSync as readFileSync12, statSync as statSync3, unlinkSync as unlinkSync8 } from "node:fs";
+import { existsSync, readdirSync as readdirSync3, readFileSync as readFileSync13, statSync as statSync3, unlinkSync as unlinkSync8 } from "node:fs";
 import { connect as connectLocal } from "node:net";
-import { basename as basename3, join as join10 } from "node:path";
+import { basename as basename3, join as join11 } from "node:path";
 
 // js/bridge/holdrecord.ts
-import { mkdirSync as mkdirSync7, readdirSync as readdirSync2, readFileSync as readFileSync11, unlinkSync as unlinkSync7, writeFileSync as writeFileSync9 } from "node:fs";
-import { dirname as dirname4, join as join9 } from "node:path";
+import { mkdirSync as mkdirSync7, readdirSync as readdirSync2, readFileSync as readFileSync12, unlinkSync as unlinkSync7, writeFileSync as writeFileSync9 } from "node:fs";
+import { dirname as dirname4, join as join10 } from "node:path";
 var holdFilePathFor = (key) => holdFilePathOf(CFG.authDir, key);
 function keyOf(realm, karta, name) {
   return `${name || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
@@ -5363,7 +5427,7 @@ function noteHarnessSession(id) {
 var sessionOfBridge = () => H.session;
 function onDisk(key) {
   try {
-    return JSON.parse(readFileSync11(holdFilePathFor(key), "utf8"));
+    return JSON.parse(readFileSync12(holdFilePathFor(key), "utf8"));
   } catch {
     return null;
   }
@@ -5382,7 +5446,7 @@ function noteSeatBase(key, base) {
 }
 var baseOnDisk = (key) => {
   try {
-    return readFileSync11(baseFilePathOf(CFG.authDir, key), "utf8").trim() || null;
+    return readFileSync12(baseFilePathOf(CFG.authDir, key), "utf8").trim() || null;
   } catch {
     return null;
   }
@@ -5429,7 +5493,7 @@ function markLeft(key, on) {
 }
 function readHoldRecord(key, anyAge = false) {
   try {
-    const r = JSON.parse(readFileSync11(holdFilePathFor(key), "utf8"));
+    const r = JSON.parse(readFileSync12(holdFilePathFor(key), "utf8"));
     if (!r || typeof r.url !== "string" || !r.realm || r.karta == null) return null;
     if (anyAge) return r;
     if (typeof r.at !== "number" || Date.now() - r.at > HOLD_RECORD_MAX_AGE_MS) {
@@ -5446,7 +5510,7 @@ function holdRecordsNamed(name) {
   try {
     return readdirSync2(dir).filter((f) => f.endsWith(".hold")).map((f) => {
       try {
-        return JSON.parse(readFileSync11(join9(dir, f), "utf8"));
+        return JSON.parse(readFileSync12(join10(dir, f), "utf8"));
       } catch {
         return null;
       }
@@ -5486,9 +5550,9 @@ function sweepStale(authDir, mine) {
   if (!existsSync(dir)) return;
   const mineHash = basename3(seenFilePathOf(authDir, mine), ".seen");
   for (const f of readdirSync3(dir).filter((x) => x.endsWith(".seen"))) {
-    const p = join10(dir, f);
+    const p = join11(dir, f);
     const [keyHash, serverHash] = f.split(".");
-    if (keyHash === mineHash || existsSync(join10(dir, `${keyHash}.key`))) continue;
+    if (keyHash === mineHash || existsSync(join11(dir, `${keyHash}.key`))) continue;
     try {
       if (serverHash === "seen" || Date.now() - statSync3(p).mtimeMs > SEEN_FILE_MAX_AGE_MS)
         unlinkSync8(p);
@@ -5497,39 +5561,39 @@ function sweepStale(authDir, mine) {
   }
   for (const f of readdirSync3(dir).filter((x) => x.endsWith(".asks"))) {
     const keyHash = f.split(".")[0];
-    if (keyHash === mineHash || existsSync(join10(dir, `${keyHash}.key`))) continue;
-    if (existsSync(join10(dir, `${basename3(f, ".asks")}.seen`))) continue;
+    if (keyHash === mineHash || existsSync(join11(dir, `${keyHash}.key`))) continue;
+    if (existsSync(join11(dir, `${basename3(f, ".asks")}.seen`))) continue;
     try {
-      unlinkSync8(join10(dir, f));
+      unlinkSync8(join11(dir, f));
     } catch {
     }
   }
   for (const f of readdirSync3(dir).filter((x) => x.endsWith(".hold"))) {
-    if (existsSync(join10(dir, `${basename3(f, ".hold")}.key`))) continue;
+    if (existsSync(join11(dir, `${basename3(f, ".hold")}.key`))) continue;
     try {
-      const rec5 = JSON.parse(readFileSync12(join10(dir, f), "utf8"));
+      const rec5 = JSON.parse(readFileSync13(join11(dir, f), "utf8"));
       if (typeof rec5.at !== "number" || Date.now() - rec5.at > HOLD_RECORD_MAX_AGE_MS)
-        unlinkSync8(join10(dir, f));
+        unlinkSync8(join11(dir, f));
     } catch {
       try {
-        unlinkSync8(join10(dir, f));
+        unlinkSync8(join11(dir, f));
       } catch {
       }
     }
   }
   for (const f of readdirSync3(dir).filter((x) => x.endsWith(".spool"))) {
     try {
-      if (Date.now() - statSync3(join10(dir, f)).mtimeMs > HOLD_RECORD_MAX_AGE_MS)
-        unlinkSync8(join10(dir, f));
+      if (Date.now() - statSync3(join11(dir, f)).mtimeMs > HOLD_RECORD_MAX_AGE_MS)
+        unlinkSync8(join11(dir, f));
     } catch {
     }
   }
   if (process.platform === "win32") return;
   for (const f of readdirSync3(dir).filter((x) => x.endsWith(".key"))) {
-    const keyFile = join10(dir, f);
+    const keyFile = join11(dir, f);
     let key;
     try {
-      key = readFileSync12(keyFile, "utf8").trim();
+      key = readFileSync13(keyFile, "utf8").trim();
     } catch {
       continue;
     }
@@ -6019,7 +6083,7 @@ function routeFrame(frame2, primary) {
 }
 
 // js/bridge/spool.ts
-import { appendFileSync as appendFileSync4, mkdirSync as mkdirSync9, readFileSync as readFileSync13, unlinkSync as unlinkSync10 } from "node:fs";
+import { appendFileSync as appendFileSync4, mkdirSync as mkdirSync9, readFileSync as readFileSync14, unlinkSync as unlinkSync10 } from "node:fs";
 import { dirname as dirname6 } from "node:path";
 var HANDOFF_MS = Number(process.env[envName("BRIDGE_DAEMON_HANDOFF_MS")]) || 12e3;
 var DRAIN_MS = HANDOFF_MS + 5e3;
@@ -6054,7 +6118,7 @@ function parseFrame(raw) {
 function entries(path) {
   let text;
   try {
-    text = readFileSync13(path, "utf8");
+    text = readFileSync14(path, "utf8");
   } catch {
     return null;
   }
@@ -6540,8 +6604,8 @@ function openHolder(url, key) {
 }
 
 // js/bridge/status.ts
-import { existsSync as existsSync5, readdirSync as readdirSync7, readFileSync as readFileSync20, statSync as statSync6 } from "node:fs";
-import { isAbsolute, join as join16 } from "node:path";
+import { existsSync as existsSync5, readdirSync as readdirSync7, readFileSync as readFileSync21, statSync as statSync6 } from "node:fs";
+import { isAbsolute, join as join17 } from "node:path";
 
 // js/shared/busyargs.ts
 var STATUS_ONLY_ARGS = /* @__PURE__ */ new Set([
@@ -6704,8 +6768,8 @@ function listenLine(key) {
 }
 
 // js/bridge/hearing.ts
-import { readdirSync as readdirSync4, readFileSync as readFileSync14 } from "node:fs";
-import { join as join11 } from "node:path";
+import { readdirSync as readdirSync4, readFileSync as readFileSync15 } from "node:fs";
+import { join as join12 } from "node:path";
 
 // js/shared/canon.ts
 import { realpathSync as realpathSync2 } from "node:fs";
@@ -6761,7 +6825,7 @@ function boardHearing(bd, karta, name) {
 function keysNamed(realm, name) {
   const dir = standingsDirOf(CFG.authDir);
   try {
-    return readdirSync4(dir).filter((f) => f.endsWith(".key")).map((f) => readFileSync14(join11(dir, f), "utf8").trim()).filter((k) => {
+    return readdirSync4(dir).filter((f) => f.endsWith(".key")).map((f) => readFileSync15(join12(dir, f), "utf8").trim()).filter((k) => {
       const m = /^.*?--(.+)--/.exec(k);
       return !!m && keyOf(realm, m[1], name) === k;
     });
@@ -6858,26 +6922,26 @@ async function deafRefusal(msg) {
 import { randomBytes as randomBytes3 } from "node:crypto";
 import {
   mkdirSync as mkdirSync10,
-  readFileSync as readFileSync17,
+  readFileSync as readFileSync18,
   renameSync as renameSync8,
   rmSync,
   statSync as statSync5,
   unlinkSync as unlinkSync11,
   writeFileSync as writeFileSync10
 } from "node:fs";
-import { join as join14 } from "node:path";
+import { join as join15 } from "node:path";
 
 // js/bridge/skillset.ts
 import { createHash as createHash7 } from "node:crypto";
-import { existsSync as existsSync3, readdirSync as readdirSync5, readFileSync as readFileSync16, statSync as statSync4 } from "node:fs";
-import { homedir as homedir5 } from "node:os";
-import { dirname as dirname8, join as join13, resolve as resolve6 } from "node:path";
+import { existsSync as existsSync3, readdirSync as readdirSync5, readFileSync as readFileSync17, statSync as statSync4 } from "node:fs";
+import { homedir as homedir6 } from "node:os";
+import { dirname as dirname8, join as join14, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
 // js/shared/skilllock.ts
-import { existsSync as existsSync2, readFileSync as readFileSync15, realpathSync as realpathSync3 } from "node:fs";
-import { homedir as homedir4 } from "node:os";
-import { basename as basename4, dirname as dirname7, join as join12, resolve as resolve5 } from "node:path";
+import { existsSync as existsSync2, readFileSync as readFileSync16, realpathSync as realpathSync3 } from "node:fs";
+import { homedir as homedir5 } from "node:os";
+import { basename as basename4, dirname as dirname7, join as join13, resolve as resolve5 } from "node:path";
 var canon = (p) => {
   try {
     return realpathSync3(p);
@@ -6887,18 +6951,18 @@ var canon = (p) => {
 };
 function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
   const places = [];
-  if (stateHome && canon(root) === canon(join12(homedir4(), ".agents", "skills")))
-    places.push(join12(stateHome, "skills", ".skill-lock.json"));
-  places.push(join12(dirname7(root), ".skill-lock.json"));
+  if (stateHome && canon(root) === canon(join13(homedir5(), ".agents", "skills")))
+    places.push(join13(stateHome, "skills", ".skill-lock.json"));
+  places.push(join13(dirname7(root), ".skill-lock.json"));
   if (basename4(root) === "skills" && basename4(dirname7(root)) === ".agents")
-    places.push(join12(dirname7(dirname7(root)), "skills-lock.json"));
+    places.push(join13(dirname7(dirname7(root)), "skills-lock.json"));
   return places;
 }
 function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
   const place = lockPlaces(root, stateHome).find((p) => existsSync2(p));
   if (!place) return null;
   try {
-    const lock = JSON.parse(readFileSync15(place, "utf8"));
+    const lock = JSON.parse(readFileSync16(place, "utf8"));
     return lock.skills ?? {};
   } catch {
     return null;
@@ -6907,17 +6971,17 @@ function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
 
 // js/bridge/skillset.ts
 var SET = SKILL_SET;
-var BRIDGE_IN_SET = join13(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
+var BRIDGE_IN_SET = join14(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
 var env = (k) => envOf(k)?.trim() ?? "";
 function skillsRoot(self = currentScope().origin?.path || fileURLToPath3(import.meta.url)) {
   const plugin = env("CLAUDE_PLUGIN_ROOT");
   const candidates = [
     env(SKILLS_ROOT_ENV),
     resolve6(dirname8(self), "..", ".."),
-    plugin ? join13(plugin, "skills") : "",
-    join13(homedir5(), ".agents", "skills")
+    plugin ? join14(plugin, "skills") : "",
+    join14(homedir6(), ".agents", "skills")
   ];
-  for (const c of candidates) if (c && existsSync3(join13(c, BRIDGE_IN_SET))) return resolve6(c);
+  for (const c of candidates) if (c && existsSync3(join14(c, BRIDGE_IN_SET))) return resolve6(c);
   return null;
 }
 var sha8 = (h) => h.digest("hex").slice(0, 8);
@@ -6940,14 +7004,14 @@ var isFileAt = (p) => {
 function allFiles(dir, at2 = "") {
   let entries2;
   try {
-    entries2 = readdirSync5(join13(dir, at2), { withFileTypes: true });
+    entries2 = readdirSync5(join14(dir, at2), { withFileTypes: true });
   } catch {
     return [];
   }
   return entries2.flatMap((e) => {
     const rel = at2 ? `${at2}/${e.name}` : e.name;
     if (e.isDirectory()) return allFiles(dir, rel);
-    return e.isFile() || e.isSymbolicLink() && isFileAt(join13(dir, rel)) ? [rel] : [];
+    return e.isFile() || e.isSymbolicLink() && isFileAt(join14(dir, rel)) ? [rel] : [];
   }).sort();
 }
 function treeStamp(root, mask = SKILL_STAMP_MASK) {
@@ -6964,11 +7028,11 @@ function treeStamp(root, mask = SKILL_STAMP_MASK) {
     return null;
   }
   for (const name of names2) {
-    const files = rest2 === "**" ? allFiles(join13(root, name)) : [rest2];
+    const files = rest2 === "**" ? allFiles(join14(root, name)) : [rest2];
     const bodies = [];
     for (const rel of files) {
       try {
-        bodies.push([rel, readFileSync16(join13(root, name, rel))]);
+        bodies.push([rel, readFileSync17(join14(root, name, rel))]);
       } catch {
       }
     }
@@ -6988,7 +7052,7 @@ function skillsAttr() {
   if (!root) return { name: SET, version: "unknown" };
   let version = "unknown";
   try {
-    version = versionIn(readFileSync16(join13(root, BRIDGE_IN_SET), "utf8")) ?? "unknown";
+    version = versionIn(readFileSync17(join14(root, BRIDGE_IN_SET), "utf8")) ?? "unknown";
   } catch {
   }
   const lock = lockSet(root);
@@ -7059,8 +7123,8 @@ function withPlaceFields(args) {
 // js/bridge/satellite.ts
 var SATELLITE_TTL_S = Number(process.env[envName("BRIDGE_SATELLITE_TTL")]) || 300;
 var sw = () => words(SATELLITE);
-var claimDir = () => join14(CFG.authDir, "satellites");
-var claimFile = (name) => join14(claimDir(), `${name.replace(/[^A-Za-z0-9._-]+/g, "_")}.claim`);
+var claimDir = () => join15(CFG.authDir, "satellites");
+var claimFile = (name) => join15(claimDir(), `${name.replace(/[^A-Za-z0-9._-]+/g, "_")}.claim`);
 var claims = scoped(() => /* @__PURE__ */ new Set());
 var allClaims = /* @__PURE__ */ new Map();
 var releaseOnExit = false;
@@ -7078,7 +7142,7 @@ function claimName(name) {
   const file = claimFile(name);
   let pid = 0;
   try {
-    pid = Number(readFileSync17(file, "utf8").trim());
+    pid = Number(readFileSync18(file, "utf8").trim());
   } catch {
   }
   const me = sessionPid();
@@ -7093,7 +7157,7 @@ function claimName(name) {
 }
 var dropClaim = (f, pid) => {
   try {
-    if (Number(readFileSync17(f, "utf8").trim()) === pid) unlinkSync11(f);
+    if (Number(readFileSync18(f, "utf8").trim()) === pid) unlinkSync11(f);
   } catch {
   }
   allClaims.delete(f);
@@ -7109,7 +7173,7 @@ function releaseAllClaims() {
 var LOCK_OWNER = "owner";
 function lockOwner(lock) {
   try {
-    return readFileSync17(join14(lock, LOCK_OWNER), "utf8").trim();
+    return readFileSync18(join15(lock, LOCK_OWNER), "utf8").trim();
   } catch {
     return null;
   }
@@ -7136,7 +7200,7 @@ function takeLock(lock, owner) {
   return null;
 }
 async function underClaimLock(fn) {
-  const lock = join14(claimDir(), ".lock");
+  const lock = join15(claimDir(), ".lock");
   const token = `${process.pid} ${randomBytes3(8).toString("hex")}`;
   let fault = null;
   try {
@@ -7158,7 +7222,7 @@ async function underClaimLock(fn) {
       continue;
     }
     try {
-      writeFileSync10(join14(lock, LOCK_OWNER), `${token}
+      writeFileSync10(join15(lock, LOCK_OWNER), `${token}
 `, { mode: 384 });
     } catch (e) {
       fault = e.message;
@@ -7644,8 +7708,8 @@ function realmListAsk() {
 }
 
 // js/bridge/resumepick.ts
-import { existsSync as existsSync4, readdirSync as readdirSync6, readFileSync as readFileSync18 } from "node:fs";
-import { join as join15 } from "node:path";
+import { existsSync as existsSync4, readdirSync as readdirSync6, readFileSync as readFileSync19 } from "node:fs";
+import { join as join16 } from "node:path";
 function recordsFor(sel) {
   const dir = standingsDirOf(CFG.authDir);
   if (!existsSync4(dir)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
@@ -7659,7 +7723,7 @@ function recordsFor(sel) {
   const neighbour = [];
   for (const f of readdirSync6(dir).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec5 = JSON.parse(readFileSync18(join15(dir, f), "utf8"));
+      const rec5 = JSON.parse(readFileSync19(join16(dir, f), "utf8"));
       if (!rec5 || rec5.client !== mine) continue;
       const key = keyOf(rec5.realm, rec5.karta, rec5.name);
       const keyed2 = !!sel.key && key === sel.key;
@@ -8240,7 +8304,7 @@ async function seatFor(realm, karta, base, hearing, besideRealm, cwd, root = bas
 }
 
 // js/bridge/taking.ts
-import { mkdirSync as mkdirSync11, readFileSync as readFileSync19, unlinkSync as unlinkSync12, writeFileSync as writeFileSync11 } from "node:fs";
+import { mkdirSync as mkdirSync11, readFileSync as readFileSync20, unlinkSync as unlinkSync12, writeFileSync as writeFileSync11 } from "node:fs";
 import { dirname as dirname9 } from "node:path";
 var pathOf = (key) => takingFilePathOf(CFG.authDir, key);
 var alive3 = (pid) => {
@@ -8253,7 +8317,7 @@ var alive3 = (pid) => {
 };
 function takerOf(key) {
   try {
-    const t = JSON.parse(readFileSync19(pathOf(key), "utf8"));
+    const t = JSON.parse(readFileSync20(pathOf(key), "utf8"));
     return typeof t.session === "string" && alive3(t.pid) ? t.session : null;
   } catch {
     return null;
@@ -8928,7 +8992,7 @@ async function heldElsewhere(realm) {
   const out7 = [];
   for (const f of readdirSync7(dir).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec5 = JSON.parse(readFileSync20(join16(dir, f), "utf8"));
+      const rec5 = JSON.parse(readFileSync21(join17(dir, f), "utf8"));
       if (!rec5?.realm || rec5.karta == null) continue;
       if (!anyRealm && slugOf(String(rec5.realm)) !== slugOf(realm)) continue;
       const key = keyOf(rec5.realm, rec5.karta, rec5.name ?? "");
@@ -8953,19 +9017,19 @@ async function notHeldHere(realm) {
 
 // js/bridge/update.ts
 import { spawn as spawn2 } from "node:child_process";
-import { existsSync as existsSync6, lstatSync as lstatSync3, readFileSync as readFileSync22 } from "node:fs";
-import { homedir as homedir6 } from "node:os";
-import { dirname as dirname11, join as join18 } from "node:path";
+import { existsSync as existsSync6, lstatSync as lstatSync3, readFileSync as readFileSync23 } from "node:fs";
+import { homedir as homedir7 } from "node:os";
+import { dirname as dirname11, join as join19 } from "node:path";
 import { fileURLToPath as fileURLToPath4 } from "node:url";
 
 // js/bridge/releases.ts
-import { mkdirSync as mkdirSync12, readFileSync as readFileSync21, renameSync as renameSync9, writeFileSync as writeFileSync12 } from "node:fs";
-import { dirname as dirname10, join as join17 } from "node:path";
+import { mkdirSync as mkdirSync12, readFileSync as readFileSync22, renameSync as renameSync9, writeFileSync as writeFileSync12 } from "node:fs";
+import { dirname as dirname10, join as join18 } from "node:path";
 var rw = () => words(RELEASES);
 var RELEASES_URL = process.env[envName("BRIDGE_RELEASES_URL")]?.trim() || `https://api.github.com/repos/${SKILL_SET}/releases/latest`;
 var RELEASES_PAGE_URL = process.env[envName("BRIDGE_RELEASES_PAGE_URL")]?.trim() || (process.env[envName("BRIDGE_RELEASES_URL")]?.trim() ? null : `https://github.com/${SKILL_SET}/releases/latest`);
 var TAG_TTL_MS = 60 * 60 * 1e3;
-var releaseTagPath = () => join17(dirname10(homeBridgePath()), "release-tag.json");
+var releaseTagPath = () => join18(dirname10(homeBridgePath()), "release-tag.json");
 function writeAtomic(path, bytes) {
   mkdirSync12(dirname10(path), { recursive: true, mode: 448 });
   const tmp = `${path}.tmp-${process.pid}`;
@@ -9030,7 +9094,7 @@ async function tagFromPage(url) {
 }
 function readReleaseTag() {
   try {
-    const c = JSON.parse(readFileSync21(releaseTagPath(), "utf8"));
+    const c = JSON.parse(readFileSync22(releaseTagPath(), "utf8"));
     return c.source === RELEASES_URL ? c : null;
   } catch {
     return null;
@@ -9104,9 +9168,9 @@ var RETRY_FLOOR_MS = envMs(envName("BRIDGE_RETRY_FLOOR_MS"), 6e4);
 var RETRY_JITTER_MS = envMs(envName("BRIDGE_RETRY_JITTER_MS"), 6e4);
 var updatesDisabled = () => !!process.env[envName("BRIDGE_NO_UPDATE")];
 var selfPath = () => fileURLToPath4(import.meta.url);
-var opencodePluginPath = () => join18(homedir6(), ".config", "opencode", "plugins", PLUGIN_COPY_FILE);
-var setupPathOf = (authDir) => join18(authDir, "SETUP.md");
-var latestPathOf = (authDir) => join18(authDir, "latest.json");
+var opencodePluginPath = () => join19(homedir7(), ".config", "opencode", "plugins", PLUGIN_COPY_FILE);
+var setupPathOf = (authDir) => join19(authDir, "SETUP.md");
+var latestPathOf = (authDir) => join19(authDir, "latest.json");
 var isSymlink = (path) => {
   try {
     return lstatSync3(path).isSymbolicLink();
@@ -9116,7 +9180,7 @@ var isSymlink = (path) => {
 };
 var readBytes = (path) => {
   try {
-    return readFileSync22(path);
+    return readFileSync23(path);
   } catch {
     return Buffer.alloc(0);
   }
@@ -9128,7 +9192,7 @@ function syncHome(self = selfPath()) {
   const home = homeBridgePath();
   let mine;
   try {
-    mine = readFileSync22(self);
+    mine = readFileSync23(self);
   } catch {
     return out7;
   }
@@ -9142,10 +9206,10 @@ function syncHome(self = selfPath()) {
     writeAtomic(home, mine);
     out7.copied.push(home);
     const plugin = opencodePluginPath();
-    const packaged = join18(dirname11(self), PLUGIN_FILE);
+    const packaged = join19(dirname11(self), PLUGIN_FILE);
     if (existsSync6(plugin) && existsSync6(packaged)) {
-      const fresh2 = readFileSync22(packaged);
-      if (!readFileSync22(plugin).equals(fresh2)) {
+      const fresh2 = readFileSync23(packaged);
+      if (!readFileSync23(plugin).equals(fresh2)) {
         writeAtomic(plugin, fresh2);
         out7.copied.push(plugin);
       }
@@ -9177,7 +9241,7 @@ function reexec(path, argv2) {
 }
 function readLatest(authDir) {
   try {
-    return JSON.parse(readFileSync22(latestPathOf(authDir), "utf8"));
+    return JSON.parse(readFileSync23(latestPathOf(authDir), "utf8"));
   } catch {
     return null;
   }
@@ -9208,7 +9272,7 @@ async function downloadRelease(tag, version, authDir) {
   const plugin = opencodePluginPath();
   if (existsSync6(plugin)) {
     const fresh2 = await fetchText(`${base}/skills/${BRIDGE_SKILL}/scripts/${PLUGIN_FILE}`);
-    if (readFileSync22(plugin, "utf8") !== fresh2) {
+    if (readFileSync23(plugin, "utf8") !== fresh2) {
       writeAtomic(plugin, fresh2);
       written.push(plugin);
     }
@@ -9380,9 +9444,9 @@ function startEngine(cfg, opts = {}) {
 }
 
 // js/bridge/fallback.ts
-import { mkdirSync as mkdirSync13, readdirSync as readdirSync8, readFileSync as readFileSync23, unlinkSync as unlinkSync13, writeFileSync as writeFileSync13 } from "node:fs";
-import { join as join19, resolve as resolve7 } from "node:path";
-var fallbackDir = (authDir) => join19(resolve7(authDir), "fallback");
+import { mkdirSync as mkdirSync13, readdirSync as readdirSync8, readFileSync as readFileSync24, unlinkSync as unlinkSync13, writeFileSync as writeFileSync13 } from "node:fs";
+import { join as join20, resolve as resolve7 } from "node:path";
+var fallbackDir = (authDir) => join20(resolve7(authDir), "fallback");
 var alive4 = (pid) => {
   try {
     process.kill(pid, 0);
@@ -9401,13 +9465,13 @@ function pruneFallbacks(authDir) {
     const pid = parseInt(n, 10);
     if (Number.isInteger(pid) && !alive4(pid))
       try {
-        unlinkSync13(join19(fallbackDir(authDir), n));
+        unlinkSync13(join20(fallbackDir(authDir), n));
       } catch {
       }
   }
 }
 function markFallback(authDir, f) {
-  const file = join19(fallbackDir(authDir), `${process.pid}.json`);
+  const file = join20(fallbackDir(authDir), `${process.pid}.json`);
   try {
     mkdirSync13(fallbackDir(authDir), { recursive: true, mode: 448 });
     pruneFallbacks(authDir);
@@ -9432,7 +9496,7 @@ function readFallbacks(authDir) {
   const out7 = [];
   for (const n of names2) {
     try {
-      const f = JSON.parse(readFileSync23(join19(fallbackDir(authDir), n), "utf8"));
+      const f = JSON.parse(readFileSync24(join20(fallbackDir(authDir), n), "utf8"));
       if (Number.isInteger(f.pid) && alive4(f.pid)) out7.push(f);
     } catch {
     }
@@ -10448,7 +10512,7 @@ var SELF = (() => {
 })();
 var versionOfFile = (path) => {
   try {
-    return versionIn(readFileSync24(path, "utf8"));
+    return versionIn(readFileSync25(path, "utf8"));
   } catch {
     return null;
   }
@@ -10458,7 +10522,7 @@ async function daemonMain(argv2) {
   const cfg = parseArgs(argv2.filter((a) => a !== "--successor"));
   const authDir = cfg.authDir;
   const run = seamRunDir(authDir);
-  const journalPath = join20(run, "daemon.log");
+  const journalPath = join21(run, "daemon.log");
   const journal = (line) => {
     try {
       mkdirSync14(run, { recursive: true, mode: 448 });
@@ -10725,7 +10789,7 @@ import { PassThrough as PassThrough2 } from "node:stream";
 
 // js/bridge/raise.ts
 import { spawn as spawn4 } from "node:child_process";
-import { readFileSync as readFileSync25 } from "node:fs";
+import { readFileSync as readFileSync26 } from "node:fs";
 import { fileURLToPath as fileURLToPath6 } from "node:url";
 var RAISE_STALE_MS = 15e3;
 var SELF2 = (() => {
@@ -10741,7 +10805,7 @@ function daemonEntry() {
   if (updatesDisabled()) return SELF2;
   const home = homeBridgePath();
   try {
-    const v = versionIn(readFileSync25(home, "utf8"));
+    const v = versionIn(readFileSync26(home, "utf8"));
     if (home !== SELF2 && compareVersions(v, VERSION) > 0) return home;
   } catch {
   }
@@ -11201,8 +11265,8 @@ async function probeDaemon(args) {
 
 // js/watchdog/codex.ts
 import { existsSync as existsSync8 } from "node:fs";
-import { homedir as homedir7 } from "node:os";
-import { join as join22 } from "node:path";
+import { homedir as homedir8 } from "node:os";
+import { join as join23 } from "node:path";
 
 // js/shared/appserver.ts
 import { randomBytes as randomBytes4 } from "node:crypto";
@@ -11281,9 +11345,9 @@ function openDoor(socketPath, onMessage, onClose) {
 }
 
 // js/watchdog/client.ts
-import { existsSync as existsSync7, readdirSync as readdirSync9, readFileSync as readFileSync26 } from "node:fs";
+import { existsSync as existsSync7, readdirSync as readdirSync9, readFileSync as readFileSync27 } from "node:fs";
 import { connect as connect4 } from "node:net";
-import { join as join21 } from "node:path";
+import { join as join22 } from "node:path";
 
 // js/watchdog/words.ts
 var wd = () => words(WATCHDOG);
@@ -11309,7 +11373,7 @@ function resolveStanding(argv2) {
   if (key) return { key, path: pathFor(key), authDir };
   const held2 = existsSync7(dir) ? readdirSync9(dir).filter((f) => f.endsWith(".key")).map((f) => {
     try {
-      return readFileSync26(join21(dir, f), "utf8").trim();
+      return readFileSync27(join22(dir, f), "utf8").trim();
     } catch {
       return "";
     }
@@ -11410,8 +11474,8 @@ var note = (s2) => {
   process.stderr.write(s2 + "\n");
 };
 function codexDoorPath() {
-  const home = process.env.CODEX_HOME?.trim() || join22(homedir7(), ".codex");
-  return join22(home, "app-server-control", "app-server-control.sock");
+  const home = process.env.CODEX_HOME?.trim() || join23(homedir8(), ".codex");
+  return join23(home, "app-server-control", "app-server-control.sock");
 }
 function runWatchdogCodex(argv2) {
   parseWatchdogArgs(argv2);
@@ -11971,14 +12035,14 @@ function runWatchdogExit(argv2) {
 
 // js/cli/doctor.ts
 import { createHash as createHash9 } from "node:crypto";
-import { existsSync as existsSync14, readFileSync as readFileSync31 } from "node:fs";
-import { homedir as homedir14 } from "node:os";
-import { dirname as dirname15, join as join28 } from "node:path";
+import { existsSync as existsSync14, readFileSync as readFileSync32 } from "node:fs";
+import { homedir as homedir15 } from "node:os";
+import { dirname as dirname15, join as join29 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // js/cli/codexcache.ts
 import { existsSync as existsSync9, readdirSync as readdirSync10 } from "node:fs";
-import { join as join23 } from "node:path";
+import { join as join24 } from "node:path";
 
 // js/cli/installnames.ts
 var PRODUCT_PATTERN = escapeRe(PRODUCT);
@@ -11994,30 +12058,30 @@ var list = (d) => {
     return [];
   }
 };
-var isCopy = (d) => existsSync9(join23(d, ".codex-plugin", "plugin.json"));
+var isCopy = (d) => existsSync9(join24(d, ".codex-plugin", "plugin.json"));
 function codexCopies(home) {
-  const cache = join23(home, "plugins", "cache");
+  const cache = join24(home, "plugins", "cache");
   const out7 = [];
   for (const market of list(cache))
-    for (const plugin of list(join23(cache, market))) {
+    for (const plugin of list(join24(cache, market))) {
       if (!PRODUCT_RE.test(plugin)) continue;
-      const dir = join23(cache, market, plugin);
-      const versions = isCopy(dir) ? [] : list(dir).filter((v) => isCopy(join23(dir, v)));
+      const dir = join24(cache, market, plugin);
+      const versions = isCopy(dir) ? [] : list(dir).filter((v) => isCopy(join24(dir, v)));
       if (!versions.length) out7.push({ market, plugin, dir });
-      for (const v of versions) out7.push({ market, plugin, dir: join23(dir, v) });
+      for (const v of versions) out7.push({ market, plugin, dir: join24(dir, v) });
     }
   return out7;
 }
 
 // js/cli/doctornode.ts
 import { accessSync, constants } from "node:fs";
-import { homedir as homedir10 } from "node:os";
+import { homedir as homedir11 } from "node:os";
 import { basename as basename7, dirname as dirname13, isAbsolute as isAbsolute4 } from "node:path";
 
 // js/cli/subagents.ts
-import { existsSync as existsSync10, readdirSync as readdirSync11, readFileSync as readFileSync27, statSync as statSync9 } from "node:fs";
-import { homedir as homedir9 } from "node:os";
-import { basename as basename6, delimiter, dirname as dirname12, isAbsolute as isAbsolute3, join as join24, resolve as resolve8 } from "node:path";
+import { existsSync as existsSync10, readdirSync as readdirSync11, readFileSync as readFileSync28, statSync as statSync9 } from "node:fs";
+import { homedir as homedir10 } from "node:os";
+import { basename as basename6, delimiter, dirname as dirname12, isAbsolute as isAbsolute3, join as join25, resolve as resolve8 } from "node:path";
 
 // js/cli/frontmatter.ts
 function frontmatterText(file) {
@@ -12142,7 +12206,7 @@ function parseFrontmatter(text) {
 }
 
 // js/cli/satform.ts
-import { homedir as homedir8 } from "node:os";
+import { homedir as homedir9 } from "node:os";
 import { basename as basename5 } from "node:path";
 var SATELLITE_ARGS = ["-e", SATELLITE_CODE, "--", "--satellite"];
 var SHELLS = /* @__PURE__ */ new Set(["sh", "bash", "zsh", "dash"]);
@@ -12179,7 +12243,7 @@ var SHELL_PATH_RE = new RegExp(
   `"([^"]*${P3}[^"]*\\.mjs)"|'([^']*${P3}[^']*\\.mjs)'|(\\S*${P3}\\S*\\.mjs)`
 );
 var ARG_PATH_RE = new RegExp(`${P3}[^\\\\/]*\\.mjs$`, "i");
-var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir8()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir8());
+var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir9()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir9());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
   if (base === "node" && (e.args[0] === "-e" || e.args[0] === "--eval")) {
@@ -12374,10 +12438,10 @@ function agentFiles(dir, scope) {
     return [];
   }
   return names2.sort().map((f) => {
-    const path = join24(dir, f);
+    const path = join25(dir, f);
     let fm = {};
     try {
-      const text = frontmatterText(readFileSync27(path, "utf8"));
+      const text = frontmatterText(readFileSync28(path, "utf8"));
       if (text !== null) fm = parseFrontmatter(text);
     } catch {
     }
@@ -12385,13 +12449,13 @@ function agentFiles(dir, scope) {
   });
 }
 function projectRoot() {
-  const home = resolve8(homedir9());
+  const home = resolve8(homedir10());
   let gitRoot = null;
   for (let d = process.cwd(); ; ) {
     if (resolve8(d) === home) break;
-    if (existsSync10(join24(d, ".claude", "agents")) || existsSync10(join24(d, ".opencode", "agents")))
+    if (existsSync10(join25(d, ".claude", "agents")) || existsSync10(join25(d, ".opencode", "agents")))
       return d;
-    if (!gitRoot && existsSync10(join24(d, ".git"))) gitRoot = d;
+    if (!gitRoot && existsSync10(join25(d, ".git"))) gitRoot = d;
     const up = dirname12(d);
     if (up === d) break;
     d = up;
@@ -12406,7 +12470,7 @@ function which(cmd, cwd) {
   const exts = platform() === "win32" ? ["", ...(process.env.PATHEXT || ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
   for (const dir of (process.env.PATH || "").split(delimiter).filter(Boolean)) {
     for (const ext of exts) {
-      const p = join24(dir, cmd + ext);
+      const p = join25(dir, cmd + ext);
       try {
         if (statSync9(p).isFile()) return p;
       } catch {
@@ -12432,12 +12496,12 @@ function parentBridges(root) {
   };
   const readJson2 = (p) => {
     try {
-      return JSON.parse(readFileSync27(p, "utf8"));
+      return JSON.parse(readFileSync28(p, "utf8"));
     } catch {
       return null;
     }
   };
-  const user = readJson2(join24(homedir9(), ".claude.json"));
+  const user = readJson2(join25(homedir10(), ".claude.json"));
   if (user) {
     scan(user.mcpServers, (n) => `mcp__${n}`);
     const projects = user.projects ?? {};
@@ -12445,8 +12509,8 @@ function parentBridges(root) {
     for (const [k, p] of Object.entries(projects))
       if (k.replace(/\\/g, "/") === key) scan(p.mcpServers, (n) => `mcp__${n}`);
   }
-  scan(readJson2(join24(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
-  const registry = readJson2(join24(homedir9(), ".claude", "plugins", "installed_plugins.json"));
+  scan(readJson2(join25(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
+  const registry = readJson2(join25(homedir10(), ".claude", "plugins", "installed_plugins.json"));
   const plugins = registry?.plugins ?? {};
   for (const [key, installs] of Object.entries(plugins)) {
     const plugin = key.split("@")[0];
@@ -12454,7 +12518,7 @@ function parentBridges(root) {
     for (const inst of installs)
       if (inst.installPath)
         scan(
-          readJson2(join24(inst.installPath, ".mcp.json"))?.mcpServers,
+          readJson2(join25(inst.installPath, ".mcp.json"))?.mcpServers,
           (n) => `mcp__plugin_${plugin}_${n}`
         );
   }
@@ -12463,7 +12527,7 @@ function parentBridges(root) {
 function trustLine(root) {
   let cfg;
   try {
-    cfg = JSON.parse(readFileSync27(join24(homedir9(), ".claude.json"), "utf8"));
+    cfg = JSON.parse(readFileSync28(join25(homedir10(), ".claude.json"), "utf8"));
   } catch {
     return null;
   }
@@ -12493,20 +12557,20 @@ function hasGrant() {
 }
 async function subagentsReport(out7) {
   const root = projectRoot();
-  const userDir = join24(homedir9(), ".claude", "agents");
-  const atHome = resolve8(root) === resolve8(homedir9());
-  const project = atHome ? [] : agentFiles(join24(root, ".claude", "agents"), "project");
+  const userDir = join25(homedir10(), ".claude", "agents");
+  const atHome = resolve8(root) === resolve8(homedir10());
+  const project = atHome ? [] : agentFiles(join25(root, ".claude", "agents"), "project");
   const shadowed = new Set(project.map((f) => f.agent));
   const user = agentFiles(userDir, "user");
   const claude = [...project, ...user.filter((f) => !shadowed.has(f.agent))];
   const opencode = [
-    ...agentFiles(join24(root, ".opencode", "agents"), "project"),
-    ...agentFiles(join24(root, ".opencode", "agent"), "project")
+    ...agentFiles(join25(root, ".opencode", "agents"), "project"),
+    ...agentFiles(join25(root, ".opencode", "agent"), "project")
   ];
   const osNote = process.env[PLATFORM_ENV] ? subWords().osJudged(platform()) : platform();
   out7(subWords().header(root, osNote));
   if (!claude.length && !opencode.length) {
-    const dirs = `${join24(root, ".claude", "agents")}, ${userDir}, ${join24(root, ".opencode", "agents")}`;
+    const dirs = `${join25(root, ".claude", "agents")}, ${userDir}, ${join25(root, ".opencode", "agents")}`;
     out7(subWords().noFiles(dirs));
     return;
   }
@@ -12636,7 +12700,7 @@ var executable = (p) => {
     return false;
   }
 };
-var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir10(), "$HOME"));
+var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir11(), "$HOME"));
 function launchReport(out7, launches2) {
   for (const l of launches2) {
     const cmd = l.command || "node";
@@ -12664,13 +12728,13 @@ function launchReport(out7, launches2) {
 var openCodeRuntimeWord = () => hw().openCodeRuntime();
 
 // js/cli/doctorpaths.ts
-import { existsSync as existsSync11, readFileSync as readFileSync28 } from "node:fs";
-import { homedir as homedir11 } from "node:os";
-import { join as join25 } from "node:path";
+import { existsSync as existsSync11, readFileSync as readFileSync29 } from "node:fs";
+import { homedir as homedir12 } from "node:os";
+import { join as join26 } from "node:path";
 var hw2 = () => words(HARNESS);
 var readJson = (p) => {
   try {
-    return JSON.parse(readFileSync28(p, "utf8"));
+    return JSON.parse(readFileSync29(p, "utf8"));
   } catch {
     return null;
   }
@@ -12679,7 +12743,7 @@ var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => t
 var say = (out7, where, name, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
-  const file = join25(homedir11(), ".claude.json");
+  const file = join26(homedir12(), ".claude.json");
   const cfg = readJson(file);
   if (!cfg) return;
   for (const [n, url] of httpEntries(cfg.mcpServers))
@@ -12694,7 +12758,7 @@ function claudeCode(out7) {
         url,
         `cd "${dir}" && claude mcp remove "${n}" --scope local`
       );
-  const mcp = join25(projectRoot(), ".mcp.json");
+  const mcp = join26(projectRoot(), ".mcp.json");
   for (const [n, url] of httpEntries(readJson(mcp)?.mcpServers))
     say(out7, `Claude Code (${mcp})`, n, url, hw2().deleteFrom(mcp));
   const ever = Array.isArray(cfg.claudeAiMcpEverConnected) ? cfg.claudeAiMcpEverConnected : [];
@@ -12716,11 +12780,11 @@ function codexHttp(text) {
 function secondPathReport(out7, codexHomes2) {
   claudeCode(out7);
   for (const home of codexHomes2) {
-    const file = join25(home, "config.toml");
+    const file = join26(home, "config.toml");
     if (!existsSync11(file)) continue;
     let text;
     try {
-      text = readFileSync28(file, "utf8");
+      text = readFileSync29(file, "utf8");
     } catch {
       continue;
     }
@@ -12730,33 +12794,33 @@ function secondPathReport(out7, codexHomes2) {
 }
 
 // js/cli/doctorskills.ts
-import { existsSync as existsSync12, readFileSync as readFileSync29 } from "node:fs";
-import { homedir as homedir12 } from "node:os";
-import { join as join26, resolve as resolve9 } from "node:path";
+import { existsSync as existsSync12, readFileSync as readFileSync30 } from "node:fs";
+import { homedir as homedir13 } from "node:os";
+import { join as join27, resolve as resolve9 } from "node:path";
 var hw3 = () => words(HARNESS);
-var IN_SET = join26(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
+var IN_SET = join27(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
 function sets(codexHomes2) {
   const found = [];
   try {
     const reg = JSON.parse(
-      readFileSync29(join26(homedir12(), ".claude", "plugins", "installed_plugins.json"), "utf8")
+      readFileSync30(join27(homedir13(), ".claude", "plugins", "installed_plugins.json"), "utf8")
     );
     for (const [key, installs] of Object.entries(reg.plugins ?? {}))
       if (PLUGIN_KEY_RE.test(key)) {
         for (const i of installs)
-          if (i.installPath) found.push([join26(i.installPath, "skills"), "claude"]);
+          if (i.installPath) found.push([join27(i.installPath, "skills"), "claude"]);
       }
   } catch {
   }
   for (const home of codexHomes2)
-    for (const c of codexCopies(home)) found.push([join26(c.dir, "skills"), "codex"]);
-  found.push([join26(homedir12(), ".agents", "skills"), "flat"]);
+    for (const c of codexCopies(home)) found.push([join27(c.dir, "skills"), "codex"]);
+  found.push([join27(homedir13(), ".agents", "skills"), "flat"]);
   const own = skillsRoot();
   if (own) found.push([own, "other"]);
   const seen = /* @__PURE__ */ new Set();
   return found.filter(([root]) => {
     const key = resolve9(root);
-    if (seen.has(key) || !existsSync12(join26(root, IN_SET))) return false;
+    if (seen.has(key) || !existsSync12(join27(root, IN_SET))) return false;
     seen.add(key);
     return true;
   });
@@ -12776,7 +12840,7 @@ function skillsReport(out7, codexHomes2) {
   for (const [root, kind] of found) {
     let v = null;
     try {
-      v = versionIn(readFileSync29(join26(root, IN_SET), "utf8"));
+      v = versionIn(readFileSync30(join27(root, IN_SET), "utf8"));
     } catch {
     }
     if (!v) out7(hw3().skillsUnreadable(root));
@@ -12790,19 +12854,19 @@ function skillsReport(out7, codexHomes2) {
 }
 
 // js/cli/opencode-config.ts
-import { existsSync as existsSync13, readFileSync as readFileSync30 } from "node:fs";
-import { homedir as homedir13 } from "node:os";
-import { dirname as dirname14, join as join27 } from "node:path";
+import { existsSync as existsSync13, readFileSync as readFileSync31 } from "node:fs";
+import { homedir as homedir14 } from "node:os";
+import { dirname as dirname14, join as join28 } from "node:path";
 var BRIDGE_PART_RE = new RegExp(
   `(^|[\\\\/])${PRODUCT_PATTERN}[^\\\\/]*\\.mjs$|${escapeRe(BRIDGE_NAME)}`
 );
 var hw4 = () => words(HARNESS);
 function openCodeMcpEntries(out7) {
   const dirFiles = (d) => [
-    join27(d, "opencode.json"),
-    join27(d, "opencode.jsonc"),
-    join27(d, ".opencode", "opencode.json"),
-    join27(d, ".opencode", "opencode.jsonc")
+    join28(d, "opencode.json"),
+    join28(d, "opencode.jsonc"),
+    join28(d, ".opencode", "opencode.json"),
+    join28(d, ".opencode", "opencode.jsonc")
   ];
   const upwards = [];
   if (!process.env.OPENCODE_CONFIG_PROJECT_DISABLE)
@@ -12816,7 +12880,7 @@ function openCodeMcpEntries(out7) {
     ...process.env.OPENCODE_CONFIG ? [process.env.OPENCODE_CONFIG] : [],
     // Whether this directory belongs to the switchable project layer was not observed (#5559).
     ...process.env.OPENCODE_CONFIG_DIR ? dirFiles(process.env.OPENCODE_CONFIG_DIR) : [],
-    ...dirFiles(join27(homedir13(), ".config", "opencode")),
+    ...dirFiles(join28(homedir14(), ".config", "opencode")),
     ...upwards
   ];
   const kindOf2 = (v) => {
@@ -12854,7 +12918,7 @@ function openCodeMcpEntries(out7) {
   for (const f of new Set(files)) {
     if (!existsSync13(f)) continue;
     try {
-      sources.push([f, readFileSync30(f, "utf8")]);
+      sources.push([f, readFileSync31(f, "utf8")]);
     } catch {
       unreadable++;
       out7(hw4().ocUnreadable(f));
@@ -12900,14 +12964,14 @@ function homeCopyReport() {
   const home = homeBridgePath();
   let self = null;
   try {
-    self = readFileSync31(fileURLToPath8(import.meta.url));
+    self = readFileSync32(fileURLToPath8(import.meta.url));
   } catch {
   }
   if (!existsSync14(home)) {
     out3(dw().homeNone(home));
     return;
   }
-  const bytes = readFileSync31(home);
+  const bytes = readFileSync32(home);
   if (self && bytes.equals(self)) {
     out3(dw().homeSame(home));
     return;
@@ -13033,7 +13097,7 @@ function grantReport() {
   }
   const logPath = grantLogPath();
   if (existsSync14(logPath)) {
-    const lines = readFileSync31(logPath, "utf8").trim().split("\n").slice(-3);
+    const lines = readFileSync32(logPath, "utf8").trim().split("\n").slice(-3);
     out3(dw().grantLog());
     for (const l of lines) out3(`    ${l}`);
   }
@@ -13051,10 +13115,10 @@ function latestReport() {
   else out3(dw().latestCurrent(latest.version, ago));
 }
 function claudePluginReport() {
-  const registry = join28(homedir14(), ".claude", "plugins", "installed_plugins.json");
+  const registry = join29(homedir15(), ".claude", "plugins", "installed_plugins.json");
   if (!existsSync14(registry)) return;
   try {
-    const reg = JSON.parse(readFileSync31(registry, "utf8"));
+    const reg = JSON.parse(readFileSync32(registry, "utf8"));
     const mine = Object.entries(reg.plugins ?? {}).filter(([k]) => PLUGIN_KEY_RE.test(k));
     if (!mine.length) {
       out3(dw().pluginMissing(registry));
@@ -13062,11 +13126,11 @@ function claudePluginReport() {
     }
     for (const [key, installs] of mine) {
       for (const inst of installs) {
-        const manifest = inst.installPath ? join28(inst.installPath, ".mcp.json") : "";
+        const manifest = inst.installPath ? join29(inst.installPath, ".mcp.json") : "";
         let entry = dw().entryNotFound();
         if (manifest && existsSync14(manifest)) {
           try {
-            const m = JSON.parse(readFileSync31(manifest, "utf8"));
+            const m = JSON.parse(readFileSync32(manifest, "utf8"));
             const hit = Object.entries(m.mcpServers ?? {}).find(
               ([, v]) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
             );
@@ -13100,21 +13164,21 @@ function claudePluginReport() {
 function codexHomes() {
   const homes = [
     process.env.CODEX_HOME?.trim() || "",
-    join28(homedir14(), ".codex"),
-    ...process.platform === "darwin" ? [join28(homedir14(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
+    join29(homedir15(), ".codex"),
+    ...process.platform === "darwin" ? [join29(homedir15(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
   ].filter(Boolean);
   return [...new Set(homes)].filter((h) => existsSync14(h));
 }
 function codexPluginReport(home) {
-  const cache = join28(home, "plugins", "cache");
+  const cache = join29(home, "plugins", "cache");
   if (!existsSync14(cache)) return;
   let found = 0;
   for (const { market, plugin, dir } of codexCopies(home)) {
-    const manifest = join28(dir, ".codex-plugin", "plugin.json");
+    const manifest = join29(dir, ".codex-plugin", "plugin.json");
     let word3 = dw().codexNoManifest();
     if (existsSync14(manifest)) {
       try {
-        const m = JSON.parse(readFileSync31(manifest, "utf8"));
+        const m = JSON.parse(readFileSync32(manifest, "utf8"));
         const hit = Object.values(m.mcpServers ?? {}).find(
           (v) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
         );
@@ -13138,10 +13202,10 @@ var launches = [];
 function harnessReport() {
   launches.length = 0;
   claudePluginReport();
-  const claude = join28(homedir14(), ".claude.json");
+  const claude = join29(homedir15(), ".claude.json");
   if (existsSync14(claude)) {
     try {
-      const cfg = JSON.parse(readFileSync31(claude, "utf8"));
+      const cfg = JSON.parse(readFileSync32(claude, "utf8"));
       const entries2 = Object.entries(cfg.mcpServers ?? {}).filter(
         ([, v]) => (v.args ?? []).some((a) => PRODUCT_RE.test(a))
       );
@@ -13160,13 +13224,13 @@ function harnessReport() {
       out3(dw().claudeUnreadable(claude));
     }
   }
-  const opencodeDir = join28(homedir14(), ".config", "opencode");
+  const opencodeDir = join29(homedir15(), ".config", "opencode");
   if (existsSync14(opencodeDir)) {
-    const copy = join28(opencodeDir, "plugins", PLUGIN_COPY_FILE);
-    const packaged = join28(dirname15(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
+    const copy = join29(opencodeDir, "plugins", PLUGIN_COPY_FILE);
+    const packaged = join29(dirname15(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
     if (!existsSync14(copy)) out3(dw().ocNoPlugin(copy));
     else if (!existsSync14(packaged)) out3(dw().ocNoPackaged(copy));
-    else if (readFileSync31(copy).equals(readFileSync31(packaged))) out3(dw().ocSame(copy));
+    else if (readFileSync32(copy).equals(readFileSync32(packaged))) out3(dw().ocSame(copy));
     else out3(dw().ocDiffers(copy, packaged));
     if (existsSync14(copy)) out3(openCodeRuntimeWord());
   }
@@ -13174,13 +13238,13 @@ function harnessReport() {
   for (const codexHome of codexHomes()) {
     out3(dw().codexHome(codexHome));
     codexPluginReport(codexHome);
-    const door = join28(codexHome, "app-server-control", "app-server-control.sock");
+    const door = join29(codexHome, "app-server-control", "app-server-control.sock");
     if (existsSync14(door)) out3(dw().codexDoorOpen(door));
     else if (Buffer.byteLength(door) > 100) out3(dw().codexDoorNever());
     else out3(dw().codexDoorNone(door));
-    const codex = join28(codexHome, "config.toml");
+    const codex = join29(codexHome, "config.toml");
     if (existsSync14(codex)) {
-      const text = readFileSync31(codex, "utf8");
+      const text = readFileSync32(codex, "utf8");
       out3(dw().codexManual(CODEX_ENTRY_RE.test(text)));
     }
   }
@@ -13235,18 +13299,18 @@ async function runDoctor(argv2) {
 // js/cli/rituals.ts
 import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync12, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync10 } from "node:fs";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join31, resolve as resolve10 } from "node:path";
+import { join as join32, resolve as resolve10 } from "node:path";
 
 // js/cli/ritualprobe.ts
 import { mkdtempSync, rmSync as rmSync2, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join30 } from "node:path";
+import { join as join31 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // js/cli/ritualcalls.ts
-import { homedir as homedir15 } from "node:os";
-import { join as join29 } from "node:path";
-var memoryPath = join29(homedir15(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
+import { homedir as homedir16 } from "node:os";
+import { join as join30 } from "node:path";
+var memoryPath = join30(homedir16(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
 var pushed = "To github.com:o/r.git\n   1234567..89abcde  feat/x -> feat/x";
 var seq2 = 0;
 var fresh = (kind) => `${kind}-${++seq2}`;
@@ -13344,9 +13408,9 @@ var created = (sessionID, directory) => {
 };
 var settle = (ms2 = SETTLE_MS) => new Promise((r) => setTimeout(r, ms2));
 async function probeScope(file, own, foreign) {
-  const aliasRoot = mkdtempSync(join30(tmpdir(), "ritual-scope-alias-"));
+  const aliasRoot = mkdtempSync(join31(tmpdir(), "ritual-scope-alias-"));
   try {
-    const alias = join30(aliasRoot, "own");
+    const alias = join31(aliasRoot, "own");
     symlinkSync(own, alias, "dir");
     return await probeWith(file, own, alias, foreign);
   } finally {
@@ -13432,18 +13496,18 @@ var out4 = (s2) => {
 var rw2 = () => words(RITUALS);
 async function auditRepo(repo) {
   const own = realpathSync4(repo);
-  const dir = join31(own, ".opencode", "plugins");
+  const dir = join32(own, ".opencode", "plugins");
   let names2;
   try {
     names2 = readdirSync12(dir).filter((n) => /\.(m?js|ts)$/.test(n));
   } catch {
     return [];
   }
-  const foreign = realpathSync4(mkdtempSync2(join31(tmpdir2(), "ritual-scope-foreign-")));
+  const foreign = realpathSync4(mkdtempSync2(join32(tmpdir2(), "ritual-scope-foreign-")));
   const verdicts = [];
   try {
     for (const name of names2.sort()) {
-      const file = join31(dir, name);
+      const file = join32(dir, name);
       try {
         const scope = await probeScope(file, own, foreign);
         const hole = scope.writes.theirs > 0 || lostSpelling(scope) || mute(scope) || scope.broken.length > 0;
