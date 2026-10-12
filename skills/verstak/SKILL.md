@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 3 — run /verstak align unprompted if a repo's stamp is below 3, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
 slash: true
 ---
 
@@ -38,8 +38,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `3`** (the description's number; **align**, `Contract`).
-   - **Stamp below `3`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `4`** (the description's number; **align**, `Contract`).
+   - **Stamp below `4`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -54,7 +54,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | Into the graph | Into a case |
 |---|---|
 | true and needed by whoever comes to the node with a different case | true only as this case's story |
-| a decision — a node when made | tasking, agreement, acceptance |
+| a decision — changes to the touched nodes when made, in the form the deed needs (**writing**, Decision 1) | tasking, agreement, acceptance |
 | a question of substance or a commitment — a vimarsha `posed_to` the answering role, saying when it's answered (**writing**) | a one-off task or question, ending with its outcome |
 | a handoff — a relay: one action's output (`utpatti`) is the next one's input (`ahara`) | the course of this case — lines (`Ledger`) |
 | what the work changes — node modes; a big transition as a bianhua | — |
@@ -68,7 +68,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 ### Work goes to subagents
 
-**Graph craft is yours:** reading, writing, weaving, integration (**integrity**) stay with whoever decides. Subagents take the volume — code, the gate, review, verification; check their advice against the node's neighbourhood.
+**The decision, weaving and integration stay with whoever decides** (**integrity**). Subagents take the volume — code, the gate, review, verification; when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge, briefed by references to the decision and neighbourhood. The launcher reads the updated nodes and checks them against their neighbourhood and tensions; a mismatch is redone. Advice is accepted only by that check; owner acts are not delegated.
 
 **Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
 
@@ -213,6 +213,7 @@ They apply unasked.
 | about to write (`verstak_add_*`, `verstak_batch`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — **writing**, `After writing` |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
+| the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |

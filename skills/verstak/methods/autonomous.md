@@ -8,7 +8,7 @@ The agent is the **agent role** from AGENTS.md (a `karta`), steward of the repos
 
 **Two rounds.** The **duty round** is cheap and frequent: wake, see what changed, decide, sleep. The **work round** is expensive and rare: grasp, mark, ship, relay, integrate, weave, close.
 
-**Graph craft is the watch's own** — reading, writing, weaving, integration; subagents take the volume: code, the gate, review, verification (the door, `Work goes to subagents`). **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
+**The watch checks the result** — when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge; subagents also take code, the gate, review and verification (the door, `Work goes to subagents`). The decision, weaving and integration stay with the watch. **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
 
 **Count a stage by an outside sign**, not an inside one ("connected", "reported"):
 
@@ -79,7 +79,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 | Verdict | Move |
 |---|---|
-| in mandate, actionable, unblocked | mark it (§2c); graph yourself, bulk code to a subagent via a brief of references |
+| in mandate, actionable, unblocked | mark it (§2c); delegate by references where useful, check the changed nodes yourself (the door, `Work goes to subagents`) |
 | out of mandate | escalate (§5); take the part that needs no one's decision |
 | underspecified | a precise question to whoever set it, in that case; a substantive one as a vimarsha with "Answered when" |
 | blocked | **probe the blocker with one live call** — untouched, it is usually stale. Survives → name its actor; their answer you wait on as a card, work you hand them as a `say` (the door, `Waiting on an answer`, `One-off task`) |
@@ -121,7 +121,7 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 
-**Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's. Work on the user's word or a reality signal isn't split.
+**Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split.
 
 **Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible) as a vimarsha `posed_to` their role, pointing at moved nodes; report it in the shared case. **Up**: an answer you wait on → an `ask` card to the seat that owes it (the door, `Waiting on an answer`); your own unfinished state → a `partial` line on your key, its outcome the next line (`Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
 
@@ -166,7 +166,7 @@ Not yours: refusal, the order between questions, scope and telos, production and
 
 **Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
-The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), record it, carry the change through, release the node — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
+The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), update the touched nodes in the form the deed needs (`methods/writing.md`, Decision 1), carry the change through, end the question by axis — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
 
 ## Surviving context compaction
 

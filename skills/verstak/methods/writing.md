@@ -17,7 +17,9 @@ The gate never blocks a method's applying kriya with its phases as `contains` ch
 
 **Sign:** before a batch or factory call, the three answers are stated per node. Each `CHECKS:` hint in the factory's response is carried out or declined in words — not restated.
 
-## Decision 1: which node type?
+## Decision 1: what changes — then which node type?
+
+**A correction or decision changes the deed, not the rulebook.** Find the existing nodes it touches: the kriya where the decision is taken, its carriers, phenomena and open vimarshas. Update their bodies, arrows and modes (will, ontic, epistemic) as the change in the world requires; several new nodes may be needed together — a kriya, its phenomenon, a vimarsha — but not one principle per word. A ban said in a case changes nothing: nobody meets it at the moment of acting. When there are many touched nodes, finding and updating them may go to a `designer` on its own satellite bridge; the launcher checks the result against their neighbourhood, a mismatch is redone (the door, `Work goes to subagents`). New nodes still pass the novelty gate.
 
 | If it… | Type | Tool |
 |---|---|---|
@@ -51,9 +53,11 @@ Traps:
 | Is it a named meaning — "what this is"? | `sinn` 名 | a **concept**: whatness without thinghood |
 | Is it a pattern taking shape, not yet a form? | `bildung` 理 | an **emerging pattern** (seed): seen, not yet followed; usually `anagata` |
 | Is it a method — "a way to do it"? | `vollzug` 行 | a **way of proceeding**: a permission, not a constraint |
-| Is it a principle — "how it must be"? | `grundsatz` 法 | a **principle**: what the system can't stand without |
+| Is it a principle — "how it must be", with no existing kriya to fix (below)? | `grundsatz` 法 | a **principle**: what the system can't stand without |
 
 `vollzug` is HOW, `grundsatz` is WHY; `sinn` names what IS, `grundsatz` what MUST BE. **A method or principle is never `ahara`/`utpatti`** (the API refuses): it is applied — `upadhi` only.
+
+**A new principle is the last resort:** only when there is no existing kriya to fix, and only together with its applying kriya and a carrier measured to work. A link to a consumer is not that measurement. Working carriers and the check: `methods/design.md`, 3b; a nudge in a tool reply is not a carrier.
 
 **`sinn` is the cheapest cell, so the easiest place to hide.** What a kriya goes *through* is a `ding` or `sachverhalt` with an `upadhi`; what it eats or produces is `ahara`/`utpatti`; `sinn` is for a concept that does nothing and nothing is done through. **A node isn't written until you've named what pulls on it** — which kriya breaks if it disappears? None → you're hiding a thing in a concept to avoid owning its lifecycle.
 
@@ -86,7 +90,7 @@ Three required axes. The factories print each axis's values and **the kind's sta
 
 **Volitive — the graph holders' stance toward what is written.** **`upeksha` is not a default**: `anagata` + `upeksha` says "it will happen and we don't care". `chanda` vs `upeksha`: **held up by intent or by mechanism?** Would it arise or continue if nobody insisted? Yes → `upeksha`; no → `chanda` (once a mechanism enforces it, switch). Decided → `adhimoksha`; let go → `visarjana`.
 
-**Read the user's will from what they said.** "We need", "I want", "let's" → `chanda`; "decided", "we hold to this" → `adhimoksha`; "no", "remove it" → `virodha` by the kind's polarity; "let it go", "doesn't matter" → `visarjana`; "ok, so be it" → `upeksha`. Without their word you write *your* stance: `chanda` on what you propose. **On the owner's behalf you never set `adhimoksha`, a refusing `virodha`, acceptance of a telos, or `upeksha` on something unwanted (risk, defect, incident)** — prepare the material and wait. The owner is whoever stands in the 主 role, not whoever's keys run. A decision the owner stated may be recorded: who, when and their words in `reasoning`, the content in the body, the stance in the mode. `posed_by` is a short address (role, seat, name), not prose.
+**Read the user's will from what they said.** "We need", "I want", "let's" → `chanda`; "decided", "we hold to this" → `adhimoksha`; "no", "remove it" → `virodha` by the kind's polarity; "let it go", "doesn't matter" → `visarjana`; "ok, so be it" → `upeksha`. Without their word you write *your* stance: `chanda` on what you propose. **On the owner's behalf you never set `adhimoksha`, a refusing `virodha`, acceptance of a telos, or `upeksha` on something unwanted (risk, defect, incident)** — prepare the material and wait. The owner is whoever stands in the 主 role, not whoever's keys run. A decision the owner stated is carried into the touched nodes (Decision 1): who, when and their words in `reasoning`, changed knowledge in their bodies and arrows, the stance in their modes. `posed_by` is a short address (role, seat, name), not prose.
 
 **`virodha` is polarised by kind; ending follows the kind's carrying axis.**
 
@@ -118,7 +122,7 @@ Emoji by meaning, not by type; 🔥 marks incidents.
 
 **Timelessness: provenance never goes in the body** — it says what the node is and how to use it. Provenance lives in `verstak_history` and each write's `reasoning`, short `attrs` keys (`posed_by`, `source`, a date), `arose_from`, and the case (→ the door, `Case laws`). Change a node by **rewriting the body to current knowledge**, never by appending a dated section. Smells: "now", "in this session", a date, a signed section, a trailing "✅". Exceptions: a `sachverhalt` incident carries its time in `attrs`; external testimony is dated by nature. **A closed node is an archive** — don't rewrite its name or body; only a part instructing a future agent reads as live.
 
-**`attrs` hold data, not prose:** a seq, handle, date, flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation is a vimarsha, a decision a node, an outcome a mode.
+**`attrs` hold data, not prose:** a seq, handle, date, flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation is a vimarsha; a decision changes the graph in the form the deed needs (Decision 1), not necessarily a new node.
 
 ## Decision 5: arrows
 
@@ -141,7 +145,7 @@ Fifth: **part of what?** Before writing at the top level, `verstak_semantic_sear
 
 **Karta:** `steward` → holon (主/能 only; a steward anywhere up the `group` chain counts); `group` → senior role; `actor` comes in from kriyas.
 
-**Vimarsha:** `vimarsha_of` → the exact node it's about, not its holon. `posed_to` → the addressee role (never 象); the surface resolves `me` (whose keys you hold), `agent` (this session's seat), `steward` (the anchor holon's steward), `realm-owner`. `posed_to` without `vimarsha_of` is in nobody's holon; `vimarsha_of` without `posed_to` on a question waiting for someone else is a note into the void. No urgency stamps. `vimarsha_of` (what it's about) and `anga` (what it moves) may both stand. `arose_from` → the observation; `addressed_by` → what answered (kriya, role, vimarsha, or phenomenon by `given_as`, never a seed). An answer is a node with an arrow, not a paragraph; the mode ends, the arrow doesn't. **A `hint` is a bianhua's seed, not a log:** one per bianhua, holding what the lenses won't show (meaning, invariants, the owner's word not yet a node, live cases by number and wait, what's next); edit in place, no dates; release it once grown into the graph.
+**Vimarsha:** `vimarsha_of` → the exact node it's about, not its holon. `posed_to` → the addressee role (never 象); the surface resolves `me` (whose keys you hold), `agent` (this session's seat), `steward` (the anchor holon's steward), `realm-owner`. `posed_to` without `vimarsha_of` is in nobody's holon; `vimarsha_of` without `posed_to` on a question waiting for someone else is a note into the void. No urgency stamps. `vimarsha_of` (what it's about) and `anga` (what it moves) may both stand. `arose_from` → the observation; `addressed_by` → what answered (kriya, role, vimarsha, or phenomenon by `given_as`, never a seed). An answer is an arrow to the node it repaired or created, not a paragraph; the mode ends, the arrow doesn't. **A `hint` is a bianhua's seed, not a log:** one per bianhua, holding what the lenses won't show (meaning, invariants, the owner's word not yet woven in, live cases by number and wait, what's next); edit in place, no dates; release it once grown into the graph.
 
 **Bianhua:** `anga` (a limb — path or carrier) comes from a vimarsha, sub-bianhua or kriya via the factory's `anga=`, not `arrows`. A carrier kriya's triad says whether it's being built (`anagata`→`vartamana`, `chanda`/`adhimoksha`) or deprecated (`vartamana`→`atita`, `virodha`); a finished one stays a paid part. `anantara_after=` — what completes first; acyclic. No `given_as`, `context` or flow arrows.
 
