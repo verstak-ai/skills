@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 3 — run /verstak align unprompted if a repo's stamp is below 3, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
 slash: true
 ---
 
@@ -38,8 +38,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `3`** (the description's number; **align**, `Contract`).
-   - **Stamp below `3`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `4`** (the description's number; **align**, `Contract`).
+   - **Stamp below `4`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -68,7 +68,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 ### Work goes to subagents
 
-**The result is yours to check:** subagents may find and update the nodes a correction or decision touches, as well as take the volume — code, the gate, review, verification. The launcher reads the changed nodes and checks the result against their neighbourhood and tensions; integration (**integrity**) and owner acts stay with whoever decides.
+**The decision, weaving and integration stay with whoever decides** (**integrity**). Subagents take the volume — code, the gate, review, verification; when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge, briefed by references to the decision and neighbourhood. The launcher reads the updated nodes and checks them against their neighbourhood and tensions; a mismatch is redone. Advice is accepted only by that check; owner acts are not delegated.
 
 **Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
 

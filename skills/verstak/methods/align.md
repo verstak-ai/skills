@@ -8,7 +8,7 @@ You produce `AGENTS.md` (read every session), `REALITY.md` (carriers, read befor
 
 Templates: `templates/agents-template.md` and `templates/reality-template.md`. Fill the `<…>` slots, drop optional rows that don't apply, strip every `<!-- … -->` note and angle bracket. The template carries **repository facts only**; its first paragraph loads the `verstak` skill, so even a harness without a start hook reaches the door. Generic code work (before code, reviews, after merge, working principles) is `methods/code-work.md`, read through the door: never project it into `AGENTS.md`.
 
-**Contract: `3`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+**Contract: `4`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
 
 **Check the installed delivery first** — every run, and before concluding a method's instruction is wrong:
 
@@ -125,7 +125,7 @@ Self-check: the four base hooks present; retired ones of yours (a `Stop` guard, 
 
 ### Step 6 — Delegation subagent roles
 Doctrine, file templates and the satellite entry: `references/align-delegation.md`; never `AGENTS.md` prose.
-- Claude Code, always: `.claude/agents/` `reader`, `searcher` (middle tier), `worker`, `designer`, `reviewer`, `verifier` (top tier) — aliases `sonnet`/`opus`, nothing on `haiku`. `verifier` and `reviewer` even with no runtime: they make `REALITY.md` and review executable. `searcher` is read-only; its candidates are accepted only after checking the node's neighbourhood. No role writes to the graph.
+- Claude Code, always: `.claude/agents/` `reader`, `searcher` (middle tier), `worker`, `designer`, `reviewer`, `verifier` (top tier) — aliases `sonnet`/`opus`, nothing on `haiku`. `verifier` and `reviewer` even with no runtime: they make `REALITY.md` and review executable. Only `designer` may update many nodes touched by an already made decision, on its own satellite bridge with the launcher's check (`references/align-delegation.md`, rule 6); the other roles are read-only. `searcher` candidates are accepted only after checking the node's neighbourhood.
 - OpenCode: the same six in `.opencode/agents/`, `mode: subagent`, model **pinned** per file from the user's setup (ask or read `opencode.json`), never copied from the reference; the top tier only Claude Opus or GPT-6.1 Sol.
 - The satellite entry is one `node -e` form for every OS — copy it verbatim; no machine path.
 - **Merge**: another suite's same-named agent → fold in or rename yours (`verstak-reader`); your earlier projection → rewrite the body above `## This repo` and carry that heading's tail as is: the repository's own lines (gate command, review canon, edit bans) live only there; an old file without the heading → sort by content, restore lost lines from the file's history; someone else's body → leave it.
