@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/verstak-ai/skills/compare/v3.2.0...v3.2.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **verstak:** the card is the wait — a wait on an agent is an ask card too, a partial line is only your own key's state ([#151](https://github.com/verstak-ai/skills/issues/151)) ([f3f5f94](https://github.com/verstak-ai/skills/commit/f3f5f94d4f3bec3be40c4c36a09a196245a29bfd))
+
 ## [3.2.0](https://github.com/verstak-ai/skills/compare/v3.1.0...v3.2.0) (2026-10-10)
 
 
