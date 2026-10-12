@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.3.0](https://github.com/verstak-ai/skills/compare/v3.2.1...v3.3.0) (2026-10-12)
+
+
+### Features
+
+* **bridge:** core from the sibling 7.9.0 ([#156](https://github.com/verstak-ai/skills/issues/156)) ([a75fa92](https://github.com/verstak-ai/skills/commit/a75fa92e2cbbf4b262e91646fe4853ae363940c4))
+* **verstak:** a correction or decision updates the touched nodes, not a new rule; a designer may update them; align contract 4 ([#155](https://github.com/verstak-ai/skills/issues/155)) ([2a4325a](https://github.com/verstak-ai/skills/commit/2a4325a11d9b42db0a79f44d28ccb51f5f0cc9ce))
+
+
+### Bug Fixes
+
+* **verstak:** architect sets work as a project in the graph and hands over a reference; no provenance in nodes; a correction fixes the deed ([#153](https://github.com/verstak-ai/skills/issues/153)) ([27725b3](https://github.com/verstak-ai/skills/commit/27725b3fa031c0d7b2fea88c23e0a0c3226ffd96))
+
 ## [3.2.1](https://github.com/verstak-ai/skills/compare/v3.2.0...v3.2.1) (2026-10-12)
 
 
