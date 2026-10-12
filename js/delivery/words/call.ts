@@ -2,6 +2,7 @@
 // refusals, the asked-vs-led seat advice, an empty answer.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
+import { TAKE } from "./take.ts";
 
 export interface CallWords {
   sameNamePrefix: () => string;
@@ -19,7 +20,7 @@ export const CALL: Readonly<Record<Lang, CallWords>> = {
   en: {
     sameNamePrefix: () => "the same name under another role; ",
     heardAdvice: (other, asked, led) =>
-      `${other ? `another session listens on the seat ${asked}` : `the bridge does not know whether another session listens on the seat ${asked}`} — leave it alone; this bridge's own seat is ${led}: stay on it or pass another name; to stand beside — ${tool("stand")} without name; taking the seat (take=true) — only on the user's word`,
+      `${other ? `another session listens on the seat ${asked}` : `the bridge does not know whether another session listens on the seat ${asked}`} — leave it alone; this bridge's own seat is ${led}: stay on it or pass another name; to stand beside — ${tool("stand")} without name; taking the seat (take=true): ${TAKE.en.rule()}`,
     sameKeysAdvice: () =>
       `the keys match — it is the same seat: repeat ${tool("stand")} with take=true to reopen it deliberately`,
     sameNameAdvice: () =>
