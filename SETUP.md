@@ -1,7 +1,10 @@
-# verstak setup (agent-executable)
+# verstak setup — reference
 
-You are a coding agent setting up **verstak** for your user. Execute the steps below
-autonomously, in order, and report the result of each one.
+A reference for installing **verstak**, for an agent and a person alike. The skill is
+installed through the harness's own channel (step 1); the graph is connected by the
+installed skill's `establish-mcp` method, led by the word "/verstak connect the graph".
+Here are the per-harness branches and troubleshooting; when you walk them, go in order and
+report the result of each step.
 
 Expect approval prompts. Your harness may gate or refuse any command below — that is a
 permission decision, not a broken step, and nothing in this file can override it. Asking
@@ -13,7 +16,7 @@ verstak is two parts:
    into), readable before install.
 2. **verstak-bridge** — the stdio MCP bridge shipped inside that skill
    (`skills/verstak/scripts/verstak-bridge.mjs`). It is the only path to the graph
-   server (`https://mcp.verstak.ai/` by default) and publishes its `verstak_*` tools.
+   server and publishes its `verstak_*` tools.
 
 Sign-in is the bridge's own: OAuth through a local link it prints, or a personal token.
 No harness login command and no connector button is involved.
@@ -64,8 +67,11 @@ pi install git:github.com/verstak-ai/skills
 The extension raises the bridge itself and registers the `verstak_*` tools; step 2 is not
 needed for pi. Update: `pi update git:github.com/verstak-ai/skills`.
 
-**Claude Desktop chat** — the user uploads `verstak.skill` (from the root of
-`https://github.com/verstak-ai/skills`) in the app's skill settings. The bridge is placed
+**Claude Desktop chat** — the user uploads `verstak.skill` from the root of the latest
+release (`https://github.com/verstak-ai/skills/releases/latest` names the tag, the file is
+`https://raw.githubusercontent.com/verstak-ai/skills/TAG/verstak.skill`; by hand: open the
+latest release, its tag, `verstak.skill`, "Download raw file"; the tag commands are in step 2,
+the Claude Desktop branch) in the app's skill settings. The bridge is placed
 separately — step 2, "Bring up the bridge by hand".
 
 ## 2. Connect the graph server
@@ -104,7 +110,8 @@ is installed and whether it works: the bridge's `doctor` subcommand, on the path
 `claude mcp list` prints.
 
 **A harness without stdio MCP servers** (the claude.ai web app and the like) cannot raise
-the bridge, and there is no other path to the graph. Tell the user plainly: the graph
+the bridge, and there is no other path to the graph: connecting the server directly as a
+harness connector does not work and is not supported. Tell the user plainly: the graph
 needs a harness that runs local stdio MCP servers — Claude Code, Claude Desktop, Codex,
 OpenCode, pi, Cursor.
 
@@ -201,19 +208,22 @@ cp "$src" ~/.verstak-bridge/verstak-bridge.mjs && echo "copied from $src"
 `-L` carries weight: a global `npx skills` install keeps the content in `~/.agents/skills/`
 behind symlinks, and `find` without `-L` does not enter them.
 
-**Claude Desktop** puts no skill on disk, so take the bridge from the delivery — `main`
-carries the last release's build, and the bridge updates itself afterwards (section 3):
+**Claude Desktop** puts no skill on disk, so `find` above finds nothing: take the bridge
+from the latest release, never from `main` — the `releases/latest` redirect names its tag,
+as the bridge itself reads it; afterwards the bridge updates itself (section 3):
 
 ```sh
+TAG=$(curl -fsSI https://github.com/verstak-ai/skills/releases/latest | tr -d '\r' | sed -n 's|^[Ll]ocation: .*/releases/tag/||p')
 mkdir -p ~/.verstak-bridge
-curl -fsSL https://raw.githubusercontent.com/verstak-ai/skills/main/skills/verstak/scripts/verstak-bridge.mjs -o ~/.verstak-bridge/verstak-bridge.mjs
+curl -fsSL "https://raw.githubusercontent.com/verstak-ai/skills/$TAG/skills/verstak/scripts/verstak-bridge.mjs" -o ~/.verstak-bridge/verstak-bridge.mjs
 ```
 
 On Windows, PowerShell (`curl.exe`, not the `Invoke-WebRequest` alias):
 
 ```powershell
+$tag = (curl.exe -fsSI https://github.com/verstak-ai/skills/releases/latest | Select-String '/releases/tag/([^/\s]+)').Matches[0].Groups[1].Value
 New-Item -ItemType Directory -Force "$HOME\.verstak-bridge" | Out-Null
-curl.exe -fsSL https://raw.githubusercontent.com/verstak-ai/skills/main/skills/verstak/scripts/verstak-bridge.mjs -o "$HOME\.verstak-bridge\verstak-bridge.mjs"
+curl.exe -fsSL "https://raw.githubusercontent.com/verstak-ai/skills/$tag/skills/verstak/scripts/verstak-bridge.mjs" -o "$HOME\.verstak-bridge\verstak-bridge.mjs"
 (Get-Command node).Source    # the absolute node path, for the entry's command
 ```
 
@@ -238,9 +248,10 @@ The path is absolute: `~` is not expanded there. On Windows write `C:\\Users\\NA
 the like, put the absolute node path in `command`. Put the entry in the harness's
 **user-level** config, not the project one — the graph follows the user.
 
-With no URL argument the bridge points at `https://mcp.verstak.ai/`, or at the address in
+With no URL argument the bridge picks its delivery's server itself, or the address in
 `~/.verstak-bridge/server` (`node ~/.verstak-bridge/verstak-bridge.mjs use URL`);
-`VERSTAK_BRIDGE_URL` or a URL argument beats both. On the first call it runs the OAuth
+`VERSTAK_BRIDGE_URL` or a URL argument beats both. Connecting to the server past the
+bridge, as a harness connector, is not possible. On the first call the bridge runs the OAuth
 flow, keeps the grant fresh in `~/.verstak-bridge/` (idle too), and turns any upstream
 failure into a visible error instead of a hang. Many agents on one machine share one grant:
 one click signs in the whole machine. Needs Node 22+. Diagnosis and the decision ladder:
