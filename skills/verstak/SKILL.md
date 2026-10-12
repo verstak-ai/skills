@@ -54,7 +54,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | Into the graph | Into a case |
 |---|---|
 | true and needed by whoever comes to the node with a different case | true only as this case's story |
-| a decision — a node when made | tasking, agreement, acceptance |
+| a decision — changes to the touched nodes when made, in the form the deed needs (**writing**, Decision 1) | tasking, agreement, acceptance |
 | a question of substance or a commitment — a vimarsha `posed_to` the answering role, saying when it's answered (**writing**) | a one-off task or question, ending with its outcome |
 | a handoff — a relay: one action's output (`utpatti`) is the next one's input (`ahara`) | the course of this case — lines (`Ledger`) |
 | what the work changes — node modes; a big transition as a bianhua | — |
@@ -68,7 +68,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 ### Work goes to subagents
 
-**Graph craft is yours:** reading, writing, weaving, integration (**integrity**) stay with whoever decides. Subagents take the volume — code, the gate, review, verification; check their advice against the node's neighbourhood.
+**The result is yours to check:** subagents may find and update the nodes a correction or decision touches, as well as take the volume — code, the gate, review, verification. The launcher reads the changed nodes and checks the result against their neighbourhood and tensions; integration (**integrity**) and owner acts stay with whoever decides.
 
 **Each subagent assignment gets a child case** on the subject node (`open_room` with `parent_room`) before launch, launch line `verstak <graph> <role> case #N`; its result stays in that case. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
 
@@ -213,6 +213,7 @@ They apply unasked.
 | about to write (`verstak_add_*`, `verstak_batch`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — **writing**, `After writing` |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
+| the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |

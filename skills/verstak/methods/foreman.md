@@ -41,7 +41,7 @@ The assignment derives from the node, not from the user's wish in your words. **
 - **One agent per unit, one seat per agent**, isolated working copies on a shared machine: under contention a timeout is a verdict on the machine, not the test; spread expensive checks.
 - **Boundaries in the first instruction**: what must not happen (rewriting shared history, merging, closing, others' units) and the escalation path.
 - **A unit's case goes under the parent when opened** — `open_room` (`methods/architect.md`) with `parent_room` = the live case you sit in; it can't be attached later. `verstak_case(action="invite")` by seat, or by role with `karta` and `holon`; launch line: the door, `Work goes to subagents`. You lead the child case and close it with `propose_close` and evidence.
-- **The unit reports; you weave** (`methods/autonomous.md`, §3, work by reference): weaving the area, ending by axis, reconciling with code and closing the seed.
+- **The unit reports; you check and weave** (`methods/autonomous.md`, §3, work by reference): finding and updating touched nodes may be delegated (the door, `Work goes to subagents`); you check them against their neighbourhood, hold integration, end by axis, reconcile with code and close the seed.
 - **The crew roster is a file** of harness session, unit, last known artifact state; membership is read from the case. Write each launch as you make it; a running session without a roster line stops new launches.
 
 ## Sweep: who has stalled
