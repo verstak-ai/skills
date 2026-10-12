@@ -69,8 +69,9 @@ needed for pi. Update: `pi update git:github.com/verstak-ai/skills`.
 
 **Claude Desktop chat** — the user uploads `verstak.skill` from the root of the latest
 release (`https://github.com/verstak-ai/skills/releases/latest` names the tag, the file is
-`https://raw.githubusercontent.com/verstak-ai/skills/TAG/verstak.skill`; the tag commands
-are in step 2, the Claude Desktop branch) in the app's skill settings. The bridge is placed
+`https://raw.githubusercontent.com/verstak-ai/skills/TAG/verstak.skill`; by hand: open the
+latest release, its tag, `verstak.skill`, "Download raw file"; the tag commands are in step 2,
+the Claude Desktop branch) in the app's skill settings. The bridge is placed
 separately — step 2, "Bring up the bridge by hand".
 
 ## 2. Connect the graph server

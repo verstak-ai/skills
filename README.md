@@ -44,8 +44,10 @@ The door selects methods for reading, writing, designing and weaving through the
 ```text
 Install the verstak skill for me through your harness's own channel: in Claude Code the plugin
 (`claude plugin marketplace add verstak-ai/skills`, then `claude plugin install verstak@verstak-ai`),
-in pi `pi install git:github.com/verstak-ai/skills`, elsewhere flat —
-`npx skills add verstak-ai/skills --all --global`. Then do "/verstak connect the graph".
+in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
+`verstak.skill` from the latest release, elsewhere flat — `npx skills add verstak-ai/skills
+--all --global`. Then, in a new session, do "/verstak connect the graph"
+(`/verstak:verstak connect the graph` under the Claude Code plugin).
 ```
 
 The installed skill's `establish-mcp` method connects the graph on the word "/verstak
