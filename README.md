@@ -42,11 +42,16 @@ The door selects methods for reading, writing, designing and weaving through the
 ### Hand setup to your agent
 
 ```text
-Set up verstak for me: fetch https://raw.githubusercontent.com/verstak-ai/skills/main/SETUP.md
-and execute all steps autonomously, asking me for my token when needed.
+Install the verstak skill for me through your harness's own channel: in Claude Code the plugin
+(`claude plugin marketplace add verstak-ai/skills`, then `claude plugin install verstak@verstak-ai`),
+in pi `pi install git:github.com/verstak-ai/skills`, elsewhere flat —
+`npx skills add verstak-ai/skills --all --global`. Then do "/verstak connect the graph".
 ```
 
-[`SETUP.md`](SETUP.md) is the agent-executable installer.
+The installed skill's `establish-mcp` method connects the graph on the word "/verstak
+connect the graph" (`/verstak:verstak` under the Claude Code plugin). [`SETUP.md`](SETUP.md)
+is the per-harness reference — read it, don't fetch it to execute. Manual paths by harness
+follow.
 
 ### Claude Code plugin (recommended)
 
@@ -77,7 +82,9 @@ This installs `verstak` flat into `~/.claude/skills/`. For manual installation:
 unzip verstak.skill -d ~/.claude/skills/
 ```
 
-Use a local agent harness that can run the stdio bridge; the browser app cannot.
+Use a local agent harness that can run the stdio bridge; the browser app cannot. The
+bridge is the only path to the graph: connecting the server directly as a harness
+connector does not work and is not supported.
 
 ## Layout & build
 
@@ -91,4 +98,4 @@ Use a local agent harness that can run the stdio bridge; the browser app cannot.
 
 Run `make deps` once for the `js/` toolchain, `make build` to regenerate the bundle and `home/`, `make check` for the full local gate,
 or `make hooks` to rebuild automatically before commits. `make surface` refreshes
-the snapshot from `https://mcp.verstak.ai/` when that server is available.
+the snapshot from the graph server through the bundled bridge when it is reachable.

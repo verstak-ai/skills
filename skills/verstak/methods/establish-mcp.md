@@ -25,7 +25,7 @@ Changes nothing. Reports the build and Node, the home copy against this file, th
 Per-harness steps are in `SETUP.md` — at `~/.verstak-bridge/SETUP.md` (placed by `node BRIDGE update`) or at the root of `github.com/verstak-ai/skills`. Follow it; the standard path is the plugin, then a new session. What to decide yourself:
 
 - **Without the plugin**: copy the bridge to the stable home (never point a config inside a versioned install path) and register it as a stdio server in the harness's **user** config — the graph follows the user across repositories. Generic entry: `{ "mcpServers": { "verstak": { "command": "node", "args": ["/abs/path/.verstak-bridge/verstak-bridge.mjs"] } } }` — absolute path, `~` isn't expanded. Node 22+.
-- **Claude Desktop** has no bridge file on disk and you have no shell there: dictate the `SETUP.md` steps to the user (download, `claude_desktop_config.json` entry, restart).
+- **Claude Desktop** has no bridge file on disk and you have no shell there: dictate the `SETUP.md` steps to the user — the bridge from the latest release, never from `main` (`TAG=$(curl -fsSI https://github.com/verstak-ai/skills/releases/latest | tr -d '\r' | sed -n 's|^[Ll]ocation: .*/releases/tag/||p')`, then `curl -fsSL --create-dirs "https://raw.githubusercontent.com/verstak-ai/skills/$TAG/skills/verstak/scripts/verstak-bridge.mjs" -o ~/.verstak-bridge/verstak-bridge.mjs`; on Windows the `SETUP.md` PowerShell recipe with `curl.exe`), the `claude_desktop_config.json` entry, a restart.
 - **OpenCode** takes the delivery's plugin (`scripts/opencode-plugin.js` → `~/.config/opencode/plugins/verstak.js`), never an `mcp` entry — that renames the tools and mixes sessions. It runs the bridge on OpenCode's Bun (no Node); until sign-in, the `verstak_bridge` tool names the sign-in address. `doctor` names a stray `mcp` entry → the user removes it.
 - **Codex**: `codex mcp list` showing `verstak`, `command node`, `Auth: Unsupported` is normal — the bridge holds its own grant; skip `codex mcp login`. Under `codex exec`, MCP calls are refused with `approval policy is never` until approved: the tools are visible but not callable; the sandbox-removing bypass is for externally isolated environments only. Hearing on a seat uses `node "BRIDGE" watchdog-codex KEY` from the session's shell, which needs a door the user prepares before the session (`SETUP.md`); `doctor` says whether it is open, otherwise the watchdog exits with code 2 — pass its message on and listen for `watchdog-exit`. Holding it: `methods/collaborate.md`.
 
@@ -56,7 +56,7 @@ On `mcp.verstak.ai` the bridge updates itself and reports a newer release as a `
 
 ## When the bridge can't run
 
-A harness without stdio MCP servers (the claude.ai browser app and the like), or no Node 22+ (except OpenCode) — no path to the graph. Tell the user plainly which is missing.
+A harness without stdio MCP servers (the claude.ai browser app and the like), or no Node 22+ (except OpenCode) — no path to the graph: connecting the server directly as a harness connector does not work and is not supported. Tell the user plainly which is missing.
 
 ## Bridge errors
 
