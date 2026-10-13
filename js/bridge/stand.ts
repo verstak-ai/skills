@@ -47,6 +47,7 @@ import {
   wasEvicted,
 } from "./hold.ts";
 import { keyOf, noteSeatBase } from "./holdrecord.ts";
+import { stoppedSince, stopsNow } from "./holdstate.ts";
 import { knock, resetKnocks } from "./knock.ts";
 import { heardOnReturn, returnToStanding } from "./leave.ts";
 import { listenBlock } from "./listen.ts";
@@ -98,6 +99,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
   const a = msg.params?.arguments ?? {};
+  const stopsBefore = stopsNow(); // an owner's 4001 met by this call's own return ends it (#7439)
   let realm = typeof a.realm === "string" ? a.realm.trim() : "";
   let karta = a.karta != null ? normKarta(a.karta) : "";
   const lines: string[] = [];
@@ -201,7 +203,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // The session directory goes into the hold record: a re-raised bridge returns the seat by it (#5140).
   noteStandCwd(cwd);
 
-  const here = () => placeFields({ realm, karta, name }); // seat fields on every registration (#5174)
+  const here = () => placeFields({ realm, karta, name }, true); // seat fields on every registration (#5174)
   const register = () =>
     call(tool("channel"), { action: "register", realm, karta, name, ...here() });
 
@@ -303,6 +305,12 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     !theirsByRecord(keyOf(realm, karta, name));
   const resumed =
     byRecord ?? (fresh && !listensElsewhere ? await resumeFromDisk(realm, karta, name) : null);
+  // The return by record met the owner's 4001: the agent is stopped — the stop word, no connect after it (#7439).
+  const stopped = stoppedSince(stopsBefore, keyOf(realm, karta, name));
+  if (stopped) {
+    lines.push(stopped);
+    return done(true);
+  }
   const extra: string[] = []; // lines after the answer's header
   // This bridge held the socket before the call (own register, return from disk): no hello wait.
   let socketBefore = false;
@@ -334,6 +342,11 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     // another session turned the address meanwhile, the socket is refused and released —
     // the same call again picks a seat beside (#6706).
     await heardOnReturn(); // no hello — the address may have turned: socket released (leave.ts)
+    const stoppedBack = stoppedSince(stopsBefore, keyOf(realm, karta, name)); // the return met the owner's 4001
+    if (stoppedBack) {
+      lines.push(stoppedBack);
+      return done(true);
+    }
     if (!holdsStanding(realm, karta, name) && !R.again) {
       R.again = true;
       try {

@@ -1,0 +1,79 @@
+// The owner took a seat off (graph @nks/nks-dev, nodes #7439, #7440, #7493): the agent and
+// its seat have one life, so taking the seat off ends the agent. A close 4001 the session did
+// not expect as its own revoke or close — or such a standing_ended frame naming the main seat — is
+// the stop: every door and the notification client hear the stop word, unsent batches are
+// dropped to the journal (flushed, they would wake the stopped agent), the seat is released
+// with its record and binding forgotten, and no automatic path takes it again (none has a
+// record or a binding left; a move under way when it came says the stop word, stoppedSince).
+// The name stays free: an explicit call of the stand tool stands as usual. A standing_ended frame for a
+// seat beside forgets only that seat, waking nobody — unless it outran the answer of the session's
+// own revoke of that seat or close of the channel: then it is that quiet own release. Wired into
+// hold.ts at load (session.ts).
+import { STOP, type StopWho } from "../delivery/index.ts";
+import { words } from "../shared/lang.ts";
+import { type Door } from "./door.ts";
+import { broadcast, type ChannelEvent, forgetSeat, notify, releasedAsOwn } from "./hold.ts";
+import { type Frame, H, whenStopped } from "./holdstate.ts";
+import { holdWords } from "./holdwords.ts";
+import { dropExtra, extraPlaces } from "./places.ts";
+import { standingLog } from "./store.ts";
+import { log } from "./streams.ts";
+import { state } from "./transport.ts";
+
+const whoOf = (reason: string): StopWho =>
+  reason === "revoked:person" ? "person" : reason === "revoked:self" ? "self" : "other";
+
+const stopWord = (name: string, reason: string): string => words(STOP).stopped(name, whoOf(reason));
+
+/** What a stopped seat had not given yet stays in the journal, not in the session: it would wake the agent. */
+function dropUnsent(key: string, doors: (Door | null | undefined)[]): void {
+  const n = doors.reduce((sum, d) => sum + (d?.dropBatches() ?? 0), 0);
+  if (n) standingLog(`stopped ${key}: ${n} undelivered frame(s) dropped, not given`);
+}
+
+function stopAgent(key: string, how: string, reason: string): void {
+  const text = stopWord(state.standing?.name ?? "", reason);
+  log(text);
+  standingLog(`stopped ${key}: ${how}${reason ? ` (${reason})` : ""}`);
+  dropUnsent(key, [H.door, ...extraPlaces().map((p) => p.door)]);
+  H.stopped = { n: H.stopped.n + 1, key, text };
+  const ev: ChannelEvent = { kind: "stopped", key, text, ...(reason ? { reason } : {}) };
+  broadcast(ev);
+  notify("error", ev);
+  forgetSeat(text);
+}
+
+/** One seat of a live channel taken off (api: standing_ended {standing_id, by}). */
+function seatEnded(key: string, frame: Frame): void {
+  const id = typeof frame.standing_id === "string" ? frame.standing_id : "";
+  const reason = typeof frame.by === "string" ? `revoked:${frame.by}` : "";
+  const beside = id ? extraPlaces().find((p) => p.door.standingId === id) : undefined;
+  if (beside) {
+    // The frame outran the answer of the session's own revoke of that seat or close of the channel.
+    const own = H.closingOwn
+      ? holdWords().closedOwn()
+      : H.revokingBeside.has(beside.door.key)
+        ? holdWords().revokedOwn()
+        : null;
+    if (own) {
+      log(
+        `seat beside ${beside.door.key} released quietly (standing_ended arrived before the answer)`,
+      );
+      return dropExtra(beside.door.key, own, true, "own");
+    }
+    const text = stopWord(beside.standing.name ?? "", reason);
+    log(`${text} — that seat beside is forgotten, the rest are held`);
+    dropUnsent(beside.door.key, [beside.door]);
+    return dropExtra(beside.door.key, text, true, "beside");
+  }
+  const main = H.door?.standingId;
+  // An id that names neither seat: with seats beside it may be one whose id the bridge never learnt.
+  if (id && (main ? main !== id : extraPlaces().length > 0))
+    return log(`standing_ended for seat ${id}, not one this bridge knows — ignored`);
+  if (releasedAsOwn("standing_ended")) return; // the frame outran the answer of the session's own revoke or close
+  stopAgent(key, "standing_ended", reason);
+}
+
+whenStopped((key, code, reason, ended) =>
+  ended ? seatEnded(key, ended) : stopAgent(key, `close ${code}`, reason),
+);

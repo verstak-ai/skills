@@ -67,8 +67,13 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
       for (const [lk, e] of lost)
         if (lk === k || (e.satellite && sameRealm(e.realm, realm))) lost.delete(lk);
     },
-    lose(k: string, realm: string, why: string, satellite: boolean): void {
-      const text = satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
+    /** `stopped` — the owner took the seat off (#7439): `why` is the stop word, no retake advice. */
+    lose(k: string, realm: string, why: string, satellite: boolean, stopped = false): void {
+      const text = stopped
+        ? why
+        : satellite
+          ? words(LOST).satellite(k)
+          : words(LOST).seat(k, realm, why);
       lost.set(k, { realm, satellite, text });
       live.delete(k);
       log(text);
@@ -78,7 +83,7 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
         params: {
           level: "warning",
           logger: LOGGERS.channel,
-          data: { kind: "lost", key: k, text },
+          data: { kind: stopped ? "stopped" : "lost", key: k, text },
         },
       });
     },
@@ -108,7 +113,7 @@ export function lostPlaces(say: (m: JsonRpcMessage) => void, log: (m: string) =>
       } else if (place?.kind === "beside-gone" && place.key) live.delete(place.key);
       else if (
         place &&
-        ["released", "dead", "evicted"].includes(place.kind) &&
+        ["released", "dead", "evicted", "stopped"].includes(place.kind) &&
         (!place.key || place.key === heldKey) &&
         !(place.kind === "released" && daemonSession)
       ) {

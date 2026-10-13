@@ -50,6 +50,16 @@ export class Backlog {
     this.close();
   }
 
+  /** On the owner's stop: what waited is not given, the stopped agent is not woken (#7439). */
+  drop(): number {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    this.flush = null;
+    this.pending = 0;
+    this.direct = 0;
+    return this.all.splice(0).length;
+  }
+
   /**
    * false — no window, or a direct word that goes its own way whole.
    * A repeated id already in the window is not counted.

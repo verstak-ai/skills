@@ -143,6 +143,10 @@ export function runWatchdogExit(argv: string[]): void {
           note(ev.text ?? wd().seatLost());
           process.exit(1);
           break;
+        case "stopped":
+          wake(ev.text ?? wd().seatLost()); // the owner took the seat off (#7439): exit 0
+          process.exit(0);
+          break;
         case "attached":
           seenPath = adoptSeenPath(ev.seen, seenPath, seen); // the seat's memory on its server
           note(wd().listening(ev.key));

@@ -31,9 +31,10 @@ const SUN_PATH_MAX = 103;
 // Published atomically via link(), not rename, so a second writer cannot replace a
 // word the first already read (daemon and bridge would diverge on the name); a reader
 // finding it empty (an older non-atomic writer) rereads.
-function pipeNonce(authDir: string): string {
+function pipeNonce(authDir: string, create = true): string {
   const run = seamRunDir(authDir);
   const file = join(run, "pipe");
+  if (!create) return readFileSync(file, "utf8").trim();
   mkdirSync(run, { recursive: true, mode: 0o700 });
   const tmp = `${file}.${process.pid}-${randomBytes(6).toString("hex")}`;
   try {
@@ -53,11 +54,11 @@ function pipeNonce(authDir: string): string {
   throw new Error(`${file} stays empty — the pipe name is unknown`);
 }
 
-/** Local entrance of this grant directory's daemon. On Windows creates the random name part. */
-export function seamSocketPath(authDir: string): string {
+/** Local entrance; create=false reads the Windows pipe name without creating it. */
+export function seamSocketPath(authDir: string, create = true): string {
   const key = seamKey(authDir);
   if (process.platform === "win32")
-    return `\\\\.\\pipe\\${RUNTIME_PREFIX}-daemon-${key}-${pipeNonce(authDir)}`;
+    return `\\\\.\\pipe\\${RUNTIME_PREFIX}-daemon-${key}-${pipeNonce(authDir, create)}`;
   const inRun = join(seamRunDir(authDir), "daemon.sock");
   if (Buffer.byteLength(inRun) <= SUN_PATH_MAX) return inRun;
   return join(shortSocketDir(), `daemon-${key}.sock`);
@@ -67,19 +68,20 @@ export function seamSocketPath(authDir: string): string {
  * Whether the entrance is fit: the seam and socket directories belong to this user
  * with no group or other rights (created 0700). Otherwise why not: the thin bridge
  * runs full, the daemon does not listen. Not checked on Windows (a limit).
+ * create=false only checks existing directories, for a read-only probe.
  */
-export function seamEntranceProblem(authDir: string): string | null {
+export function seamEntranceProblem(authDir: string, create = true): string | null {
   if (process.platform === "win32") return null;
   const run = seamRunDir(authDir);
   try {
-    mkdirSync(dirname(run), { recursive: true, mode: 0o700 }); // grant directory; its rights are not the seam's concern
+    if (create) mkdirSync(dirname(run), { recursive: true, mode: 0o700 }); // grant directory; its rights are not the seam's concern
   } catch (e) {
     return `${dirname(run)}: ${(e as Error).message}`;
   }
-  const bad = privateDirProblem(run);
+  const bad = privateDirProblem(run, create);
   if (bad) return bad;
-  const sockDir = dirname(seamSocketPath(authDir));
-  return sockDir === run ? null : privateDirProblem(sockDir);
+  const sockDir = dirname(seamSocketPath(authDir, create));
+  return sockDir === run ? null : privateDirProblem(sockDir, create);
 }
 
 /** Daemon raise election lock: one raises. */

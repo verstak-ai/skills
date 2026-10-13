@@ -34,6 +34,7 @@ import {
   restoreHoldRecord,
   sessionOfBridge,
 } from "./holdrecord.ts";
+import { stoppedSince, stopsNow } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { returnToStanding } from "./leave.ts";
 import { THIN_RESUME_ID } from "./lostplaces.ts";
@@ -164,12 +165,23 @@ export interface ResumeOutcome {
   legacy?: string[];
   /** Own seats whose socket a live bridge of another session holds: not taken (#6626). */
   elsewhere?: string[];
+  /** The seat was taken off by its owner (#7439): no return, the word is the stop word. */
+  stopped?: true;
+}
+
+/** The return met the owner's 4001 since `before` (stophold.ts): the stop outcome, no other move; otherwise null. */
+function stoppedOutcome(before: number, key: string): ResumeOutcome | null {
+  const word = stoppedSince(before, key);
+  return word ? { resumed: false, key, stopped: true, word } : null;
 }
 
 /** Back to the parked seat: a new socket, hello is the proof. */
 async function backToParked(key: string, how: string): Promise<ResumeOutcome> {
+  const before = stopsNow();
   if (!returnToStanding(how)) return { resumed: false, key, word: resumeWords.failed() };
   const hello = await awaitHello(4000);
+  const stop = stoppedOutcome(before, key);
+  if (stop) return stop;
   return {
     resumed: true,
     key,
@@ -216,6 +228,7 @@ export async function resumeBy(
   const elsewhere: string[] = [];
   for (const rec of recs) {
     const key = keyOf(rec.realm, rec.karta, rec.name);
+    const before = stopsNow();
     if (holdsKey(key))
       return { resumed: true, key, pending: 0, word: resumeWords.alreadyHolding(), own: true };
     if (isParked(rec.realm, rec.karta, rec.name)) return backToParked(key, resumeWords.byRecord());
@@ -229,6 +242,8 @@ export async function resumeBy(
     const holder = await localHolder(key, sel.cwd ?? sessionCwd());
     if (holder === "session" && takeOwn && !CFG.satellite && T.takeOwn) {
       const said = await T.takeOwn(rec, sel.cwd);
+      const stop = stoppedOutcome(before, key);
+      if (stop) return stop;
       const now = ledKey();
       if (now && holdsKey(now)) {
         const hello = await awaitHello(4000);
@@ -256,6 +271,8 @@ export async function resumeBy(
     const proven = (!!me && rec.session === me) || (key === led && !rec.session);
     const back = await resumeFromDisk(rec.realm, rec.karta, rec.name);
     if (!back) {
+      const stop = stoppedOutcome(before, key); // the return met the owner's 4001
+      if (stop) return stop;
       const kept = readHoldRecord(key);
       skipped.push(kept ? resumeWords.noHello(key) : resumeWords.stale(key));
       if (!kept) {
@@ -419,9 +436,12 @@ export async function runCheck(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   }
   D.reopens++;
   standingLog(`reopen ${key}: board reads deaf${pending ? ` with ${pending} pending` : ""}`);
+  const before = stopsNow();
   parkStanding(resumeWords.deafBoard());
   resumeStanding();
   const hello = await awaitHello(4000);
+  const stop = stoppedOutcome(before, key); // the reopening met the owner's 4001
+  if (stop) return reply(msg, { holding: false, ...stop });
   return reply(msg, {
     holding: true,
     key,

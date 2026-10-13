@@ -47,12 +47,13 @@ export const shortSocketDir = (): string =>
  * A private socket directory is created 0700 and used only if it is a directory (not
  * a link) of this user with no group or other rights; the sticky /tmp keeps it from
  * being swapped before listen. Returns why not, null when fit. Shared by door.ts and seam.ts.
+ * create=false inspects only, without creating a missing directory.
  */
-export function privateDirProblem(dir: string): string | null {
+export function privateDirProblem(dir: string, create = true): string | null {
   let st;
   try {
     try {
-      mkdirSync(dir, { mode: 0o700 });
+      if (create) mkdirSync(dir, { mode: 0o700 });
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e;
     }

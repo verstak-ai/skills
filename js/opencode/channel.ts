@@ -23,6 +23,8 @@ import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-t
 import { words } from "../shared/lang.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, eventIn } from "../shared/seen.ts";
+import { authDir } from "./bridge-io.ts";
+import { createHalts, descendantsOf } from "./halts.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -34,8 +36,10 @@ export interface Channel {
   taken(session: string, inbox?: string): void;
   /** The session's turn is busy or free — by session.status. */
   status(session: string, busy: boolean): void;
-  /** The session was deleted: its waiting tact has nowhere to go (tacts.ts). */
+  /** The session was deleted: its waiting tact has nowhere to go (tacts.ts), its stop goes (halts.ts). */
   gone(session: string): void;
+  /** The session or an ancestor is stopped (another instance's stop too): its turn is cut once; false — not stopped. */
+  halt(session: string): boolean;
   /** The plugin stops: what gathered leaves now. */
   stop(): void;
   /** Counts of records waiting for a passing prompt into root session `session`; null — none. */
@@ -48,6 +52,9 @@ const CASE_BATCH_MS = Number(process.env[envName("OPENCODE_BATCH_MS")]) || 5_000
 const CASE_BATCH_CAP = 20;
 /** A pile prompt whose taking OpenCode keeps silent about longer is counted taken. */
 const PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 120_000;
+/** How many times a stop's refused interrupt is tried, and how long apart. */
+const CUT_TRIES = 3;
+const CUT_RETRY_MS = 500;
 /**
  * A case frame for the pile: not a direct word and not a human's word (its flight and abort —
  * to the pile, #6081); a case record not addressed to the seat — to the pile at any stack (#6574).
@@ -85,9 +92,21 @@ const MARKS_KEPT = 500;
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- bridge notifications without a schema */
 
-export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string | null): Channel {
+export function setupChannel(
+  ctx: Context,
+  say: Say,
+  freshestRoot: () => string | null,
+  parents: ReadonlyMap<string, string> = new Map(),
+  onStop: (session: string) => void = () => {},
+): Channel {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
+  const halts = createHalts(
+    (s) => parents.get(s),
+    authDir,
+    (id, message) => say(W.haltUnwritten(id, message), "warning"),
+    (id, message, kept) => say(W.haltUnlifted(id, message, kept), "warning"),
+  );
   /** The session still takes a word: exists and is not archived. */
   async function accepting(id: string): Promise<boolean> {
     try {
@@ -120,6 +139,10 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
     if (id && id !== session && !(await accepting(id))) id = null;
     if (!id) {
       say(W.nowhere(frame, text.slice(0, 120)), "error");
+      return null;
+    }
+    if (halts.halted(id)) {
+      say(W.halted(frame, id), "warning");
       return null;
     }
     try {
@@ -185,6 +208,11 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
   }
 
   function pile(session: string | null, child: boolean, frame: Frame): void {
+    // A stopped session gathers neither piles nor counts to ride until it stands again (#7440).
+    if (session && halts.halted(session)) {
+      const what = frame.id != null ? W.frameId(String(frame.id)) : W.frameNoId();
+      return say(W.halted(what, session), "warning");
+    }
     const key = `${child ? "child" : "root"}:${session ?? ""}`;
     let p = piles.get(key);
     if (!p)
@@ -228,12 +256,107 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
     void deliver(session, text, W.frame(), "steer", child);
   }
 
+  function dropPile(key: string): void {
+    const p = piles.get(key);
+    if (p?.timer) clearTimeout(p.timer);
+    piles.delete(key);
+  }
+
+  // A cut belongs to the stops over the session's chain (halts.ts stopOf): a new stop of the
+  // session or of any ancestor cuts it anew.
+  const stopOf = (id: string): string | null => halts.stopOf(id);
+  const cutDone = new Map<string, string>(); // the stops whose turn is cut
+  const cutting = new Map<string, string>(); // the stops whose interrupt is in flight
+  const cutFails = new Map<string, [string, number]>(); // refused interrupts of those stops
+  const retries = new Set<ReturnType<typeof setTimeout>>();
+  /**
+   * A stopped session's running turn is interrupted, its piles and waiting tact are dropped — once
+   * per stop. A refused interrupt is tried again, by a timer and by the next halt, up to CUT_TRIES.
+   * An interrupt answers only for its own stop: a stop after a held while the previous stop's
+   * interrupt is in flight gets its own interrupt right after it.
+   * Prompts OpenCode already took into the session's inbox stay there: the plugin's session domain
+   * has no inbox.cancel (@opencode/plugin 2.0.4 through 2.0.28, only the full client has it).
+   */
+  function cut(id: string): void {
+    const gen = stopOf(id);
+    if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
+    for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
+    tacts.gone(id);
+    if (cutting.has(id)) return; // the previous stop's interrupt is in flight: this one follows it
+    const s = ctx.session as any;
+    if (typeof s.interrupt !== "function") return void cutDone.set(id, gen);
+    cutting.set(id, gen);
+    void Promise.resolve()
+      .then(() => s.interrupt({ sessionID: id, resume: false }))
+      .then(
+        () => {
+          if (stopOf(id) !== gen) return;
+          cutDone.set(id, gen);
+          cutFails.delete(id);
+        },
+        (e: Error) => {
+          if (stopOf(id) !== gen) return;
+          const was = cutFails.get(id);
+          const n = (was?.[0] === gen ? was[1] : 0) + 1;
+          cutFails.set(id, [gen, n]);
+          say(W.notDelivered(W.frame(), id, e.message), n < CUT_TRIES ? "warning" : "error");
+          if (n >= CUT_TRIES) return void cutDone.set(id, gen);
+          const t = setTimeout(() => {
+            retries.delete(t);
+            if (halts.halted(id)) cut(id);
+          }, CUT_RETRY_MS);
+          (t as { unref?: () => void }).unref?.();
+          retries.add(t);
+        },
+      )
+      .finally(() => {
+        cutting.delete(id);
+        if (stopOf(id) !== gen) cut(id);
+      });
+  }
+
+  /**
+   * The owner took the seat off (#7439, #7440 item 2): the running turns of the session and of
+   * every descendant are interrupted, their piles and waiting tacts are dropped, and the stop
+   * word goes to the human and into the session as a message that starts no turn. Nothing of
+   * this session or its descendants reaches them afterwards until it stands again by an explicit
+   * call (halts.ts). The descendants' seats go down in their own instances (onStop).
+   */
+  function stopped(session: string | null, text: string, child: boolean): void {
+    say(text, "error");
+    dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
+    if (!session) return;
+    halts.stop(session);
+    cut(session);
+    for (const d of descendantsOf(session, parents)) cut(d);
+    onStop(session);
+    const s = ctx.session as any;
+    const failed = (e: Error) => say(W.notDelivered(W.frame(), session, e.message), "warning");
+    // A child's end goes to its parent (leads.ts): no word is laid into the child.
+    if (child || typeof s.synthetic !== "function") return;
+    const said = markFrame(text);
+    void Promise.resolve(
+      s.synthetic({ sessionID: session, text: said, delivery: "queue", resume: false }),
+    ).catch(failed);
+  }
+
   return {
     status(session, on) {
       if (on) tacts.busy(session);
       else this.taken(session);
     },
-    gone: tacts.gone,
+    gone(session) {
+      tacts.gone(session);
+      halts.gone(session);
+      cutDone.delete(session);
+      cutFails.delete(session);
+    },
+    halt(session) {
+      if (!halts.halted(session)) return false;
+      cut(session);
+      for (const d of descendantsOf(session, parents)) cut(d);
+      return true;
+    },
     taken(session, inbox) {
       tacts.taken(session, inbox);
       let matched = false;
@@ -252,12 +375,15 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
     },
     stop() {
       tacts.stop();
+      for (const t of retries) clearTimeout(t);
+      retries.clear();
       for (const p of piles.values()) {
         p.pending = null;
         flush(p);
       }
     },
     ride(session) {
+      if (halts.halted(session)) return null;
       const own = [...piles.values()].filter(
         (p) => !p.child && (p.session === session || (!p.session && freshestRoot() === session)),
       );
@@ -289,6 +415,9 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
         case "dead":
           loud(session, P.dead(String(ev.code)), child);
           return;
+        case "stopped":
+          stopped(session, P.stopped(ev.text ?? ""), child);
+          return;
         case "stale":
           noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
           if (ev.text && !tact(session, child, ev, W.staleBatch()))
@@ -315,6 +444,12 @@ export function setupChannel(ctx: Context, say: Say, freshestRoot: () => string 
           }
           return;
         case "held":
+          halts.held(session); // after a stop only an explicit stand holds again (halts.ts)
+          // The marks of the session's cuts go with it, its descendants' too.
+          for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
+            cutDone.delete(s);
+            cutFails.delete(s);
+          }
           say(W.held(ev.key ?? ""), "info");
           return;
         case "released":

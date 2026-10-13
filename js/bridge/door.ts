@@ -35,8 +35,9 @@ export const ENV_KEY = "env";
 export interface ChannelEvent {
   // held — the bridge took the socket (OpenCode plugin holding, #5140); backlog — a wake batch; lost — hearing lost, resumed — seat returned without the agent's move (both synthesized by the plugin, #5366);
   // handover — the machine daemon hands the seat to a successor: the door reopens at the same path (watchdog/client.ts)
+  // stopped — the owner took the seat off (4001, #7439): every holder stops, nothing wakes or reconnects
   // prettier-ignore
-  kind: "attached" | "frame" | "note" | "dead" | "alive" | "evicted" | "stale" | "released" | "held" | "backlog" | "lost" | "resumed" | "handover" | "beside" | "beside-gone";
+  kind: "attached" | "frame" | "note" | "dead" | "alive" | "evicted" | "stale" | "released" | "held" | "backlog" | "lost" | "resumed" | "handover" | "beside" | "beside-gone" | "stopped";
   key?: string;
   raw?: string;
   frame?: Frame | null;
@@ -67,6 +68,13 @@ export interface ChannelEvent {
   batch?: { at: number; of: number; fold?: number; folded?: true };
   /** kind="released": released by this session's own close or revoke — the watchdog exits without alarm (#6638). */
   own?: true;
+  /**
+   * kind="released": a seat beside taken off by another (standing_ended, #7504) — forgotten,
+   * the main seat holds: the seat's watchdog neither wakes the doer nor leaves.
+   */
+  beside?: true;
+  /** kind="stopped": the close reason as the service named it (`revoked:person`, `revoked:self`). */
+  reason?: string;
 }
 
 export interface DoorHooks {
@@ -261,6 +269,11 @@ export class Door {
   flushBatches(): void {
     this.backlog.flushNow();
     this.roomBatch.flushNow();
+  }
+
+  /** The owner's stop (stophold.ts): unsent batches are dropped, not flushed; how many frames. */
+  dropBatches(): number {
+    return this.backlog.drop() + this.roomBatch.drop();
   }
 
   /**

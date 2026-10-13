@@ -44,6 +44,10 @@ export interface OpencodeWords {
   childGone: (frame: string, id: string, text: string) => string;
   sessionClosed: (id: string, frame: string) => string;
   nowhere: (frame: string, text: string) => string;
+  halted: (frame: string, id: string) => string;
+  haltUnwritten: (id: string, message: string) => string;
+  /** kept — the record could not be rewritten as lifted either. */
+  haltUnlifted: (id: string, message: string, kept: boolean) => string;
   delivered: (frame: string, id: string) => string;
   notDelivered: (frame: string, id: string, message: string) => string;
   held: (key: string) => string;
@@ -109,6 +113,15 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     nowhere: (frame, text) =>
       `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; the frame stays in the standing's history — ` +
       text,
+    halted: (frame, id) =>
+      `Verstak: ${frame} not delivered — session ${id} was stopped by taking its seat off; it is not woken until it takes a seat again explicitly`,
+    haltUnwritten: (id, message) =>
+      `Verstak: the stop of session ${id} was not written to disk (${message}) — only the live plugin instances of this process keep the ban, it will not survive a reload`,
+    haltUnlifted: (id, message, kept) =>
+      `Verstak: session ${id} holds a seat again and its ban is lifted, but the stop's record on disk was not removed (${message}) — ` +
+      (kept
+        ? "rewriting it as lifted failed too: after a plugin reload the session will count as stopped again"
+        : "it is rewritten as lifted"),
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
     notDelivered: (frame, id, message) =>
       `Verstak: ${frame} was not delivered into session ${id}: ${message}`,

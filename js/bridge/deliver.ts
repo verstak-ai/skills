@@ -33,6 +33,7 @@ import { READ_TOOLS } from "./repeat.ts";
 import { isCheckCall, isResumeCall, runCheck, runResume } from "./resume.ts";
 import { localEnd } from "./runend.ts";
 import { satelliteChannelRefusal } from "./satellite.ts";
+import { refreshSkills } from "./skillrefresh.ts";
 import { isStandCall, runStand } from "./stand.ts";
 import { ensureStanding, isUnattributed, noteStanding, replyText } from "./standing.ts";
 import { localStatus } from "./status.ts";
@@ -189,6 +190,8 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
   } finally {
     listed?.();
     settleOwnRevoke(msg);
+    // Publication follows the final answer, not an intermediate retry.
+    if (msg.method === "tools/call") void refreshSkills();
   }
 }
 

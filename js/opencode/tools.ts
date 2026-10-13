@@ -109,14 +109,18 @@ export async function setupTools(
         if ((kind === "held" || kind === "released") && typeof params?.data?.key === "string")
           slot.key = params.data.key; // the seat's key — the exact address of the record to return
         if (kind === "held") slot.place = heldPlace(params?.data) ?? slot.place; // #6002
-        if (kind === "released" || kind === "dead" || kind === "evicted") slot.holding = false;
+        if (kind === "released" || kind === "dead" || kind === "evicted" || kind === "stopped")
+          slot.holding = false;
+        // Taken off by its owner (#7439): the hearing watchdog no longer raises this session's seat.
+        if (kind === "stopped" && slot.session) keeper.forget(slot.session);
         // Only a satellite child is a lead (#6550 item 4); a child on a plain bridge is one run (children.ts).
         const over =
           !!slot.child &&
           !!slot.satelliteOf &&
           !!slot.session &&
           leads.heard(slot.session, kind, slot.place);
-        if (!over) relay(slot.session, params, !!slot.child); // an ended lead gets no channel words
+        // An ended lead gets no channel words — but a stop still interrupts its turn (channel.ts).
+        if (!over || kind === "stopped") relay(slot.session, params, !!slot.child);
       },
       (e) => {
         // A holding bridge exited against our will — a word into the session, not a log line (#5140).
@@ -445,6 +449,16 @@ export async function setupTools(
     moved: (s, to) =>
       handoff(s, to, home) ||
       mv.moved({ say, slots, rootOf, forget, slotFor, adopt: adoptNow, away: leads.away }, s, to),
+    children: () =>
+      [...slots.values()].flatMap((x) => (x.child && x.holding && x.session ? [x.session] : [])),
+    halt(child) {
+      const slot = slots.get(child);
+      if (!slot?.child || !slot.holding) return;
+      slot.holding = false;
+      keeper.forget(child);
+      // A lead ends as by the launcher's revoke — its bridge takes the seat off; any other child's bridge goes down with it.
+      if (!(slot.satelliteOf && leads.heard(child, "stopped", slot.place))) forget(child);
+    },
     async stop() {
       stopped = true;
       clearInterval(reaper);

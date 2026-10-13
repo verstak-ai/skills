@@ -12,6 +12,7 @@ import { placeFields } from "./placefields.ts";
 import { dropExtra, keyOfPlace, rememberPlace } from "./places.ts";
 import { otherRealm } from "./realms.ts";
 import { openedConcurrently, refusalOf } from "./refusal.ts";
+import { noteSkills } from "./skillwatch.ts";
 import { debug, log } from "./streams.ts";
 import { post, type Standing, state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -26,6 +27,7 @@ export function noteStanding(msg: JsonRpcMessage, reply: JsonRpcMessage): void {
   if (msg?.params?.name !== tool("channel") || a?.action !== "register") return;
   if (reply?.error || reply?.result?.isError) return;
   const place = rememberedPlace(a.realm, a.karta, a.name);
+  noteSkills(place, a.attrs?.skills);
   const prim = state.standing;
   if (prim && otherRealm(prim.realm, place.realm)) {
     // Another graph — a seat beside on the same channel, not a replacement of the main one (#5838).
@@ -112,16 +114,23 @@ function replayStanding(): Promise<void> {
   return R.inFlight;
 }
 
-export async function replayRegister(place: Standing | null): Promise<JsonRpcMessage | null> {
-  const got = await registerOnce(place);
+export async function replayRegister(
+  place: Standing | null,
+  freshSkills = false,
+): Promise<JsonRpcMessage | null> {
+  const got = await registerOnce(place, freshSkills);
   if (!openedConcurrently(got)) return got;
   log("register refused by a concurrent opening (409, no rule) — registering again once");
-  return registerOnce(place);
+  return registerOnce(place, freshSkills);
 }
 
-async function registerOnce(place: Standing | null): Promise<JsonRpcMessage | null> {
+async function registerOnce(
+  place: Standing | null,
+  freshSkills: boolean,
+): Promise<JsonRpcMessage | null> {
   const id = `${ID_PREFIX}bridge-restanding-${++state.reinitCounter}`;
   let reply: JsonRpcMessage | null = null;
+  const arguments_ = { ...place, ...placeFields(place ?? {}, freshSkills), action: "register" };
   await post(
     {
       jsonrpc: "2.0",
@@ -129,11 +138,14 @@ async function registerOnce(place: Standing | null): Promise<JsonRpcMessage | nu
       method: "tools/call",
       params: {
         name: tool("channel"),
-        arguments: { ...place, ...placeFields(place ?? {}), action: "register" },
+        arguments: arguments_,
       },
     },
     (m) => {
-      if (m.id === id) reply = m;
+      if (m.id === id) {
+        reply = m;
+        if (!m.error && !m.result?.isError && place) noteSkills(place, arguments_.attrs.skills);
+      }
     },
   );
   return reply as JsonRpcMessage | null;

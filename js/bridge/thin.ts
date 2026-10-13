@@ -123,7 +123,8 @@ export function thinMain(argv: string[]): void {
         const back = resuming.get(k);
         resuming.delete(k);
         if (back && msg.result?.resumed !== true) {
-          placeLost(back.key, back.realm, String(msg.result?.word ?? msg.error?.message ?? "?"));
+          const why = String(msg.result?.word ?? msg.error?.message ?? "?");
+          placeLost(back.key, back.realm, why, msg.result?.stopped === true);
           askRealms(); // the loss surfaced with the resume answer — ask the realm list now
         }
         openGate(k);
@@ -178,8 +179,8 @@ export function thinMain(argv: string[]): void {
   const places = lostPlaces(writeHarness, log);
   const live = places.live;
   const resuming = new Map<string, { key: string; realm: string }>(); // resume call id → seat
-  const placeLost = (k: string, realm: string, why: string) => {
-    places.lose(k, realm, why, cfg.satellite && k === heldKey);
+  const placeLost = (k: string, realm: string, why: string, stopped = false) => {
+    places.lose(k, realm, why, cfg.satellite && k === heldKey, stopped);
     if (k === heldKey) heldKey = null;
   };
   // Ask the realm list with an own call when seats are lost: without it rN and slug of

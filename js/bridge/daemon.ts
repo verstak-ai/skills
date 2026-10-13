@@ -46,6 +46,7 @@ import { beginHandover, beginSessionHandover } from "./holdstate.ts";
 import { pauseForHandover } from "./pauserecord.ts";
 import { endUnreturnedPause } from "./runend.ts";
 import { type BridgeSession, openSession } from "./session.ts";
+import { sessionSnapshot } from "./snapshot.ts";
 import { rotateJournal } from "./store.ts";
 import { log, setProcessLog } from "./streams.ts";
 import { localSuspend, pauseSettled } from "./suspend.ts";
@@ -134,6 +135,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
   const attached = new Set<string>();
   /** Thin bridge pid per session: seam cut but bridge alive means it is within the reattach window. */
   const bridgePids = new Map<string, number>();
+  const bridgeBuilds = new Map<string, string>();
   const sockets = new Set<Socket>();
   /** Scopes of sessions handed to the successor: a pause asked during handover is answered there. */
   const handed = new Map<string, Scope>();
@@ -227,6 +229,18 @@ export async function daemonMain(argv: string[]): Promise<void> {
     path: SELF,
     log: (m) => log(m),
     count: () => sessions.size,
+    snapshot: () => ({
+      daemon: { pid: process.pid, build: BUILD, path: SELF },
+      sessions: [...engines].map(([id, e]) =>
+        sessionSnapshot(
+          id,
+          e,
+          bridgePids.get(id) ?? 0,
+          attached.has(id),
+          bridgeBuilds.get(id) ?? "",
+        ),
+      ),
+    }),
     draining: () => draining,
     // A pause asked during handover becomes a harness pause (suspend.ts), not a refusal.
     answerDraining(id, msg) {
@@ -286,6 +300,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
         end: (why) => {
           attached.delete(id);
           bridgePids.delete(id);
+          bridgeBuilds.delete(id);
           return s.end(why).then(() => {
             if (sessions.get(id) !== traced) return;
             sessions.delete(id);
@@ -297,6 +312,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
       };
       sessions.set(id, traced);
       bridgePids.set(id, hello.pid);
+      bridgeBuilds.set(id, hello.build);
       if (opened) engines.set(id, opened);
       idle.hold();
       log(

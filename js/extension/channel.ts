@@ -114,9 +114,37 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
   }
   pi.on("agent_end", async () => releaseTact());
 
+  // The owner took the seat off (#7439): the running turn is aborted, what waited is dropped,
+  // and the stop word goes to the human and into the history — without raising a turn. Nothing
+  // else of the channel reaches the session until a new "held", which after a stop only an
+  // explicit call of the stand tool brings (bridge stophold.ts).
+  let halted = false;
+  function stopped(text: string): void {
+    halted = true;
+    if (tactPoll) clearInterval(tactPoll);
+    tactPoll = null;
+    tact = null;
+    if (asideTimer) clearTimeout(asideTimer);
+    asideTimer = null;
+    aside.splice(0);
+    if (ctxRef?.isIdle?.() === false) ctxRef.abort?.();
+    if (ctxRef?.hasUI) ctxRef.ui.notify(text, "error");
+    pi.sendMessage(
+      {
+        customType: LOGGERS.channel,
+        content: markFrame(text),
+        display: true,
+        details: { stopped: true },
+      },
+      { triggerTurn: false, deliverAs: "nextTurn" },
+    );
+  }
+
   return (params: any) => {
     const ev = params?.data as ChannelEvent | undefined;
     if (!ev || typeof ev !== "object") return;
+    if (ev.kind === "held") halted = false;
+    if (halted && ev.kind !== "stopped") return;
     switch (ev.kind) {
       case "frame": {
         const frame = ev.frame ?? null;
@@ -163,6 +191,9 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
         if (onlyTacts(ev.frames) && ctxRef?.isIdle?.() === false) return holdTact(ev);
         if (ev.frames?.some(isTact) && !olderTact(ev)) tact = null;
         sendBatch(ev);
+        return;
+      case "stopped":
+        stopped(P.stopped(ev.text ?? ""));
         return;
       case "evicted":
         loud(P.evicted(String(ev.code)));

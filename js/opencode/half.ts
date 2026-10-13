@@ -27,6 +27,10 @@ export interface ToolsHalf {
   adopt(): void;
   /** The session moved to location to (event session.moved). */
   moved(session: string, to: Home | null): void;
+  /** Child sessions whose own bridge holds a seat in this instance. */
+  children(): string[];
+  /** An ancestor of the child was stopped: its seat goes down as by its own 4001 (#7440, #6625). */
+  halt(child: string): void;
 }
 
 export const idleHalf = (): ToolsHalf => ({
@@ -41,6 +45,8 @@ export const idleHalf = (): ToolsHalf => ({
   held: () => null,
   adopt() {},
   moved() {},
+  children: () => [],
+  halt() {},
 });
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

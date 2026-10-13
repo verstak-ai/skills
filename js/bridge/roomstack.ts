@@ -69,6 +69,14 @@ export class RoomBatch {
     if (out.length) emitBatch(out, emit);
   }
 
+  /** On the owner's stop: the pending batch is not given (#7439). */
+  drop(): number {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    this.emit = null;
+    return this.held.splice(0).length;
+  }
+
   /** The seat's marks: an event already in the turn is not repeated (seen.ts eventIn). */
   private readonly has: Marks;
   constructor(has: Marks) {

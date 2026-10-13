@@ -28,7 +28,7 @@ export const HOLD: Readonly<Record<Lang, HoldWords>> = {
     closedOwn: () =>
       `the channel was closed by this session's own close — the seat is released, the token is alive; to stand again — ${tool("stand")}`,
     resumeFailed: () => "resume from disk failed",
-    tokenDead: () => "token dead",
+    tokenDead: () => "the seat went out after idling (4002)",
     parked: (reason) =>
       `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or ${tool("stand")}`,
     evicted: (code) =>

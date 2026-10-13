@@ -18,7 +18,6 @@ const READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(t
 const CASE_READS = new Set(["read", "history", "mine", "at"]);
 const READ_ACTIONS: Record<string, Set<string>> = {
   [tool("case")]: CASE_READS,
-  [tool("room")]: CASE_READS, // the case tool's former name
   [tool("channel")]: new Set(["list", "sessions", "history"]),
   [tool("realm")]: new Set(["list"]),
   [tool("org")]: new Set(["list", "get", "realms", "list_members", "list_grants"]),
@@ -51,8 +50,7 @@ export const readsOnly = (name: string, args: Record<string, unknown>, asks: boo
 
 /** A child's read by the root's bridge: a case history with keep_cursor, or it would move the ROOT's cursor. */
 const asChildRead = (name: string, args: Record<string, unknown>): void => {
-  if ((name === tool("case") || name === tool("room")) && args.action === "history")
-    args.keep_cursor = true;
+  if (name === tool("case") && args.action === "history") args.keep_cursor = true;
 };
 
 /**

@@ -19,6 +19,7 @@ import { wd } from "./words.ts";
 // change. The variable is a probe seam, not a human knob.
 const ATTACH_WINDOW_MS = Number(process.env[envName("WATCHDOG_ATTACH_MS")]) || 60_000;
 const RETRY_MS = 1000;
+const SILENT_MS = 2 ** 30; // a forgotten seat's watchdog only keeps its process alive
 
 export interface Resolved {
   key: string;
@@ -132,6 +133,7 @@ export function attach(path: string, o: AttachOptions): void {
   let handover = false;
   let waitingBack = false; // the seat was handed over and waits to return
   let ownRelease = false; // the bridge released the seat by the session's own close/revoke
+  let forgotten = false; // another took this seat beside off, the main seat holds (#7504)
 
   function tryOnce(): void {
     const sock = connect(path);
@@ -166,6 +168,7 @@ export function attach(path: string, o: AttachOptions): void {
           continue;
         }
         if (ev.kind === "released" && ev.own) ownRelease = true; // own close/revoke: the watchdog leaves itself
+        if (ev.kind === "released" && ev.beside) forgotten = true;
         o.onEvent(ev);
       }
     });
@@ -182,6 +185,8 @@ export function attach(path: string, o: AttachOptions): void {
         return void setTimeout(tryOnce, RETRY_MS);
       }
       if (ownRelease) return; // an own release was said by the released event (#6638)
+      // Its exit or alarm would wake the doer, whose main seat holds: the watchdog falls silent.
+      if (forgotten) return void setInterval(() => {}, SILENT_MS);
       if (attached) return o.onGone(wd().bridgeLetGo());
       if (Date.now() - startedAt > ATTACH_WINDOW_MS) {
         const s = ATTACH_WINDOW_MS / 1000;
