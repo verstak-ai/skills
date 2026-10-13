@@ -53,17 +53,17 @@ Too many for a turn → closing, recently moved and named ones first; give the s
 | `partial` line "on whom, waiting for what", long unmoved | subject's last line time | blockage: on whom, how long |
 | assignment without acknowledgement or outcome | message with `to`, no restatement or outcome | promised, nobody took or closed it |
 | close proposal with an objection | proposal and objection | dispute over done |
-| close proposal the user may object to | proposal, deadline, list | their silence is consent |
+| close proposal the user may object to | proposal, deadline, list | their silence is consent to the close as named, if they received it and could object — not an act that is theirs to make |
 | card to their role with no answer; their answer not accepted | `ask` to their role without `answer`; `answer` without the asker's `ack` | the first waits on their choice; the second is stuck on the asker |
 | message or question to the user or their role | entry with `to` them, "need: decision …" | waiting on their word |
 | `bad` line, "author left", no lead, two "taking" | the lines | unusual: name it, don't interpret |
 
-"Long" is by the case's own pace: a silent day where lines came hourly is a blockage; in a weekly case it isn't.
+"Long" is by the case's own pace: a silent day where lines came hourly is a blockage; in a weekly case it isn't. Pace is a reason to ask, not a finding.
 
 Questions of substance to the user's role stand in the graph: `verstak_orient(realm=<graph>, focus=<user's role>)`. The role comes from what they said, the repo's `AGENTS.md` (`Owner role`), or their personal graph; unknown → ask once.
 
 **4. Compose** one summary from what you read this turn, never from earlier answers. Each line carries the case number and graph. Order:
-1. **Waiting on you** — questions, decisions, close proposals where silence is consent — each with what happens if they stay silent.
+1. **Waiting on you** — questions, decisions, close proposals where silence is consent — each with what happens if they stay silent, and what their silence can't decide for them.
 2. **Blockages** — on whom, how long.
 3. **Who's missing.**
 4. **Unusual.**

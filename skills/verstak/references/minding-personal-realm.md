@@ -78,7 +78,7 @@ The rule outlives its population; in a graph-heavy area it is what keeps §1 che
 A `ding` with only a `context` arrow, or a `grundsatz` nothing applies, carries a standing orphan tension, and constant red teaches the owner to ignore tensions. Two kriyas close it:
 
 - **🧭 Classifying a newly appeared graph** — actor: the owner role; `utpatti` → the graph cards; `upadhi` → the routing and disposable-class rules (clears the `declarative_grundsatz` tension). Ontic `vartamana`: runs on every reconcile.
-- **🍂 Releasing a departed graph** — `ahara` → the graph cards; `anagata` + `upeksha`: the deferred end-of-life closure.
+- **🍂 Releasing a departed graph** — `ahara` → the graph cards; `anagata`, with the will as it actually stands: a planned end, not a placeholder that closes the cycle.
 
 Dated `sachverhalt` nodes (§7) are woven the same way. No muting attributes; the procedure stays in the method.
 

@@ -55,7 +55,7 @@
 No `HANDOVER.md`.
 
 ## Reality
-Before saying "works", switching a mode or ending a question, read your claim class's row in `REALITY.md`; it goes whole into a `verifier` or `reviewer` brief. First row: `<main claim class and its carrier>`.
+Before saying "works", or switching a mode or ending a question on a claim about execution, read your claim class's row in `REALITY.md` (other changes name their own grounds and the rightful act); it goes whole into a `verifier` or `reviewer` brief. First row: `<main claim class and its carrier>`.
 
 ## Stack
 `<versions + critical libraries beyond the frontmatter; drop if none>`

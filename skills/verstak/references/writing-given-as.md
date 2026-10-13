@@ -1,6 +1,6 @@
 # given_as — the decision tree, the nests, and the arrow matrix
 
-Read by the `writing` method (`methods/writing.md`, Decision 2) when a phenomenon's `given_as` is unclear, or an arrow on a phenomenon is refused or flagged. `given_as` says *what* is given; the modes say *how*.
+Read by the `writing` method (`methods/writing.md`, Decision 2) when a phenomenon's `given_as` is unclear, or an arrow on a phenomenon is refused or flagged. `given_as` says *what* is given; the modes say *how*. These six are local practical kinds of the relation in which a phenomenon meets the action — not Husserl's modes of givenness: whether it was perceived, recalled or taken on testimony is the epistemic axis, not this field.
 
 ```
 Point at it outside the graph? (file, container, config)   → ding 物
