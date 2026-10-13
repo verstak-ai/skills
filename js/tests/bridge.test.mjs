@@ -10,6 +10,7 @@
 
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -287,6 +288,99 @@ test("the bridge adds its own verstak_stand to the server's tools", async (t) =>
     );
   });
 });
+
+// --- the tool list as the harness sees it ----------------------------------
+
+// The bridge prefixes no writing-moment line to the write tools: the server's own description
+// carries its purpose first (graph @nks/nks-dev, nodes #7557, #7576).
+const SERVER_TOOLS = [
+  { name: "verstak_add_vimarsha", description: "Create a vimarsha: an inquiry hung on a node." },
+  { name: "verstak_batch", description: "An atomic delta of several writes." },
+  { name: "verstak_orient", description: "Enter the graph." },
+  { name: "verstak_channel", description: "The role's live channel." },
+];
+// The line bridges up to 3.3.0 prefixed to every write tool; a stale cache may still carry it.
+const OLD_MOMENT = "[bridge] The writing skill's moment:";
+const descriptions = (answer) =>
+  Object.fromEntries((answer.result?.tools ?? []).map((t) => [t.name, t.description]));
+
+function assertServerDescriptions(byName) {
+  for (const t of SERVER_TOOLS.filter((x) => x.name !== "verstak_channel"))
+    assert.equal(
+      byName[t.name],
+      t.description,
+      `${t.name} must reach the harness as the server sent it`,
+    );
+  assert.ok(
+    Object.values(byName).every((d) => !String(d ?? "").includes(OLD_MOMENT)),
+    "no description may carry the writing-moment line",
+  );
+  assert.ok("verstak_stand" in byName, "the bridge still adds verstak_stand");
+  const channel = byName.verstak_channel ?? "";
+  assert.ok(channel.startsWith("[bridge] Busyness"), "the busyness line leads the channel tool");
+  assert.match(channel, /\[bridge\] action="leave"/, "the leave line stands on the channel tool");
+  assert.ok(
+    channel.endsWith("\n\nThe role's live channel."),
+    "the server's description follows whole",
+  );
+}
+
+test("write tools reach the harness with the server's descriptions; the channel tool keeps the bridge's lines", async (t) => {
+  await withFake(t, { tools: SERVER_TOOLS }, async ({ dir, spawnBridge }) => {
+    const bridge = spawnBridge();
+    await authorize(bridge, dir);
+    assertServerDescriptions(descriptions(await bridge.call("tools/list", 2)));
+  });
+});
+
+// While a login waits for its click, the harness is answered from the last server answer —
+// which an older bridge may have saved with its writing-moment line (graph @nks/nks-dev, node #4790).
+// Stripping a known old prefix on read lives in the core's annotateToolList, the sibling's to land.
+test(
+  "a login-wait tool list served from an old bridge's cache carries no writing-moment line",
+  {
+    todo: "the core does not yet strip the old prefix from a cached list (upstream: js/bridge/moment.ts)",
+  },
+  async (t) => {
+    await withFake(t, { tools: SERVER_TOOLS }, async ({ fake, dir, spawnBridge }) => {
+      const u = new URL(fake.mcpUrl);
+      const h = createHash("sha256")
+        .update(u.origin + u.pathname)
+        .digest("base64url")
+        .slice(0, 10);
+      const old = SERVER_TOOLS.map((x) =>
+        x.name === "verstak_channel"
+          ? x
+          : {
+              ...x,
+              description: `${OLD_MOMENT} before each node, name the reader.\n\n${x.description}`,
+            },
+      );
+      writeFileSync(
+        join(dir, `${u.hostname}_${h}.json.server-answers`),
+        JSON.stringify({
+          init: {
+            protocolVersion: "2025-06-18",
+            capabilities: {},
+            serverInfo: { name: "fake-server", version: "0" },
+          },
+          tools: { tools: old },
+        }),
+      );
+      const bridge = spawnBridge();
+      assert.ok(
+        (await bridge.call("initialize", 1, INIT_PARAMS)).result,
+        "initialize answered from the cache",
+      );
+      const listed = await bridge.call("tools/list", 2);
+      assert.ok(
+        listed.result,
+        `tools/list answered from the cache: ${JSON.stringify(listed.error)}`,
+      );
+      assertServerDescriptions(descriptions(listed));
+    });
+  },
+);
 
 // --- the reported defect: a pending flow whose owner is gone ---------------
 

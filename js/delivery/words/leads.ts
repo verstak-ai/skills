@@ -72,7 +72,7 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     placeClosedRefusal: () => "its satellite seat was revoked or closed by the platform (4001)",
     end: (who, why, done, said) =>
       `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}` +
-      `The outcome is its last word:\n${said || "(it left no text — see its case)"}`,
+      `Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:\n${said || "(it left no text — see its case)"}`,
     endKept: (who, kept) =>
       `${keptEn(who, kept)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept}"), only on the user's word. `,
     endPlain: () =>
