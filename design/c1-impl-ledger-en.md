@@ -5,7 +5,8 @@ Branch `impl/c1-verstak-en`, from `origin/main` `25bbbf9`. Implements role #931'
 **Commits**
 - `3c0b3ea` feat(bridge): core sync + delivery words + bridge tests.
 - `7406548` fix(verstak): the skill edits (+ rebuilt `verstak.skill`, `home/`).
-- this ledger: the commit that adds this file.
+- `0a872b8` docs(design): this ledger.
+- the commit that updates this ledger: core re-synced to `9c40eca1`, the old-cache test made real, the truncation word.
 
 **Sources** (in the worktree's uncommitted `.c1-inputs/`; sha256 prefixes recomputed here and matching the brief):
 - r5 `night-projection-synthesis-r5.md` `467d8dd3…` — governing; its line 11 (inheritance), §1 Seam 4 and Seam 5, §2 "#931 en — mandatory" and "#931 — recommended".
@@ -17,9 +18,9 @@ Line numbers below are **after** the edit, at `7406548`. `S` = `skills/verstak`.
 
 ## 1. Bridge core and the writing moment (Seam 5, standard C)
 
-**Core sync.** `scripts/sync-core.sh <sibling repo> d6ec4c29`; `js/core.lock` pins `d6ec4c29805615c16f56e912dd5509446439e648`.
-- **That commit is not on the sibling's `main`**: it is its isolated ru implementation branch (its main `89f0de73` + draft #458 "bridge does not append the writing moment line"). **Before any release of this delivery, re-sync the core to the sibling's merged commit** and re-run `make check`; until then the lock names an unmerged commit.
-- The sync also brings two sibling core changes since our last pin `0434b9a6`: #462 (own revoke with karta "#N" matched, `absorb.ts`) and #464 (the stop word rides the OpenCode turn's system context, not the inbox: `opencode/{channel,halts,plugin}.ts`). #464 asks the delivery for two plugin words: added at `js/delivery/words/plugin.ts` (`stoppedTurn`, `stoppedAny`), English renderings of the sibling's.
+**Core sync.** First `d6ec4c29`, then re-synced: `scripts/sync-core.sh <sibling repo> 9c40eca1a762f12d704b1407122995d1aba0fb35`; `js/core.lock` pins `9c40eca1`. The re-sync brings the sibling's `cde5381e` (`annotateToolList` takes a former bridge's moment line off a cached list, by the delivery word `MOMENT.formerMoment`) and `30b10fb4` (`js/opencode/leadwords.ts`: a truncated subagent outcome is marked by the delivery word `LEAD.cut`; the away word truncates the same way).
+- **`9c40eca1` is not on the sibling's `main`** either: it is the head of its isolated ru implementation branch (its main `89f0de73` + draft #458 "bridge does not append the writing moment line" + the two fixes above + its own skill and ledger commits). **Before any release of this delivery, re-sync the core to the sibling's merged commit** and re-run `make check`; until then the lock names an unmerged commit.
+- The sync also brings two sibling core changes since our last pin `0434b9a6`: #462 (own revoke with karta "#N" matched, `absorb.ts`) and #464 (the stop word rides the OpenCode turn's system context, not the inbox: `opencode/{channel,halts,plugin}.ts`). #464 asks the delivery for two plugin words: added at `js/delivery/words/plugin.ts` (`stoppedTurn`, `stoppedAny`), English renderings of the sibling's. The re-sync asks for two more, ours in English: `MOMENT.formerMoment` (`js/delivery/words/moment.ts`) — the **whole** 3.3.0 line exactly as shipped (checked byte-equal against the 3.3.0 release build `skills/verstak/scripts/verstak-bridge.mjs` at `25bbbf9`), so only that exact line is taken off; and `LEAD.cut` (`js/delivery/words/leads.ts`).
 
 **Moment line removed** (#7557 v4; en corr-1 C1). The core's `js/bridge/moment.ts` no longer prefixes the seven write tools (6 `add_*` + `batch`); `verstak_stand` insertion and the `channel` status/leave lines stay. Delivery: the `moment` key leaves `MomentWords` (`js/delivery/words/moment.ts`). The 445-char merged line and the 598-char 3.3.0 line are gone; the 3.3.0 line's "a wait is a vimarsha" (against #746) leaves by deletion, not replacement. The server's own tail ("Before this session's first graph write: … load it now…") stays — #163's, untouched.
 
@@ -30,8 +31,10 @@ Line numbers below are **after** the edit, at `7406548`. `S` = `skills/verstak`.
 **Tests** (`js/tests/bridge.test.mjs`, fake server now takes whole tool definitions):
 - *fresh* — "write tools reach the harness with the server's descriptions; the channel tool keeps the bridge's lines": write tools and `orient` equal the server's description byte for byte, no `[bridge] The writing skill's moment` anywhere, `verstak_stand` present, `channel` starts with `[bridge] Busyness`, carries `[bridge] action="leave"`, ends with the server's text. **Pass.**
 - *negative probe* (prefix back): the same test against the 3.3.0 release build (`git show 25bbbf9:skills/verstak/scripts/verstak-bridge.mjs`, `VERSTAK_BRIDGE_PATH=…`) → **fails**: `verstak_add_vimarsha must reach the harness as the server sent it`, actual starts `[bridge] The writing skill's moment: before each node…`.
-- *old annotated cache, login wait* — "a login-wait tool list served from an old bridge's cache carries no writing-moment line": an auth dir with a `.server-answers` cache in the 3.3.0 shape and no grant; `initialize` and `tools/list` are answered from the cache (the stand-in path, graph @nks/nks-dev, node #4790). **Fails on this core — marked `todo`, visible in every run** (`ℹ todo 1`, with the assertion output). The core's `annotateToolList` serves a cached list as stored; no delivery hook reaches it, and the core is not ours to edit. **Remedy proposed upstream** (sibling core, `js/bridge/moment.ts`, the `annotateToolList` loop): strip a known legacy prefix on read, e.g. a delivery-supplied pattern `^\[bridge\] The writing skill's moment: [^\n]*(?:\n\n|$)` (the ru delivery has its own). Probe in scratch only: with that one-line strip in the core, the todo test **passes** and the fresh test still passes; the core was restored and `check-core-lock` re-verified. Until it lands, **#7557/#7576 must not be claimed fulfilled for this delivery**.
+- *old annotated cache, login wait* — "a login-wait tool list served from an old bridge's cache carries no writing-moment line": an auth dir with a `.server-answers` cache whose write tools carry the full 3.3.0 line as shipped, then a blank line, then the server's text; no grant; `initialize` and `tools/list` are answered from the cache (the stand-in path, graph @nks/nks-dev, node #4790). Same assertions as the fresh test. **Pass** on core `9c40eca1` (it was `todo` on `d6ec4c29`).
+- *negative probe* (stripping removed): in a scratch edit of the core, the `withoutFormerMoment` call in `annotateToolList` deleted → the cache test **fails**: `verstak_add_vimarsha must reach the harness as the server sent it`. The core was restored and `check-core-lock` re-verified (198 files match `9c40eca1`).
 - The *offline* stand-in (network refusal) goes through the same `lastServerAnswer` → `annotateToolList`; not tested separately here.
+- #7557/#7576 are fulfilled in source and offline tests for this delivery; claiming them fulfilled in use still needs the release and the post-wave catalog check (#7576's answer condition).
 - The test "bridge line = door line" doesn't exist in this repo; nothing to remove.
 
 **Not claimed:**
@@ -104,10 +107,10 @@ Status: **done** / **unchanged (why)** / **not done (why)**. `canon:` — the gr
 | K9 | `S/methods/weaving.md:83–93` §5 rewritten whole; `anagata`+`upeksha` stub removed | done | #398 v2, #389 v5, #446 v3 |
 | K9 | `S/methods/design.md:21–22` P1/P2 reworded, refer to weaving §5 | done | #398 v2 |
 | K10 | `SKILL.md:15` degeneration sign: a reason to look, not a verdict | done | #744 v10 |
-| Seam 5 | moment line removed; door row `SKILL.md:215`; `writing.md` (§1 above) | done in source; **cache result not done** (§1) | #7557 v4, #7576 v3, #4238 v5 |
+| Seam 5 | moment line removed; door row `SKILL.md:215`; `writing.md` (§1 above) | done; fresh and old-cache tests pass (§1) | #7557 v4, #7576 v3, #4238 v5 |
 | §5.1 | re-capture server → bridge → plugin from one build before any parity claim | **not done** — needs the build #163 names and a live grant; no parity is claimed | — |
 
-**Count:** 60 rows — **58 done** (the Seam 5 row counted done for the source removal), **1 unchanged** (K7 door table, kept by design), **1 not done** (the one-build re-capture); plus **one not-done result inside the Seam 5 row**: a login-wait / offline list from an old cache still serves the legacy line (§1).
+**Count:** 60 rows — **58 done**, **1 unchanged** (K7 door table, kept by design), **1 not done** (the one-build re-capture).
 
 **Additional edits, same meaning, outside the listed loci** (each stated so it isn't hidden):
 - `writing.md:138` `ahara` "(destruction)" → "consumed: its participation in this scope ends" (D15; the server twins are T9/C6/C6b, #163/#48).
@@ -127,7 +130,7 @@ Status: **done** / **unchanged (why)** / **not done (why)**. `canon:` — the gr
 | `foreman.md:49` pace / budget | **done** `foreman.md:49` |
 | `assistant.md:61` pace is a reason to ask | **done** `assistant.md:61` |
 | `entry.md:137` time matters to evidence, not questions | **done** `entry.md:137` |
-| plugin ENDED word | **done** `js/delivery/words/leads.ts:73`: "Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits". The explicit truncation marker (`js/opencode/leadwords.ts`, `SUMMARY_MAX`) is **not done**: core code, the sibling's |
+| plugin ENDED word | **done** `js/delivery/words/leads.ts:73`: "Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits". The explicit truncation marker: **done** — the sibling's core `30b10fb4` marks it through our word `LEAD.cut` (`leads.ts:73`): "[report truncated: N of M characters shown — incomplete here, whole in its case]"; not covered by a test here |
 | adapters and refusal metadata | **not done**: confirming which downstream adapters keep `_meta` rule/status/data needs runs against each harness; the OpenCode plugin returns text only (`js/opencode/tools.ts`, per the design). No refusal meaning was changed |
 | N1 (Opus) canon markers | **done** in this ledger's `canon` column (implementation notes, not shipped text) |
 | T5, T11, the conditional server items | #163's (below), not this share |
@@ -148,15 +151,15 @@ The skills now say the meanings the server should say too; the server text itsel
 
 ## 6. Gate
 
-`make check` at `7406548`, the uncommitted `.c1-inputs/` excluded for the run only (`GIT_CONFIG_*` → `core.excludesFile`; validate lists untracked files and bans their Cyrillic): **exit 0**.
-- `validate` ✓, `check-bundles` ✓, `check-surface` ✓ (23 tools), `check-core` ✓ (198 files), `check-core-lock` ✓ (d6ec4c29), `lint` 0 errors / 22 warnings (all in core files, e.g. `js/bridge/tokens.ts`; not from this branch's delivery edits), `format-check` ✓, `typecheck` ✓, `check-js` ✓ (committed outputs are the 3.3.0 release build), `test`: 125 tests, **124 pass, 0 fail, 1 todo** (the cache test, §1).
+`make check` at the head that updates this ledger, the uncommitted `.c1-inputs/` excluded for the run only (`GIT_CONFIG_*` → `core.excludesFile`; validate lists untracked files and bans their Cyrillic): **exit 0**.
+- `validate` ✓, `check-bundles` ✓, `check-surface` ✓ (23 tools), `check-core` ✓ (198 files), `check-core-lock` ✓ (9c40eca1), `lint` 0 errors / 22 warnings (all in core files, e.g. `js/bridge/tokens.ts`; not from this branch's delivery edits), `format-check` ✓, `typecheck` ✓, `check-js` ✓ (committed outputs are the 3.3.0 release build), `test`: 125 tests, **125 pass, 0 fail, 0 todo**.
 - No flakes; nothing re-run.
 
 ## 7. Limits
 
 - **PR458 / draft #458 writing reduction not read.** Any rebase of the door row and `writing.md` onto it is #931's, in one move.
-- Core pinned to an **unmerged** sibling commit (§1).
-- The stale-cache result needs the upstream core change (§1); #7557/#7576 not fulfilled until then and until a post-wave catalog check.
+- Core pinned to an **unmerged** sibling commit `9c40eca1` (§1): **re-sync to the sibling's merged commit before any release.**
+- #7557/#7576 in use: not claimed until the release and a post-wave catalog check (§1).
 - No loaded-context probe, no truncation observation, no measurement, no live server or bridge, no re-capture — all §1/§2 claims are about committed text and the offline fake.
 - The skill edits are text; whether agents then act differently (base/head probes, redundant-use contrasts) is not observed — REALITY.md's Ceiling.
 - Graph read: none beyond the inputs; no graph or case writes (subagent without its own seat).
