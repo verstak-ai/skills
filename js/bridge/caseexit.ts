@@ -23,7 +23,7 @@ const roomNo = (room: string): string => room.replace(/^[#\u2116]\s*/, "");
 
 /** A successful case join remembers the case, a leave forgets it. */
 export function noteCaseEntry(name: unknown, args: unknown, reply: JsonRpcMessage): void {
-  if (reply.result?.isError || (name !== tool("case") && name !== tool("room"))) return;
+  if (reply.result?.isError || name !== tool("case")) return;
   const a = (args ?? {}) as Record<string, unknown>;
   if (a.action !== "join" && a.action !== "leave") return;
   const room = typeof a.room === "string" ? a.room.trim() : "";

@@ -116,6 +116,14 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
     doors.tell(root, W.notBack(place, why));
   }
 
+  /** A seat its owner took off (#7439): the watch ends, the human hears why, the session is not woken. */
+  function stoppedRoot(root: string, word: unknown): Resumed {
+    roots.delete(root);
+    retrying.delete(root);
+    doors.say(typeof word === "string" ? word : W.noWhy(), "warning");
+    return "none";
+  }
+
   function selector(slot: S): { key?: string; cwd?: string; session?: string } {
     const session = slot.session ? { session: slot.session } : {};
     // A child bridge returns only by key: by directory it would raise the root's record.
@@ -160,6 +168,7 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
       const elsewhere = Array.isArray(r?.elsewhere) && r.elsewhere.length ? r.elsewhere : null;
       if (!r?.resumed && elsewhere && !final) return "elsewhere"; // wait silently for its socket to go
       marked.delete(root);
+      if (r?.stopped) return stoppedRoot(root, r.word); // taken off by its owner: no word into the session (#7439)
       if (!r?.resumed) {
         if (mark) notBack(root, mark, typeof r?.word === "string" ? r.word : W.noAnswer());
         // Another session's live bridge holds this session's seat: say so (#6626); a paused child — silently.
@@ -198,6 +207,10 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
       timeoutMs: 30_000,
     });
     if (typeof r?.key === "string") slot.key = r.key;
+    if (r?.stopped) {
+      slot.holding = false;
+      return void stoppedRoot(root, r.word);
+    }
     if (r?.holding) slot.holding = true;
     else if (r?.holding === false) {
       // The bridge leads no seat and has nothing to return: the watch ends, the reaper counts again.

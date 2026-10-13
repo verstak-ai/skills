@@ -18,7 +18,7 @@ const canon = (p: string): string => {
 };
 
 /** Where a lock of root may lie, the first that exists speaking for it. */
-function lockPlaces(root: string, stateHome = process.env.XDG_STATE_HOME): string[] {
+export function lockPlaces(root: string, stateHome = process.env.XDG_STATE_HOME): string[] {
   const places: string[] = [];
   if (stateHome && canon(root) === canon(join(homedir(), ".agents", "skills")))
     places.push(join(stateHome, "skills", ".skill-lock.json"));

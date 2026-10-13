@@ -62,6 +62,7 @@ export function runWatchdogCodex(argv: string[]): void {
   let door: Door | null = null;
   let ready: Promise<Door> | null = null;
   let nextId = 1;
+  let forgotten = false; // another took this seat beside off (#7504): nothing more goes into the thread
 
   function open(): Promise<Door> {
     if (ready) return ready;
@@ -97,7 +98,7 @@ export function runWatchdogCodex(argv: string[]): void {
       });
       d.send({ method: "initialized" });
       const back = again.splice(0);
-      if (back.length) putStale(back);
+      if (back.length && !forgotten) putStale(back);
       return d;
     });
     ready.catch((e: Error) => {
@@ -110,6 +111,7 @@ export function runWatchdogCodex(argv: string[]): void {
   // In-flight puts: an own release waits for them before exiting (#6638).
   const inFlight = new Set<Promise<void>>();
   function deliver(text: string, ids: string[] = []): Promise<void> {
+    if (forgotten) return Promise.resolve();
     // In the thread from the moment it is queued, not from the door opening: batches judged
     // before that see its marks in waiting (seen.ts eventIn); a door failure removes them.
     const reqId = nextId++;
@@ -121,6 +123,8 @@ export function runWatchdogCodex(argv: string[]): void {
   async function put(reqId: number, text: string): Promise<void> {
     try {
       const d = door ?? (await open());
+      // Taken off beside while the door opened: the put waiting for it is cancelled, unsent.
+      if (forgotten) return void waiting.delete(reqId);
       d.send({
         method: "turn/start",
         id: reqId,
@@ -223,6 +227,10 @@ export function runWatchdogCodex(argv: string[]): void {
           note(ev.text ?? wd().seatLost());
           void deliver(ev.text ?? wd().codexLost()).then(() => process.exit(1));
           break;
+        case "stopped":
+          note(ev.text ?? wd().seatLost()); // the owner took the seat off (#7439): no turn/start
+          process.exit(0);
+          break;
         case "alive":
           note(ev.text ?? wd().aliveNote());
           void deliver(ev.text ?? wd().codexAlive()); // holding goes on, the watchdog keeps listening
@@ -234,6 +242,12 @@ export function runWatchdogCodex(argv: string[]): void {
           break;
         case "released":
           note(wd().bridgeReleasedSocket(ev.text ?? ""));
+          if (ev.beside && !ev.own) {
+            forgotten = true;
+            pend = [];
+            again.length = 0;
+            break;
+          }
           // An own close/revoke/leave: last frames and the pending count into the thread, then exit (#6638).
           if (!ev.own) break;
           if (pend.length) withPend("", []);

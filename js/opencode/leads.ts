@@ -104,7 +104,7 @@ export function createLeads(d: LeadDoors): Leads {
       if (gone.has(child)) return;
       const l = standsBy(name, args) ? stood(child) : leads.get(child);
       if (!touch(l, place)) return;
-      const room = name === tool("case") || name === tool("room") ? roomNo(args.room) : null;
+      const room = name === tool("case") ? roomNo(args.room) : null;
       if (args.action === "join" && room) l.room ??= room;
       if (args.action !== "leave") return;
       if (name === tool("channel")) leave(child, l, W().leftSeat());
@@ -127,9 +127,11 @@ export function createLeads(d: LeadDoors): Leads {
     released: (child) => gone.has(child),
     goneWhy: (child) => gone.get(child),
     heard(child, kind, place) {
-      // A satellite seat taken down by the platform (evicted, closed 4001): an end like the
-      // launcher's revoke — a word to the parent without waking; no channel word to the child (true).
-      if ((kind === "evicted" || kind === "dead") && leads.has(child) && !d.ownPlace(child)) {
+      // A satellite seat taken down by the platform (evicted, closed 4002) or by its owner (4001,
+      // stopped — the plugin interrupts the child's turn, channel.ts): an end like the launcher's
+      // revoke — a word to the parent without waking; no channel word to the child (true).
+      const down = kind === "evicted" || kind === "dead" || kind === "stopped";
+      if (down && leads.has(child) && !d.ownPlace(child)) {
         const evicted = kind === "evicted";
         gone.set(child, evicted ? W().placeEvictedRefusal() : W().placeClosedRefusal());
         void finish(child, evicted ? W().placeEvicted() : W().placeClosed(), true, false);

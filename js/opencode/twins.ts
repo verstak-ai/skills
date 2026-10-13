@@ -29,6 +29,8 @@ interface Twin {
   holds(root: string): Slot | null;
   /** Take this location's marker now (adopt.ts). */
   adopt(): void;
+  /** Take down the seats of this instance's children under a stopped session (plugin.ts). */
+  sweep(): void;
 }
 
 const registry = (): Set<Twin> =>
@@ -47,6 +49,11 @@ export const handedOver = (session: string): Promise<unknown> | undefined => han
 /** A marker landed tagged to: a live instance of that spelling takes it now. */
 export function adoptIn(to: Home): void {
   for (const t of registry()) if (t.home && sameSpelling(t.home, to)) t.adopt();
+}
+
+/** The owner stopped a session (#7440): every instance of the process takes its descendants' seats down. */
+export function sweepAll(): void {
+  for (const t of registry()) t.sweep();
 }
 
 /** A slot holding the root's seat in any instance of this process (moves.ts, #6695). */
@@ -71,6 +78,8 @@ export interface TwinDoors {
   holds(root: string): Slot | null;
   /** Take this location's marker now (adopt.ts). */
   adopt(): void;
+  /** Take down the seats of children under a stopped session (plugin.ts). */
+  sweep(): void;
 }
 
 export function createTwins(ctx: Context, home: Home | null, d: TwinDoors) {
@@ -81,6 +90,7 @@ export function createTwins(ctx: Context, home: Home | null, d: TwinDoors) {
     wake: (h, e) => void wake(h, e),
     holds: (r) => d.holds(r),
     adopt: () => d.adopt(),
+    sweep: () => d.sweep(),
   };
   registry().add(me);
 

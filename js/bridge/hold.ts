@@ -89,7 +89,7 @@ export const ledKey = (): string | null => H.currentKey;
 export const holdsChannel = (): boolean => !!H.holder?.alive && !!H.currentKey;
 /** Local socket path of the key, to probe for a live holder (resume.ts). */
 export const localSocketPathOf = (key: string): string => socketPathOf(CFG.authDir, key);
-export { noteResuming, setClosingOwn, setRevokingOwn } from "./holdstate.ts";
+export { noteResuming, setClosingOwn, setRevokingBeside, setRevokingOwn } from "./holdstate.ts";
 
 // Stale service repeats after a session rebuild fold into one word, not one wake per frame
 // (graph @nks/nks-dev, nodes #4881, #5033).
@@ -400,6 +400,30 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
 const keyed = (d: Door, ev: ChannelEvent): ChannelEvent =>
   d === H.door ? ev : { ...ev, key: d.key };
 
+/** Released as the session's own act, records and binding forgotten: nothing returns it. */
+export function forgetSeat(reason: string): void {
+  releaseStanding(reason, true, false, true);
+  state.standing = null;
+  state.standingSession = null;
+}
+
+/** The seat's end (`what`) outran the answer of its own revoke or close: a quiet release, no stop (#6634). */
+export function releasedAsOwn(what: string): boolean {
+  if (H.revokingOwn) {
+    log(
+      `standing revoked by this session — released quietly, binding forgotten (${state.standing?.name ?? "unnamed"}; ${what} arrived before the answer)`,
+    );
+    forgetSeat(holdWords().revokedOwn());
+    return true;
+  }
+  if (H.closingOwn) {
+    log(`channel closed by this session — released quietly (${what} arrived before the answer)`);
+    forgetSeat(holdWords().closedOwn());
+    return true;
+  }
+  return false;
+}
+
 // Socket handlers get the opening session's scope explicitly (shared/scope.ts); the runtime
 // need not carry it across events.
 function openHolder(url: string, key: string): void {
@@ -409,6 +433,7 @@ function openHolder(url: string, key: string): void {
       onDropped: expectHello,
       onFrame: function onFrame(raw, frame) {
         void Promise.resolve(stampOrigin(frame)).then((full) => {
+          if (full?.type === "standing_ended") return E.stop?.(key, 0, "", full); // one seat taken off (stophold.ts)
           const primary = held();
           if (!primary) return H.door ? deliverTo(H.door, raw, frame, full) : undefined; // socket without a standing (env)
           // hello names the channel's places: their ids and canonical graphs (#5838).
@@ -429,28 +454,13 @@ function openHolder(url: string, key: string): void {
         dropOwnHoldRecord(key, url); // address rotated: own record is dead, the evictor's stays
         E.next?.(key, url, code); // the eviction word and the next move: evicted.ts
       },
+      onStopped: (code, reason) => {
+        if (releasedAsOwn(`close ${code}`)) return;
+        // Anyone else's 4001: the owner stopped the doer (stophold.ts); unwired — released all the same.
+        if (E.stop) E.stop(key, code, reason);
+        else forgetSeat(`close ${code}`);
+      },
       onDeadToken: (code) => {
-        if (H.revokingOwn) {
-          // Own revoke in flight: 4001 outran the revoke answer, the token is closed, not dead;
-          // release quietly, else an obedient agent re-creates the place just revoked.
-          log(
-            `standing revoked by this session — released quietly, binding forgotten (${state.standing?.name ?? "unnamed"}; close ${code} arrived before the answer)`,
-          );
-          releaseStanding(holdWords().revokedOwn(), true, false, true);
-          state.standing = null;
-          state.standingSession = null;
-          return;
-        }
-        if (H.closingOwn) {
-          // Own channel close, like own revoke: 4001 outran the answer (#6634).
-          log(
-            `channel closed by this session — released quietly (close ${code} arrived before the answer)`,
-          );
-          releaseStanding(holdWords().closedOwn(), true, false, true);
-          state.standing = null;
-          state.standingSession = null;
-          return;
-        }
         if (H.resuming > 0) {
           // Stale hold record, the place is already dead at the platform: a quiet rollback, not
           // an alarm; the stand tool takes the place anew by connect.

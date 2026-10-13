@@ -24,11 +24,14 @@ import { teller } from "./leaddoors.ts";
 import { annotate } from "./notice.ts";
 import { setupSkillReads } from "./skillread.ts";
 import { type Say, setupTools } from "./tools.ts";
-import { createTwins } from "./twins.ts";
+import { createTwins, sweepAll } from "./twins.ts";
 import { createUsageFeed } from "./usage.ts";
 import { createWaits } from "./waits.ts";
 
 export type Context = Plugin.Context;
+
+/** How often an instance looks for its children under a stop it was not told of (another server, a reload). */
+const SWEEP_MS = 5_000;
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK events and answers without a schema */
 
@@ -43,6 +46,8 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // and an ownerless bridge's frame goes to the freshest one seen — the v2 context lists no sessions.
   const roots = new Map<string, string>();
   const seen = new Map<string, number>();
+  // Child → parent as learnt: the owner's stop reaches a session's descendants (channel.ts, #7440).
+  const parents = new Map<string, string>();
   async function rootOf(sessionID: string): Promise<string> {
     const known = roots.get(sessionID);
     if (known) {
@@ -57,6 +62,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
         const res: any = await ctx.session.get({ sessionID: root } as any);
         const parent: string | undefined = res?.parentID ?? res?.data?.parentID;
         if (!parent || visited.has(parent)) break;
+        parents.set(root, parent);
         root = parent;
       }
     } catch {
@@ -83,7 +89,8 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   let onChannel: (session: string | null, params: unknown, child?: boolean) => void = () => {};
   let ch: ReturnType<typeof setupChannel> | null = null;
   try {
-    const c0 = setupChannel(ctx, say, freshestRoot);
+    // The owner's stop goes by seats (#7440): every instance of the process takes its children's seats down.
+    const c0 = setupChannel(ctx, say, freshestRoot, parents, () => sweepAll());
     ch = c0;
     onChannel = (s, p, c) => c0.onEvent(s, p, c);
   } catch (e) {
@@ -167,6 +174,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
             if (!id) break;
             roots.delete(id);
             seen.delete(id);
+            parents.delete(id);
             ch?.gone(id);
             void usage.flush(id).finally(() => {
               usage.forget(id);
@@ -178,12 +186,13 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
             if (!id) break;
             if (ev.data?.title === keepaliveTitle()) break; // the keepalive service session is no activity
             const parent = ev.data?.parentID;
-            if (typeof parent === "string")
+            if (typeof parent === "string") {
+              parents.set(id, parent);
               void rootOf(parent).then((root) => {
                 roots.set(id, root);
                 seen.set(root, Date.now());
               });
-            else void rootOf(id);
+            } else void rootOf(id);
             break;
           }
           // Moved to another folder (#6550 item 3): the seat goes to the instance of its new location.
@@ -225,16 +234,32 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     }
   })();
 
+  // A child holding a seat under a stopped session (the stop on disk, halts.ts) — another instance's,
+  // another server's, or before a reload — goes down as by its own 4001: its turn cut, its seat taken off.
+  async function sweep(): Promise<void> {
+    for (const s of half.children()) {
+      if (!parents.has(s)) await rootOf(s); // the parent chain of a child this instance has not walked yet
+      if (ch?.halt(s)) half.halt(s);
+    }
+    // A descendant without a seat here — its satellite taken down by an earlier stop — is cut by
+    // each new stop over its chain all the same (#7440 item 2).
+    for (const s of parents.keys()) ch?.halt(s);
+  }
+  const sweeper = setInterval(() => void sweep(), SWEEP_MS);
+  sweeper.unref?.();
+
   // An instance of another spelling of the same directory wakes this one unloaded with a seat (twins.ts).
   const twins = createTwins(ctx, homeOf(ctx), {
     say,
     lost: (s, text) => onChannel(s, { logger: LOGGERS.channel, data: { kind: "lost", text } }),
     holds: (r) => half.held(r),
     adopt: () => half.adopt(),
+    sweep: () => void sweep(),
   });
 
   // The stop waits for the subagents' bridges to pause (children.ts): a reload is not their end.
   return async () => {
+    clearInterval(sweeper);
     twins.leave();
     controller.abort();
     keepalive.stop();

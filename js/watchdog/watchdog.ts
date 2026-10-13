@@ -251,12 +251,18 @@ export function runWatchdog(argv: string[]): void {
         case "evicted":
           leave(ev.text ?? wd().seatLost(), 1);
           break;
+        case "stopped":
+          // The owner took the seat off (#7439): the stop word is the last line, no alarm code.
+          leave(ev.text ?? wd().seatLost(), 0);
+          break;
         case "alive":
           log(ev.text ?? wd().aliveNote()); // holding goes on, the watchdog keeps listening
           break;
         case "released":
           // An own close/revoke is the last word, without alarm or a non-zero code (#6638).
           if (ev.own) leave(wd().bridgeReleasedSocket(ev.text ?? ""), 0);
+          // A seat beside forgotten (#7504): a line would wake the doer, whose main seat holds.
+          else if (ev.beside) process.stderr.write(wd().bridgeReleasedSocket(ev.text ?? "") + "\n");
           else log(wd().bridgeReleasedSocket(ev.text ?? ""));
           break;
       }

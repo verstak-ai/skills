@@ -37,16 +37,33 @@ export const H = scoped(() => ({
   revokingOwn: false,
   /** own channel close in flight (absorb.ts): close 4001 outruns the answer, as with revoke (#6634) */
   closingOwn: false,
+  /** keys of seats beside whose own revoke is in flight (absorb.ts): standing_ended outruns the answer */
+  revokingBeside: new Set<string>(),
   /** the daemon goes down while this session's thin bridge lives and restores the place (daemon.ts, #6485) */
   handingOver: null as string | null,
+  /** the last owner's stop of this session (stophold.ts, #7439): `n` counts stops, a move compares it before and after */
+  stopped: { n: 0, key: "", text: "" },
 }));
 
-/** Next step after eviction (evicted.ts): set once at load, one per process for all sessions. */
-export const E: { next: ((key: string, url: string, code: number) => void) | null } = {
+/** The stop word if the seat `key` was taken off by its owner since the count `before` (stopsNow); otherwise null. */
+export const stoppedSince = (before: number, key: string): string | null =>
+  H.stopped.n !== before && H.stopped.key === key ? H.stopped.text : null;
+export const stopsNow = (): number => H.stopped.n;
+
+/** Next step after eviction (evicted.ts) and after the owner's stop (stophold.ts): set once at load, one per process for all sessions. */
+export const E: {
+  next: ((key: string, url: string, code: number) => void) | null;
+  /** close 4001 not the session's own; or a standing_ended frame (`ended`) naming a seat of the channel */
+  stop: ((key: string, code: number, reason: string, ended?: Frame) => void) | null;
+} = {
   next: null,
+  stop: null,
 };
 export function whenEvicted(fn: (key: string, url: string, code: number) => void): void {
   E.next = fn;
+}
+export function whenStopped(fn: NonNullable<(typeof E)["stop"]>): void {
+  E.stop = fn;
 }
 
 /** A disk resume started (+1) or ended (-1). */
@@ -62,6 +79,12 @@ export function setRevokingOwn(v: boolean): void {
 /** absorb.ts: own channel close in flight; close 4001 is then not a dead token. */
 export function setClosingOwn(v: boolean): void {
   H.closingOwn = v;
+}
+
+/** absorb.ts: own revoke of the seat beside `key` in flight (true) or answered (false). */
+export function setRevokingBeside(key: string, v: boolean): void {
+  if (v) H.revokingBeside.add(key);
+  else H.revokingBeside.delete(key);
 }
 
 /**

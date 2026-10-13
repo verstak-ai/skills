@@ -26,6 +26,7 @@ import {
   seamSocketPath,
   takeFileLock,
 } from "./seam-entrance.ts";
+import { type MachineSnapshot } from "./snapshot.ts";
 
 /** An engine session as the seam sees it. */
 export interface SeamSession {
@@ -53,6 +54,7 @@ export interface SeamHost {
   log?(msg: string): void;
   /** How many sessions the daemon holds — in a probe answer. */
   count?(): number;
+  snapshot?(): MachineSnapshot;
   /** The daemon's file — in a probe answer. */
   path?: string;
   /**
@@ -156,6 +158,16 @@ export function serveSeam(socket: Socket, host: SeamHost, graceMs = SEAM_REATTAC
     (line) => say(`unparseable seam line: ${line.slice(0, 120)}`),
   );
   const accept = async (hello: SeamHello) => {
+    let snapshot: MachineSnapshot | undefined;
+    let snapshot_error: "snapshot failed" | undefined;
+    if (hello.snapshot && host.snapshot) {
+      try {
+        snapshot = host.snapshot();
+      } catch {
+        snapshot_error = "snapshot failed";
+        say("seam snapshot failed");
+      }
+    }
     const welcome = (id: string | null, resumed: boolean) =>
       writeFrame(socket, {
         t: "welcome",
@@ -167,8 +179,10 @@ export function serveSeam(socket: Socket, host: SeamHost, graceMs = SEAM_REATTAC
         ack: true,
         ...(id === null && host.count ? { sessions: host.count() } : {}),
         ...(id === null && host.path ? { path: host.path } : {}),
+        ...(snapshot ? { snapshot } : {}),
+        ...(snapshot_error ? { snapshot_error } : {}),
       });
-    if (hello.probe) {
+    if (hello.probe || hello.snapshot) {
       welcome(null, false);
       socket.end();
       return;

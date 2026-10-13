@@ -1,8 +1,8 @@
 // Session usage in the seat's attrs (graph @nks/nks-dev, nodes #6271, #6401): the
 // OpenCode plugin and the pi extension send numbers by method("usage"), the bridge
 // puts them under attrs.usage (placefields.ts) and replays its register — at most
-// once a minute and only on a notable shift (register is a server call; the numbers move
-// every step). The last snapshot bypasses the
+// once a minute, on a notable usage shift or a changed installed skill set (register is
+// a server call; the numbers move every step). The last snapshot bypasses the
 // threshold before the seat is left or closed: a closed seat answers 404.
 import { envName, method, USAGE } from "../delivery/index.ts";
 import { HOSTED_CLIENTS } from "../shared/clients.ts";
@@ -11,6 +11,7 @@ import { scoped } from "../shared/scope.ts";
 import { harnessName } from "./client.ts";
 import { isParked } from "./hold.ts";
 import { rememberUsage } from "./placefields.ts";
+import { skillsNeedRegister } from "./skillwatch.ts";
 import { replayRegister } from "./standing.ts";
 import { log } from "./streams.ts";
 import { type Standing, state } from "./transport.ts";
@@ -21,7 +22,11 @@ const MIN_GAP_MS = Number(process.env[envName("USAGE_GAP_MS")] || 60_000);
 /** Cap on the last snapshot: the harness kills the bridge after a short grace. */
 const FLUSH_CAP_MS = Number(process.env[envName("CASE_LEAVE_MS")]) || 1_500;
 
-const U = scoped(() => ({ published: null as Usage | null, latest: null as Usage | null, at: 0 }));
+const U = scoped(() => ({
+  published: null as Usage | null,
+  latest: null as Usage | null,
+  at: 0,
+}));
 
 export const isUsageCall = (msg: JsonRpcMessage): boolean => msg?.method === method("usage");
 
@@ -35,10 +40,11 @@ export function usagePlace(): Standing | null {
 /** register of the seat with the last snapshot; true — attrs taken. */
 async function publish(place: Standing, u: Usage): Promise<boolean> {
   U.at = Date.now();
-  const got = await replayRegister(place);
+  const got = await replayRegister(place, false);
   const ok = !!got && !got.error && !got.result?.isError;
-  if (ok) U.published = u;
-  else
+  if (ok) {
+    U.published = u;
+  } else
     log(
       `usage: register did not take the attrs this time — ${JSON.stringify(got?.error ?? got?.result ?? null).slice(0, 200)}`,
     );
@@ -68,14 +74,15 @@ export async function runUsage(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   U.latest = u;
   rememberUsage(u);
   const s = usagePlace();
-  const due = !!s && Date.now() - U.at >= MIN_GAP_MS && moved(U.published, u);
+  const due =
+    !!s && Date.now() - U.at >= MIN_GAP_MS && (moved(U.published, u) || skillsNeedRegister(s));
   return answer({ pushed: due && s ? await publish(s, u) : false, usage: u });
 }
 
 /** The last snapshot, bypassing the threshold, strictly before the seat closes (leave, satellite revoke). */
 export async function flushUsage(place: Standing | null): Promise<void> {
   const u = U.latest;
-  if (!place || !u || u === U.published) return;
+  if (!place || !u || (u === U.published && !skillsNeedRegister(place))) return;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const cap = new Promise<"cap">((r) => (timer = setTimeout(() => r("cap"), FLUSH_CAP_MS)));
   // A network failure on the last snapshot does not break the end: the seat goes without it.
