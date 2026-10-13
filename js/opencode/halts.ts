@@ -5,7 +5,8 @@
 // on globalThis, shared by the process's live instances like the twins' (twins.ts), and on disk
 // next to the plugin's other records (marker.ts) for the instance after a reload. A refused write
 // is loud: the live instances still keep the ban, a reload would lose it. The record is the
-// session's id, the time and the stop's id, no secret; the session's deletion removes it. A new held lifts the
+// session's id, the time, the stop's id and its word for the session's turns (#7585), no secret —
+// the word lives as long as the stop; the session's deletion removes it. A new held lifts the
 // ban in the registry always, the stops recorded up to it, not a later one; a refused removal of
 // the record is loud and rewrites it as lifted, so a reload reads no ban either. Each stop has an
 // id of its own: what a stop has already cut does not count for the next stop over the chain.
@@ -17,12 +18,18 @@ import { join } from "node:path";
 import { GLOBAL_PREFIX } from "../delivery/index.ts";
 
 export interface Halts {
-  stop(session: string): void;
+  /** `word` — what the session's turns read while it stays stopped; null — none (a child). */
+  stop(session: string, word: string | null): void;
   held(session: string | null): void;
   /** The session or any of its ancestors is stopped. */
   halted(session: string): boolean;
   /** The ids of the stops over the session and its ancestors; null — none. */
   stopOf(session: string): string | null;
+  /**
+   * The word of the session's own stop; a stop recorded before words were kept reads `general`.
+   * null — the session is not stopped itself, or its stop has no word.
+   */
+  wordOf(session: string, general: string): string | null;
   /** The session was deleted: its stop goes. */
   gone(session: string): void;
 }
@@ -41,24 +48,34 @@ const lifted = (): Map<string, number> =>
 /** The id of each stop in the registry. */
 const ids = (): Map<string, string> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}StopIds`] ??= new Map<string, string>());
+/** The word of each stop in the registry. */
+const words = (): Map<string, string | null> =>
+  ((globalThis as any)[`${GLOBAL_PREFIX}StopWords`] ??= new Map<string, string | null>());
 
 const code = (e: unknown): string | undefined => (e as NodeJS.ErrnoException).code;
 
+/** A stop that bans: its id and word; `word` undefined — recorded before words were kept. */
+interface Mark {
+  id: string;
+  word?: string | null;
+}
+
 /**
- * The id of the stop the record bans by: present, not rewritten as lifted, and newer than a held
- * lifted at `since`; one unreadable bans, as before. null — no ban.
+ * The stop the record bans by: present, not rewritten as lifted, and newer than a held lifted at
+ * `since`; one unreadable bans, as before. null — no ban.
  */
-function recorded(file: string, since: number | undefined): string | null {
+function recorded(file: string, since: number | undefined): Mark | null {
   try {
     const r = JSON.parse(readFileSync(file, "utf8")) as {
       at?: string;
       lifted?: string;
       id?: string;
+      word?: string | null;
     };
     if (r.lifted || (since !== undefined && Date.parse(r.at ?? "") <= since)) return null;
-    return r.id ?? r.at ?? "?";
+    return { id: r.id ?? r.at ?? "?", word: r.word };
   } catch (e) {
-    return code(e) === "ENOENT" ? null : "?";
+    return code(e) === "ENOENT" ? null : { id: "?" };
   }
 }
 
@@ -73,11 +90,14 @@ export function createHalts(
   unwritten: (session: string, message: string) => void,
   unlifted: (session: string, message: string, kept: boolean) => void,
 ): Halts {
-  const marked = (s: string): string | null =>
-    stops().has(s) ? (ids().get(s) ?? "?") : recorded(fileOf(dir(), s), lifted().get(s));
+  const marked = (s: string): Mark | null =>
+    stops().has(s)
+      ? { id: ids().get(s) ?? "?", word: words().get(s) }
+      : recorded(fileOf(dir(), s), lifted().get(s));
   const drop = (s: string): void => {
     stops().delete(s);
     ids().delete(s);
+    words().delete(s);
     lifted().set(s, Date.now());
     const file = fileOf(dir(), s);
     try {
@@ -98,21 +118,22 @@ export function createHalts(
     const found: string[] = [];
     const seen = new Set<string>();
     for (let s: string | undefined = session; s && !seen.has(s); s = parentOf(s)) {
-      const id = marked(s);
-      if (id !== null) found.push(id);
+      const m = marked(s);
+      if (m) found.push(m.id);
       seen.add(s);
     }
     return found.length ? found.join(" ") : null;
   }
   return {
-    stop(session) {
+    stop(session, word) {
       const id = randomUUID();
       stops().add(session);
       ids().set(session, id);
+      words().set(session, word);
       lifted().delete(session);
       try {
         mkdirSync(dir(), { recursive: true, mode: 0o700 });
-        const record = JSON.stringify({ session, at: new Date().toISOString(), id });
+        const record = JSON.stringify({ session, at: new Date().toISOString(), id, word });
         writeFileSync(fileOf(dir(), session), record, { mode: 0o600 });
       } catch (e) {
         unwritten(session, (e as Error).message);
@@ -122,6 +143,10 @@ export function createHalts(
     gone: drop,
     halted: (session) => stopOf(session) !== null,
     stopOf,
+    wordOf(session, general) {
+      const m = marked(session);
+      return m ? (m.word === undefined ? general : m.word) : null;
+    },
   };
 }
 

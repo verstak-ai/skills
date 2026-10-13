@@ -14,6 +14,7 @@ import {
 } from "./hold.ts";
 import { holdWords } from "./holdwords.ts";
 import { listenBlock } from "./listen.ts";
+import { normKarta } from "./names.ts";
 import { dropExtra, extraIn, extraPlaces } from "./places.ts";
 import { otherRealm } from "./realms.ts";
 import { rememberedPlace, replyText } from "./standing.ts";
@@ -89,7 +90,7 @@ function names(a: Record<string, unknown>, s: Standing): boolean {
     asked === "mine" ||
     asked === (s.name ?? "") ||
     asked.endsWith(`:${s.name ?? ""}`);
-  return own && String(a.karta ?? s.karta) === String(s.karta);
+  return own && normKarta(a.karta ?? s.karta) === normKarta(s.karta); // "#931" too (#6987)
 }
 
 /**

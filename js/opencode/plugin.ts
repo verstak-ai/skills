@@ -121,9 +121,14 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   }
 
   // OpenCode's «completed» at the end of a lead subagent's turn — a word to the model that it is a turn (notice.ts).
+  // A turn of a stopped session reads the stop word here, not from its inbox (#7585).
   try {
     for (const hook of ["context", "compaction"] as const)
-      await ctx.session.hook(hook, (req) => annotate(req, (s) => half.leadOf(s)));
+      await ctx.session.hook(hook, (req) => {
+        annotate(req, (s) => half.leadOf(s));
+        const stop = hook === "context" ? ch?.stopWord(String(req.sessionID)) : null;
+        if (stop) req.system.push({ type: "text", text: stop });
+      });
   } catch (e) {
     say(W.noticeDown((e as Error).message), "error");
   }

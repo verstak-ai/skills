@@ -1,19 +1,15 @@
-// Bridge lines on the call surface (MOMENT): the writing moment on writing tools, status
-// and leave on the channel tool.
+// Bridge lines on the call surface (MOMENT): status and leave on the channel tool. The bridge
+// prefixes no writing-moment line to the write tools — the server's own line carries it.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
 
 export interface MomentWords {
-  moment: () => string;
   status: () => string;
   leave: () => string;
 }
 
 export const MOMENT: Readonly<Record<Lang, MomentWords>> = {
   en: {
-    moment: () =>
-      "[bridge] " +
-      "The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.",
     status: () =>
       `[bridge] Busyness is set by ${tool("stand")}(realm, status) on a seat the bridge already holds — the main move; action="status" (realm, text up to 64 characters) is the former one, kept for compatibility: the bridge, the socket holder, executes it, the call does not go to the server; an empty text clears; a surface refusal comes whole.`,
     leave: () =>

@@ -44,6 +44,8 @@ export interface Channel {
   stop(): void;
   /** Counts of records waiting for a passing prompt into root session `session`; null — none. */
   ride(session: string): string | null;
+  /** The stop word a turn of root session `session` reads while it stays stopped; null — none. */
+  stopWord(session: string): string | null;
 }
 
 /** The case pile window; the variable is a probe seam. */
@@ -318,26 +320,21 @@ export function setupChannel(
   /**
    * The owner took the seat off (#7439, #7440 item 2): the running turns of the session and of
    * every descendant are interrupted, their piles and waiting tacts are dropped, and the stop
-   * word goes to the human and into the session as a message that starts no turn. Nothing of
-   * this session or its descendants reaches them afterwards until it stands again by an explicit
-   * call (halts.ts). The descendants' seats go down in their own instances (onStop).
+   * word goes to the human and to the context of the session's turns while it stays stopped —
+   * not into its inbox, where a later turn would take it stale (#7585); the word lies with the
+   * stop and outlives a reload as the stop does. Nothing of this session or its descendants
+   * reaches them afterwards until it stands again by an explicit call (halts.ts). The
+   * descendants' seats go down in their own instances (onStop).
    */
   function stopped(session: string | null, text: string, child: boolean): void {
     say(text, "error");
     dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
     if (!session) return;
-    halts.stop(session);
+    // A child's end goes to its parent (leads.ts): no word is laid into the child.
+    halts.stop(session, child ? null : text);
     cut(session);
     for (const d of descendantsOf(session, parents)) cut(d);
     onStop(session);
-    const s = ctx.session as any;
-    const failed = (e: Error) => say(W.notDelivered(W.frame(), session, e.message), "warning");
-    // A child's end goes to its parent (leads.ts): no word is laid into the child.
-    if (child || typeof s.synthetic !== "function") return;
-    const said = markFrame(text);
-    void Promise.resolve(
-      s.synthetic({ sessionID: session, text: said, delivery: "queue", resume: false }),
-    ).catch(failed);
   }
 
   return {
@@ -388,6 +385,10 @@ export function setupChannel(
         (p) => !p.child && (p.session === session || (!p.session && freshestRoot() === session)),
       );
       return riding(own).join("\n") || null;
+    },
+    stopWord(session) {
+      const word = halts.wordOf(session, P.stoppedAny());
+      return word === null ? null : markFrame(P.stoppedTurn(word));
     },
     onEvent(session, params: any, child = false) {
       const ev = params?.data as ChannelEvent | undefined;
