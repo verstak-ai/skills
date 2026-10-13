@@ -299,8 +299,11 @@ const SERVER_TOOLS = [
   { name: "verstak_orient", description: "Enter the graph." },
   { name: "verstak_channel", description: "The role's live channel." },
 ];
-// The line bridges up to 3.3.0 prefixed to every write tool; a stale cache may still carry it.
+// The line bridges up to 3.3.0 prefixed to every write tool, as shipped; a stale cache may still carry it.
 const OLD_MOMENT = "[bridge] The writing skill's moment:";
+const OLD_MOMENT_LINE =
+  "[bridge] " +
+  "The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.";
 const descriptions = (answer) =>
   Object.fromEntries((answer.result?.tools ?? []).map((t) => [t.name, t.description]));
 
@@ -335,52 +338,43 @@ test("write tools reach the harness with the server's descriptions; the channel 
 
 // While a login waits for its click, the harness is answered from the last server answer —
 // which an older bridge may have saved with its writing-moment line (graph @nks/nks-dev, node #4790).
-// Stripping a known old prefix on read lives in the core's annotateToolList, the sibling's to land.
-test(
-  "a login-wait tool list served from an old bridge's cache carries no writing-moment line",
-  {
-    todo: "the core does not yet strip the old prefix from a cached list (upstream: js/bridge/moment.ts)",
-  },
-  async (t) => {
-    await withFake(t, { tools: SERVER_TOOLS }, async ({ fake, dir, spawnBridge }) => {
-      const u = new URL(fake.mcpUrl);
-      const h = createHash("sha256")
-        .update(u.origin + u.pathname)
-        .digest("base64url")
-        .slice(0, 10);
-      const old = SERVER_TOOLS.map((x) =>
-        x.name === "verstak_channel"
-          ? x
-          : {
-              ...x,
-              description: `${OLD_MOMENT} before each node, name the reader.\n\n${x.description}`,
-            },
-      );
-      writeFileSync(
-        join(dir, `${u.hostname}_${h}.json.server-answers`),
-        JSON.stringify({
-          init: {
-            protocolVersion: "2025-06-18",
-            capabilities: {},
-            serverInfo: { name: "fake-server", version: "0" },
+// The core's annotateToolList takes the former line off on read (MOMENT.formerMoment).
+test("a login-wait tool list served from an old bridge's cache carries no writing-moment line", async (t) => {
+  await withFake(t, { tools: SERVER_TOOLS }, async ({ fake, dir, spawnBridge }) => {
+    const u = new URL(fake.mcpUrl);
+    const h = createHash("sha256")
+      .update(u.origin + u.pathname)
+      .digest("base64url")
+      .slice(0, 10);
+    const old = SERVER_TOOLS.map((x) =>
+      x.name === "verstak_channel"
+        ? x
+        : {
+            ...x,
+            description: `${OLD_MOMENT_LINE}\n\n${x.description}`,
           },
-          tools: { tools: old },
-        }),
-      );
-      const bridge = spawnBridge();
-      assert.ok(
-        (await bridge.call("initialize", 1, INIT_PARAMS)).result,
-        "initialize answered from the cache",
-      );
-      const listed = await bridge.call("tools/list", 2);
-      assert.ok(
-        listed.result,
-        `tools/list answered from the cache: ${JSON.stringify(listed.error)}`,
-      );
-      assertServerDescriptions(descriptions(listed));
-    });
-  },
-);
+    );
+    writeFileSync(
+      join(dir, `${u.hostname}_${h}.json.server-answers`),
+      JSON.stringify({
+        init: {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          serverInfo: { name: "fake-server", version: "0" },
+        },
+        tools: { tools: old },
+      }),
+    );
+    const bridge = spawnBridge();
+    assert.ok(
+      (await bridge.call("initialize", 1, INIT_PARAMS)).result,
+      "initialize answered from the cache",
+    );
+    const listed = await bridge.call("tools/list", 2);
+    assert.ok(listed.result, `tools/list answered from the cache: ${JSON.stringify(listed.error)}`);
+    assertServerDescriptions(descriptions(listed));
+  });
+});
 
 // --- the reported defect: a pending flow whose owner is gone ---------------
 

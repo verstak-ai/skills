@@ -3,16 +3,19 @@
 import { LEAD, type LeadWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 
-/** The outcome is the child's last text; a longer one is cut at the tail. */
+/** The outcome is the child's last text; a longer one is cut at the tail, and the cut is said. */
 const SUMMARY_MAX = 4000;
 
 export const W = (): LeadWords => words(LEAD);
 
+const shown = (last: string): string =>
+  last.length > SUMMARY_MAX
+    ? `${last.slice(0, SUMMARY_MAX)}${W().cut(SUMMARY_MAX, last.length)}`
+    : last;
+
 /** The word lands before the child's bridge ends its run: a failed seat release is unrevokedWord. */
-export const endWord = (who: string, why: string, last: string, kept?: string | null): string => {
-  const said = last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}…` : last;
-  return W().end(who, why, kept ? W().endKept(who, kept) : W().endPlain(), said);
-};
+export const endWord = (who: string, why: string, last: string, kept?: string | null): string =>
+  W().end(who, why, kept ? W().endKept(who, kept) : W().endPlain(), shown(last));
 
 /** A correction to the outcome, not a second end: failed — seats the child's bridge could not revoke; null — unknown. */
 export const unrevokedWord = (who: string, failed: string[] | null): string =>
@@ -20,5 +23,4 @@ export const unrevokedWord = (who: string, failed: string[] | null): string =>
     ? W().unrevokedUnknown(who)
     : W().unrevoked(who, failed.join(", "), String(failed[0]));
 
-export const awayWord = (who: string, last: string): string =>
-  W().away(who, last.slice(0, SUMMARY_MAX));
+export const awayWord = (who: string, last: string): string => W().away(who, shown(last));

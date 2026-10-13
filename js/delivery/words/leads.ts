@@ -12,6 +12,8 @@ export interface LeadWords {
   placeEvictedRefusal: () => string;
   placeClosedRefusal: () => string;
   end: (who: string, why: string, done: string, said: string) => string;
+  /** The mark on a truncated outcome: shown of total characters. */
+  cut: (shown: number, total: number) => string;
   endKept: (who: string, kept: string) => string;
   endPlain: () => string;
   keptLine: (who: string, place: string) => string;
@@ -68,6 +70,8 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       "its satellite seat was revoked not through the launcher or closed by the platform (4001)",
     placeEvictedRefusal: () => "its satellite seat was evicted by another holder",
     placeClosedRefusal: () => "its satellite seat was revoked or closed by the platform (4001)",
+    cut: (shown, total) =>
+      `\n[report truncated: ${shown} of ${total} characters shown — incomplete here, whole in its case]`,
     end: (who, why, done, said) =>
       `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}` +
       `Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:\n${said || "(it left no text — see its case)"}`,
