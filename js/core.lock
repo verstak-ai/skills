@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 9c40eca1a762f12d704b1407122995d1aba0fb35
+commit 923fe131230aa6e13d44445947c0083e4bb2178f
 889d079af28e00725550be4cdccb9305cd5757768f42bdd567bbb82254ec5a26  js/bridge/absorb.ts
 d08245193edda8fb079edcf47b3ca05fa7c4299f0883e67522b611aead4faca4  js/bridge/addressmark.ts
 e9a25451925a672a5e29b3b16fea8005d599aa89023e0641452896b6aa7ac8b9  js/bridge/askdisk.ts
@@ -39,7 +39,7 @@ d137fb8a3ee918b7a3e7919b6d9ca20c6b84a1c3d5195257e3cfa128dd6039c1  js/bridge/leav
 468111d0b85fa2043e322e55ce5d88ad50828ec92936220739ffe8bd4b71293a  js/bridge/listen.ts
 938221ec11a2f8f120c30bc96acc47b8c7d92de24fbd51dd5247df477e00d096  js/bridge/lostplaces.ts
 0dad9a0b18419a334e2db0c82c9ed08eceaefc73cbd18dad27051dff3cfb6701  js/bridge/main.ts
-c4d664b006cc21eb15b98c83004fded4216ea0180a0450a9f08d47fea59cdcc8  js/bridge/moment.ts
+604d2374185a9aa308ef0aca46c385cfc661493be1b46001bd3d57630610c079  js/bridge/moment.ts
 cb4cb3e91daeb24dbf542300a4930b37271a7cc6df27f4b215e03011bcac6a83  js/bridge/names.ts
 20a23f834939a4c571675b2344ac0c1a3d738723d9c2850bb17f393115c5ac5c  js/bridge/narrow.ts
 9a35d85a303a7286581dc25a60248eb02f7fbe17e80e7dc2db9522c34ff201a3  js/bridge/oauth/authlock.ts
