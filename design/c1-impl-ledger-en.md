@@ -7,7 +7,8 @@ Branch `impl/c1-verstak-en`, from `origin/main` `25bbbf9`. Implements role #931'
 - `7406548` fix(verstak): the skill edits (+ rebuilt `verstak.skill`, `home/`).
 - `0a872b8` docs(design): this ledger.
 - `07f4576` fix(bridge): core re-synced to `9c40eca1`, the old-cache test made real, the truncation word.
-- the commit that updates this ledger: the review fixes (§8).
+- `792d43d` fix(verstak): the review fixes (§8).
+- the commit that updates this ledger: core re-synced to `923fe131` (whole-line stripping), `formerMoments`, the cache contrast test.
 
 **Sources** (in the worktree's uncommitted `.c1-inputs/`; sha256 prefixes recomputed here and matching the brief):
 - r5 `night-projection-synthesis-r5.md` `467d8dd3…` — governing; its line 11 (inheritance), §1 Seam 4 and Seam 5, §2 "#931 en — mandatory" and "#931 — recommended".
@@ -19,9 +20,9 @@ Line numbers below are **after** the edit, at the head carrying §8. `S` = `skil
 
 ## 1. Bridge core and the writing moment (Seam 5, standard C)
 
-**Core sync.** First `d6ec4c29`, then re-synced: `scripts/sync-core.sh <sibling repo> 9c40eca1a762f12d704b1407122995d1aba0fb35`; `js/core.lock` pins `9c40eca1`. The re-sync brings the sibling's `cde5381e` (`annotateToolList` takes a former bridge's moment line off a cached list, by the delivery word `MOMENT.formerMoment`) and `30b10fb4` (`js/opencode/leadwords.ts`: a truncated subagent outcome is marked by the delivery word `LEAD.cut`; the away word truncates the same way).
-- **`9c40eca1` is not on the sibling's `main`** either: it is the head of its isolated ru implementation branch (its main `89f0de73` + draft #458 "bridge does not append the writing moment line" + the two fixes above + its own skill and ledger commits). **Before any release of this delivery, re-sync the core to the sibling's merged commit** and re-run `make check`; until then the lock names an unmerged commit.
-- The sync also brings two sibling core changes since our last pin `0434b9a6`: #462 (own revoke with karta "#N" matched, `absorb.ts`) and #464 (the stop word rides the OpenCode turn's system context, not the inbox: `opencode/{channel,halts,plugin}.ts`). #464 asks the delivery for two plugin words: added at `js/delivery/words/plugin.ts` (`stoppedTurn`, `stoppedAny`), English renderings of the sibling's. The re-sync asks for two more, ours in English: `MOMENT.formerMoment` (`js/delivery/words/moment.ts`) — the **whole** 3.3.0 line exactly as shipped (checked byte-equal against the 3.3.0 release build `skills/verstak/scripts/verstak-bridge.mjs` at `25bbbf9`), so only that exact line is taken off; and `LEAD.cut` (`js/delivery/words/leads.ts`).
+**Core sync.** `d6ec4c29`, then `9c40eca1`, now `scripts/sync-core.sh <sibling repo> 923fe131230aa6e13d44445947c0083e4bb2178f`; `js/core.lock` pins `923fe131`. The last step changes only `js/bridge/moment.ts`: a cached list loses a former moment line only as a whole shipped line with its blank line, at the head or the tail, on `add_*`/`batch` only; anything else keeps its bytes, and a description is never emptied. It reads the lines from the delivery word `MOMENT.formerMoments`.
+- **`923fe131` is not on the sibling's `main`** either: it sits on its isolated ru implementation branch `impl/c1-…-ru` (head `11c9301f`), over its main `89f0de73` + draft #458 + its C1 fixes. **Before any release of this delivery, re-sync the core to the sibling's merged commit** and re-run `make check`.
+- The sync also brings two sibling core changes since our last pin `0434b9a6`: #462 (own revoke with karta "#N" matched, `absorb.ts`) and #464 (the stop word rides the OpenCode turn's system context, not the inbox: `opencode/{channel,halts,plugin}.ts`). #464 asks the delivery for two plugin words: added at `js/delivery/words/plugin.ts` (`stoppedTurn`, `stoppedAny`), English renderings of the sibling's. The re-sync asks for two more, ours in English: `MOMENT.formerMoment` (`js/delivery/words/moment.ts`) — the **whole** 3.3.0 line exactly as shipped (checked byte-equal against the 3.3.0 release build `skills/verstak/scripts/verstak-bridge.mjs` at `25bbbf9`), so only that exact line is taken off; and `LEAD.cut` (`js/delivery/words/leads.ts`). With `923fe131` the word became `MOMENT.formerMoments: () => readonly string[]` — every whole line this delivery's bridges shipped; ours holds the one line of §9. The sibling's en list carries the same 598-char line byte for byte (its second item) among its own three; that list is the sibling's delivery layer, not ours, so nothing is duplicated — ours stays the delivery's own word.
 
 **Moment line removed** (#7557 v4; en corr-1 C1). The core's `js/bridge/moment.ts` no longer prefixes the seven write tools (6 `add_*` + `batch`); `verstak_stand` insertion and the `channel` status/leave lines stay. Delivery: the `moment` key leaves `MomentWords` (`js/delivery/words/moment.ts`). The 445-char merged line and the 598-char 3.3.0 line are gone; the 3.3.0 line's "a wait is a vimarsha" (against #746) leaves by deletion, not replacement. The server's own tail ("Before this session's first graph write: … load it now…") stays — #163's, untouched.
 
@@ -32,8 +33,22 @@ Line numbers below are **after** the edit, at the head carrying §8. `S` = `skil
 **Tests** (`js/tests/bridge.test.mjs`, fake server now takes whole tool definitions):
 - *fresh* — "write tools reach the harness with the server's descriptions; the channel tool keeps the bridge's lines": write tools and `orient` equal the server's description byte for byte, no `[bridge] The writing skill's moment` anywhere, `verstak_stand` present, `channel` starts with `[bridge] Busyness`, carries `[bridge] action="leave"`, ends with the server's text. **Pass.**
 - *negative probe* (prefix back): the same test against the 3.3.0 release build (`git show 25bbbf9:skills/verstak/scripts/verstak-bridge.mjs`, `VERSTAK_BRIDGE_PATH=…`) → **fails**: `verstak_add_vimarsha must reach the harness as the server sent it`, actual starts `[bridge] The writing skill's moment: before each node…`.
-- *old annotated cache, login wait* — "a login-wait tool list served from an old bridge's cache carries no writing-moment line": an auth dir with a `.server-answers` cache whose write tools carry the full 3.3.0 line as shipped, then a blank line, then the server's text; no grant; `initialize` and `tools/list` are answered from the cache (the stand-in path, graph @nks/nks-dev, node #4790). Same assertions as the fresh test. **Pass** on core `9c40eca1` (it was `todo` on `d6ec4c29`).
-- *negative probe* (stripping removed): in a scratch edit of the core, the `withoutFormerMoment` call in `annotateToolList` deleted → the cache test **fails**: `verstak_add_vimarsha must reach the harness as the server sent it`. The core was restored and `check-core-lock` re-verified (198 files match `9c40eca1`).
+- *old annotated cache, login wait* — "a login-wait tool list from an old bridge's cache loses only a whole shipped moment line on a write tool": no grant; `initialize` and `tools/list` answered from a `.server-answers` cache (the stand-in path, graph @nks/nks-dev, node #4790). Each cached tool is one contrast, each asserted byte-equal; `verstak_stand` added, `channel` keeps the server's text. **Pass.**
+
+  | Cached tool | Cached description | Harness gets |
+  |---|---|---|
+  | `add_vimarsha` | whole 3.3.0 line + `\n\n` + server text | server text — taken off |
+  | `add_bianhua` | server text + `\n\n` + whole line (tail) | server text — taken off (the core's tail case; verstak never shipped a tail) |
+  | `batch` | same start ("[bridge] The writing skill's moment:"), not the whole line, + `\n\n` + text | byte-equal — kept |
+  | `add_kriya` | whole line + `\n` (no blank line) + text | byte-equal — kept |
+  | `add_holon` | the line alone | byte-equal — not emptied |
+  | `add_karta` | the line + `\n\n`, nothing after | byte-equal — not emptied |
+  | `orient` (read tool) | whole line + `\n\n` + text | byte-equal — untouched |
+
+- *negative probes*, each a scratch edit of the core's `js/bridge/moment.ts`, restored after, `check-core-lock` re-verified (198 files match `923fe131`):
+  - stripping call removed → **fails** on `verstak_add_vimarsha — whole line first: taken off`;
+  - write-tool filter removed → **fails** on `verstak_orient — a read tool: untouched`;
+  - a broad prefix strip (the shape of the earlier ru core) added → **fails** on `verstak_batch — the same start without the whole line: kept`.
 - The *offline* stand-in (network refusal) goes through the same `lastServerAnswer` → `annotateToolList`; not tested separately here.
 - #7557/#7576 are fulfilled in source and offline tests for this delivery; claiming them fulfilled in use still needs the release and the post-wave catalog check (#7576's answer condition).
 - The test "bridge line = door line" doesn't exist in this repo; nothing to remove.
@@ -154,13 +169,13 @@ The skills now say the meanings the server should say too; the server text itsel
 ## 6. Gate
 
 `make check` at the head carrying §8 (re-run after the review fixes), the uncommitted `.c1-inputs/` excluded for the run only (`GIT_CONFIG_*` → `core.excludesFile`; validate lists untracked files and bans their Cyrillic): **exit 0**.
-- `validate` ✓, `check-bundles` ✓, `check-surface` ✓ (23 tools), `check-core` ✓ (198 files), `check-core-lock` ✓ (9c40eca1), `lint` 0 errors / 22 warnings (all in core files, e.g. `js/bridge/tokens.ts`; not from this branch's delivery edits), `format-check` ✓, `typecheck` ✓, `check-js` ✓ (committed outputs are the 3.3.0 release build), `test`: 125 tests, **125 pass, 0 fail, 0 todo**.
+- `validate` ✓, `check-bundles` ✓, `check-surface` ✓ (23 tools), `check-core` ✓ (198 files), `check-core-lock` ✓ (923fe131), `lint` 0 errors / 22 warnings (all in core files, e.g. `js/bridge/tokens.ts`; not from this branch's delivery edits), `format-check` ✓, `typecheck` ✓, `check-js` ✓ (committed outputs are the 3.3.0 release build), `test`: 125 tests, **125 pass, 0 fail, 0 todo**.
 - No flakes; nothing re-run.
 
 ## 7. Limits
 
 - **Two different #458s.** The bridge draft #458 ("bridge does not append the writing moment line") came in with the core sync and is reconciled here. The **writing-reduction PR458** (a separate wave) was **not read**; reconciling the door row and `writing.md` with it is #931's, in one move — not done.
-- Core pinned to an **unmerged** sibling commit `9c40eca1` (§1): **re-sync to the sibling's merged commit before any release.**
+- Core pinned to an **unmerged** sibling commit `923fe131` (§1): **re-sync to the sibling's merged commit before any release.**
 - #7557/#7576 in use: not claimed until the release and a post-wave catalog check (§1).
 - No loaded-context probe, no truncation observation, no measurement, no live server or bridge, no re-capture — all §1/§2 claims are about committed text and the offline fake.
 - The skill edits are text; whether agents then act differently (base/head probes, redundant-use contrasts) is not observed — REALITY.md's Ceiling.
@@ -194,5 +209,5 @@ Searched every commit touching the shipped bridge `skills/verstak/scripts/versta
 
 > [bridge] The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.
 
-It already sits whole in `js/delivery/words/moment.ts` as `MOMENT.en.formerMoment` (byte-equal to the v3.3.0 build). No further word is added now: the shape the sibling's new core will ask for (one line, a list, head/tail positions) is not known until its commit; on re-sync the en words take this one text, head position, write tools only.
+It stands whole in `js/delivery/words/moment.ts` as the single item of `MOMENT.en.formerMoments` (598 characters, sha256 `755d4ed7…`, byte-equal to the v3.3.0 build), the shape the core at `923fe131` asks for. The core also strips a tail position; verstak never shipped one, so for this delivery that case only guards against a foreign cache.
 

@@ -338,22 +338,56 @@ test("write tools reach the harness with the server's descriptions; the channel 
 
 // While a login waits for its click, the harness is answered from the last server answer —
 // which an older bridge may have saved with its writing-moment line (graph @nks/nks-dev, node #4790).
-// The core's annotateToolList takes the former line off on read (MOMENT.formerMoment).
-test("a login-wait tool list served from an old bridge's cache carries no writing-moment line", async (t) => {
+// The core takes off only a whole shipped line (MOMENT.formerMoments) with its blank line, on a
+// write tool; anything else keeps its bytes, and no description is emptied.
+const L = OLD_MOMENT_LINE;
+const CACHED = [
+  // [tool, cached description, what the harness must get, the contrast]
+  [
+    "verstak_add_vimarsha",
+    `${L}\n\nCreate a vimarsha.`,
+    "Create a vimarsha.",
+    "whole line first: taken off",
+  ],
+  [
+    "verstak_add_bianhua",
+    `Create a transformation.\n\n${L}`,
+    "Create a transformation.",
+    "whole line last: taken off",
+  ],
+  [
+    "verstak_batch",
+    `${OLD_MOMENT} before each node, name the reader.\n\nAn atomic delta.`,
+    `${OLD_MOMENT} before each node, name the reader.\n\nAn atomic delta.`,
+    "the same start without the whole line: kept",
+  ],
+  [
+    "verstak_add_kriya",
+    `${L}\nCreate a kriya.`,
+    `${L}\nCreate a kriya.`,
+    "no blank line after it: kept",
+  ],
+  ["verstak_add_holon", L, L, "the line alone: not emptied"],
+  ["verstak_add_karta", `${L}\n\n`, `${L}\n\n`, "the line and a blank line only: not emptied"],
+  [
+    "verstak_orient",
+    `${L}\n\nEnter the graph.`,
+    `${L}\n\nEnter the graph.`,
+    "a read tool: untouched",
+  ],
+];
+
+test("a login-wait tool list from an old bridge's cache loses only a whole shipped moment line on a write tool", async (t) => {
   await withFake(t, { tools: SERVER_TOOLS }, async ({ fake, dir, spawnBridge }) => {
     const u = new URL(fake.mcpUrl);
     const h = createHash("sha256")
       .update(u.origin + u.pathname)
       .digest("base64url")
       .slice(0, 10);
-    const old = SERVER_TOOLS.map((x) =>
-      x.name === "verstak_channel"
-        ? x
-        : {
-            ...x,
-            description: `${OLD_MOMENT_LINE}\n\n${x.description}`,
-          },
-    );
+    const tools = [
+      ...CACHED.map(([name, description]) => ({ name, description })),
+      { name: "verstak_channel", description: "The role's live channel." },
+    ];
     writeFileSync(
       join(dir, `${u.hostname}_${h}.json.server-answers`),
       JSON.stringify({
@@ -362,7 +396,7 @@ test("a login-wait tool list served from an old bridge's cache carries no writin
           capabilities: {},
           serverInfo: { name: "fake-server", version: "0" },
         },
-        tools: { tools: old },
+        tools: { tools },
       }),
     );
     const bridge = spawnBridge();
@@ -372,7 +406,14 @@ test("a login-wait tool list served from an old bridge's cache carries no writin
     );
     const listed = await bridge.call("tools/list", 2);
     assert.ok(listed.result, `tools/list answered from the cache: ${JSON.stringify(listed.error)}`);
-    assertServerDescriptions(descriptions(listed));
+    const byName = descriptions(listed);
+    for (const [name, , expected, contrast] of CACHED)
+      assert.equal(byName[name], expected, `${name} — ${contrast}`);
+    assert.ok("verstak_stand" in byName, "the bridge still adds verstak_stand");
+    assert.ok(
+      (byName.verstak_channel ?? "").endsWith("\n\nThe role's live channel."),
+      "the channel tool keeps the server's text under the bridge's lines",
+    );
   });
 });
 
