@@ -57,7 +57,7 @@ On request, on a new graph, machine or job, or when the map is visibly behind �
    | Verdict | Move |
    |---|---|
    | in the world, not on the map | classify: its holon and purpose — or fold it under a disposable class (Storage rule) |
-   | on the map, not in the world | **crystallize, then release**: what did the area prove? Write it as a `grundsatz` (principle) or `bildung` (a pattern taking shape) with `arose_from` to the card, *then* `verstak_update(volitive_mode="visarjana")` or ontic `atita`, with the reason — nobody re-reads an archived graph |
+   | on the map, not in the world | **check for a material remainder, then release**: what did the area prove that changes a later judgment? Something → keep it with its grounds and the condition it applies under — refine the node it touches first, else a `grundsatz` (principle) or `bildung` (a pattern taking shape) with `arose_from` to the card; then `verstak_update(volitive_mode="visarjana")` or ontic `atita`, with the reason. Nothing → release without inventing a lesson. Nobody re-reads an archived graph; releasing doesn't destroy it |
    | in both | leave it |
 
 3. **Wire identity** — in every live graph where the user holds a role: `verstak_update(realm=R, node_id=role, user="me", basis_version=v)`, or `user="me"` at creation. Only roles they actually stand behind; §4 sees nothing else.
