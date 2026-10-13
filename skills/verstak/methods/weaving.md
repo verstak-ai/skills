@@ -82,11 +82,15 @@ A call is communication, not nesting.
 
 ### 5. Closing a lifecycle
 
-- **a.** no end-of-life kriya (`leaked`) → add one **at the producer's level of abstraction**: config born in "Bootstrap" dies in "Teardown", not in "rm -rf". Taken by someone outside → a hand-off kriya.
+Name the subject, the cycle's level (configuration, version, live instance, custody), its boundary and the duty owed; then the end that is true of it:
+
+- **a.** no end (`leaked`) → the end at the producer's level of abstraction — config born in "Bootstrap" ends in "Teardown", not in "rm -rf". The end may be consumption; a real hand-off at the edge that ends the named participation (a hand-off kriya); or the end of this custodian's duty. Never a claimed destruction of a participant that must be kept (an audit log, an archive): model its custody ending or its hand-off.
 - **b.** no producer (`relay-gap`) → add one; from outside → an observation kriya, its phenomenon in the external system's holon.
-- **c.** wrong level → re-place the teardown.
+- **c.** wrong level → re-place the end.
 - **d.** inherited closure: a `contains` parent closes the cycle → not a gap; don't patch children one by one.
-- Or defer: a kriya in `anagata`+`upeksha` formally closes the cycle.
+- **A planned end stays planned**: `anagata`, `kalpita`/`anumita`, the will as it actually stands (not a placeholder `upeksha`); undecided → keep the question open. Never silence `leaked` with `attrs` or by deleting something.
+
+A connected trace shows the model's relay is continuous in this scope, not that it runs. The lifecycle model grants neither a right to retain nor consent to destroy.
 
 Re-trace; still broken → loop.
 

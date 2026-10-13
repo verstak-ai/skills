@@ -4,9 +4,9 @@
 
 This terminal protocol decides whether the behaviour that ships was exercised — not a scratch build, a test bypassing the public boundary, or plausible output.
 
-**"Checked" always names its level.** First: against the graph (`verstak_look`, `verstak_orient`, `lens="trace"`) — words against the record; the graph observes the world, it isn't the world. Second: a fresh observation on the canonical carrier — only this closes a behavioural claim. Every verdict here is second-level; any "verified" says what it was verified against.
+**"Checked" always names its level.** First: against the graph (`verstak_look`, `verstak_orient`, `lens="trace"`) — words against the record; the graph directly observes recorded content and relations, not the execution they describe. Second: a fresh observation on the canonical carrier — only this closes a behavioural claim. Every verdict here is second-level; any "verified" says what it was verified against. **A text claim is not a behaviour claim:** what a text, graph or code *says* is accepted by reading it with a check that would show the claim false — an observation of its subject; what it *does* needs its carrier.
 
-**A witness, not the author**: the maker sees the reflection of their own intent, so name the falsifier *before* looking and observe afresh — a fresh agent or black-box run.
+**A witness, not the author**: the maker sees the reflection of their own intent, so name the falsifier *before* looking and observe afresh — a fresh agent or black-box run where the risk of self-substitution matters or the repository's rule requires it.
 
 **Proportionality.** A change that alters no public contract (no new or changed exported symbol, output format, config or schema shape, documented behaviour) shrinks the ladder to steps 1–2 on the touched path: rebuild the canonical deliverable, exercise the changed path once with an asserted expectation, record the command and exit code in one line. Unsure whether the contract changed? It did.
 
@@ -18,9 +18,11 @@ Record only claims whose failure changes acceptance. Exact output, ordering, err
 
 ## 2. Name the carrier and the falsifier before running anything
 
-**Take the carrier from the repository**: `AGENTS.md` → `Reality` gives the canonical carrier per class of claim, how to observe it, who can. The owner names it — the built deliverable, not the source; the live endpoint, not the handler; a clean install, not a cache. No table, or a class it misses → ask the owner, offer `methods/align.md`, record the answer.
+**Take the carrier from the repository**: `AGENTS.md` → `Reality` gives the canonical carrier per class of claim, how to observe it, who can. The owner admits it — the built deliverable, not the source; the live endpoint, not the handler; a clean install, not a cache. No table, or a class it misses → propose a carrier and investigate on it, safely, reversibly and within your existing mandate: a missing admission allows inquiry, not arbitrary consequences. Verdicts on it stay `provisional` until the rightful holder admits the carrier — admission is not a successful run; ask for it, offer `methods/align.md`, record the answer. An unreachable carrier limits only its own claim.
 
 One row per claim: **Claim** · **Canonical carrier** (the exact binary, package, symbol, route, UI, schema, artifact or deployed path users consume) · **Observable** (what an outsider sees) · **Executable falsifier** (what would prove it false).
+
+**Check the measurer where it changes the verdict:** is the probe a party to the relation it measures; which build or place does it read; where did the expected value come from. Two readings of one report are not two observations; a mutant checks the instrument, not the contract.
 
 Boundary words are equivalence classes: for `empty`, `none`, `missing`, `malformed`, `default`, probe each distinct representation the public parser can receive that the wording treats as equal (zero bytes vs empty record, empty array vs missing field, omitted flag vs explicit default). For a min, max, threshold, window, counter or version gate: the boundary plus the nearest differently-behaving value each side; a default supplying the boundary is tested omitted and explicit. A guard inherited from a stricter neighbouring path must not reject input the new contract accepts.
 
@@ -50,11 +52,11 @@ A material change after step 1 invalidates the tail: rebuild, repeat the affecte
 - `contradicted` — a reproduced counterexample still fails;
 - `blocked` — the evidence surface is unreachable; quote the blocker literally and name only the claim it blocks.
 
-This is the verdict set for any method or role judging a claim. Report a claims × verdicts table with the canonical path and the command or test evidence — real telemetry only, never estimated tokens, cost, duration or coverage. A green subset omitting the failing case is no observation, not a fix. Structural health never raises a behavioural verdict.
+`verified` says the claim held under these conditions — not that the result is repeatable everywhere, wanted or useful, nor that the method caused it. These four are the verdicts for behavioural acceptance by any method or role; a text claim is read with a distinguishing check (above). Report a claims × verdicts table with the canonical path and the command or test evidence — real telemetry only, never estimated tokens, cost, duration or coverage. A green subset omitting the failing case is no observation, not a fix. Structural health never raises a behavioural verdict.
 
 **Where verdicts go.** The table as a message in the case; in the graph as modes — rising confidence and `anagata → vartamana` only for `verified`, its text stating only the observation's ceiling (what was observed, where the carrier's reach ends). A `provisional` or `blocked` claim that will wait is a `partial` line on your own key, "on whom, waiting for what" (→ door, `Ledger`); an answer it needs from someone is a card too (`Waiting on an answer`).
 
-**What each level earns:** reading code → `anumita`; a focused internal or mock test → at most `pratyakshita`; `pramanita` for a behavioural claim → the second level on the canonical carrier with the falsifier executed.
+**What each level earns:** reading code observes its content, and the step from it to execution → `anumita`; a focused internal or mock test → at most `pratyakshita`; `pramanita` for a behavioural claim → the second level on the canonical carrier with the falsifier executed.
 
 **Kind ceilings.** Classes under *Ceiling* in the repository's `Reality` table never come back `verified`: their top is `provisional`, their honest epistemic mode `anumita` or converging independent testimony.
 

@@ -18,13 +18,13 @@ Hanging vimarsha in orient: anchor first, then triage.
 
 ## 2. Lifecycle — three exits
 
-A vimarsha stays in work while it calls: a doubt *seeking an answer*, a risk *guarding*, a defect *present*; *holding the question* and *accepted* stand without calling. It leaves by exactly one door:
+A vimarsha stays in work while it calls: a doubt *seeking an answer*, a risk *guarding*, a defect *present*; *holding the question* and *accepted* stand without calling. Its genre's ending axis (§3) decides which exit is open; a question still held, or accepted as is, has not left and needs no exit. The exits:
 
 | Exit | What happens | How |
 |---|---|---|
-| **Resolution** | answered by an acting or deciding node | `addressed_by` + volitive `visarjana`. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (`methods/reality-audit.md`) |
+| **Resolution** | answered by an acting or deciding node | `addressed_by` to the answering node; release, as its own act, when the answer condition is met and the release is yours by kind. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (`methods/reality-audit.md`) |
 | **Death** | released *without* an answer — wrong, fell away, superseded | `visarjana` with a reasoning line saying *why* |
-| **Crystallization** — the most valuable | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it; `visarjana` once the form carries the content |
+| **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it; `visarjana` once the form carries the content |
 
 Two non-terminal moves:
 - **Supersession** — a later question absorbs this one: `supersedes` on the replacement, the old one → `visarjana`.
@@ -41,7 +41,7 @@ Two non-terminal moves:
 | `samshaya` (doubt) | removing the uncertainty — a decision, a found node, a check with its level named (graph or world) | will: `visarjana` or `virodha` (refusal); `addressed_by` doesn't end it; `upeksha` = accepted as is |
 | `prati-paksha` (counter-thesis) | an evaluative decision: accepted, transformed or declined | will: as `samshaya` |
 | `hint` (a transformation's seed) | edited in place to what stands now, each agent clearing what it finished; ended by the coordinator at acceptance | will: as `samshaya` |
-| `risk` | first repair the touched deed or add a mitigating kriya; a `grundsatz` invariant only per `methods/design.md`, 3b; acceptance is the owner's decision (prepare, address, record what they said). `addressed_by` / `realized_as` are informational: a risk that happened (`realized_as` → the state of affairs) is not ended, and is worse than an open one | will: live in `virodha`; only `visarjana` ends it; `upeksha` = accepted, alive as a record |
+| `risk` | first repair the touched deed or add a mitigating kriya; a `grundsatz` invariant only per `methods/design.md`, 3b; acceptance is the owner's act or their authority given beforehand (prepare, address, record what they said). `addressed_by` / `realized_as` are informational: a risk that happened (`realized_as` → the state of affairs) is not ended, and is worse than an open one | will: live in `virodha`; only `visarjana` ends it; `upeksha` = accepted, alive as a record |
 | `vyabhichara` (counterexample) | a repair that removes the defect, or a refined rule | ontic: present while `vartamana`; ended by `atita` (fixed), `vikalpa` (never was — only with `badhita`), `nashta` (gone with its carrier) or `visarjana`; `upeksha` at `vartamana` = accepted (owner's decision) |
 | `hetu-dosha` (grounding defect) | correcting or withdrawing the argument | ontic: as `vyabhichara` |
 | `semantic-drift` | re-fixing the term (正名, rectified names) and reconciling the diverged uses — not agreeing the question went away | ontic: as `vyabhichara` |
@@ -70,10 +70,10 @@ Decide deliberately: is the vimarsha part of a **bianhua** (a qualitative transf
 
 The right column carries the owner's will: escalate, don't resolve it to clear the field. The vimarsha stays `posed_to` the owner role; a choice the work waits on now also goes as an `ask` card in the subject's case, one per vimarsha (`methods/collaborate.md`, `Asking the user`). Their `answer` → `ack`, then write: their stance as the vimarsha's mode, who said it and when in `reasoning`.
 
-## 6. A session must arrive at understanding
+## 6. What the work changed
 
-A session must converge on emerging patterns of understanding (`bildung`), not multiply vimarshas; a triage leaving more questions calling and nothing crystallized hasn't landed. Before closing, ask *what do we understand now that we didn't?* — and crystallize it: vimarshas and incidents → thesis, kriya pattern, principle; `visarjana` is a by-product.
+Before closing, ask *what changed the next judgment, if anything?* It can be a transferable finding (refine the existing node first), a new question, a kept refutation, a question deliberately held, or a changed mode; keep with it its grounds, the conditions it applies under, and a counter-case where that changes the next move. None of these is owed: "nothing changed" is a legitimate one-line outcome, and crystallization is one outcome among them, not the best by default. A doubt still genuinely open is held with its grounds — neither crystallized nor released to clear the field. A philosophical question is never released by its author re-reading their own text: that is `addressed_by` only.
 
 ## Acceptance
 
-Every triage outcome is exactly one move from §§2–5: anchor, resolve, release, crystallize, supersede, accept as is, attach as anga, escalate. Next moment: a transformation's parts moved → reread its map (`lens="bianhua"`).
+Every triage outcome is exactly one move from §§2–5: anchor, resolve, release, crystallize, hold with its grounds, supersede, accept as is, attach as anga, escalate. Next moment: a transformation's parts moved → reread its map (`lens="bianhua"`).

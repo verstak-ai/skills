@@ -46,9 +46,9 @@ The assignment derives from the node, not from the user's wish in your words. **
 
 ## Sweep: who has stalled
 
-**An agent that finished its turn doesn't continue by itself**; silent, it looks like thinking. **Sweep from the delta, graph first**: the transformation map and the units' nodes (`verstak_orient(focus=<node>)` — modes moved, vimarshas answered), then branch heads and verdicts, then the roster, open lines and the user's queue. Nothing moved → one line; a full overview only at start and after a gap. Where something moved: **is it seated**; **when did it last act**, against the phase's silence budget (compiling, review, CI, waiting on the user); **did it move or only talk** — a case growing while its nodes and branch don't is circling (the door, `The method fails in five ways`).
+**An agent that finished its turn doesn't continue by itself**; silent, it looks like thinking. **Sweep from the delta, graph first**: the transformation map and the units' nodes (`verstak_orient(focus=<node>)` — modes moved, vimarshas answered), then branch heads and verdicts, then the roster, open lines and the user's queue. Nothing moved → one line; a full overview only at start and after a gap. Where something moved: **is it seated**; **when did it last act**, against the phase's silence budget (compiling, review, CI, waiting on the user); **did it move or only talk** — a case growing while its nodes and branch don't is circling (the door, `The method fails in five ways`). An overrun budget is a reason to ask, not a finding.
 
-**A status is a claim.** Liveness is four readings — server up, session executing, seat listening, artifact moving; rank: pushed artifact > live process > status flag > the agent's word. **Interrupt a hung turn only on all four** — the turn, not the server or the copy; then repeat the instruction once.
+**A status is a claim.** Liveness is four different questions — server up, session executing, seat listening, artifact moving — not a ranking of truth: ask the one the decision needs. **Interrupt a hung turn only on all four** — the turn, not the server or the copy; then repeat the instruction once.
 
 **A unit waiting outside the crew is your watch**: recheck the wait's premise every sweep; a nudge names what is open, promised, arrived.
 

@@ -18,8 +18,8 @@ If a brainstorming skill is installed, use it for elicitation; its spec file is 
 
 | # | Principle | For you |
 |---|---|---|
-| P1 | Every thing is born and dies | Each `ding` or `sachverhalt` phenomenon needs `utpatti` (an action producing it) and `ahara` (one consuming it). `leaked` = the end-of-life kriya is missing — add it. |
-| P2 | A complex system can only grow | `anagata`+`upeksha` and vimarshas hold what's deferred. Depth on the first pass yields a shallow graph (all named, nothing stitched) or a fat node. |
+| P1 | Every thing is born and dies | Each `ding` or `sachverhalt` phenomenon needs `utpatti` (an action producing it) and `ahara` (one consuming it). `leaked` = the end isn't modelled — model the end true of the subject, which may be a hand-off or the end of custody (`methods/weaving.md`, Op 5). |
+| P2 | A complex system can only grow | A planned end in `anagata` with its actual will, and open vimarshas, hold what's deferred (`methods/weaving.md`, Op 5). Depth on the first pass yields a shallow graph (all named, nothing stitched) or a fat node. |
 | P3 | The graph is a tension with reality | Intake lowers it; design raises it — the graph describes what doesn't exist yet. Each vimarsha marks a tension to work. |
 | P4 | Tensions tell the truth | Close the structure, never suppress (no `attrs` to mute). A tension that looks wrong is a detector bug. |
 
