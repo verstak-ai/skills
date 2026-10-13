@@ -6,7 +6,8 @@ Branch `impl/c1-verstak-en`, from `origin/main` `25bbbf9`. Implements role #931'
 - `3c0b3ea` feat(bridge): core sync + delivery words + bridge tests.
 - `7406548` fix(verstak): the skill edits (+ rebuilt `verstak.skill`, `home/`).
 - `0a872b8` docs(design): this ledger.
-- the commit that updates this ledger: core re-synced to `9c40eca1`, the old-cache test made real, the truncation word.
+- `07f4576` fix(bridge): core re-synced to `9c40eca1`, the old-cache test made real, the truncation word.
+- the commit that updates this ledger: the review fixes (§8).
 
 **Sources** (in the worktree's uncommitted `.c1-inputs/`; sha256 prefixes recomputed here and matching the brief):
 - r5 `night-projection-synthesis-r5.md` `467d8dd3…` — governing; its line 11 (inheritance), §1 Seam 4 and Seam 5, §2 "#931 en — mandatory" and "#931 — recommended".
@@ -14,7 +15,7 @@ Branch `impl/c1-verstak-en`, from `origin/main` `25bbbf9`. Implements role #931'
 - pair design `c1-verstak-en.md` `94872bfa…` (K1–K10, S1–S13, §5–§7), its correction `c1-verstak-en.corr-1.md` `7611ae02…`, `c1-verstak-en.m2-delta.md` `d1cbd9d1…`; Sol's reviews alongside.
 - surfaces: M2 `m2-surface-en-verstak.json` `36ceaa95…`, postbridge `3c4bb022…`.
 
-Line numbers below are **after** the edit, at `7406548`. `S` = `skills/verstak`.
+Line numbers below are **after** the edit, at the head carrying §8. `S` = `skills/verstak`.
 
 ## 1. Bridge core and the writing moment (Seam 5, standard C)
 
@@ -67,6 +68,7 @@ Status: **done** / **unchanged (why)** / **not done (why)**. `canon:` — the gr
 | K3 | `reality-audit.md:9` fresh witness where self-substitution matters or the rule requires it | done | #738 v3 |
 | K3 | `reality-audit.md:21` propose / admit / observe; safe, reversible, in-mandate inquiry; `provisional` until admitted | done | #100 v3 |
 | K3 | `reality-audit.md:25` the measurer paragraph | done | #504 v4, #738 v3 |
+| K3 | `reality-audit.md:57` "rising confidence and `anagata → vartamana` only for `verified`" → each axis by its own grounds, each claim within its ceiling; a behavioural claim's node rises only on its `verified`; existence can be observed while another behavioural claim stays `provisional`; structural linkage raises no behavioural acceptance (review fix, Sol EN-1) | done | #156 v3, #529 v10 |
 | K3 | `reality-audit.md:55` success ≠ value; the four verdicts are for behavioural acceptance, text by reading | done | #529 v10 |
 | K3 | `reality-audit.md:59` reading code observes content; to execution `anumita` | done | #104 v5 |
 | K3 | `S/templates/reality-template.md:2–3` rows by claim class; content claim's subject is the admitted text; "worth nothing" → names a limit | done | #529 v10 |
@@ -78,14 +80,15 @@ Status: **done** / **unchanged (why)** / **not done (why)**. `canon:` — the gr
 | K4 | `entry.md:49` "while its question is live" | done | #157 v5 |
 | K4 | `entry.md:116` tensions for dependency/closure advice; a direct question already answered needs no more | done | #157 v5 |
 | K5 | `S/methods/inquiry.md:73–75` §6 rewritten whole: "What the work changed" | done | #387 v5, #356 v2, #131 v5 |
-| K5 | `inquiry.md:27` "the most valuable" dropped | done | #387 v5 |
+| K5 | `inquiry.md:27` "the most valuable" dropped; "`visarjana` once the form carries the content" → shaping the form ends nothing, the vimarsha moves on its own carrying axis, released only when its answer condition is met and the release is yours by kind (the second half is a review fix, Sol BOTH-1; the first pass had left it) | done | #387 v5, #156 v3 |
 | K5 | `inquiry.md:25` Resolution: `addressed_by`; release as its own act by answer condition and kind | done | #156 v3, #464 v13 |
 | K5 | `inquiry.md:21` "exactly one door" → the genre's ending axis decides; held/accepted need no exit | done | #156 v3 |
 | K6 | `S/methods/assembly.md:71` `bildung` only when actually told apart; a kept whole or open question is a result | done | #387 v5 |
 | K6 | `S/methods/autonomous.md:55` lessons → what holds outside the case → the node it touches; nothing → one line | done | #131 v5 |
 | K6 | `autonomous.md:147` `addressed_by`, then release by condition and kind | done | #156 v3 |
 | K6 | `autonomous.md:31` growing seed → check the unit of continuation | done | #366 v4, #365 v4 |
-| K6 | `writing.md:151` seed only for a material continuation condition; absence no failure; release kind-aware | done | #131 v5, #356 v2, #366 v4, #629 v2 |
+| K6 | `writing.md:151` seed only for a material continuation condition that neither the graph, its lenses nor reading the cases (`at`, `read`) restores; a pointer, not a snapshot — live cases read, not listed; a case number only where a material choice can't be recovered otherwise; absence no failure; release kind-aware. The first pass kept "live cases by number and wait" in the list — review fix, Sol EN-3 = Opus E-1; `SKILL.md:94` "notes go into the seed" aligned | done | #131 v5, #356 v2, #366 v4, #629 v2 |
+| K6 | `S/methods/minding.md:60` (+ derived `home/minding/SKILL.md:65`) "crystallize, then release" → check for a material remainder, keep it with grounds and condition (refine the touched node first), nothing → release without inventing a lesson; releasing doesn't destroy the archive. The first pass left it as "consciously unchanged" — declined by both reviews, now fixed (Sol EN-2 = Opus E-2) | done | #387 v5, #356 v2, #131 v5 |
 | K6 | `S/methods/collaborate.md:90` a lasting delta, if any, at the node it touches | done | #131 v5 |
 | K7 | `autonomous.md:126` relay by kind; grounds, where they live, the mandate's boundary; mention ≠ address, receipt ≠ reading | done | #746 v7 |
 | K7 | `S/methods/architect.md:45` a wait goes by kind | done | #746 v7 |
@@ -110,7 +113,7 @@ Status: **done** / **unchanged (why)** / **not done (why)**. `canon:` — the gr
 | Seam 5 | moment line removed; door row `SKILL.md:215`; `writing.md` (§1 above) | done; fresh and old-cache tests pass (§1) | #7557 v4, #7576 v3, #4238 v5 |
 | §5.1 | re-capture server → bridge → plugin from one build before any parity claim | **not done** — needs the build #163 names and a live grant; no parity is claimed | — |
 
-**Count:** 60 rows — **58 done**, **1 unchanged** (K7 door table, kept by design), **1 not done** (the one-build re-capture).
+**Count:** 62 rows — **60 done**, **1 unchanged** (K7 door table, kept by design), **1 not done** (the one-build re-capture).
 
 **Additional edits, same meaning, outside the listed loci** (each stated so it isn't hidden):
 - `writing.md:138` `ahara` "(destruction)" → "consumed: its participation in this scope ends" (D15; the server twins are T9/C6/C6b, #163/#48).
@@ -146,20 +149,50 @@ The skills now say the meanings the server should say too; the server text itsel
 - **Contract stays `4`.** The `agents-template.md:58` and `reality-template.md` edits narrow wording; `align.md:11` raises the contract only when a generated file becomes wrong (a section, file, ritual or tool name), "never for wording". Already generated files keep the broader line, which is stricter, not wrong.
 - **This repo's own `AGENTS.md` Reality line** keeps "switching a mode or ending a question": a stricter product rule of this repo, which the D14 paragraph lets bind.
 - **Grounds, nests, genres, modes, enums, the staff Seam 4** — unchanged; no new axis, field or enum; D1–D19 are not turned into a checklist (the door's five failures stay a recognition device, only failure 1's sign reworded per P4).
-- `S/methods/minding.md:60` "crystallize, then release" for an archived area — a specific procedure, outside the en loci; left.
 - `delete_node`'s prefer-visarjana line is server text (N6 (Opus)), not touched.
 
 ## 6. Gate
 
-`make check` at the head that updates this ledger, the uncommitted `.c1-inputs/` excluded for the run only (`GIT_CONFIG_*` → `core.excludesFile`; validate lists untracked files and bans their Cyrillic): **exit 0**.
+`make check` at the head carrying §8 (re-run after the review fixes), the uncommitted `.c1-inputs/` excluded for the run only (`GIT_CONFIG_*` → `core.excludesFile`; validate lists untracked files and bans their Cyrillic): **exit 0**.
 - `validate` ✓, `check-bundles` ✓, `check-surface` ✓ (23 tools), `check-core` ✓ (198 files), `check-core-lock` ✓ (9c40eca1), `lint` 0 errors / 22 warnings (all in core files, e.g. `js/bridge/tokens.ts`; not from this branch's delivery edits), `format-check` ✓, `typecheck` ✓, `check-js` ✓ (committed outputs are the 3.3.0 release build), `test`: 125 tests, **125 pass, 0 fail, 0 todo**.
 - No flakes; nothing re-run.
 
 ## 7. Limits
 
-- **PR458 / draft #458 writing reduction not read.** Any rebase of the door row and `writing.md` onto it is #931's, in one move.
+- **Two different #458s.** The bridge draft #458 ("bridge does not append the writing moment line") came in with the core sync and is reconciled here. The **writing-reduction PR458** (a separate wave) was **not read**; reconciling the door row and `writing.md` with it is #931's, in one move — not done.
 - Core pinned to an **unmerged** sibling commit `9c40eca1` (§1): **re-sync to the sibling's merged commit before any release.**
 - #7557/#7576 in use: not claimed until the release and a post-wave catalog check (§1).
 - No loaded-context probe, no truncation observation, no measurement, no live server or bridge, no re-capture — all §1/§2 claims are about committed text and the offline fake.
 - The skill edits are text; whether agents then act differently (base/head probes, redundant-use contrasts) is not observed — REALITY.md's Ceiling.
 - Graph read: none beyond the inputs; no graph or case writes (subagent without its own seat).
+
+## 8. Cold reviews at `07f4576` — findings
+
+Reviews: Sol `impl-review/sol.md` (sha256 `cf8b3af4…`), Opus `impl-review/opus.md` (`ac02dce7…`), both REVISE for en. Read in full. Skills only in this pass; the core is not touched (the sibling's ru branch is fixing the strip; re-sync on its commit).
+
+**Mandatory, en**
+- **Sol EN-1** — `reality-audit.md:57` "only for `verified`" on both axes: **fixed** `S/methods/reality-audit.md:57` (K3 row). Fail-closed, the four verdicts and "structural linkage raises no behavioural acceptance" kept.
+- **Sol EN-2 = Opus E-2** — `minding.md:60` mandatory crystallization: **fixed** `S/methods/minding.md:60`, `home/minding/SKILL.md:65` (derived). The earlier "consciously unchanged" in §5 was unsupported and is withdrawn.
+- **Sol EN-3 = Opus E-1** — `writing.md:151` "live cases by number and wait": **fixed** `S/methods/writing.md:151`; `S/SKILL.md:94` aligned. The earlier K6 "done" was a false completeness claim.
+- **Sol BOTH-1 (en)** — `inquiry.md:27` automatic `visarjana`: **fixed** `S/methods/inquiry.md:27`; no new mode or field. The earlier K5 "done" for `:27` was a false completeness claim.
+
+**Non-blocking — taken / not taken**
+- Opus N-en8 (two #458s told apart in the ledger): **taken**, §7.
+- Opus N-en6 / Sol §3.9 (pinned to an unmerged core; #462/#464 ride along, not C1): **named**, §1/§7; re-sync before release.
+- Opus N-en1 / Sol N2 (`design.md:21` P1 heading "born and dies", `:62` "add end-of-life", P4 `:24`): **not taken in this pass** — the brief scopes it to the mandatory findings; K9 named only the P1/P2 bodies. Next pass.
+- Opus N-en2 (`entry.md:21,23` "dissipation"), N-en3 (`writing.md:88` "attested repeatedly and independently"), N-en9 (`product-roadmap.md:87` "authority"), Sol N6 (`assistant.md:61` "is a blockage"), Opus N-en4 / Sol N1 (`architect.md:72` fixed reading list): **not taken in this pass** — wording parity, no contradiction of a mandatory locus; next pass.
+- Opus N-en7 / Sol N3 (an en test of `LEAD.cut`, wider fixtures: seven write tools, multi-paragraph bodies, a door-row test): **not taken** — tests are out of this skills-only pass; due with the next core re-sync.
+
+## 9. Historical en moment lines — ready for the words file
+
+Searched every commit touching the shipped bridge `skills/verstak/scripts/verstak-bridge.mjs` (all releases v3.0.0–v3.3.0, plus `e5eaae4`, `952565f`, `07f4576`), the pi extension and the OpenCode plugin, and git history (`git log --all -S"skill's moment"`, `-G"momentLine"`). Releases before v3.0.0 (v1.9.0–v2.10.1, the pre-core bridge under `skills/establish-mcp/`) carry no moment line. The pi extension and the OpenCode plugin never carried one (they don't annotate the list).
+
+**Exactly one line was ever shipped**, unchanged from v3.0.0 through v3.3.0:
+- **Position: head.** The bridge set the description to the line + `\n\n` + the server's description; an empty server description became the line alone (no separator). Write tools only: `^<tool prefix>(add_[a-z_]+|batch)$` — the prefix is the bridge's `TOOL_PREFIX`, `verstak_` unless `config.json`'s `tool_prefix` renames it.
+- **Never at the tail** (unlike the sibling's bridges between its d19d6e8b and 94d088df).
+- **Text** — 598 characters, sha256 `755d4ed7dbe51b5471727b150952264f1b3820a49c40919523dc436d6cb2fbed`:
+
+> [bridge] The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.
+
+It already sits whole in `js/delivery/words/moment.ts` as `MOMENT.en.formerMoment` (byte-equal to the v3.3.0 build). No further word is added now: the shape the sibling's new core will ask for (one line, a list, head/tail positions) is not known until its commit; on re-sync the en words take this one text, head position, write tools only.
+

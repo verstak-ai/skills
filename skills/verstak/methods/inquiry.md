@@ -24,7 +24,7 @@ A vimarsha stays in work while it calls: a doubt *seeking an answer*, a risk *gu
 |---|---|---|
 | **Resolution** | answered by an acting or deciding node | `addressed_by` to the answering node; release, as its own act, when the answer condition is met and the release is yours by kind. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (`methods/reality-audit.md`) |
 | **Death** | released *without* an answer — wrong, fell away, superseded | `visarjana` with a reasoning line saying *why* |
-| **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it; `visarjana` once the form carries the content |
+| **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it. Shaping the form ends nothing: the vimarsha then moves on its own carrying axis — released only when its answer condition is met and the release is yours by kind, held while the question still stands |
 
 Two non-terminal moves:
 - **Supersession** — a later question absorbs this one: `supersedes` on the replacement, the old one → `visarjana`.
