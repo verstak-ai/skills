@@ -4,7 +4,7 @@
 
 You touch reality at points: a call, a log, a response. The connections, decisions, rejected options and open questions of the people you work with are in the graph; unread, you guess them. Where a check is cheap, check; for mechanism and meaning, read the graph; a mismatch between them is evidence.
 
-**Read by the question.** Start from the question and a known place. Search locates; a card directly shows its text, modes and shown relations; the neighbourhood finds what pulls on it and its neighbours; trace follows a relay; tensions checks its registry within a scope; path tests a named connection. A complete direct answer on the card needs nothing more. A question about consequences, closure, absence or a load-bearing ground needs the view that could tell the alternatives apart (`From a card to evidence`); name the scope, and anything missing or truncated. Stopping at a card that doesn't answer, or at a clean lens of the wrong scope, is failure 2 (the door, `The method fails in five ways`).
+**Read by the question.** Start from the question and a known place. Search locates; a card directly shows its text, modes and shown relations; the neighbourhood finds what pulls on it and its neighbours; trace follows a relay; tensions checks its registry within a scope; path finds a route between two nodes — one to investigate arrow by arrow, not proof of causal order. A complete direct answer on the card needs nothing more. A question about consequences, closure, absence or a load-bearing ground needs the view that could tell the alternatives apart (`From a card to evidence`); name the scope, and anything missing or truncated. Stopping at a card that doesn't answer, or at a clean lens of the wrong scope, is failure 2 (the door, `The method fails in five ways`).
 
 # Part I. Literacy
 
@@ -115,6 +115,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 - **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more. Unchecked advice is a guess — call it one.
 - **Before editing a queue item** → `verstak_look` it; a moved version means someone else is on it.
+- **After a context interruption** (a compaction, taking over another session's work) → before resuming, recover from graph and case the role, the live case, its grounds and mandate, and the action the last correction changed; a summary's "rule" points at that correction, it is not fresh authority.
 - **Before prose about meaning** (a rationale comment, an `AGENTS.md` paragraph, a task carrying a decision) → semantic search; link the node, or write it (`writing`) and link.
 - **Before "no" or "not found"** → a second instrument: semantic after lexical, a lens after a partial result, a filter after a round number.
 - **Before "verified"** → name the level: against the graph or against the world on its carrier (`reality-audit`).

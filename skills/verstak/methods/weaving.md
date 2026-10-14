@@ -40,7 +40,8 @@ leaked? → does the body NAME the consumer in prose? draw arrows to every one
 relay-gap, or actions taking what nobody produces?
         → trace backward (focus=<consuming kriya>): add a producer (Op 1);
           from outside → an observation kriya
-orphan phenomenon? → verstak_look: does a kriya own it?
+orphan phenomenon? → verstak_look: does a kriya own it? (in another holon →
+          an exact question to its steward, not your edit)
           no → stitch it; doesn't hold → delete (no distinction), refute and
                keep (false thesis), or release (right, no longer needed)
           yes, arrows lack sense → Op 2
