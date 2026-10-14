@@ -269,7 +269,7 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
 - #473 is not in it: no `deadseat`, `deadstop`, `latehold`, `putdown` or `lifeend` file exists at `93572e7d` or in the synced tree.
 - Delivery layer additions, each something the new core asks for (`make typecheck` named every one), English twins of the sibling's words at `93572e7d`:
   - `js/delivery/words/standmoves.ts` — `STAND_MOVES` / `StandMovesWords`, new: `standsInRealm`, `standAgain`, `priorReleased`, `priorKept`, `besideHoldsMain`, `reissueWaited`, `moveUndone`, `moveNotUndone`.
-  - `js/delivery/words/stopcli.ts` — `STOP_CLI` / `StopCliWords`, new: the `stop` subcommand's `usage` and its 16 outcomes. The sign-in pointer names the verstak skill's establish-mcp method; `--lang en` only.
+  - `js/delivery/words/stopcli.ts` — `STOP_CLI` / `StopCliWords`, new: the `stop` subcommand's `usage` and its 15 outcomes. The sign-in pointer names the verstak skill's establish-mcp method; `--lang en` only.
   - `js/delivery/words/stand.ts` — `STAND.modelNotCleared`.
   - `js/delivery/words/opencode.ts` — `OPENCODE.pulseOverflow`.
   - `js/delivery/index.ts` — the two new exports.
