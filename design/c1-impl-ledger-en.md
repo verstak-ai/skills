@@ -262,7 +262,7 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
 - `origin/main` `989c96c` (#161, the Codex plugin) is merged into this branch by a merge commit, not a rebase, so no history is rewritten. Its new `scripts/validate-skills.mjs` section "4." (one path to the graph — the bridge only, by `.mcp.json` and `.codex-plugin`) keeps its number; the output limit becomes section **5** (and the `AGENTS.md` row says so). `verstak.skill` is rebuilt over both sides.
 - `.codex-plugin/plugin.json` ships no skill of its own: `"skills": "./skills/"`, the same `skills/verstak` tree the gate already measures (door + 36 files the door reads, 37 in all). No new file to measure. #161's `methods/establish-mcp.md` line comes from main, not from this branch; its size is updated below.
 
-### Core pinned to the sibling's main `93572e7d`
+### Core pinned to the sibling's main `93572e7d` (superseded: re-pinned at `v7.11.0`, below)
 
 - `scripts/sync-core.sh <sibling repo> 93572e7d` — the sibling's `main` at #478, with C1 ru merged (#477; its `skills/` equal `fb1da7f6` exactly: `git diff --quiet fb1da7f6 93572e7d -- skills` exits 0). `js/core.lock` pins `93572e7d61c8a4e8faf97a9d076f3c19173e2a30`, 225 files.
 - The core delta against the accepted `0f58444a` is 43 files by `git diff --stat` over the core paths. That is 39 synced files plus 4 component READMEs, which the sync drops. 13 are new: `bridge/{modelclear,pending,pulse,refusal,standagain,standmoves,standundo}.ts`, `cli/{stop,stopapi}.ts`, `extension/pulse.ts`, `opencode/{inbox,models,pulse}.ts`, `shared/seatmodel.ts`. 26 are changed: `bridge/{absorb,backlog,call,caseexit,deliver,handoff,hold,holdrecord,holdstate,placefields,roomstack,snapshot,stale,stand,status,work}.ts`, `cli/{main,status}.ts`, `extension/tools.ts`, `opencode/{channel,plugin,release,tools}.ts`, `shared/{channel,snapshot}.ts`.
@@ -274,8 +274,15 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
   - `js/delivery/words/opencode.ts` — `OPENCODE.pulseOverflow`.
   - `js/delivery/index.ts` — the two new exports.
   - `js/delivery/words/cli.ts` — the `stop` line in the usage, which describes the core's new subcommand.
-- **Not carried:** the sibling's rewording at `93572e7d` of three existing words. Its `OPENCODE_KEEP.notBack` and `OPENCODE_KEEP.lostWord` now say to wait for the hearing watchdog's word before calling stand; its `RESUME.rejoin` says to join the waiting cases by number instead of checking `mine`. No type or test requires them, and the brief limits additions to what the core requires. Our English words keep their former wording. Named here for the delivery's holder to decide.
-- `make check`: 225 core files at `93572e7d`, tests 133, passed 133, failed 0, skipped 0, todo 0 (the two new dictionaries add two delivery-words tests). `make check-frozen`: the committed JS outputs are untouched against `origin/main`.
+- **Carried (commit `8f780be`):** the sibling's rewording at `93572e7d` of three existing words. Our `OPENCODE_KEEP.notBack` and `OPENCODE_KEEP.lostWord` now say to wait for the hearing watchdog's word before calling stand; our `RESUME.rejoin` says to join the waiting cases by number instead of checking `mine`. Two tests in `js/tests/delivery-words.test.mjs` pin them.
+- `make check` at the time: 225 core files at `93572e7d`, tests 133, passed 133, failed 0, skipped 0, todo 0 (the two new dictionaries add two delivery-words tests). `make check-frozen`: the committed JS outputs are untouched against `origin/main`.
+
+### Core re-pinned to the sibling's release `v7.11.0`
+
+- `scripts/sync-core.sh <sibling repo> 117d36ba` (commit `49ee437`) — the sibling's release tag `v7.11.0`. `js/core.lock` pins `117d36ba00e55ed034aedbcd4a304c17ab879581`, 225 files.
+- The core delta against `93572e7d` is `js/opencode/pulse.ts` alone: the OpenCode pulse reads busy off `session.execution.started`, since OpenCode 2.0.28 sends no `session.status`.
+- No delivery-layer change came with it: the sibling's `version.ts` bump is release-please's and is not carried.
+- `make check` at `49ee437`: exit 0; 225 core files at `117d36ba`, lint 0 errors (22 warnings), tests 135, passed 135, failed 0, skipped 0, todo 0.
 
 ### Limits r2
 
