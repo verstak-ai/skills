@@ -1,6 +1,6 @@
 {
   "name": "verstak",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "One verstak methodology skill — orient, write, design, and weave a graph through the verstak_* MCP tools.",
   "author": {
     "name": "verstak-ai",
@@ -8,12 +8,21 @@
   },
   "homepage": "https://verstak.ai",
   "repository": "https://github.com/verstak-ai/skills",
-  "keywords": ["verstak", "methodology", "knowledge graph", "orientation", "design", "weaving"],
+  "keywords": [
+    "verstak",
+    "methodology",
+    "knowledge graph",
+    "orientation",
+    "design",
+    "weaving"
+  ],
   "skills": "./skills/",
   "mcpServers": {
     "verstak": {
       "command": "node",
-      "args": ["./skills/verstak/scripts/verstak-bridge.mjs"],
+      "args": [
+        "./skills/verstak/scripts/verstak-bridge.mjs"
+      ],
       "cwd": ".",
       "startup_timeout_sec": 60
     }
@@ -24,8 +33,15 @@
     "longDescription": "One methodology skill: enter the graph, write nodes, design, weave, reconcile code and graph, keep watch and hold a seat. The graph is reached by the verstak_* tools through the bundled bridge.",
     "developerName": "verstak-ai",
     "category": "Developer Tools",
-    "capabilities": ["Read", "Write"],
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
     "websiteURL": "https://verstak.ai",
-    "defaultPrompt": ["Orient in the graph", "Design this change and write it to the graph", "Reconcile the code with the graph"]
+    "defaultPrompt": [
+      "Orient in the graph",
+      "Design this change and write it to the graph",
+      "Reconcile the code with the graph"
+    ]
   }
 }
