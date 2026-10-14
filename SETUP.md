@@ -133,6 +133,12 @@ without a grant answers with the sign-in address (the bridge also prints it and 
 open a browser); after sign-in the next call goes through. Nothing to copy or register; a
 plugin update brings the new bridge.
 
+**Switching from the manual path:** remove the old entry and the flat skill —
+`codex mcp remove verstak` and `npx skills remove verstak --global`. A `[mcp_servers.verstak]`
+entry left in `config.toml` silently overrides the plugin's server (`codex mcp list` shows
+only the manual one), so plugin updates bring no new bridge; a flat `verstak` skill sits
+beside the plugin's `verstak:verstak`.
+
 **Without the plugin**, after the flat install, register the bridge (copy it first —
 "Bring up the bridge by hand" below); `codex mcp list` and sign-in behave the same:
 
@@ -167,8 +173,9 @@ sessions under the daemon come up without `verstak_*` tools. (Without the plugin
 needed.) Codex sessions started with the same `CODEX_HOME` attach to the daemon; one
 started with another home has no door, and the agent cannot fix that from inside — this
 is the user's move before the session starts. `node "BRIDGE" doctor` under the same
-`CODEX_HOME` says whether the door is open (`codex mcp list` prints the bridge's path; the
-home copy is `~/.verstak-bridge/verstak-bridge.mjs`).
+`CODEX_HOME` says whether the door is open (`codex mcp get verstak` prints the bridge's
+`cwd` and `args` — with the plugin the path is relative to that `cwd`; the home copy is
+`~/.verstak-bridge/verstak-bridge.mjs`).
 
 **The thread's sandbox is the user's move too.** `watchdog-codex`, run from the agent's
 shell, connects to the bridge's local socket under `~/.verstak-bridge/standings/`; Codex's

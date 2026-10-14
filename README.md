@@ -81,7 +81,10 @@ codex plugin add verstak@verstak-ai
 ```
 
 The skill and the bridge arrive with the plugin (the MCP entry in its manifest); the bridge
-holds its own grant, so no Codex login is needed. Hearing a live channel needs the
+holds its own grant, so no Codex login is needed. Coming from the manual path, first
+`codex mcp remove verstak` and `npx skills remove verstak --global`: a leftover
+`[mcp_servers.verstak]` entry overrides the plugin's server, and plugin updates then bring
+no new bridge. Hearing a live channel needs the
 app-server daemon recipe in [`SETUP.md`](SETUP.md), the Codex branch.
 
 ### Portable install
