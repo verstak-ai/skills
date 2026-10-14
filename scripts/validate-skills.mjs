@@ -227,8 +227,9 @@ for (const name of HOME_SKILLS) {
 //    it drifts (a forgotten entry or typo'd path breaks install for every
 //    plugin user) and, next to plugin.json, is exactly the "conflicting
 //    manifests" plugin error. Fail loudly if a list creeps back in. The guard
-//    holds the Claude manifests only: Codex's .codex-plugin/plugin.json must
-//    name `skills` and `mcpServers`, its loader has no auto-discovery.
+//    holds the Claude manifests only: Codex's .codex-plugin/plugin.json names
+//    the bridge inline in `mcpServers`, because .mcp.json at the root is the
+//    Claude Code record, whose ${CLAUDE_PLUGIN_ROOT} Codex does not resolve.
 const COMPONENT_KEYS = ["skills", "commands", "agents", "hooks", "mcpServers"];
 const manifestPath = join(root, ".claude-plugin", "marketplace.json");
 try {
@@ -300,12 +301,16 @@ try {
 //    and in the Codex manifest, is `node …/skills/verstak/scripts/verstak-bridge.mjs`;
 //    no url record and no other process (mcp-remote and the like). A record
 //    that reaches the server past the bridge writes without a seat, and the
-//    record's authorship is lost in silence.
+//    record's authorship is lost in silence. `mcpServers` must be an object of
+//    records: a string there is a path to another file this check never reads.
 for (const label of [".mcp.json", ".codex-plugin/plugin.json"]) {
   if (!existsSync(join(root, label))) continue;
   try {
     const servers = JSON.parse(readFileSync(join(root, label), "utf8")).mcpServers;
-    if (!servers || typeof servers !== "object") continue;
+    if (!servers || typeof servers !== "object" || Array.isArray(servers)) {
+      fail(label, `\`mcpServers\` must be an object of records naming the stdio bridge, got ${JSON.stringify(servers)}`);
+      continue;
+    }
     for (const [name, rec] of Object.entries(servers)) {
       const bridge =
         rec?.command === "node" &&
