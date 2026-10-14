@@ -25,6 +25,7 @@ import {
   TOOL_PREFIX,
 } from "../delivery/protocol.ts";
 import { casesLeft } from "../opencode/casesleft.ts";
+import { awayWord, endWord } from "../opencode/leadwords.ts";
 import { versionIn } from "../shared/version.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -174,4 +175,23 @@ test("a lead's last case is read off the English server prose", async () => {
     "No case is held on #5.",
   ])
     await assert.rejects(left(unread), /unread answer/, unread);
+});
+
+// A lead child's end carries its last text as testimony, not acceptance, and a cut is said, not
+// hidden behind an ellipsis: the English words the core puts around a long outcome.
+test("a lead child's end names its last word testimony and says how much of a long one is shown", () => {
+  const long = endWord("child", "it left its seat", "a".repeat(4100));
+  assert.match(long, /Its final report follows — testimony, not acceptance evidence/);
+  assert.match(
+    long,
+    /\n\[report truncated: 4000 of 4100 characters shown — incomplete here, whole in its case\]$/,
+  );
+  assert.equal(long.match(/a{4000,}/)[0].length, 4000, "the shown part is 4000 characters");
+  assert.match(
+    awayWord("child", "a".repeat(4100)),
+    /\[report truncated: 4000 of 4100 characters shown/,
+  );
+  const short = endWord("child", "it left its seat", "a".repeat(4000));
+  assert.doesNotMatch(short, /report truncated/, "an outcome at the limit is shown whole");
+  assert.match(short, /a{4000}$/);
 });
