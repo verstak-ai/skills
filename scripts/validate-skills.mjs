@@ -226,7 +226,10 @@ for (const name of HOME_SKILLS) {
 //    component) list in a manifest re-introduces a second copy of that truth:
 //    it drifts (a forgotten entry or typo'd path breaks install for every
 //    plugin user) and, next to plugin.json, is exactly the "conflicting
-//    manifests" plugin error. Fail loudly if a list creeps back in.
+//    manifests" plugin error. Fail loudly if a list creeps back in. The guard
+//    holds the Claude manifests only: Codex's .codex-plugin/plugin.json names
+//    the bridge inline in `mcpServers`, because .mcp.json at the root is the
+//    Claude Code record, whose ${CLAUDE_PLUGIN_ROOT} Codex does not resolve.
 const COMPONENT_KEYS = ["skills", "commands", "agents", "hooks", "mcpServers"];
 const manifestPath = join(root, ".claude-plugin", "marketplace.json");
 try {
@@ -273,8 +276,54 @@ try {
   if (manifest.metadata?.version !== plugin.version) {
     fail("marketplace.json", `metadata.version (${JSON.stringify(manifest.metadata?.version)}) must mirror plugin.json (${plugin.version})`);
   }
+  // The Codex manifest is a fourth copy of the same number and drifts the same
+  // silent way: Codex reads only .codex-plugin/plugin.json, so a stale value
+  // there shows every Codex consumer an old release while the other channels
+  // move. release-please writes it from the same release (extra-files); this
+  // gate makes that wiring impossible to forget. An absent file is fine — the
+  // Codex delivery is optional.
+  const codexPath = join(root, ".codex-plugin", "plugin.json");
+  if (existsSync(codexPath)) {
+    try {
+      const codex = JSON.parse(readFileSync(codexPath, "utf8"));
+      if (codex.version !== plugin.version) {
+        fail(".codex-plugin/plugin.json", `\`version\` ${JSON.stringify(codex.version)} must mirror .claude-plugin/plugin.json (${plugin.version}); release-please writes both`);
+      }
+    } catch (e) {
+      fail(".codex-plugin/plugin.json", `could not read/parse: ${e.message}`);
+    }
+  }
 } catch (e) {
   fail(".claude-plugin/plugin.json", `could not read/parse: ${e.message}`);
+}
+
+// 4. One path to the graph — the bridge: every shipped MCP record, in .mcp.json
+//    and in the Codex manifest, is `node …/skills/verstak/scripts/verstak-bridge.mjs`;
+//    no url record and no other process (mcp-remote and the like). A record
+//    that reaches the server past the bridge writes without a seat, and the
+//    record's authorship is lost in silence. `mcpServers` must be an object of
+//    records: a string there is a path to another file this check never reads.
+for (const label of [".mcp.json", ".codex-plugin/plugin.json"]) {
+  if (!existsSync(join(root, label))) continue;
+  try {
+    const servers = JSON.parse(readFileSync(join(root, label), "utf8")).mcpServers;
+    if (!servers || typeof servers !== "object" || Array.isArray(servers)) {
+      fail(label, `\`mcpServers\` must be an object of records naming the stdio bridge, got ${JSON.stringify(servers)}`);
+      continue;
+    }
+    for (const [name, rec] of Object.entries(servers)) {
+      const bridge =
+        rec?.command === "node" &&
+        Array.isArray(rec.args) &&
+        rec.args.length === 1 &&
+        /(^|\/)skills\/verstak\/scripts\/verstak-bridge\.mjs$/.test(rec.args[0]);
+      if (rec?.url || (rec?.type && rec.type !== "stdio") || !bridge) {
+        fail(label, `record \`${name}\` is not the stdio bridge — the delivery reaches the graph only through skills/verstak/scripts/verstak-bridge.mjs, never by a url record`);
+      }
+    }
+  } catch (e) {
+    fail(label, `could not read/parse the shipped MCP records: ${e.message}`);
+  }
 }
 
 // Manifest lists must match the tree. Hand-edited inventories beside automation

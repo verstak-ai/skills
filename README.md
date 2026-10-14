@@ -44,7 +44,8 @@ The door selects methods for reading, writing, designing and weaving through the
 ```text
 Install the verstak skill for me through your harness's own channel: in Claude Code the plugin
 (`claude plugin marketplace add verstak-ai/skills`, then `claude plugin install verstak@verstak-ai`),
-in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
+in Codex the plugin (`codex plugin marketplace add https://github.com/verstak-ai/skills`, then
+`codex plugin add verstak@verstak-ai`), in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
 `verstak.skill` from the latest release, elsewhere flat — `npx skills add verstak-ai/skills
 --all --global`. Then, in a new session, do "/verstak connect the graph"
 (`/verstak:verstak connect the graph` under the Claude Code plugin).
@@ -72,6 +73,20 @@ agent select it. Third-party marketplaces do not auto-update by default:
 
 Or enable auto-update in `/plugin` → **Marketplaces** → `verstak-ai`.
 
+### Codex plugin
+
+```sh
+codex plugin marketplace add https://github.com/verstak-ai/skills
+codex plugin add verstak@verstak-ai
+```
+
+The skill and the bridge arrive with the plugin (the MCP entry in its manifest); the bridge
+holds its own grant, so no Codex login is needed. Coming from the manual path, first
+`codex mcp remove verstak` and `npx skills remove verstak --global`: a leftover
+`[mcp_servers.verstak]` entry overrides the plugin's server, and plugin updates then bring
+no new bridge. Hearing a live channel needs the
+app-server daemon recipe in [`SETUP.md`](SETUP.md), the Codex branch.
+
 ### Portable install
 
 ```sh
@@ -97,6 +112,7 @@ connector does not work and is not supported.
 - `verstak.skill` — the only committed derived bundle; contains the complete `verstak/` tree.
 - `home/` — the verstak.ai conversation home's flat catalogue: `assistant`, `minding` and `widgets` as standalone `SKILL.md` files, generated from their methods; not part of the plugin.
 - `.claude-plugin/` — Claude Code plugin and marketplace metadata.
+- `.codex-plugin/`, `.agents/plugins/` — Codex plugin manifest and marketplace.
 
 Run `make deps` once for the `js/` toolchain, `make build` to regenerate the bundle and `home/`, `make check` for the full local gate,
 or `make hooks` to rebuild automatically before commits. `make surface` refreshes
