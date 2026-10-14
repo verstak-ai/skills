@@ -112,12 +112,13 @@ var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
 var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 var serverProtocol = {
   refusal: "verstak/refusal"
 };
 
 // js/delivery/version.ts
-var VERSION = "3.4.0";
+var VERSION = "3.5.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -197,7 +198,9 @@ var LEAD = {
     placeClosed: () => "its satellite seat was revoked not through the launcher or closed by the platform (4001)",
     placeEvictedRefusal: () => "its satellite seat was evicted by another holder",
     placeClosedRefusal: () => "its satellite seat was revoked or closed by the platform (4001)",
-    end: (who, why, done, said) => `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}The outcome is its last word:
+    cut: (shown2, total) => `
+[report truncated: ${shown2} of ${total} characters shown — incomplete here, whole in its case]`,
+    end: (who, why, done, said) => `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:
 ${said || "(it left no text — see its case)"}`,
     endKept: (who, kept2) => `${keptEn(who, kept2)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept2}"), only on the user's word. `,
     endPlain: () => "the subagent's bridge goes down: it leaves its cases, its seat is revoked (if it is not, I will say so separately). ",
@@ -294,6 +297,7 @@ var OPENCODE = {
     sessionClosed: (id, frame) => `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
     nowhere: (frame, text) => `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; the frame stays in the standing's history — ` + text,
     halted: (frame, id) => `Verstak: ${frame} not delivered — session ${id} was stopped by taking its seat off; it is not woken until it takes a seat again explicitly`,
+    pulseOverflow: (id, waiting) => `Verstak: ${waiting} frames laid into session ${id} wait for its turn — OpenCode does not take them; the pulse keeps them all`,
     haltUnwritten: (id, message) => `Verstak: the stop of session ${id} was not written to disk (${message}) — only the live plugin instances of this process keep the ban, it will not survive a reload`,
     haltUnlifted: (id, message, kept2) => `Verstak: session ${id} holds a seat again and its ban is lifted, but the stop's record on disk was not removed (${message}) — ` + (kept2 ? "rewriting it as lifted failed too: after a plugin reload the session will count as stopped again" : "it is rewritten as lifted"),
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
@@ -309,7 +313,7 @@ var OPENCODE_KEEP = {
     resumed: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. Check the name against the one derived for this session: if it is someone else's, release it with ${tool("channel")}(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one ${tool("stand")}; a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.`,
     resumedOwn: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
     elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
-    notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries the return once; if you will not wait — ${tool("stand")}.`,
+    notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The seat is returning: the hearing watchdog retries the return once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word2) => `Verstak: ${word2}.`,
@@ -327,7 +331,7 @@ var OPENCODE_KEEP = {
     noId: (answer, title) => `Verstak: the directory was kept alive, but the service session's id was not parsed from the create answer (${answer}) — it stays a child session of the seat "${title}", remove it by hand`,
     notRemoved: (id) => `Verstak: the directory was kept alive, the service session ${id} was not removed — retrying on the next tact`,
     tickFailed: (message) => `Verstak: the directory keepalive tact failed — ${message}`,
-    lostWord: (hhmm, where) => `Verstak: hearing was lost at ${hhmm} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — ${tool("stand")}.`,
+    lostWord: (hhmm, where) => `Verstak: hearing was lost at ${hhmm} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. The seat returns from disk by itself — wait, the waiting frames come as a batch; call ${tool("stand")} only if the hearing watchdog says the return failed.`,
     movedWhy: (name) => `this child session's errand ended with the parent's move to another folder: its seat${name ? ` ${name}` : ""} is revoked, the bridge is down; a write from here would go under the parent's seat`,
     revokedMoved: (name) => `Verstak: ${name} is a subagent ended by the parent's move: the previous instance put its bridge down and revoked its seat, the outcome reached the parent as the word "moved"; no revoke is needed and none was sent.`,
     twinUp: (dir) => `Verstak: the instance of directory ${dir} was raised again — it returned the seat`,
@@ -1323,13 +1327,13 @@ var Bridge = class {
     const id = opts.service ? `${SERVICE_ID}${this.nextId++}` : this.nextId++;
     return new Promise((res, rej) => {
       let timer = null;
-      const settle = (fn) => (v) => {
+      const settle2 = (fn) => (v) => {
         if (timer) clearTimeout(timer);
         opts.signal?.removeEventListener("abort", onAbort);
         fn(v);
       };
-      const resolve6 = settle(res);
-      const reject = settle(rej);
+      const resolve6 = settle2(res);
+      const reject = settle2(rej);
       function onAbort() {
         reject(new Error(W2().aborted()));
       }
@@ -1548,8 +1552,10 @@ async function handshake(b, onLogin, onReady) {
         "initialize",
         {
           protocolVersion: PROTOCOL,
-          capabilities: FIELDS_CAPABILITIES,
-          // answer fields — for this client too (#6637)
+          // answer fields — for this client too (#6637); the stop's interrupt is confirmed (#7519)
+          capabilities: {
+            experimental: { ...FIELDS_CAPABILITIES.experimental, [HALTS_CAPABILITY]: {} }
+          },
           clientInfo: { name: OPENCODE_CLIENT, version: "1" }
         },
         { timeoutMs: Math.max(1, deadline - Date.now()) }
@@ -1569,6 +1575,22 @@ async function handshake(b, onLogin, onReady) {
   }
   onReady();
   b.notify("notifications/initialized");
+}
+function slotReady(login) {
+  const shake = (slot) => {
+    slot.ready = handshake(slot.bridge, login.on, login.done);
+    slot.ready.catch(() => {
+    });
+  };
+  const readyFor = async (slot) => {
+    try {
+      await slot.ready;
+    } catch {
+      shake(slot);
+      await slot.ready;
+    }
+  };
+  return { shake, readyFor };
 }
 async function listTools(b) {
   const tools = [];
@@ -1787,6 +1809,11 @@ var H2 = scoped(() => ({
   helloWaiters: /* @__PURE__ */ new Set(),
   /** disk resumes in flight: a dead token during one is a stale record, not an alarm */
   resuming: 0,
+  /** a return from disk brings the seats beside back: the handover spool waits for them (#7602) */
+  spoolHeld: 0,
+  spoolLater: null,
+  /** live frames of a seat beside not back yet, judged after the spool once the return ends */
+  liveLater: [],
   /** own revoke in flight (absorb.ts): close 4001 outruns the revoke answer */
   revokingOwn: false,
   /** own channel close in flight (absorb.ts): close 4001 outruns the answer, as with revoke (#6634) */
@@ -1796,7 +1823,11 @@ var H2 = scoped(() => ({
   /** the daemon goes down while this session's thin bridge lives and restores the place (daemon.ts, #6485) */
   handingOver: null,
   /** the last owner's stop of this session (stophold.ts, #7439): `n` counts stops, a move compares it before and after */
-  stopped: { n: 0, key: "", text: "" }
+  stopped: { n: 0, key: "", text: "" },
+  /** a stand call in flight since this stop count (standundo.ts): a stop meanwhile — its connect answers are not held */
+  moveSince: null,
+  /** seats a stand call in flight took or bound again (connect, register answered): a stop meanwhile takes them off */
+  taken: null
 }));
 
 // js/bridge/realms.ts
@@ -1832,7 +1863,7 @@ function recorded(file, since) {
 }
 function createHalts(parentOf2, dir, unwritten, unlifted) {
   const marked = (s) => stops().has(s) ? { id: ids().get(s) ?? "?", word: words2().get(s) } : recorded(fileOf(dir(), s), lifted().get(s));
-  const drop = (s) => {
+  const drop2 = (s) => {
     stops().delete(s);
     ids().delete(s);
     words2().delete(s);
@@ -1877,8 +1908,8 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
         unwritten(session, e.message);
       }
     },
-    held: (session) => void (session && drop(session)),
-    gone: drop,
+    held: (session) => void (session && drop2(session)),
+    gone: drop2,
     halted: (session) => stopOf(session) !== null,
     stopOf,
     wordOf(session, general) {
@@ -1900,6 +1931,180 @@ function descendantsOf(session, parents) {
       }
   }
   return found;
+}
+
+// js/opencode/cutwait.ts
+var outcomes = () => globalThis[`${GLOBAL_PREFIX}CutOutcomes`] ??= /* @__PURE__ */ new Map();
+var waiters = () => globalThis[`${GLOBAL_PREFIX}CutWaiters`] ??= /* @__PURE__ */ new Map();
+var lineages = () => globalThis[`${GLOBAL_PREFIX}Lineages`] ??= /* @__PURE__ */ new Set();
+function wake(id) {
+  const set = waiters().get(id);
+  waiters().delete(id);
+  for (const w of set ?? []) w();
+}
+function settle(id, gen, code2) {
+  outcomes().set(id, [gen, code2]);
+  wake(id);
+}
+function forget(id) {
+  outcomes().delete(id);
+  wake(id);
+}
+function outcomeOf(id, stopOf, signal) {
+  const gen = stopOf(id);
+  const o = outcomes().get(id);
+  if (gen === null) return Promise.resolve(null);
+  if (o?.[0] === gen) return Promise.resolve(o[1]);
+  return new Promise((done) => {
+    if (signal?.aborted) return;
+    const set = waiters().get(id) ?? /* @__PURE__ */ new Set();
+    const off = () => {
+      const now2 = waiters().get(id);
+      now2?.delete(w);
+      if (now2?.size === 0) waiters().delete(id);
+    };
+    const w = () => {
+      signal?.removeEventListener("abort", off);
+      void outcomeOf(id, stopOf, signal).then(done);
+    };
+    signal?.addEventListener("abort", off, { once: true });
+    set.add(w);
+    waiters().set(id, set);
+  });
+}
+function shareLineage(parents) {
+  lineages().add(parents);
+  return () => void lineages().delete(parents);
+}
+function processParent(session) {
+  for (const m of lineages()) {
+    const p = m.get(session);
+    if (p !== void 0) return p;
+  }
+  return void 0;
+}
+var processDescendants = (session) => descendantsOf(
+  session,
+  [...lineages()].flatMap((m) => [...m])
+);
+
+// js/opencode/cuts.ts
+var HALTED_MS = 1e4;
+var ANSWER_CAP_MS = Number(process.env[envName("OPENCODE_HALT_CAP_MS")]) || 3e4;
+function answerHalt(bridge, ev, outcome) {
+  const order = ev?.order;
+  if (typeof order !== "string") return Promise.resolve();
+  const capped = new AbortController();
+  const answered = outcome(capped.signal).then(
+    (code2) => bridge?.request(
+      method("halted"),
+      { order, ok: code2 === null, ...code2 ? { code: code2 } : {} },
+      { timeoutMs: HALTED_MS, service: true }
+    ).then(
+      () => {
+      },
+      () => {
+      }
+    )
+  );
+  let t;
+  const cap = new Promise((done) => {
+    t = setTimeout(done, ANSWER_CAP_MS);
+    t.unref?.();
+  });
+  return Promise.race([answered, cap]).finally(() => {
+    clearTimeout(t);
+    capped.abort();
+  });
+}
+var CUT_TRIES = 3;
+var CUT_RETRY_MS = 500;
+function createCuts(d) {
+  const cutDone = /* @__PURE__ */ new Map();
+  const cutting = /* @__PURE__ */ new Map();
+  const cutFails = /* @__PURE__ */ new Map();
+  const retries = /* @__PURE__ */ new Set();
+  const waits = /* @__PURE__ */ new Set();
+  function cut(id) {
+    const gen = d.stopOf(id);
+    if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
+    d.dropped(id);
+    if (cutting.has(id)) return;
+    const settle2 = (code2) => {
+      cutDone.set(id, gen);
+      settle(id, gen, code2);
+    };
+    if (!d.canInterrupt()) return settle2("interrupt_missing");
+    cutting.set(id, gen);
+    void Promise.resolve().then(() => d.interrupt(id)).then(
+      () => {
+        if (d.stopOf(id) !== gen) return;
+        settle2(null);
+        cutFails.delete(id);
+      },
+      (e) => {
+        if (d.stopOf(id) !== gen) return;
+        const was = cutFails.get(id);
+        const n2 = (was?.[0] === gen ? was[1] : 0) + 1;
+        cutFails.set(id, [gen, n2]);
+        d.refused(id, e.message, n2 >= CUT_TRIES);
+        if (n2 >= CUT_TRIES) return settle2("interrupt_refused");
+        const t = setTimeout(() => {
+          retries.delete(t);
+          if (d.halted(id)) cut(id);
+        }, CUT_RETRY_MS);
+        t.unref?.();
+        retries.add(t);
+      }
+    ).finally(() => {
+      cutting.delete(id);
+      if (d.stopOf(id) !== gen) cut(id);
+    });
+  }
+  return {
+    cut,
+    /**
+     * The first refusal among the sessions' cuts, whoever cuts them, once all ended; null — all
+     * cut. `ids` is read again once the known ones answered: a session it names anew (a child
+     * born during the wait) is waited for too, until the set stands still. `signal` or this
+     * instance's stop drops the wait.
+     */
+    async outcome(ids2, signal) {
+      const own = new AbortController();
+      const off = () => {
+        waits.delete(own);
+        own.abort();
+      };
+      waits.add(own);
+      signal?.addEventListener("abort", off, { once: true });
+      if (signal?.aborted) off();
+      try {
+        const asked = /* @__PURE__ */ new Set();
+        let first = null;
+        for (let next = ids2(); next.length; next = ids2().filter((id) => !asked.has(id))) {
+          for (const id of next) asked.add(id);
+          const all = await Promise.all(next.map((id) => outcomeOf(id, d.stopOf, own.signal)));
+          first ??= all.find((c) => c !== null) ?? null;
+        }
+        return first;
+      } finally {
+        waits.delete(own);
+        signal?.removeEventListener("abort", off);
+      }
+    },
+    /** The session is gone or stands again: its marks go, whoever waits reads it anew. */
+    forget(id) {
+      cutDone.delete(id);
+      cutFails.delete(id);
+      forget(id);
+    },
+    stop() {
+      for (const t of retries) clearTimeout(t);
+      retries.clear();
+      for (const w of waits) w.abort();
+      waits.clear();
+    }
+  };
 }
 
 // js/opencode/leadframes.ts
@@ -2012,7 +2217,7 @@ function markerWaits(authDir2, home) {
   }
 }
 function readOwn(path, tag, home) {
-  const drop = () => {
+  const drop2 = () => {
     try {
       unlinkSync2(path);
     } catch {
@@ -2021,11 +2226,11 @@ function readOwn(path, tag, home) {
   let lost = null;
   try {
     const text = readFileSync7(path, "utf8");
-    if (tag !== null) drop();
+    if (tag !== null) drop2();
     lost = JSON.parse(text);
   } catch {
   }
-  if (tag === null && !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS)) drop();
+  if (tag === null && !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS)) drop2();
   if (!lost) return null;
   const mine = (e) => tag !== null || !home || !e.dir || e.dir === home.directory;
   return { at: lost.at, entries: (lost.entries ?? []).filter(mine) };
@@ -2110,12 +2315,10 @@ function createAdopt(d) {
 // js/opencode/leadwords.ts
 var SUMMARY_MAX = 4e3;
 var W3 = () => words(LEAD);
-var endWord = (who, why, last, kept2) => {
-  const said = last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}…` : last;
-  return W3().end(who, why, kept2 ? W3().endKept(who, kept2) : W3().endPlain(), said);
-};
+var shown = (last) => last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}${W3().cut(SUMMARY_MAX, last.length)}` : last;
+var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept(who, kept2) : W3().endPlain(), shown(last));
 var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
-var awayWord = (who, last) => W3().away(who, last.slice(0, SUMMARY_MAX));
+var awayWord = (who, last) => W3().away(who, shown(last));
 
 // js/shared/canon.ts
 import { realpathSync } from "node:fs";
@@ -2161,13 +2364,13 @@ function createTwins(ctx, home, d) {
   let gone = false;
   const me = {
     home,
-    wake: (h, e) => void wake(h, e),
+    wake: (h, e) => void wake2(h, e),
     holds: (r) => d.holds(r),
     adopt: () => d.adopt(),
     sweep: () => d.sweep()
   };
   registry().add(me);
-  async function wake(h, entries) {
+  async function wake2(h, entries) {
     const roots = entries.filter((e) => !e.child && !e.moved && e.session);
     await sleep3(PAUSE_MS);
     if (gone || !roots.length) return;
@@ -2968,10 +3171,10 @@ async function parentOf(ctx, child) {
   return s?.parentID ?? s?.data?.parentID ?? null;
 }
 function teller(ctx, say, closed = () => false) {
-  return async (sessionID, text, wake) => {
+  return async (sessionID, text, wake2) => {
     const s = ctx.session;
     const delivery = "steer";
-    for (const seen = /* @__PURE__ */ new Set(); closed(sessionID); wake = false) {
+    for (const seen = /* @__PURE__ */ new Set(); closed(sessionID); wake2 = false) {
       seen.add(sessionID);
       const up = await parentOf(ctx, sessionID).catch(() => null);
       if (!up || seen.has(up)) return say(W3().noLiveAncestor(text), "warning");
@@ -2980,8 +3183,8 @@ function teller(ctx, say, closed = () => false) {
     text = markFrame(text);
     try {
       if (typeof s.synthetic === "function")
-        await s.synthetic({ sessionID, text, delivery, resume: wake });
-      else await s.prompt({ sessionID, text, delivery, resume: wake });
+        await s.synthetic({ sessionID, text, delivery, resume: wake2 });
+      else await s.prompt({ sessionID, text, delivery, resume: wake2 });
       say(W3().tellDone(sessionID), "info");
     } catch (e) {
       say(W3().tellFailed(sessionID, e.message), "error");
@@ -3025,7 +3228,7 @@ function createLeads(d) {
   const cascade = createCascade();
   const who = (l, child) => l.place?.name ?? W3().sessionOf(child);
   const parentOf2 = (child) => d.parentOf(child).catch(() => null);
-  async function finish(child, why, ended2 = true, wake = true, kind = "end", own = false) {
+  async function finish(child, why, ended2 = true, wake2 = true, kind = "end", own = false) {
     const l = leads.get(child);
     if (!l) return null;
     leads.delete(child);
@@ -3041,7 +3244,7 @@ function createLeads(d) {
     };
     await tell(
       kind === "lost" ? W3().lost(who(l, child), why) : kind === "away" ? awayWord(who(l, child), last) : endWord(who(l, child), why, last, kept2),
-      wake
+      wake2
     );
     if (!ended2 || kept2) return null;
     const run = await d.close(child).catch(() => null);
@@ -3205,15 +3408,15 @@ function createLogin(say) {
   let pending = false;
   let url = null;
   let device = null;
-  const waiters = /* @__PURE__ */ new Set();
+  const waiters2 = /* @__PURE__ */ new Set();
   function started() {
     if (pending) return { promise: Promise.resolve(), cancel() {
     } };
     let waiter = () => {
     };
     const promise = new Promise((r) => waiter = r);
-    waiters.add(waiter);
-    return { promise, cancel: () => waiters.delete(waiter) };
+    waiters2.add(waiter);
+    return { promise, cancel: () => waiters2.delete(waiter) };
   }
   function error() {
     const O = words(OPENCODE);
@@ -3232,8 +3435,8 @@ function createLogin(say) {
       return device;
     },
     on(next, nextDevice = null) {
-      for (const w of waiters) w();
-      waiters.clear();
+      for (const w of waiters2) w();
+      waiters2.clear();
       if (pending && next === url && nextDevice === device) return;
       pending = true;
       url = next;
@@ -3261,6 +3464,83 @@ function createLogin(say) {
       } finally {
         login.cancel();
       }
+    }
+  };
+}
+
+// js/shared/seatmodel.ts
+function withHarnessModel(args, model, heldRealms) {
+  if (!args.satellite_of) return args;
+  const { model: _said, ...own } = args;
+  const realm = typeof own.realm === "string" ? own.realm.trim() : "";
+  const holds = !!realm && heldRealms.includes(realm);
+  const busy = holds && typeof own.status === "string" && takingArgs(own).length === 0;
+  return model && !busy ? { ...own, model } : own;
+}
+function createSeatRealms() {
+  const seats = /* @__PURE__ */ new Map();
+  let main = null;
+  return {
+    see(data) {
+      const d = data ?? {};
+      const key = typeof d.key === "string" && d.key ? d.key : null;
+      const realm = typeof d.place?.realm === "string" ? d.place.realm.trim() : "";
+      if ((d.kind === "held" || d.kind === "beside") && key && realm) {
+        if (d.kind === "held") {
+          if (main && main !== key) seats.delete(main);
+          main = key;
+        }
+        seats.set(key, realm);
+      } else if (typeof d.kind === "string" && ["beside-gone", "released", "stopped", "dead", "evicted"].includes(d.kind)) {
+        if (key) seats.delete(key);
+        else if (d.kind !== "beside-gone") seats.clear();
+      }
+    },
+    realms: () => [...new Set(seats.values())],
+    clear: () => {
+      seats.clear();
+      main = null;
+    }
+  };
+}
+
+// js/opencode/models.ts
+var idOf4 = (m) => typeof m?.id === "string" && m.id.trim() ? m.id.trim() : null;
+function createModels(ctx) {
+  const stepped = /* @__PURE__ */ new Map();
+  const seats = /* @__PURE__ */ new WeakMap();
+  const seatsOf = (of2) => {
+    const s = seats.get(of2) ?? createSeatRealms();
+    seats.set(of2, s);
+    return s;
+  };
+  async function of(session) {
+    const step = stepped.get(session);
+    if (step) return step;
+    try {
+      const res = await ctx.session.get({ sessionID: session });
+      return idOf4(res?.model ?? res?.data?.model);
+    } catch {
+      return null;
+    }
+  }
+  return {
+    onEvent(ev) {
+      const session = ev?.data?.sessionID;
+      if (typeof session !== "string") return;
+      if (ev.type === "session.deleted") stepped.delete(session);
+      const id = ev.type === "session.step.started" ? idOf4(ev.data?.model) : null;
+      if (id) stepped.set(session, id);
+    },
+    seen(bridge, data) {
+      seatsOf(bridge).see(data);
+      return data?.kind;
+    },
+    async name(args, session, bridge) {
+      if (!args.satellite_of) return;
+      const next = withHarnessModel(args, await of(session), seatsOf(bridge).realms());
+      delete args.model;
+      Object.assign(args, next);
     }
   };
 }
@@ -3353,12 +3633,15 @@ function refusalOf(reply) {
     ...isObj(r.data) ? { data: r.data } : {}
   };
 }
+var SEAT_GONE_RULES = /* @__PURE__ */ new Set([
+  "standing_already_ended",
+  "standing_not_found",
+  "standing_not_held"
+]);
+var seatAlreadyOff = (r) => !!r && (!!r.rule && SEAT_GONE_RULES.has(r.rule) || r.status === 410 || r.status === 404 && !r.rule);
 
 // js/opencode/release.ts
-var seatGone = (e) => {
-  const r = refusalOf({ result: e.result });
-  return !!r && (r.rule === "standing_not_held" || r.status === 410 || r.status === 404 && !r.rule);
-};
+var seatGone = (e) => seatAlreadyOff(refusalOf({ result: e.result }));
 var reason = (message) => (message.split("\n").find((s) => s.trim()) ?? "").replace(/\b\w+\([^()]*\)/g, "…").trim();
 async function revokeAsLauncher(freed, args, call) {
   if (freed.off) return freed.word;
@@ -3436,8 +3719,8 @@ function createRunEnds() {
   const whys = /* @__PURE__ */ new Map();
   const sealed = /* @__PURE__ */ new Set();
   return {
-    end(session, of, forget, final = false, why) {
-      if (forget) forget(session);
+    end(session, of, forget2, final = false, why) {
+      if (forget2) forget2(session);
       else sealed.add(session);
       ended2.set(session, of ?? null);
       if (final) released.add(session);
@@ -3503,7 +3786,7 @@ function statusLines(path, builds, login, state2, sessions, spare) {
 
 // js/opencode/tools.ts
 async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => {
-}, closed = () => false) {
+}, closed = () => false, halted = async () => null) {
   const W4 = words(OPENCODE);
   const P = words(PLUGIN);
   const found = findBridge();
@@ -3519,6 +3802,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   let spare = null;
   let stopped = false;
   const login = createLogin(say);
+  const { shake, readyFor } = slotReady(login);
   function spawn2(args = []) {
     const slot = {
       bridge: null,
@@ -3539,7 +3823,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       (method2, params) => {
         if (method2 === "notifications/tools/list_changed") return void relist(slot.bridge);
         if (method2 !== "notifications/message" || params?.logger !== LOGGERS.channel) return;
-        const kind = params?.data?.kind;
+        const kind = models.seen(slot, params?.data);
         if (kind === "held" || kind === "attached" || params?.data?.frame?.type === "hello")
           keeper.stood(slot);
         if ((kind === "held" || kind === "released") && typeof params?.data?.key === "string")
@@ -3548,8 +3832,20 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
         if (kind === "released" || kind === "dead" || kind === "evicted" || kind === "stopped")
           slot.holding = false;
         if (kind === "stopped" && slot.session) keeper.forget(slot.session);
-        const over = !!slot.child && !!slot.satelliteOf && !!slot.session && leads.heard(slot.session, kind, slot.place);
-        if (!over || kind === "stopped") relay(slot.session, params, !!slot.child);
+        const lead = !!slot.child && !!slot.satelliteOf && !!slot.session;
+        const session = slot.session;
+        if (kind === "stopped") {
+          relay(slot.session, params, !!slot.child);
+          const answered = answerHalt(
+            slot.bridge,
+            params?.data,
+            (signal) => halted(slot.session, signal)
+          );
+          if (lead) void answered.then(() => leads.heard(session, kind, slot.place));
+          return;
+        }
+        const over = lead && leads.heard(session, kind, slot.place);
+        if (!over) relay(slot.session, params, !!slot.child);
       },
       (e) => {
         if (slot.ownStop || stopped || !slot.holding) return;
@@ -3567,8 +3863,9 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   const mv = createMoves(ctx);
   const { home, directoryOf, exists, ours } = mv;
   const relay = mv.relay(onChannel, say);
+  const models = createModels(ctx);
   const runEnds = createRunEnds();
-  const endChild = (c, out2 = forget) => runEnds.end(c, slots.get(c)?.satelliteOf, out2, leads.released(c), leads.goneWhy(c));
+  const endChild = (c, out2 = forget2) => runEnds.end(c, slots.get(c)?.satelliteOf, out2, leads.released(c), leads.goneWhy(c));
   const leads = createLeads(leadDoors(ctx, say, flushUsage, endChild, slots, closed));
   const keeper = createKeeper({
     say,
@@ -3581,9 +3878,9 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   });
   const nothing2 = () => {
   };
-  const endRun = (s, live = true) => live ? void flushUsage(s).finally(() => runEnds.end(s, null, forget)) : runEnds.end(s, null, nothing2);
+  const endRun = (s, live = true) => live ? void flushUsage(s).finally(() => runEnds.end(s, null, forget2)) : runEnds.end(s, null, nothing2);
   const children = createChildren({ slots, spawn: spawn2, keeper, leads, exists, endRun });
-  const handoff = createHandoff({ slots, leads, forget });
+  const handoff = createHandoff({ slots, leads, forget: forget2 });
   const adopt = createAdopt({
     keeper,
     authDir,
@@ -3595,19 +3892,6 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   if (lost?.text) say(lost.text, "warning");
   if (lost) adopt.take(lost.entries);
   const adoptNow = () => void (stopped || adopt.now());
-  function shake(slot) {
-    slot.ready = handshake(slot.bridge, login.on, login.done);
-    slot.ready.catch(() => {
-    });
-  }
-  async function readyFor(slot) {
-    try {
-      await slot.ready;
-    } catch {
-      shake(slot);
-      await slot.ready;
-    }
-  }
   async function slotFor(sessionID, touch = true) {
     const root = await rootOf(sessionID);
     mv.guard(root, sessionID);
@@ -3736,6 +4020,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       await awaitReady(slot);
     }
     const busy = name === STAND_TOOL2 && asSatellite(args, slot.satelliteOf, !!slot.place);
+    if (name === STAND_TOOL2) await models.name(args, sessionID, slot);
     if (name === STAND_TOOL2 && !args.cwd) {
       const dir = slot.dir ??= await directoryOf(slot.session ?? sessionID);
       if (dir) args.cwd = dir;
@@ -3800,7 +4085,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       }
     }
   });
-  function forget(session) {
+  function forget2(session) {
     runEnds.clear(session);
     launcher.forget(session);
     keeper.forget(session);
@@ -3814,10 +4099,10 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     launch: launcher.launch,
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
-      forget(s);
+      forget2(s);
       runEnds.clear(s, true);
     },
-    onEvent: (ev) => leads.onEvent(ev),
+    onEvent: (ev) => [models, leads].forEach((x) => x.onEvent(ev)),
     leadOf: (s) => leads.nameOf(s),
     ended: (s) => leads.ended(s),
     launcherOf: (s) => launcherSeat(leads.upOf(s), slots, slots.get(s)?.satelliteOf?.name),
@@ -3826,14 +4111,14 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     held: (r) => [slots.get(r)].find((x) => x?.holding && x.place && !x.bridge.failure) ?? null,
     adopt: adoptNow,
     // A satellite child moved alone goes as its own satellite to the new folder (handoff.ts, #6695).
-    moved: (s, to) => handoff(s, to, home) || mv.moved({ say, slots, rootOf, forget, slotFor, adopt: adoptNow, away: leads.away }, s, to),
+    moved: (s, to) => handoff(s, to, home) || mv.moved({ say, slots, rootOf, forget: forget2, slotFor, adopt: adoptNow, away: leads.away }, s, to),
     children: () => [...slots.values()].flatMap((x) => x.child && x.holding && x.session ? [x.session] : []),
     halt(child) {
       const slot = slots.get(child);
       if (!slot?.child || !slot.holding) return;
       slot.holding = false;
       keeper.forget(child);
-      if (!(slot.satelliteOf && leads.heard(child, "stopped", slot.place))) forget(child);
+      if (!(slot.satelliteOf && leads.heard(child, "stopped", slot.place))) forget2(child);
     },
     async stop() {
       stopped = true;
@@ -3927,8 +4212,6 @@ function setupTacts(send, takenEarly, freshestRoot, say) {
 var CASE_BATCH_MS = Number(process.env[envName("OPENCODE_BATCH_MS")]) || 5e3;
 var CASE_BATCH_CAP = 20;
 var PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 12e4;
-var CUT_TRIES = 3;
-var CUT_RETRY_MS = 500;
 function toPile(frame) {
   if (!frame || frame.type !== "message" || isDirectWord(frame)) return false;
   const rk = roomKind(frame);
@@ -3939,11 +4222,13 @@ function toPile(frame) {
 var RIDERS_MAX = 500;
 var MARKS_KEPT = 500;
 function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(), onStop = () => {
-}, leads = NO_LEADS) {
+}, leads = NO_LEADS, prompted = () => {
+}) {
   const W4 = words(OPENCODE);
   const P = words(PLUGIN);
+  const unshare = shareLineage(parents);
   const halts = createHalts(
-    (s) => parents.get(s),
+    (s) => parents.get(s) ?? processParent(s),
     authDir,
     (id, message) => say(W4.haltUnwritten(id, message), "warning"),
     (id, message, kept2) => say(W4.haltUnlifted(id, message, kept2), "warning")
@@ -3956,8 +4241,8 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       return false;
     }
   }
-  async function deliver(session, text, frame = W4.frame(), delivery = "steer", child = false) {
-    let id = session;
+  async function deliver(session2, text, frame = W4.frame(), delivery = "steer", child = false) {
+    let id = session2;
     if (child && (!id || !await accepting(id))) {
       say(W4.childGone(frame, id ?? "?", text.slice(0, 120)), "error");
       return null;
@@ -3967,7 +4252,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       id = null;
     }
     id ??= freshestRoot();
-    if (id && id !== session && !await accepting(id)) id = null;
+    if (id && id !== session2 && !await accepting(id)) id = null;
     if (!id) {
       say(W4.nowhere(frame, text.slice(0, 120)), "error");
       return null;
@@ -3984,7 +4269,9 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       const r = await ctx.session.prompt({ sessionID: id, text: markFrame(text), delivery });
       say(W4.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
-      return { session: id, inbox: typeof inbox === "string" ? inbox : null };
+      const got = { session: id, inbox: typeof inbox === "string" ? inbox : null };
+      prompted(got.session, got.inbox, delivery);
+      return got;
     } catch (e) {
       say(W4.notDelivered(frame, id, e.message), "error");
       return null;
@@ -3993,7 +4280,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
   const piles = /* @__PURE__ */ new Map();
   const takenEarly = /* @__PURE__ */ new Set();
   const tacts = setupTacts(
-    (session, text, what, child) => deliver(session, text, what, "queue", child),
+    (session2, text, what, child) => deliver(session2, text, what, "queue", child),
     takenEarly,
     freshestRoot,
     say
@@ -4031,18 +4318,18 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       if (p.held.length) schedule(p);
     });
   }
-  function pile(session, child, frame) {
-    if (session && halts.halted(session)) {
+  function pile(session2, child, frame) {
+    if (session2 && halts.halted(session2)) {
       const what = frame.id != null ? W4.frameId(String(frame.id)) : W4.frameNoId();
-      return say(W4.halted(what, session), "warning");
+      return say(W4.halted(what, session2), "warning");
     }
-    const key = `${child ? "child" : "root"}:${session ?? ""}`;
+    const key = `${child ? "child" : "root"}:${session2 ?? ""}`;
     let p = piles.get(key);
     if (!p)
       piles.set(
         key,
         p = {
-          session,
+          session: session2,
           child,
           held: [],
           riders: [],
@@ -4066,19 +4353,19 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     const got = ps.flatMap((p) => fresh(p, p.riders.splice(0)));
     return got.length ? [batchHead(got)] : [];
   }
-  function loud(session, text, child = false) {
+  function loud(session2, text, child = false) {
     say(text, "error");
-    void deliver(session, text, W4.frame(), "steer", child);
+    void deliver(session2, text, W4.frame(), "steer", child);
   }
-  function batch(session, child, ev, what) {
-    noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
+  function batch(session2, child, ev, what) {
+    noteOwn(piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`), ev.marks);
     if (!ev.text) return;
-    if (launcherWordIn(session, child, ev.frames))
-      void deliver(session, ev.text, what, "steer", child);
-    else if (!tact(session, child, ev, what)) void deliver(session, ev.text, what, "queue", child);
+    if (launcherWordIn(session2, child, ev.frames))
+      void deliver(session2, ev.text, what, "steer", child);
+    else if (!tact(session2, child, ev, what)) void deliver(session2, ev.text, what, "queue", child);
   }
-  const launcherWordIn = (session, child, frames) => {
-    const launcher = child ? leads.launcherOf(session ?? "") : null;
+  const launcherWordIn = (session2, child, frames) => {
+    const launcher = child ? leads.launcherOf(session2 ?? "") : null;
     return !!frames?.some((f) => fromLauncher(f, launcher));
   };
   function dropPile(key) {
@@ -4086,76 +4373,58 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     if (p?.timer) clearTimeout(p.timer);
     piles.delete(key);
   }
-  const stopOf = (id) => halts.stopOf(id);
-  const cutDone = /* @__PURE__ */ new Map();
-  const cutting = /* @__PURE__ */ new Map();
-  const cutFails = /* @__PURE__ */ new Map();
-  const retries = /* @__PURE__ */ new Set();
-  function cut(id) {
-    const gen = stopOf(id);
-    if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
-    for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
-    tacts.gone(id);
-    if (cutting.has(id)) return;
-    const s = ctx.session;
-    if (typeof s.interrupt !== "function") return void cutDone.set(id, gen);
-    cutting.set(id, gen);
-    void Promise.resolve().then(() => s.interrupt({ sessionID: id, resume: false })).then(
-      () => {
-        if (stopOf(id) !== gen) return;
-        cutDone.set(id, gen);
-        cutFails.delete(id);
-      },
-      (e) => {
-        if (stopOf(id) !== gen) return;
-        const was = cutFails.get(id);
-        const n2 = (was?.[0] === gen ? was[1] : 0) + 1;
-        cutFails.set(id, [gen, n2]);
-        say(W4.notDelivered(W4.frame(), id, e.message), n2 < CUT_TRIES ? "warning" : "error");
-        if (n2 >= CUT_TRIES) return void cutDone.set(id, gen);
-        const t = setTimeout(() => {
-          retries.delete(t);
-          if (halts.halted(id)) cut(id);
-        }, CUT_RETRY_MS);
-        t.unref?.();
-        retries.add(t);
-      }
-    ).finally(() => {
-      cutting.delete(id);
-      if (stopOf(id) !== gen) cut(id);
-    });
-  }
-  function stopped(session, text, child) {
+  const session = () => ctx.session;
+  const cuts = createCuts({
+    stopOf: (id) => halts.stopOf(id),
+    halted: (id) => halts.halted(id),
+    canInterrupt: () => typeof session().interrupt === "function",
+    interrupt: (id) => session().interrupt({ sessionID: id, resume: false }),
+    dropped: (id) => {
+      for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
+      tacts.gone(id);
+    },
+    refused: (id, why, last) => say(W4.notDelivered(W4.frame(), id, why), last ? "error" : "warning")
+  });
+  const cut = cuts.cut;
+  function stopped(session2, text, child) {
     say(text, "error");
-    dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
-    if (!session) return;
-    halts.stop(session, child ? null : text);
-    cut(session);
-    for (const d of descendantsOf(session, parents)) cut(d);
-    onStop(session);
+    dropPile(`${child ? "child" : "root"}:${session2 ?? ""}`);
+    if (!session2) return;
+    halts.stop(session2, child ? null : text);
+    cut(session2);
+    for (const d of descendantsOf(session2, parents)) cut(d);
+    onStop(session2);
   }
   return {
-    status(session, on) {
-      if (on) tacts.busy(session);
-      else this.taken(session);
+    status(session2, on) {
+      if (on) tacts.busy(session2);
+      else this.taken(session2);
     },
-    gone(session) {
-      tacts.gone(session);
-      halts.gone(session);
-      cutDone.delete(session);
-      cutFails.delete(session);
+    gone(session2) {
+      tacts.gone(session2);
+      halts.gone(session2);
+      cuts.forget(session2);
     },
-    halt(session) {
-      if (!halts.halted(session)) return false;
-      cut(session);
-      for (const d of descendantsOf(session, parents)) cut(d);
+    // Each reading cuts the descendants this instance serves, a child born during the wait too;
+    // other instances cut theirs by the same stops (plugin.ts sweep).
+    halted(session2, signal) {
+      return cuts.outcome(() => {
+        if (!session2) return [];
+        this.halt(session2);
+        return [session2, ...processDescendants(session2)];
+      }, signal);
+    },
+    halt(session2) {
+      if (!halts.halted(session2)) return false;
+      cut(session2);
+      for (const d of descendantsOf(session2, parents)) cut(d);
       return true;
     },
-    taken(session, inbox) {
-      tacts.taken(session, inbox);
+    taken(session2, inbox) {
+      tacts.taken(session2, inbox);
       let matched = false;
       for (const p of piles.values()) {
-        if (!p.pending || (inbox ? p.pending.inbox !== inbox : p.pending.session !== session))
+        if (!p.pending || (inbox ? p.pending.inbox !== inbox : p.pending.session !== session2))
           continue;
         matched = true;
         p.pending = null;
@@ -4167,26 +4436,26 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       }
     },
     stop() {
+      unshare();
       tacts.stop();
-      for (const t of retries) clearTimeout(t);
-      retries.clear();
+      cuts.stop();
       for (const p of piles.values()) {
         p.pending = null;
         flush(p);
       }
     },
-    ride(session) {
-      if (halts.halted(session)) return null;
+    ride(session2) {
+      if (halts.halted(session2)) return null;
       const own = [...piles.values()].filter(
-        (p) => !p.child && (p.session === session || !p.session && freshestRoot() === session)
+        (p) => !p.child && (p.session === session2 || !p.session && freshestRoot() === session2)
       );
       return riding(own).join("\n") || null;
     },
-    stopWord(session) {
-      const word2 = halts.wordOf(session, P.stoppedAny());
+    stopWord(session2) {
+      const word2 = halts.wordOf(session2, P.stoppedAny());
       return word2 === null ? null : markFrame(P.stoppedTurn(word2));
     },
-    onEvent(session, params, child = false) {
+    onEvent(session2, params, child = false) {
       const ev = params?.data;
       if (!ev || typeof ev !== "object") return;
       switch (ev.kind) {
@@ -4194,12 +4463,12 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           const frame = ev.frame ?? null;
           if (frame?.type === "hello") return say(P.listening(), "info");
           if (frame?.type === "status") return;
-          const steers = !!frame && launcherWordIn(session, child, [frame]);
-          if (frame && !steers && toPile(frame)) return pile(session, child, frame);
-          const own = piles.get(`${child ? "child" : "root"}:${session ?? ""}`);
+          const steers = !!frame && launcherWordIn(session2, child, [frame]);
+          if (frame && !steers && toPile(frame)) return pile(session2, child, frame);
+          const own = piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`);
           noteOwn(own, deliveryKeys(frame));
           void deliver(
-            session,
+            session2,
             [...riding(own ? [own] : []), frameToText(frame, ev.raw ?? "")].join("\n"),
             frame?.id != null ? W4.frameId(String(frame.id)) : W4.frameNoId(),
             "steer",
@@ -4209,29 +4478,28 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
         }
         // A child's bridge word goes only to it (child): it is not the root's (#6625).
         case "dead":
-          loud(session, P.dead(String(ev.code)), child);
+          loud(session2, P.dead(String(ev.code)), child);
           return;
         case "stopped":
-          stopped(session, P.stopped(ev.text ?? ""), child);
+          stopped(session2, P.stopped(ev.text ?? ""), child);
           return;
         case "stale":
-          return batch(session, child, ev, W4.staleBatch());
+          return batch(session2, child, ev, W4.staleBatch());
         case "backlog":
-          return batch(session, child, ev, W4.wakeBatch(ev.frames?.length ?? 0));
+          return batch(session2, child, ev, W4.wakeBatch(ev.frames?.length ?? 0));
         case "lost":
-          if (ev.text) loud(session, ev.text, child);
+          if (ev.text) loud(session2, ev.text, child);
           return;
         case "resumed":
           if (ev.text) {
             say(ev.text, "warning");
-            void deliver(session, ev.text, W4.resumedLabel(), "steer", child);
+            void deliver(session2, ev.text, W4.resumedLabel(), "steer", child);
           }
           return;
         case "held":
-          halts.held(session);
-          for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
-            cutDone.delete(s);
-            cutFails.delete(s);
+          halts.held(session2);
+          for (const s of session2 ? [session2, ...descendantsOf(session2, parents)] : []) {
+            cuts.forget(s);
           }
           say(W4.held(ev.key ?? ""), "info");
           return;
@@ -4239,10 +4507,10 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           say(W4.released(ev.key ?? "", ev.text ?? ""), "warning");
           return;
         case "evicted":
-          loud(session, P.evicted(String(ev.code)), child);
+          loud(session2, P.evicted(String(ev.code)), child);
           return;
         case "alive":
-          loud(session, P.alive(ev.version ?? ""), child);
+          loud(session2, P.alive(ev.version ?? ""), child);
           return;
         case "note":
           if (ev.text) say(P.note(ev.text), "warning");
@@ -4354,6 +4622,152 @@ function annotate(req, nameOf) {
       const name = nameOf(child);
       if (name) req.system.push({ type: "text", text: W3().notice(child, name) });
     }
+}
+
+// js/opencode/inbox.ts
+var TAKEN_MAX = 100;
+var CANCELLED_MAX = 100;
+var QUEUED_MAX = 100;
+var add = (m, session, inbox, max = Infinity) => {
+  const ids2 = m.get(session) ?? /* @__PURE__ */ new Set();
+  m.set(session, ids2.add(inbox));
+  if (ids2.size > max) ids2.delete(ids2.values().next().value);
+  return ids2.size;
+};
+var drop = (m, session, inbox) => {
+  const ids2 = m.get(session);
+  if (!ids2?.delete(inbox)) return false;
+  if (!ids2.size) m.delete(session);
+  return true;
+};
+function createInboxBook(overflow) {
+  const queued = /* @__PURE__ */ new Map();
+  const taken = /* @__PURE__ */ new Map();
+  const cancelled = /* @__PURE__ */ new Map();
+  const books = [queued, taken, cancelled];
+  return {
+    delivered(session, inbox) {
+      if (drop(queued, session, inbox)) return true;
+      add(taken, session, inbox, TAKEN_MAX);
+      return false;
+    },
+    cancelled(session, inbox) {
+      if (!drop(queued, session, inbox)) add(cancelled, session, inbox, CANCELLED_MAX);
+    },
+    prompted(session, inbox) {
+      if (drop(taken, session, inbox)) return true;
+      if (drop(cancelled, session, inbox)) return false;
+      const waiting = add(queued, session, inbox);
+      if (waiting === QUEUED_MAX + 1) overflow?.(session, waiting);
+      return false;
+    },
+    forget(session) {
+      for (const m of books) m.delete(session);
+    },
+    clear() {
+      for (const m of books) m.clear();
+    }
+  };
+}
+
+// js/opencode/pulse.ts
+var ENDS = /* @__PURE__ */ new Map([
+  ["session.execution.succeeded", "idle"],
+  ["session.execution.failed", "failed"],
+  ["session.execution.interrupted", "interrupted"]
+]);
+var RETRY_MS = 2e3;
+function createPulseFeed(opts) {
+  const words3 = /* @__PURE__ */ new Map();
+  const inboxes = createInboxBook(opts.overflow);
+  const unsent = /* @__PURE__ */ new Set();
+  const retries = /* @__PURE__ */ new Map();
+  let stopped = false;
+  const tell = (session, change) => {
+    if (stopped) return;
+    const was = words3.get(session) ?? {};
+    const now2 = { ...was, ...change };
+    if (JSON.stringify(now2) === JSON.stringify(was) && !unsent.has(session)) return;
+    words3.set(session, now2);
+    const bridge = opts.bridgeOf(session);
+    if (!bridge) return void unsent.add(session);
+    unsent.delete(session);
+    void bridge.request(method("pulse"), now2, { timeoutMs: 5e3 }).catch(() => {
+      if (stopped || words3.get(session) !== now2) return;
+      unsent.add(session);
+      if (retries.has(session)) return;
+      const t = setTimeout(() => {
+        retries.delete(session);
+        if (unsent.has(session)) tell(session, {});
+      }, RETRY_MS);
+      t.unref?.();
+      retries.set(session, t);
+    });
+  };
+  const at = () => (/* @__PURE__ */ new Date()).toISOString();
+  const ended2 = (session, to) => {
+    const was = words3.get(session)?.state;
+    if (to !== "idle" || was === "busy") return tell(session, { state: to, turn_at: at() });
+    if (was === void 0) tell(session, { state: "idle" });
+    else if (unsent.has(session)) tell(session, {});
+  };
+  const unretry = (session) => {
+    clearTimeout(retries.get(session));
+    retries.delete(session);
+  };
+  return {
+    onEvent(ev) {
+      const session = ev?.data?.sessionID;
+      if (typeof session !== "string") return;
+      const type = ev?.type;
+      const end = ENDS.get(type);
+      if (end) return ended2(session, end);
+      switch (type) {
+        case "session.execution.started":
+          return tell(session, { state: "busy" });
+        case "session.status": {
+          const s = ev.data?.status?.type;
+          if (typeof s !== "string") return;
+          if (s === "idle") ended2(session, "idle");
+          else tell(session, { state: "busy" });
+          return;
+        }
+        case "session.idle":
+          return ended2(session, "idle");
+        case "session.inbox.delivered": {
+          const inbox = ev.data?.inboxID;
+          if (typeof inbox === "string" && inboxes.delivered(session, inbox))
+            tell(session, { read_at: at() });
+          return;
+        }
+        case "session.inbox.cancelled": {
+          const inbox = ev.data?.inboxID;
+          if (typeof inbox === "string") inboxes.cancelled(session, inbox);
+          return;
+        }
+      }
+    },
+    prompted(session, inbox) {
+      if (inbox && inboxes.prompted(session, inbox)) tell(session, { read_at: at() });
+    },
+    seated(session) {
+      if (!words3.has(session)) return;
+      unsent.add(session);
+      tell(session, {});
+    },
+    forget(session) {
+      words3.delete(session);
+      unsent.delete(session);
+      unretry(session);
+      inboxes.forget(session);
+    },
+    stop() {
+      stopped = true;
+      for (const session of [...retries.keys()]) unretry(session);
+      words3.clear();
+      inboxes.clear();
+    }
+  };
 }
 
 // js/opencode/usage.ts
@@ -4536,6 +4950,7 @@ function createWaits(ctx, d) {
 
 // js/opencode/plugin.ts
 var SWEEP_MS = 5e3;
+var CHANNEL_DOWN = "channel_down";
 var nothing = () => {
 };
 async function setup(ctx) {
@@ -4585,11 +5000,20 @@ async function setup(ctx) {
   let onChannel = () => {
   };
   let ch = null;
+  const pulse = createPulseFeed({
+    bridgeOf: (s) => half.bridgeOf(s),
+    overflow: (s, n2) => say(W4.pulseOverflow(s, n2), "warning")
+  });
   try {
-    const c0 = setupChannel(ctx, say, freshestRoot, parents, () => sweepAll(), {
-      ended: (s) => half.ended(s),
-      launcherOf: (s) => half.launcherOf(s)
-    });
+    const c0 = setupChannel(
+      ctx,
+      say,
+      freshestRoot,
+      parents,
+      () => sweepAll(),
+      { ended: (s) => half.ended(s), launcherOf: (s) => half.launcherOf(s) },
+      pulse.prompted
+    );
     ch = c0;
     onChannel = (s, p, c) => c0.onEvent(s, p, c);
   } catch (e) {
@@ -4599,8 +5023,23 @@ async function setup(ctx) {
   const stops2 = createHalts((s) => parents.get(s), authDir, nothing, nothing);
   const closed = (s) => half.ended(s) || stops2.halted(s);
   let flushUsage = (_s) => Promise.resolve();
+  const heard = (s, p, c) => {
+    onChannel(s, p, c);
+    const kind = p?.data?.kind;
+    if (s && (kind === "held" || kind === "attached" || kind === "resumed" || p?.data?.frame?.type === "hello"))
+      pulse.seated(s);
+  };
   try {
-    half = await setupTools(ctx, say, onChannel, rootOf, (s) => flushUsage(s), closed);
+    half = await setupTools(
+      ctx,
+      say,
+      heard,
+      rootOf,
+      (s) => flushUsage(s),
+      closed,
+      // No channel half — no interrupt: the order's stop is refused, not reported executed.
+      (s, signal) => ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN)
+    );
   } catch (e) {
     say(words(PLUGIN).notRaised(e.message), "error");
   }
@@ -4662,9 +5101,11 @@ ${markFrame(counts)}`;
         half.onEvent(ev);
         keepalive.onEvent(ev);
         waits.onEvent(ev);
+        pulse.onEvent(ev);
         switch (ev?.type) {
           case "session.deleted":
             if (!id) break;
+            pulse.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
@@ -4744,6 +5185,7 @@ ${markFrame(counts)}`;
     keepalive.stop();
     waits.stop();
     usage.stop();
+    pulse.stop();
     ch?.stop();
     twins.left(await half.stop() || []);
   };

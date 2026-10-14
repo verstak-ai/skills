@@ -108,9 +108,10 @@ var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
 var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.4.0";
+var VERSION = "3.5.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1203,6 +1204,11 @@ var H2 = scoped(() => ({
   helloWaiters: /* @__PURE__ */ new Set(),
   /** disk resumes in flight: a dead token during one is a stale record, not an alarm */
   resuming: 0,
+  /** a return from disk brings the seats beside back: the handover spool waits for them (#7602) */
+  spoolHeld: 0,
+  spoolLater: null,
+  /** live frames of a seat beside not back yet, judged after the spool once the return ends */
+  liveLater: [],
   /** own revoke in flight (absorb.ts): close 4001 outruns the revoke answer */
   revokingOwn: false,
   /** own channel close in flight (absorb.ts): close 4001 outruns the answer, as with revoke (#6634) */
@@ -1212,7 +1218,11 @@ var H2 = scoped(() => ({
   /** the daemon goes down while this session's thin bridge lives and restores the place (daemon.ts, #6485) */
   handingOver: null,
   /** the last owner's stop of this session (stophold.ts, #7439): `n` counts stops, a move compares it before and after */
-  stopped: { n: 0, key: "", text: "" }
+  stopped: { n: 0, key: "", text: "" },
+  /** a stand call in flight since this stop count (standundo.ts): a stop meanwhile — its connect answers are not held */
+  moveSince: null,
+  /** seats a stand call in flight took or bound again (connect, register answered): a stop meanwhile takes them off */
+  taken: null
 }));
 
 // js/bridge/realms.ts
@@ -1628,6 +1638,54 @@ async function enterCase(l, call, satelliteOf, placeName) {
   return W3.entered(place, l.no);
 }
 
+// js/shared/busyargs.ts
+var STATUS_ONLY_ARGS = /* @__PURE__ */ new Set([
+  "realm",
+  "karta",
+  "name",
+  "cwd",
+  "status",
+  "satellite_of"
+]);
+var unset = (v) => v == null || v === false || v === "";
+var takingArgs = (args) => Object.keys(args).filter((k) => !STATUS_ONLY_ARGS.has(k) && !unset(args[k]));
+
+// js/shared/seatmodel.ts
+function withHarnessModel(args, model, heldRealms) {
+  if (!args.satellite_of) return args;
+  const { model: _said, ...own } = args;
+  const realm = typeof own.realm === "string" ? own.realm.trim() : "";
+  const holds = !!realm && heldRealms.includes(realm);
+  const busy = holds && typeof own.status === "string" && takingArgs(own).length === 0;
+  return model && !busy ? { ...own, model } : own;
+}
+function createSeatRealms() {
+  const seats = /* @__PURE__ */ new Map();
+  let main = null;
+  return {
+    see(data) {
+      const d = data ?? {};
+      const key = typeof d.key === "string" && d.key ? d.key : null;
+      const realm = typeof d.place?.realm === "string" ? d.place.realm.trim() : "";
+      if ((d.kind === "held" || d.kind === "beside") && key && realm) {
+        if (d.kind === "held") {
+          if (main && main !== key) seats.delete(main);
+          main = key;
+        }
+        seats.set(key, realm);
+      } else if (typeof d.kind === "string" && ["beside-gone", "released", "stopped", "dead", "evicted"].includes(d.kind)) {
+        if (key) seats.delete(key);
+        else if (d.kind !== "beside-gone") seats.clear();
+      }
+    },
+    realms: () => [...new Set(seats.values())],
+    clear: () => {
+      seats.clear();
+      main = null;
+    }
+  };
+}
+
 // js/extension/home-copy.ts
 import {
   accessSync,
@@ -1739,6 +1797,53 @@ function findBridge() {
   return { path: null, tried };
 }
 
+// js/extension/pulse.ts
+function endOf(messages) {
+  const last = [...messages ?? []].reverse().find((m) => m?.role === "assistant");
+  if (last?.stopReason === "aborted") return "interrupted";
+  if (last?.stopReason === "error") return "failed";
+  return "idle";
+}
+var RETRY_MS = 2e3;
+var seatedBy = (ev) => ev?.kind === "held" || ev?.kind === "attached" || ev?.kind === "resumed" || ev?.frame?.type === "hello";
+function setupPulse(pi, live) {
+  let word2 = {};
+  let retry;
+  const unretry = () => {
+    clearTimeout(retry);
+    retry = void 0;
+  };
+  const tell = (change) => {
+    const now2 = { ...word2, ...change };
+    word2 = now2;
+    void live()?.request(method("pulse"), now2, { timeoutMs: 5e3 }).catch(() => {
+      if (word2 !== now2 || retry) return;
+      retry = setTimeout(() => {
+        retry = void 0;
+        if (word2 === now2) tell({});
+      }, RETRY_MS);
+      retry.unref?.();
+    });
+  };
+  const at = () => (/* @__PURE__ */ new Date()).toISOString();
+  pi.on("agent_start", async () => tell({ state: "busy" }));
+  pi.on("agent_end", async (event) => tell({ state: endOf(event.messages), turn_at: at() }));
+  pi.on("message_start", async (event) => {
+    const m = event.message;
+    if (m?.role === "custom" && m.customType === LOGGERS.channel) tell({ read_at: at() });
+  });
+  return {
+    reset: () => {
+      unretry();
+      word2 = {};
+    },
+    seated: () => {
+      if (Object.keys(word2).length) tell({});
+    },
+    stop: unretry
+  };
+}
+
 // js/extension/usage.ts
 var n = (v) => typeof v === "number" && Number.isFinite(v) ? v : 0;
 function spent(entries) {
@@ -1796,7 +1901,15 @@ async function hostEnv() {
   }
   return env;
 }
-var callVia = (b) => async (name, args) => textOrThrow(name, await b.request("tools/call", { name, arguments: args }, { service: true }));
+var withModel = (name, args, ctx, seats) => name === tool("stand") ? withHarnessModel(args, ctx?.model?.id, seats.realms()) : args;
+var callVia = (b, ctx, seats) => async (name, args) => textOrThrow(
+  name,
+  await b.request(
+    "tools/call",
+    { name, arguments: withModel(name, args, ctx, seats) },
+    { service: true }
+  )
+);
 function setupBridge(pi, onChannel) {
   const W3 = words(PI);
   const P = words(PLUGIN);
@@ -1807,6 +1920,7 @@ function setupBridge(pi, onChannel) {
   };
   let canSpeak = false;
   let heldName = null;
+  const seats = createSeatRealms();
   let satellite = false;
   async function raise(args = []) {
     refreshHomeBridge(notify, canSpeak);
@@ -1823,7 +1937,9 @@ function setupBridge(pi, onChannel) {
         if (method2 === "notifications/message" && params?.logger === LOGGERS.channel) {
           const name = params?.data?.kind === "held" ? params?.data?.place?.name : null;
           if (typeof name === "string" && name) heldName = name;
+          seats.see(params?.data);
           onChannel(params);
+          if (seatedBy(params?.data)) pulse.seated();
         }
         if (method2 === "notifications/tools/list_changed") void relist(b);
       },
@@ -1890,7 +2006,7 @@ function setupBridge(pi, onChannel) {
           description: String(tool2.description ?? ""),
           promptSnippet: snippet(String(tool2.description ?? "")),
           parameters: toParameters(tool2.inputSchema),
-          async execute(_toolCallId, params, signal, onUpdate, _c) {
+          async execute(_toolCallId, params, signal, onUpdate, c) {
             const live = bridge;
             if (!live) throw new Error(W3.notUp(name));
             const started = Date.now();
@@ -1910,7 +2026,7 @@ function setupBridge(pi, onChannel) {
             try {
               const result = await live.request(
                 "tools/call",
-                { name, arguments: params ?? {} },
+                { name, arguments: withModel(name, params ?? {}, c, seats) },
                 { signal }
                 // no ceiling: the first call may go to the human's browser
               );
@@ -1978,7 +2094,11 @@ function setupBridge(pi, onChannel) {
     bridge = null;
   });
   let prompted = false;
-  pi.on("input", async (event) => {
+  let pulse = { reset: () => {
+  }, seated: () => {
+  }, stop: () => {
+  } };
+  pi.on("input", async (event, ctx) => {
     if (prompted) return { action: "continue" };
     prompted = true;
     const l = parseLaunch(event.text);
@@ -1991,7 +2111,7 @@ function setupBridge(pi, onChannel) {
     }
     await raising;
     const live = bridge;
-    const word2 = live ? await enterCase(l, callVia(live), of, () => heldName) : W3.launchNoBridge(String(l.no));
+    const word2 = live ? await enterCase(l, callVia(live, ctx, seats), of, () => heldName) : W3.launchNoBridge(String(l.no));
     return { action: "transform", text: withWord(event.text, word2) };
   });
   pi.on("session_start", async (_event, ctx) => {
@@ -2000,8 +2120,10 @@ function setupBridge(pi, onChannel) {
     canSpeak = Boolean(ctx.hasUI);
     bridge?.stop();
     bridge = null;
+    pulse.reset();
     prompted = false;
     heldName = null;
+    seats.clear();
     const work = raiseLoud();
     raising = work;
     let done = false;
@@ -2020,7 +2142,9 @@ function setupBridge(pi, onChannel) {
     ]);
   });
   setupUsage(pi, () => heldName ? bridge : null);
+  pulse = setupPulse(pi, () => bridge);
   pi.on("session_shutdown", async () => {
+    pulse.stop();
     bridge?.stop();
     bridge = null;
   });
