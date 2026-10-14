@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.4.0](https://github.com/verstak-ai/skills/compare/v3.3.0...v3.4.0) (2026-10-14)
+
+
+### Features
+
+* **bridge:** core from the sibling at 0434b9a6 — a seat taken off stops its agent, the status command, no room synonym ([#158](https://github.com/verstak-ai/skills/issues/158)) ([05c485b](https://github.com/verstak-ai/skills/commit/05c485b6d2eda81e3230b38baac107f9f06b8e83))
+
+
+### Bug Fixes
+
+* **bridge:** sync the core to iskron 7.10.0 — a stopped seat's word stays in the turn, an ended satellite is not woken, the launcher's revoke takes its seat off ([#160](https://github.com/verstak-ai/skills/issues/160)) ([c3d04cb](https://github.com/verstak-ai/skills/commit/c3d04cb8588f75372343d582df5a3270eae6d84f))
+* **verstak:** a walk-through checks structure, not outcome; a decision is judged by what was known then and is not acceptance ([#157](https://github.com/verstak-ai/skills/issues/157)) ([25bbbf9](https://github.com/verstak-ai/skills/commit/25bbbf9701216a7ebd58ea68d71e98f9e3253a7d))
+
 ## [3.3.0](https://github.com/verstak-ai/skills/compare/v3.2.1...v3.3.0) (2026-10-12)
 
 
