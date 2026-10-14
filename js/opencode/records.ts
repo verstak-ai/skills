@@ -15,14 +15,16 @@ export interface LostEntry {
   /** A record of the session's move to another folder (moves.ts), not of an instance stop. */
   moved?: boolean;
   of?: { realm: string; karta: string; name: string } | null;
-  room?: string | null;
   noted?: boolean;
   /** The child's seat name and last text — the outcome at the end after a reload. */
   name?: string;
   last?: string;
 }
 
-/** A marker record: a child carries the root's seat, the errand case, the told turn, its seat name and last text. */
+/**
+ * A marker record: a child carries the root's seat, the told turn, its seat name and last text.
+ * A former record's errand case (room) is not read: the platform says which cases are left.
+ */
 export const entryOf = (e: LostEntry): LostEntry => ({
   session: e.session,
   dir: e.dir ?? null,
@@ -32,7 +34,6 @@ export const entryOf = (e: LostEntry): LostEntry => ({
   ...(e.child
     ? {
         of: e.of ?? null,
-        room: e.room ?? null,
         ...(e.noted ? { noted: true } : {}),
         ...(e.name ? { name: e.name } : {}),
         ...(e.last ? { last: e.last } : {}),

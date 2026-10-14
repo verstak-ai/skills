@@ -5,6 +5,7 @@ import { method, RUN_END } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { ownPidAlive } from "../shared/seam-entrance.ts";
+import { type SeatKey } from "../shared/seat.ts";
 import { leaveJoinedCases, revokeSatellitePlaces, satellitePlaces } from "./caseexit.ts";
 import { CFG } from "./config.ts";
 import { localSocketPathOf, releaseStanding } from "./hold.ts";
@@ -20,17 +21,27 @@ import { type Standing } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 import { flushUsage, usagePlace } from "./usage.ts";
 
+/**
+ * Satellite seats at the run's end: names failed to revoke, and seats confirmed revoked by this
+ * bridge's own call — by canonical graph, role and name; a seat gone only by the reply's prose is
+ * in neither (caseexit.ts, №664).
+ */
+export interface RunEnd {
+  failed: string[];
+  revoked: SeatKey[];
+}
+
 const R = scoped(() => ({
-  run: null as Promise<string[]> | null,
+  run: null as Promise<RunEnd> | null,
   /** the run's seats and busy address while a handover pause lasts */
   held: null as { places: Standing[]; addr: { url: string } | null } | null,
 }));
 
 /**
- * Release the session's seat; the answer — satellite seats that failed to revoke.
+ * Release the session's seat; the answer — satellite seats that failed to revoke and those it revoked.
  * handover — the daemon hands seats to a successor: a non-satellite seat stays open.
  */
-export function closeRun(why: string, handover: boolean): Promise<string[]> {
+export function closeRun(why: string, handover: boolean): Promise<RunEnd> {
   return (R.run ??= (async () => {
     // Socket and key go FIRST, before any network call: a harness killing us soon must not find a live key (graph @nks/nks-dev, node #4895).
     // Else the watchdog would follow a dead socket; case exits and revoke are session calls, no socket needed.
@@ -49,11 +60,11 @@ export function closeRun(why: string, handover: boolean): Promise<string[]> {
     // (graph @nks/nks-dev, nodes #6573, #6593, #6401). On a daemon change without a pause the lost
     // seat closes too; a handover with a live bridge pauses itself (daemon.ts, pauseForHandover).
     await Promise.all([paused ? null : leaveJoinedCases(), flushUsage(spent)]);
-    const failed = paused ? [] : await revokeSatellitePlaces(places);
+    const end = paused ? { failed: [], revoked: [] } : await revokeSatellitePlaces(places);
     // Busyness ends with the session, else the board shows a doer where nobody is; a satellite's
     // goes even on handover (it has no return from disk).
     if (addr && closing) await publishStatusTo(addr.url, "", 3000).catch(() => {});
-    return failed;
+    return end;
   })());
 }
 
@@ -77,17 +88,20 @@ export async function endUnreturnedPause(bridgePid: number, waitMs: number): Pro
   log(`handover pause of ${key}: the bridge left in the handover window — the run ends`);
   dropHoldRecord(key);
   await leaveJoinedCases();
-  const failed = await revokeSatellitePlaces(held.places);
+  const { failed } = await revokeSatellitePlaces(held.places);
   if (failed.length) log(`handover pause of ${key}: NOT revoked ${failed.join(", ")}`);
   if (held.addr) await publishStatusTo(held.addr.url, "", 3000).catch(() => {});
 }
 
-/** The plugin's `end` method — only for a satellite not on pause: the answer — what failed to revoke. */
+/**
+ * The plugin's `end` method — only for a satellite not on pause: the answer — what failed to
+ * revoke and what this bridge revoked itself (the launcher's revoke then goes nowhere, #7599).
+ */
 export function localEnd(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null {
   if (msg?.method !== method("end")) return null;
   const answer = (result: unknown): JsonRpcMessage => ({ jsonrpc: "2.0", id: msg.id, result });
   if (!CFG.satellite || suspended()) return Promise.resolve(answer({ ended: false }));
   return closeRun(words(RUN_END).pluginEnd(), false)
-    .then((failed) => answer({ ended: true, failed }))
+    .then(({ failed, revoked }) => answer({ ended: true, failed, revoked }))
     .catch((e: Error) => answer({ ended: false, word: e.message }));
 }

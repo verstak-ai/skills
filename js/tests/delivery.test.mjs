@@ -24,6 +24,7 @@ import {
   tool,
   TOOL_PREFIX,
 } from "../delivery/protocol.ts";
+import { casesLeft } from "../opencode/casesleft.ts";
 import { versionIn } from "../shared/version.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -148,4 +149,29 @@ test("config.json keeps what is valid and says every refusal", () => {
   assert.equal(said.length, 3, said.join("\n"));
   assert.match(said[1], /unknown key "x"/);
   assert.match(said[2], /"tool_prefix" must match/);
+});
+
+// The server's own English prose (nks-mcp src/formatters/room.ts): a false "none" ends a lead
+// too early, so an answer read as neither must throw, never count as none.
+test("a lead's last case is read off the English server prose", async () => {
+  const left = (text) =>
+    casesLeft({ request: async () => ({ content: [{ type: "text", text }] }) }, "");
+  assert.equal(
+    await left("Cases of this session (2):\n  №652 · zachin — sitting · @h:n\n  №7 — sitting"),
+    2,
+  );
+  for (const none of [
+    "No cases under the narrowing you asked for. The listing answers BOTH halves when you ask for neither — where you sit and who calls you — so drop 'relation' before reading this as \"no cases\".",
+    "No cases of @h:x under the narrowing you asked for.",
+    "No cases: the seat @h:x sits in none and is called to none.",
+    "No cases: this session's standings sit in none and are called to none.",
+  ])
+    assert.equal(await left(none), 0, none);
+  for (const unread of [
+    "Cases of this session (1):",
+    "Cases of this session (1):\n  1f0c2a9e-… — sitting",
+    "\u0414\u0435\u043b \u043f\u043e\u0434 \u0437\u0430\u043f\u0440\u043e\u0448\u0435\u043d\u043d\u044b\u043c \u0441\u0443\u0436\u0435\u043d\u0438\u0435\u043c \u043d\u0435\u0442.", // the Russian "none",
+    "No case is held on #5.",
+  ])
+    await assert.rejects(left(unread), /unread answer/, unread);
 });

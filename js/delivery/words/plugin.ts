@@ -14,6 +14,10 @@ export interface PluginWords {
   dead: (code: number | string) => string;
   /** text — the bridge's stop word (the owner took the seat off, #7439): to the human, no session turn. */
   stopped: (text: string) => string;
+  /** stopped — the stop word (`stopped`): in the turn context of a stopped session until it stands again. */
+  stoppedTurn: (stopped: string) => string;
+  /** The general stop word — a stop record laid before the plugin kept its word. */
+  stoppedAny: () => string;
   evicted: (code: number | string) => string;
   alive: (version: string) => string;
   note: (text: string) => string;
@@ -37,6 +41,10 @@ export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
         : `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect")` +
           ", then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.",
     stopped: (text) => `Verstak: ${text}`,
+    stoppedTurn: (stopped) =>
+      `${stopped}. This word stands while the seat is taken off; if the user tells you to stand again — stand by an explicit ${tool("stand")} call, and the word goes.`,
+    stoppedAny: () =>
+      "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
     evicted: (code) =>
       `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. ` +
       `The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. ` +

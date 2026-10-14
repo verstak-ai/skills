@@ -37,12 +37,14 @@ import { hostEnvOf } from "./host.ts";
 import { createKeeper } from "./keep.ts";
 import { holdersOf } from "./keepalive.ts";
 import { createLauncher } from "./launch.ts";
-import { leadDoors } from "./leaddoors.ts";
+import { type Closed, leadDoors } from "./leaddoors.ts";
+import { launcherSeat } from "./leadframes.ts";
 import { createLeads } from "./leads.ts";
 import { createLogin } from "./login.ts";
 import { takeLostMarker, writeLostMarker } from "./marker.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
+import { revokeAsLauncher } from "./release.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, heldPlace, STAND_TOOL, standsBy } from "./satellite.ts";
 import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
@@ -54,14 +56,13 @@ export type Say = (text: string, level: "info" | "warning" | "error") => void;
 
 export type { Slot } from "./slot.ts";
 
-const hhmm = (): string => new Date().toTimeString().slice(0, 5);
-
 export async function setupTools(
   ctx: Context,
   say: Say,
   onChannel: (session: string | null, params: any, child?: boolean) => void,
   rootOf: (sessionID: string) => Promise<string>,
   flushUsage: (session: string) => Promise<void> = async () => {},
+  closed: Closed = () => false,
 ): Promise<ToolsHalf> {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -126,7 +127,7 @@ export async function setupTools(
         // A holding bridge exited against our will — a word into the session, not a log line (#5140).
         if (slot.ownStop || stopped || !slot.holding) return;
         slot.holding = false;
-        const text = W.hearingLost(hhmm(), e.message);
+        const text = W.hearingLost(new Date().toTimeString().slice(0, 5), e.message);
         const lost = { logger: LOGGERS.channel, data: { kind: "lost", text } };
         onChannel(slot.session, lost, !!slot.child); // a child's hearing — a word only to it (#6625)
       },
@@ -145,7 +146,7 @@ export async function setupTools(
   // Lead subagents (#6625): the end is an explicit act, the outcome a synthetic message to the parent.
   const endChild = (c: string, out: ((s: string) => void) | null = forget) =>
     runEnds.end(c, slots.get(c)?.satelliteOf, out, leads.released(c), leads.goneWhy(c));
-  const leads = createLeads(leadDoors(ctx, say, flushUsage, endChild, slots));
+  const leads = createLeads(leadDoors(ctx, say, flushUsage, endChild, slots, closed));
   const keeper = createKeeper({
     say,
     tell: (root, text, child) =>
@@ -294,10 +295,23 @@ export async function setupTools(
         description: String(t.description ?? ""),
         input: toParameters(t.inputSchema),
         async execute(input, tool) {
-          // The launcher's revoke of its lead's seat is ended by the plugin (#6625); so is a child ended by a move (adopt.ts).
-          const word =
-            (await leads.release(String(tool.sessionID), name, input ?? {})) ??
-            adopt.revoked(name, input ?? {});
+          // The launcher's revoke of its lead's seat ends the child, then goes to the platform
+          // by the launcher's bridge (#6625, #7505); a child ended by a move is answered here (adopt.ts).
+          const caller = String(tool.sessionID);
+          const freed = await leads.release(caller, name, input ?? {});
+          if (freed)
+            return {
+              content: await revokeAsLauncher(freed, input ?? {}, async (args) => {
+                const slot = await slotFor(caller);
+                slot.busy++;
+                try {
+                  return await callThrough(slot, name, args, caller);
+                } finally {
+                  slot.busy--;
+                }
+              }),
+            };
+          const word = adopt.revoked(name, input ?? {});
           if (word) return { content: word };
           await children.settled(String(tool.sessionID)); // a marker's child: its slot is still coming up
           runEnds.guard(String(tool.sessionID), name, input ?? {}, asks); // not through the root's bridge (#6361)
@@ -354,7 +368,9 @@ export async function setupTools(
     }
     const result = await slot.bridge.request("tools/call", { name, arguments: args }, { service });
     // A tool's refusal is a throw — so OpenCode shows it as a refusal.
-    if (result?.isError) throw new Error(textOf(result) || P.refusalNoText(name));
+    // The api refusal's data rides along: the launcher's revoke reads its rule (release.ts).
+    if (result?.isError)
+      throw Object.assign(new Error(textOf(result) || P.refusalNoText(name)), { result });
     // The tool's answer is an observed holding event; an answer to a busy line alone is not (#6509).
     if (standsBy(name, args) && !busy) keeper.stood(slot);
     if (standsBy(name, args)) runEnds.clear(sessionID); // stood again — writes go by its own bridge
@@ -441,6 +457,8 @@ export async function setupTools(
     },
     onEvent: (ev) => leads.onEvent(ev),
     leadOf: (s) => leads.nameOf(s),
+    ended: (s) => leads.ended(s),
+    launcherOf: (s) => launcherSeat(leads.upOf(s), slots, slots.get(s)?.satelliteOf?.name),
     holders: () => holdersOf(slots.values()),
     owns: (s) => slots.has(s),
     held: (r) => [slots.get(r)].find((x) => x?.holding && x.place && !x.bridge.failure) ?? null,
