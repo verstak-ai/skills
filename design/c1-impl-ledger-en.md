@@ -233,7 +233,7 @@ Branch `impl/c1-verstak-en-r2`, from `origin/main` `a18714d` (3.4.0, which carri
 
 ### Output limit (#7597) — gate, no recomposition needed
 
-- `scripts/validate-skills.mjs` section 4 carries the sibling's gate with the same meaning: OpenCode 2.0.28 cuts any tool's output at 2000 lines / 51 200 bytes by whole lines; the skill tool's output is modelled as the sibling models it (wrapper, body without frontmatter, a long install directory, up to ten files). Unlike the sibling, this delivery has one skill — the door — which sends every method, reference and template through the read tool; those are gated too, each line with its `N: ` prefix plus a 10-line / 1024-byte wrapper reserve. No exceptions; `SKILL_OUTPUT_SIZES=1` prints sizes. Falsifier run: a method blown up to 774 529 bytes fails `make validate` by name; restored, it passes.
+- `scripts/validate-skills.mjs` section 5 carries the sibling's gate with the same meaning: OpenCode 2.0.28 cuts any tool's output at 2000 lines / 51 200 bytes by whole lines; the skill tool's output is modelled as the sibling models it (wrapper, body without frontmatter, a long install directory, up to ten files). Unlike the sibling, this delivery has one skill — the door — which sends every method, reference and template through the read tool; those are gated too, each line with its `N: ` prefix plus a 10-line / 1024-byte wrapper reserve. No exceptions; `SKILL_OUTPUT_SIZES=1` prints sizes. Falsifier run: a method blown up to 774 529 bytes fails `make validate` by name; restored, it passes.
 - `AGENTS.md` "Shared surfaces" gains the row for this contract.
 - **Nothing is over the limit, so nothing was recomposed.** The longest are `references/align-delegation.md` (35 424 bytes), `methods/align.md` (26 612), `methods/writing.md` (26 474) and the door (26 374) — about half the limit. The en counterparts of the sibling's overgrown skills (`autonomous` for its watch, `align` for its alignment) were already split across `methods/` and `references/align-*.md`. The table "section → where" is therefore empty: no section moved. The longest line anywhere is 1 637 characters (`methods/writing.md`), under a 2000-character line cap if a read tool applies one.
 
@@ -241,7 +241,7 @@ Branch `impl/c1-verstak-en-r2`, from `origin/main` `a18714d` (3.4.0, which carri
 
 Skill tool: **door `SKILL.md` 26 374/255**.
 
-Read tool, `methods/`: align 26 612/157 · architect 20 987/117 · assembly 10 103/88 · assistant 16 960/125 · autonomous 25 373/190 · code-work 10 708/77 · collaborate 19 754/130 · design 13 076/140 · entry 18 235/155 · establish-mcp 11 864/85 · feedback 8 269/85 · foreman 11 925/100 · inquiry 11 178/90 · intake 10 450/93 · integrity 15 589/143 · minding 12 932/150 · product-roadmap 17 871/171 · reality-audit 10 841/76 · reconcile 7 394/37 · weaving 11 015/120 · widgets 3 441/48 · writing 26 474/196.
+Read tool, `methods/`: align 26 612/157 · architect 20 987/117 · assembly 10 103/88 · assistant 16 960/125 · autonomous 25 373/190 · code-work 10 708/77 · collaborate 19 754/130 · design 13 076/140 · entry 18 235/155 · establish-mcp 11 975/85 (after #161; 11 864 before) · feedback 8 269/85 · foreman 11 925/100 · inquiry 11 178/90 · intake 10 450/93 · integrity 15 589/143 · minding 12 932/150 · product-roadmap 17 871/171 · reality-audit 10 841/76 · reconcile 7 394/37 · weaving 11 015/120 · widgets 3 441/48 · writing 26 474/196.
 
 Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 18 765/230 · align-hooks 11 300/74 · align-superpowers-interop 3 638/50 · collaborate-channel 23 917/167 · door-menu 4 171/55 · door-phrasebook 13 649/152 · minding-personal-realm 10 571/132 · product-roadmap-self-checks 5 670/65 · writing-batch 2 797/31 · writing-given-as 6 094/73 · writing-modes 13 150/125. `templates/`: agents-template 7 629/106 · reality-template 2 553/22.
 
@@ -256,6 +256,11 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
 - `js/tests/delivery.test.mjs`, "a lead child's end names its last word testimony and says how much of a long one is shown". It means the same as the sibling's ru test: the end carries the last text as testimony, not acceptance, and a cut is said, not hidden. This delivery has no OpenCode e2e harness, so the test goes through the core's own composer `endWord`/`awayWord` (`js/opencode/leadwords.ts`, `SUMMARY_MAX` 4000), not the plugin. On a 4100-character outcome it checks: "Its final report follows — testimony, not acceptance evidence", the tail `[report truncated: 4000 of 4100 characters shown — incomplete here, whole in its case]`, exactly 4000 characters shown, and the same mark on the away word. A 4000-character outcome is shown whole, with no mark.
 - Only a test; no word text changed. Falsifier: the mark's wording changed in `leads.ts` fails it (pass 0, fail 1); reverted, it passes.
 - The rest of N-en7 / Sol N3 (seven write tools, multi-paragraph bodies, a door-row test) is not taken.
+
+### Merged with main after #161
+
+- `origin/main` `989c96c` (#161, the Codex plugin) is merged into this branch by a merge commit, not a rebase, so no history is rewritten. Its new `scripts/validate-skills.mjs` section "4." (one path to the graph — the bridge only, by `.mcp.json` and `.codex-plugin`) keeps its number; the output limit becomes section **5** (and the `AGENTS.md` row says so). `verstak.skill` is rebuilt over both sides.
+- `.codex-plugin/plugin.json` ships no skill of its own: `"skills": "./skills/"`, the same `skills/verstak` tree the gate already measures (door + 36 files the door reads, 37 in all). No new file to measure. #161's `methods/establish-mcp.md` line comes from main, not from this branch; its size is updated below.
 
 ### Limits r2
 
