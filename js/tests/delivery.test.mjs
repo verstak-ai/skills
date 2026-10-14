@@ -170,7 +170,7 @@ test("a lead's last case is read off the English server prose", async () => {
   for (const unread of [
     "Cases of this session (1):",
     "Cases of this session (1):\n  1f0c2a9e-… — sitting",
-    "Дел под запрошенным сужением нет.",
+    "\u0414\u0435\u043b \u043f\u043e\u0434 \u0437\u0430\u043f\u0440\u043e\u0448\u0435\u043d\u043d\u044b\u043c \u0441\u0443\u0436\u0435\u043d\u0438\u0435\u043c \u043d\u0435\u0442.", // the Russian "none",
     "No case is held on #5.",
   ])
     await assert.rejects(left(unread), /unread answer/, unread);
