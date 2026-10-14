@@ -55,7 +55,7 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     noRecord: (key, cwd) =>
       `there is no own hold record ${key ? `with the key ${key}` : `for the directory ${cwd ?? "?"}`}`,
     rejoin: () =>
-      `the seat may have expired at the platform and left its cases — after ${via} check ${tool("case")}(action="mine"); empty — join your cases again (${tool("case")} action="join")`,
+      `the seat may have expired at the platform and left its cases — after ${via} join again the cases that wait for you: ${tool("case")}(action="join", room="#N")`,
     foreignDir: (foreign) =>
       `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
     neighbourKey: (keys) =>

@@ -61,7 +61,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       "the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.",
     notBack: (place, why) =>
       `Verstak: the seat ${place} did not return from disk: ${why}. ` +
-      `The hearing watchdog retries the return once; if you will not wait — ${tool("stand")}.`,
+      `The seat is returning: the hearing watchdog retries the return once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word) => `Verstak: ${word}.`,
@@ -91,7 +91,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     tickFailed: (message) => `Verstak: the directory keepalive tact failed — ${message}`,
     lostWord: (hhmm, where) =>
       `Verstak: hearing was lost at ${hhmm} — the plugin was stopped (restart, directory eviction) with a holding bridge: ${where}. ` +
-      `The seat returns from disk by itself; the waiting frames come as a batch. If it did not return — ${tool("stand")}.`,
+      `The seat returns from disk by itself — wait, the waiting frames come as a batch; call ${tool("stand")} only if the hearing watchdog says the return failed.`,
     movedWhy: (name) =>
       `this child session's errand ended with the parent's move to another folder: its seat${name ? ` ${name}` : ""} is revoked, the bridge is down; a write from here would go under the parent's seat`,
     revokedMoved: (name) =>

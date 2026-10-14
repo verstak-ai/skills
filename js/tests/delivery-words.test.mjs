@@ -58,6 +58,28 @@ test("failed same-session takeover retains the seat and refusal reason", () => {
   assert.match(OPENCODE_KEEP.en.elsewhere("@owner:seat"), /serving this session now/);
 });
 
+test("a seat returning from disk is waited for; the stand tool is named only for a failed return", () => {
+  const notBack = OPENCODE_KEEP.en.notBack("@owner:seat", "why");
+  assert.match(
+    notBack,
+    /wait for its word; if it did not return on the retry either — verstak_stand\./,
+  );
+  assert.doesNotMatch(notBack, /will not wait/);
+  const lost = OPENCODE_KEEP.en.lostWord("12:00", "where");
+  assert.match(lost, /— wait, the waiting frames come as a batch;/);
+  assert.match(lost, /call verstak_stand only if the hearing watchdog says the return failed\./);
+  assert.doesNotMatch(lost, /If it did not return/);
+});
+
+test("rejoin joins the waiting cases by room, without checking mine first", () => {
+  const text = RESUME.en.rejoin();
+  assert.match(
+    text,
+    /join again the cases that wait for you: verstak_case\(action="join", room="#N"\)/,
+  );
+  assert.doesNotMatch(text, /mine/);
+});
+
 test("the delivery layer has word dictionaries", () => {
   assert.ok(FILES.length > 0, `no dictionaries under ${DIR}`);
 });
