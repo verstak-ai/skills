@@ -394,6 +394,68 @@ for (const file of new Set([...ls([]), ...ls(["--others", "--exclude-standard"])
   }
 }
 
+// 4. A skill reaches the model whole (graph @nks/nks-dev, node #7597). OpenCode 2.0.28 cuts the
+//    output of the skill tool, as of any tool, by whole lines: at most 2000 lines and 51 200 UTF-8
+//    bytes for the whole text (the `tool_output` defaults in the client binary); the tail never
+//    reaches the model. The skill tool's output is the client's wrapper around the body without
+//    frontmatter, the base directory and up to ten of the skill's files (the same shape the
+//    sibling delivery's gate holds). The directory is taken long — a reserve for the install path.
+//    The door sends methods, references and templates through the read tool under the same cut:
+//    each line with a line-number prefix, plus a reserve for the wrapper. No exceptions: an
+//    overgrown file is recomposed — mechanics verbatim into references/ with a mandatory pointer
+//    in place, the core in the body.
+const CLIENT_OUTPUT_MAX = { lines: 2000, bytes: 51200 };
+const READ_WRAPPER_RESERVE = { lines: 10, bytes: 1024 };
+function clientSkillOutput(name) {
+  const dir = `/Users/${"x".repeat(32)}/.config/opencode/skills/${name}`;
+  const text = readFileSync(join(skillsDir, name, "SKILL.md"), "utf8");
+  const fm = /^---\n[\s\S]*?\n---\n/.exec(text);
+  const body = text.slice(fm ? fm[0].length : 0).trim();
+  const files = [];
+  const walk = (d, rel) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      if (e.isDirectory()) walk(join(d, e.name), `${rel}${e.name}/`);
+      else if (`${rel}${e.name}` !== "SKILL.md") files.push(`${dir}/${rel}${e.name}`);
+    }
+  };
+  walk(join(skillsDir, name), "");
+  return [
+    `<skill_content name="${name}">`,
+    `# Skill: ${name}`,
+    "",
+    body,
+    "",
+    `Base directory for this skill: ${dir}`,
+    "Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.",
+    "Note: file list is sampled.",
+    "",
+    "<skill_files>",
+    ...files.sort().slice(0, 10).map((f) => `<file>${f}</file>`),
+    "</skill_files>",
+    "</skill_content>",
+  ].join("\n");
+}
+function clientReadSize(file) {
+  const lines = readFileSync(file, "utf8").split("\n");
+  const bytes = lines.reduce((sum, line, i) => sum + Buffer.byteLength(`${i + 1}: ${line}\n`, "utf8"), 0);
+  return { lines: lines.length + READ_WRAPPER_RESERVE.lines, bytes: bytes + READ_WRAPPER_RESERVE.bytes };
+}
+const overClient = (where, tool, { lines, bytes }) => {
+  if (lines > CLIENT_OUTPUT_MAX.lines || bytes > CLIENT_OUTPUT_MAX.bytes)
+    fail(where, `the ${tool} tool's output is ${bytes} bytes, ${lines} lines: over the client's limit (${CLIENT_OUTPUT_MAX.bytes} bytes, ${CLIENT_OUTPUT_MAX.lines} lines) — the tail will not reach the model; recompose without cutting meaning (#7597)`);
+  if (process.env.SKILL_OUTPUT_SIZES) console.log(`${where}\t${tool}\t${bytes}\t${lines}`);
+};
+for (const name of skillNames) {
+  const out = clientSkillOutput(name);
+  overClient(`skills/${name}/SKILL.md`, "skill", { lines: out.split("\n").length, bytes: Buffer.byteLength(out, "utf8") });
+  for (const sub of ["methods", "references", "templates"]) {
+    const d = join(skillsDir, name, sub);
+    if (!existsSync(d)) continue;
+    for (const f of readdirSync(d).filter((n) => n.endsWith(".md")).sort())
+      overClient(`skills/${name}/${sub}/${f}`, "read", clientReadSize(join(d, f)));
+  }
+}
+
 // Report.
 if (warnings.length > 0) {
   console.warn(`⚠ ${warnings.length} warning${warnings.length === 1 ? "" : "s"} (non-fatal):`);
