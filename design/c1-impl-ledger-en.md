@@ -228,7 +228,8 @@ Branch `impl/c1-verstak-en-r2`, from `origin/main` `a18714d` (3.4.0, which carri
 - `scripts/sync-core.sh <sibling repo> 5a48cfe7` — the head of the sibling's `impl/c1-…-ru-r2`: its fresh main `39f8c1f9` (7.10.0 and after: #466, #467 the stop order, #468, #470 the language by server address, #471 the seat beside handed over with the main one) plus C1. `js/core.lock` pins `5a48cfe7b389d6da0b2a19e8bc036f9f998f6c51`, 212 files. `d1010ac6` (our previous pin, via #160) is an ancestor of `39f8c1f9`.
 - The C1 core is unchanged by the re-sync: `js/bridge/moment.ts` (only a whole shipped moment line, at the head or the tail, on `add_*`/`batch`) is byte-equal to the `923fe131` copy; the outcome cut and ENDED ride as before.
 - The delivery layer, for what the new core asks: `HALTS_CAPABILITY` (`js/delivery/protocol.ts`, exported from `index.ts`; the bridge client's experimental key confirming the OpenCode plugin executes a stop), `STOP.orderJournalRefused` (`js/delivery/words/stop.ts`, the order journal on disk refused an entry), `THIN.besideNotBack` reworded for #471 ("the seat beside did not come back with the main one"). English renderings of the sibling's words. `SERVER_LOCALE` stays `{ en: "en" }`: this delivery speaks only English, and #468's Russian entry has no place here.
-- **`5a48cfe7` is not on the sibling's `main`.** Before any release of this delivery, re-sync to the sibling's merged commit and re-run `make check`.
+- **Pinned to the final ru head `0f58444a2159de0100641b6debfb40a7932f8e94`.** Its only commit after `5a48cfe7` touches `skills/vahta/SKILL.md`, `vahta.skill` and its ledger. The core is byte-equal between the two: `git diff --stat 5a48cfe7 0f58444a -- js/bridge js/shared js/opencode js/extension js/watchdog js/cli` is empty (`git diff --quiet` exits 0), and the six tree hashes are the same at both commits (bridge `3798c492`, shared `2aa97ec5`, opencode `bcf5103c`, extension `c6e1de41`, watchdog `3289fdf8`, cli `d769fd3e`). `scripts/sync-core.sh <sibling repo> 0f58444a` changes only the commit line of `js/core.lock`; every per-file sha256 stays the same.
+- **`0f58444a` is not on the sibling's `main`.** Before any release of this delivery, re-sync to the sibling's merged commit and re-run `make check`.
 
 ### Output limit (#7597) — gate, no recomposition needed
 
@@ -248,11 +249,17 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
 
 ### Gate r2
 
-`make check` — exit 0: core boundary and pin (212 files at `5a48cfe7`), lint 0 errors (22 warnings, as on main), format, types, release-build check, tests 126, passed 126, failed 0, skipped 0, todo 0.
+`make check` — exit 0: core boundary and pin (212 files at `0f58444a`), lint 0 errors (22 warnings, as on main), format, types, release-build check, tests 127, passed 127, failed 0, skipped 0, todo 0.
+
+### `LEAD.cut` in English (Opus N-en7 / Sol N3)
+
+- `js/tests/delivery.test.mjs`, "a lead child's end names its last word testimony and says how much of a long one is shown". It means the same as the sibling's ru test: the end carries the last text as testimony, not acceptance, and a cut is said, not hidden. This delivery has no OpenCode e2e harness, so the test goes through the core's own composer `endWord`/`awayWord` (`js/opencode/leadwords.ts`, `SUMMARY_MAX` 4000), not the plugin. On a 4100-character outcome it checks: "Its final report follows — testimony, not acceptance evidence", the tail `[report truncated: 4000 of 4100 characters shown — incomplete here, whole in its case]`, exactly 4000 characters shown, and the same mark on the away word. A 4000-character outcome is shown whole, with no mark.
+- Only a test; no word text changed. Falsifier: the mark's wording changed in `leads.ts` fails it (pass 0, fail 1); reverted, it passes.
+- The rest of N-en7 / Sol N3 (seven write tools, multi-paragraph bodies, a door-row test) is not taken.
 
 ### Limits r2
 
 - Delivery into OpenCode was not observed by capturing a request: the gate models the output, not a load.
 - The read-tool model (prefix and wrapper reserve) is a reserve, not a measured shape of the 2.0.28 read output; a user `tool_output` smaller than the default cuts sooner.
-- Opus N-en7 / Sol N3 (an en test of `LEAD.cut`, wider fixtures) stays not taken: this re-sync adds no test of its own.
+- Opus N-en7 / Sol N3: the en `LEAD.cut` test is taken (above); the wider fixtures are not.
 - No PR, tag or release (the brief).
