@@ -4,10 +4,16 @@ export interface PlaceSnapshot {
   realm: string;
   karta: string | number;
   primary: boolean;
+  /** The platform's seat id (hello, register) — the `stop` subcommand addresses the seat by it. */
+  standing_id?: string;
+  /** The seat's address @handle:name — `stop @handle:name` checks the owner by it. */
+  address?: string;
   satellite_of?: string;
   listening: boolean;
   last_work_at?: string;
   usage?: Record<string, string | number>;
+  /** The last pulse the seat's socket carried (graph @nks/nks-dev, node #7529), with sent_at. */
+  pulse?: Record<string, string | number>;
   /** Last skills this bridge sent with a successful reply, not a readback of server attrs. */
   skills?: { name: string; version: string; stamp?: string };
   skills_mismatch?: boolean;
@@ -20,6 +26,9 @@ export interface SessionSnapshot {
   harness_session: string | null;
   cwd: string;
   build: string;
+  /** The session's server and its seats' api (the socket's origin): `stop` keys and addresses a seat by them. */
+  server?: string;
+  api?: string;
   /** Last skills this bridge sent with a successful reply; other writers are not observed. */
   skills?: { name: string; version: string; stamp?: string };
   installed_skills?: { name: string; version: string; stamp?: string };
@@ -63,9 +72,19 @@ export function safeUsage(v: unknown): Record<string, string | number> | undefin
   for (const k of ["model", "at"]) if (typeof raw[k] === "string") out[k] = raw[k];
   return Object.keys(out).length ? out : undefined;
 }
+export function safePulse(v: unknown): Record<string, string | number> | undefined {
+  const raw = record(v);
+  if (typeof raw.state !== "string") return undefined;
+  const out: Record<string, string | number> = { state: raw.state };
+  if (typeof raw.pending === "number" && Number.isFinite(raw.pending)) out.pending = raw.pending;
+  for (const k of ["turn_at", "read_at", "cycle_at", "sent_at"])
+    if (typeof raw[k] === "string") out[k] = raw[k];
+  return out;
+}
 export function safePlace(v: unknown): PlaceSnapshot {
   const p = record(v);
   const usage = safeUsage(p.usage);
+  const pulse = safePulse(p.pulse);
   const skills = safeSkills(p.skills);
   return {
     name: text(p.name),
@@ -73,9 +92,12 @@ export function safePlace(v: unknown): PlaceSnapshot {
     karta: typeof p.karta === "number" ? number(p.karta) : text(p.karta),
     primary: p.primary === true,
     listening: p.listening === true,
+    ...(typeof p.standing_id === "string" ? { standing_id: p.standing_id } : {}),
+    ...(typeof p.address === "string" && p.address ? { address: p.address } : {}),
     ...(typeof p.satellite_of === "string" ? { satellite_of: p.satellite_of } : {}),
     ...(typeof p.last_work_at === "string" ? { last_work_at: p.last_work_at } : {}),
     ...(usage ? { usage } : {}),
+    ...(pulse ? { pulse } : {}),
     ...(skills ? { skills } : {}),
     ...(typeof p.skills_mismatch === "boolean" ? { skills_mismatch: p.skills_mismatch } : {}),
   };
@@ -98,6 +120,8 @@ export function safeSnapshot(v: unknown): MachineSnapshot {
         harness_session: typeof s.harness_session === "string" ? s.harness_session : null,
         cwd: text(s.cwd),
         build: text(s.build),
+        ...(typeof s.server === "string" && s.server ? { server: s.server } : {}),
+        ...(typeof s.api === "string" && s.api ? { api: s.api } : {}),
         ...(skills ? { skills } : {}),
         ...(installed ? { installed_skills: installed } : {}),
         ...(typeof s.skills_mismatch === "boolean" ? { skills_mismatch: s.skills_mismatch } : {}),

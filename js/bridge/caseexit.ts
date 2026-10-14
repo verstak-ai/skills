@@ -10,6 +10,7 @@ import { H } from "./holdstate.ts";
 import { normKarta } from "./names.ts";
 import { extraPlaces } from "./places.ts";
 import { canonRealm, otherRealm } from "./realms.ts";
+import { seatAlreadyOff } from "./refusal.ts";
 import { log } from "./streams.ts";
 import { type Standing, state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -119,17 +120,14 @@ export async function revokeSatellitePlaces(
 }
 
 /**
- * A revoke reply: confirmed — success, or a seat already gone as data (410, 404 without a
- * rule; the platform's 4001, a retry after a closed connection); probably — prose that reads
+ * A revoke reply: confirmed — success, or a seat already gone as data (refusal.ts seatAlreadyOff;
+ * the platform's 4001, a retry after a closed connection); probably — prose that reads
  * as gone without refusal data, never confirmed to the plugin (№664); any other refusal
  * (e.g. the channel's main seat) is a real failure.
  */
 const revokeOutcome = (r: Answer): "confirmed" | "probably" | "failed" => {
   if (!r.isError) return "confirmed";
-  if (r.refusal)
-    return r.refusal.status === 410 || (r.refusal.status === 404 && !r.refusal.rule)
-      ? "confirmed"
-      : "failed";
+  if (r.refusal) return seatAlreadyOff(r.refusal) ? "confirmed" : "failed";
   return CASE_EXIT_CLOSED.test(r.text) ? "probably" : "failed";
 };
 

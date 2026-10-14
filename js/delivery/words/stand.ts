@@ -19,6 +19,8 @@ export interface StandWords {
   boardCountFound: (declared: number, parsed: number) => string;
   refused: (what: string, text: string) => string;
   noIdInRegister: () => string;
+  /** A satellite with no harness model: the PATCH clearing the seat's model failed (#7591) — why: the outcome. */
+  modelNotCleared: (why: string) => string;
   howBeside: (led: string) => string;
   howReturned: () => string;
   howOwnSession: () => string;
@@ -79,6 +81,8 @@ export const STAND: Readonly<Record<Lang, StandWords>> = {
     refused: (what, text) => `Refused: ${what} — ${text}`,
     noIdInRegister: () =>
       "register did not name the seat's id — the seat's frames are found by graph and address; the busy line waits for the id.",
+    modelNotCleared: (why) =>
+      `The seat's earlier model is not cleared (${why}): the harness named no model, and the board may still show the earlier one.`,
     howBeside: (led) =>
       `a seat of another graph — stands beside on the channel this bridge holds (${led}): register`,
     howReturned: () =>

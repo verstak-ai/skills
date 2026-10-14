@@ -8,7 +8,7 @@ import { words } from "../shared/lang.ts";
 import { socketPathOf, spoolFilePathOf } from "../shared/standings.ts";
 import { CFG } from "./config.ts";
 import { type ChannelEvent } from "./door.ts";
-import { liveWhenFree } from "./holdstate.ts";
+import { E, liveWhenFree } from "./holdstate.ts";
 import { type Place, strayOf } from "./places.ts";
 import { closeSpool, drainSpool, HANDOFF_MS, openSpool, spoolFrame } from "./spool.ts";
 import { publishStatusTo } from "./statuspost.ts";
@@ -78,8 +78,9 @@ export function letGo(
   reason: string,
   statusUrl: string | null = null,
 ): void {
-  if (holder && keepFor) keepUntilEvicted(holder, keepFor, statusUrl);
-  else holder?.close(reason);
+  if (holder && keepFor) return keepUntilEvicted(holder, keepFor, statusUrl);
+  if (holder?.alive) E.pulse?.("last", holder); // the seat's last pulse before its socket goes (pulse.ts)
+  holder?.close(reason);
 }
 
 /**

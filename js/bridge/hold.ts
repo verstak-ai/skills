@@ -93,7 +93,6 @@ export { noteResuming, setClosingOwn, setRevokingBeside, setRevokingOwn } from "
 
 // Stale service repeats after a session rebuild fold into one word, not one wake per frame
 // (graph @nks/nks-dev, nodes #4881, #5033).
-
 const doorHooks: DoorHooks = {
   onAttach: () => {
     for (const fn of H.attachHooks) fn();
@@ -314,7 +313,7 @@ export function holdStanding(url: string, statusUrl?: string | null): string {
 export function parkStanding(reason: string): string | null {
   if (!H.holder?.alive || !H.currentKey) return null;
   H.heardAt = Math.max(H.heardAt, H.holder.heardAt);
-  H.holder.close(reason);
+  letGo(H.holder, null, reason);
   H.holder = null;
   H.parked = true;
   standingLog(`parked ${H.currentKey}: ${reason}`);
@@ -446,6 +445,7 @@ function openHolder(url: string, key: string): void {
             d.broadcast({ kind: "note", text: note });
           }
           deliverTo(d, raw, frame, full);
+          E.pulse?.(full?.type === "hello" ? "hello" : "frame");
           if (full?.type === "hello") drainWhenFree(() => takeSpool(key, held, onFrame)); // the leaving daemon's (#6586), after the seats beside (#7602)
         });
       },

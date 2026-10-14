@@ -108,6 +108,8 @@ export function setupChannel(
   parents: ReadonlyMap<string, string> = new Map(),
   onStop: (session: string) => void = () => {},
   leads: ChildLeads = NO_LEADS,
+  /** A frame was laid into the session (the seat's pulse, pulse.ts). */
+  prompted: (session: string, inbox: string | null, delivery: "steer" | "queue") => void = () => {},
 ): Channel {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -167,7 +169,9 @@ export function setupChannel(
       const r: any = await ctx.session.prompt({ sessionID: id, text: markFrame(text), delivery });
       say(W.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
-      return { session: id, inbox: typeof inbox === "string" ? inbox : null };
+      const got = { session: id, inbox: typeof inbox === "string" ? inbox : null };
+      prompted(got.session, got.inbox, delivery);
+      return got;
     } catch (e) {
       say(W.notDelivered(frame, id, (e as Error).message), "error");
       return null;

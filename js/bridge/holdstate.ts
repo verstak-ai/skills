@@ -48,12 +48,36 @@ export const H = scoped(() => ({
   handingOver: null as string | null,
   /** the last owner's stop of this session (stophold.ts, #7439): `n` counts stops, a move compares it before and after */
   stopped: { n: 0, key: "", text: "" },
+  /** a stand call in flight since this stop count (standundo.ts): a stop meanwhile — its connect answers are not held */
+  moveSince: null as number | null,
+  /** seats a stand call in flight took or bound again (connect, register answered): a stop meanwhile takes them off */
+  taken: null as { realm: string; karta: string; name: string }[] | null,
 }));
+
+/** A channel connect or register answered: the seat goes into the stand call's list, if one runs. */
+export function noteTaken(a: Record<string, unknown>): void {
+  if (!H.taken || (a.action !== "connect" && a.action !== "register")) return;
+  const seat = {
+    realm: String(a.realm ?? ""),
+    karta: String(a.karta ?? ""),
+    name: String(a.name ?? ""),
+  };
+  if (
+    !H.taken.some((s) => s.realm === seat.realm && s.karta === seat.karta && s.name === seat.name)
+  )
+    H.taken.push(seat);
+}
 
 /** The stop word if the seat `key` was taken off by its owner since the count `before` (stopsNow); otherwise null. */
 export const stoppedSince = (before: number, key: string): string | null =>
   H.stopped.n !== before && H.stopped.key === key ? H.stopped.text : null;
 export const stopsNow = (): number => H.stopped.n;
+/** The stop word if the session was stopped since the count `before`, whichever seat it held; otherwise null. */
+export const stoppedDuring = (before: number): string | null =>
+  H.stopped.n !== before ? H.stopped.text : null;
+/** A stand call's connect answers after the session was stopped: the seat it took is not held (#7439). */
+export const stoppedInMove = (): boolean =>
+  H.moveSince !== null && stoppedDuring(H.moveSince) !== null;
 
 /** Next step after eviction (evicted.ts) and after the owner's stop (stophold.ts): set once at load, one per process for all sessions. */
 export const E: {
@@ -62,11 +86,17 @@ export const E: {
   stop: ((key: string, code: number, reason: string, ended?: Frame) => void) | null;
   /** every frame of the socket passes the stop orders (stoporder.ts): true — a stop frame, taken, not the agent's */
   order: ((url: string, frame: Frame | null) => boolean) | null;
+  /** The seat's pulse (pulse.ts): a frame or hello came, or `holder` is about to be let go ("last"). */
+  pulse: ((why: "hello" | "frame" | "last", holder?: Holder) => void) | null;
 } = {
   next: null,
   stop: null,
   order: null,
+  pulse: null,
 };
+export function whenPulsed(fn: NonNullable<(typeof E)["pulse"]>): void {
+  E.pulse = fn;
+}
 export function whenOrdered(fn: NonNullable<(typeof E)["order"]>): void {
   E.order = fn;
 }

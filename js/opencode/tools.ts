@@ -43,6 +43,7 @@ import { launcherSeat } from "./leadframes.ts";
 import { createLeads } from "./leads.ts";
 import { createLogin } from "./login.ts";
 import { takeLostMarker, writeLostMarker } from "./marker.ts";
+import { createModels } from "./models.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { revokeAsLauncher } from "./release.ts";
@@ -107,7 +108,7 @@ export async function setupTools(
       (method, params) => {
         if (method === "notifications/tools/list_changed") return void relist(slot.bridge); // #5406
         if (method !== "notifications/message" || params?.logger !== LOGGERS.channel) return;
-        const kind = params?.data?.kind;
+        const kind = models.seen(slot, params?.data); // the graphs of its seats too (#7591)
         // holding follows an observed event — the bridge's "held" word and hello (#5140).
         if (kind === "held" || kind === "attached" || params?.data?.frame?.type === "hello")
           keeper.stood(slot);
@@ -154,6 +155,7 @@ export async function setupTools(
   const mv = createMoves(ctx);
   const { home, directoryOf, exists, ours } = mv;
   const relay = mv.relay(onChannel, say);
+  const models = createModels(ctx); // a satellite's seat names its session's model (#7591)
   const runEnds = createRunEnds(); // ended children: a write through a seat is a refusal aloud (#6361)
   // Lead subagents (#6625): the end is an explicit act, the outcome a synthetic message to the parent.
   const endChild = (c: string, out: ((s: string) => void) | null = forget) =>
@@ -358,6 +360,7 @@ export async function setupTools(
       await awaitReady(slot); // a fresh child bridge may ask for a sign-in too
     }
     const busy = name === STAND_TOOL && asSatellite(args, slot.satelliteOf, !!slot.place);
+    if (name === STAND_TOOL) await models.name(args, sessionID, slot);
     // The bridge runs in OpenCode's cwd: the standing's repo comes from the session's directory (#5108).
     if (name === STAND_TOOL && !args.cwd) {
       const dir = (slot.dir ??= await directoryOf(slot.session ?? sessionID));
@@ -452,7 +455,7 @@ export async function setupTools(
       forget(s);
       runEnds.clear(s, true); // no session — no final mark either
     },
-    onEvent: (ev) => leads.onEvent(ev),
+    onEvent: (ev) => [models, leads].forEach((x) => x.onEvent(ev)),
     leadOf: (s) => leads.nameOf(s),
     ended: (s) => leads.ended(s),
     launcherOf: (s) => launcherSeat(leads.upOf(s), slots, slots.get(s)?.satelliteOf?.name),

@@ -51,6 +51,7 @@ import { stoppedSince, stopsNow } from "./holdstate.ts";
 import { knock, resetKnocks } from "./knock.ts";
 import { heardOnReturn, returnToStanding } from "./leave.ts";
 import { listenBlock } from "./listen.ts";
+import { clearingRegister } from "./modelclear.ts";
 import {
   deriveParts,
   fitName,
@@ -63,12 +64,15 @@ import {
   sanitize,
 } from "./names.ts";
 import { ownerRefusal } from "./owner.ts";
-import { placeFields, rememberModel } from "./placefields.ts";
+import { placeFields, rememberStandModel } from "./placefields.ts";
 import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
+import { standAgainWord } from "./standagain.ts";
+import { besideHoldsMain, ledIn, refusedWord, releasePrior } from "./standmoves.ts";
+import { connectInMove, heldAddress, registerRefused, stopGuard } from "./standundo.ts";
 import { boardHeaders, needRealmKarta, sw } from "./standwords.ts";
 import { busyLine, publishStatus, standStatusOnly, TAKE_PATH, TURNED_GUIDANCE } from "./status.ts";
 import { state } from "./transport.ts";
@@ -94,7 +98,11 @@ export const isDirectory = (p: string): boolean => {
 export const isStandCall = (msg: JsonRpcMessage): boolean =>
   msg?.method === "tools/call" && msg?.params?.name === tool("stand");
 
-export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
+/** Every answer of the stand call passes the stop guard (standundo.ts, #7439). */
+export const runStand = (msg: JsonRpcMessage): Promise<JsonRpcMessage> =>
+  stopGuard(msg, () => standOnce(msg));
+
+async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // Busyness on a seat the bridge already holds — the line only (#6509).
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
@@ -112,11 +120,14 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     },
   });
   if (!realm || !karta) {
-    lines.push(needRealmKarta(statusOnly.miss, statusOnly.of));
+    lines.push(
+      needRealmKarta(statusOnly.miss, statusOnly.of) +
+        (await standAgainWord(realm, karta, statusOnly.miss)),
+    );
     return done(true);
   }
   const model = typeof a.model === "string" && a.model.trim() ? a.model : undefined;
-  rememberModel(model);
+  rememberStandModel(model);
   // Default directory is the harness bridge's: for a daemon session, the thin bridge's cwd.
   const cwd = typeof a.cwd === "string" && a.cwd.trim() ? a.cwd.trim() : sessionCwd();
   // A bad cwd would address another seat — a refusal aloud, as for an explicit name (#5068).
@@ -170,6 +181,15 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // A taken seat beside is no return: seatFor picks the next seat beside (#6706).
   const besideTaken = ledSuffix && !!led0 && wasEvicted(led0.realm, led0.karta, led0.name ?? "");
   if (ledSuffix && !besideTaken && a.take !== true) name = led0?.name ?? name;
+  // take=true onto another named seat of the call's graph — the main one or one beside: the
+  // led one is released (#7553).
+  const ledThere = sat ? undefined : ledIn(realm);
+  const prior =
+    a.take === true &&
+    ledThere?.name &&
+    (ledThere.name !== name || String(ledThere.karta) !== karta)
+      ? { ...ledThere }
+      : null;
   if (parts && fitted && fitted.cut.length) {
     const what = fitted.cut.map((k) => sw().cutPart(k)).join(", ");
     nameNotes.push(sw().nameCut(joinName(parts), NAME_MAX, name, what));
@@ -198,15 +218,16 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     lines.push(noChannel);
     return done(true);
   }
+  // take=true off a main seat with seats beside: no channel move is built — refused before connect (#6499).
+  const holdsMain = prior ? besideHoldsMain(realm, prior, name) : null;
+  if (holdsMain) return (lines.push(holdsMain), done(true));
   const prim = state.standing;
   const beside = !!prim && otherRealm(realm, prim.realm) && !holdsStanding(realm, karta, name);
   // The session directory goes into the hold record: a re-raised bridge returns the seat by it (#5140).
   noteStandCwd(cwd);
-
   const here = () => placeFields({ realm, karta, name }, true); // seat fields on every registration (#5174)
-  const register = () =>
-    call(tool("channel"), { action: "register", realm, karta, name, ...here() });
-
+  const reg = () => call(tool("channel"), { action: "register", realm, karta, name, ...here() });
+  const { register, kept: modelKept } = clearingRegister(reg, realm); // register keeps a model (#7591)
   // 1. The board — before any change.
   const board = await call(tool("channel"), { action: "list", realm });
   if (board.isError) {
@@ -314,13 +335,18 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const extra: string[] = []; // lines after the answer's header
   // This bridge held the socket before the call (own register, return from disk): no hello wait.
   let socketBefore = false;
+  let priorKept = false;
   // take=true is an explicit new entry cycle: connect even when the socket is already ours.
   if (beside) {
     // A channel holds seats in several graphs: register adds the seat on the same socket;
-    // connect would open a second channel (#5838).
+    // connect would open a second channel (#5838). The seat beside it replaces goes first:
+    // the channel stands once in a graph (#7553).
+    const freed = prior ? await releasePrior(realm, prior) : null;
+    if (freed && !freed.ok) return (lines.push(freed.note), done(true));
+    if (freed) extra.push(sw().note(freed.note));
     const r = await register();
     if (r.isError) {
-      lines.push(sw().refused("register", short(r.text)));
+      lines.push(refusedWord("register", r, realm));
       return done(true);
     }
     heardHere = holdsStanding(realm, karta, name);
@@ -330,7 +356,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   } else if (resumed) {
     const r = await register();
     if (r.isError) {
-      lines.push(sw().refused("register", short(r.text)));
+      lines.push(refusedWord("register", r, realm));
       return done(true);
     }
     heardHere = true;
@@ -350,14 +376,14 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     if (!holdsStanding(realm, karta, name) && !R.again) {
       R.again = true;
       try {
-        return await runStand(msg);
+        return await standOnce(msg);
       } finally {
         R.again = false;
       }
     }
     const r = await register();
     if (r.isError) {
-      lines.push(sw().refused("register", short(r.text)));
+      lines.push(refusedWord("register", r, realm));
       return done(true);
     }
     heardHere = true;
@@ -365,7 +391,7 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   } else if (!take && (holdsStanding(realm, karta, name) || reopening)) {
     const r = await register();
     if (r.isError) {
-      lines.push(sw().refused("register", short(r.text)));
+      lines.push(refusedWord("register", r, realm));
       return done(true);
     }
     heardHere = true;
@@ -380,34 +406,47 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     Object.assign(args, here());
     if (typeof a.mute_siblings === "boolean") args.mute_siblings = a.mute_siblings;
     if (sat) args.ttl_seconds = SATELLITE_TTL_S; // a satellite's invitations do not outlive the run (#6001, condition a)
-    let c = await call(tool("channel"), args); // the holder takes the new socket itself: a clean frame ring
-    if (sat && c.isError && ttlRefused(c)) {
+    const addr = heldAddress(realm, prior);
+    const connect = () => call(tool("channel"), args);
+    // A stop since the call began is the stop guard's (standundo.ts); a 429 wait ends at it.
+    const re = await connectInMove(stopsBefore, { realm, karta, name }, connect, async () => {
+      const c0 = await connect(); // the holder takes the new socket itself: a clean frame ring
+      if (!sat || !c0.isError || !ttlRefused(c0)) return c0;
       // The contour holds the window range; outside it the run still needs the seat, with the default window.
-      extra.push(sw().ttlRefused(SATELLITE_TTL_S, short(c.text, 120)));
+      extra.push(sw().ttlRefused(SATELLITE_TTL_S, short(c0.text, 120)));
       delete args.ttl_seconds;
-      c = await call(tool("channel"), args);
-    }
-    if (c.isError) {
-      lines.push(sw().refused("connect", short(c.text)));
+      return connect();
+    });
+    const { c, own: ownReopen, taken } = re;
+    if (re.note) extra.push(sw().note(re.note));
+    if (c.isError && !ownReopen) {
+      lines.push(refusedWord("connect", c, realm));
       return done(true);
     }
     const r = await register();
     if (r.isError) {
-      lines.push(sw().takenButRegister(short(r.text)));
+      lines.push(await registerRefused(r, realm, taken, prior, addr));
       return done(true);
     }
     resetKnocks(realm, karta, name);
     heardHere = true;
-    how = ownSession
-      ? sw().howOwnSession()
-      : sw().howConnect(!!mine, listensElsewhere, a.take === true);
+    socketBefore = ownReopen;
+    how = ownReopen
+      ? sw().howRegister()
+      : ownSession
+        ? sw().howOwnSession()
+        : sw().howConnect(!!mine, listensElsewhere, a.take === true);
     // The seat retaken after a return that found no record: cases may have been lost (#6649).
     if (takeLapsed()) extra.push(sw().note(resumeWords.rejoin()));
+    const freed = prior ? await releasePrior(realm, prior) : null;
+    if (freed) extra.push(sw().note(freed.note));
+    priorKept = !!freed && !freed.ok; // the former seat lives: the call reports it, not success
   }
   lines.push(
     sw().head(mine?.address ?? name, karta, realm, how),
     ...nameNotes.map((n) => sw().note(n)),
     ...extra,
+    ...(modelKept() ? [sw().modelNotCleared(modelKept() as string)] : []),
   );
   const block = heardHere ? (sat ? satelliteListenWord() : listenBlock(realm)) : null;
   if (block) lines.push(block);
@@ -456,5 +495,5 @@ export async function runStand(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   }
   const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
   if (stale) lines.push(stale);
-  return done();
+  return done(priorKept);
 }

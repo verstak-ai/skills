@@ -14,6 +14,7 @@ import { runWatchdogExit } from "../watchdog/watchdog-exit.ts";
 import { runDoctor } from "./doctor.ts";
 import { RITUALS_USAGE, runCheckRituals } from "./rituals.ts";
 import { runStatus } from "./status.ts";
+import { runStop } from "./stop.ts";
 import { runUpdate } from "./update.ts";
 import { runUse } from "./use.ts";
 
@@ -32,9 +33,17 @@ const longLived =
   LONG_LIVED.has(first) ||
   (first !== undefined &&
     !first.startsWith("--") &&
-    !["doctor", "status", "update", "use", "check-rituals", "daemon", "version", "-h"].includes(
-      first,
-    ));
+    ![
+      "doctor",
+      "status",
+      "stop",
+      "update",
+      "use",
+      "check-rituals",
+      "daemon",
+      "version",
+      "-h",
+    ].includes(first));
 if (longLived && !updatesDisabled() && !process.env[envName("BRIDGE_REEXEC")]) {
   const sync = syncHome();
   for (const p of sync.copied) process.stderr.write(cw().homeUpdated(p));
@@ -46,6 +55,9 @@ function dispatch(): void {
   switch (first) {
     case "status":
       void runStatus(rest);
+      break;
+    case "stop":
+      void runStop(rest);
       break;
     case "watchdog":
       runWatchdog(rest);

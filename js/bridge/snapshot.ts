@@ -1,12 +1,15 @@
 // Session-scoped machine inventory (graph @nks/nks-dev, nodes #7495, #6478).
+import { apiBase } from "../shared/channel.ts";
 import { runIn } from "../shared/scope.ts";
 import { safePlace, type SessionSnapshot } from "../shared/snapshot.ts";
 import { harnessName, notifiedClient } from "./client.ts";
+import { CFG } from "./config.ts";
 import { doors, heldPlaces, holdsChannel } from "./hold.ts";
 import { sessionOfBridge } from "./holdrecord.ts";
 import { H } from "./holdstate.ts";
 import { observedPlaceAttrs } from "./placefields.ts";
 import { extraPlaces } from "./places.ts";
+import { sentPulse } from "./pulse.ts";
 import { type BridgeSession } from "./session.ts";
 import { skillsAttr } from "./skillset.ts";
 import { announcedSkills } from "./skillwatch.ts";
@@ -33,6 +36,8 @@ export function sessionSnapshot(
       installed_skills: installed,
       skills_mismatch: differs(declared),
       cwd: engine.origin?.cwd ?? "",
+      server: CFG.serverUrl,
+      ...(H.currentUrl ? { api: apiBase(H.currentUrl) } : {}),
       harness: harnessName(),
       harness_session: sessionOfBridge(),
       places: heldPlaces().map((p) => {
@@ -47,11 +52,14 @@ export function sessionSnapshot(
           realm: standing?.realm,
           karta: standing?.karta,
           primary: p.primary,
+          standing_id: door?.standingId ?? undefined,
+          address: door?.address ?? undefined,
           satellite_of: attrs.satellite_of,
           listening:
             !H.unheard && holdsChannel() && (notifiedClient() ? attached : !!door?.clients.size),
           ...(last ? { last_work_at: new Date(last).toISOString() } : {}),
           usage: attrs.usage,
+          pulse: sentPulse(),
           skills: standing ? announcedSkills(standing) : undefined,
           skills_mismatch: differs(standing ? announcedSkills(standing) : undefined),
         });

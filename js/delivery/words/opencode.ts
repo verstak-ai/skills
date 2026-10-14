@@ -47,6 +47,8 @@ export interface OpencodeWords {
   sessionClosed: (id: string, frame: string) => string;
   nowhere: (frame: string, text: string) => string;
   halted: (frame: string, id: string) => string;
+  /** The pulse (#7529): the session holds so many frames laid and not taken by its turn yet. */
+  pulseOverflow: (id: string, waiting: number) => string;
   haltUnwritten: (id: string, message: string) => string;
   /** kept — the record could not be rewritten as lifted either. */
   haltUnlifted: (id: string, message: string, kept: boolean) => string;
@@ -119,6 +121,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       text,
     halted: (frame, id) =>
       `Verstak: ${frame} not delivered — session ${id} was stopped by taking its seat off; it is not woken until it takes a seat again explicitly`,
+    pulseOverflow: (id, waiting) =>
+      `Verstak: ${waiting} frames laid into session ${id} wait for its turn — OpenCode does not take them; the pulse keeps them all`,
     haltUnwritten: (id, message) =>
       `Verstak: the stop of session ${id} was not written to disk (${message}) — only the live plugin instances of this process keep the ban, it will not survive a reload`,
     haltUnlifted: (id, message, kept) =>

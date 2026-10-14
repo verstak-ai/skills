@@ -166,7 +166,11 @@ export function readHoldRecord(key: string, anyAge = false): HoldRecord | null {
   }
 }
 /** Hold records under this name for any role; the caller judges the graph. */
-export function holdRecordsNamed(name: string): HoldRecord[] {
+export const holdRecordsNamed = (name: string): HoldRecord[] =>
+  holdRecordsWhere((r) => r.name === name);
+
+/** Hold records on disk (any age) that pass the test. */
+export function holdRecordsWhere(keep: (r: HoldRecord) => boolean): HoldRecord[] {
   const dir = dirname(holdFilePathFor("_"));
   try {
     return readdirSync(dir)
@@ -178,7 +182,7 @@ export function holdRecordsNamed(name: string): HoldRecord[] {
           return null;
         }
       })
-      .filter((r): r is HoldRecord => !!r && r.name === name && r.karta != null);
+      .filter((r): r is HoldRecord => !!r && r.karta != null && keep(r));
   } catch {
     return [];
   }

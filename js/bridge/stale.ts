@@ -39,6 +39,11 @@ export class StaleBurst {
     }, STALE_BURST_MS).unref();
   }
 
+  /** The frames the window holds (pulse.ts pending). */
+  get frames(): readonly Frame[] {
+    return this.burst;
+  }
+
   /** Whether the pending batch holds a copy of this event of the same kind (fanout.ts). */
   holdsCopy(frame: Frame): boolean {
     return this.burst.some((f) => sameCopy(f, frame));

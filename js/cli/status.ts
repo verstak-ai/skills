@@ -25,7 +25,9 @@ interface StatusSnapshot {
   fallback: FallbackSnapshot[];
   disk_only: DiskPlace[];
 }
-async function machine(authDir: string): Promise<Omit<StatusSnapshot, "fallback" | "disk_only">> {
+export async function machine(
+  authDir: string,
+): Promise<Omit<StatusSnapshot, "fallback" | "disk_only">> {
   let daemon_error: StatusSnapshot["daemon_error"] = "no answer";
   if (!existsSync(authDir)) daemon_error = "missing directory";
   else if (!seamEntranceProblem(authDir, false)) {
@@ -109,7 +111,7 @@ function render(s: StatusSnapshot): string {
           ? w.primary()
           : w.beside();
       lines.push(
-        `    ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} ${mode} · ${p.listening ? w.listening() : w.silent()} · ${w.lastWork()}: ${printable(p.last_work_at ?? w.unknown())}${p.usage ? ` · usage=${JSON.stringify(p.usage)}` : ""}${declaration}${p.skills_mismatch ? " · skills_mismatch" : ""}`,
+        `    ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} ${mode} · ${p.listening ? w.listening() : w.silent()} · ${w.lastWork()}: ${printable(p.last_work_at ?? w.unknown())}${p.usage ? ` · usage=${JSON.stringify(p.usage)}` : ""}${p.pulse ? ` · pulse=${JSON.stringify(p.pulse)}` : ""}${declaration}${p.skills_mismatch ? " · skills_mismatch" : ""}`,
       );
     }
   }
