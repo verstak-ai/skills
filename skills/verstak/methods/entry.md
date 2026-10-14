@@ -115,7 +115,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 - **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more. Unchecked advice is a guess — call it one.
 - **Before editing a queue item** → `verstak_look` it; a moved version means someone else is on it.
-- **After a context interruption** (a compaction, taking over another session's work) → before resuming, recover from graph and case the role, the live case, its grounds and mandate, and the action the last correction changed; a summary's "rule" points at that correction, it is not fresh authority.
+- **After a context interruption** (a compaction, taking over another session's work) → before resuming, recover from graph and case the role, the live case, its grounds and mandate, and the kriya the last correction changed (`methods/writing.md`, Decision 1); a summary's "rule" points at that correction, it is not fresh authority.
 - **Before prose about meaning** (a rationale comment, an `AGENTS.md` paragraph, a task carrying a decision) → semantic search; link the node, or write it (`writing`) and link.
 - **Before "no" or "not found"** → a second instrument: semantic after lexical, a lens after a partial result, a filter after a round number.
 - **Before "verified"** → name the level: against the graph or against the world on its carrier (`reality-audit`).

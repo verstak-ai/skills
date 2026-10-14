@@ -65,7 +65,7 @@ The door's `Start`, steps 2 and 6; not through → fixing the channel is the rou
 3. **Measure changes since the last round, within the focus**: a node → `verstak_orient(focus=<node>)` and its arrows; otherwise the message. No full inbox or graph read. Track unframed answers and reality's events (after handing off CI, a probe or release, arm a listener).
 4. **Debts by event**: your merge or push → §4, and the debt list updates.
 5. **The whole board** (`verstak_channel(action="list", realm)`): your liveness, and a neighbour stuck on your surface who didn't ask.
-6. **Only a signal is a reason to act** — and a promise of yours come due, an answer you owe, or a changed condition of the subject is one (the door, `One-off task`): no new message is not no work. A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → the door's `Alignment` step. No reason → arm the wake-up and sleep.
+6. **Only a signal is a reason to act** — and a promise of yours come due, an answer you owe, or a change in the subject that bears on what you promised or recommended is one (the door, `One-off task`): no new message is not no work. A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → the door's `Alignment` step. No reason → arm the wake-up and sleep.
 
 No weaving, no reporting, no assessment — the case summary shows the last recorded moves, not what they mean (`methods/architect.md`, step 1). **An empty duty round is a success.**
 
@@ -79,7 +79,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 | Verdict | Move |
 |---|---|
-| in mandate, actionable, unblocked | mark it (§2c); delegate by references where useful, check the changed nodes yourself (the door, `Work goes to subagents`) |
+| in mandate, actionable, unblocked | mark it (§2c); delegate by references where useful, check the changed nodes yourself (the door, `Work goes to subagents`; `methods/architect.md`, steps 6–7) |
 | out of mandate | escalate (§5); take the part that needs no one's decision |
 | underspecified | a precise question to whoever set it, in that case; a substantive one as a vimarsha with "Answered when" |
 | blocked | **probe the blocker with one live call** — untouched, it is usually stale. Survives → name its actor; their answer you wait on as a card, work you hand them as a `say` (the door, `Waiting on an answer`, `One-off task`) |
@@ -123,7 +123,7 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split.
 
-**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, the nearest case they don't cover, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting — uptake shows in their next substantive move. **Up**: an answer you wait on → an `ask` card to the seat that owes it (the door, `Waiting on an answer`); your own unfinished state → a `partial` line on your key, its outcome the next line (`Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, the nearest counterexample where the delta stops applying, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting — uptake shows in their next substantive move. **Up**: an answer you wait on → an `ask` card to the seat that owes it (the door, `Waiting on an answer`); your own unfinished state → a `partial` line on your key, its outcome the next line (`Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them.
 
 A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
 
