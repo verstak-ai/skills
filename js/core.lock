@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 5a48cfe7b389d6da0b2a19e8bc036f9f998f6c51
+commit 0f58444a2159de0100641b6debfb40a7932f8e94
 889d079af28e00725550be4cdccb9305cd5757768f42bdd567bbb82254ec5a26  js/bridge/absorb.ts
 d08245193edda8fb079edcf47b3ca05fa7c4299f0883e67522b611aead4faca4  js/bridge/addressmark.ts
 e9a25451925a672a5e29b3b16fea8005d599aa89023e0641452896b6aa7ac8b9  js/bridge/askdisk.ts
