@@ -48,7 +48,15 @@ claude plugin install verstak@verstak-ai
 (Inside an interactive session: `/plugin marketplace add verstak-ai/skills` then
 `/plugin install verstak@verstak-ai`.)
 
-**Codex, OpenCode, Cursor, any other agent** (flat install):
+**Codex** — the plugin. It namespaces the skill under `verstak` and brings the bridge as
+its MCP server (step 2):
+
+```sh
+codex plugin marketplace add https://github.com/verstak-ai/skills
+codex plugin add verstak@verstak-ai
+```
+
+**OpenCode, Cursor, any other agent** (flat install; Codex without the plugin too):
 
 ```sh
 npx skills add verstak-ai/skills --all --global
@@ -117,16 +125,20 @@ OpenCode, pi, Cursor.
 
 ### Codex
 
-After the flat install, register the bridge (copy it first — "Bring up the bridge by
-hand" below):
+The plugin (step 1) carries an MCP entry in its manifest: **the bridge from the delivery
+itself**, a stdio process `node …/skills/verstak/scripts/verstak-bridge.mjs`. `codex mcp
+list` shows `verstak`, `command node`, `Auth: Unsupported` — normal: the bridge holds its
+own grant in `~/.verstak-bridge/`; skip `codex mcp login`. The first `verstak_*` call
+without a grant answers with the sign-in address (the bridge also prints it and tries to
+open a browser); after sign-in the next call goes through. Nothing to copy or register; a
+plugin update brings the new bridge.
+
+**Without the plugin**, after the flat install, register the bridge (copy it first —
+"Bring up the bridge by hand" below); `codex mcp list` and sign-in behave the same:
 
 ```sh
 codex mcp add verstak -- node "$HOME/.verstak-bridge/verstak-bridge.mjs"
 ```
-
-`codex mcp list` then shows `verstak`, `command node`, `Auth: Unsupported` — normal: the
-bridge holds its own grant; skip `codex mcp login`. The first `verstak_*` call without a
-grant answers with the sign-in address.
 
 **Non-interactive runs.** `codex exec` refuses approvals by default and MCP calls need
 them: they fail with `MCP tool call requires approval, but approval policy is never` — the
@@ -143,13 +155,20 @@ too long, so make a short home pointing at the real one — and start the daemon
 H="$HOME/.codex"                     # the real home
 mkdir -p /tmp/cxh && ln -sfn "$H/packages" /tmp/cxh/packages && ln -sfn "$H/auth.json" /tmp/cxh/auth.json
 cp "$H/config.toml" /tmp/cxh/config.toml
+CODEX_HOME=/tmp/cxh codex plugin marketplace add https://github.com/verstak-ai/skills
+CODEX_HOME=/tmp/cxh codex plugin add verstak@verstak-ai
 CODEX_HOME=/tmp/cxh codex app-server daemon start
 ```
 
-Codex sessions started with the same `CODEX_HOME` attach to the daemon; one started with
-another home has no door, and the agent cannot fix that from inside — this is the user's
-move before the session starts. `node ~/.verstak-bridge/verstak-bridge.mjs doctor` under the
-same `CODEX_HOME` says whether the door is open.
+The plugin goes into the short home on its own: the real home's `plugins` directory is not
+linked, and with the plugin `config.toml` carries no bridge entry — skip that step and
+sessions under the daemon come up without `verstak_*` tools. (Without the plugin, the
+`codex mcp add` entry rides in the copied `config.toml`; the two plugin lines are not
+needed.) Codex sessions started with the same `CODEX_HOME` attach to the daemon; one
+started with another home has no door, and the agent cannot fix that from inside — this
+is the user's move before the session starts. `node "BRIDGE" doctor` under the same
+`CODEX_HOME` says whether the door is open (`codex mcp list` prints the bridge's path; the
+home copy is `~/.verstak-bridge/verstak-bridge.mjs`).
 
 **The thread's sandbox is the user's move too.** `watchdog-codex`, run from the agent's
 shell, connects to the bridge's local socket under `~/.verstak-bridge/standings/`; Codex's
@@ -195,7 +214,7 @@ opencode run --format json "Call the verstak_me tool and print the person's name
 
 ### Bring up the bridge by hand
 
-For Claude Code without the plugin, Codex, Claude Desktop, Cursor and any other harness
+For Claude Code or Codex without the plugin, Claude Desktop, Cursor and any other harness
 with stdio MCP servers. Do not reach for `mcp-remote`: copy the bundled bridge out of the
 versioned install path into the stable home:
 
@@ -234,7 +253,7 @@ project):
 claude mcp add --scope user verstak -- node "$HOME/.verstak-bridge/verstak-bridge.mjs"
 ```
 
-**Codex** — the command in its branch above. **Cursor** — merge into `~/.cursor/mcp.json`;
+**Codex without the plugin** — the command in its branch above. **Cursor** — merge into `~/.cursor/mcp.json`;
 **Claude Desktop** — into `claude_desktop_config.json` (`~/Library/Application
 Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows; restart the app); other
 harnesses — their stdio server config:
@@ -300,14 +319,16 @@ tells the agent with a `DELIVERY BEHIND` line in a tool response. On demand:
 node ~/.verstak-bridge/verstak-bridge.mjs update
 ```
 
-Where a plugin brings the bridge (Claude Code, pi), there may be no home copy: the path of
+Where a plugin brings the bridge (Claude Code, Codex, pi), there may be no home copy: the path of
 the running bridge is printed in the `[verstak-bridge]` block of a `verstak_stand`
 response; call `update` and `doctor` by it.
 
 The bridge does not update the skill — the harness channel does. After `update` repeat
 step 1 of your branch (`/plugin marketplace update verstak-ai` and `/reload-plugins` in
 Claude Code; `npx skills add verstak-ai/skills --all --global` again;
-`pi update git:github.com/verstak-ai/skills`), then restart the session: a bridge of the
+`pi update git:github.com/verstak-ai/skills`; `codex plugin marketplace upgrade verstak-ai`,
+then `codex plugin remove verstak@verstak-ai` and `codex plugin add verstak@verstak-ai`),
+then restart the session: a bridge of the
 previous build lives until its session ends.
 
 ## 4. Restart
@@ -340,4 +361,4 @@ seeds the graph with the structure the codebase already shows.
 - **An error names `verstak-bridge` and a verdict** → do what it says; quote the build from
   `node BRIDGE --version` when reporting a breakage.
 - **Skill name collision on flat installs** → another pack ships a skill named `verstak`.
-  Rename that directory, or use the Claude Code plugin channel, which namespaces it.
+  Rename that directory, or use the Claude Code or Codex plugin channel, which namespaces it.
