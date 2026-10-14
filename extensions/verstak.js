@@ -110,7 +110,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 // js/delivery/version.ts
-var VERSION = "3.3.0";
+var VERSION = "3.4.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -214,7 +214,10 @@ var PLUGIN = {
     refusalNoText: (name) => `${name}: refusal without text`,
     relistFailed: (message) => `Verstak: the tool list was not reread after the change on the server — ${message}`,
     listening: () => "Verstak: the channel is listening",
-    dead: (code) => `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
+    dead: (code) => String(code) === "4002" ? `Verstak: the channel was closed with code 4002 — the seat went out after idling. To return it — ${tool("stand")} with the same name.` : `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
+    stopped: (text) => `Verstak: ${text}`,
+    stoppedTurn: (stopped) => `${stopped}. This word stands while the seat is taken off; if the user tells you to stand again — stand by an explicit ${tool("stand")} call, and the word goes.`,
+    stoppedAny: () => "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
     evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
     alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
     note: (text) => `Verstak: ${text}`
@@ -1204,8 +1207,12 @@ var H2 = scoped(() => ({
   revokingOwn: false,
   /** own channel close in flight (absorb.ts): close 4001 outruns the answer, as with revoke (#6634) */
   closingOwn: false,
+  /** keys of seats beside whose own revoke is in flight (absorb.ts): standing_ended outruns the answer */
+  revokingBeside: /* @__PURE__ */ new Set(),
   /** the daemon goes down while this session's thin bridge lives and restores the place (daemon.ts, #6485) */
-  handingOver: null
+  handingOver: null,
+  /** the last owner's stop of this session (stophold.ts, #7439): `n` counts stops, a move compares it before and after */
+  stopped: { n: 0, key: "", text: "" }
 }));
 
 // js/bridge/realms.ts
@@ -1294,9 +1301,32 @@ function setupChannel(pi) {
     tactPoll.unref?.();
   }
   pi.on("agent_end", async () => releaseTact());
+  let halted = false;
+  function stopped(text) {
+    halted = true;
+    if (tactPoll) clearInterval(tactPoll);
+    tactPoll = null;
+    tact = null;
+    if (asideTimer) clearTimeout(asideTimer);
+    asideTimer = null;
+    aside.splice(0);
+    if (ctxRef?.isIdle?.() === false) ctxRef.abort?.();
+    if (ctxRef?.hasUI) ctxRef.ui.notify(text, "error");
+    pi.sendMessage(
+      {
+        customType: LOGGERS.channel,
+        content: markFrame(text),
+        display: true,
+        details: { stopped: true }
+      },
+      { triggerTurn: false, deliverAs: "nextTurn" }
+    );
+  }
   return (params) => {
     const ev = params?.data;
     if (!ev || typeof ev !== "object") return;
+    if (ev.kind === "held") halted = false;
+    if (halted && ev.kind !== "stopped") return;
     switch (ev.kind) {
       case "frame": {
         const frame = ev.frame ?? null;
@@ -1336,6 +1366,9 @@ function setupChannel(pi) {
         if (onlyTacts(ev.frames) && ctxRef?.isIdle?.() === false) return holdTact(ev);
         if (ev.frames?.some(isTact) && !olderTact(ev)) tact = null;
         sendBatch(ev);
+        return;
+      case "stopped":
+        stopped(P.stopped(ev.text ?? ""));
         return;
       case "evicted":
         loud(P.evicted(String(ev.code)));
