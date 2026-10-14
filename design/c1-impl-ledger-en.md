@@ -211,3 +211,48 @@ Searched every commit touching the shipped bridge `skills/verstak/scripts/versta
 
 It stands whole in `js/delivery/words/moment.ts` as the single item of `MOMENT.en.formerMoments` (598 characters, sha256 `755d4ed7…`, byte-equal to the v3.3.0 build), the shape the core at `923fe131` asks for. The core also strips a tail position; verstak never shipped one, so for this delivery that case only guards against a foreign cache.
 
+
+## r2. Carried onto the fresh main, core re-synced, output limit gated
+
+Branch `impl/c1-verstak-en-r2`, from `origin/main` `a18714d` (3.4.0, which carries #160 — the core synced to the sibling's 7.10.0 `d1010ac6`, with its English delivery words). Commit hashes in the sections above belong to `impl/c1-verstak-en` (head `bad6f98`); on r2 they have new ones. Line numbers above hold on r2: no skill file differs from `bad6f98`.
+
+### Carried
+
+- Cherry-picked in order, all seven commits of `impl/c1-verstak-en` after `25bbbf9`: `3c0b3ea`, `7406548`, `0a872b8`, `07f4576`, `792d43d`, `35923a0`, `bad6f98`.
+- Conflicts, all in places the re-sync or the build owns: `js/core.lock` (three times — main's pin taken, then overwritten by the re-sync), `verstak.skill` (three times — main's taken, rebuilt by the pre-commit hook from the picked skills), `js/delivery/words/plugin.ts` (`stoppedTurn`, `stoppedAny`: #160 already carries the same two words; main's wording kept, ours not duplicated).
+- `js/delivery/words/leads.ts`: main's #160 additions (`unreleased`, `noLiveAncestor`, `endUnwritten`, `endUnlifted`, `lastUnknown`, no `cancelled*`/`released`) stand together with C1's `cut` and the `end` line "testimony, not acceptance evidence".
+- `home/` and `verstak.skill` are rebuilt from the picked methods; `skills/`, `home/` and `design/` equal `bad6f98` apart from what main itself changed since `25bbbf9` (the release-build outputs under `skills/verstak/scripts/` and the bundle carrying them).
+
+### Core re-synced
+
+- `scripts/sync-core.sh <sibling repo> 5a48cfe7` — the head of the sibling's `impl/c1-…-ru-r2`: its fresh main `39f8c1f9` (7.10.0 and after: #466, #467 the stop order, #468, #470 the language by server address, #471 the seat beside handed over with the main one) plus C1. `js/core.lock` pins `5a48cfe7b389d6da0b2a19e8bc036f9f998f6c51`, 212 files. `d1010ac6` (our previous pin, via #160) is an ancestor of `39f8c1f9`.
+- The C1 core is unchanged by the re-sync: `js/bridge/moment.ts` (only a whole shipped moment line, at the head or the tail, on `add_*`/`batch`) is byte-equal to the `923fe131` copy; the outcome cut and ENDED ride as before.
+- The delivery layer, for what the new core asks: `HALTS_CAPABILITY` (`js/delivery/protocol.ts`, exported from `index.ts`; the bridge client's experimental key confirming the OpenCode plugin executes a stop), `STOP.orderJournalRefused` (`js/delivery/words/stop.ts`, the order journal on disk refused an entry), `THIN.besideNotBack` reworded for #471 ("the seat beside did not come back with the main one"). English renderings of the sibling's words. `SERVER_LOCALE` stays `{ en: "en" }`: this delivery speaks only English, and #468's Russian entry has no place here.
+- **`5a48cfe7` is not on the sibling's `main`.** Before any release of this delivery, re-sync to the sibling's merged commit and re-run `make check`.
+
+### Output limit (#7597) — gate, no recomposition needed
+
+- `scripts/validate-skills.mjs` section 4 carries the sibling's gate with the same meaning: OpenCode 2.0.28 cuts any tool's output at 2000 lines / 51 200 bytes by whole lines; the skill tool's output is modelled as the sibling models it (wrapper, body without frontmatter, a long install directory, up to ten files). Unlike the sibling, this delivery has one skill — the door — which sends every method, reference and template through the read tool; those are gated too, each line with its `N: ` prefix plus a 10-line / 1024-byte wrapper reserve. No exceptions; `SKILL_OUTPUT_SIZES=1` prints sizes. Falsifier run: a method blown up to 774 529 bytes fails `make validate` by name; restored, it passes.
+- `AGENTS.md` "Shared surfaces" gains the row for this contract.
+- **Nothing is over the limit, so nothing was recomposed.** The longest are `references/align-delegation.md` (35 424 bytes), `methods/align.md` (26 612), `methods/writing.md` (26 474) and the door (26 374) — about half the limit. The en counterparts of the sibling's overgrown skills (`autonomous` for its watch, `align` for its alignment) were already split across `methods/` and `references/align-*.md`. The table "section → where" is therefore empty: no section moved. The longest line anywhere is 1 637 characters (`methods/writing.md`), under a 2000-character line cap if a read tool applies one.
+
+### Output sizes (bytes / lines, limit 51 200 / 2000)
+
+Skill tool: **door `SKILL.md` 26 374/255**.
+
+Read tool, `methods/`: align 26 612/157 · architect 20 987/117 · assembly 10 103/88 · assistant 16 960/125 · autonomous 25 373/190 · code-work 10 708/77 · collaborate 19 754/130 · design 13 076/140 · entry 18 235/155 · establish-mcp 11 864/85 · feedback 8 269/85 · foreman 11 925/100 · inquiry 11 178/90 · intake 10 450/93 · integrity 15 589/143 · minding 12 932/150 · product-roadmap 17 871/171 · reality-audit 10 841/76 · reconcile 7 394/37 · weaving 11 015/120 · widgets 3 441/48 · writing 26 474/196.
+
+Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 18 765/230 · align-hooks 11 300/74 · align-superpowers-interop 3 638/50 · collaborate-channel 23 917/167 · door-menu 4 171/55 · door-phrasebook 13 649/152 · minding-personal-realm 10 571/132 · product-roadmap-self-checks 5 670/65 · writing-batch 2 797/31 · writing-given-as 6 094/73 · writing-modes 13 150/125. `templates/`: agents-template 7 629/106 · reality-template 2 553/22.
+
+`home/` (the conversation home, not OpenCode; not gated, by the same skill-tool model): assistant 15 996/125 · minding 19 522/258 · widgets 2 787/48.
+
+### Gate r2
+
+`make check` — exit 0: core boundary and pin (212 files at `5a48cfe7`), lint 0 errors (22 warnings, as on main), format, types, release-build check, tests 126, passed 126, failed 0, skipped 0, todo 0.
+
+### Limits r2
+
+- Delivery into OpenCode was not observed by capturing a request: the gate models the output, not a load.
+- The read-tool model (prefix and wrapper reserve) is a reserve, not a measured shape of the 2.0.28 read output; a user `tool_output` smaller than the default cuts sooner.
+- Opus N-en7 / Sol N3 (an en test of `LEAD.cut`, wider fixtures) stays not taken: this re-sync adds no test of its own.
+- No PR, tag or release (the brief).
