@@ -44,7 +44,10 @@ orphan phenomenon? → verstak_look: does a kriya own it?
           no → stitch it; doesn't hold → delete (no distinction), refute and
                keep (false thesis), or release (right, no longer needed)
           yes, arrows lack sense → Op 2
-no-actor? → one known role → link actor; two roles → Op 3; who does it unknown
+no-actor? → one known role → link actor; two roles → Op 3; a motivated figure
+          the model needs but the graph lacks, who won't answer → a pratibimba
+          role with its actor arrows, never posed_to; a machine → no role
+          (methods/writing.md, Decision 2b); who does it unknown
           → a vimarsha posed_to the holon's steward (or the owner) "who does X?",
           no actor until answered — a guessed role costs more than the tension
 arrow without sense → Op 2;  one phenomenon became two → Op 4
@@ -102,7 +105,7 @@ Re-trace; still broken → loop.
 ## Rhythm
 
 - About 7 navigation calls per turn when not batching; re-orient every 5–10 nodes.
-- After `reconnect`/`update`, `verstak_look` the node and read `CHECKS:`.
+- After `reconnect`/`update`, `verstak_look` the node and read `CHECKS:`. A version conflict is someone else's edit: judge it by meaning (`methods/writing.md`, `Operational`), never re-send over it.
 - After weaving into a node, re-read its **body**: still true? No detector catches false prose — costliest on contract nodes.
 - Before calling it done: what else did this touch? `methods/integrity.md` runs the wave.
 - Batch order: phenomena → kriyas → arrows.
