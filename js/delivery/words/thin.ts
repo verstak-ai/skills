@@ -1,12 +1,13 @@
-// The thin bridge (THIN): seats of other graphs beside do not return on a daemon change.
+// The thin bridge (THIN): a seat of another graph beside that did not come back with the main one.
 import type { Lang } from "../lang.ts";
 
 export interface ThinWords {
+  /** Why a seat beside in another graph is lost: the main one's return did not bring it back (#7602). */
   besideNotBack: () => string;
 }
 
 export const THIN: Readonly<Record<Lang, ThinWords>> = {
   en: {
-    besideNotBack: () => "beside seats do not come back",
+    besideNotBack: () => "the seat beside did not come back with the main one",
   },
 };

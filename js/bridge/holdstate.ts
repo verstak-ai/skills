@@ -33,6 +33,11 @@ export const H = scoped(() => ({
   helloWaiters: new Set<(f: Frame | null) => void>(),
   /** disk resumes in flight: a dead token during one is a stale record, not an alarm */
   resuming: 0,
+  /** a return from disk brings the seats beside back: the handover spool waits for them (#7602) */
+  spoolHeld: 0,
+  spoolLater: null as (() => void) | null,
+  /** live frames of a seat beside not back yet, judged after the spool once the return ends */
+  liveLater: [] as (() => void)[],
   /** own revoke in flight (absorb.ts): close 4001 outruns the revoke answer */
   revokingOwn: false,
   /** own channel close in flight (absorb.ts): close 4001 outruns the answer, as with revoke (#6634) */
@@ -55,10 +60,16 @@ export const E: {
   next: ((key: string, url: string, code: number) => void) | null;
   /** close 4001 not the session's own; or a standing_ended frame (`ended`) naming a seat of the channel */
   stop: ((key: string, code: number, reason: string, ended?: Frame) => void) | null;
+  /** every frame of the socket passes the stop orders (stoporder.ts): true — a stop frame, taken, not the agent's */
+  order: ((url: string, frame: Frame | null) => boolean) | null;
 } = {
   next: null,
   stop: null,
+  order: null,
 };
+export function whenOrdered(fn: NonNullable<(typeof E)["order"]>): void {
+  E.order = fn;
+}
 export function whenEvicted(fn: (key: string, url: string, code: number) => void): void {
   E.next = fn;
 }
@@ -69,6 +80,34 @@ export function whenStopped(fn: NonNullable<(typeof E)["stop"]>): void {
 /** A disk resume started (+1) or ended (-1). */
 export function noteResuming(delta: number): void {
   H.resuming += delta;
+}
+
+/**
+ * Hold the handover spool while `fn` returns the seat with its seats beside: a spooled frame
+ * of a seat beside is judged once that seat is back, not given to the main seat as a stray (#7602).
+ */
+export async function withSpoolHeld<T>(fn: () => Promise<T>): Promise<T> {
+  H.spoolHeld++;
+  try {
+    return await fn();
+  } finally {
+    if (--H.spoolHeld === 0) {
+      const later = [...(H.spoolLater ? [H.spoolLater] : []), ...H.liveLater];
+      Object.assign(H, { spoolLater: null, liveLater: [] });
+      for (const fn of later) fn();
+    }
+  }
+}
+/** Drain the spool now, or once the return holding it ends. */
+export function drainWhenFree(drain: () => void): void {
+  if (H.spoolHeld > 0) H.spoolLater = drain;
+  else drain();
+}
+/** A live frame waits like the spool while a return is held (after it); false — not held, judge now. */
+export function liveWhenFree(judge: () => void): boolean {
+  if (H.spoolHeld === 0) return false;
+  H.liveLater.push(judge);
+  return true;
 }
 
 /** absorb.ts: own revoke in flight; close 4001 is then not a dead token. */

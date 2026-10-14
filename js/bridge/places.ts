@@ -143,6 +143,13 @@ export function dropExtra(
   const p = extras.get(key);
   if (!p) return;
   extras.delete(key);
+  // Handed to the successor with the main seat (#7602): its record stays, its watchdog waits.
+  const handover = !forget && !as ? handoverReason() : null;
+  if (handover) {
+    p.door.broadcast({ kind: "handover", key, text: handover });
+    p.door.close();
+    return standingLog(`handed over ${key} beside the channel: ${handover}`);
+  }
   if (as === "own") {
     p.door.flushBatches();
     p.door.broadcast({ kind: "released", key, text: reason, own: true });

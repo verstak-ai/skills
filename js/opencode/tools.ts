@@ -21,16 +21,17 @@ import {
   authDir,
   buildsLine,
   findBridge,
-  handshake,
   listTools,
   readCache,
   refreshToolList,
   retryPause,
   sleep,
+  slotReady,
   textOf,
   writeCache,
 } from "./bridge-io.ts";
 import { createChildren } from "./children.ts";
+import { answerHalt } from "./cuts.ts";
 import { idleHalf, type ToolsHalf } from "./half.ts";
 import { createHandoff } from "./handoff.ts";
 import { hostEnvOf } from "./host.ts";
@@ -63,6 +64,8 @@ export async function setupTools(
   rootOf: (sessionID: string) => Promise<string>,
   flushUsage: (session: string) => Promise<void> = async () => {},
   closed: Closed = () => false,
+  halted: (session: string | null, signal?: AbortSignal) => Promise<string | null> = async () =>
+    null,
 ): Promise<ToolsHalf> {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -82,6 +85,7 @@ export async function setupTools(
 
   // The human in the browser — one sign-in for all the plugin's bridges (login.ts).
   const login = createLogin(say);
+  const { shake, readyFor } = slotReady<Slot>(login);
 
   function spawn(args: string[] = []): Slot {
     const slot: Slot = {
@@ -115,13 +119,21 @@ export async function setupTools(
         // Taken off by its owner (#7439): the hearing watchdog no longer raises this session's seat.
         if (kind === "stopped" && slot.session) keeper.forget(slot.session);
         // Only a satellite child is a lead (#6550 item 4); a child on a plain bridge is one run (children.ts).
-        const over =
-          !!slot.child &&
-          !!slot.satelliteOf &&
-          !!slot.session &&
-          leads.heard(slot.session, kind, slot.place);
-        // An ended lead gets no channel words — but a stop still interrupts its turn (channel.ts).
-        if (!over || kind === "stopped") relay(slot.session, params, !!slot.child);
+        const lead = !!slot.child && !!slot.satelliteOf && !!slot.session;
+        const session = slot.session as string;
+        if (kind === "stopped") {
+          // An ended lead gets no channel words — but a stop still interrupts its turn (channel.ts).
+          relay(slot.session, params, !!slot.child);
+          // A stop by an order: the bridge answers the order once the interrupt ended (cuts.ts),
+          // and only then may a lead's end take its bridge down — the answer goes by that bridge.
+          const answered = answerHalt(slot.bridge, params?.data, (signal) =>
+            halted(slot.session, signal),
+          );
+          if (lead) void answered.then(() => leads.heard(session, kind, slot.place));
+          return;
+        }
+        const over = lead && leads.heard(session, kind, slot.place);
+        if (!over) relay(slot.session, params, !!slot.child);
       },
       (e) => {
         // A holding bridge exited against our will — a word into the session, not a log line (#5140).
@@ -180,21 +192,6 @@ export async function setupTools(
   if (lost) adopt.take(lost.entries);
   // A stopped instance takes no markers: a deferred move adoption would take the next instance's marker.
   const adoptNow = () => void (stopped || adopt.now());
-
-  function shake(slot: Slot): void {
-    slot.ready = handshake(slot.bridge, login.on, login.done);
-    slot.ready.catch(() => {});
-  }
-
-  /** The slot's handshake; a failed one is repeated at once, once. */
-  async function readyFor(slot: Slot): Promise<void> {
-    try {
-      await slot.ready;
-    } catch {
-      shake(slot);
-      await slot.ready;
-    }
-  }
 
   /**
    * A root session's bridge: the load's spare first, then its own; a dead one is replaced.

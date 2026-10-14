@@ -15,7 +15,7 @@ import { type Door } from "./door.ts";
 import { broadcast, type ChannelEvent, forgetSeat, notify, releasedAsOwn } from "./hold.ts";
 import { type Frame, H, whenStopped } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
-import { dropExtra, extraPlaces } from "./places.ts";
+import { dropExtra, extraPlaces, type Place } from "./places.ts";
 import { standingLog } from "./store.ts";
 import { log } from "./streams.ts";
 import { state } from "./transport.ts";
@@ -31,17 +31,59 @@ function dropUnsent(key: string, doors: (Door | null | undefined)[]): void {
   if (n) standingLog(`stopped ${key}: ${n} undelivered frame(s) dropped, not given`);
 }
 
-function stopAgent(key: string, how: string, reason: string): void {
+function stopAgent(key: string, how: string, reason: string, order?: string): void {
   const text = stopWord(state.standing?.name ?? "", reason);
   log(text);
   standingLog(`stopped ${key}: ${how}${reason ? ` (${reason})` : ""}`);
   dropUnsent(key, [H.door, ...extraPlaces().map((p) => p.door)]);
   H.stopped = { n: H.stopped.n + 1, key, text };
-  const ev: ChannelEvent = { kind: "stopped", key, text, ...(reason ? { reason } : {}) };
+  const ev: ChannelEvent = {
+    kind: "stopped",
+    key,
+    text,
+    ...(reason ? { reason } : {}),
+    ...(order ? { order } : {}),
+  };
   broadcast(ev);
   notify("error", ev);
   forgetSeat(text);
 }
+
+function stopBeside(beside: Place, reason: string): void {
+  const text = stopWord(beside.standing.name ?? "", reason);
+  log(`${text} — that seat beside is forgotten, the rest are held`);
+  dropUnsent(beside.door.key, [beside.door]);
+  dropExtra(beside.door.key, text, true, "beside");
+}
+
+/**
+ * A stop order for seat `id` (stoporder.ts, graph @nks/nks-dev, node #7519): the same stop as
+ * the owner taking that seat off — the main seat stops the agent, a seat beside goes alone.
+ * null — no seat of this session has that id. An id unknown to a lone main seat is its own.
+ */
+export function stopSeatByOrder(id: string, by: string, order: string): "main" | "beside" | null {
+  const reason = by ? `revoked:${by}` : "";
+  const seat = seatOf(id);
+  if (seat === "main" && H.currentKey)
+    stopAgent(H.currentKey, `stop order ${order}`, reason, order);
+  else if (seat && seat !== "main") stopBeside(seat, reason);
+  return seat === null ? null : seat === "main" ? "main" : "beside";
+}
+
+/** The session's seat with this id: the main one, one beside, or none. */
+function seatOf(id: string): Place | "main" | null {
+  const beside = extraPlaces().find((p) => p.door.standingId === id);
+  if (beside) return beside;
+  const main = H.door?.standingId;
+  if (!H.door || !H.currentKey || (main ? main !== id : extraPlaces().length > 0)) return null;
+  return "main";
+}
+
+/** Whether the order is this session's: by its seat's known id, or — `framed`, on this channel's socket — as seatOf. */
+export const holdsSeat = (id: string, framed: boolean): boolean =>
+  framed
+    ? seatOf(id) !== null
+    : H.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
 
 /** One seat of a live channel taken off (api: standing_ended {standing_id, by}). */
 function seatEnded(key: string, frame: Frame): void {
@@ -61,10 +103,7 @@ function seatEnded(key: string, frame: Frame): void {
       );
       return dropExtra(beside.door.key, own, true, "own");
     }
-    const text = stopWord(beside.standing.name ?? "", reason);
-    log(`${text} — that seat beside is forgotten, the rest are held`);
-    dropUnsent(beside.door.key, [beside.door]);
-    return dropExtra(beside.door.key, text, true, "beside");
+    return stopBeside(beside, reason);
   }
   const main = H.door?.standingId;
   // An id that names neither seat: with seats beside it may be one whose id the bridge never learnt.

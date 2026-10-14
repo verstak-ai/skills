@@ -12,7 +12,8 @@
 //                 is resent after the reattach; a daemon without ack — always unknown. A
 //                 verdicted id is remembered: its late answer is dropped. Reattach by the
 //                 local session id; a new session replays initialize and resumes the held
-//                 seat by its hold record (resume with its key and the harness session), harness calls wait for these moves (a paused
+//                 seat by its hold record (resume with its key and the harness session; the
+//                 seats beside come back with it), harness calls wait for these moves (a paused
 //                 satellite takes no seat); not back — a lost notice and a spoken refusal of
 //                 each tool call into its graph, except the stand tool.
 //   end           stdin closed, SIGTERM — bye to the daemon with a bounded wait.
@@ -122,10 +123,13 @@ export function thinMain(argv: string[]): void {
         // An answer to the bridge's own move (initialize, resume): the harness has its own.
         const back = resuming.get(k);
         resuming.delete(k);
-        if (back && msg.result?.resumed !== true) {
-          const why = String(msg.result?.word ?? msg.error?.message ?? "?");
-          placeLost(back.key, back.realm, why, msg.result?.stopped === true);
-          askRealms(); // the loss surfaced with the resume answer — ask the realm list now
+        if (back) {
+          if (msg.result?.resumed !== true) {
+            const why = String(msg.result?.word ?? msg.error?.message ?? "?");
+            placeLost(back.key, back.realm, why, msg.result?.stopped === true);
+          }
+          besideJudge();
+          askRealms(); // a loss surfaced with the resume answer — ask the realm list now
         }
         openGate(k);
         return;
@@ -182,6 +186,14 @@ export function thinMain(argv: string[]): void {
   const placeLost = (k: string, realm: string, why: string, stopped = false) => {
     places.lose(k, realm, why, cfg.satellite && k === heldKey, stopped);
     if (k === heldKey) heldKey = null;
+  };
+  // Beside seats waiting for the held seat's return in a new session (replay): its answer
+  // comes after their `beside` words — one not seen by then is lost.
+  const besideDue = new Map<string, string>();
+  const besideJudge = () => {
+    for (const [k, realm] of besideDue)
+      if (!live.has(k)) placeLost(k, realm, words(THIN).besideNotBack());
+    besideDue.clear();
   };
   // Ask the realm list with an own call when seats are lost: without it rN and slug of
   // calls do not resolve (lostplaces.ts). The held seat's loss surfaces with the resume
@@ -253,13 +265,12 @@ export function thinMain(argv: string[]): void {
       send({ ...initCopy, id });
       if (initializedSeen) send({ jsonrpc: "2.0", method: "notifications/initialized" });
     }
-    // Beside seats in other graphs are not resumed by the thin bridge — loudly.
+    // Beside seats in other graphs come back with the held one (its return registers them,
+    // #7602); judged at the return's answer — not back by then is lost, loudly.
     const held = heldKey ? { key: heldKey, realm: live.get(heldKey) ?? "" } : null;
-    for (const [k, realm] of [...live]) {
-      if (k === heldKey) continue;
-      placeLost(k, realm, words(THIN).besideNotBack());
-    }
+    for (const [k, realm] of live) if (k !== heldKey) besideDue.set(k, realm);
     live.clear();
+    if (!held || paused) besideJudge();
     // A paused satellite takes no seat: its seat and cases wait on the pause record.
     if (held && paused)
       log(`the session is new — its place ${held.key} is paused and waits on its pause record`);

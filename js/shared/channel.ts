@@ -63,7 +63,12 @@ function httpOrigin(socketUrl: string): string {
 }
 
 export function versionUrl(socketUrl: string): string {
-  return httpOrigin(socketUrl) + "/api/version";
+  return apiBase(socketUrl) + "/version";
+}
+
+/** The api beside the channel: the socket's origin under /api (graph @nks/nks-dev, node #7510). */
+export function apiBase(socketUrl: string): string {
+  return httpOrigin(socketUrl) + "/api";
 }
 
 /**

@@ -36,6 +36,7 @@ export {
 } from "./product.ts";
 export {
   FRAME_MARK,
+  HALTS_CAPABILITY,
   ID_PREFIX,
   LOGGERS,
   method,

@@ -25,6 +25,8 @@ import { words } from "../shared/lang.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, eventIn } from "../shared/seen.ts";
 import { authDir } from "./bridge-io.ts";
+import { createCuts } from "./cuts.ts";
+import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import type { Context } from "./plugin.ts";
@@ -42,6 +44,12 @@ export interface Channel {
   gone(session: string): void;
   /** The session or an ancestor is stopped (another instance's stop too): its turn is cut once; false — not stopped. */
   halt(session: string): boolean;
+  /**
+   * How the stop's interrupt of session `session` and its descendants ended, whichever instance of
+   * the process cuts them: null — every turn is cut (or nothing was stopped), a code — the first
+   * refusal (cutwait.ts). `signal` drops the wait.
+   */
+  halted(session: string | null, signal?: AbortSignal): Promise<string | null>;
   /** The plugin stops: what gathered leaves now. */
   stop(): void;
   /** Counts of records waiting for a passing prompt into root session `session`; null — none. */
@@ -56,9 +64,6 @@ const CASE_BATCH_MS = Number(process.env[envName("OPENCODE_BATCH_MS")]) || 5_000
 const CASE_BATCH_CAP = 20;
 /** A pile prompt whose taking OpenCode keeps silent about longer is counted taken. */
 const PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 120_000;
-/** How many times a stop's refused interrupt is tried, and how long apart. */
-const CUT_TRIES = 3;
-const CUT_RETRY_MS = 500;
 /**
  * A case frame for the pile: not a direct word and not a human's word (its flight and abort —
  * to the pile, #6081); a case record not addressed to the seat — to the pile at any stack (#6574).
@@ -106,8 +111,11 @@ export function setupChannel(
 ): Channel {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
+  // The instance's lineage joins the process's: a stop's confirmation waits for descendants other
+  // instances serve, and reads their stops by the same chain those instances cut by (cutwait.ts).
+  const unshare = shareLineage(parents);
   const halts = createHalts(
-    (s) => parents.get(s),
+    (s) => parents.get(s) ?? processParent(s),
     authDir,
     (id, message) => say(W.haltUnwritten(id, message), "warning"),
     (id, message, kept) => say(W.haltUnlifted(id, message, kept), "warning"),
@@ -295,58 +303,19 @@ export function setupChannel(
     piles.delete(key);
   }
 
-  // A cut belongs to the stops over the session's chain (halts.ts stopOf): a new stop of the
-  // session or of any ancestor cuts it anew.
-  const stopOf = (id: string): string | null => halts.stopOf(id);
-  const cutDone = new Map<string, string>(); // the stops whose turn is cut
-  const cutting = new Map<string, string>(); // the stops whose interrupt is in flight
-  const cutFails = new Map<string, [string, number]>(); // refused interrupts of those stops
-  const retries = new Set<ReturnType<typeof setTimeout>>();
-  /**
-   * A stopped session's running turn is interrupted, its piles and waiting tact are dropped — once
-   * per stop. A refused interrupt is tried again, by a timer and by the next halt, up to CUT_TRIES.
-   * An interrupt answers only for its own stop: a stop after a held while the previous stop's
-   * interrupt is in flight gets its own interrupt right after it.
-   * Prompts OpenCode already took into the session's inbox stay there: the plugin's session domain
-   * has no inbox.cancel (@opencode/plugin 2.0.4 through 2.0.28, only the full client has it).
-   */
-  function cut(id: string): void {
-    const gen = stopOf(id);
-    if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
-    for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
-    tacts.gone(id);
-    if (cutting.has(id)) return; // the previous stop's interrupt is in flight: this one follows it
-    const s = ctx.session as any;
-    if (typeof s.interrupt !== "function") return void cutDone.set(id, gen);
-    cutting.set(id, gen);
-    void Promise.resolve()
-      .then(() => s.interrupt({ sessionID: id, resume: false }))
-      .then(
-        () => {
-          if (stopOf(id) !== gen) return;
-          cutDone.set(id, gen);
-          cutFails.delete(id);
-        },
-        (e: Error) => {
-          if (stopOf(id) !== gen) return;
-          const was = cutFails.get(id);
-          const n = (was?.[0] === gen ? was[1] : 0) + 1;
-          cutFails.set(id, [gen, n]);
-          say(W.notDelivered(W.frame(), id, e.message), n < CUT_TRIES ? "warning" : "error");
-          if (n >= CUT_TRIES) return void cutDone.set(id, gen);
-          const t = setTimeout(() => {
-            retries.delete(t);
-            if (halts.halted(id)) cut(id);
-          }, CUT_RETRY_MS);
-          (t as { unref?: () => void }).unref?.();
-          retries.add(t);
-        },
-      )
-      .finally(() => {
-        cutting.delete(id);
-        if (stopOf(id) !== gen) cut(id);
-      });
-  }
+  const session = (): any => ctx.session;
+  const cuts = createCuts({
+    stopOf: (id) => halts.stopOf(id),
+    halted: (id) => halts.halted(id),
+    canInterrupt: () => typeof session().interrupt === "function",
+    interrupt: (id) => session().interrupt({ sessionID: id, resume: false }),
+    dropped: (id) => {
+      for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
+      tacts.gone(id);
+    },
+    refused: (id, why, last) => say(W.notDelivered(W.frame(), id, why), last ? "error" : "warning"),
+  });
+  const cut = cuts.cut;
 
   /**
    * The owner took the seat off (#7439, #7440 item 2): the running turns of the session and of
@@ -376,8 +345,16 @@ export function setupChannel(
     gone(session) {
       tacts.gone(session);
       halts.gone(session);
-      cutDone.delete(session);
-      cutFails.delete(session);
+      cuts.forget(session);
+    },
+    // Each reading cuts the descendants this instance serves, a child born during the wait too;
+    // other instances cut theirs by the same stops (plugin.ts sweep).
+    halted(session, signal) {
+      return cuts.outcome(() => {
+        if (!session) return [];
+        this.halt(session);
+        return [session, ...processDescendants(session)];
+      }, signal);
     },
     halt(session) {
       if (!halts.halted(session)) return false;
@@ -402,9 +379,9 @@ export function setupChannel(
       }
     },
     stop() {
+      unshare();
       tacts.stop();
-      for (const t of retries) clearTimeout(t);
-      retries.clear();
+      cuts.stop();
       for (const p of piles.values()) {
         p.pending = null;
         flush(p);
@@ -472,8 +449,7 @@ export function setupChannel(
           halts.held(session); // after a stop only an explicit stand holds again (halts.ts)
           // The marks of the session's cuts go with it, its descendants' too.
           for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
-            cutDone.delete(s);
-            cutFails.delete(s);
+            cuts.forget(s);
           }
           say(W.held(ev.key ?? ""), "info");
           return;

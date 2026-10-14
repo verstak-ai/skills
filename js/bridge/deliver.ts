@@ -27,6 +27,7 @@ import { rawSeatRefusal, seatRealm } from "./hearing.ts";
 import { localLeave } from "./leave.ts";
 import { annotateToolList } from "./moment.ts";
 import { narrowToolList, outsideSetRefusal } from "./narrow.ts";
+import { localHalted } from "./orderhalt.ts";
 import { ownerRefusal } from "./owner.ts";
 import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
 import { READ_TOOLS } from "./repeat.ts";
@@ -197,7 +198,8 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
 
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   // Answered by the bridge itself, never sent upstream.
-  const local = localStatus(msg) ?? localLeave(msg) ?? localSuspend(msg) ?? localEnd(msg);
+  const local =
+    localStatus(msg) ?? localLeave(msg) ?? localSuspend(msg) ?? localEnd(msg) ?? localHalted(msg);
   if (local) {
     emit(await local);
     return;
