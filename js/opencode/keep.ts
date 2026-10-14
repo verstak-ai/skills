@@ -42,8 +42,6 @@ export interface KeptSlot {
   child?: boolean;
   /** The root's seat the child stood as a satellite of — the new instance's bridge stands the same (#6625). */
   satelliteOf?: { realm: string; karta: string; name: string } | null;
-  /** The child's errand case — a lead's outcome (leads.ts) survives a reload. */
-  room?: string | null;
   /** The child's first turn was already told to the parent — a new instance does not repeat it. */
   noted?: boolean;
   /** The child's last text — the "ended" outcome survives a reload. */

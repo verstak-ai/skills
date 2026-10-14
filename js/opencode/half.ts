@@ -17,6 +17,10 @@ export interface ToolsHalf {
   bridgeOf(session: string): Bridge | null; // the holding slot's bridge — for session usage (usage.ts)
   /** The seat name of a live lead subagent; not a lead — null (notice.ts). */
   leadOf(session: string): string | null;
+  /** A lead subagent ended or ending: nothing goes into its session (#7505, channel.ts). */
+  ended(session: string): boolean;
+  /** The launcher's seat name of a live lead subagent; otherwise null (channel.ts). */
+  launcherOf(session: string): string | null;
   /** Sessions with a held seat — root, lead satellite; roots first (keepalive.ts). */
   holders(): string[];
   /** The session has a bridge of this instance — it is in its directory (keepalive.ts). */
@@ -40,6 +44,8 @@ export const idleHalf = (): ToolsHalf => ({
   stop() {},
   bridgeOf: () => null,
   leadOf: () => null,
+  ended: () => false,
+  launcherOf: () => null,
   holders: () => [],
   owns: () => false,
   held: () => null,

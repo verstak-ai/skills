@@ -3,9 +3,11 @@
 // go and before the revoke; a failed leave only logs, the case lapses by the seat's term.
 import { CASE_EXIT_CLOSED, envName, tool } from "../delivery/index.ts";
 import { scoped } from "../shared/scope.ts";
+import { type SeatKey } from "../shared/seat.ts";
 import { type Answer, callTool as call } from "./call.ts";
 import { CFG } from "./config.ts";
 import { H } from "./holdstate.ts";
+import { normKarta } from "./names.ts";
 import { extraPlaces } from "./places.ts";
 import { canonRealm, otherRealm } from "./realms.ts";
 import { log } from "./streams.ts";
@@ -87,38 +89,49 @@ export const satellitePlaces = (): Standing[] =>
  * Revokes the satellite's seats at the run's end (graph @nks/nks-dev, nodes #6550,
  * #6593): a closed socket does not remove a seat from the board, only a revoke or the
  * channel's term does. Every seat of the channel, other graphs included. Called after
- * releaseStanding and the case exits, so a 4001 close is not taken for a dead token.
+ * releaseStanding and the case exits, so a 4001 close is not taken for a dead token. The answer —
+ * names left on the board, and confirmed revokes by canonical graph, role and name (№664).
  */
-export async function revokeSatellitePlaces(places: Standing[]): Promise<string[]> {
-  if (!places.length) return [];
-  const failed = new Set(places.map((s) => s.name as string)); // revoked names are struck out
+export async function revokeSatellitePlaces(
+  places: Standing[],
+): Promise<{ failed: string[]; revoked: SeatKey[] }> {
+  const failed = new Set(places); // revoked seats are struck out — one name in two graphs is two (#5838)
+  const revoked: SeatKey[] = [];
   const revokes = places.map((s) =>
     call(tool("channel"), { action: "revoke", realm: s.realm, karta: s.karta, standing: s.name })
       .then((r) => {
-        // Already gone (the platform's 4001, a retry after a closed connection) counts as revoked.
-        if (!r.isError || alreadyClosed(r)) {
-          failed.delete(s.name as string);
-          return log(`revoked ${s.name} in ${s.realm} at the run's end (#6593)`);
-        }
-        log(`place ${s.name} NOT revoked at the run's end: ${r.text.slice(0, 120)}`);
+        const how = revokeOutcome(r);
+        if (how === "failed")
+          return log(`place ${s.name} NOT revoked at the run's end: ${r.text.slice(0, 120)}`);
+        failed.delete(s);
+        if (how === "probably")
+          return log(`${s.name} probably revoked at the run's end: ${r.text.slice(0, 120)}`);
+        revoked.push({ realm: canonRealm(s.realm), karta: normKarta(s.karta), name: s.name ?? "" });
+        log(`revoked ${s.name} in ${s.realm} at the run's end (#6593)`);
       })
       .catch((e: Error) => log(`place ${s.name} NOT revoked at the run's end: ${e.message}`)),
   );
-  if (!(await underCap(Promise.allSettled(revokes))))
+  if (places.length && !(await underCap(Promise.allSettled(revokes))))
     log(
       `revoke at the run's end exceeded ${LEAVE_CAP_MS} ms — the place lapses by the channel's term`,
     );
-  return [...failed];
+  return { failed: [...new Set([...failed].map((s) => s.name as string))], revoked: [...revoked] };
 }
 
 /**
- * A revoke reply about a seat already gone: 410, or 404 without a rule; any other api
- * refusal (e.g. the channel's main seat) is a real failure; without refusal data — the prose.
+ * A revoke reply: confirmed — success, or a seat already gone as data (410, 404 without a
+ * rule; the platform's 4001, a retry after a closed connection); probably — prose that reads
+ * as gone without refusal data, never confirmed to the plugin (№664); any other refusal
+ * (e.g. the channel's main seat) is a real failure.
  */
-const alreadyClosed = (r: Answer): boolean =>
-  r.refusal
-    ? r.refusal.status === 410 || (r.refusal.status === 404 && !r.refusal.rule)
-    : CASE_EXIT_CLOSED.test(r.text);
+const revokeOutcome = (r: Answer): "confirmed" | "probably" | "failed" => {
+  if (!r.isError) return "confirmed";
+  if (r.refusal)
+    return r.refusal.status === 410 || (r.refusal.status === 404 && !r.refusal.rule)
+      ? "confirmed"
+      : "failed";
+  return CASE_EXIT_CLOSED.test(r.text) ? "probably" : "failed";
+};
 
 /** true when the work finished under the end-of-run cap. */
 async function underCap(work: Promise<unknown>): Promise<boolean> {

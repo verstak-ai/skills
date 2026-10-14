@@ -3,7 +3,8 @@
 // The session's bridge holds the standing socket; the plugin puts a frame into the agent's
 // session as a prompt (ctx.session.prompt). steer enters the running turn at the next step,
 // queue waits for the turn's end, one prompt per turn: a live frame and a loud word go steer,
-// or frames lagged by hours (#5233). Wake-up and stale batches go queue: not urgent.
+// or frames lagged by hours (#5233). Wake-up and stale batches go queue: not urgent — but a
+// wake-up or stale batch carrying the launcher's word to its lead steers, as the word alone would (#7505).
 // Case frames for the pile go queue too, one prompt per pile: a head of counts per case and
 // below it only lines addressed to the seat (#6574). While the pile's previous prompt is not
 // taken, new frames gather here and leave as one when OpenCode says it took it; a pile of counts
@@ -25,6 +26,7 @@ import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, eventIn } from "../shared/seen.ts";
 import { authDir } from "./bridge-io.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
+import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -44,6 +46,8 @@ export interface Channel {
   stop(): void;
   /** Counts of records waiting for a passing prompt into root session `session`; null — none. */
   ride(session: string): string | null;
+  /** The stop word a turn of root session `session` reads while it stays stopped; null — none. */
+  stopWord(session: string): string | null;
 }
 
 /** The case pile window; the variable is a probe seam. */
@@ -98,6 +102,7 @@ export function setupChannel(
   freshestRoot: () => string | null,
   parents: ReadonlyMap<string, string> = new Map(),
   onStop: (session: string) => void = () => {},
+  leads: ChildLeads = NO_LEADS,
 ): Channel {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -143,6 +148,11 @@ export function setupChannel(
     }
     if (halts.halted(id)) {
       say(W.halted(frame, id), "warning");
+      return null;
+    }
+    // An ended lead is woken by nothing — a frame, a pile, a tact, a word (#7505): the journal keeps it.
+    if (child && leads.ended(id)) {
+      say(W.childEnded(frame, id, text.slice(0, 120)), "info");
       return null;
     }
     try {
@@ -256,6 +266,29 @@ export function setupChannel(
     void deliver(session, text, W.frame(), "steer", child);
   }
 
+  /**
+   * A stale or wake-up batch — one prompt per pile, queued or held as a tact. The launcher's word
+   * gathered into it steers its lead's turn, the batch with it (#7505): queued, it would wait past
+   * the turn's end and wake an ended lead. The single frame and the case pile take that word by
+   * the same predicate (onEvent "frame"), so no queued path carries it.
+   */
+  function batch(session: string | null, child: boolean, ev: ChannelEvent, what: string): void {
+    noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
+    if (!ev.text) return;
+    if (launcherWordIn(session, child, ev.frames))
+      void deliver(session, ev.text, what, "steer", child);
+    else if (!tact(session, child, ev, what)) void deliver(session, ev.text, what, "queue", child);
+  }
+
+  const launcherWordIn = (
+    session: string | null,
+    child: boolean,
+    frames?: Frame[] | null,
+  ): boolean => {
+    const launcher = child ? leads.launcherOf(session ?? "") : null;
+    return !!frames?.some((f) => fromLauncher(f, launcher));
+  };
+
   function dropPile(key: string): void {
     const p = piles.get(key);
     if (p?.timer) clearTimeout(p.timer);
@@ -318,26 +351,21 @@ export function setupChannel(
   /**
    * The owner took the seat off (#7439, #7440 item 2): the running turns of the session and of
    * every descendant are interrupted, their piles and waiting tacts are dropped, and the stop
-   * word goes to the human and into the session as a message that starts no turn. Nothing of
-   * this session or its descendants reaches them afterwards until it stands again by an explicit
-   * call (halts.ts). The descendants' seats go down in their own instances (onStop).
+   * word goes to the human and to the context of the session's turns while it stays stopped —
+   * not into its inbox, where a later turn would take it stale (#7585); the word lies with the
+   * stop and outlives a reload as the stop does. Nothing of this session or its descendants
+   * reaches them afterwards until it stands again by an explicit call (halts.ts). The
+   * descendants' seats go down in their own instances (onStop).
    */
   function stopped(session: string | null, text: string, child: boolean): void {
     say(text, "error");
     dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
     if (!session) return;
-    halts.stop(session);
+    // A child's end goes to its parent (leads.ts): no word is laid into the child.
+    halts.stop(session, child ? null : text);
     cut(session);
     for (const d of descendantsOf(session, parents)) cut(d);
     onStop(session);
-    const s = ctx.session as any;
-    const failed = (e: Error) => say(W.notDelivered(W.frame(), session, e.message), "warning");
-    // A child's end goes to its parent (leads.ts): no word is laid into the child.
-    if (child || typeof s.synthetic !== "function") return;
-    const said = markFrame(text);
-    void Promise.resolve(
-      s.synthetic({ sessionID: session, text: said, delivery: "queue", resume: false }),
-    ).catch(failed);
   }
 
   return {
@@ -389,6 +417,10 @@ export function setupChannel(
       );
       return riding(own).join("\n") || null;
     },
+    stopWord(session) {
+      const word = halts.wordOf(session, P.stoppedAny());
+      return word === null ? null : markFrame(P.stoppedTurn(word));
+    },
     onEvent(session, params: any, child = false) {
       const ev = params?.data as ChannelEvent | undefined;
       if (!ev || typeof ev !== "object") return;
@@ -399,7 +431,9 @@ export function setupChannel(
           if (frame?.type === "hello") return say(P.listening(), "info");
           if (frame?.type === "status") return;
           // The frame's path (#5851): with event_kind — the kind's rule, without — its own stack (#4957).
-          if (frame && toPile(frame)) return pile(session, child, frame);
+          // The launcher's word to its working lead steers its turn whatever its stack (#7505).
+          const steers = !!frame && launcherWordIn(session, child, [frame]);
+          if (frame && !steers && toPile(frame)) return pile(session, child, frame);
           const own = piles.get(`${child ? "child" : "root"}:${session ?? ""}`);
           noteOwn(own, deliveryKeys(frame)); // the frame enters as text — the pile's count skips it
           void deliver(
@@ -419,19 +453,10 @@ export function setupChannel(
           stopped(session, P.stopped(ev.text ?? ""), child);
           return;
         case "stale":
-          noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
-          if (ev.text && !tact(session, child, ev, W.staleBatch()))
-            void deliver(session, ev.text, W.staleBatch(), "queue", child); // one pile — one prompt
-          return;
+          return batch(session, child, ev, W.staleBatch());
         case "backlog":
-          noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
           // A wake-up with the backlog — one prompt per pile, queued: steered mid-turn it would cut the doer's work (#5140).
-          if (ev.text) {
-            const what = W.wakeBatch(ev.frames?.length ?? 0);
-            if (!tact(session, child, ev, what))
-              void deliver(session, ev.text, what, "queue", child);
-          }
-          return;
+          return batch(session, child, ev, W.wakeBatch(ev.frames?.length ?? 0));
         case "lost":
           // The holding bridge exited or the previous plugin was stopped: loudly, into the session.
           if (ev.text) loud(session, ev.text, child);

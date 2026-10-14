@@ -17,15 +17,12 @@ export { NAME_MAX };
 const nw = (): NameWords => words(NAMES);
 
 /**
- * Role as the board prints it (bare digits or a sentinel: agent, me, realm-owner), name
- * without padding — one normalization for writing the binding and for comparing: a raw
- * record missed its normalized twin and the bridge did not know its own socket
- * (graph @nks/nks-dev, node #5154).
+ * Role as the board prints it, name without padding — one normalization for writing the
+ * binding and for comparing: a raw record missed its normalized twin and the bridge did not
+ * know its own socket (graph @nks/nks-dev, node #5154). The role's rule is shared with the
+ * OpenCode plugin (shared/seat.ts).
  */
-export const normKarta = (k: unknown): string =>
-  String(k ?? "")
-    .trim()
-    .replace(/^#/, "");
+export { normKarta } from "../shared/seat.ts";
 export const normName = (n: unknown): string => (typeof n === "string" ? n.trim() : "");
 const NAME_RE = /^[a-z0-9][a-z0-9._-]*$/;
 

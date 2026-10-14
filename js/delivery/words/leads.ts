@@ -4,8 +4,6 @@ import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
 
 export interface LeadWords {
-  cancelled: () => string;
-  cancelledRefusal: () => string;
   cascade: (who: string) => string;
   placeEvicted: () => string;
   placeClosed: () => string;
@@ -21,17 +19,23 @@ export interface LeadWords {
   turn: (place: string) => string;
   notice: (child: string, place: string) => string;
   release: (who: string) => string;
-  released: () => string;
+  /** why — the platform's answer to the launcher's revoke. */
+  unreleased: (who: string, why: string) => string;
   away: (who: string, last: string) => string;
   lost: (who: string, why: string) => string;
   tellDone: (sessionID: string) => string;
   tellFailed: (sessionID: string, message: string) => string;
   sessionOf: (child: string) => string;
   noParent: (text: string) => string;
+  noLiveAncestor: (text: string) => string;
+  endUnwritten: (sessionID: string, message: string) => string;
+  endUnlifted: (sessionID: string, message: string) => string;
   notDown: (who: string, message: string) => string;
   leftSeat: () => string;
   leftCases: () => string;
   leftCase: (room: string) => string;
+  /** why — why the platform did not say whether cases remain. */
+  lastUnknown: (who: string, room: string, why: string) => string;
   releasedByLauncher: () => string;
   deleted: () => string;
   reloadUnreadable: () => string;
@@ -58,8 +62,6 @@ const keptEn = (who: string, place: string): string =>
 
 export const LEAD: Readonly<Record<Lang, LeadWords>> = {
   en: {
-    cancelled: () => "its turn was cancelled in OpenCode (by the user or the launcher)",
-    cancelledRefusal: () => "its turn was cancelled in OpenCode",
     cascade: (who) =>
       `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases and waits for frames of its case. ` +
       `To go on — a word into its case; to release it — ${tool("channel")}(action="revoke", standing="${who}").`,
@@ -89,9 +91,10 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       `it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. ` +
       `To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) =>
-      `Verstak: subagent ${who} is released — its bridge is down: it leaves its cases and revokes its seat itself; the outcome landed here as a synthetic message.`,
-    released: () =>
-      "Verstak: the launcher released you — the errand is over, the seat is revoked, you are taken out of the cases; standing again is not possible, write nothing more into the graph or cases.",
+      `Verstak: subagent ${who} is released — its bridge is down, it is out of its cases, its seat is revoked on the platform; the outcome landed here as a synthetic message.`,
+    unreleased: (who, why) =>
+      `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. ` +
+      `It hangs on the board: repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
     away: (who, last) =>
       `Verstak: subagent ${who} was taken down by the parent's move to another folder — the errand here ended not by its outcome, there will be no "ENDED": ` +
       `its bridge goes down: it leaves its cases, its seat is revoked; its session stayed in the previous folder. Its last word:\n${last || "(it left no text — see its case)"}`,
@@ -104,11 +107,20 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     sessionOf: (child) => `of session ${child}`,
     noParent: (text) =>
       `${text}\n(the plugin does not know the parent — nobody to give the outcome to)`,
+    noLiveAncestor: (text) =>
+      `${text}\n(the parent and every ancestor are ended or stopped — the word went into no session, it is here)`,
+    endUnwritten: (sessionID, message) =>
+      `Verstak: the end of the subagent of session ${sessionID} was not written to disk (${message}) — only this process's live plugin instances keep it, a reload will lose it`,
+    endUnlifted: (sessionID, message) =>
+      `Verstak: the subagent of session ${sessionID} stood again, but the record of its end was not removed from disk (${message}) — after a plugin reload it will count as ended again`,
     notDown: (who, message) =>
       `Verstak: the bridge of subagent ${who} was not put down after the outcome — ${message}`,
     leftSeat: () => "left its seat by the outcome",
     leftCases: () => "left its cases by the outcome",
     leftCase: (room) => `left case #${room} by the outcome`,
+    lastUnknown: (who, room, why) =>
+      `Verstak: subagent ${who} left case #${room}, but whether it was its last case the platform did not say (${why}) — the errand has NOT ended, its bridge and seat live. ` +
+      `If it is over — release it: ${tool("channel")}(action="revoke", standing="${who}").`,
     releasedByLauncher: () => "released on the launcher's word",
     deleted: () => "the subagent's session was deleted",
     reloadUnreadable: () => "plugin reload, the subagent's session is unreadable",

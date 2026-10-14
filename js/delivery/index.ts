@@ -9,6 +9,7 @@ export { ACTION_LIST_RE, SEAT_GONE_RE, UNATTRIBUTED_RE } from "./patterns/channe
 export { SERVER_CHOICE } from "./patterns/config.ts";
 export { NOTICE_MARK } from "./patterns/deliver.ts";
 export { LAUNCH_LINE, LAUNCH_WORD } from "./patterns/launch.ts";
+export { MINE_NONE, MINE_ROW } from "./patterns/mine.ts";
 export { SAT_LOGIN_RE, SAT_OLD_FLAG_RE } from "./patterns/satprobe.ts";
 export {
   BRIDGE_FILE,

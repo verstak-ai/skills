@@ -1,6 +1,6 @@
 // Handing over the satellite of a child moved alone to another folder (graph @nks/nks-dev, node #6695).
 // Its satellite goes to that folder's instance, as a root on a move and as on a reload
-// (children.ts): the bridge pauses, a marker with the new folder's tag (key, root seat, case,
+// (children.ts): the bridge pauses, a marker with the new folder's tag (key, root seat,
 // turn), the bridge here goes down. The lead does not end — no "ended", no seat release: the
 // new folder's instance returns the seat by key as the same satellite.
 import { method } from "../delivery/index.ts";
@@ -27,7 +27,7 @@ export const createHandoff =
     if (!s?.child || !s.satelliteOf || !s.holding) return false;
     if (!home || !to?.directory || to.directory === home.directory) return false;
     const was = d.leads.handoff(session);
-    [s.room, s.noted, s.last] = [was.room, was.noted, was.last];
+    [s.noted, s.last] = [was.noted, was.last];
     // The child's calls in the new folder wait for the marker (children.ts, settled), not stand a second satellite.
     handOver(
       session,

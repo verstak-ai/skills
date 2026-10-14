@@ -95,7 +95,7 @@ export function createChildren(d: ChildDoors) {
     );
     for (const s of held) {
       const was = d.leads.snapshot(s.session as string);
-      [s.room, s.noted, s.last] = [was.room, was.noted, was.last];
+      [s.noted, s.last] = [was.noted, was.last];
     }
     await Promise.all(
       held.map((s) =>
