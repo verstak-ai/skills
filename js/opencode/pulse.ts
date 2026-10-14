@@ -1,6 +1,7 @@
 // An OpenCode session's word on its turn for the seat's pulse (graph @nks/nks-dev, node #7529):
-// state from service events — session.status busy/idle, session.execution.succeeded, failed and
-// interrupted; turn_at — when a turn ended; read_at — when a frame the channel laid into the
+// state from service events — busy on session.execution.started (2.0.28 sends no session.status)
+// or session.status busy, the end on session.execution.succeeded, failed and interrupted or
+// session.status idle; turn_at — when a turn ended; read_at — when a frame the channel laid into the
 // session entered a turn as text: on session.inbox.delivered of its inbox item, a steer too — it
 // waits for the running tool to return (#5048). Each change goes to the session's bridge by
 // method("pulse"); the bridge paces the socket. The last word is kept: a seat taken or returned
@@ -94,6 +95,8 @@ export function createPulseFeed(opts: {
       const end = ENDS.get(type);
       if (end) return ended(session, end);
       switch (type) {
+        case "session.execution.started":
+          return tell(session, { state: "busy" });
         case "session.status": {
           const s: unknown = ev.data?.status?.type;
           if (typeof s !== "string") return;
