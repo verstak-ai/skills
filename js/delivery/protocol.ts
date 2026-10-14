@@ -32,6 +32,12 @@ export const FRAME_MARK = `[${PRODUCT}]`;
 export const STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 /**
+ * The bridge client's `capabilities.experimental` key that confirms the harness executes a
+ * stop by `method("halted")` (the OpenCode plugin): a stop order waits for its outcome.
+ */
+export const HALTS_CAPABILITY = `${PRODUCT}/halts`;
+
+/**
  * Server protocol keys not derived from the product name: the server's surface names them
  * (api refusal — `_meta[refusal]`). Confirmed 2026-10-08 against mcp.verstak.ai 0.108.0: its
  * initialize answer names `verstak/structured` and `verstak/refusal` in capabilities.experimental.

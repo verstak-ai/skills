@@ -12,6 +12,7 @@ import {
   setRevokingBeside,
   setRevokingOwn,
 } from "./hold.ts";
+import { stoppedInMove } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { listenBlock } from "./listen.ts";
 import { normKarta } from "./names.ts";
@@ -47,6 +48,7 @@ export function absorbChannelReply(msg: JsonRpcMessage, reply: JsonRpcMessage): 
   if (msg?.params?.name !== tool("channel")) return reply;
   if (a?.action !== "connect" && a?.action !== "mint") return reply;
   if (reply?.error || reply?.result?.isError) return reply;
+  if (stoppedInMove()) return reply; // the stand call takes the seat off again and says the stop (standundo.ts)
   const text = replyText(reply);
   const socket = SOCKET_RE.exec(text)?.[0];
   if (!socket) return reply;

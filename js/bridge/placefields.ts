@@ -55,6 +55,18 @@ export function rememberModel(m: unknown): void {
   if (typeof m === "string" && m.trim()) P.model = m.trim().replace(/^[^/]*\//, "");
 }
 
+/**
+ * The model of a stand call. A satellite's is the harness's (#7591): none named means none
+ * known, so the earlier one goes rather than being published again; the own seat keeps it.
+ */
+export function rememberStandModel(m: unknown): void {
+  if (CFG.satellite) P.model = "";
+  rememberModel(m);
+}
+
+/** A satellite's seat with no model known: register alone keeps the earlier one (modelclear.ts). */
+export const satelliteWithoutModel = (): boolean => CFG.satellite && !P.model;
+
 /** Seat fields for connect and register: always the full set. */
 export function placeFields(
   place: Place = {},

@@ -75,6 +75,11 @@ export interface ChannelEvent {
   beside?: true;
   /** kind="stopped": the close reason as the service named it (`revoked:person`, `revoked:self`). */
   reason?: string;
+  /**
+   * kind="stopped" by a stop order (stoporder.ts): its id — a client that declared the halts
+   * capability answers method("halted") with it once the harness's stop is executed (orderhalt.ts).
+   */
+  order?: string;
 }
 
 export interface DoorHooks {

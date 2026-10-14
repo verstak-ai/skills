@@ -7,6 +7,7 @@ import { absorbChannelReply } from "./absorb.ts";
 import { structuredOf } from "./fields.ts";
 import { holdsChannel, ledKey } from "./hold.ts";
 import { keyOf } from "./holdrecord.ts";
+import { noteTaken } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
 import { noteLocaleEcho } from "./placefields.ts";
 import { extraIn } from "./places.ts";
@@ -178,6 +179,7 @@ async function answer(name: string, args: Record<string, unknown>): Promise<Answ
   const refusal = refusalOf(got);
   if (name === tool("channel")) {
     noteLocaleEcho(args, replyText(got), structured);
+    if (!got.error && !got.result?.isError) noteTaken(args); // the stand call's stop guard (standundo.ts)
     if (args.action === "register") noteStanding(msg, got);
     if (args.action === "connect") got = absorbChannelReply(msg, got);
   }

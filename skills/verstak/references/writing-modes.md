@@ -4,7 +4,7 @@ Read by the `writing` method (`methods/writing.md`, Decision 3) when a triad is 
 
 ## The nests behind the values
 
-- **Epistemic** (means of valid knowledge): `kalpita` — built by the mind, a hypothesis; `anumita` — inference (smoke, so fire; reading a function, so its behaviour); `pratyakshita` — "before the eyes" (curl saw the response); `pramanita` — attested: seen repeatedly, sources agree; `badhita` — defeat of a thesis in debate: an active refutation, kept, not deleted.
+- **Epistemic** (means of valid knowledge): `kalpita` — built by the mind, a hypothesis; `anumita` — inference (smoke, so fire; reading a function, so its behaviour); `pratyakshita` — "before the eyes" (curl saw the response); `pramanita` — attested on independent grounds; retellings of one source count once; `badhita` — defeat of a thesis in debate: an active refutation, kept, not deleted.
 - **Ontic** (what is known): `vartamana` — "under way", functioning, not "alive"; `anagata` — "not yet arrived": a plan, risk, goal; `atita` — "gone beyond", left traces; `vikalpa` — a construct with no external correlate, held for thought; `nashta` — perished without trace (rare: a record in the graph is itself a trace).
 - **Volitive**: `chanda` — aspiration toward the wanted; `adhimoksha` — resolve holding it in place; `upeksha` — "to look closely without interfering": considered non-interference; `virodha` — opposition, polarised by kind; `visarjana` — the holders step out of the field.
 
@@ -24,7 +24,7 @@ Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive
 | observation | Pt | Va | Up | seen in action, accepted |
 | intent | An | Ag | Ch | ahead · wanted |
 | decided intent | An | Ag | Ad | ahead · held — resolve, not age, separates it from intent |
-| stub | An | Ag | Up | ahead · accepted — named because the structure needs it |
+| planned end | Kl/An | Ag | by the actual relation | ahead — the will as it stands, not a placeholder `upeksha`; an undecided end keeps its question open |
 | attested | Pm | Va | Up | confirmed many times |
 | historical layer | Pt | At | Up | past — it was, recorded |
 | refuted | Ba | At or Vk | Vs | stopped being so → `atita`; never was → `vikalpa` |
@@ -42,7 +42,7 @@ Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive
 | principle in force | An/Pm | Va | Ad | in force, by being held |
 | given principle | Pm | Va | Up | in force as given — a law, regulation, invariant |
 | historical concept or principle | Pm | At | Up | historical — a qualifier, not an ending |
-| external text, past | Pm | Va | Up | an authoritative briefing |
+| external text | by the claim's grounds | by its subject | Up | graded by the claim, its means and provenance (`methods/intake.md`, step 2), not by the speaker's authority |
 | external text, project | An | Ag | Ch | a design document |
 | proposed transformation | Kl/An | Ag | Ch | ahead · wanted — an agent's assumption until the owner accepts name and telos |
 | accepted transformation | Kl/An | Ag | Ad | ahead · held — the owner's act, their words in `reasoning` |

@@ -51,6 +51,11 @@ export class RoomBatch {
     }
   }
 
+  /** The frames the batch holds (pulse.ts pending). */
+  get frames(): Frame[] {
+    return this.held.map((h) => h.frame);
+  }
+
   /** A batched frame is not handed out separately by the ring (door.ts). */
   holds(frame: Frame | null): boolean {
     return !!frame && this.held.some((h) => h.frame === frame);

@@ -16,7 +16,7 @@ const token = (p) => `${p}-${b64url(randomBytes(9))}`;
 export async function startFakeServer(opts = {}) {
   const st = {
     accessTtl: opts.accessTtl ?? 3600,
-    tools: opts.tools ?? ["verstak_orient"],
+    tools: opts.tools ?? ["verstak_orient"], // a name, or a whole tool definition
     clients: new Map(),
     codes: new Map(),
     access: null,
@@ -202,7 +202,7 @@ export async function startFakeServer(opts = {}) {
         return json(res, 200, {
           jsonrpc: "2.0",
           id: msg.id,
-          result: { tools: st.tools.map((name) => ({ name })) },
+          result: { tools: st.tools.map((t) => (typeof t === "string" ? { name: t } : { ...t })) },
         });
       }
       return json(res, 200, {

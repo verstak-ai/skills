@@ -63,7 +63,12 @@ function httpOrigin(socketUrl: string): string {
 }
 
 export function versionUrl(socketUrl: string): string {
-  return httpOrigin(socketUrl) + "/api/version";
+  return apiBase(socketUrl) + "/version";
+}
+
+/** The api beside the channel: the socket's origin under /api (graph @nks/nks-dev, node #7510). */
+export function apiBase(socketUrl: string): string {
+  return httpOrigin(socketUrl) + "/api";
 }
 
 /**
@@ -204,6 +209,8 @@ export interface Holder {
    * no reopen. No socket — onGone at once.
    */
   handOff(onFrame: (raw: string) => void, onGone: (code: number) => void): void;
+  /** A frame to the service on the open socket; false — not open now, nothing sent. */
+  send(text: string): boolean;
   /** Whether the socket is alive (open or opening). */
   readonly alive: boolean;
   /** Last sign of the service (ping or frame), epoch ms; 0 — none. An open attempt is not a sign. */
@@ -403,6 +410,15 @@ export function holdSocket(o: HoldOptions): Holder {
       retry = null;
       stopWatch();
       handing = { onFrame, onGone };
+    },
+    send(text) {
+      if (stopped || handing || !ws || ws.readyState !== 1) return false;
+      try {
+        ws.send(text);
+        return true;
+      } catch {
+        return false;
+      }
     },
     get alive() {
       return !stopped && !!ws && (ws.readyState === 0 || ws.readyState === 1);

@@ -6,6 +6,7 @@
 // key would kill the led one.
 import { envName, LOGGERS, method, tool } from "../delivery/index.ts";
 import { envOf, scoped, sessionCwd } from "../shared/scope.ts";
+import { besideBack } from "./besideback.ts";
 import { listens, nameOf, readBoard, undelivered } from "./board.ts";
 import { callTool, short } from "./call.ts";
 import { CFG } from "./config.ts";
@@ -34,7 +35,7 @@ import {
   restoreHoldRecord,
   sessionOfBridge,
 } from "./holdrecord.ts";
-import { stoppedSince, stopsNow } from "./holdstate.ts";
+import { stoppedSince, stopsNow, withSpoolHeld } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { returnToStanding } from "./leave.ts";
 import { THIN_RESUME_ID } from "./lostplaces.ts";
@@ -122,6 +123,20 @@ export async function resumeFromDisk(
   state.standing = prev;
   if (rec.cwd) noteStandCwd(prevCwd); // else the next bare connect writes a foreign directory into another seat's record
   return null;
+}
+
+/** Register the seat returned from disk, then the seats beside it on the same channel (#7602). */
+async function registerBack(rec: HoldRecord): Promise<string> {
+  const r = await callTool(tool("channel"), {
+    action: "register",
+    realm: rec.realm,
+    karta: rec.karta,
+    name: rec.name,
+    ...placeFields(rec),
+  });
+  if (r.isError) return resumeWords.registerRefused(short(r.text));
+  await besideBack(rec.url, rec);
+  return "register";
 }
 
 /**
@@ -269,7 +284,11 @@ export async function resumeBy(
     // the seat and no other named session stood on it.
     const me = sel.session ?? sessionOfBridge();
     const proven = (!!me && rec.session === me) || (key === led && !rec.session);
-    const back = await resumeFromDisk(rec.realm, rec.karta, rec.name);
+    // The handover spool waits until the seats beside are back with this one (#7602).
+    const { back, registered } = await withSpoolHeld(async () => {
+      const b = await resumeFromDisk(rec.realm, rec.karta, rec.name);
+      return { back: b, registered: b && register ? await registerBack(rec) : null };
+    });
     if (!back) {
       const stop = stoppedOutcome(before, key); // the return met the owner's 4001
       if (stop) return stop;
@@ -281,17 +300,7 @@ export async function resumeBy(
       }
       continue;
     }
-    const lines = [back.word];
-    if (register) {
-      const r = await callTool(tool("channel"), {
-        action: "register",
-        realm: rec.realm,
-        karta: rec.karta,
-        name: rec.name,
-        ...placeFields(rec),
-      });
-      lines.push(r.isError ? resumeWords.registerRefused(short(r.text)) : "register");
-    }
+    const lines = [back.word, ...(registered ? [registered] : [])];
     // Records the loop above found stale are already erased: not named.
     const others = [
       ...new Set([...recs.map((r) => keyOf(r.realm, r.karta, r.name)), ...sameDir]),

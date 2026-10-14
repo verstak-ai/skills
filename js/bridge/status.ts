@@ -105,7 +105,8 @@ export function localStatus(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null
  * (dead token, revoke); the bridge cannot tell these two apart from here.
  */
 export type StatusMiss =
-  | { why: "none" | "satellite" | "parked" | "elsewhere" }
+  | { why: "none" | "satellite" }
+  | { why: "parked" | "elsewhere"; seat: Pick<Standing, "realm" | "karta" | "name"> }
   | { why: "args"; args: string[] }
   | { why: "name"; asked: string; held: string }
   | { why: "cwd"; cwd: string };
@@ -141,8 +142,9 @@ export async function standStatusOnly(msg: JsonRpcMessage): Promise<StatusOnly> 
   const base = /^(.+)\.sub-[1-9]\d*$/.exec(held.name ?? "")?.[1];
   if (of && !(base && nameOf(of).startsWith(base))) return { miss: { why: "satellite" }, of };
   const [r, k, n] = [held.realm, held.karta, held.name ?? ""];
-  if (isParked(r, k, n)) return { miss: { why: "parked" } };
-  if (!hasStatusAddressFor(r, k, n)) return { miss: { why: "elsewhere" } };
+  const seat = { realm: r, karta: k, name: n };
+  if (isParked(r, k, n)) return { miss: { why: "parked", seat } };
+  if (!hasStatusAddressFor(r, k, n)) return { miss: { why: "elsewhere", seat } };
   // The directory goes into the hold record for a later return, as on the full path (resume.ts).
   const cwd = typeof a.cwd === "string" ? a.cwd.trim() : "";
   if (cwd) {

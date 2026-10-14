@@ -10,6 +10,7 @@
 
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -284,6 +285,134 @@ test("the bridge adds its own verstak_stand to the server's tools", async (t) =>
     assert.ok(
       names.every((n) => n.startsWith("verstak_")),
       names.join(", "),
+    );
+  });
+});
+
+// --- the tool list as the harness sees it ----------------------------------
+
+// The bridge prefixes no writing-moment line to the write tools: the server's own description
+// carries its purpose first (graph @nks/nks-dev, nodes #7557, #7576).
+const SERVER_TOOLS = [
+  { name: "verstak_add_vimarsha", description: "Create a vimarsha: an inquiry hung on a node." },
+  { name: "verstak_batch", description: "An atomic delta of several writes." },
+  { name: "verstak_orient", description: "Enter the graph." },
+  { name: "verstak_channel", description: "The role's live channel." },
+];
+// The line bridges up to 3.3.0 prefixed to every write tool, as shipped; a stale cache may still carry it.
+const OLD_MOMENT = "[bridge] The writing skill's moment:";
+const OLD_MOMENT_LINE =
+  "[bridge] " +
+  "The writing skill's moment: before each node, name the reader, what will change retrieval and what is new here; type and given_as, the three modes as claims, a thesis name, arrows with sense; the body is present knowledge, never provenance: who said it, when, by whose hand — lives in the node's history and in the case, a node is rewritten, not appended with a section; hint is a transformation's seed: only what matters after the session, not a log; a question to a neighbour and a wait are a vimarsha with `posed_to`, not a case line; the CHECKS lines in the reply are this beat's work.";
+const descriptions = (answer) =>
+  Object.fromEntries((answer.result?.tools ?? []).map((t) => [t.name, t.description]));
+
+function assertServerDescriptions(byName) {
+  for (const t of SERVER_TOOLS.filter((x) => x.name !== "verstak_channel"))
+    assert.equal(
+      byName[t.name],
+      t.description,
+      `${t.name} must reach the harness as the server sent it`,
+    );
+  assert.ok(
+    Object.values(byName).every((d) => !String(d ?? "").includes(OLD_MOMENT)),
+    "no description may carry the writing-moment line",
+  );
+  assert.ok("verstak_stand" in byName, "the bridge still adds verstak_stand");
+  const channel = byName.verstak_channel ?? "";
+  assert.ok(channel.startsWith("[bridge] Busyness"), "the busyness line leads the channel tool");
+  assert.match(channel, /\[bridge\] action="leave"/, "the leave line stands on the channel tool");
+  assert.ok(
+    channel.endsWith("\n\nThe role's live channel."),
+    "the server's description follows whole",
+  );
+}
+
+test("write tools reach the harness with the server's descriptions; the channel tool keeps the bridge's lines", async (t) => {
+  await withFake(t, { tools: SERVER_TOOLS }, async ({ dir, spawnBridge }) => {
+    const bridge = spawnBridge();
+    await authorize(bridge, dir);
+    assertServerDescriptions(descriptions(await bridge.call("tools/list", 2)));
+  });
+});
+
+// While a login waits for its click, the harness is answered from the last server answer —
+// which an older bridge may have saved with its writing-moment line (graph @nks/nks-dev, node #4790).
+// The core takes off only a whole shipped line (MOMENT.formerMoments) with its blank line, on a
+// write tool; anything else keeps its bytes, and no description is emptied.
+const L = OLD_MOMENT_LINE;
+const CACHED = [
+  // [tool, cached description, what the harness must get, the contrast]
+  [
+    "verstak_add_vimarsha",
+    `${L}\n\nCreate a vimarsha.`,
+    "Create a vimarsha.",
+    "whole line first: taken off",
+  ],
+  [
+    "verstak_add_bianhua",
+    `Create a transformation.\n\n${L}`,
+    "Create a transformation.",
+    "whole line last: taken off",
+  ],
+  [
+    "verstak_batch",
+    `${OLD_MOMENT} before each node, name the reader.\n\nAn atomic delta.`,
+    `${OLD_MOMENT} before each node, name the reader.\n\nAn atomic delta.`,
+    "the same start without the whole line: kept",
+  ],
+  [
+    "verstak_add_kriya",
+    `${L}\nCreate a kriya.`,
+    `${L}\nCreate a kriya.`,
+    "no blank line after it: kept",
+  ],
+  ["verstak_add_holon", L, L, "the line alone: not emptied"],
+  ["verstak_add_karta", `${L}\n\n`, `${L}\n\n`, "the line and a blank line only: not emptied"],
+  [
+    "verstak_orient",
+    `${L}\n\nEnter the graph.`,
+    `${L}\n\nEnter the graph.`,
+    "a read tool: untouched",
+  ],
+];
+
+test("a login-wait tool list from an old bridge's cache loses only a whole shipped moment line on a write tool", async (t) => {
+  await withFake(t, { tools: SERVER_TOOLS }, async ({ fake, dir, spawnBridge }) => {
+    const u = new URL(fake.mcpUrl);
+    const h = createHash("sha256")
+      .update(u.origin + u.pathname)
+      .digest("base64url")
+      .slice(0, 10);
+    const tools = [
+      ...CACHED.map(([name, description]) => ({ name, description })),
+      { name: "verstak_channel", description: "The role's live channel." },
+    ];
+    writeFileSync(
+      join(dir, `${u.hostname}_${h}.json.server-answers`),
+      JSON.stringify({
+        init: {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          serverInfo: { name: "fake-server", version: "0" },
+        },
+        tools: { tools },
+      }),
+    );
+    const bridge = spawnBridge();
+    assert.ok(
+      (await bridge.call("initialize", 1, INIT_PARAMS)).result,
+      "initialize answered from the cache",
+    );
+    const listed = await bridge.call("tools/list", 2);
+    assert.ok(listed.result, `tools/list answered from the cache: ${JSON.stringify(listed.error)}`);
+    const byName = descriptions(listed);
+    for (const [name, , expected, contrast] of CACHED)
+      assert.equal(byName[name], expected, `${name} — ${contrast}`);
+    assert.ok("verstak_stand" in byName, "the bridge still adds verstak_stand");
+    assert.ok(
+      (byName.verstak_channel ?? "").endsWith("\n\nThe role's live channel."),
+      "the channel tool keeps the server's text under the bridge's lines",
     );
   });
 });

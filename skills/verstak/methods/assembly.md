@@ -68,7 +68,7 @@ Then build the map:
 - **Create** (as a proposal, above) **or refresh** each transformation the field reveals: `verstak_add_bianhua(name, telos, anga=<driving vimarshas>, anantara_after=<prerequisites>)`; `telos` = "the system becomes …". No anga-vimarsha → empty (the factory warns): attach drivers or don't create it.
 - **Run integrity** on each freshly accepted transformation (`methods/integrity.md`).
 - **Order** with `anantara` (B only after A) — the critical path.
-- **Record the emerging pattern**: a phenomenon with `given_as=bildung`, `arose_from` its source. No `bildung` ⇒ the assembly didn't land (`methods/inquiry.md`, §6).
+- **Record an emerging pattern** you actually told apart: a phenomenon with `given_as=bildung`, `arose_from` its source. An accurately kept whole or an open question is a legitimate result too (`methods/inquiry.md`, §6).
 
 ### 6. Impulse for the navigator
 

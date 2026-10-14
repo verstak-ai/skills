@@ -35,6 +35,11 @@ export class Backlog {
     this.has = has;
   }
 
+  /** The frames the window holds (pulse.ts pending). */
+  get frames(): readonly Frame[] {
+    return this.all;
+  }
+
   /** An open window is not extended, only filled. */
   open(expected: number, emit: (ev: ChannelEvent) => void): void {
     this.pending = Math.max(this.pending, expected);

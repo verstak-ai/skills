@@ -16,9 +16,9 @@ import { stampOrigin } from "./complete.ts";
 import { CFG } from "./config.ts";
 import { type ChannelEvent, Door, type DoorHooks, ENV_KEY } from "./door.ts";
 import { isDelivered, redundantCopy } from "./fanout.ts";
-import { letGo, takeSpool } from "./handoff.ts";
+import { holdStray, letGo, takeSpool } from "./handoff.ts";
 import { dropOwnHoldRecord, keyOf, readHoldRecord, writeHoldRecord } from "./holdrecord.ts";
-import { E, type Frame, H, handoverReason } from "./holdstate.ts";
+import { drainWhenFree, E, type Frame, H, handoverReason } from "./holdstate.ts";
 import { deadWord, holdWords } from "./holdwords.ts";
 import {
   addExtra,
@@ -93,7 +93,6 @@ export { noteResuming, setClosingOwn, setRevokingBeside, setRevokingOwn } from "
 
 // Stale service repeats after a session rebuild fold into one word, not one wake per frame
 // (graph @nks/nks-dev, nodes #4881, #5033).
-
 const doorHooks: DoorHooks = {
   onAttach: () => {
     for (const fn of H.attachHooks) fn();
@@ -314,7 +313,7 @@ export function holdStanding(url: string, statusUrl?: string | null): string {
 export function parkStanding(reason: string): string | null {
   if (!H.holder?.alive || !H.currentKey) return null;
   H.heardAt = Math.max(H.heardAt, H.holder.heardAt);
-  H.holder.close(reason);
+  letGo(H.holder, null, reason);
   H.holder = null;
   H.parked = true;
   standingLog(`parked ${H.currentKey}: ${reason}`);
@@ -434,10 +433,11 @@ function openHolder(url: string, key: string): void {
       onFrame: function onFrame(raw, frame) {
         void Promise.resolve(stampOrigin(frame)).then((full) => {
           if (full?.type === "standing_ended") return E.stop?.(key, 0, "", full); // one seat taken off (stophold.ts)
+          if (E.order?.(url, full)) return; // a stop frame is the bridge's, never the agent's (stoporder.ts)
           const primary = held();
           if (!primary) return H.door ? deliverTo(H.door, raw, frame, full) : undefined; // socket without a standing (env)
-          // hello names the channel's places: their ids and canonical graphs (#5838).
-          if (full?.type === "hello") learnFromHello(full, primary);
+          if (full?.type === "hello") learnFromHello(full, primary); // hello names the channel's places: their ids and canonical graphs (#5838)
+          if (holdStray(raw, full, held, () => onFrame(raw, frame))) return; // its seat beside is coming back (#7602)
           // A frame goes to its place's door by to_standing_id; an unmatched one to the primary with a note.
           const { door: d, note } = routeFrame(full?.type === "hello" ? null : full, primary);
           if (note) {
@@ -445,7 +445,8 @@ function openHolder(url: string, key: string): void {
             d.broadcast({ kind: "note", text: note });
           }
           deliverTo(d, raw, frame, full);
-          if (full?.type === "hello") takeSpool(key, held, onFrame); // what reached the leaving daemon (#6586)
+          E.pulse?.(full?.type === "hello" ? "hello" : "frame");
+          if (full?.type === "hello") drainWhenFree(() => takeSpool(key, held, onFrame)); // the leaving daemon's (#6586), after the seats beside (#7602)
         });
       },
       onEvicted: (code) => {

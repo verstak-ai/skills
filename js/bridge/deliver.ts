@@ -27,8 +27,10 @@ import { rawSeatRefusal, seatRealm } from "./hearing.ts";
 import { localLeave } from "./leave.ts";
 import { annotateToolList } from "./moment.ts";
 import { narrowToolList, outsideSetRefusal } from "./narrow.ts";
+import { localHalted } from "./orderhalt.ts";
 import { ownerRefusal } from "./owner.ts";
 import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
+import { isPulseCall, runPulse } from "./pulse.ts";
 import { READ_TOOLS } from "./repeat.ts";
 import { isCheckCall, isResumeCall, runCheck, runResume } from "./resume.ts";
 import { localEnd } from "./runend.ts";
@@ -197,7 +199,8 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
 
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   // Answered by the bridge itself, never sent upstream.
-  const local = localStatus(msg) ?? localLeave(msg) ?? localSuspend(msg) ?? localEnd(msg);
+  const local =
+    localStatus(msg) ?? localLeave(msg) ?? localSuspend(msg) ?? localEnd(msg) ?? localHalted(msg);
   if (local) {
     emit(await local);
     return;
@@ -294,6 +297,11 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       if (isUsageCall(msg)) {
         // Session usage into the seat's attrs (graph @nks/nks-dev, node #6271).
         emit(await serialized(() => runUsage(msg)));
+        return;
+      }
+      if (isPulseCall(msg)) {
+        // The harness's word on its turn, for the seat's pulse (graph @nks/nks-dev, node #7529).
+        emit(runPulse(msg));
         return;
       }
       heldReply = null;

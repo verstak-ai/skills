@@ -8,6 +8,7 @@ import { words } from "../shared/lang.ts";
 import { socketPathOf, spoolFilePathOf } from "../shared/standings.ts";
 import { CFG } from "./config.ts";
 import { type ChannelEvent } from "./door.ts";
+import { E, liveWhenFree } from "./holdstate.ts";
 import { type Place, strayOf } from "./places.ts";
 import { closeSpool, drainSpool, HANDOFF_MS, openSpool, spoolFrame } from "./spool.ts";
 import { publishStatusTo } from "./statuspost.ts";
@@ -77,8 +78,9 @@ export function letGo(
   reason: string,
   statusUrl: string | null = null,
 ): void {
-  if (holder && keepFor) keepUntilEvicted(holder, keepFor, statusUrl);
-  else holder?.close(reason);
+  if (holder && keepFor) return keepUntilEvicted(holder, keepFor, statusUrl);
+  if (holder?.alive) E.pulse?.("last", holder); // the seat's last pulse before its socket goes (pulse.ts)
+  holder?.close(reason);
 }
 
 /**
@@ -93,17 +95,42 @@ export function takeSpool(
 ): void {
   drainSpool(spoolFilePathOf(CFG.authDir, key), (raw, frame) => {
     const p = primary();
-    const to = p && strayOf(frame, p);
-    if (!p || !to) return feed(raw, frame);
-    const text = words(HANDOFF).strayFrame(String(frame?.id ?? "?"), to, p.door.key, raw);
-    log(text);
-    const ev: ChannelEvent = { kind: "note", text };
-    p.door.broadcast(ev);
-    emit({
-      jsonrpc: "2.0",
-      method: "notifications/message",
-      params: { level: "info", logger: LOGGERS.channel, data: ev },
-    });
+    if (!p || !sayStray(raw, frame, p)) feed(raw, frame);
+  });
+}
+
+/** A frame of a seat the bridge does not hold becomes a note to the doer; false — a held seat's. */
+export function sayStray(raw: string, frame: Frame | null, p: Place): boolean {
+  const to = strayOf(frame, p);
+  if (!to) return false;
+  const text = words(HANDOFF).strayFrame(String(frame?.id ?? "?"), to, p.door.key, raw);
+  log(text);
+  const ev: ChannelEvent = { kind: "note", text };
+  p.door.broadcast(ev);
+  emit({
+    jsonrpc: "2.0",
+    method: "notifications/message",
+    params: { level: "info", logger: LOGGERS.channel, data: ev },
+  });
+  return true;
+}
+
+/**
+ * A live frame of a seat not held while a return brings the seats beside back waits like the
+ * spool (#7602): then it is fed again to its seat's door, or becomes the note if that seat did
+ * not come back. True — held.
+ */
+export function holdStray(
+  raw: string,
+  frame: Frame | null,
+  primary: () => Place | null,
+  feedAgain: () => void,
+): boolean {
+  const p = primary();
+  if (!p || !strayOf(frame, p)) return false;
+  return liveWhenFree(() => {
+    const now = primary();
+    if (now && !sayStray(raw, frame, now)) feedAgain();
   });
 }
 

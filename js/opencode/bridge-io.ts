@@ -12,7 +12,7 @@ import {
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { envName, HOME_DIR, OPENCODE, PLUGIN } from "../delivery/index.ts";
+import { envName, HALTS_CAPABILITY, HOME_DIR, OPENCODE, PLUGIN } from "../delivery/index.ts";
 import { type Bridge, resultToContent } from "../shared/bridge-client.ts";
 import { OPENCODE_CLIENT } from "../shared/clients.ts";
 import { FIELDS_CAPABILITIES } from "../shared/fields.ts";
@@ -132,7 +132,10 @@ export async function handshake(
         "initialize",
         {
           protocolVersion: PROTOCOL,
-          capabilities: FIELDS_CAPABILITIES, // answer fields — for this client too (#6637)
+          // answer fields — for this client too (#6637); the stop's interrupt is confirmed (#7519)
+          capabilities: {
+            experimental: { ...FIELDS_CAPABILITIES.experimental, [HALTS_CAPABILITY]: {} },
+          },
           clientInfo: { name: OPENCODE_CLIENT, version: "1" },
         },
         { timeoutMs: Math.max(1, deadline - Date.now()) },
@@ -152,6 +155,26 @@ export async function handshake(
   }
   onReady();
   b.notify("notifications/initialized");
+}
+
+/** A slot's handshake (shake) and its readiness, which repeats a failed one at once, once. */
+export function slotReady<S extends { bridge: Bridge; ready: Promise<unknown> }>(login: {
+  on: (url: string | null, device: string | null) => void;
+  done: () => void;
+}) {
+  const shake = (slot: S): void => {
+    slot.ready = handshake(slot.bridge, login.on, login.done);
+    slot.ready.catch(() => {});
+  };
+  const readyFor = async (slot: S): Promise<void> => {
+    try {
+      await slot.ready;
+    } catch {
+      shake(slot);
+      await slot.ready;
+    }
+  };
+  return { shake, readyFor };
 }
 
 export async function listTools(b: Bridge): Promise<any[]> {

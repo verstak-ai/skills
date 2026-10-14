@@ -5,6 +5,7 @@
 // own scope (shared/scope.ts).
 import "./standwire.ts"; // a taken seat and an own return stand by the same stand tool
 import "./stophold.ts"; // the owner's 4001 marks the seat stopped (#7439)
+import "./stoporder.ts"; // a stop order stops the seat the same way and is answered (#7519)
 
 import { createInterface } from "node:readline";
 import { type Writable } from "node:stream";
@@ -20,6 +21,8 @@ import { startDeafnessWatch } from "./leave.ts";
 import { clickPending } from "./oauth/flow.ts";
 import { ORPHAN_FLOW_MS } from "./oauth/pacing.ts";
 import { tokenRequestsInFlight } from "./oauth/tokenrequest.ts";
+import { repeatLater } from "./orderack.ts";
+import { ordersSettled } from "./orderflight.ts";
 import { holdFromEnv } from "./resume.ts";
 import { closeRun } from "./runend.ts";
 import { releaseSatelliteClaims } from "./satellite.ts";
@@ -111,6 +114,8 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
   // A socket from env without connect (debug), or the seat returned by the session dir
   // (graph @nks/nks-dev, node #5140).
   holdFromEnv();
+  // Outcomes of stop orders the api has not taken: an answer is a POST, no seat or socket needed (#7510).
+  repeatLater(true);
   // Nobody listening, the bridge leaves the seat itself (graph @nks/nks-dev, node #4895); a
   // satellite's seat signs the run's writes, so it keeps no deafness watch.
   if (!CFG.satellite) startDeafnessWatch();
@@ -177,8 +182,11 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
     // Handover to a successor daemon (daemon.ts): the seat is kept, calls in flight get a short wait.
     const handover = !!origin && handoverUnderway();
     const paused = suspended();
-    // A failure of the run's end does not break the leave.
-    await closeRun(why, handover).catch((e: Error) => log(`the run's end failed: ${e.message}`));
+    // A failure of the run's end does not break the leave; a stop order in flight is answered first.
+    await Promise.all([
+      closeRun(why, handover).catch((e: Error) => log(`the run's end failed: ${e.message}`)),
+      ordersSettled(),
+    ]);
     if (handover) await Promise.race([Promise.allSettled([...pending]), sleep(HANDOVER_WAIT_MS)]);
     else await Promise.allSettled([...pending, ...tokenRequestsInFlight]);
     if (paused) await pauseSettled(); // a late re-arm of the pause turned the address — wait for its write

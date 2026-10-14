@@ -4,7 +4,7 @@
 
 You touch reality at points: a call, a log, a response. The connections, decisions, rejected options and open questions of the people you work with are in the graph; unread, you guess them. Where a check is cheap, check; for mechanism and meaning, read the graph; a mismatch between them is evidence.
 
-**Shortest path:** `verstak_orient` → `verstak_search` → `verstak_look` a hit → the arrow your question is about → the scope it names → the lens there that could prove you wrong (`From a card to evidence`). Stopping at a card or a clean lens is failure 2 (the door, `The method fails in five ways`).
+**Read by the question.** Start from the question and a known place. Search locates; a card directly shows its text, modes and shown relations; the neighbourhood finds what pulls on it and its neighbours; trace follows a relay; tensions checks its registry within a scope; path tests a named connection. A complete direct answer on the card needs nothing more. A question about consequences, closure, absence or a load-bearing ground needs the view that could tell the alternatives apart (`From a card to evidence`); name the scope, and anything missing or truncated. Stopping at a card that doesn't answer, or at a clean lens of the wrong scope, is failure 2 (the door, `The method fails in five ways`).
 
 # Part I. Literacy
 
@@ -23,7 +23,7 @@ A lifecycle runs from a phenomenon's arising to its dissipation; an unclosed one
 - **Nesting** — the inner cycle's phenomenon dissipates **before** the outer cycle ends.
 - **Relay** — cycles linked by a phenomenon but **not** nested: one produced it, another consumed it and lives on; the next can't start before the handoff, sometimes can't end after another's end.
 
-"Is everything ready?" is answered by the trace: where the thing is born (`utpatti`), passes through (`upadhi`), is consumed (`ahara`). **A trace without a break is acceptance**; a break is a named tension. A **line of work** is kriyas chained by `next` (a branch is several `next`, each with a `sense`); a relay is the path of a thing. What travels along the arrow tells them apart.
+"Is everything ready?" is answered by the trace: where the thing is born (`utpatti`), passes through (`upadhi`), is consumed (`ahara`). **A connected trace shows the model's relay is continuous in this scope**; whether it runs is a claim for its carrier (`reality-audit`). A break is a named tension. A **line of work** is kriyas chained by `next` (a branch is several `next`, each with a `sense`); a relay is the path of a thing. What travels along the arrow tells them apart.
 
 ## Lenses
 
@@ -43,10 +43,10 @@ One door, `verstak_orient`: **`focus` is where you stand, `lens` is where you lo
 
 The answer is rarely on the card search found. Move by trigger:
 
-- **You opened a node** → follow the arrow your question is about, by its `sense`, to the other end — before the next search hit. `context` → the holon that scopes the question; `upadhi` from an action → the rules and methods it applies; incoming `vimarsha_of` → questions and incidents about it; `arose_from` → its origin; `ahara` / `utpatti` → who consumes it, who produces it.
+- **The card leaves a relevant ground, dependency or relation unresolved** → follow the arrow that question is about, by its `sense`, to the other end — before another search hit. `context` → the holon that scopes the question; `upadhi` from an action → the rules and methods it applies; incoming `vimarsha_of` → questions and incidents about it; `arose_from` → its origin; `ahara` / `utpatti` → who consumes it, who produces it. A complete direct answer on the card needs no walk.
 - **"Is X closed?", "what if Y never arrives?", "what breaks?"** → `lens="tensions"`, `verbose=true` on the holon holding the flow (reached by `context`). A one-sided phenomenon — consumed, never produced, or the reverse — is your evidence.
-- **A lens says clean or shows little** → read what it covered (focus, node count) before concluding. Your role, an incident or one card is the wrong scope: run it again on the `context` holon.
-- **The output prints a next call** ("then `verstak_orient(focus=…)`", a lens, a `verbose` drill-down) → make it or say why not: it points at the evidence.
+- **A lens says clean or shows little** → read its declared scope and coverage (focus, node count). If that scope doesn't answer your question, move to the one that does: flow closure and holon-wide consequences need the flow's holon (reached by `context`), not the role or incident that brought you there. A sufficient scoped answer needs no ceremonial rerun.
+- **The output prints a next call** ("then `verstak_orient(focus=…)`", a lens, a `verbose` drill-down) → make it while its question is live, or say why not: it points at the evidence.
 - **About to act by a rule** (a seat, a case, a mandate) → open the action's or tool's node and its `upadhi` to the rule first; remembered skill text is not the rule's current form.
 
 Before changing, ask the graph about consequences; after, record what moved. Before deciding, search: what is decided isn't reopened.
@@ -113,7 +113,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 ## Re-entering during work
 
-- **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`, then `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. Unchecked advice is a guess — call it one.
+- **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more. Unchecked advice is a guess — call it one.
 - **Before editing a queue item** → `verstak_look` it; a moved version means someone else is on it.
 - **Before prose about meaning** (a rationale comment, an `AGENTS.md` paragraph, a task carrying a decision) → semantic search; link the node, or write it (`writing`) and link.
 - **Before "no" or "not found"** → a second instrument: semantic after lexical, a lens after a partial result, a filter after a round number.
@@ -134,7 +134,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 - **Save on output, not on reading.** Enter the boundary, filter by motivation; cut wide outputs and needless writes, never the reading of nodes you act on. Wandering guard: ~five calls of aimless navigation per reply, or seven without a synthesis → answer with what you have and flag the gap. Entry steps and nodes at the place of change don't count.
 - **Navigate by tension** — the most tense neighbour is the most informative. `lens="tensions"` groups by move: weave → `weaving`; address → `inquiry` or `assembly`; reverify — background; "know your neighbour" on a holon is a link. The overview and `has_tension` cover only part of the lens.
 - **Partial output.** The overview shows only root roles and truncates kriya lists: find addressees and confirm absence with `verstak_search(q="", node_type=…)`. Page a role's queue by the `offset` the output names.
-- **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`).
+- **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`). Time matters to evidence, not to questions: an observation of a surface that has since moved may no longer ground the claim.
 - **Read the call from the printed mark**, not the volitive mode: `virodha` on a risk stands while the defect lives. Orient's active sections pre-filter; raw search doesn't.
 - **Emoji are the author's voice.**
 - **Light writes while reading.** An obvious small fix (a missing arrow, a stale wording, a resolved vimarsha) → do it (`verstak_update`, `verstak_arrow(action="link")`), say so, `verstak_look` again, show `CHECKS:`. New phenomena and kriyas, substantive vimarshas, deletes, renames, re-links — only with agreement.

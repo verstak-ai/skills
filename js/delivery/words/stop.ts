@@ -10,6 +10,11 @@ export type StopWho = "person" | "self" | "other";
 export interface StopWords {
   /** The agent's word, one on every path: a close, a frame, a bridge move meeting the removal. */
   stopped: (name: string, who: StopWho) => string;
+  /**
+   * To the human: the order journal on disk did not take an entry (`outcome` — false: the order
+   * before the act, true — its outcome); the stop is executed anyway, the outcome goes once, unrepeated.
+   */
+  orderJournalRefused: (order: string, outcome: boolean) => string;
 }
 
 const WHO_EN: Record<StopWho, string> = {
@@ -22,5 +27,9 @@ export const STOP: Readonly<Record<Lang, StopWords>> = {
   en: {
     stopped: (name, who) =>
       `the seat ${name} was taken off (${WHO_EN[who]}) — you are stopped: end the work, do not take the seat`,
+    orderJournalRefused: (order, outcome) =>
+      `stop order ${order}: the journal on disk did not take the ${outcome ? "outcome" : "order"} — ` +
+      `the stop is executed all the same, ${outcome ? "the outcome" : "the outcome without accepted"} ` +
+      `is sent once, not repeated after a bridge restart; check the grant directory (orders/)`,
   },
 };
