@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.5.0](https://github.com/verstak-ai/skills/compare/v3.4.0...v3.5.0) (2026-10-14)
+
+
+### Features
+
+* ship verstak to Codex as a plugin — manifest, repo marketplace, version and bridge-only gates ([#161](https://github.com/verstak-ai/skills/issues/161)) ([989c96c](https://github.com/verstak-ai/skills/commit/989c96cbea976f009c4757075ebaee5065c830ed))
+
+
+### Bug Fixes
+
+* **verstak:** C1 en r2 — claims graded by grounds, ends and waits by kind, the bridge core with the C1 moment and outcome cut ([#163](https://github.com/verstak-ai/skills/issues/163)) ([8def136](https://github.com/verstak-ai/skills/commit/8def1369088bbd51ed6169ac4e342dd77d62bb61))
+
 ## [3.4.0](https://github.com/verstak-ai/skills/compare/v3.3.0...v3.4.0) (2026-10-14)
 
 
