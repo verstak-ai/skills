@@ -229,7 +229,7 @@ Branch `impl/c1-verstak-en-r2`, from `origin/main` `a18714d` (3.4.0, which carri
 - The C1 core is unchanged by the re-sync: `js/bridge/moment.ts` (only a whole shipped moment line, at the head or the tail, on `add_*`/`batch`) is byte-equal to the `923fe131` copy; the outcome cut and ENDED ride as before.
 - The delivery layer, for what the new core asks: `HALTS_CAPABILITY` (`js/delivery/protocol.ts`, exported from `index.ts`; the bridge client's experimental key confirming the OpenCode plugin executes a stop), `STOP.orderJournalRefused` (`js/delivery/words/stop.ts`, the order journal on disk refused an entry), `THIN.besideNotBack` reworded for #471 ("the seat beside did not come back with the main one"). English renderings of the sibling's words. `SERVER_LOCALE` stays `{ en: "en" }`: this delivery speaks only English, and #468's Russian entry has no place here.
 - **Pinned to the final ru head `0f58444a2159de0100641b6debfb40a7932f8e94`.** Its only commit after `5a48cfe7` touches `skills/vahta/SKILL.md`, `vahta.skill` and its ledger. The core is byte-equal between the two: `git diff --stat 5a48cfe7 0f58444a -- js/bridge js/shared js/opencode js/extension js/watchdog js/cli` is empty (`git diff --quiet` exits 0), and the six tree hashes are the same at both commits (bridge `3798c492`, shared `2aa97ec5`, opencode `bcf5103c`, extension `c6e1de41`, watchdog `3289fdf8`, cli `d769fd3e`). `scripts/sync-core.sh <sibling repo> 0f58444a` changes only the commit line of `js/core.lock`; every per-file sha256 stays the same.
-- **`0f58444a` is not on the sibling's `main`.** Before any release of this delivery, re-sync to the sibling's merged commit and re-run `make check`.
+- `0f58444a` was not on the sibling's `main`; superseded by the pin below.
 
 ### Output limit (#7597) — gate, no recomposition needed
 
@@ -261,6 +261,21 @@ Read tool, `references/`: align-delegation 35 424/240 · align-harness-surfaces 
 
 - `origin/main` `989c96c` (#161, the Codex plugin) is merged into this branch by a merge commit, not a rebase, so no history is rewritten. Its new `scripts/validate-skills.mjs` section "4." (one path to the graph — the bridge only, by `.mcp.json` and `.codex-plugin`) keeps its number; the output limit becomes section **5** (and the `AGENTS.md` row says so). `verstak.skill` is rebuilt over both sides.
 - `.codex-plugin/plugin.json` ships no skill of its own: `"skills": "./skills/"`, the same `skills/verstak` tree the gate already measures (door + 36 files the door reads, 37 in all). No new file to measure. #161's `methods/establish-mcp.md` line comes from main, not from this branch; its size is updated below.
+
+### Core pinned to the sibling's main `93572e7d`
+
+- `scripts/sync-core.sh <sibling repo> 93572e7d` — the sibling's `main` at #478, with C1 ru merged (#477; its `skills/` equal `fb1da7f6` exactly: `git diff --quiet fb1da7f6 93572e7d -- skills` exits 0). `js/core.lock` pins `93572e7d61c8a4e8faf97a9d076f3c19173e2a30`, 225 files.
+- The core delta against the accepted `0f58444a` is 43 files by `git diff --stat` over the core paths. That is 39 synced files plus 4 component READMEs, which the sync drops. 13 are new: `bridge/{modelclear,pending,pulse,refusal,standagain,standmoves,standundo}.ts`, `cli/{stop,stopapi}.ts`, `extension/pulse.ts`, `opencode/{inbox,models,pulse}.ts`, `shared/seatmodel.ts`. 26 are changed: `bridge/{absorb,backlog,call,caseexit,deliver,handoff,hold,holdrecord,holdstate,placefields,roomstack,snapshot,stale,stand,status,work}.ts`, `cli/{main,status}.ts`, `extension/tools.ts`, `opencode/{channel,plugin,release,tools}.ts`, `shared/{channel,snapshot}.ts`.
+- #473 is not in it: no `deadseat`, `deadstop`, `latehold`, `putdown` or `lifeend` file exists at `93572e7d` or in the synced tree.
+- Delivery layer additions, each something the new core asks for (`make typecheck` named every one), English twins of the sibling's words at `93572e7d`:
+  - `js/delivery/words/standmoves.ts` — `STAND_MOVES` / `StandMovesWords`, new: `standsInRealm`, `standAgain`, `priorReleased`, `priorKept`, `besideHoldsMain`, `reissueWaited`, `moveUndone`, `moveNotUndone`.
+  - `js/delivery/words/stopcli.ts` — `STOP_CLI` / `StopCliWords`, new: the `stop` subcommand's `usage` and its 16 outcomes. The sign-in pointer names the verstak skill's establish-mcp method; `--lang en` only.
+  - `js/delivery/words/stand.ts` — `STAND.modelNotCleared`.
+  - `js/delivery/words/opencode.ts` — `OPENCODE.pulseOverflow`.
+  - `js/delivery/index.ts` — the two new exports.
+  - `js/delivery/words/cli.ts` — the `stop` line in the usage, which describes the core's new subcommand.
+- **Not carried:** the sibling's rewording at `93572e7d` of three existing words. Its `OPENCODE_KEEP.notBack` and `OPENCODE_KEEP.lostWord` now say to wait for the hearing watchdog's word before calling stand; its `RESUME.rejoin` says to join the waiting cases by number instead of checking `mine`. No type or test requires them, and the brief limits additions to what the core requires. Our English words keep their former wording. Named here for the delivery's holder to decide.
+- `make check`: 225 core files at `93572e7d`, tests 133, passed 133, failed 0, skipped 0, todo 0 (the two new dictionaries add two delivery-words tests). `make check-frozen`: the committed JS outputs are untouched against `origin/main`.
 
 ### Limits r2
 
