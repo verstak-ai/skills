@@ -64,6 +64,7 @@ const SKILLS = {
         ["a disposable-class graph (§5)", "a disposable-class graph (A5)"],
         ["it is what keeps §1 cheap", "it is what keeps recall (§1) cheap"],
         ["Dated `sachverhalt` nodes (§7)", "Dated `sachverhalt` nodes (A7)"],
+        ["may yield nothing (`methods/minding.md`, §1b)", "may yield nothing (§1b)"],
         ["before its form is released (`methods/minding.md`, §2)", "before its form is released (§2)"],
         ["a stored cross-graph agenda (`methods/minding.md`, §4)", "a stored cross-graph agenda (§4)"],
         ["are modelled (§2b)", "are modelled (A2b)"],

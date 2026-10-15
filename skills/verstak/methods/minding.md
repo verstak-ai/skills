@@ -30,7 +30,7 @@ verstak_orient(realm="@handle/mind")   → the map of holons
 2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm="@handle/mind", q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 calls, then answer with what you have.
 
 **Name the outcome** — each leads somewhere else:
-- **found** — read each hit with its scope, conditions, modes and objections; a record and the one that `supersedes` it are one fact at two moments, not two options;
+- **found** — read each hit with its scope, conditions, modes and objections; a record and the newer one that replaced it are one fact at two moments, not two options;
 - **not found within the bound** — say the bound ("no hit for X in mind, three searches"): a bounded search proves no absence;
 - **unreachable** — the read failed (an error, no access): not a miss, and no licence to write what may already be there;
 - **ambiguous** in a way that changes the next move (two areas, two live readings) → one question on the subject, asked where only the user reads it.
@@ -85,7 +85,7 @@ The full pass runs on request — never at recall's cadence. A new ground that c
    | Verdict | Move |
    |---|---|
    | in the world, not on the map | classify: its holon and purpose — or fold it under a disposable class (Storage rule) |
-   | on the map, not in the world | **check for a material remainder, then release**: what did the area prove that changes a later judgment? Something → keep it with its grounds and the condition it applies under — refine the node it touches first, else a `grundsatz` (principle) or `bildung` (a pattern taking shape) with `arose_from` to the card; then `verstak_update(volitive_mode="visarjana")` or ontic `atita`, with the reason. Nothing → release without inventing a lesson. Nobody re-reads an archived graph; releasing doesn't destroy it |
+   | on the map, not in the world | **check for a material remainder, then release**: what did the area prove that changes a later judgment? Something → keep it with its grounds and the condition it applies under — refine the node it touches first, else a lesson of the kind it is — a `bildung` for a pattern taking shape, a `sachverhalt` for an observed case, a `grundsatz` (principle) only by the user's act — with `arose_from` to the card; then `verstak_update(volitive_mode="visarjana")` or ontic `atita`, with the reason. Nothing → release without inventing a lesson. Nobody re-reads an archived graph; releasing doesn't destroy it |
    | in both | leave it |
 
 3. **Wire identity** — in every live graph where the user holds a role: `verstak_update(realm=R, node_id=role, user="me", basis_version=v)`, or `user="me"` at creation. Only roles they actually stand behind; §4 sees nothing else.
@@ -94,7 +94,7 @@ The full pass runs on request — never at recall's cadence. A new ground that c
 
 Idempotent: a re-run touches only what moved.
 
-**Kinds of change** — name which one a record undergoes: a **refinement** (the same claim, sharper); a **supersession** (a new record `supersedes` the old, which stays readable); a **withdrawn preference or rule** (only the user withdraws their own will); a **refuted factual claim**. A changed condition limits where a method transfers; it doesn't refute its earlier success under the old one. Age alone ends no preference. Keep a material contradiction visible and the present meaning readable later; never copy a project's journal into mind.
+**Kinds of change** — name which one a record undergoes: a **refinement** (the same claim, sharper); a **supersession** (a new record replaces the old, which stays readable: its consumers move over and it is retired by its carrying axis, as for any replaced node — `methods/writing.md`, After writing); a **withdrawn preference or rule** (only the user withdraws their own will); a **refuted factual claim**. A changed condition limits where a method transfers; it doesn't refute its earlier success under the old one. Age alone ends no preference. Keep a material contradiction visible and the present meaning readable later; never copy a project's journal into mind.
 
 ## §3 Bootstrap
 
