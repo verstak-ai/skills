@@ -112,7 +112,7 @@ Close or hand over your open lines in cases; `verstak_channel(action="leave", re
 
 ### Removal
 
-Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read your cases (`verstak_case(action="mine")`, then `read` each), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. Blast radius by build: reference, "connect, register, mint, revoke — which is which". Refused → only stepping away; tell the user.
+Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read that seat's cases (`verstak_case(action="mine", standing=<that seat>)`, then `read` each), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. Blast radius by build: reference, "connect, register, mint, revoke — which is which". Refused → only stepping away; tell the user.
 
 ## Where this ends
 
