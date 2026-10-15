@@ -72,7 +72,7 @@ The user's own + useful later + serves no single project → here. Shapes, in th
 
 **What you are writing:**
 - **Settle subject, source, scope, authority, audience and need** before the call.
-- **Kind and modes follow the judgement and the act, not the words** "prefer" or "always": an opinion is not a fact about the world; the user's clear act is recorded as they made it; your guess is not recorded as their choice. A one-off request doesn't silently rewrite a standing preference — ask which it is.
+- **Kind and modes follow the judgement and the act, not the words** "prefer" or "always": an opinion is not a fact about the world; the user's clear act is recorded as they made it; your guess is not recorded as their choice. A one-off request doesn't silently rewrite a standing preference: honour it for this case and leave the stored one as it is; ask only when their words suggest the preference itself changed and a later move depends on it.
 - **A method of the user's own** carries its meaning, conditions, steps, observed outcome, the sign that tells when it applies, what is untested, and its limit. **One success shows it worked once, under those conditions** — not that it works in general. After a substantial piece of work the yield may be a method, a refinement, a negative observation, a doubt, or nothing.
 - **Unknown outcome** (a timeout, a dropped transport) → read before you retry; a version conflict → reread, then decide.
 
@@ -134,7 +134,7 @@ The user appears in each graph through one **owner role** (`svatantra` 主) boun
 
 ## Privacy — mind doesn't leave
 
-Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded, **nor by an act that gives it away**: a commit, a config line or a message whose only ground is a mind record tells as much as the record. The user's other agents read it with their own access.
+Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded. Before an act on a shared surface (a commit, a config line, a message), ask: **would its reader learn the record from the act?** Yes → ground it in the project's own source, or ask the user where only they read it. The line holds from the first read: retrieving and sorting candidates happens out of shared view too. The user's other agents read it with their own access.
 
 Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets only what the work needs, no source cited. A fact the project needs as its own (its deadline, its server) goes into the project graph from the user's words or a project source, not copied from mind. Unsure → ask the user, where only they read it.
 

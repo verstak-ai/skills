@@ -44,10 +44,12 @@ const PRESENT = {
     "a direct answer is a lawful end",
     // writing rules
     "Kind and modes follow the judgement and the act, not the words",
+    "honour it for this case and leave the stored one as it is",
     "One success shows it worked once, under those conditions",
     "read before you retry; a version conflict → reread",
     // privacy, by the act and by audience
-    "nor by an act that gives it away",
+    "would its reader learn the record from the act?",
+    "The line holds from the first read: retrieving and sorting candidates",
     "Portable is not shared.",
     "Handing it to a team is a separate act of the user's",
     // reconcile
@@ -71,9 +73,14 @@ const PRESENT = {
     "An aligned repo doesn't switch mind off",
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
+    "this repo's rule, from its rule-holder) → `AGENTS.md`",
+    "a standing preference (a fork by whom it binds: this repo's rule or the user's own)",
   ],
   phrasebook: [
-    "the user's own way of working, development included → minding",
+    "**A standing preference — one sign, whom it binds:**",
+    "how this user wants to be worked with, wherever they are → minding",
+    "Neither sign → keep it personal and ask; never write it to the repo on a guess",
+    "a project rule kept in mind is only missed by other agents",
     '("always show me a plan first" and "keep replies short" stay here)',
   ],
   align: [
@@ -85,8 +92,8 @@ const PRESENT = {
   ],
 };
 
-// Formulas the shipped text carried before (main bfd5a6c1), each contradicting the
-// method; none may come back in any of the files.
+// Formulas the shipped text carried before (main bfd5a6c1, then this change before its
+// review), each contradicting the method; none may come back in any of the files.
 const RETIRED = [
   "A miss is an answer",
   "a miss offered as a write",
@@ -99,6 +106,10 @@ const RETIRED = [
   "`methods/minding.md`; preferences → Step 1",
   "people, cross-project lessons; never harness-local memory",
   "owner_word",
+  // retired by review of this change
+  "A one-off request doesn't silently rewrite a standing preference — ask which it is",
+  "**Not a fork:** a standing preference",
+  "a standing preference (an instruction, not a fork)",
 ];
 
 function read(root) {

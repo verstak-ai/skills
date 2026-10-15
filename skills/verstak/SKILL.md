@@ -130,7 +130,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "what do you know about me", or the work needs the user's own fact (their machine, a path, a preference, "as before") → **minding**: search their mind before asking them
 
 **Keep** — fork: **whose fact, of what kind?**
-- how to act in this repo (ritual, command, order of steps) → `AGENTS.md`; not gotchas or lessons
+- how to act in this repo (ritual, command, order of steps; this repo's rule, from its rule-holder) → `AGENTS.md`; not gotchas or lessons
 - a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference (gotchas: `Layout` may keep them in `GOTCHAS.md`)
 - a lasting fact about the user beyond one project, or their own way of working, development included → **minding** (a project's infrastructure and a project's rules are project facts)
 - "learn how this works here" → **entry**, then write by this fork
@@ -178,7 +178,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
 | **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
 
-Channel pairs, a standing preference (an instruction, not a fork), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
+Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 
 ## Step 4 · A route is almost always a chain
 
