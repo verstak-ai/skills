@@ -32,6 +32,8 @@ const PRESENT = {
     "a bounded search proves no absence",
     "not a miss, and no licence to write what may already be there",
     "one fact at two moments, not two options",
+    // a replaced record is retired by its axis: no `supersedes` edge outside vimarshas
+    "a record and the newer one that replaced it",
     "asked where only the user reads it",
     // relate → permissible move
     "## §1a Relate — what the hit changes now",
@@ -57,6 +59,8 @@ const PRESENT = {
     // reconcile
     "The full pass runs on request",
     "**Kinds of change**",
+    "it is retired by its carrying axis, as for any replaced node — `methods/writing.md`, After writing",
+    "a `grundsatz` (principle) only by the user's act",
     "it doesn't refute its earlier success under the old one",
     "Age alone ends no preference.",
     "release without inventing a lesson",
@@ -68,6 +72,12 @@ const PRESENT = {
     "the user's own working preference, a development one too, is theirs and does go in",
     "one success there is one observation, not a method proven in general",
     "Created without asking",
+    // a lesson's kind follows what it is; a binding principle only by the user's act
+    "A lesson's kind follows what the yield is",
+    "a method of the user's own → `vollzug`; an observed case → `sachverhalt`; a pattern taking shape → `bildung`",
+    "a binding principle (`grundsatz`) only by the user's act",
+    "no new lesson is owed",
+    "A finished area is the other occasion.",
   ],
   door: [
     "before writing it, **whose fact?**",
@@ -93,6 +103,8 @@ const PRESENT = {
   home: [
     "apply, adapt, don't apply, or ask one deciding question",
     "## §1a Relate — what the hit changes now",
+    "it is retired by its carrying axis, as for any replaced node",
+    "A lesson's kind follows what the yield is",
   ],
 };
 
@@ -114,6 +126,12 @@ const RETIRED = [
   "A one-off request doesn't silently rewrite a standing preference — ask which it is",
   "**Not a fork:** a standing preference",
   "a standing preference (an instruction, not a fork)",
+  // a `supersedes` edge between personal records (it joins only vimarshas), and a
+  // lesson's kind fixed to a principle or a pattern (main 74dfa965)
+  "a record and the one that `supersedes` it",
+  "a new record `supersedes` the old",
+  "A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape)",
+  "else a `grundsatz` (principle) or `bildung` (a pattern taking shape)",
 ];
 
 function read(root) {
@@ -165,6 +183,18 @@ test("the check rejects a retired formula put back (synthetic fixture)", () => {
     minding: GREEN.minding + '\n**A miss is an answer** ("that isn\'t in memory").\n',
   };
   assert.deepEqual(stale(fixture), [`${FILES.minding}: retired "A miss is an answer"`]);
+});
+
+test("the check rejects a `supersedes` edge between records put back (synthetic fixture)", () => {
+  const fixture = {
+    ...GREEN,
+    minding:
+      GREEN.minding +
+      "\na **supersession** (a new record `supersedes` the old, which stays readable);\n",
+  };
+  assert.deepEqual(stale(fixture), [
+    `${FILES.minding}: retired "a new record \`supersedes\` the old"`,
+  ]);
 });
 
 test("the check rejects a distinction taken out (synthetic fixture)", () => {

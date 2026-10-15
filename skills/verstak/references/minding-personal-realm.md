@@ -92,9 +92,11 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 **Dated facts as attributes**: an expiry, a renewal, a review cycle is a `sachverhalt` with its timestamp in `attrs` (`methods/writing.md`, Decision 4), or a kriya when it recurs. "Needed, but not now" is `upeksha` (`methods/inquiry.md`): woken by a change at its anchor, not a date.
 
-## 8 · Lessons from finished areas — the forgetting layer
+## 8 · Lessons — from a piece of work, and the forgetting layer
 
-Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (`methods/minding.md`, §2). A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so. A lesson keeps the conditions it held under; one success there is one observation, not a method proven in general.
+A lesson's kind follows what the yield is: a method of the user's own → `vollzug`; an observed case → `sachverhalt`; a pattern taking shape → `bildung`; a binding principle (`grundsatz`) only by the user's act, never on your inference. A refinement goes into the node it sharpens, and no new lesson is owed: a substantial piece of work may yield nothing (`methods/minding.md`, §1b). A lesson keeps the conditions it held under; one success there is one observation, not a method proven in general.
+
+A finished area is the other occasion. Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (`methods/minding.md`, §2), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so.
 
 ## 9 · The user's own transformations — optional
 
