@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.5.0";
+var VERSION = "3.6.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -199,10 +199,30 @@ var ASK = {
   }
 };
 
+// js/delivery/words/frame-text.ts
+var FRAME_TEXT = {
+  en: {
+    myCases: () => `${tool("case")}(action="mine"), then read each`,
+    frame: (id) => `frame ${id}`,
+    yoursBelow: () => ` — yours in the lines below; `,
+    noneYours: () => ` — none of them yours; `,
+    count: (head, n, mine) => `${head}: ${n} records, yours ${mine}`,
+    supersededLines: (gone) => `, ${gone} superseded lines of a key`,
+    inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
+    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
+  }
+};
+var CASE_LINE = {
+  en: {
+    platform: () => "platform",
+    quote: (s2) => `“${s2}”`
+  }
+};
+
 // js/delivery/words/backlog.ts
 var BACKLOG = {
   en: {
-    head: (count, expected, shown, direct) => `Wake-up: ${count} frames` + (expected ? ` (waiting in the queue: ${expected})` : "") + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — those addressed to the seat as text, the rest by count; in full and the rest — ${tool("channel")}(action="history", view="log").` + (direct ? ` ${direct} direct messages are not here: each came on its own and whole.` : "")
+    head: (count, expected, shown, direct) => `Wake-up: ${count} frames` + (expected ? ` (waiting in the queue: ${expected})` : "") + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — those addressed to the seat as text, the rest by count; in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.` + (direct ? ` ${direct} direct messages are not here: each came on its own and whole.` : "")
   }
 };
 
@@ -233,7 +253,7 @@ var CHANNEL = {
   en: {
     deadTokenAdvice: (code) => code === 4002 ? `close 4002 — the seat went out after idling; to return it — ${tool("stand")} with the same name` : `close ${code} — the token is dead, call connect`,
     binaryFrame: () => "[binary frame]",
-    hung: (silent, ping) => `the connection has been silent for ${silent} s with a ping every ${ping} s — hung without closing; reopening at the same address. Frames that arrived during the silence may be lost — check ${tool("channel")}(action="history")`,
+    hung: (silent, ping) => `the connection has been silent for ${silent} s with a ping every ${ping} s — hung without closing; reopening at the same address. Frames that arrived during the silence may be lost — check the cases: ${FRAME_TEXT.en.myCases()}; a direct word — ask for it again`,
     rollout: () => "the service is not answering — a rollout is under way, keeping the same token"
   }
 };
@@ -409,25 +429,6 @@ var DOOR = {
   en: {
     privateDir: (bad) => `DOER: the local standing socket is not up — ${bad}`,
     listenFailed: (message) => `DOER: the local standing socket did not come up (${message}) — the watchdog has nothing to attach to`
-  }
-};
-
-// js/delivery/words/frame-text.ts
-var FRAME_TEXT = {
-  en: {
-    frame: (id) => `frame ${id}`,
-    yoursBelow: () => ` — yours in the lines below; `,
-    noneYours: () => ` — none of them yours; `,
-    count: (head, n, mine) => `${head}: ${n} records, yours ${mine}`,
-    supersededLines: (gone) => `, ${gone} superseded lines of a key`,
-    inFull: (cases) => `in full — ${cases || `${tool("channel")}(action="history")`}`,
-    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
-  }
-};
-var CASE_LINE = {
-  en: {
-    platform: () => "platform",
-    quote: (s2) => `“${s2}”`
   }
 };
 
@@ -825,7 +826,7 @@ var SEPARATE = {
 // js/delivery/words/stalebatch.ts
 var STALE = {
   en: {
-    head: (count, shown) => `Stale frames: ${count}` + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — taken while the seat was not listening, or the service repeating after a session rebuild; those addressed to the seat as text, the rest by count; in full and the rest — ${tool("channel")}(action="history").`
+    head: (count, shown) => `Stale frames: ${count}` + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — taken while the seat was not listening, or the service repeating after a session rebuild; those addressed to the seat as text, the rest by count; in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.`
   }
 };
 
@@ -967,7 +968,7 @@ var STATUS = {
 var STATUS_POST = {
   en: {
     trimmedBy: (message) => `the server trimmed the line: ${message}`,
-    trimmed: () => "the server trimmed the line; the full text is in the seat's history, rename it shorter",
+    trimmed: () => "the server trimmed the line; rename it shorter",
     noAnswer: (error) => `Refused (bridge): the status address did not answer — ${error}`,
     gone: (body) => `Refused (404) by the surface: ${body || "no body"} — this seat address no longer addresses: another holder's connect may have turned it, or another instance of the same session's bridge may have held it. Whose it is now, the bridge cannot know from here.`,
     refused: (status, body) => `Refused (${status}) by the surface: ${body || "no body"}`
