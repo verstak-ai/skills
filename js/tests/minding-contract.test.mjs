@@ -42,6 +42,8 @@ const PRESENT = {
     "Authority before freshness.",
     "grants no new sanction, payment or right over someone else's rule",
     "a direct answer is a lawful end",
+    // a miss or an unreachable source needs no existing record to relate
+    "Unreachable, withdrawn, changed conditions and ambiguity are different outcomes",
     // writing rules
     "Kind and modes follow the judgement and the act, not the words",
     "honour it for this case and leave the stored one as it is",
@@ -71,6 +73,8 @@ const PRESENT = {
     "before writing it, **whose fact?**",
     "before asking the user, search their mind",
     "An aligned repo doesn't switch mind off",
+    // a purely project request runs without mind
+    "purely technical work that needs nothing of the user doesn't read it",
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
     "this repo's rule, from its rule-holder) → `AGENTS.md`",
