@@ -9,12 +9,17 @@ import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
 import { LANGS } from "../delivery/lang.ts";
+import { BACKLOG } from "../delivery/words/backlog.ts";
 import { CALL } from "../delivery/words/call.ts";
+import { CHANNEL } from "../delivery/words/channel.ts";
+import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
+import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
 import { PLUGIN } from "../delivery/words/plugin.ts";
 import { RESUME } from "../delivery/words/resume.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
+import { STALE } from "../delivery/words/stalebatch.ts";
 import { STATUS } from "../delivery/words/status.ts";
 import { REPO } from "./built.mjs";
 
@@ -78,6 +83,27 @@ test("rejoin joins the waiting cases by room, without checking mine first", () =
     /join again the cases that wait for you: verstak_case\(action="join", room="#N"\)/,
   );
   assert.doesNotMatch(text, /mine/);
+});
+
+test("left-out and lost frames point at the seat's cases, never the channel log the server drops", () => {
+  const pointers = [
+    FRAME_TEXT.en.inFull(""),
+    BACKLOG.en.head(30, 30, 20, 1),
+    STALE.en.head(25, 20),
+    CHANNEL.en.hung(90, 30),
+  ];
+  for (const text of pointers) {
+    assert.match(text, /verstak_case\(action="mine"\), then read each/);
+    assert.doesNotMatch(text, /verstak_channel/);
+  }
+  assert.match(CHANNEL.en.hung(90, 30), /a direct word — ask for it again/);
+  for (const text of [
+    OPENCODE.en.childGone("f", "c", " t"),
+    OPENCODE.en.childEnded("f", "c", "t"),
+  ]) {
+    assert.match(text, /a case record stays in the case \(verstak_case history\)/);
+    assert.doesNotMatch(text, /verstak_channel/);
+  }
 });
 
 test("the delivery layer has word dictionaries", () => {
