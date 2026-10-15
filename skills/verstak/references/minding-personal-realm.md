@@ -94,7 +94,7 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 ## 8 · Lessons from finished areas — the forgetting layer
 
-Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (`methods/minding.md`, §2). A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so.
+Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (`methods/minding.md`, §2). A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so. A lesson keeps the conditions it held under; one success there is one observation, not a method proven in general.
 
 ## 9 · The user's own transformations — optional
 
@@ -105,7 +105,7 @@ How the user changes across graphs lives here as bianhua. **The owner accepts ev
 - the graph list, access, roles, organization membership; which roles the user holds — derivable;
 - a stored cross-graph agenda (`methods/minding.md`, §4);
 - **a dossier on a person** — the role, binding and open matters are modelled (§2b); a judgement of a person is not a node;
-- preferences affecting how development runs or what it produces — AGENTS.md or the project graph;
+- a project's rules and process — AGENTS.md or the project graph, set by whoever holds them (the user's own working preference, a development one too, is theirs and does go in);
 - a copy of a project graph's content.
 
 Nothing leaves here either (`methods/minding.md`, "Privacy").

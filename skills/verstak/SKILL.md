@@ -127,12 +127,12 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Know**
 - "what's going on", "why did we decide", "who owns this" → **entry**, with node numbers; "what is this method" → **entry**, Part I
 - "I'm drowning", "big picture", "agenda" → **assembly**
-- "what do you know about me" → **minding**
+- "what do you know about me", or the work needs the user's own fact (their machine, a path, a preference, "as before") → **minding**: search their mind before asking them
 
 **Keep** — fork: **whose fact, of what kind?**
-- how to act in this repo (ritual, command, order of steps) → `AGENTS.md`; not gotchas or lessons
+- how to act in this repo (ritual, command, order of steps; this repo's rule, from its rule-holder) → `AGENTS.md`; not gotchas or lessons
 - a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference (gotchas: `Layout` may keep them in `GOTCHAS.md`)
-- a lasting fact about the user beyond one project → **minding** (a project's infrastructure is a project fact)
+- a lasting fact about the user beyond one project, or their own way of working, development included → **minding** (a project's infrastructure and a project's rules are project facts)
 - "learn how this works here" → **entry**, then write by this fork
 - someone else's text → **intake**
 
@@ -178,7 +178,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
 | **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
 
-Channel pairs, a standing preference (an instruction, not a fork), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
+Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 
 ## Step 4 · A route is almost always a chain
 
@@ -229,6 +229,7 @@ They apply unasked.
 | Moment | Move |
 |---|---|
 | the change touches more than one thing, or an integration surface | **integrity** |
+| mid-task, a fact about the user or their setup surfaces (a machine, a path, a person, a date, how they like to work), or the work needs one | before writing it, **whose fact?** — the user's own → **minding**, a project's → `Keep`; before asking the user, search their mind (**minding**, §1). An aligned repo doesn't switch mind off; purely technical work that needs nothing of the user doesn't read it |
 | a structural choice is open; "think it through", "we want X" | **design**: write it into the graph this turn; a new transformation is `chanda` until accepted |
 | about to say "verified", "done", "works" | **reality-audit**: name level and carrier |
 | a task ends, or code and graph diverge | **reconcile** |

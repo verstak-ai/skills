@@ -21,7 +21,7 @@ Dividing signs: the door, Step 3 (the two channel pairs carry theirs below). Her
 | **establish-mcp** ↔ **collaborate** | establish-mcp, transport to the graph: "I don't see the tools", "oauth". collaborate, the channel's socket: "you can't hear me", "the frame didn't arrive" |
 | **feedback** ↔ a complaint about the work | feedback: "the skill is wrong", "the description says one thing, it does another" |
 
-**Not a fork:** a standing preference ("always show the plan") is an instruction — process → `AGENTS.md` or the project graph; how to talk to the user → minding; files outside the worktree configure nothing.
+**A standing preference — one sign, whom it binds:** "always show the plan" said as this repo's rule by whoever holds its rules, binding anyone who works on this repo → `AGENTS.md` or the project graph; how this user wants to be worked with, wherever they are → minding. Neither sign → keep it personal and ask; never write it to the repo on a guess — a personal preference in `AGENTS.md` binds others on a shared surface, while a project rule kept in mind is only missed by other agents. Files outside the worktree configure nothing.
 
 Still unresolved → ask the user in one line, naming both readings and what you'd do for each.
 
@@ -128,7 +128,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## minding — "remember this about me"
 
 **Gets:** a personal graph, and answers about themselves from it. "remember I'm on an M1 with 16 gigs" · "what do you know about me?"
-**Elsewhere:** "prod runs on that machine" → a project fact · "always show a plan" → `AGENTS.md` or the project graph ("keep replies short" stays here) · tokens and secrets → never.
+**Elsewhere:** "prod runs on that machine" → a project fact · "every change in this repo gets a plan", from whoever holds its rules → `AGENTS.md` or the project graph ("always show me a plan first" and "keep replies short" stay here) · tokens and secrets → never.
 
 ## align — "set up this repo" (`/verstak align`)
 
