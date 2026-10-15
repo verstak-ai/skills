@@ -45,7 +45,7 @@ Traps:
 
 ## Decision 2: given_as (phenomena only)
 
-`given_as` answers: **how does this present itself to the action that works with it?** Independent of the modes. Nests, the decision tree and the arrow matrix: `references/writing-given-as.md`.
+`given_as` answers: **how does this present itself to the action that works with it?** Every phenomenon has one, set when it is written; leaving `given_as` out of a later partial update keeps the value it has. Independent of the modes. Nests, the decision tree and the arrow matrix: `references/writing-given-as.md`.
 
 | Ask yourself | given_as | Meaning |
 |---|---|---|
