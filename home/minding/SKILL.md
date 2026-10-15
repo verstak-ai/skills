@@ -1,20 +1,20 @@
 ---
 name: minding
-description: "The user's memory in the graph — the personal graph @handle/mind, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, cross-project lessons; never harness-local memory. A project's servers, pipeline and dated duties belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools."
+description: "The user's memory in the graph — the personal graph @handle/mind, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, opinions, their own way of working (on a development topic too), methods of their own; never harness-local memory. A project's servers, pipeline, dated duties and rules belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact — then weigh what it changes now: apply, adapt, don't apply, or ask one deciding question. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools."
 ---
 
 # minding — the user's memory in the graph
 
-**Use when:** a durable fact about the user surfaces mid-task and serves no single project (their machines, expiries, people, lessons) → write it; a task needs such a fact (a deploy target, a machine trait, someone's rhythm, a deadline) → recall it. Or the user asks: "do you remember", "what do you know about me", "what do I have", "what's on my plate", "where is it deployed"; "remember this" (→ write); "set up my memory" (→ bootstrap). Never route these facts into the harness's own memory. What mind holds is never retold outside it.
+**Use when:** a durable fact about the user surfaces mid-task and serves no single project (their machines, expiries, people, their own way of working even on a development topic, lessons) → write it; a task needs such a fact (a deploy target, a machine trait, someone's rhythm, a deadline) → recall it. Or the user asks: "do you remember", "what do you know about me", "what do I have", "what's on my plate", "where is it deployed"; "remember this" (→ write); "set up my memory" (→ bootstrap). Never route these facts into the harness's own memory. What mind holds is never retold outside it.
 
-`@handle/mind` is the user's personal graph: the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session**: an aligned repository settles only which graph the session works in.
+`@handle/mind` is the user's personal graph: the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, opinions, standing working preferences, ideas with no project yet, methods of their own, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session**: an aligned repository settles only which graph the session works in.
 
 ## Two reflexes
 
 | Reflex | Fires when | Move |
 |---|---|---|
-| **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1; the agenda → §4 |
-| **Write** | the fact concerns the user, will matter later, and no project graph owns it | §1b — into `@handle/mind` under its area's holon; a person as a guest role in a group; never harness-local memory |
+| **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
+| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into `@handle/mind` under its area's holon; a person as a guest role in a group; never harness-local memory |
 
 Every user gets `@handle/mind` and their own role in it without being asked (Appendix, A1–A2): created at session start when the user has no graph, by **align** when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
 
@@ -34,19 +34,47 @@ verstak_orient(realm="@handle/mind")   → the map of holons
 1. **Map level** — which graph owns this, what do I have: one `verstak_orient(realm="@handle/mind")`, no lens. Root holons are the areas; `attrs.key=true` landmarks are the live-graph cards and routing rules; `ACTIVE BIANHUA` shows the user's own transformations. Answer from the map, or name the graph and read it there: open the node with `verstak_look`, walk the arrow the question needs, and run `verstak_orient(focus=<node>, lens=…)` there for a pattern; answer from what they show — "I don't see it", never "there is none". Ceiling: 2 calls.
 2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm="@handle/mind", q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 calls, then answer with what you have.
 
-Two areas claim the question → ask in one line naming both. **A miss is an answer** ("that isn't in memory"); a corrected miss is the cue to write (§1b).
+**Name the outcome** — each leads somewhere else:
+- **found** — read each hit with its scope, conditions, modes and objections; a record and the one that `supersedes` it are one fact at two moments, not two options;
+- **not found within the bound** — say the bound ("no hit for X in mind, three searches"): a bounded search proves no absence;
+- **unreachable** — the read failed (an error, no access): not a miss, and no licence to write what may already be there;
+- **ambiguous** in a way that changes the next move (two areas, two live readings) → one question on the subject, asked where only the user reads it.
+
+A miss the user then fills, on a graph you could read, is the cue to write (§1b). Found is not yet applicable: §1a.
+
+## §1a Relate — what the hit changes now
+
+A recalled fact is a ground, not a sanction. Set it against the case at hand — goal, data, environment, tools, access, preconditions, obligations in force — and choose one move:
+
+| Move | When |
+|---|---|
+| **apply** | the conditions match and the act is within the current mandate |
+| **adapt** | the conditions differ in a way you can name; say what changed |
+| **don't apply** | they differ materially, the record is withdrawn or superseded, or another's rule holds the ground |
+| **ask one deciding question** | a choice only the user makes, and the move depends on it |
+
+- **Authority before freshness.** A project's rule changes only by whoever holds it; the user's preference acts where no such rule speaks, however recent it is. A method of the user's own grants no new sanction, payment or right over someone else's rule.
+- Unreachable, withdrawn, changed conditions and ambiguity are different outcomes, never one replay of the past. Where safe transfer is impossible, go on with the part that doesn't depend on it.
+- Then carry out the move within the current mandate — or answer the user directly: a direct answer is a lawful end, and no project work is invented to show memory was used. The record stays as it was: recall uses it without using it up.
+- Check the act itself against Privacy, not only its wording.
 
 ## §1b The write reflex
 
-About the user + useful later + serves no single project → here. Shapes, in the Appendix: machines (A7), people (A2b), dated facts (A7), lessons (A8).
+The user's own + useful later + serves no single project → here. Shapes, in the Appendix: machines (A7), people (A2b), dated facts (A7), lessons (A8).
 
-**Whose fact is it?** — where agents misroute most. Infrastructure that exists for **this project** (servers, pipeline, dated duties) is the project graph's, however long it outlives the repo; here goes only the user's **own**. A card carries only its subject's traits: a project's deploy procedure is not a trait of the machine. Route in order:
+**Whose fact is it?** — where agents misroute most. Infrastructure that exists for **this project** (servers, pipeline, dated duties) is the project graph's, however long it outlives the repo; here goes only the user's **own**. A card carries only its subject's traits: a project's deploy procedure is not a trait of the machine. **Subject and ownership pick the home, not the topic**: the user's own working preference ("show me the plan first", "I review diffs in the terminal") stays theirs when it is about development; a project's rule belongs to the project, set by whoever holds its rules, and is never carried into mind. Route in order:
 
-1. **This** project → its graph, or AGENTS.md.
+1. **This** project's fact or rule → its graph, or AGENTS.md.
 2. **Another** area → that area's graph, `posed_to` its steward (anchor where the addressee orients — **inquiry**).
 3. **The user**, no project owns it → here — never what a call can answer (Storage rule), never a copy of a project graph's content.
 
-**Routing runs both ways**: what was written here is *read* from here mid-repo-work. Every write starts with a read — find the card before adding.
+**Routing runs both ways**: what was written here is *read* from here mid-repo-work. Every write starts with a read — find the card before adding, refine it rather than add a twin; nothing new learned → no write.
+
+**What you are writing:**
+- **Settle subject, source, scope, authority, audience and need** before the call.
+- **Kind and modes follow the judgement and the act, not the words** "prefer" or "always": an opinion is not a fact about the world; the user's clear act is recorded as they made it; your guess is not recorded as their choice. A one-off request doesn't silently rewrite a standing preference — ask which it is.
+- **A method of the user's own** carries its meaning, conditions, steps, observed outcome, the sign that tells when it applies, what is untested, and its limit. **One success shows it worked once, under those conditions** — not that it works in general. After a substantial piece of work the yield may be a method, a refinement, a negative observation, a doubt, or nothing.
+- **Unknown outcome** (a timeout, a dropped transport) → read before you retry; a version conflict → reread, then decide.
 
 **Where in mind — by reflex, not on request:**
 - **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm="@handle/mind", q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
@@ -54,7 +82,7 @@ About the user + useful later + serves no single project → here. Shapes, in th
 
 ## §2 Reconcile
 
-On request, on a new graph, machine or job, or when the map is visibly behind — never at recall's cadence.
+The full pass runs on request — never at recall's cadence. A new ground that contradicts one record you are reading → reconcile that record alone (**Kinds of change**, below), not the whole map.
 
 1. **Observe** — `verstak_realm(action="list")` · `verstak_me(action="kartas")` · `verstak_org(action="list")`.
 2. **Diff and classify:**
@@ -71,6 +99,8 @@ On request, on a new graph, machine or job, or when the map is visibly behind �
 
 Idempotent: a re-run touches only what moved.
 
+**Kinds of change** — name which one a record undergoes: a **refinement** (the same claim, sharper); a **supersession** (a new record `supersedes` the old, which stays readable); a **withdrawn preference or rule** (only the user withdraws their own will); a **refuted factual claim**. A changed condition limits where a method transfers; it doesn't refute its earlier success under the old one. Age alone ends no preference. Keep a material contradiction visible and the present meaning readable later; never copy a project's journal into mind.
+
 ## §3 Bootstrap
 
 Audit each concern against its source: **absent / stale / correct** (as in **align**).
@@ -81,7 +111,7 @@ Audit each concern against its source: **absent / stale / correct** (as in **ali
 | what each live graph is for; areas; what is dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing rules, disposable classes | authored | propose; the user confirms |
-| standing preferences | authored | personal ones (tone, window, form) go here; ones affecting how development runs go to AGENTS.md or the project graph; never into files outside the worktree (**align**, Step 1) |
+| standing preferences | authored | the user's own, development ones included (tone, window, form, how they review), go here; a project's rule goes to AGENTS.md or the project graph, set by whoever holds that project's rules; never into files outside the worktree (**align**, Step 1) |
 
 Fill the skeleton from the Appendix (A1–A8, A10), then run §2 once. Mind is memory, not a workplace: project work goes to a project graph.
 
@@ -104,9 +134,11 @@ The user appears in each graph through one **owner role** (`svatantra` 主) boun
 
 ## Privacy — mind doesn't leave
 
-Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded. The user's other agents read it with their own access.
+Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded, **nor by an act that gives it away**: a commit, a config line or a message whose only ground is a mind record tells as much as the record. The user's other agents read it with their own access.
 
-Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets only what the work needs, no source cited. A fact the project needs as its own (its deadline, its server) goes into the project graph from the user's words or a project source, not copied from mind. Unsure → ask.
+Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets only what the work needs, no source cited. A fact the project needs as its own (its deadline, its server) goes into the project graph from the user's words or a project source, not copied from mind. Unsure → ask the user, where only they read it.
+
+**Portable is not shared.** A method of the user's own stays theirs however reusable it is: no shared home is made for it, no copy goes into a project or team graph. Handing it to a team is a separate act of the user's; the team's graph then gets its own method from their words, not the mind record or its shape.
 
 ## Storage rule
 
@@ -137,7 +169,8 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ## Acceptance
 
-- Recall within its ceilings; a miss offered as a write; `Realm not found` read as routing.
+- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write offered only after a real miss on a graph you could read; `Realm not found` read as routing.
+- A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
 - Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it.
 
@@ -239,14 +272,14 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 ### A8 · Lessons from finished areas — the forgetting layer
 
-Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (§2). A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so.
+Nobody opens an archived graph; what the area *proved* is lifted out before its form is released (§2). A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape), with `arose_from` to the graph's card and `context` to its area. A closed area's holon stays, ontic `atita`: the boundary stops being in effect, not deleted. Two tests: could it change a decision in *another* area; would you want it on day one of a project? Neither — release without it and say so. A lesson keeps the conditions it held under; one success there is one observation, not a method proven in general.
 
 ### A10 · What never goes in
 
 - the graph list, access, roles, organization membership; which roles the user holds — derivable;
 - a stored cross-graph agenda (§4);
 - **a dossier on a person** — the role, binding and open matters are modelled (A2b); a judgement of a person is not a node;
-- preferences affecting how development runs or what it produces — AGENTS.md or the project graph;
+- a project's rules and process — AGENTS.md or the project graph, set by whoever holds them (the user's own working preference, a development one too, is theirs and does go in);
 - a copy of a project graph's content.
 
 Nothing leaves here either (Privacy, above).
