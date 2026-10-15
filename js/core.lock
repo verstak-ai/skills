@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 117d36ba00e55ed034aedbcd4a304c17ab879581
+commit 43cdbc60284864ad6bb00f93df8d899f003ea0ac
 59ec67de6f5a0c85d5e4515ec90fbd8ea5d684448fa9411e2727a28d133012e1  js/bridge/absorb.ts
 d08245193edda8fb079edcf47b3ca05fa7c4299f0883e67522b611aead4faca4  js/bridge/addressmark.ts
 e9a25451925a672a5e29b3b16fea8005d599aa89023e0641452896b6aa7ac8b9  js/bridge/askdisk.ts
@@ -196,7 +196,7 @@ c996ba820b3e7bf9e5c3817519da93894b6a7064f3c88fd4faf2f81d8cca82a0  js/shared/asks
 3798f953b571c68e6dcba230b0961cc34a78a41d13ecaaceb381de56e39f2201  js/shared/channel.ts
 d23282e4becb6f2c5e7f20e7d3d86f679d8dba7dcc8700405e70bc1a4c11b9ce  js/shared/clients.ts
 5f41f3dd7bda943f6c0a69d549e12bff5f081bfd9abf632514ca5e56a869e670  js/shared/fields.ts
-36d3a201e0bb122712d3f875563c79f23ab806507d5d8e530c7a9a49d0e75020  js/shared/frame-text.ts
+ce475b13a51febf2e9635b354ca703af9cc21726382b20a91ed4367d3afd354b  js/shared/frame-text.ts
 716a01920f545ff459ca81817831df07ded79536e40585d3807988f565773c37  js/shared/home.ts
 93cdc3b73b16753298ef98a695583e4643907224fafd5c71c61c75afaa9f9325  js/shared/keyfold.ts
 8c4722878d7faa2d29d062183d3caf6c3db0b9067fbda940c1e1ad9bd61a3170  js/shared/lang.ts

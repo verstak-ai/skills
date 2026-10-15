@@ -1,9 +1,10 @@
-// Case count lines and the history pointer (FRAME_TEXT), the platform author and reply
-// quotes (CASE_LINE).
+// Case count lines and the pointer to read in full (FRAME_TEXT), the platform author and
+// reply quotes (CASE_LINE).
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
 
 export interface FrameTextWords {
+  myCases: () => string;
   frame: (id: string) => string;
   yoursBelow: () => string;
   noneYours: () => string;
@@ -15,12 +16,13 @@ export interface FrameTextWords {
 
 export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
   en: {
+    myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
     noneYours: () => ` — none of them yours; `,
     count: (head, n, mine) => `${head}: ${n} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
-    inFull: (cases) => `in full — ${cases || `${tool("channel")}(action="history")`}`,
+    inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
   },
 };

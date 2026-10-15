@@ -91,7 +91,7 @@ export const markFrame = (text: string): string => `${FRAME_MARK} ${text}`;
  * watchdogs (graph @nks/nks-dev, node #6081): the first line is case, record, kind and
  * who; then the text once. Rule #6574: a case record not addressed to the seat goes
  * as a count (caseCountLine). The bridge has already checked the frame; provenance and
- * envelope are never printed raw (case or channel history reads the whole frame), and
+ * envelope are never printed raw (case history reads the whole record), and
  * delivery never tells the agent to answer.
  */
 export function frameToText(frame: Frame | null | undefined, raw: string): string {

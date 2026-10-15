@@ -1,6 +1,7 @@
 // The live channel's holder (CHANNEL): dead-token advice, a hung connection, rollout.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
+import { FRAME_TEXT } from "./frame-text.ts";
 
 export interface ChannelWords {
   deadTokenAdvice: (code: number) => string;
@@ -17,7 +18,7 @@ export const CHANNEL: Readonly<Record<Lang, ChannelWords>> = {
         : `close ${code} — the token is dead, call connect`,
     binaryFrame: () => "[binary frame]",
     hung: (silent, ping) =>
-      `the connection has been silent for ${silent} s with a ping every ${ping} s — hung without closing; reopening at the same address. Frames that arrived during the silence may be lost — check ${tool("channel")}(action="history")`,
+      `the connection has been silent for ${silent} s with a ping every ${ping} s — hung without closing; reopening at the same address. Frames that arrived during the silence may be lost — check the cases: ${FRAME_TEXT.en.myCases()}; a direct word — ask for it again`,
     rollout: () => "the service is not answering — a rollout is under way, keeping the same token",
   },
 };

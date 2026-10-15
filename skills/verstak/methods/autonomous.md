@@ -61,7 +61,7 @@ The door's `Start`, steps 2 and 6; not through → fixing the channel is the rou
 ## 1 · Duty round — cheap by construction
 
 1. **Wake reason.** Declare cause, wake mode and focus; read the waking frame first, fetch its node when acting. A case message off subject goes back to its author.
-2. **`stale` means inherited, not old**: queued for another seat (a predecessor, a sibling who left) or for the role before your seat existed. Old frames show by time (`received_at` before your connection, the first `pending` after `hello`); skip what was answered since. The role inherits, not the name: what reached the previous socket isn't resent (`verstak_channel(action="history")`); cases you rejoin yourself.
+2. **`stale` means inherited, not old**: queued for another seat (a predecessor, a sibling who left) or for the role before your seat existed. Old frames show by time (`received_at` before your connection, the first `pending` after `hello`); skip what was answered since. The role inherits, not the name: what reached the previous socket isn't resent — read the predecessor's cases themselves: `verstak_case(action="mine", standing=<the former seat>)`, then `read`; cases you rejoin yourself.
 3. **Measure changes since the last round, within the focus**: a node → `verstak_orient(focus=<node>)` and its arrows; otherwise the message. No full inbox or graph read. Track unframed answers and reality's events (after handing off CI, a probe or release, arm a listener).
 4. **Debts by event**: your merge or push → §4, and the debt list updates.
 5. **The whole board** (`verstak_channel(action="list", realm)`): your liveness, and a neighbour stuck on your surface who didn't ask.

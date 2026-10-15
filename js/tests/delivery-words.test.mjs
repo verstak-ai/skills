@@ -9,12 +9,17 @@ import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
 import { LANGS } from "../delivery/lang.ts";
+import { BACKLOG } from "../delivery/words/backlog.ts";
 import { CALL } from "../delivery/words/call.ts";
+import { CHANNEL } from "../delivery/words/channel.ts";
+import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
+import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
 import { PLUGIN } from "../delivery/words/plugin.ts";
 import { RESUME } from "../delivery/words/resume.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
+import { STALE } from "../delivery/words/stalebatch.ts";
 import { STATUS } from "../delivery/words/status.ts";
 import { REPO } from "./built.mjs";
 
@@ -80,6 +85,27 @@ test("rejoin joins the waiting cases by room, without checking mine first", () =
   assert.doesNotMatch(text, /mine/);
 });
 
+test("left-out and lost frames point at the seat's cases, never the channel log the server drops", () => {
+  const pointers = [
+    FRAME_TEXT.en.inFull(""),
+    BACKLOG.en.head(30, 30, 20, 1),
+    STALE.en.head(25, 20),
+    CHANNEL.en.hung(90, 30),
+  ];
+  for (const text of pointers) {
+    assert.match(text, /verstak_case\(action="mine"\), then read each/);
+    assert.doesNotMatch(text, /verstak_channel/);
+  }
+  assert.match(CHANNEL.en.hung(90, 30), /a direct word — ask for it again/);
+  for (const text of [
+    OPENCODE.en.childGone("f", "c", " t"),
+    OPENCODE.en.childEnded("f", "c", "t"),
+  ]) {
+    assert.match(text, /a case record stays in the case \(verstak_case history\)/);
+    assert.doesNotMatch(text, /verstak_channel/);
+  }
+});
+
 test("the delivery layer has word dictionaries", () => {
   assert.ok(FILES.length > 0, `no dictionaries under ${DIR}`);
 });
@@ -114,3 +140,21 @@ for (const file of FILES) {
     }
   });
 }
+
+// The server drops the channel log (graph @nks/nks-dev, node #7636): no word of the
+// bridge or its plugins points there — the seat's cases carry what was lost or left out.
+test("no delivery word points at the channel log the server drops", async () => {
+  const LOG = /channel\(action="history"|channel"?\)? history|(standing|seat)'s history/;
+  const hits = [];
+  for (const file of FILES) {
+    const mod = await import(pathToFileURL(join(DIR, file)).href);
+    for (const [name, dict] of Object.entries(mod))
+      for (const l of LANGS)
+        for (const [k, fn] of Object.entries(dict[l] ?? {})) {
+          if (typeof fn !== "function") continue;
+          const out = String(fn(...Array.from({ length: fn.length }, (_, i) => `x${i}`)));
+          if (LOG.test(out)) hits.push(`${file} ${name}.${l}.${k}: ${out}`);
+        }
+  }
+  assert.deepEqual(hits, []);
+});

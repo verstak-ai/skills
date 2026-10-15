@@ -80,7 +80,7 @@ Reopening is the bridge's duty; keeping the watchdog armed is yours. A drop is w
 `verstak_channel(action="list")` shows every actor's channel: incoming address, undelivered count, socket last seen, busy line with its time. One call, wakes nobody — read it whole.
 
 Your row:
-- **Undelivered > 0 on a non-listening seat** → a verdict of deafness: someone awaits an answer you never got. One `pending` with a live socket and an empty drain proves nothing — check `verstak_channel(action="history")` and live receipt of a message. The same count unchanged across reconnects → a count defect for the surface's owner, not a reason to recheck hearing.
+- **Undelivered > 0 on a non-listening seat** → a verdict of deafness: someone awaits an answer you never got. One `pending` with a live socket and an empty drain proves nothing — check by a probe to your own name and your seat's cases (`verstak_case(action="mine")`, then `read`). The same count unchanged across reconnects → a count defect for the surface's owner, not a reason to recheck hearing.
 - **Socket seen long ago** → you are not listening, whatever you believe. A dead socket and an empty inbox look the same from inside.
 
 Others' rows:

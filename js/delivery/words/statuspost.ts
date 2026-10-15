@@ -12,8 +12,7 @@ export interface StatusPostWords {
 export const STATUS_POST: Readonly<Record<Lang, StatusPostWords>> = {
   en: {
     trimmedBy: (message) => `the server trimmed the line: ${message}`,
-    trimmed: () =>
-      "the server trimmed the line; the full text is in the seat's history, rename it shorter",
+    trimmed: () => "the server trimmed the line; rename it shorter",
     noAnswer: (error) => `Refused (bridge): the status address did not answer — ${error}`,
     gone: (body) =>
       `Refused (404) by the surface: ${body || "no body"} — this seat address no longer addresses: another holder's connect may have turned it, or another instance of the same session's bridge may have held it. Whose it is now, the bridge cannot know from here.`,

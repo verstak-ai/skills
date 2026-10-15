@@ -111,13 +111,13 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
     childGone: (frame, id, text) =>
       `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; ` +
-      `the frame stays in the standing's history (${tool("channel")} history); the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
+      `a case record stays in the case (${tool("case")} history), a direct word did not reach the root; the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
     childEnded: (frame, id, text) =>
-      `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; the frame stays in the standing's history — ${text}`,
+      `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; a case record stays in the case (${tool("case")} history) — ${text}`,
     sessionClosed: (id, frame) =>
       `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
     nowhere: (frame, text) =>
-      `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; the frame stays in the standing's history — ` +
+      `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; a case record stays in the case (${tool("case")} history), a direct word did not arrive — ` +
       text,
     halted: (frame, id) =>
       `Verstak: ${frame} not delivered — session ${id} was stopped by taking its seat off; it is not woken until it takes a seat again explicitly`,
