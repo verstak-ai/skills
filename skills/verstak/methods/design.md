@@ -78,7 +78,7 @@ Operations: `methods/weaving.md`.
 
 **3b. Mitigation — one risk at a time.** Read the context (`verstak_look` around the kriya) and the environment. Start from the kriya where the threatened decision is taken: update it, its carrier and the other touched nodes (`methods/writing.md`, Decision 1) — the same holds for a human's correction. Only what that repair cannot cover calls for:
 - **a.** a compensating kriya or phenomenon that prevents or handles the failure;
-- **b.** a `grundsatz` invariant applied via `upadhi` — only when there is no existing kriya to fix, together with the kriya that applies it and a carrier whose effect was measured; never the cheap substitute for repairing the deed. Born proposed (`chanda`; the owner puts it in force), with `arose_from` → this risk and `derived_from` → the principle it follows from. Carriers measured as working: a write the server refuses, a probe that runs, the method text read at the moment of the move. A nudge in a tool reply is not a carrier;
+- **b.** a `grundsatz` invariant applied via `upadhi` — only when there is no existing kriya to fix, together with the kriya that applies it and a carrier whose effect was measured; never the cheap substitute for repairing the deed. Born proposed (`chanda`; the owner puts it in force), with `arose_from` → this risk and `derived_from` → the principle it follows from; one borrowed from another domain says in its body where its transfer stops. Carriers measured as working: a write the server refuses, a probe that runs, the method text read at the moment of the move. A nudge in a tool reply is not a carrier;
 - **c.** deliberate acceptance — **the owner's decision**: prepare what is accepted, at what cost, how many actions run through it, and address it to them (`methods/writing.md`, Decision 3). Until then the risk stays `virodha`.
 
 For a and b, link `addressed_by` from the vimarsha; acceptance ends by mode, not by arrow.
@@ -112,7 +112,7 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 - **Broken cycles** (trace gap, `leaked`, `relay-gap`) → `methods/weaving.md`, Operation 5.
 - **Arrow legality** (`vollzug`/`grundsatz` are applied only via `upadhi`; `ahara`/`utpatti` to them returns 422) and **the boundary** (an observation or hand-off kriya, its phenomenon in the external holon): `methods/writing.md`, Decision 5. `leaked`/`relay-gap` at the boundary are modelling debt, not false alarms.
 - **Naming, before/after, fat nodes, modes, batch order**: `methods/writing.md`, at every write.
-- **Concurrency**: mutations need `basis_version` (`v<N>` from `verstak_look`); on conflict, re-read and retry.
+- **Concurrency**: mutations need `basis_version` — a node's `v<N>` and an arrow's `[v<N>]` from `verstak_look` are separate; on conflict, re-read and judge by meaning (`methods/writing.md`, `Operational`).
 
 ## Tension cheat sheet
 
