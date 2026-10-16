@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.6.0](https://github.com/verstak-ai/skills/compare/v3.5.0...v3.6.0) (2026-10-15)
+
+
+### Features
+
+* **assistant:** an assignment to an agent goes as a case; what's in work is read from cases ([#165](https://github.com/verstak-ai/skills/issues/165)) ([522d7ab](https://github.com/verstak-ai/skills/commit/522d7abcfd267b26dc6333382d4579a1e87ee086))
+* **minding:** personal knowledge stays the user's; recall names its outcome and relates it to the case ([#168](https://github.com/verstak-ai/skills/issues/168)) ([e521358](https://github.com/verstak-ai/skills/commit/e521358278421875801f9d89558a7a6de45d62eb))
+
+
+### Bug Fixes
+
+* **bridge:** words and methods lead to cases instead of the channel's journal ([#171](https://github.com/verstak-ai/skills/issues/171)) ([cf8e9db](https://github.com/verstak-ai/skills/commit/cf8e9db6d948085c156969fba0be37a80e9c71dc))
+* **minding:** no supersedes edge between personal records; a lesson's kind follows what it is ([#170](https://github.com/verstak-ai/skills/issues/170)) ([f545097](https://github.com/verstak-ai/skills/commit/f545097748db949c89abfe6be6c78e75e21eac4d))
+* **writing:** every phenomenon has its given_as; a partial update that omits it keeps the value ([#167](https://github.com/verstak-ai/skills/issues/167)) ([bfd5a6c](https://github.com/verstak-ai/skills/commit/bfd5a6c1c82ca4b9d9e316893098759b2c697127))
+
 ## [3.5.0](https://github.com/verstak-ai/skills/compare/v3.4.0...v3.5.0) (2026-10-14)
 
 

@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.5.0";
+var VERSION = "3.6.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -128,6 +128,26 @@ var ASK = {
     withdrawn: (withdraws, key, done, verdict, author) => `question [${withdraws}] withdrawn: [${key}] [${done}] = ${verdict} · ${author}`,
     inviteOwnerless: (who, standing) => `the platform calls the role ${who} to the case: the seat ${standing} is gone, its lines are nobody's`,
     inviteAnswerWaiting: (who, standing) => `the platform calls the role ${who} to the case: an answer awaits acceptance, the asking seat ${standing} has left`
+  }
+};
+
+// js/delivery/words/frame-text.ts
+var FRAME_TEXT = {
+  en: {
+    myCases: () => `${tool("case")}(action="mine"), then read each`,
+    frame: (id) => `frame ${id}`,
+    yoursBelow: () => ` — yours in the lines below; `,
+    noneYours: () => ` — none of them yours; `,
+    count: (head, n2, mine) => `${head}: ${n2} records, yours ${mine}`,
+    supersededLines: (gone) => `, ${gone} superseded lines of a key`,
+    inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
+    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
+  }
+};
+var CASE_LINE = {
+  en: {
+    platform: () => "platform",
+    quote: (s) => `“${s}”`
   }
 };
 
@@ -149,25 +169,6 @@ var BRIDGE_CLIENT = {
 var TAKE = {
   en: {
     rule: () => `your own name (the same role, the same account) — by yourself when the holder stays silent 5 minutes to a probe by word (${tool("channel")} send); another's (another role or account) — only on the user's word`
-  }
-};
-
-// js/delivery/words/frame-text.ts
-var FRAME_TEXT = {
-  en: {
-    frame: (id) => `frame ${id}`,
-    yoursBelow: () => ` — yours in the lines below; `,
-    noneYours: () => ` — none of them yours; `,
-    count: (head, n2, mine) => `${head}: ${n2} records, yours ${mine}`,
-    supersededLines: (gone) => `, ${gone} superseded lines of a key`,
-    inFull: (cases) => `in full — ${cases || `${tool("channel")}(action="history")`}`,
-    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
-  }
-};
-var CASE_LINE = {
-  en: {
-    platform: () => "platform",
-    quote: (s) => `“${s}”`
   }
 };
 
