@@ -148,8 +148,8 @@ var SAT_LOGIN_RE = /\/login\b|oauth|authoriz|sign.?in|log.?in|\b401\b/i;
 var SAT_OLD_FLAG_RE = /satellite|unknown (flag|option)/i;
 
 // js/delivery/protocol.ts
-var tool = (name) => `${TOOL_PREFIX}${name}`;
-var method = (name) => `${PRODUCT}/${name}`;
+var tool = (name2) => `${TOOL_PREFIX}${name2}`;
+var method = (name2) => `${PRODUCT}/${name2}`;
 var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
 var FRAME_MARK = `[${PRODUCT}]`;
@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.6.1";
+var VERSION = "3.7.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -170,7 +170,7 @@ var ABSORB = {
   en: {
     socketHidden: () => "(the bridge holds the socket address — it is not shown to the agent)",
     statusHidden: () => "(the bridge holds the status address)",
-    mainSeatHeld: (name, held2) => `[verstak-bridge] ${name ?? "this seat"} is the main seat of the bridge's channel, and seats of other graphs stand on the channel: ${held2}. The bridge released nothing; to remove the main one, first remove them (revoke in their graph).`
+    mainSeatHeld: (name2, held2) => `[verstak-bridge] ${name2 ?? "this seat"} is the main seat of the bridge's channel, and seats of other graphs stand on the channel: ${held2}. The bridge released nothing; to remove the main one, first remove them (revoke in their graph).`
   }
 };
 
@@ -305,8 +305,8 @@ var CLI = {
 // js/delivery/words/deaf.ts
 var DEAF = {
   en: {
-    takenByOther: (name) => `the seat ${name} has no hearing (left, or the token died), and the board reads it listening — another session may have taken it`,
-    unknownHearing: (name) => `the seat ${name} has no hearing (left, or the token died), and the bridge does not know whether another session listens on it`,
+    takenByOther: (name2) => `the seat ${name2} has no hearing (left, or the token died), and the board reads it listening — another session may have taken it`,
+    unknownHearing: (name2) => `the seat ${name2} has no hearing (left, or the token died), and the bridge does not know whether another session listens on it`,
     refusal: (why) => `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
   }
 };
@@ -358,7 +358,7 @@ var DOCTOR = {
     latestCurrent: (latest, ago) => `latest release: v${latest}, this file is not behind; asked ${ago} min ago`,
     pluginMissing: (registry) => `Claude Code: the verstak plugin is not installed (${registry})`,
     entryNotFound: () => "no bridge entry found in the manifest",
-    entryFound: (name) => `entry "${name}" → the bridge from the plugin`,
+    entryFound: (name2) => `entry "${name2}" → the bridge from the plugin`,
     unreadable: (p) => `${p} is unreadable`,
     pluginLine: (key2, v, scope, entry, path) => `Claude Code: plugin ${key2} v${v} (${scope}) — ${entry}; ${path}`,
     claudeUnreadable: (p) => `Claude Code: ${p} is unreadable`,
@@ -366,7 +366,7 @@ var DOCTOR = {
     codexManifest: (v, hit) => `v${v}, ${hit ? "the bridge entry is in the manifest" : "no bridge entry in the manifest"}`,
     codexPlugin: (plugin, market, word3, dir2) => `Codex: plugin ${plugin}@${market} — ${word3}; ${dir2}`,
     codexNoPlugin: (cache) => `Codex: no verstak plugin in the cache (${cache})`,
-    claudeEntry: (name, cmd, args) => `Claude Code: entry "${name}" → ${cmd} ${args}`,
+    claudeEntry: (name2, cmd, args) => `Claude Code: entry "${name2}" → ${cmd} ${args}`,
     claudeNoManual: () => "Claude Code: no manual bridge entry in the user config (the standard one is in the plugin)",
     ocNoPlugin: (copy) => `OpenCode: no plugin (${copy}) — the verstak skill's establish-mcp method places it on connect`,
     ocNoPackaged: (copy) => `OpenCode: the plugin ${copy} is installed; there is no plugin next to this delivery file, nothing to compare with`,
@@ -406,9 +406,9 @@ var HARNESS = {
     launchFound: (who, cmd, found) => `${who}: "${cmd}" → ${found}`,
     launchProfile: (who, cmd, found, dir2) => `${who}: "${cmd}" → ${found} — in this shell's PATH; the directory ${dir2} is put there by the shell profile or a version manager, and a harness started outside a shell (an app, a service) may not see it. The harness's PATH cannot be seen from here; if the harness says spawn ENOENT — the fix is on the next line`,
     openCodeRuntime: () => "OpenCode: the plugin's bridge runs on OpenCode's own runtime — independent of node in PATH",
-    secondPath: (where, name, url, remove) => `${where}: the entry "${name}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
+    secondPath: (where, name2, url, remove) => `${where}: the entry "${name2}" leads to ${url} directly over http, around the bridge — a second path to the same server: the tools double, and writes on this path go out without a seat. The one path to the graph is the bridge → remove it: ${remove}`,
     deleteFrom: (file) => `delete it from ${file}`,
-    connector: (name, file) => `Claude Code: the connector "${name}" is in the connection history (${file}, claudeAiMcpEverConnected; the line stays after removal) — claude.ai connectors come into every Claude Code session next to the bridge, and the connector's address is not on disk. If it is installed and leads to the graph server, it is a second path around the bridge → remove it in claude.ai (Settings → Connectors) or disable it in Claude Code (/mcp)`,
+    connector: (name2, file) => `Claude Code: the connector "${name2}" is in the connection history (${file}, claudeAiMcpEverConnected; the line stays after removal) — claude.ai connectors come into every Claude Code session next to the bridge, and the connector's address is not on disk. If it is installed and leads to the graph server, it is a second path around the bridge → remove it in claude.ai (Settings → Connectors) or disable it in Claude Code (/mcp)`,
     skillsOtherChannel: (pi) => `by the channel the set was installed with (pi — ${pi}; the order — SETUP.md, section "Update")`,
     skillsNone: () => "skills: no delivery set found (the Claude Code plugin, the Codex plugin, ~/.agents/skills, VERSTAK_SKILLS_ROOT)",
     skillsUnreadable: (root) => `skills: ${root} — the set's version is unreadable`,
@@ -417,9 +417,9 @@ var HARNESS = {
     skillsBelowRelease: (release) => `BEHIND the release v${release}, level with the bridge: the whole delivery is behind (the bridge — the update subcommand)`,
     skillsBehind: (root, v, why, how2) => `skills: ${root} — v${v}, ${why} → update the set: ${how2}; then a new session`,
     ocUnreadable: (file) => `OpenCode: ${file} is unreadable`,
-    ocDisabled: (name, file) => `OpenCode: the mcp entry "${name}" in ${file} leads to Verstak but is disabled — not in play`,
-    ocBridge: (name, file, path) => `OpenCode: the mcp entry "${name}" in ${file} calls ${path} — it looks like the delivery bridge. If it is, its tools are namespaced, and the bridge is shared by the service's sessions: the entry may go out under a neighbouring session's signature. Then remove it from this file by hand: opencode mcp has list, add, auth, logout — there is no remove command. The delivery surface is the plugin`,
-    ocHttp: (name, file) => `OpenCode: the mcp entry "${name}" in ${file} leads to Verstak directly over http, around the bridge — its tools are namespaced, it has no channel standing, and its writes go out without a seat. The one path to the graph is the bridge, brought by the delivery plugin. Remove it from this file by hand: opencode mcp has list, add, auth, logout — there is no remove command`,
+    ocDisabled: (name2, file) => `OpenCode: the mcp entry "${name2}" in ${file} leads to Verstak but is disabled — not in play`,
+    ocBridge: (name2, file, path) => `OpenCode: the mcp entry "${name2}" in ${file} calls ${path} — it looks like the delivery bridge. If it is, its tools are namespaced, and the bridge is shared by the service's sessions: the entry may go out under a neighbouring session's signature. Then remove it from this file by hand: opencode mcp has list, add, auth, logout — there is no remove command. The delivery surface is the plugin`,
+    ocHttp: (name2, file) => `OpenCode: the mcp entry "${name2}" in ${file} leads to Verstak directly over http, around the bridge — its tools are namespaced, it has no channel standing, and its writes go out without a seat. The one path to the graph is the bridge, brought by the delivery plugin. Remove it from this file by hand: opencode mcp has list, add, auth, logout — there is no remove command`,
     ocNone: (unreadable, cwd) => `OpenCode: found no Verstak mcp entries${unreadable ? ` in what I read (${unreadable} file(s) could not be parsed — see the lines above)` : ""} — looked upward from ${cwd}, the global layer and variables; an entry in another tree is not checked by this, call doctor from the project directory`
   }
 };
@@ -459,10 +459,10 @@ var HOLD = {
     tokenDead: () => "the seat went out after idling (4002)",
     parked: (reason) => `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or ${tool("stand")}`,
     evicted: (code) => `DOER: close ${code} — the seat was taken, another holder is listening; the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, ${tool("stand")} without name stands beside on name.N; to retake the seat (take=true): ${TAKE.en.rule()}`,
-    evictedBeside: (code, name, base) => `DOER: close ${code} — the seat ${name} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true): ${TAKE.en.rule()}`,
-    besideDone: (name, said2) => `Verstak: the seat ${name} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said2}`,
-    besideFailed: (name, base, said2) => `Verstak: the seat ${name} was taken (4000), and the bridge could not stand beside — no hearing: ${said2} The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
-    evictedRefusal: (name, base) => `Refused (bridge): the seat ${name} was taken (4000), another holder listens on it, and the bridge could not stand beside yet — the write would go under its signature; the call was not sent. The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing; then repeat the call.`,
+    evictedBeside: (code, name2, base) => `DOER: close ${code} — the seat ${name2} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true): ${TAKE.en.rule()}`,
+    besideDone: (name2, said2) => `Verstak: the seat ${name2} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said2}`,
+    besideFailed: (name2, base, said2) => `Verstak: the seat ${name2} was taken (4000), and the bridge could not stand beside — no hearing: ${said2} The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
+    evictedRefusal: (name2, base) => `Refused (bridge): the seat ${name2} was taken (4000), another holder listens on it, and the bridge could not stand beside yet — the write would go under its signature; the call was not sent. The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing; then repeat the call.`,
     besideOther: (place, ok, said2) => ok ? `The seat of another graph ${place} was on the taken channel — it stands again on the new one. ${said2}` : `The seat of another graph ${place} was on the taken channel and did not stand again — no hearing there: ${said2} The move — ${tool("stand")} in that graph with the same name.`,
     takenBySession: () => "a new bridge of this same session took the seat — this instance lets the socket go, the hearing is the new one's",
     dead: (advice) => `DOER: ${advice}`,
@@ -569,7 +569,7 @@ var NAMES = {
 // js/delivery/words/narrow.ts
 var NARROW = {
   en: {
-    outsideSet: (name, list3) => `Refused (bridge): the tool ${name} is not in this bridge's set (${list3}) — the set comes from --tools in the bridge entry.`
+    outsideSet: (name2, list3) => `Refused (bridge): the tool ${name2} is not in this bridge's set (${list3}) — the set comes from --tools in the bridge entry.`
   }
 };
 
@@ -720,10 +720,10 @@ var ROOM = {
     left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
-    node: (seq3, name, realm, reasoning) => `node #${seq3} ${name} (${realm}) in the case${reasoning}`,
-    nodeUpdated: (seq3, name, reasoning) => `node #${seq3} ${name} updated${reasoning}`,
-    nodeDeleted: (seq3, name, reasoning) => `node #${seq3} ${name} deleted${reasoning}`,
-    nodeUndeleted: (seq3, name, reasoning) => `node #${seq3} ${name} restored${reasoning}`,
+    node: (seq3, name2, realm, reasoning) => `node #${seq3} ${name2} (${realm}) in the case${reasoning}`,
+    nodeUpdated: (seq3, name2, reasoning) => `node #${seq3} ${name2} updated${reasoning}`,
+    nodeDeleted: (seq3, name2, reasoning) => `node #${seq3} ${name2} deleted${reasoning}`,
+    nodeUndeleted: (seq3, name2, reasoning) => `node #${seq3} ${name2} restored${reasoning}`,
     link: (room, rel) => `case linked to case #${room} (${rel})`,
     auto: (code, room) => `platform record ${code} about case #${room}`,
     unknown: (kind) => `kind ${kind} is unknown to the bridge`,
@@ -773,13 +773,13 @@ var SATELLITE = {
     noCaller: (of) => `Refused (bridge): the caller's seat ${of} is not on this graph's board — the satellite has nothing to stand beside; check satellite_of and the graph in the brief.`,
     ambiguous: (count, base) => `Refused (bridge): ${count} seats on the board carry the name ${base} — pass satellite_of as the full address @handle:name.`,
     alreadyHolds: (led) => `the bridge already holds ${led} — a repeat of this run or a parallel run with the same bridge entry (the same agent file or another with the same entry), which shares this seat and loses it when the first one ends; in parallel — no more than one run per bridge entry`,
-    nameCut: (base, n, max, name) => `the name ${base}.sub-${n} is longer than the ${max}-sign limit — the base is cut: ${name}`,
+    nameCut: (base, n, max, name2) => `the name ${base}.sub-${n} is longer than the ${max}-sign limit — the base is cut: ${name2}`,
     allTaken: (caller) => `Refused (bridge): every satellite .sub-1…99 of the seat ${caller} is taken — clear the dead seats of former runs.`,
     needSatelliteOf: () => "Refused (bridge): this is a satellite bridge — it takes only a subagent's satellite seat; pass satellite_of — the caller's seat (@handle:name) from the brief.",
     notSatellite: () => "Refused (bridge): satellite_of is for a satellite bridge only (a bridge entry with --satellite in the agent file); this is a session bridge, and a satellite seat on it would take the caller's voice. A subagent without a bridge of its own has a limit: it speaks as the caller's seat and names itself in its lines.",
     derivesName: () => "Refused (bridge): the bridge derives the satellite's name — name, take and room do not go with satellite_of.",
     boardUnread: (text2) => `Refused: the board did not read — ${text2}`,
-    claimsUnsure: (unsure, name) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
+    claimsUnsure: (unsure, name2) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name2} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
     seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) => `Refused (satellite bridge): ${action} bypassing ${tool("stand")} — only ${tool("stand")} with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
@@ -799,8 +799,8 @@ var SAT_PROBE = {
     oldFlag: (flag) => ` — it seems the home bridge is older than the ${flag} flag → node ~/.verstak-bridge/verstak-bridge.mjs update`,
     runByHand: () => " → run this command by hand and read what it writes to stderr",
     noInit: (label, why, stderrNote, old) => `probe "${label}": the bridge did not answer initialize (${why}${stderrNote})${old}`,
-    noList: (label, name, version, exited) => `probe "${label}": initialize answered (${name} v${version}), tools/list did not (${exited ?? "silent"}) → run the command by hand and read its stderr`,
-    answered: (label, name, version, tools) => `probe "${label}": the bridge answered — ${name} v${version}, tools ${tools}`,
+    noList: (label, name2, version, exited) => `probe "${label}": initialize answered (${name2} v${version}), tools/list did not (${exited ?? "silent"}) → run the command by hand and read its stderr`,
+    answered: (label, name2, version, tools) => `probe "${label}": the bridge answered — ${name2} v${version}, tools ${tools}`,
     schema: (tool2, bad) => `tool ${tool2}: the schema carries ${bad} at the top level — the server hands out a schema the Anthropic API will reject ("input_schema does not support oneOf, allOf, or anyOf at the top level"), and the whole subagent run fails, not just this tool → the server fixes this, not the agent file or the bridge (the bridge passes the schema as is): tell the MCP server operator the tool name — whoever holds the address from the "server" line above — and wait for their update, then repeat doctor`,
     winKilled: (label, secs2) => `probe "${label}": the bridge did not leave on closed stdin within ${secs2}s — killed forcibly → repeat doctor; if it was renewing the token, a login may be needed again`,
     sigKilled: (label, secs2) => `probe "${label}": the bridge left neither on closed stdin nor on SIGTERM within ${secs2}s — killed with SIGKILL → repeat doctor; if it was renewing the token, a login may be needed again`
@@ -817,8 +817,8 @@ var HOLDER = {
 var SEPARATE = {
   en: {
     ownSession: (base) => `the seat ${base} was held by a former bridge of this same harness session (a restart or a compaction) — this session's own seat, the bridge took it back itself`,
-    beside: (base, name, own, kin) => `${kin ? HOLDER[kin] : "another session"} holds the seat ${base} — leaving its seat alone and not signing with it; standing beside as ${name} with hearing${own ? " (a former bridge of this same session held it — taken back)" : ""}: it is this session's own seat, its frames come here; ` + (kin === "board" ? `check the holder's account on the board against your own seat's address: the same — ${probe(base)}; another — evicting that session (take=true) only on the user's word` : kin ? probe(base) : `evicting that session (take=true): ${TAKE.en.rule()}`),
-    unknown: (name) => `Refused (bridge): the board was not read in full — the bridge does not know whether another session listens on the seat ${name}; not standing blind and not advising take=true. Repeat when the board reads, or pass another name.`,
+    beside: (base, name2, own, kin) => `${kin ? HOLDER[kin] : "another session"} holds the seat ${base} — leaving its seat alone and not signing with it; standing beside as ${name2} with hearing${own ? " (a former bridge of this same session held it — taken back)" : ""}: it is this session's own seat, its frames come here; ` + (kin === "board" ? `check the holder's account on the board against your own seat's address: the same — ${probe(base)}; another — evicting that session (take=true) only on the user's word` : kin ? probe(base) : `evicting that session (take=true): ${TAKE.en.rule()}`),
+    unknown: (name2) => `Refused (bridge): the board was not read in full — the bridge does not know whether another session listens on the seat ${name2}; not standing blind and not advising take=true. Repeat when the board reads, or pass another name.`,
     noFree: (base) => `Refused (bridge): another session holds the seat ${base}, and every seat beside ${base}.2…99 is taken — the bridge will not sign with another's seat without hearing; clear the dead seats or pass another name.`
   }
 };
@@ -839,12 +839,12 @@ var STAND = {
     badCwd: (cwd, relative) => `Refused (bridge): cwd must be an existing absolute directory — got "${cwd}"${relative ? " (a relative path would resolve against the bridge's cwd, not the session's)" : ""}.`,
     badName: (asked, fault, max) => `Refused (bridge): name "${asked}" — ${fault}; the name rule: lowercase latin letters, digits, dot, underscore, hyphen, the first sign a letter or digit, at most ${max} signs. A name is never cut silently: a shorter name would address another seat.`,
     cutPart: (k) => k === "repo" ? "repo" : k === "host" ? "host" : "model",
-    nameCut: (full, max, name, what) => `the derived name ${full} is longer than the ${max}-sign limit — cut to ${name} (dropped: ${what}); want another — pass name`,
+    nameCut: (full, max, name2, what) => `the derived name ${full} is longer than the ${max}-sign limit — cut to ${name2} (dropped: ${what}); want another — pass name`,
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: ${tool("channel")}(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
     boardUnread: (text2) => `Refused: the board did not read — ${text2}`,
     boardUnknown: (start, own, others) => `Refused: the board's form is not recognized — no "${own}" header${others ? ` ("${others}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
-    boardAmbiguous: (n, name, karta) => `Refused: the board has ${n} seats named ${name} for role #${karta} — the form is ambiguous, the state cannot be told.`,
+    boardAmbiguous: (n, name2, karta) => `Refused: the board has ${n} seats named ${name2} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) => `Refused: the board declares ${declared} seats, ${parsed} were read, and your own is not among them — the unread line may be it, or a seat another session listens on; connect would rotate it blind, and take=true would take it. Repeat when the board reads, or stand under another name.`,
     boardCountFound: (declared, parsed) => `The board declares ${declared} seats, ${parsed} were read — the parser missed a line; your own seat is found, going on.`,
     refused: (what, text2) => `Refused: ${what} — ${text2}`,
@@ -914,6 +914,7 @@ var STAND_MOVES = {
     standsInRealm: (realm, call, board, leave, roleOpen) => `Refused (409): this bridge's channel already stands in the graph ${realm} with another seat — the platform holds no second seat of one channel in one graph. ` + (call ? `Stand as it: ${call}${roleOpen ? ` — the seat's karta is in its line on the board ${board}` : ""}. ` : `Its name is this channel's line on the board ${board}; stand as it: ${tool("stand")}(realm="${realm}", karta, name=<that name>). `) + `If a new name is what you need, release the former one first: ${leave}, then repeat the call.`,
     standAgain: (call) => `The bridge does not hold this session's seat now — take it with the full call: ${call} (status can go in the same call).`,
     priorReleased: (prior) => `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
+    provisionalReplaced: (prior) => `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
     priorKept: (prior, text2, revoke) => `this session's former seat ${prior} is not revoked (${text2}) — while it lives, cases will ask for from_standing; revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside, revokes, keep) => `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside}. Moving to ${asked} would open a new channel: the seats beside would lose hearing, and ${prior} would not be revoked while they stand. Nothing was touched. Move: revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds2, own) => own ? `yours — returned: the bridge itself was reopening this seat's socket at that moment, the call waited for its outcome (${seconds2} s)` : `this seat's socket was just reopened — the call waited out the platform's threshold (${seconds2} s) and took the seat`,
@@ -950,7 +951,7 @@ var STATUS = {
   en: {
     busyLine: (label, line, nudge) => `busyness ${label}: ${line || "(cleared)"}${nudge}`,
     placeDerived: (place) => `${place} (address derived, hello did not name it)`,
-    placeUnnamed: (name) => `of the seat${name ? ` "${name}"` : ""} (no @handle:name address yet — hello has not come)`,
+    placeUnnamed: (name2) => `of the seat${name2 ? ` "${name2}"` : ""} (no @handle:name address yet — hello has not come)`,
     evictedWhy: () => `the hearing is with another holder — take it back by ${tool("stand")} with take=true: ${TAKE.en.rule()}`,
     reopeningWhy: () => "the socket is reopening — the line is published, the hearing comes back by itself",
     noSeatId: (key2) => `Refused (bridge): the bridge does not yet know the id of the seat ${key2} (hello did not name it) — without it the line would land on all seats of the channel; repeat ${tool("stand")} for this graph.`,
@@ -983,7 +984,7 @@ var WHO_EN = {
 };
 var STOP = {
   en: {
-    stopped: (name, who) => `the seat ${name} was taken off (${WHO_EN[who]}) — you are stopped: end the work, do not take the seat`,
+    stopped: (name2, who) => `the seat ${name2} was taken off (${WHO_EN[who]}) — you are stopped: end the work, do not take the seat`,
     orderJournalRefused: (order, outcome) => `stop order ${order}: the journal on disk did not take the ${outcome ? "outcome" : "order"} — the stop is executed all the same, ${outcome ? "the outcome" : "the outcome without accepted"} is sent once, not repeated after a bridge restart; check the grant directory (orders/)`
   }
 };
@@ -1036,17 +1037,17 @@ var SUBAGENT = {
     shadowed: (path, agent) => `  ${path}: shadowed by the project file with the same name "${agent}" — Claude Code takes the project one`,
     withBlock: (ready) => `with the block below instead of the former mcpServers and disallowedTools:
 ${ready}`,
-    proposed: (name) => `${name} (proposed form)`,
-    refEntry: (name, block) => `entry "${name}" is a reference to a server from the session config, not its own bridge per run → replace it with an inline entry, ${block}`,
-    formEntry: (name, form, block) => `entry "${name}": ${form} → ${block}`,
+    proposed: (name2) => `${name2} (proposed form)`,
+    refEntry: (name2, block) => `entry "${name2}" is a reference to a server from the session config, not its own bridge per run → replace it with an inline entry, ${block}`,
+    formEntry: (name2, form, block) => `entry "${name2}": ${form} → ${block}`,
     noEntry: (block) => `no satellite bridge entry — the subagent has no graph tools → insert into the frontmatter ${block}`,
     sharedName: (agent) => `the entry is named "verstak-sub" — the shared name of the former contract: a second file with it would run its runs through the same bridge process → rename the entry to verstak-sub-${agent}`,
-    replaceEntry: (name, form, block) => `entry "${name}": ${form} → replace ${block}`,
-    noCommand: (name, command) => `the command of entry "${name}" "${command}" is not found on this machine (PATH) → install Node 22+ or add the node directory to PATH: Claude Code launches it via PATH`,
+    replaceEntry: (name2, form, block) => `entry "${name2}": ${form} → replace ${block}`,
+    noCommand: (name2, command) => `the command of entry "${name2}" "${command}" is not found on this machine (PATH) → install Node 22+ or add the node directory to PATH: Claude Code launches it via PATH`,
     noBridge: (bridge, home) => `no bridge at the entry path: ${bridge} → install it (the verstak skill's establish-mcp method places a home copy at ${home}), then repeat doctor`,
     callerBridges: (need2, fix2) => `the caller's bridges are not removed (${need2 || "no disallowedTools"}) — the subagent would inherit their tools, and its writes would go out under the caller's seat → replace the line: disallowedTools: ${fix2}`,
     ownRemoved: (own) => `disallowedTools removes the entry's own bridge ${own} → remove ${own} from disallowedTools`,
-    nameShared: (name, count, files, agent) => `the entry name "${name}" is shared by ${count} file(s): ${files} — Claude Code keeps one connection per entry name, their runs would go through one bridge process, and the first to finish would put out the seat for the others → rename the entry in this file: verstak-sub-${agent}`,
+    nameShared: (name2, count, files, agent) => `the entry name "${name2}" is shared by ${count} file(s): ${files} — Claude Code keeps one connection per entry name, their runs would go through one bridge process, and the first to finish would put out the seat for the others → rename the entry in this file: verstak-sub-${agent}`,
     noGrantAgain: () => "the satellite probe did not run — there is no graph login on this machine (the action is in the line above)",
     noGrant: (advice) => `the satellite probe did not run — there is no graph login on this machine → ${advice}`,
     sameFailed: (label) => `the probe of the same command as "${label}" failed — the action is above`,
@@ -1160,7 +1161,7 @@ function buildOf(selfUrl) {
 }
 var MARK_LITERAL = /"([^"\s]+-build):(?:dev|release)"/g;
 function versionIn(text2) {
-  for (const [, name] of text2.matchAll(MARK_LITERAL)) if (name !== BUILD_MARK) return null;
+  for (const [, name2] of text2.matchAll(MARK_LITERAL)) if (name2 !== BUILD_MARK) return null;
   const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text2);
   return m ? m[1] : null;
 }
@@ -4054,8 +4055,8 @@ function addresseeOf(v) {
   const handle = str(o.handle).replace(/^@/, "");
   const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
   const id = str(o.id);
-  const name = str(o.standing) ? str(o.name) : "";
-  const label = name && standing ? `${name} (${standing})` : standing || str(o.name) || id;
+  const name2 = str(o.standing) ? str(o.name) : "";
+  const label = name2 && standing ? `${name2} (${standing})` : standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);
   return addr.length ? { addr, label } : null;
 }
@@ -4249,9 +4250,9 @@ var RULES = {
 };
 function authorOf(author) {
   const a = obj(author);
-  const name = str(a.name);
+  const name2 = str(a.name);
   const standing = str(a.standing);
-  if (name) return standing ? `${name} (${standing})` : name;
+  if (name2) return standing ? `${name2} (${standing})` : name2;
   if (standing) return standing;
   return a.kind === "platform" ? words(CASE_LINE).platform() : "?";
 }
@@ -4262,9 +4263,9 @@ function roomOf(v) {
 function whoOf(fields) {
   const st = obj(fields.standing);
   const ka = obj(fields.karta);
-  const name = str(st.name) || str(ka.name);
+  const name2 = str(st.name) || str(ka.name);
   const addr = str(st.standing);
-  return name && addr ? `${name} (${addr})` : name || addr;
+  return name2 && addr ? `${name2} (${addr})` : name2 || addr;
 }
 function kindText(kind, v, f, pending2, aborted) {
   const W4 = words(ROOM);
@@ -4650,14 +4651,14 @@ function repeatable(msg) {
   if (msg?.id === void 0 || msg?.id === null) return true;
   if (msg.method === "initialize" || msg.method === "tools/list") return true;
   if (msg.method !== "tools/call") return false;
-  const name = String(msg.params?.name ?? "");
-  if (READ_TOOLS.has(name)) return true;
+  const name2 = String(msg.params?.name ?? "");
+  if (READ_TOOLS.has(name2)) return true;
   const action = String(msg.params?.arguments?.action ?? "");
-  if (ownPlaceEnd(msg, name, action)) return true;
-  return !!SAFE_ACTIONS[name]?.has(action);
+  if (ownPlaceEnd(msg, name2, action)) return true;
+  return !!SAFE_ACTIONS[name2]?.has(action);
 }
-function ownPlaceEnd(msg, name, action) {
-  return name === tool("channel") && (action === "revoke" || action === "close") && String(msg.id ?? "").startsWith(OWN_CALL_PREFIX);
+function ownPlaceEnd(msg, name2, action) {
+  return name2 === tool("channel") && (action === "revoke" || action === "close") && String(msg.id ?? "").startsWith(OWN_CALL_PREFIX);
 }
 
 // js/bridge/toolsync.ts
@@ -4731,9 +4732,9 @@ import { basename as basename2, dirname as dirname3, resolve as resolve4 } from 
 var NAME_MAX = 48;
 var SUB_RE = /\.sub-([1-9]\d*)$/;
 var satelliteName = (base, n) => base.slice(0, NAME_MAX - `.sub-${n}`.length).replace(/[-._]+$/, "") + `.sub-${n}`;
-function isSatelliteOf(base, name) {
-  const m = SUB_RE.exec(name);
-  return !!m && satelliteName(base, Number(m[1])) === name;
+function isSatelliteOf(base, name2) {
+  const m = SUB_RE.exec(name2);
+  return !!m && satelliteName(base, Number(m[1])) === name2;
 }
 
 // js/shared/seat.ts
@@ -4744,9 +4745,9 @@ var nw = () => words(NAMES);
 var normName = (n) => typeof n === "string" ? n.trim() : "";
 var NAME_RE = /^[a-z0-9][a-z0-9._-]*$/;
 var sanitize = (s2) => s2.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^[-.]+|[-.]+$/g, "").slice(0, NAME_MAX);
-function nameFault(name) {
-  if (name.length > NAME_MAX) return nw().overLimit(name.length);
-  if (!NAME_RE.test(name)) return /[A-Z]/.test(name) ? nw().capitals() : nw().badSigns();
+function nameFault(name2) {
+  if (name2.length > NAME_MAX) return nw().overLimit(name2.length);
+  if (!NAME_RE.test(name2)) return /[A-Z]/.test(name2) ? nw().capitals() : nw().badSigns();
   return null;
 }
 var PART_MIN = 3;
@@ -5662,8 +5663,8 @@ import { basename as basename3, join as join11 } from "node:path";
 import { mkdirSync as mkdirSync7, readdirSync as readdirSync2, readFileSync as readFileSync12, unlinkSync as unlinkSync7, writeFileSync as writeFileSync9 } from "node:fs";
 import { dirname as dirname4, join as join10 } from "node:path";
 var holdFilePathFor = (key2) => holdFilePathOf(CFG.authDir, key2);
-function keyOf(realm, karta, name) {
-  return `${name || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
+function keyOf(realm, karta, name2) {
+  return `${name2 || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
 }
 var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 var H = scoped(() => ({ session: null }));
@@ -5751,7 +5752,7 @@ function readHoldRecord(key2, anyAge = false) {
     return null;
   }
 }
-var holdRecordsNamed = (name) => holdRecordsWhere((r) => r.name === name);
+var holdRecordsNamed = (name2) => holdRecordsWhere((r) => r.name === name2);
 function holdRecordsWhere(keep) {
   const dir2 = dirname4(holdFilePathFor("_"));
   try {
@@ -6260,9 +6261,9 @@ var extras = scoped(() => /* @__PURE__ */ new Map());
 var keyOfPlace = (s2) => keyOf(s2.realm, s2.karta, s2.name ?? "");
 var extraPlaces = () => [...extras.values()];
 var extraIn = (realm) => extraPlaces().find((p) => sameRealm(p.standing.realm, realm));
-function extraOf(realm, karta, name) {
+function extraOf(realm, karta, name2) {
   const p = extraIn(realm);
-  return p && String(p.standing.karta) === normKarta(karta) && (p.standing.name ?? "") === normName(name) ? p : void 0;
+  return p && String(p.standing.karta) === normKarta(karta) && (p.standing.name ?? "") === normName(name2) ? p : void 0;
 }
 function rememberPlace(s2) {
   state.places = state.places.filter((p) => !sameRealm(p.realm, s2.realm));
@@ -6670,25 +6671,25 @@ var doors = () => [
   ...H2.door ? [H2.door] : [],
   ...extraPlaces().map((p) => p.door)
 ];
-function isOwn(realm, karta, name) {
+function isOwn(realm, karta, name2) {
   const s2 = state.standing;
   if (!H2.currentKey) return false;
-  if (extraOf(realm, karta, name)) return true;
-  return !!s2 && (s2.realm === realm || sameRealm(s2.realm, realm)) && String(s2.karta) === String(karta) && (s2.name ?? "") === name && H2.currentKey === keyFor();
+  if (extraOf(realm, karta, name2)) return true;
+  return !!s2 && (s2.realm === realm || sameRealm(s2.realm, realm)) && String(s2.karta) === String(karta) && (s2.name ?? "") === name2 && H2.currentKey === keyFor();
 }
-function holdsStanding(realm, karta, name) {
-  return !!H2.holder?.alive && !H2.unheard && isOwn(realm, karta, name);
+function holdsStanding(realm, karta, name2) {
+  return !!H2.holder?.alive && !H2.unheard && isOwn(realm, karta, name2);
 }
-function wasEvicted(realm, karta, name) {
-  return !!H2.evictedKey && H2.evictedKey === H2.currentKey && isOwn(realm, karta, name);
+function wasEvicted(realm, karta, name2) {
+  return !!H2.evictedKey && H2.evictedKey === H2.currentKey && isOwn(realm, karta, name2);
 }
-var hasStatusAddressFor = (realm, karta, name) => !!H2.currentStatusUrl && !!H2.currentKey && isOwn(realm, karta, name);
+var hasStatusAddressFor = (realm, karta, name2) => !!H2.currentStatusUrl && !!H2.currentKey && isOwn(realm, karta, name2);
 var heldPlaces = () => [
   ...H2.door && state.standing ? [{ key: H2.door.key, realm: state.standing.realm, primary: true }] : [],
   ...extraPlaces().map((p) => ({ key: p.door.key, realm: p.standing.realm, primary: false }))
 ];
 var besideKeyIn = (realm) => extraIn(realm)?.door.key ?? null;
-var isParked = (realm, karta, name) => H2.parked && isOwn(realm, karta, name);
+var isParked = (realm, karta, name2) => H2.parked && isOwn(realm, karta, name2);
 function listenerIdleSince() {
   if (!H2.holder?.alive) return null;
   const ds = doors();
@@ -7133,7 +7134,7 @@ var sameDir = (a, b) => !!a && !!b && (a === b || canonDir(a) === canonDir(b));
 
 // js/bridge/hearing.ts
 var isSentinel = (karta) => !/^\d+$/.test(karta);
-function seatKarta(realm, karta, name = "") {
+function seatKarta(realm, karta, name2 = "") {
   const k = normKarta(karta);
   if (k !== "agent") return k;
   const r = String(realm ?? "").trim();
@@ -7141,16 +7142,16 @@ function seatKarta(realm, karta, name = "") {
   const led = [state.standing, ...state.places].find((p) => p && here(p.realm));
   if (led) return String(led.karta);
   const me = sessionOfBridge();
-  const rec5 = me && name ? holdRecordsNamed(name).find((x) => x.session === me && here(x.realm)) : null;
+  const rec5 = me && name2 ? holdRecordsNamed(name2).find((x) => x.session === me && here(x.realm)) : null;
   return rec5 ? normKarta(rec5.karta) : k;
 }
 var unresolvedAgent = (karta, what) => karta !== "agent" ? null : words(HEARING).unresolvedAgent(what);
 async function seatRealm(given, asked) {
   const realm = typeof given === "string" ? given.trim() : "";
-  const name = normName(asked);
+  const name2 = normName(asked);
   const known2 = [
     ...[state.standing, ...state.places].flatMap((p) => p ? [p.realm] : []),
-    ...name ? holdRecordsNamed(name).flatMap((r) => r.realm ? [r.realm] : []) : []
+    ...name2 ? holdRecordsNamed(name2).flatMap((r) => r.realm ? [r.realm] : []) : []
   ];
   await resolveAgainstLed(realm);
   if (!realm || !known2.length || known2.includes(realm)) return realm;
@@ -7160,20 +7161,20 @@ async function seatRealm(given, asked) {
   });
   return known2.find((r) => sameRealm(r, realm)) ?? realm;
 }
-var ofSeat = (e, karta, name) => (isSentinel(karta) || e.karta === karta) && nameOf(e.address) === name;
-function boardHearing(bd, karta, name) {
+var ofSeat = (e, karta, name2) => (isSentinel(karta) || e.karta === karta) && nameOf(e.address) === name2;
+function boardHearing(bd, karta, name2) {
   if (!bd?.recognized) return "unknown";
-  const at2 = bd.entries.filter((e) => ofSeat(e, karta, name));
+  const at2 = bd.entries.filter((e) => ofSeat(e, karta, name2));
   if (at2.some(listens)) return "other";
   const unread = bd.declared != null && bd.declared !== bd.entries.length;
   return unread && (at2.length === 0 || isSentinel(karta)) ? "unknown" : "free";
 }
-function keysNamed(realm, name) {
+function keysNamed(realm, name2) {
   const dir2 = standingsDirOf(CFG.authDir);
   try {
     return readdirSync4(dir2).filter((f) => f.endsWith(".key")).map((f) => readFileSync15(join12(dir2, f), "utf8").trim()).filter((k) => {
       const m = /^.*?--(.+)--/.exec(k);
-      return !!m && keyOf(realm, m[1], name) === k;
+      return !!m && keyOf(realm, m[1], name2) === k;
     });
   } catch {
     return [];
@@ -7188,21 +7189,21 @@ async function localHolder(key2, cwd) {
   if (!rec5) return "other";
   return rec5.session === me || cwd != null && unsignedHere(rec5, cwd) ? "session" : "other";
 }
-async function heldLocally(realm, karta, name, cwd) {
+async function heldLocally(realm, karta, name2, cwd) {
   let own = false;
-  for (const key2 of isSentinel(karta) ? keysNamed(realm, name) : [keyOf(realm, karta, name)]) {
+  for (const key2 of isSentinel(karta) ? keysNamed(realm, name2) : [keyOf(realm, karta, name2)]) {
     const h = await localHolder(key2, cwd);
     if (h === "other") return "other";
     own ||= h === "session";
   }
   return own ? "session" : null;
 }
-async function askedHearing(realm, karta, name, cwd = H2.standCwd ?? sessionCwd()) {
-  const local = await heldLocally(realm, karta, name, cwd);
+async function askedHearing(realm, karta, name2, cwd = H2.standCwd ?? sessionCwd()) {
+  const local = await heldLocally(realm, karta, name2, cwd);
   if (local === "other") return "other";
   if (local === "session") return "free";
   const b = await callTool(tool("channel"), { action: "list", realm }).catch(() => null);
-  return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name);
+  return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name2);
 }
 async function rawSeatRefusal(msg) {
   if (msg?.method !== "tools/call" || msg.params?.name !== tool("channel")) return null;
@@ -7210,23 +7211,23 @@ async function rawSeatRefusal(msg) {
   const action = String(a.action);
   if (!["connect", "mint", "register"].includes(action)) return null;
   const realm = typeof a.realm === "string" ? a.realm.trim() : "";
-  const name = normName(a.name);
-  const karta = seatKarta(realm, normKarta(a.karta) || "agent", name);
+  const name2 = normName(a.name);
+  const karta = seatKarta(realm, normKarta(a.karta) || "agent", name2);
   if (!realm) return null;
   const agent = unresolvedAgent(karta, action);
   if (agent) return agent;
-  if (ledHere(realm, karta, name)) return null;
-  const hearing = await askedHearing(realm, karta, name);
+  if (ledHere(realm, karta, name2)) return null;
+  const hearing = await askedHearing(realm, karta, name2);
   if (hearing === "free") return null;
-  const seat2 = keyOf(realm, karta, name);
+  const seat2 = keyOf(realm, karta, name2);
   const w = words(HEARING);
   const who = hearing === "other" ? w.otherListens(seat2) : w.unknownListens(seat2);
   return w.rawSeatRefusal(who, action);
 }
-function ledHere(realm, karta, name) {
-  if (holdsStanding(realm, karta, name)) return true;
-  return ledKey() === keyOf(realm, karta, name) && !H2.unheard && // back on the same address without hello — another may have turned it
-  !wasEvicted(realm, karta, name) && !isParked(realm, karta, name);
+function ledHere(realm, karta, name2) {
+  if (holdsStanding(realm, karta, name2)) return true;
+  return ledKey() === keyOf(realm, karta, name2) && !H2.unheard && // back on the same address without hello — another may have turned it
+  !wasEvicted(realm, karta, name2) && !isParked(realm, karta, name2);
 }
 
 // js/bridge/deaf.ts
@@ -7240,9 +7241,9 @@ function signedRealm(msg) {
 function deafPlaces() {
   const s2 = state.standing;
   if (!s2) return [];
-  const name = s2.name ?? "";
-  if (isParked(s2.realm, s2.karta, name) || H2.unheard) return [s2, ...state.places];
-  const letGo2 = !ledKey() && H2.deafKey === keyOf(s2.realm, s2.karta, name);
+  const name2 = s2.name ?? "";
+  if (isParked(s2.realm, s2.karta, name2) || H2.unheard) return [s2, ...state.places];
+  const letGo2 = !ledKey() && H2.deafKey === keyOf(s2.realm, s2.karta, name2);
   return letGo2 ? [s2, ...state.places, ...H2.deadPlaces] : [];
 }
 function deafPlaceIn(realm) {
@@ -7251,10 +7252,10 @@ function deafPlaceIn(realm) {
 }
 async function deafSeatTaken(p = deafPlaces()[0] ?? null) {
   if (!p) return null;
-  const name = p.name ?? "";
-  const hearing = await askedHearing(p.realm, String(p.karta), name);
+  const name2 = p.name ?? "";
+  const hearing = await askedHearing(p.realm, String(p.karta), name2);
   if (hearing === "free") return null;
-  return hearing === "other" ? words(DEAF).takenByOther(name) : words(DEAF).unknownHearing(name);
+  return hearing === "other" ? words(DEAF).takenByOther(name2) : words(DEAF).unknownHearing(name2);
 }
 async function deafRefusal(msg) {
   const realm = signedRealm(msg);
@@ -7276,6 +7277,35 @@ import {
   writeFileSync as writeFileSync10
 } from "node:fs";
 import { join as join16 } from "node:path";
+
+// js/bridge/orderhalt.ts
+var HALT_WAIT_MS = Number(process.env[envName("ORDER_HALT_MS")]) || 2e4;
+var SILENT = "harness_silent";
+var CODE = /^[a-z][a-z0-9_]{0,63}$/;
+var waiting = /* @__PURE__ */ new Map();
+var obj4 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+var confirmsHalts = () => HALTS_CAPABILITY in obj4(obj4(obj4(state.initParams).capabilities).experimental);
+function awaitHalt(order, ms2 = HALT_WAIT_MS) {
+  return new Promise((resolve11) => {
+    const t = setTimeout(() => done(SILENT), ms2);
+    t.unref?.();
+    const done = (code) => {
+      clearTimeout(t);
+      if (waiting.get(order) === done) waiting.delete(order);
+      resolve11(code);
+    };
+    waiting.set(order, done);
+  });
+}
+function localHalted(msg) {
+  if (msg?.method !== method("halted")) return null;
+  const p = obj4(msg.params);
+  const order = typeof p.order === "string" ? p.order : "";
+  const code = typeof p.code === "string" && CODE.test(p.code) ? p.code : "harness_refused";
+  const done = waiting.get(order);
+  done?.(p.ok === true ? null : code);
+  return Promise.resolve({ jsonrpc: "2.0", id: msg.id, result: { taken: !!done } });
+}
 
 // js/bridge/skillwatch.ts
 import { readdirSync as readdirSync6, statSync as statSync5 } from "node:fs";
@@ -7356,10 +7386,10 @@ function lockSet(root) {
   const skills = skillLock(root, env("XDG_STATE_HOME"));
   if (!skills) return { name: SET, stamp: null };
   const own = skills[BRIDGE_SKILL]?.source;
-  const name = typeof own === "string" && own.trim() ? own.trim() : SET;
-  const lines = Object.entries(skills).filter(([, s2]) => s2?.source === name && typeof s2.skillFolderHash === "string").map(([n, s2]) => `${n}:${String(s2?.skillFolderHash)}
+  const name2 = typeof own === "string" && own.trim() ? own.trim() : SET;
+  const lines = Object.entries(skills).filter(([, s2]) => s2?.source === name2 && typeof s2.skillFolderHash === "string").map(([n, s2]) => `${n}:${String(s2?.skillFolderHash)}
 `).sort();
-  return { name, stamp: lines.length ? sha8(createHash7("sha256").update(lines.join(""))) : null };
+  return { name: name2, stamp: lines.length ? sha8(createHash7("sha256").update(lines.join(""))) : null };
 }
 var isFileAt = (p) => {
   try {
@@ -7394,17 +7424,17 @@ function treeStamp(root, mask = SKILL_STAMP_MASK) {
   } catch {
     return null;
   }
-  for (const name of names2) {
-    const files = rest2 === "**" ? allFiles(join14(root, name)) : [rest2];
+  for (const name2 of names2) {
+    const files = rest2 === "**" ? allFiles(join14(root, name2)) : [rest2];
     const bodies = [];
     for (const rel of files) {
       try {
-        bodies.push([rel, readFileSync17(join14(root, name, rel))]);
+        bodies.push([rel, readFileSync17(join14(root, name2, rel))]);
       } catch {
       }
     }
     if (!bodies.length) continue;
-    h.update(`${name}\0`);
+    h.update(`${name2}\0`);
     for (const [rel, body] of bodies) {
       if (rest2 === "**") h.update(`${rel}\0`);
       h.update(body);
@@ -7539,7 +7569,17 @@ function rememberStandModel(m) {
   rememberModel(m);
 }
 var satelliteWithoutModel = () => CFG.satellite && !P.model;
-function placeFields(place = {}, freshSkills = false) {
+function stopAttrs(place, move) {
+  const ack = confirmsHalts() ? "confirmed" : "word";
+  if (move !== "register") return { effect: "agent", ack };
+  if (!H2.holder || !H2.currentKey || !H2.door) return null;
+  if (extraIn(place.realm)) return { effect: "seat", ack };
+  const prim = state.standing;
+  if (!!prim && otherRealm(place.realm, prim.realm))
+    return H2.holder.alive ? { effect: "seat", ack } : null;
+  return { effect: "agent", ack };
+}
+function placeFields(place = {}, freshSkills = false, move = "register") {
   const harness = harnessName();
   const extra = extras2.get(placeKey(place)) ?? {};
   const { model, usage: usage2, satelliteOf, satelliteOfId } = P;
@@ -7555,7 +7595,9 @@ function placeFields(place = {}, freshSkills = false) {
       skills: installedSkills(place, freshSkills),
       ...harness ? { harness, harness_version: harnessVersion() } : {},
       ...satelliteOf ? { satellite_of: satelliteOf } : {},
-      ...usage2 ? { usage: usage2 } : {}
+      ...usage2 ? { usage: usage2 } : {},
+      // The bridge's own word, over the agent's: no effect known — the key dropped (undefined).
+      stop: stopAttrs(place, move) ?? void 0
     }
   };
 }
@@ -7575,14 +7617,14 @@ function withPlaceFields(args) {
   rememberModel(args.model);
   if (args.attrs && typeof args.attrs === "object" && !Array.isArray(args.attrs))
     extras2.set(placeKey(args), { ...args.attrs });
-  return { ...args, ...placeFields(args, true) };
+  return { ...args, ...placeFields(args, true, String(args.action)) };
 }
 
 // js/bridge/satellite.ts
 var SATELLITE_TTL_S = Number(process.env[envName("BRIDGE_SATELLITE_TTL")]) || 300;
 var sw = () => words(SATELLITE);
 var claimDir = () => join16(CFG.authDir, "satellites");
-var claimFile = (name) => join16(claimDir(), `${name.replace(/[^A-Za-z0-9._-]+/g, "_")}.claim`);
+var claimFile = (name2) => join16(claimDir(), `${name2.replace(/[^A-Za-z0-9._-]+/g, "_")}.claim`);
 var claims = scoped(() => /* @__PURE__ */ new Set());
 var allClaims = /* @__PURE__ */ new Map();
 var releaseOnExit = false;
@@ -7596,8 +7638,8 @@ function alive2(pid) {
     return e.code === "EPERM";
   }
 }
-function claimName(name) {
-  const file = claimFile(name);
+function claimName(name2) {
+  const file = claimFile(name2);
   let pid = 0;
   try {
     pid = Number(readFileSync18(file, "utf8").trim());
@@ -7695,9 +7737,9 @@ async function underClaimLock(fn) {
   let unwritten = null;
   let value;
   try {
-    value = fn((name) => {
+    value = fn((name2) => {
       try {
-        return claimName(name);
+        return claimName(name2);
       } catch (e) {
         unwritten = `claim not written: ${e.message}`;
         log(`satellite ${unwritten}`);
@@ -7735,10 +7777,10 @@ function pickSatellite(entries2, of, karta, led, claim = () => true) {
   }
   const taken2 = new Set(entries2.map((e) => nameOf(e.address)));
   for (let n = 1; n <= 99; n++) {
-    const name = satelliteName(base, n);
-    if (taken2.has(name) || !claim(name)) continue;
-    if (!name.startsWith(`${base}.`)) notes.push(sw().nameCut(base, n, NAME_MAX, name));
-    return { ok: true, name, caller, callerKarta, callerId, notes };
+    const name2 = satelliteName(base, n);
+    if (taken2.has(name2) || !claim(name2)) continue;
+    if (!name2.startsWith(`${base}.`)) notes.push(sw().nameCut(base, n, NAME_MAX, name2));
+    return { ok: true, name: name2, caller, callerKarta, callerId, notes };
   }
   return { ok: false, refusal: sw().allTaken(caller) };
 }
@@ -8311,8 +8353,8 @@ var openedConcurrently = (reply2) => {
 var LEAVE_CAP_MS = Number(process.env[envName("CASE_LEAVE_MS")]) || 1500;
 var joined = scoped(() => /* @__PURE__ */ new Map());
 var roomNo = (room) => room.replace(/^[#\u2116]\s*/, "");
-function noteCaseEntry(name, args, reply2) {
-  if (reply2.result?.isError || name !== tool("case")) return;
+function noteCaseEntry(name2, args, reply2) {
+  if (reply2.result?.isError || name2 !== tool("case")) return;
   const a = args ?? {};
   if (a.action !== "join" && a.action !== "leave") return;
   const room = typeof a.room === "string" ? a.room.trim() : "";
@@ -8466,14 +8508,14 @@ function localSuspend(msg) {
 var PAUSE_TTL_S = Math.floor(HOLD_RECORD_MAX_AGE_MS / 1e3);
 var REARM_CAP_MS = 1e3;
 async function rearmForPause(s2, drained) {
-  const name = s2.name ?? "";
+  const name2 = s2.name ?? "";
   if (!drained && !parkStanding(words(SUSPEND).reason())) return false;
   const args = {
     action: "connect",
     realm: s2.realm,
     karta: s2.karta,
-    name,
-    ...placeFields({ realm: s2.realm, karta: String(s2.karta), name }),
+    name: name2,
+    ...placeFields({ realm: s2.realm, karta: String(s2.karta), name: name2 }, false, "connect"),
     ttl_seconds: PAUSE_TTL_S
   };
   const connect5 = callTool(tool("channel"), args).then((r2) => {
@@ -8523,8 +8565,8 @@ async function busyBack(rec5) {
   const kept2 = st.doing ?? rec5.status;
   return st.ok ? resumeWords.busyRestored(kept2) : resumeWords.busyNotRestored(short(st.body));
 }
-async function resumeFromDisk(realm, karta, name) {
-  const key2 = keyOf(realm, karta, name);
+async function resumeFromDisk(realm, karta, name2) {
+  const key2 = keyOf(realm, karta, name2);
   const rec5 = readHoldRecord(key2);
   if (!rec5) return null;
   if (holdsKey(key2)) return null;
@@ -8532,7 +8574,7 @@ async function resumeFromDisk(realm, karta, name) {
   if (led && led !== key2) return null;
   if (await localSocketAlive(localSocketPathOf(key2))) return null;
   const prev = state.standing;
-  state.standing = { realm, karta, name };
+  state.standing = { realm, karta, name: name2 };
   const prevCwd = rec5.cwd ? noteStandCwd(rec5.cwd) : null;
   if (rec5.base) noteSeatBase(key2, rec5.base);
   noteResuming(1);
@@ -8811,10 +8853,10 @@ var REOPEN_LIMIT = 2;
 
 // js/bridge/separate.ts
 var sep2 = () => words(SEPARATE);
-var baseOf2 = (realm, karta, name) => seatBaseOf(keyOf(realm, karta, name)) ?? name;
+var baseOf2 = (realm, karta, name2) => seatBaseOf(keyOf(realm, karta, name2)) ?? name2;
 var suffixed = (base, n) => base.slice(0, NAME_MAX - `.${n}`.length).replace(/[-._]+$/, "") + `.${n}`;
-async function ownByRecord(realm, karta, name, cwd) {
-  const key2 = keyOf(realm, karta, name);
+async function ownByRecord(realm, karta, name2, cwd) {
+  const key2 = keyOf(realm, karta, name2);
   const rec5 = readHoldRecord(key2);
   const me = sessionOfBridge();
   if (!rec5) return false;
@@ -8822,25 +8864,25 @@ async function ownByRecord(realm, karta, name, cwd) {
   return mine && !await localSocketAlive(localSocketPathOf(key2));
 }
 var isTaken = (h) => h === "live" || h === "record" || h === "board" || h === "taken";
-async function holderOf(realm, karta, name, hearing, cwd) {
+async function holderOf(realm, karta, name2, hearing, cwd) {
   await heardOnReturn();
-  if (holdsStanding(realm, karta, name) || isParked(realm, karta, name)) return "mine";
-  if (wasEvicted(realm, karta, name)) return "board";
-  const key2 = keyOf(realm, karta, name);
+  if (holdsStanding(realm, karta, name2) || isParked(realm, karta, name2)) return "mine";
+  if (wasEvicted(realm, karta, name2)) return "board";
+  const key2 = keyOf(realm, karta, name2);
   if (ledKey() === key2) return "mine";
   const local = await localHolder(key2, cwd);
   if (local) return local === "self" ? "mine" : local === "session" ? "session" : "live";
   if (theirsByRecord(key2)) return "record";
-  const h = hearing(name);
+  const h = hearing(name2);
   if (h === "unknown") return "unknown";
-  return h === "other" && !await ownByRecord(realm, karta, name, cwd) ? "board" : "free";
+  return h === "other" && !await ownByRecord(realm, karta, name2, cwd) ? "board" : "free";
 }
 function theirsByRecord(key2) {
   const rec5 = readHoldRecord(key2);
   return !!rec5?.session && !rec5.left && rec5.session !== sessionOfBridge();
 }
 async function placeFor(realm, karta, base, hearing, cwd, taken2 = /* @__PURE__ */ new Set(), root = base) {
-  const holder = async (name) => taken2.has(name) ? "taken" : await holderOf(realm, karta, name, hearing, cwd);
+  const holder = async (name2) => taken2.has(name2) ? "taken" : await holderOf(realm, karta, name2, hearing, cwd);
   const first2 = await holder(base);
   if (first2 === "unknown") return { refusal: sep2().unknown(base) };
   if (!isTaken(first2)) {
@@ -8923,8 +8965,8 @@ function beginTaking(args) {
   const realm = typeof args.realm === "string" ? args.realm.trim() : "";
   if (!realm || action !== "connect" && action !== "mint") return () => {
   };
-  const name = normName(args.name);
-  const key2 = keyOf(realm, seatKarta(realm, args.karta, name), name);
+  const name2 = normName(args.name);
+  const key2 = keyOf(realm, seatKarta(realm, args.karta, name2), name2);
   let settle2 = () => {
   };
   const done = new Promise((res) => settle2 = res);
@@ -8973,12 +9015,12 @@ async function takenBySession(key2, url) {
     await new Promise((res) => setTimeout(res, LOOK_MS));
   }
 }
-async function standBeside(key2, s2, name, beside, once = false) {
+async function standBeside(key2, s2, name2, beside, once = false) {
   let moved2 = false;
   let reopened = false;
   let retry = once;
   for (; ; ) {
-    if (!moved2 && !wasEvicted(s2.realm, s2.karta, name)) return null;
+    if (!moved2 && !wasEvicted(s2.realm, s2.karta, name2)) return null;
     try {
       return await beside(s2, H2.standCwd);
     } catch (e) {
@@ -9013,16 +9055,16 @@ async function yieldPlace(key2, url, code) {
     releaseStanding(holdWords().takenBySession(), false, false, true);
     return;
   }
-  const name = s2?.name ?? "";
-  if (CFG.satellite || !s2 || !name || !beside)
+  const name2 = s2?.name ?? "";
+  if (CFG.satellite || !s2 || !name2 || !beside)
     return announceEvicted(code, holdWords().evicted(code));
-  const base = baseOf2(s2.realm, s2.karta, name);
-  announceEvicted(code, holdWords().evictedBeside(code, name, base));
+  const base = baseOf2(s2.realm, s2.karta, name2);
+  announceEvicted(code, holdWords().evictedBeside(code, name2, base));
   F.failed = null;
-  await besideAndSay(key2, s2, name, base, beside, [...state.places]);
+  await besideAndSay(key2, s2, name2, base, beside, [...state.places]);
 }
-async function besideAndSay(key2, s2, name, base, beside, extras3, once = false) {
-  const r = await standBeside(key2, s2, name, beside, once);
+async function besideAndSay(key2, s2, name2, base, beside, extras3, once = false) {
+  const r = await standBeside(key2, s2, name2, beside, once);
   if (!r) return;
   const others = [];
   if (r.ok)
@@ -9035,9 +9077,9 @@ async function besideAndSay(key2, s2, name, base, beside, extras3, once = false)
         holdWords().besideOther(`${x.name ?? ""} (${x.realm})`, !!again?.ok, again?.text ?? "")
       );
     }
-  F.failed = r.ok ? null : { key: key2, s: s2, name, base, extras: extras3 };
+  F.failed = r.ok ? null : { key: key2, s: s2, name: name2, base, extras: extras3 };
   const text2 = [
-    r.ok ? holdWords().besideDone(name, r.text) : holdWords().besideFailed(name, base, r.text),
+    r.ok ? holdWords().besideDone(name2, r.text) : holdWords().besideFailed(name2, base, r.text),
     ...others
   ].join("\n");
   log(text2);
@@ -9100,10 +9142,10 @@ function noteStanding(msg, reply2) {
   state.standingSession = state.sessionId;
   debug(`standing remembered: ${a.name ?? "(unnamed)"} at karta ${a.karta} in ${a.realm}`);
 }
-function rememberedPlace(realm, karta, name) {
+function rememberedPlace(realm, karta, name2) {
   const k = normKarta(karta);
   const prev = [state.standing, ...state.places].find((p) => p && !otherRealm(p.realm, realm));
-  const n = typeof name === "string" ? normName(name) : void 0;
+  const n = typeof name2 === "string" ? normName(name2) : void 0;
   return {
     realm: String(realm ?? ""),
     karta: k === "agent" && prev ? String(prev.karta) : k,
@@ -9329,16 +9371,16 @@ function absorbRevokeReply(msg, reply2) {
     return reply2;
   }
   if (!revokesOwn(msg)) return reply2;
-  const name = state.standing?.name ?? "unnamed";
+  const name2 = state.standing?.name ?? "unnamed";
   releaseStanding(holdWords().revokedOwn(), true, false, true);
   state.standing = null;
   state.standingSession = null;
-  log(`standing revoked by this session — released quietly, binding forgotten (${name})`);
+  log(`standing revoked by this session — released quietly, binding forgotten (${name2})`);
   return reply2;
 }
 
 // js/bridge/call.ts
-function leadsOtherPlace(realm, karta, name) {
+function leadsOtherPlace(realm, karta, name2) {
   const led = ledKey();
   const prim = state.standing;
   if (!led || !prim) return null;
@@ -9347,7 +9389,7 @@ function leadsOtherPlace(realm, karta, name) {
   const s2 = ex ? ex.standing : prim;
   if (!ex && otherRealm(realm, prim.realm)) return null;
   const k = normKarta(karta);
-  const n = normName(name);
+  const n = normName(name2);
   const sameKarta = k === "agent" || k === String(s2.karta);
   return sameKarta && n === (s2.name ?? "") ? null : beside ?? led;
 }
@@ -9396,21 +9438,21 @@ function crossPlaceRefusal(msg) {
     if (word3) return refusal(msg, word3);
   }
   const karta = normKarta(a.karta ?? state.standing?.karta ?? "");
-  const name = normName(a.name);
-  const led = leadsOtherPlace(realm, karta, name);
+  const name2 = normName(a.name);
+  const led = leadsOtherPlace(realm, karta, name2);
   if (!led) return null;
-  const asked = keyOf(realm, karta, name);
-  const sameName = name === (state.standing?.name ?? "");
+  const asked = keyOf(realm, karta, name2);
+  const sameName = name2 === (state.standing?.name ?? "");
   return refusal(msg, otherPlaceWord(led, asked, sameName, "unknown"));
 }
 var seq = 0;
-async function ask(name, args) {
+async function ask(name2, args) {
   const id = `${OWN_CALL_PREFIX}${++seq}`;
   const msg = {
     jsonrpc: "2.0",
     id,
     method: "tools/call",
-    params: { name, arguments: args }
+    params: { name: name2, arguments: args }
   };
   let reply2 = null;
   await post2(msg, (m) => {
@@ -9418,15 +9460,15 @@ async function ask(name, args) {
   });
   return { msg, got: reply2 };
 }
-var callTool = (name, args) => name === tool("channel") ? takingSeat(args, () => answer(name, args)) : answer(name, args);
-async function answer(name, args) {
-  let { msg, got } = await ask(name, args);
-  if (name === tool("channel") && args.action === "register" && openedConcurrently(got))
-    ({ msg, got } = await ask(name, args));
+var callTool = (name2, args) => name2 === tool("channel") ? takingSeat(args, () => answer(name2, args)) : answer(name2, args);
+async function answer(name2, args) {
+  let { msg, got } = await ask(name2, args);
+  if (name2 === tool("channel") && args.action === "register" && openedConcurrently(got))
+    ({ msg, got } = await ask(name2, args));
   if (!got) return { text: words(CALL).noReply(), isError: true };
   const structured = structuredOf(got);
   const refusal2 = refusalOf(got);
-  if (name === tool("channel")) {
+  if (name2 === tool("channel")) {
     noteLocaleEcho(args, replyText(got), structured);
     if (!got.error && !got.result?.isError) noteTaken(args);
     if (args.action === "register") noteStanding(msg, got);
@@ -9747,9 +9789,9 @@ var uw = () => words(UPDATE);
 var RAW_URL = process.env[envName("BRIDGE_RAW_URL")]?.trim() || `https://raw.githubusercontent.com/${SKILL_SET}`;
 var CHECK_INTERVAL_MS = 6 * 60 * 60 * 1e3;
 var FAILED_RETRY_MS = 15 * 60 * 1e3;
-var envMs = (name, dflt) => {
-  const v = Number(process.env[name]);
-  return process.env[name]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
+var envMs = (name2, dflt) => {
+  const v = Number(process.env[name2]);
+  return process.env[name2]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
 };
 var RETRY_FLOOR_MS = envMs(envName("BRIDGE_RETRY_FLOOR_MS"), 6e4);
 var RETRY_JITTER_MS = envMs(envName("BRIDGE_RETRY_JITTER_MS"), 6e4);
@@ -10179,13 +10221,13 @@ var needRealmKarta = (miss, of) => sw2().needRealmKarta(miss ? ` ${missWord(miss
 var knocks = scoped(() => /* @__PURE__ */ new Map());
 var KNOCK_REPEAT_AFTER_MS = Number(process.env[envName("STAND_KNOCK_REPEAT_MS")]) || 12e4;
 var KNOCK_LIMIT = 2;
-function resetKnocks(realm, karta, name) {
+function resetKnocks(realm, karta, name2) {
   for (const k of [...knocks.keys()])
-    if (k.startsWith(`${realm}|${karta}|${name}|`)) knocks.delete(k);
+    if (k.startsWith(`${realm}|${karta}|${name2}|`)) knocks.delete(k);
 }
 async function knock(k) {
-  const { realm, karta, name, room, roomKarta } = k;
-  const key2 = `${realm}|${karta}|${name}|${room}`;
+  const { realm, karta, name: name2, room, roomKarta } = k;
+  const key2 = `${realm}|${karta}|${name2}|${room}`;
   const prior = knocks.get(key2);
   const waited = prior ? Date.now() - prior.at : Infinity;
   if (prior && prior.count >= KNOCK_LIMIT) return sw2().knockTwice(room);
@@ -10456,27 +10498,33 @@ async function ownersOf(realm, k) {
   return seqs.includes(k);
 }
 
+// js/bridge/provisional.ts
+import { randomBytes as randomBytes4 } from "node:crypto";
+
+// js/shared/serviceid.ts
+var SERVICE_ID = `${ID_PREFIX}service-`;
+
 // js/bridge/standmoves.ts
 var mw = () => words(STAND_MOVES);
-var standCall = (realm, karta, name) => `${tool("stand")}(realm="${realm}", karta=${karta}${name ? `, name="${name}"` : ""})`;
+var standCall = (realm, karta, name2) => `${tool("stand")}(realm="${realm}", karta=${karta}${name2 ? `, name="${name2}"` : ""})`;
 function ledIn2(realm) {
   const prim = state.standing;
   return prim && sameRealm(prim.realm, realm) ? prim : extraIn(realm)?.standing;
 }
 var STANDS_IN_REALM = "channel_already_stands_in_realm";
 async function releasePrior(realm, prior) {
-  const name = prior.name ?? "";
-  const beside = extraOf(realm, prior.karta, name)?.door.key;
-  const args = { action: "revoke", realm, karta: String(prior.karta), standing: name };
+  const name2 = prior.name ?? "";
+  const beside = extraOf(realm, prior.karta, name2)?.door.key;
+  const args = { action: "revoke", realm, karta: String(prior.karta), standing: name2 };
   if (beside) setRevokingBeside(beside, true);
   const r = await callTool(tool("channel"), args).finally(() => {
     if (beside) setRevokingBeside(beside, false);
   });
   if (!r.isError) {
     if (beside) dropExtra(beside, holdWords().revokedOwn(), true, "own");
-    return { ok: true, note: mw().priorReleased(name) };
+    return { ok: true, note: mw().priorReleased(name2) };
   }
-  return { ok: false, note: mw().priorKept(name, short(r.text, 160), revokeCall(realm, prior)) };
+  return { ok: false, note: mw().priorKept(name2, short(r.text, 160), revokeCall(realm, prior)) };
 }
 var revokeCall = (realm, s2) => `${tool("channel")}(action="revoke", realm="${realm}", karta="${s2.karta}", standing="${s2.name ?? ""}")`;
 function besideHoldsMain(realm, prior, asked) {
@@ -10541,6 +10589,25 @@ function refusedWord(what, r, realm, afterConnect) {
   return afterConnect ?? sw2().refused(what, short(r.text));
 }
 
+// js/bridge/provisional.ts
+var P4 = scoped(() => ({ seat: null }));
+function name(base) {
+  const suffix = `.root-${randomBytes4(12).toString("hex")}`;
+  return (base || "root").slice(0, NAME_MAX - suffix.length).replace(/[.-]+$/, "") + suffix;
+}
+var takesProvisional = (msg) => msg.params?.arguments?.provisional === true && typeof msg.id === "string" && msg.id.startsWith(SERVICE_ID);
+function replacesProvisional(realm, own) {
+  const s2 = P4.seat;
+  const led = ledIn2(realm);
+  if (own || !s2 || !led) return false;
+  return sameRealm(s2.realm, led.realm) && s2.karta === String(led.karta) && s2.name === led.name;
+}
+function noteStood(own, realm, karta, name2) {
+  if (own) P4.seat = { realm, karta: String(karta), name: name2 };
+  else if (P4.seat && sameRealm(P4.seat.realm, realm)) P4.seat = null;
+}
+var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
+
 // js/bridge/standagain.ts
 async function formerSeat(realm, karta) {
   const cwd = sessionCwd();
@@ -10571,16 +10638,16 @@ async function connectInMove(before, seat2, again, first2) {
   return { ...re, taken: !re.c.isError && !re.own ? seat2 : null };
 }
 async function dropTaken(seat2) {
-  const { realm, karta, name } = seat2;
-  const own = holdsStanding(realm, karta, name);
+  const { realm, karta, name: name2 } = seat2;
+  const own = holdsStanding(realm, karta, name2);
   if (own) setRevokingOwn(true);
-  const args = { action: "revoke", realm, karta: String(karta), standing: name };
+  const args = { action: "revoke", realm, karta: String(karta), standing: name2 };
   const r = await callTool(tool("channel"), args).finally(() => {
     if (own) setRevokingOwn(false);
   });
-  if (r.isError && !own && H2.stopped.key === keyOf(realm, karta, name)) return null;
-  if (r.isError) return mw2().moveNotUndone(name, short(r.text, 160), revokeCall(realm, seat2));
-  if (own && holdsStanding(realm, karta, name)) forgetSeat(holdWords().revokedOwn());
+  if (r.isError && !own && H2.stopped.key === keyOf(realm, karta, name2)) return null;
+  if (r.isError) return mw2().moveNotUndone(name2, short(r.text, 160), revokeCall(realm, seat2));
+  if (own && holdsStanding(realm, karta, name2)) forgetSeat(holdWords().revokedOwn());
   return null;
 }
 async function stopGuard(msg, run) {
@@ -10681,6 +10748,7 @@ async function standOnce(msg) {
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
   const a = msg.params?.arguments ?? {};
+  const auto = takesProvisional(msg);
   const stopsBefore = stopsNow();
   let realm = typeof a.realm === "string" ? a.realm.trim() : "";
   let karta = a.karta != null ? normKarta(a.karta) : "";
@@ -10716,10 +10784,7 @@ async function standOnce(msg) {
     }
   }
   const notOwner = await ownerRefusal(realm, karta);
-  if (notOwner) {
-    lines.push(notOwner);
-    return done(true);
-  }
+  if (notOwner) return lines.push(notOwner), done(true);
   const gate = await satelliteGate(a, realm, karta, asked);
   if (gate && !gate.ok) {
     lines.push(gate.refusal);
@@ -10730,31 +10795,29 @@ async function standOnce(msg) {
   const parts = asked || sat ? null : deriveParts(model, cwd);
   const fitted = parts ? fitName(parts) : null;
   const derived = asked || sat ? "" : fitted?.name ?? "";
-  let name = asked || sat?.name || derived;
-  const base = sat ? "" : name;
-  realm = await seatRealm(realm, name);
-  karta = seatKarta(realm, karta, name);
+  let name2 = asked || sat?.name || (auto ? name(derived) : derived);
+  const base = sat ? "" : name2;
+  realm = await seatRealm(realm, name2);
+  karta = seatKarta(realm, karta, name2);
   const led0 = state.standing && !otherRealm(state.standing.realm, realm) ? state.standing : null;
   const ledSuffix = !!base && !!led0 && String(led0.karta) === String(karta) && led0.name !== base && baseOf2(led0.realm, led0.karta, led0.name ?? "") === base;
   const besideTaken = ledSuffix && !!led0 && wasEvicted(led0.realm, led0.karta, led0.name ?? "");
-  if (ledSuffix && !besideTaken && a.take !== true) name = led0?.name ?? name;
+  if (ledSuffix && !besideTaken && a.take !== true) name2 = led0?.name ?? name2;
   const ledThere = sat ? void 0 : ledIn2(realm);
-  const prior = a.take === true && ledThere?.name && (ledThere.name !== name || String(ledThere.karta) !== karta) ? { ...ledThere } : null;
+  const replaces = replacesProvisional(realm, auto);
+  const prior = (a.take === true || replaces) && ledThere?.name && (ledThere.name !== name2 || String(ledThere.karta) !== karta) ? { ...ledThere } : null;
   if (parts && fitted && fitted.cut.length) {
     const what = fitted.cut.map((k) => sw2().cutPart(k)).join(", ");
-    nameNotes.push(sw2().nameCut(joinName(parts), NAME_MAX, name, what));
+    nameNotes.push(sw2().nameCut(joinName(parts), NAME_MAX, name2, what));
   }
   if (!asked && !sat && !model) nameNotes.push(sw2().noModel());
   const room = typeof a.room === "string" && a.room.trim() ? a.room.trim() : null;
   const unresolved2 = unresolvedRefusal(realm) ?? unresolvedAgent(karta, "connect");
-  if (unresolved2) {
-    lines.push(unresolved2);
-    return done(true);
-  }
-  const led = besideTaken ? null : leadsOtherPlace(realm, karta, name);
-  if (led && a.take !== true) {
-    const hearing2 = await askedHearing(realm, karta, name, cwd);
-    lines.push(otherPlaceWord(led, keyOf(realm, karta, name), name === ledName(), hearing2));
+  if (unresolved2) return lines.push(unresolved2), done(true);
+  const led = besideTaken ? null : leadsOtherPlace(realm, karta, name2);
+  if (led && a.take !== true && !replaces) {
+    const hearing2 = await askedHearing(realm, karta, name2, cwd);
+    lines.push(otherPlaceWord(led, keyOf(realm, karta, name2), name2 === ledName(), hearing2));
     return done(true);
   }
   const noChannel = besideRefusal(realm, "stand");
@@ -10762,13 +10825,13 @@ async function standOnce(msg) {
     lines.push(noChannel);
     return done(true);
   }
-  const holdsMain = prior ? besideHoldsMain(realm, prior, name) : null;
+  const holdsMain = prior ? besideHoldsMain(realm, prior, name2) : null;
   if (holdsMain) return lines.push(holdsMain), done(true);
   const prim = state.standing;
-  const beside = !!prim && otherRealm(realm, prim.realm) && !holdsStanding(realm, karta, name);
+  const beside = !!prim && otherRealm(realm, prim.realm) && !holdsStanding(realm, karta, name2);
   noteStandCwd(cwd);
-  const here = () => placeFields({ realm, karta, name }, true);
-  const reg = () => callTool(tool("channel"), { action: "register", realm, karta, name, ...here() });
+  const here = (move = "register") => placeFields({ realm, karta, name: name2 }, true, move);
+  const reg = () => callTool(tool("channel"), { action: "register", realm, karta, name: name2, ...here() });
   const { register, kept: modelKept } = clearingRegister(reg, realm);
   const board = await callTool(tool("channel"), { action: "list", realm });
   if (board.isError) {
@@ -10777,19 +10840,19 @@ async function standOnce(msg) {
   }
   const bd = readBoard(board);
   const { entries: entries2, recognized, declared } = bd;
-  let own = entries2.filter((e) => ofSeat(e, karta, name));
+  let own = entries2.filter((e) => ofSeat(e, karta, name2));
   const unread = declared != null && declared !== entries2.length;
   const hearing = (n) => boardHearing(bd, karta, n);
-  if (!recognized || own.length > 1 || hearing(name) === "unknown" && a.take !== true) {
+  if (!recognized || own.length > 1 || hearing(name2) === "unknown" && a.take !== true) {
     lines.push(
-      !recognized ? sw2().boardUnknown(short(board.text, 160), ...boardHeaders()) : own.length > 1 ? sw2().boardAmbiguous(own.length, name, karta) : sw2().boardCount(declared ?? 0, entries2.length)
+      !recognized ? sw2().boardUnknown(short(board.text, 160), ...boardHeaders()) : own.length > 1 ? sw2().boardAmbiguous(own.length, name2, karta) : sw2().boardCount(declared ?? 0, entries2.length)
     );
     return done(true);
   }
   let ownSession = false;
   let byRecord = null;
   const root = !base ? "" : asked ? baseOf2(realm, karta, base) : base;
-  if (base && (a.take !== true || beside) && name === base) {
+  if (base && (a.take !== true || beside) && name2 === base) {
     const seat2 = await seatFor(realm, karta, base, hearing, beside, cwd, root);
     const choice = seat2.choice;
     byRecord = seat2.resumed;
@@ -10797,24 +10860,24 @@ async function standOnce(msg) {
       lines.push(choice.refusal);
       return done(true);
     }
-    name = choice.name;
+    name2 = choice.name;
     ownSession = choice.own;
-    own = entries2.filter((e) => ofSeat(e, karta, name));
+    own = entries2.filter((e) => ofSeat(e, karta, name2));
     if (own.length > 1) {
-      lines.push(sw2().boardAmbiguous(own.length, name, karta));
+      lines.push(sw2().boardAmbiguous(own.length, name2, karta));
       return done(true);
     }
     if (choice.note) nameNotes.push(choice.note);
   }
-  if (base) noteSeatBase(keyOf(realm, karta, name), root);
+  if (base) noteSeatBase(keyOf(realm, karta, name2), root);
   const take2 = a.take === true || ownSession;
-  const stem = name.split(".").slice(0, 2).join(".");
+  const stem = name2.split(".").slice(0, 2).join(".");
   const branches = new Set(
     git(["branch", "--format=%(refname:short)"], cwd).split("\n").map((x) => sanitize(x.trim())).filter(Boolean)
   );
   const legacy = entries2.filter((e) => {
     if (sat) return false;
-    if (e.karta !== karta || nameOf(e.address) === name) return false;
+    if (e.karta !== karta || nameOf(e.address) === name2) return false;
     const own2 = nameOf(e.address);
     if (!own2.startsWith(`${stem}.`)) return false;
     const third = own2.slice(stem.length + 1);
@@ -10825,11 +10888,11 @@ async function standOnce(msg) {
   const mine = own[0];
   let how2;
   let heardHere;
-  const reopening = !sat && !holdsStanding(realm, karta, name) && ledHere(realm, karta, name);
-  const listensElsewhere = !!mine && listens(mine) && !holdsStanding(realm, karta, name) && !reopening;
-  const fresh2 = !sat && !take2 && !reopening && !holdsStanding(realm, karta, name) && !isParked(realm, karta, name) && !theirsByRecord(keyOf(realm, karta, name));
-  const resumed = byRecord ?? (fresh2 && !listensElsewhere ? await resumeFromDisk(realm, karta, name) : null);
-  const stopped = stoppedSince(stopsBefore, keyOf(realm, karta, name));
+  const reopening = !sat && !holdsStanding(realm, karta, name2) && ledHere(realm, karta, name2);
+  const listensElsewhere = !!mine && listens(mine) && !holdsStanding(realm, karta, name2) && !reopening;
+  const fresh2 = !sat && !take2 && !reopening && !holdsStanding(realm, karta, name2) && !isParked(realm, karta, name2) && !theirsByRecord(keyOf(realm, karta, name2));
+  const resumed = byRecord ?? (fresh2 && !listensElsewhere ? await resumeFromDisk(realm, karta, name2) : null);
+  const stopped = stoppedSince(stopsBefore, keyOf(realm, karta, name2));
   if (stopped) {
     lines.push(stopped);
     return done(true);
@@ -10846,7 +10909,7 @@ async function standOnce(msg) {
       lines.push(refusedWord("register", r, realm));
       return done(true);
     }
-    heardHere = holdsStanding(realm, karta, name);
+    heardHere = holdsStanding(realm, karta, name2);
     if (heardHere && !standingIdIn(realm)) extra.push(sw2().noIdInRegister());
     how2 = sw2().howBeside(ledKey() ?? "");
   } else if (resumed) {
@@ -10858,14 +10921,14 @@ async function standOnce(msg) {
     heardHere = true;
     socketBefore = true;
     how2 = `${resumed.word}, register`;
-  } else if (!take2 && isParked(realm, karta, name) && returnToStanding(tool("stand"))) {
+  } else if (!take2 && isParked(realm, karta, name2) && returnToStanding(tool("stand"))) {
     await heardOnReturn();
-    const stoppedBack = stoppedSince(stopsBefore, keyOf(realm, karta, name));
+    const stoppedBack = stoppedSince(stopsBefore, keyOf(realm, karta, name2));
     if (stoppedBack) {
       lines.push(stoppedBack);
       return done(true);
     }
-    if (!holdsStanding(realm, karta, name) && !R5.again) {
+    if (!holdsStanding(realm, karta, name2) && !R5.again) {
       R5.again = true;
       try {
         return await standOnce(msg);
@@ -10880,7 +10943,7 @@ async function standOnce(msg) {
     }
     heardHere = true;
     how2 = sw2().howReturned();
-  } else if (!take2 && (holdsStanding(realm, karta, name) || reopening)) {
+  } else if (!take2 && (holdsStanding(realm, karta, name2) || reopening)) {
     const r = await register();
     if (r.isError) {
       lines.push(refusedWord("register", r, realm));
@@ -10890,16 +10953,16 @@ async function standOnce(msg) {
     socketBefore = true;
     how2 = sw2().howRegister();
   } else if (!take2 && listensElsewhere) {
-    lines.push(sw2().otherHolder(mine?.address ?? name));
+    lines.push(sw2().otherHolder(mine?.address ?? name2));
     return done(true);
   } else {
-    const args = { action: "connect", realm, karta, name };
-    Object.assign(args, here());
+    const args = { action: "connect", realm, karta, name: name2 };
+    Object.assign(args, here("connect"));
     if (typeof a.mute_siblings === "boolean") args.mute_siblings = a.mute_siblings;
     if (sat) args.ttl_seconds = SATELLITE_TTL_S;
     const addr = heldAddress(realm, prior);
     const connect5 = () => callTool(tool("channel"), args);
-    const re = await connectInMove(stopsBefore, { realm, karta, name }, connect5, async () => {
+    const re = await connectInMove(stopsBefore, { realm, karta, name: name2 }, connect5, async () => {
       const c0 = await connect5();
       if (!sat || !c0.isError || !ttlRefused(c0)) return c0;
       extra.push(sw2().ttlRefused(SATELLITE_TTL_S, short(c0.text, 120)));
@@ -10917,17 +10980,17 @@ async function standOnce(msg) {
       lines.push(await registerRefused(r, realm, taken2, prior, addr));
       return done(true);
     }
-    resetKnocks(realm, karta, name);
+    resetKnocks(realm, karta, name2);
     heardHere = true;
     socketBefore = ownReopen;
     how2 = ownReopen ? sw2().howRegister() : ownSession ? sw2().howOwnSession() : sw2().howConnect(!!mine, listensElsewhere, a.take === true);
     if (takeLapsed()) extra.push(sw2().note(resumeWords.rejoin()));
     const freed = prior ? await releasePrior(realm, prior) : null;
-    if (freed) extra.push(sw2().note(freed.note));
+    if (freed) extra.push(sw2().note(releasedNote(replaces, freed, prior?.name ?? "")));
     priorKept = !!freed && !freed.ok;
   }
   lines.push(
-    sw2().head(mine?.address ?? name, karta, realm, how2),
+    sw2().head(mine?.address ?? name2, karta, realm, how2),
     ...nameNotes.map((n) => sw2().note(n)),
     ...extra,
     ...modelKept() ? [sw2().modelNotCleared(modelKept())] : []
@@ -10950,10 +11013,10 @@ async function standOnce(msg) {
     const onBoard = entries2.find((e) => e.address === room);
     const roomKarta = onBoard?.karta ?? (typeof a.room_karta === "string" && a.room_karta.trim() ? a.room_karta.trim().replace(/^#/, "") : null);
     lines.push(
-      await knock({ realm, karta, name, room, roomKarta, again: a.repeat_knock === true })
+      await knock({ realm, karta, name: name2, room, roomKarta, again: a.repeat_knock === true })
     );
   }
-  if (typeof a.status === "string" && a.status.trim() && !hasStatusAddressFor(realm, karta, name)) {
+  if (typeof a.status === "string" && a.status.trim() && !hasStatusAddressFor(realm, karta, name2)) {
     lines.push(sw2().statusElsewhere(TAKE_PATH()));
   } else if (typeof a.status === "string" && a.status.trim()) {
     const st = await publishStatus(a.status.trim(), realm);
@@ -10963,18 +11026,19 @@ async function standOnce(msg) {
   }
   const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
   if (stale) lines.push(stale);
+  if (!priorKept) noteStood(auto, realm, karta, name2);
   return done(priorKept);
 }
 
 // js/bridge/standwire.ts
 async function standAs(id, place, cwd) {
-  const { realm, karta, name } = place;
+  const { realm, karta, name: name2 } = place;
   const where = cwd && isDirectory2(cwd) ? { cwd } : {};
   const r = await runStand({
     jsonrpc: "2.0",
     id,
     method: "tools/call",
-    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } }
+    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name: name2, ...where } }
   });
   const text2 = (r.result?.content ?? []).map((c) => c.text ?? "");
   return { ok: !r.result?.isError, text: text2.join("\n") };
@@ -10995,7 +11059,7 @@ wireTakeOwn(
 
 // js/bridge/stophold.ts
 var whoOf3 = (reason) => reason === "revoked:person" ? "person" : reason === "revoked:self" ? "self" : "other";
-var stopWord = (name, reason) => words(STOP).stopped(name, whoOf3(reason));
+var stopWord = (name2, reason) => words(STOP).stopped(name2, whoOf3(reason));
 function dropUnsent(key2, doors2) {
   const n = doors2.reduce((sum, d) => sum + (d?.dropBatches() ?? 0), 0);
   if (n) standingLog(`stopped ${key2}: ${n} undelivered frame(s) dropped, not given`);
@@ -11089,35 +11153,6 @@ async function ordersSettled() {
   }
 }
 
-// js/bridge/orderhalt.ts
-var HALT_WAIT_MS = Number(process.env[envName("ORDER_HALT_MS")]) || 2e4;
-var SILENT = "harness_silent";
-var CODE = /^[a-z][a-z0-9_]{0,63}$/;
-var waiting = /* @__PURE__ */ new Map();
-var obj4 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
-var confirmsHalts = () => HALTS_CAPABILITY in obj4(obj4(obj4(state.initParams).capabilities).experimental);
-function awaitHalt(order, ms2 = HALT_WAIT_MS) {
-  return new Promise((resolve11) => {
-    const t = setTimeout(() => done(SILENT), ms2);
-    t.unref?.();
-    const done = (code) => {
-      clearTimeout(t);
-      if (waiting.get(order) === done) waiting.delete(order);
-      resolve11(code);
-    };
-    waiting.set(order, done);
-  });
-}
-function localHalted(msg) {
-  if (msg?.method !== method("halted")) return null;
-  const p = obj4(msg.params);
-  const order = typeof p.order === "string" ? p.order : "";
-  const code = typeof p.code === "string" && CODE.test(p.code) ? p.code : "harness_refused";
-  const done = waiting.get(order);
-  done?.(p.ok === true ? null : code);
-  return Promise.resolve({ jsonrpc: "2.0", id: msg.id, result: { taken: !!done } });
-}
-
 // js/bridge/orderread.ts
 var PAGE = 200;
 var MAX_PAGES = 50;
@@ -11201,9 +11236,10 @@ async function stopOf(o, entry) {
     return { ...entry, state: "failed", reason: "stop_failed" };
   }
   if (seat2 === null) return { ...entry, state: "unknown", reason: "seat_gone_before_stop" };
-  if (seat2 === "beside" || !confirms) return { ...entry, state: "stopped" };
+  if (seat2 === "beside") return { ...entry, state: "stopped", reason: "seat_beside" };
+  if (!confirms) return { ...entry, state: "stopped", reason: "word_given" };
   const code = await awaitHalt(o.id);
-  if (code === null) return { ...entry, state: "stopped" };
+  if (code === null) return { ...entry, state: "stopped", reason: "halt_confirmed" };
   log(`stop order ${o.id}: the harness's stop — ${code}`);
   return code === SILENT ? { ...entry, state: "unknown", reason: SILENT } : { ...entry, state: "failed", reason: code };
 }
@@ -11331,10 +11367,10 @@ function outsideSetRefusal(msg) {
   if (msg?.method !== "tools/call" || msg.id === void 0 || msg.id === null) return null;
   if (ownRealmList(msg)) return null;
   const set = toolSet();
-  const name = String(msg.params?.name ?? "");
-  if (!set || set.has(name)) return null;
+  const name2 = String(msg.params?.name ?? "");
+  if (!set || set.has(name2)) return null;
   const list3 = [...set].sort().join(", ");
-  const text2 = words(NARROW).outsideSet(name, list3);
+  const text2 = words(NARROW).outsideSet(name2, list3);
   return {
     jsonrpc: "2.0",
     id: msg.id,
@@ -11414,7 +11450,7 @@ var lastAgentWork = () => W3.at;
 // js/bridge/pulse.ts
 var GAP_MS = Number(process.env[envName("PULSE_GAP_MS")]) || 3e4;
 var STATES = /* @__PURE__ */ new Set(["idle", "busy", "interrupted", "failed", "unknown"]);
-var P4 = scoped(() => ({
+var P5 = scoped(() => ({
   /** The harness's word: state and the moments it knows. */
   said: {},
   sent: null,
@@ -11424,7 +11460,7 @@ var P4 = scoped(() => ({
 }));
 var iso = (v) => typeof v === "string" && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : void 0;
 function current() {
-  const { state: state2, turn_at, read_at } = P4.said;
+  const { state: state2, turn_at, read_at } = P5.said;
   const work = lastAgentWork();
   return {
     type: "pulse",
@@ -11437,56 +11473,56 @@ function current() {
 }
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function send(p, holder = H2.holder) {
-  if (P4.timer) clearTimeout(P4.timer);
-  P4.timer = null;
+  if (P5.timer) clearTimeout(P5.timer);
+  P5.timer = null;
   if (!holder?.send(JSON.stringify(p))) return;
-  P4.sent = p;
-  P4.sentAt = Date.now();
+  P5.sent = p;
+  P5.sentAt = Date.now();
 }
 function consider(now2 = false) {
   if (!H2.holder?.alive || H2.unheard) return;
   const p = current();
-  if (same(P4.sent, p)) return;
-  const wait = now2 ? 0 : P4.sentAt + GAP_MS - Date.now();
+  if (same(P5.sent, p)) return;
+  const wait = now2 ? 0 : P5.sentAt + GAP_MS - Date.now();
   if (wait <= 0) return send(p);
-  if (!P4.timer) {
-    P4.timer = setTimeout(
+  if (!P5.timer) {
+    P5.timer = setTimeout(
       bindScope(() => {
-        P4.timer = null;
+        P5.timer = null;
         consider();
       }),
       wait
     );
-    P4.timer.unref?.();
+    P5.timer.unref?.();
   }
 }
 function watch() {
-  if (P4.tick) return;
-  P4.tick = setInterval(
+  if (P5.tick) return;
+  P5.tick = setInterval(
     bindScope(() => {
       if (H2.holder?.alive) return consider();
       if (H2.door) return;
-      clearInterval(P4.tick ?? void 0);
-      P4.tick = null;
+      clearInterval(P5.tick ?? void 0);
+      P5.tick = null;
     }),
     GAP_MS
   );
-  P4.tick.unref?.();
+  P5.tick.unref?.();
 }
 whenPulsed((why, holder) => {
   if (why === "hello") {
-    P4.sent = null;
+    P5.sent = null;
     watch();
     return consider(true);
   }
   if (why === "frame") return consider();
   const p = current();
-  if (!same(P4.sent, p)) send(p, holder);
-  if (P4.timer) clearTimeout(P4.timer);
-  P4.timer = null;
+  if (!same(P5.sent, p)) send(p, holder);
+  if (P5.timer) clearTimeout(P5.timer);
+  P5.timer = null;
 });
 onAgentWork(() => consider());
-var sentPulse = () => P4.sent ? { ...P4.sent, sent_at: new Date(P4.sentAt).toISOString() } : null;
+var sentPulse = () => P5.sent ? { ...P5.sent, sent_at: new Date(P5.sentAt).toISOString() } : null;
 var isPulseCall = (msg) => msg?.method === method("pulse");
 function runPulse(msg) {
   const answer2 = (result) => ({
@@ -11496,13 +11532,13 @@ function runPulse(msg) {
   });
   if (!HOSTED_CLIENTS.has(harnessName())) return answer2({ taken: false, pulse: null });
   const p = msg.params ?? {};
-  const said2 = { ...P4.said };
+  const said2 = { ...P5.said };
   if (typeof p.state === "string" && STATES.has(p.state)) said2.state = p.state;
   for (const k of ["turn_at", "read_at"]) {
     const v = iso(p[k]);
     if (v && (!said2[k] || v > said2[k])) said2[k] = v;
   }
-  P4.said = said2;
+  P5.said = said2;
   try {
     consider();
   } catch (e) {
@@ -12001,9 +12037,9 @@ function sessionSnapshot(local_id, engine, thin_pid, attached, build) {
 }
 
 // js/bridge/daemon.ts
-var ms = (name, dflt) => {
-  const v = Number(process.env[name]);
-  return process.env[name]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
+var ms = (name2, dflt) => {
+  const v = Number(process.env[name2]);
+  return process.env[name2]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
 };
 var LOG_MARK = new RegExp(`\\[${escapeRe(BRIDGE_NAME)} [^\\]]*\\] `);
 var IDLE_MS = ms(envName("BRIDGE_DAEMON_IDLE_MS"), 6e4);
@@ -12802,10 +12838,10 @@ import { homedir as homedir8 } from "node:os";
 import { join as join26 } from "node:path";
 
 // js/shared/appserver.ts
-import { randomBytes as randomBytes4 } from "node:crypto";
+import { randomBytes as randomBytes5 } from "node:crypto";
 import { request } from "node:http";
 function frame(data) {
-  const mask = randomBytes4(4);
+  const mask = randomBytes5(4);
   let head;
   if (data.length < 126) head = Buffer.from([129, 128 | data.length]);
   else if (data.length < 65536) {
@@ -12832,7 +12868,7 @@ function openDoor(socketPath, onMessage, onClose) {
         Connection: "Upgrade",
         Upgrade: "websocket",
         "Sec-WebSocket-Version": "13",
-        "Sec-WebSocket-Key": randomBytes4(16).toString("base64")
+        "Sec-WebSocket-Key": randomBytes5(16).toString("base64")
       }
     });
     req.on("upgrade", (_res, socket) => {
@@ -13795,13 +13831,13 @@ function formOf2(e) {
   }
   return e.args.includes("--satellite") ? "path" : "session";
 }
-var P5 = PRODUCT_PATTERN;
+var P6 = PRODUCT_PATTERN;
 var HOME_DIR_RE = new RegExp(escapeRe(HOME_DIR));
-var EVAL_PATH_RE = new RegExp(`['"\`]([^'"\`]*${P5}[^'"\`]*\\.mjs)['"\`]`);
+var EVAL_PATH_RE = new RegExp(`['"\`]([^'"\`]*${P6}[^'"\`]*\\.mjs)['"\`]`);
 var SHELL_PATH_RE = new RegExp(
-  `"([^"]*${P5}[^"]*\\.mjs)"|'([^']*${P5}[^']*\\.mjs)'|(\\S*${P5}\\S*\\.mjs)`
+  `"([^"]*${P6}[^"]*\\.mjs)"|'([^']*${P6}[^']*\\.mjs)'|(\\S*${P6}\\S*\\.mjs)`
 );
-var ARG_PATH_RE = new RegExp(`${P5}[^\\\\/]*\\.mjs$`, "i");
+var ARG_PATH_RE = new RegExp(`${P6}[^\\\\/]*\\.mjs$`, "i");
 var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir9()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir9());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
@@ -13820,10 +13856,10 @@ function bridgePathOf(e) {
   const arg = [e.command, ...e.args].find((a) => ARG_PATH_RE.test(a));
   return arg ? expandHome(arg) : null;
 }
-function readyEntry(name, disallowed, tail2 = []) {
+function readyEntry(name2, disallowed, tail2 = []) {
   return [
     "mcpServers:",
-    `  - ${name}:`,
+    `  - ${name2}:`,
     "      type: stdio",
     "      command: node",
     `      args: [${[...SATELLITE_ARGS, ...tail2].map((a) => JSON.stringify(a)).join(", ")}]`,
@@ -13915,12 +13951,12 @@ async function probeSatellite(label, e, cwd) {
     const info = init.result?.serverInfo ?? {};
     const list3 = await ask3(2, "tools/list", {});
     const tools = list3?.result?.tools ?? [];
-    const name = info.name ?? "?";
+    const name2 = info.name ?? "?";
     const version = info.version ?? "?";
-    if (!list3) findings.push(sw3().noList(label, name, version, exited));
+    if (!list3) findings.push(sw3().noList(label, name2, version, exited));
     else if (list3.error) findings.push(refusal2("tools/list", list3.error.message));
     else {
-      lines.push(sw3().answered(label, name, version, tools.length));
+      lines.push(sw3().answered(label, name2, version, tools.length));
       for (const t of tools) {
         const bad = ["oneOf", "allOf", "anyOf"].filter((k) => t.inputSchema && k in t.inputSchema);
         if (bad.length) findings.push(sw3().schema(t.name, bad.join(", ")));
@@ -13978,13 +14014,13 @@ function entriesOf(fm) {
         for (const [k, v] of Object.entries(item)) pairs.push([k, v]);
     }
   } else if (raw && typeof raw === "object") pairs.push(...Object.entries(raw));
-  return pairs.map(([name, v]) => {
+  return pairs.map(([name2, v]) => {
     const spec = v && typeof v === "object" && !Array.isArray(v) ? v : {};
     const args = Array.isArray(spec.args) ? spec.args.map((a) => str4(a)) : [];
     const env2 = {};
     if (spec.env && typeof spec.env === "object" && !Array.isArray(spec.env))
       for (const [k, e] of Object.entries(spec.env)) env2[k] = str4(e);
-    return { name, ref: v === null, command: str4(spec.command), args, env: env2 };
+    return { name: name2, ref: v === null, command: str4(spec.command), args, env: env2 };
   });
 }
 var listOf = (v) => Array.isArray(v) ? v.map((x) => str4(x).trim()).filter(Boolean) : str4(v).split(",").map((x) => x.trim()).filter(Boolean);
@@ -14147,10 +14183,10 @@ async function subagentsReport(out7) {
     let probeEntry = null;
     const own = sat.map((e) => `mcp__${e.name}`);
     const disallowed = listOf(f.fm.disallowedTools).map((d) => d.replace(/__\*$/, ""));
-    const block = (name, e) => subWords().withBlock(
+    const block = (name2, e) => subWords().withBlock(
       readyEntry(
-        name,
-        [.../* @__PURE__ */ new Set([...disallowed, ...required])].filter((p) => p !== `mcp__${name}`),
+        name2,
+        [.../* @__PURE__ */ new Set([...disallowed, ...required])].filter((p) => p !== `mcp__${name2}`),
         e ? toolsTail(e) : []
       )
     );
@@ -14171,10 +14207,10 @@ async function subagentsReport(out7) {
     for (const e of sat) {
       byName.set(e.name, [...byName.get(e.name) ?? [], f.path]);
       if (e.name === SUB_ENTRY_PREFIX) lines.push(subWords().sharedName(f.agent));
-      const name = e.name === SUB_ENTRY_PREFIX ? expected : e.name;
+      const name2 = e.name === SUB_ENTRY_PREFIX ? expected : e.name;
       const form = formOf2(e);
       if (form !== "eval") {
-        lines.push(subWords().replaceEntry(e.name, formWord(form), block(name, e)));
+        lines.push(subWords().replaceEntry(e.name, formWord(form), block(name2, e)));
         if (!probeEntry && existsSync11(homeBridgePath())) probeEntry = canonical(e);
         continue;
       }
@@ -14197,10 +14233,10 @@ async function subagentsReport(out7) {
     for (const o of own.filter((o2) => disallowed.includes(o2))) lines.push(subWords().ownRemoved(o));
     reports.push({ f, lines, probe: probeEntry, names: sat.map((e) => e.name) });
   }
-  for (const [name, files] of byName) {
+  for (const [name2, files] of byName) {
     if (files.length < 2) continue;
     for (const r of reports.filter((r2) => files.includes(r2.f.path)))
-      r.lines.push(subWords().nameShared(name, files.length, files.join(", "), r.f.agent));
+      r.lines.push(subWords().nameShared(name2, files.length, files.join(", "), r.f.agent));
   }
   const grant = hasGrant();
   let noGrantSaid = false;
@@ -14299,7 +14335,7 @@ var readJson = (p) => {
   }
 };
 var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => typeof v?.url === "string" && graphServer(v.url)).map(([n, v]) => [n, String(v.url)]);
-var say = (out7, where, name, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name, url, remove)}`);
+var say = (out7, where, name2, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name2, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
   const file = join29(homedir12(), ".claude.json");
@@ -14489,15 +14525,15 @@ function openCodeMcpEntries(out7) {
   for (const [file, text2] of sources) {
     try {
       const cfg = parse(text2);
-      for (const [name, v] of Object.entries(cfg.mcp ?? {})) {
+      for (const [name2, v] of Object.entries(cfg.mcp ?? {})) {
         const kind = kindOf2(v);
         if (!kind) continue;
         found++;
         if (v.enabled === false) {
-          out7(hw4().ocDisabled(name, file));
+          out7(hw4().ocDisabled(name2, file));
           continue;
         }
-        out7(kind === "bridge" ? hw4().ocBridge(name, file, bridgePath(v)) : hw4().ocHttp(name, file));
+        out7(kind === "bridge" ? hw4().ocBridge(name2, file, bridgePath(v)) : hw4().ocHttp(name2, file));
       }
     } catch {
       unreadable++;
@@ -14769,13 +14805,13 @@ function harnessReport() {
         ([, v]) => (v.args ?? []).some((a) => PRODUCT_RE.test(a))
       );
       if (entries2.length) {
-        for (const [name, v] of entries2) {
-          out3(dw().claudeEntry(name, v.command ?? "", (v.args ?? []).join(" ")));
+        for (const [name2, v] of entries2) {
+          out3(dw().claudeEntry(name2, v.command ?? "", (v.args ?? []).join(" ")));
           launches.push({
-            who: `Claude Code «${name}»`,
+            who: `Claude Code «${name2}»`,
             harness: "claude",
             command: v.command ?? "",
-            entry: name
+            entry: name2
           });
         }
       } else out3(dw().claudeNoManual());
@@ -14912,22 +14948,22 @@ async function runHooks(hooks, sessionID) {
   const hit = [];
   const broken = [];
   const c = calls(sessionID);
-  for (const [name, inputs] of [
+  for (const [name2, inputs] of [
     ["execute.before", c.before],
     ["execute.before", c.plain],
     ["execute.after", c.after]
   ]) {
     for (const input of inputs) {
       const was = JSON.stringify(input);
-      const what = `${name} ${input.tool}${isPlain(input.id) ? " (not a memory path)" : ""}`;
-      for (const fn of hooks[name] ?? []) {
+      const what = `${name2} ${input.tool}${isPlain(input.id) ? " (not a memory path)" : ""}`;
+      for (const fn of hooks[name2] ?? []) {
         try {
           await fn(input);
         } catch (e) {
           const err = e;
           const said2 = `${what}: throw (${err?.name ?? "?"}: ${String(err?.message ?? e)})`;
           hit.push(said2);
-          if (BROKEN.has(err?.name) || isPlain(input.id) || name === "execute.after")
+          if (BROKEN.has(err?.name) || isPlain(input.id) || name2 === "execute.after")
             broken.push(said2);
         }
       }
@@ -15008,7 +15044,7 @@ async function probeWith(file, own, alias, foreign) {
   const ctx = context({
     location: { directory: alias },
     session,
-    tool: loose({ hook: async (name, fn) => void (hooks[name] ??= []).push(fn) }),
+    tool: loose({ hook: async (name2, fn) => void (hooks[name2] ??= []).push(fn) }),
     event: loose({
       subscribe: ({ signal } = {}) => {
         subscribed = true;
@@ -15065,8 +15101,8 @@ async function auditRepo(repo) {
   const foreign = realpathSync4(mkdtempSync2(join35(tmpdir2(), "ritual-scope-foreign-")));
   const verdicts = [];
   try {
-    for (const name of names2.sort()) {
-      const file = join35(dir2, name);
+    for (const name2 of names2.sort()) {
+      const file = join35(dir2, name2);
       try {
         const scope = await probeScope(file, own, foreign);
         const hole = scope.writes.theirs > 0 || lostSpelling(scope) || mute(scope) || scope.broken.length > 0;
@@ -15345,9 +15381,9 @@ function take(args, flag) {
 function pick2(sessions, target, realm) {
   const session = sessions.find((s2) => s2.local_id === target);
   const full = /^@[^:]+:/.test(target);
-  const name = target.replace(/^@[^:]+:/, "");
+  const name2 = target.replace(/^@[^:]+:/, "");
   const found = session ? session.places.filter((p) => p.primary || session.places.length === 1).map((place) => ({ place, session })) : sessions.flatMap(
-    (s2) => s2.places.filter((p) => p.name === name).map((place) => ({ place, session: s2 }))
+    (s2) => s2.places.filter((p) => p.name === name2).map((place) => ({ place, session: s2 }))
   );
   const inRealm = found.filter(
     ({ place: p }) => !realm || p.realm === realm || p.realm.endsWith(`/${realm}`)
