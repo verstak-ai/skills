@@ -16,6 +16,8 @@ export interface Models {
    * it holds seats in decide whether a busy line goes alone.
    */
   name(args: Record<string, unknown>, session: string, of: object): Promise<void>;
+  /** The session's model id as the harness names it; none — null (the root's seating, rootseat.ts). */
+  of(session: string): Promise<string | null>;
 }
 
 const idOf = (m: any): string | null =>
@@ -52,6 +54,7 @@ export function createModels(ctx: Context): Models {
       seatsOf(bridge).see(data);
       return data?.kind;
     },
+    of,
     async name(args, session, bridge) {
       if (!args.satellite_of) return;
       const next = withHarnessModel(args, await of(session), seatsOf(bridge).realms());

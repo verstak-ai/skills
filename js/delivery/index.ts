@@ -7,6 +7,7 @@ export { BOARD_FORM, BOARD_HEADER } from "./patterns/board.ts";
 export { CASE_EXIT_CLOSED } from "./patterns/caseexit.ts";
 export { ACTION_LIST_RE, SEAT_GONE_RE, UNATTRIBUTED_RE } from "./patterns/channel.ts";
 export { SERVER_CHOICE } from "./patterns/config.ts";
+export { COVER } from "./patterns/cover.ts";
 export { NOTICE_MARK } from "./patterns/deliver.ts";
 export { LAUNCH_LINE, LAUNCH_WORD } from "./patterns/launch.ts";
 export { MINE_NONE, MINE_ROW } from "./patterns/mine.ts";
@@ -103,6 +104,7 @@ export {
   VERDICT,
   type VerdictWords,
 } from "./words/rooms.ts";
+export { ROOT_SEAT, type RootSeatWords } from "./words/rootseat.ts";
 export { RUN_END, type RunEndWords } from "./words/runend.ts";
 export { SATELLITE, type SatelliteWords } from "./words/satellite.ts";
 export { SAT_PROBE, type SatProbeWords } from "./words/satprobe.ts";
