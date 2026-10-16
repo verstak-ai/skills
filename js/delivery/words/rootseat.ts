@@ -41,7 +41,7 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     noRoleRef: (file, key, ref) => `'${key}' in ${file} does not start with a ${ref} reference`,
     manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,
     seated: (place, karta, realm, file) =>
-      `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; no ${tool("stand")} needed to write — a watch or a launch line still stands, replacing this provisional seat.`,
+      `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by this seat. For a watch (room/model) or your own name, call ${tool("stand")} — it replaces a provisional seat without take.`,
     notSeated: (why) =>
       `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
     refused: (text) => `seating failed: ${text}`,

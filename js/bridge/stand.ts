@@ -183,7 +183,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // take=true onto another named seat of the call's graph — the main one or one beside: the
   // led one is released (#7553).
   const ledThere = sat ? undefined : ledIn(realm);
-  // A provisional seat (#777) is replaced by an explicit stand as by take=true — only it.
+  // A provisional seat (#7972) is replaced by an explicit stand as by take=true — only it (#5164).
   const replaces = provisional.replacesProvisional(realm, auto);
   const prior =
     (a.take === true || replaces) &&

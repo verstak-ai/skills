@@ -11,7 +11,7 @@ export interface HeldSeat {
 }
 
 /** Taken seat, returned own seat unlike the cover, or refusal. */
-export type Seating = { place: string } | { other: HeldSeat } | { error: string };
+export type Seating = { place: string; realm?: string } | { other: HeldSeat } | { error: string };
 
 export interface SeatDoors {
   slotFor(session: string): Promise<Slot>;
@@ -23,7 +23,7 @@ export interface SeatDoors {
     input: Record<string, unknown>,
     session: string,
     service: boolean,
-  ): Promise<{ content: string }>;
+  ): Promise<{ content: string; place?: HeldSeat }>;
 }
 
 /** Bridge's held word, else its disk key (bridge/holdrecord.ts). */
@@ -48,7 +48,7 @@ function outcome(slot: Slot, realm: string, karta: string): Seating {
   const own = heldSeat(slot);
   if (short(own.realm) !== short(realm))
     return { error: words(ROOT_SEAT).uncompared(realm, own.realm) };
-  return sameSeat(own, realm, karta) ? { place: own.name } : { other: own };
+  return sameSeat(own, realm, karta) ? { place: own.name, realm: own.realm } : { other: own };
 }
 
 /** Return this session's disk seat first, else take a fresh provisional seat by service call. */
@@ -69,7 +69,9 @@ export async function seatBy(
       const args = { realm, karta, provisional: true, ...(model ? { model } : {}) };
       const out = await d.callThrough(slot, STAND_TOOL, args, root, true);
       if (!slot.holding) return { error: out.content || words(PLUGIN).refusalNoText(STAND_TOOL) };
-      return outcome(slot, realm, karta);
+      // A fresh successful stand resolved rN itself. Its held reply proves that spelling;
+      // a disk seat, handled above before the call, carries no such proof (#7972).
+      return outcome(slot, short(realm) && out.place ? out.place.realm : realm, karta);
     } finally {
       slot.busy--;
       slot.lastCall = Date.now();

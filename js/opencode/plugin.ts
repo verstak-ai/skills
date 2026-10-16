@@ -262,9 +262,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
               });
             } else {
               void rootOf(id);
-              // A root of this instance's location starts its seating at once; the first prompt waits for it.
-              const dir = ev.data?.location?.directory;
-              if (typeof dir === "string" && dir === home?.directory) rootSeats.start(id, dir);
+              // Creation is not a model request (#7972): only the prompt hook seats a root.
             }
             break;
           }

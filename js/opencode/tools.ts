@@ -47,7 +47,7 @@ import { createModels } from "./models.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { revokeAsLauncher } from "./release.ts";
-import { seatBy } from "./rootseat-by.ts";
+import { type HeldSeat, seatBy } from "./rootseat-by.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, heldPlace, STAND_TOOL, standsBy } from "./satellite.ts";
 import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
@@ -338,7 +338,7 @@ export async function setupTools(
     input: any,
     sessionID: string,
     service = false, // the launch line is a service move, not the agent's work (#6510)
-  ): Promise<{ content: string }> {
+  ): Promise<{ content: string; place?: HeldSeat }> {
     await awaitReady(slot);
     if (slot.resume) await slot.resume; // the seat is returning from disk — do not take it twice
     // No ceiling: the v2 execute context carries no abort signal.
@@ -371,7 +371,12 @@ export async function setupTools(
     // A child stood by its own bridge is a lead; leaving by the outcome is its end (#6625).
     if (slot.child && slot.satelliteOf && slot.session === sessionID)
       leads.called(sessionID, name, args, slot.place);
-    return { content: textOf(result) };
+    return {
+      content: textOf(result),
+      ...(service && name === STAND_TOOL && slot.holding && slot.place
+        ? { place: { ...slot.place } }
+        : {}),
+    };
   }
   if (state.listed.length) say(W.cached(state.listed.length), "info");
 

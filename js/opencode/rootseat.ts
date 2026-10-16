@@ -4,8 +4,8 @@
 // and the first prompt carries one line to the model — seated, or why not. No cover file —
 // no seat and no word. Child sessions are not seated here (launch.ts).
 //
-// One seating per session (a memoized promise): session.created may start it early, the
-// first prompt waits for it — no longer than ROOT_SEAT_MS, then the request goes without a
+// One seating per session (a memoized promise): only the first prompt starts it and
+// waits for it — no longer than ROOT_SEAT_MS, then the request goes without a
 // seat and the word says so; a seat taken after the term is told by the channel's path. Seatings
 // of one instance go one at a time: the second root of the same role reads the board after the
 // first stood and takes a seat beside, not the same name; a seating hung in the bridge holds the
@@ -18,6 +18,8 @@ import type { Seating } from "./rootseat-by.ts";
 
 /** How long the first prompt waits for the seating; the variable is for probes. */
 export const rootSeatMs = (): number => Number(process.env[envName("ROOT_SEAT_MS")] || 15_000);
+/** Agent-launched headless runs opt out explicitly; a root without parentID is not proof of a human. */
+export const rootSeatEnabled = (): boolean => process.env[envName("ROOT_SEAT")] !== "0";
 /** How long a seating holds the instance's line: the term and as much again, at most 5 s more. */
 const ceilingMs = (): number => rootSeatMs() + Math.min(rootSeatMs(), 5_000);
 const pause = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms).unref?.());
@@ -37,8 +39,6 @@ export interface RootSeatDoors {
 }
 
 export interface RootSeats {
-  /** Start the seating of a root session (session.created); the directory when the event names it. */
-  start(session: string, dir?: string): void;
   /** The root's first prompt: waits for the seating and gives its word once; null — nothing to say. */
   word(session: string): Promise<string | null>;
   forget(session: string): void;
@@ -51,12 +51,12 @@ export function createRootSeats(d: RootSeatDoors): RootSeats {
   const told = new Set<string>();
   let line: Promise<unknown> = Promise.resolve(); // one seating at a time in this instance
 
-  function start(session: string, dir?: string): Promise<Told> {
+  function start(session: string): Promise<Told> {
     const known = seatings.get(session);
     if (known) return known;
     const no = (word: string | null): Told => ({ word, seated: false });
     const p = (async (): Promise<Told> => {
-      const where = dir ?? (await d.directoryOf(session));
+      const where = await d.directoryOf(session);
       if (!where) return no(null);
       const cover = readCover(where);
       if (cover === null) return no(null);
@@ -69,15 +69,18 @@ export function createRootSeats(d: RootSeatDoors): RootSeats {
       if ("error" in r) return no(W.notSeated(W.refused(oneLine(r.error))));
       if ("other" in r)
         return no(W.notSeated(W.ownOther(r.other.name, r.other.karta, r.other.realm)));
-      return { word: W.seated(r.place, cover.karta, cover.realm, COVER.file), seated: true };
+      return {
+        word: W.seated(r.place, cover.karta, r.realm ?? cover.realm, COVER.file),
+        seated: true,
+      };
     })().catch((e: Error) => no(W.notSeated(W.refused(oneLine(e.message)))));
     seatings.set(session, p);
     return p;
   }
 
   return {
-    start: (session, dir) => void start(session, dir),
     async word(session) {
+      if (!rootSeatEnabled()) return null;
       if (told.has(session)) return null;
       told.add(session);
       const ms = rootSeatMs();

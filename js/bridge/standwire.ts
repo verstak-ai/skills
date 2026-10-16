@@ -6,6 +6,7 @@
 import { ID_PREFIX, tool } from "../delivery/index.ts";
 import { serialized } from "./call.ts";
 import { wireEviction } from "./evicted.ts";
+import { restore } from "./provisional.ts";
 import { wireTakeOwn } from "./resume.ts";
 import { baseOf } from "./separate.ts";
 import { isDirectory, runStand } from "./stand.ts";
@@ -39,6 +40,8 @@ wireEviction((place, cwd) =>
 );
 
 // A return already runs under serialized (deliver.ts): a second serialized would wait on itself.
-wireTakeOwn(
-  async (rec, cwd) => (await standAs(`${ID_PREFIX}bridge-resume`, rec, cwd)).text.split("\n")[0],
-);
+wireTakeOwn(async (rec, cwd) => {
+  const r = await standAs(`${ID_PREFIX}bridge-resume`, rec, cwd);
+  if (r.ok) restore(rec);
+  return r.text.split("\n")[0];
+});

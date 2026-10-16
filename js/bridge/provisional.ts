@@ -1,4 +1,4 @@
-// A provisional seat (#777): the seat a plugin took for a root session by its project's cover
+// A provisional seat (#7972): the seat a plugin took for a root session by its project's cover
 // before the agent's first turn (opencode/rootseat.ts) is the session's until the agent names
 // its own. An explicit stand of the same session in the same graph on another name or role
 // replaces it the way take=true does — the bridge releases it (releasePrior) and stands on the
@@ -11,15 +11,17 @@ import { randomBytes } from "node:crypto";
 
 import { STAND_MOVES } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
-import { scoped } from "../shared/scope.ts";
 import { SERVICE_ID } from "../shared/serviceid.ts";
+import {
+  type HoldRecord,
+  keyOf,
+  readHoldRecord,
+  sessionOfBridge,
+  writeHoldRecord,
+} from "./holdrecord.ts";
 import { NAME_MAX } from "./names.ts";
-import { sameRealm } from "./realms.ts";
 import { ledIn } from "./standmoves.ts";
 import type { JsonRpcMessage } from "./types.ts";
-
-type Seat = { realm: string; karta: string; name: string };
-const P = scoped(() => ({ seat: null as Seat | null }));
 
 /** Fresh service seats have their own address even when two instances read an empty board.
  * Never race for host.repo (or host.repo.model) and rotate the neighbour's socket. */
@@ -36,16 +38,27 @@ export const takesProvisional = (msg: JsonRpcMessage): boolean =>
 
 /** The seat this bridge leads in the graph is provisional and this call is not the seating's own. */
 export function replacesProvisional(realm: string, own: boolean): boolean {
-  const s = P.seat;
   const led = ledIn(realm);
-  if (own || !s || !led) return false;
-  return sameRealm(s.realm, led.realm) && s.karta === String(led.karta) && s.name === led.name;
+  if (own || !led?.name) return false;
+  const rec = readHoldRecord(keyOf(led.realm, led.karta, led.name), true);
+  // The mark follows the hold record through return and daemon handover, not a name pattern.
+  return rec?.provisional === true && !!sessionOfBridge() && rec.session === sessionOfBridge();
 }
 
 /** A stand succeeded: the seating's marks its seat; any other in the same graph unmarks it. */
 export function noteStood(own: boolean, realm: string, karta: string, name: string): void {
-  if (own) P.seat = { realm, karta: String(karta), name };
-  else if (P.seat && sameRealm(P.seat.realm, realm)) P.seat = null;
+  const key = keyOf(realm, karta, name);
+  const rec = readHoldRecord(key, true);
+  if (rec) writeHoldRecord(key, { ...rec, provisional: own });
+}
+
+/** Returning from a still-live own bridge uses stand internally (#6702), not an agent's choice.
+ * Its new socket has a new URL; restore the original own record's mark on that returned seat. */
+export function restore(rec: HoldRecord): void {
+  if (rec.provisional !== true || !rec.session || rec.session !== sessionOfBridge()) return;
+  const led = ledIn(rec.realm);
+  if (led?.name === rec.name && String(led.karta) === String(rec.karta))
+    noteStood(true, led.realm, String(led.karta), rec.name);
 }
 
 /** The note of the released former seat: a provisional one is said to be replaced. */

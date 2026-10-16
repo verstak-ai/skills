@@ -19,7 +19,7 @@ export interface StandMovesWords {
   standAgain: (call: string) => string;
   /** take revoked this session's former seat (#7553). */
   priorReleased: (prior: string) => string;
-  /** The provisional seat of the root's seating (#777) gave way to the seat the agent named. */
+  /** The provisional seat (#7972) gave way to the agent's named seat without take (#5164). */
   provisionalReplaced: (prior: string) => string;
   priorKept: (prior: string, text: string, revoke: string) => string;
   /** take onto another main name with seats beside (#6499): a refusal before connect; beside — the seats, revokes — their revoke, keep — the former name. */
