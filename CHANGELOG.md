@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0](https://github.com/verstak-ai/skills/compare/v3.6.1...v3.7.0) (2026-10-16)
+
+
+### Features
+
+* release 3.7 — core 7.13 stop strength, root autoseat, onboarding method, seat-honest door, two-step review ([#179](https://github.com/verstak-ai/skills/issues/179)) ([702980b](https://github.com/verstak-ai/skills/commit/702980bcee2256127ef98e801e22e63ac02efa8a))
+
 ## [3.6.1](https://github.com/verstak-ai/skills/compare/v3.6.0...v3.6.1) (2026-10-16)
 
 
