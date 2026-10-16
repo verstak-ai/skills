@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.1](https://github.com/verstak-ai/skills/compare/v3.7.0...v3.7.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **onboarding:** the thread's first word is a phrase or a readiness sign's key ([#181](https://github.com/verstak-ai/skills/issues/181)) ([92b4475](https://github.com/verstak-ai/skills/commit/92b44750c70f5436f8f7b9060b65e53eb517c055))
+
 ## [3.7.0](https://github.com/verstak-ai/skills/compare/v3.6.1...v3.7.0) (2026-10-16)
 
 
