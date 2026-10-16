@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.0](https://github.com/verstak-ai/skills/compare/v3.7.2...v3.8.0) (2026-10-16)
+
+
+### Features
+
+* **opencode:** root autoseat back on — core iskron 1229ebb0, onboarding role kind by motivation ([#183](https://github.com/verstak-ai/skills/issues/183)) ([1ea80c0](https://github.com/verstak-ai/skills/commit/1ea80c0934c3b9b315a9a7a8300e1944937f539b))
+
 ## [3.7.2](https://github.com/verstak-ai/skills/compare/v3.7.1...v3.7.2) (2026-10-16)
 
 
