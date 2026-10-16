@@ -16,6 +16,13 @@ import { readCover } from "../shared/cover.ts";
 import { words } from "../shared/lang.ts";
 import type { Seating } from "./rootseat-by.ts";
 
+/**
+ * Off: the seating bypassed the owner's stop after a reload and seated deleted sessions from its
+ * queue (graph @nks/nks-dev, node #7972). The plugin neither starts nor awaits it; the explicit
+ * stand, the stop and the seat's return from disk go as before. On again only with the fix.
+ */
+export const rootSeatOn: boolean = false;
+
 /** How long the first prompt waits for the seating; the variable is for probes. */
 export const rootSeatMs = (): number => Number(process.env[envName("ROOT_SEAT_MS")] || 15_000);
 /** How long a seating holds the instance's line: the term and as much again, at most 5 s more. */
