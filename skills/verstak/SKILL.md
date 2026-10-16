@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
 slash: true
 ---
 
@@ -111,7 +111,7 @@ Free: `git status --short`, the branch, the stamp. The first matching row overri
 | Survey | Move |
 |---|---|
 | tools absent or silent | **establish-mcp**, then the request |
-| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: invited into a graph → write there; else `verstak_realm(action="create")` named after the repo or request; never offer others' graphs. No `AGENTS.md` → also **align** |
+| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: **onboarding** — the person names the area, a graph they were invited to is continued, a new one created only on their word; never a graph created unasked. No `AGENTS.md` → **align** after it |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
 | the move will write or speak in a case | first `verstak_channel(action="register", realm=…, karta=<role>, name=<derived name>)`, unless the environment named your seat; no seat or no holder → **collaborate**. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
 | a write authorless **again** after naming yourself | **establish-mcp** |
@@ -144,6 +144,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Do**
 - ordinary code work — "fix this", "build it", "we've decided, do it" → **code-work**, `Before code`
 - "set up this repo" → **align** (`/verstak align`)
+- "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
@@ -177,6 +178,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
 | **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
+| **onboarding** ↔ **align** | the person has no working graph or role yet vs. the repo's contract on a graph that exists |
 
 Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 
