@@ -9,13 +9,15 @@ description: "Lead a person with no working graph to working on their own, one s
 
 **Not when:** every lasting sign below is met and the person says they don't know where to start. Decide by the lasting signs — a working graph, the person's role in it, and in a harness the repository's holon and agent role; a missing seat or hooks alone routes to Start or align, never to onboarding. They have a graph and know it; the words are about their task. Ask what they are working on now and help on the material that exists: open the node with `verstak_look`, walk the arrow the question needs, and run `verstak_orient(focus=<node>, lens=…)` there for a pattern; answer from what they show — "I don't see it", never "there is none". Explaining the graph to someone who has kept it for months is the failure here.
 
-**Grounding:** a sign of readiness is reached when the person has made a meaningful move **and has been told its result and what it means**, in a form that invites the next move. An artifact without that word is half a sign: the graph exists, the person doesn't know it is theirs. The data shows the artifact; whether it was told lives only in the conversation. For choosing the step, an artifact present counts as met, and is shown with its meaning when a step touches it. So every step ends in a sentence to the person, not in a write.
+**Grounding:** a sign of readiness is reached when the person has made a meaningful move **and has been told its result and what it means**, in a form that invites the next move. An artifact without that word is half a sign: the graph exists, the person doesn't know it is theirs. The data shows the artifact; whether it was told lives in the conversation, and in the readiness move once the step is confirmed there as understood. For choosing the step, an artifact present counts as met, and is shown with its meaning when a step touches it. So every step ends in a sentence to the person, not in a write.
 
 One loop serves every entry: **read the signs → choose one step → do it with the person → say the result and its meaning → read again**. The table drives it, not a fixed sequence of screens; the harness branch below fixes only the order of its first four steps.
 
 ## Signs, read from data
 
 Read for **this person** and **the chosen graph**: the account, handle and plan are the person's; roles, repositories and subject nodes belong to one graph. A role in another graph does not count here; `@handle/mind` is never a working graph; a graph the person can read is not yet a graph they chose.
+
+`verstak_me(action="?")` names the readiness move when this surface has it — read the missing signs from it, and confirm an understood step with it; without it, read the signs yourself as the table says.
 
 | Sign | Read | Missing → step |
 |---|---|---|
@@ -27,6 +29,7 @@ Read for **this person** and **the chosen graph**: the account, handle and plan 
 | repositories already registered | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:*")` | show the list before step 3 (a person the graph is shared with — invited or their organization's — sees what they join) |
 | subject nodes: an action, a phenomenon, a question, a transformation, a modelled participant | `verstak_search(realm, q="", node_type=…)` per type | one step on the person's own task |
 | handle | `verstak_me(action="whoami")` | show it; a change is `verstak_me(action="set_handle")` on their word — full graph addresses follow the new handle |
+| billing — a knowledge sign | never the plan; only the readiness move's confirmation that the step was understood | explained in step 6 |
 
 **A failed read is "not established", never "absent".** An error, a refusal or a silent tool is not an empty list: say the read failed and read again; never create a graph, role or holon because a read failed. This method reads neither Telegram nor the plan: they are never reported missing, only explained in step 6.
 
@@ -41,13 +44,17 @@ Already present → reused, shown with its current value, never created again. T
 ## Accompany the chosen step
 
 1. **Do it with the person** — their words for names, their choice where there is one; search before every create.
-2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show.
+2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show. Once the person shows they understood, confirm the step with the readiness move where the surface has it (`Signs, read from data`).
 3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
 
 ## The home branch — a window or bot thread
 
-In the Verstak window's or the bot's onboarding thread there is no repository and no harness, and the thread may start with no graph chosen — then the person's own rows are read and **1 · Area and graph** chooses one. Steps 0, 2, 4 and 5 below, and the table's rows for hooks, the repository's holon and the agent's seat, do not run there; the loop reaches **1 · Area and graph**, **3 · The person's role** and the subject steps, and the word about capabilities (6) comes once when they are done. Say plainly that a repository is connected from the agent in that repository — the harness branch — which finds the graph and role made here and reuses them.
+In the Verstak window's or the bot's onboarding thread there is no repository and no harness, and the thread may start with no graph chosen — then the person's own rows are read and **1 · Area and graph** chooses one. Steps 0, 2 and 5 below, step 4's repository half (align, the `repository` attr, the agent role, `AGENTS.md`), and the table's rows for hooks, the agent role and the agent's seat do not run there. The loop goes **1 · Area and graph** → **3 · The person's role** → **the area's first holon** → the subject steps → the word about capabilities (6), which comes once when these are done and again only on an explicit redo — never every turn.
+
+**The area's first holon** is not skipped: search for a holon that already covers the area (`verstak_search(realm, q=<the area>, node_type="holon")`) and reuse it, or create one on their word with `verstak_add_holon` — no `repository` attr needed. Say what it is: the boundary of their work in the graph. Offering a repository is a sentence here, not a step: a repository is bound to this holon later by the agent in that repository — the harness branch — which finds the graph, role and holon made here and reuses them.
+
+You write under the companion's own seat, which the runtime gives it; the method takes no seat itself here. Nodes written on the person's word keep the agent's authorship; the person's authorship is never faked.
 
 ## The harness branch — no working graph
 
@@ -72,11 +79,13 @@ Say what a graph is for them: their place of work, shared with their agents, the
 
 Say what the role gives: agents address them through it, questions are posed to it, the window shows them as its holder.
 
-**4 · Holon and repository — the standard align move.** The repository's holon with its `repository` attr, the agent role as its steward, the alignment case, `AGENTS.md`. Say what the holon is: the boundary of this repository's work in the graph, and where its agent will be found.
+**4 · Holon and repository — the standard align move.** The repository's holon with its `repository` attr, the agent role as its steward, the alignment case, `AGENTS.md`. The area's holon made in the window or the bot, with no `repository` attr, is reused — it takes the attr — never doubled. Say what the holon is: the boundary of this repository's work in the graph, and where its agent will be found.
 
 **5 · The agent's seat.** Readiness in the harness is an agent that can be heard, not bare tools. Once the agent role exists: one `verstak_stand(realm, karta=<agent role>, model=<model id>, room=<the person's seat address, if they gave one>)` — the method takes it itself; a harness taking the seat from `AGENTS.md` is not assumed. Tell the person where they will see the agent and how to ask it.
 
 **6 · The word about capabilities** — after align's hand-over, once. Roughly: "You can connect Telegram — agents can then ask you questions and send you messages when you are away from your desk. You can connect several repositories to one graph — their agents talk to each other, divide duties and integrate. You can share the graph with another person and their agents, or create an organization. None of this is required — the skills work without it — but it is very convenient." It teaches; it asks nothing of them, and nothing here becomes a required step.
+
+Billing goes in the same word, from this text, never from the person's plan — an unknown plan still gets these conditions explained. Every skill and the whole method are free; what is metered is the agents' work in the graph — writes (a node or edge an agent creates or changes) and, separately, reads (orienting, browsing, search) — up to a monthly allowance. A paid plan raises both allowances; one pays when agents work in the graph every session and the free allowance runs short. Confirm it as understood with the readiness move where the surface has it. Urging a purchase is the window's and the bot's, not this method's.
 
 ## Deferral and redo
 
