@@ -144,7 +144,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Do**
 - ordinary code work — "fix this", "build it", "we've decided, do it" → **code-work**, `Before code`
 - "set up this repo" → **align** (`/verstak align`)
-- "onboarding", "help me get started", "I don't know where to start" → **onboarding** while a readiness sign is missing; every sign met → their task, **entry**
+- "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**

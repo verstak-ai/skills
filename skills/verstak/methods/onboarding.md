@@ -1,10 +1,10 @@
 # onboarding — from no working graph to working on one's own
 
-**Use when:** the person has **no working graph** — `verstak_realm(action="list")` shows nothing but their `@handle/mind`, or only graphs owned by others or an organization while no `AGENTS.md` names one; it fires by itself, from the door's Survey or from `methods/align.md`, without a separate call. Or the person asks: "onboarding", "help me get started", "I don't know where to start" — **while a readiness sign below is missing**.
+**Use when:** the person has **no working graph** — `verstak_realm(action="list")` shows nothing but their `@handle/mind`, or only graphs owned by others or an organization while no `AGENTS.md` names one; it fires by itself, from the door's Survey or from `methods/align.md`, without a separate call. Or the person asks: an explicit "onboarding" or a redo runs whatever the signs; only words like "help me get started", "I don't know where to start" are gated by them — **while a lasting sign below is missing**.
 
-**Not when:** every graph-scope sign below is met and the person says they don't know where to start. They have a graph and know it; the words are about their task. Ask what they are working on now and help on the material that exists (`methods/entry.md`, then the method the task needs). Explaining the graph to someone who has kept it for months is the failure here.
+**Not when:** every lasting sign below is met and the person says they don't know where to start. Decide by the lasting signs — a working graph, the person's role in it, and in a harness the repository's holon and agent role; a missing seat or hooks alone routes to Start or align, never to onboarding. They have a graph and know it; the words are about their task. Ask what they are working on now and help on the material that exists (`methods/entry.md`, then the method the task needs). Explaining the graph to someone who has kept it for months is the failure here.
 
-**Grounding:** a sign of readiness is reached when the person has made a meaningful move **and has been told its result and what it means**, in a form that invites the next move. An artifact without that word is half a sign: the graph exists, the person doesn't know it is theirs. So every step ends in a sentence to the person, not in a write.
+**Grounding:** a sign of readiness is reached when the person has made a meaningful move **and has been told its result and what it means**, in a form that invites the next move. An artifact without that word is half a sign: the graph exists, the person doesn't know it is theirs. The data shows the artifact; whether it was told lives only in the conversation. For choosing the step, an artifact present counts as met, and is shown with its meaning when a step touches it. So every step ends in a sentence to the person, not in a write.
 
 One loop serves every entry: **read the signs → choose one step → do it with the person → say the result and its meaning → read again**. The table drives it, not a fixed sequence of screens; the harness branch below fixes only the order of its first four steps.
 
@@ -16,10 +16,10 @@ Read for **this person** and **the chosen graph**: the account, handle and plan 
 |---|---|---|
 | a working graph | `verstak_realm(action="list")` (grouped by owner) minus `@handle/mind`; `verstak_me(action="whoami")` for the handle, `verstak_me(action="orgs")` for their organizations | **1 · Area and graph** |
 | the repository's hooks | `.claude/settings.json` `SessionStart`, the OpenCode plugin (`references/align-harness-surfaces.md`) naming the graph | **2 · Hooks** |
-| the person's role in this graph | `verstak_me(action="kartas")` lists a role in **this** graph | **3 · The person's role** |
+| the person's role in this graph | `verstak_me(action="kartas")` lists a `svatantra` role bound to them in **this** graph; an agent role is not theirs | **3 · The person's role** |
 | the repository's holon and its agent role | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:<host/org/repo>")`; `verstak_search(realm, q="", node_type="karta", steward_of=<holon>)` | **4 · Holon and repository** |
-| the agent can be heard | `verstak_channel(action="list", realm)` shows a seat on the agent role | **5 · The agent's seat** |
-| repositories already registered | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:*")` | show the list before step 3 (an invited person sees what they join) |
+| the agent can be heard | `verstak_channel(action="list", realm)` shows a seat on the agent role; a word delivered to it is the proof, not presence on the board | **5 · The agent's seat** |
+| repositories already registered | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:*")` | show the list before step 3 (a person the graph is shared with — invited or their organization's — sees what they join) |
 | subject nodes: an action, a phenomenon, a question, a transformation, a modelled participant | `verstak_search(realm, q="", node_type=…)` per type | one step on the person's own task (`methods/writing.md`, `methods/design.md`) |
 | handle | `verstak_me(action="whoami")` | show it; a change is `verstak_me(action="set_handle")` on their word — full graph addresses follow the new handle |
 
@@ -37,7 +37,7 @@ Already present → reused, shown with its current value, never created again. T
 
 1. **Do it with the person** — their words for names, their choice where there is one; search before every create.
 2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show.
-3. Nodes you write on the person's word are written by you, under your seat; never pose as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
+3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
 
 ## The home branch — a window or bot thread
@@ -48,16 +48,18 @@ In the Verstak window's or the bot's onboarding thread there is no repository an
 
 The order is fixed: graph → hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
 
-**0 · Which repository.** Before anything is created: `git remote get-url origin` and the graphs found. Show the person both and ask whether this repository is the work they want a graph for. Signs it may not be: `origin`'s owner is neither their handle nor one of their organizations; an `upstream` remote (a fork); a tutorial, a client's or a sample repo by its README. A graph already listing this repository (the repositories read above, run on each listed graph) is the answer — continue there. No person in the session (an autonomous start) → create nothing; the greeting says onboarding is waiting for them.
+In a graph with no agent role yet (steps 1–3) you write without a seat: there is no role of yours to stand on, and the person's role is never one. The first seat is the agent role's, once align creates it (step 4); from then on the door's seat rule holds.
+
+**0 · Which repository.** Before anything is created: `git remote get-url origin` and the graphs found. Show the person both and ask whether this repository is the work they want a graph for. Signs it may not be: `origin`'s owner is neither their handle nor one of their organizations; an `upstream` remote (a fork); a tutorial, a client's or a sample repo by its README. No `origin` remote → ask which repository this is; the repository steps wait for the answer. A graph already listing this repository (the repositories read above, run on each listed graph) is the answer — continue there; several → ask which. Not this repository → no hooks, holon or `AGENTS.md` here; a graph for their area is still offered (step 1), and the repository steps wait for the repository they name. No person in the session (an autonomous start) → create nothing (the mind graph excepted); the greeting says onboarding is waiting for them.
 
 **1 · Area and graph.** Ask what they will work on — the area, in their words, before graph and repository. Then:
-- graphs owned by others or their organizations are listed → name them ("you were invited to *X*, which already holds repositories *A*, *B*"); continuing there is the default, a graph of their own the exception they choose;
+- graphs owned by others or their organizations are listed → name them ("*X* is shared with you and already holds repositories *A*, *B*"); continuing there is the default, a graph of their own the exception they choose;
 - none → offer `verstak_realm(action="create", name=<the area in their words>)`, named for the area rather than the repository;
 - `@handle/mind` missing → create it unasked (`methods/minding.md`); work never goes there.
 
 Say what a graph is for them: their place of work, shared with their agents, the same in the window and the bot.
 
-**2 · Hooks — the minimal align.** Wire the ritual hooks of `methods/align.md`, Step 4, now, with the graph's address (the holon and role seqs land in step 4). Then the next session starts oriented even if this one stops here. Say so to the person.
+**2 · Hooks — the minimal align.** Wire the ritual hooks of `methods/align.md`, Step 4, now, with the graph's address: `SessionStart` and the memory guard. Align's round 1, step 6, refills `SessionStart` with the holon and role seqs; spec-write waits for its slot. Then the next session starts oriented even if this one stops here. Say so to the person.
 
 **3 · The person's role.** Explain first, then propose: a graph keeps its co-authors (people working on it), agent roles, stakeholders and modelled personas (users, characters, customers); theirs is the first. Recommend naming it by their role in this area — product owner, author, researcher — though a name works too. Then:
 - search: `verstak_search(realm, q="", node_type="karta", manifested_as="svatantra")`; a role whose `handle` attr equals their handle, unbound → bind it on their yes (`verstak_update(realm, node_id=<role>, user="me", basis_version=…)`);
