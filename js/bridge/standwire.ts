@@ -6,7 +6,9 @@
 import { ID_PREFIX, tool } from "../delivery/index.ts";
 import { serialized } from "./call.ts";
 import { wireEviction } from "./evicted.ts";
+import { restore } from "./provisional.ts";
 import { wireTakeOwn } from "./resume.ts";
+import { withSeatOrigin } from "./seatorigin.ts";
 import { baseOf } from "./separate.ts";
 import { isDirectory, runStand } from "./stand.ts";
 
@@ -18,12 +20,14 @@ async function standAs(
 ): Promise<{ ok: boolean; text: string }> {
   const { realm, karta, name } = place;
   const where = cwd && isDirectory(cwd) ? { cwd } : {};
-  const r = await runStand({
-    jsonrpc: "2.0",
-    id,
-    method: "tools/call",
-    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } },
-  });
+  const r = await withSeatOrigin(true, () =>
+    runStand({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } },
+    }),
+  );
   const text = ((r.result?.content ?? []) as { text?: string }[]).map((c) => c.text ?? "");
   return { ok: !r.result?.isError, text: text.join("\n") };
 }
@@ -39,6 +43,8 @@ wireEviction((place, cwd) =>
 );
 
 // A return already runs under serialized (deliver.ts): a second serialized would wait on itself.
-wireTakeOwn(
-  async (rec, cwd) => (await standAs(`${ID_PREFIX}bridge-resume`, rec, cwd)).text.split("\n")[0],
-);
+wireTakeOwn(async (rec, cwd) => {
+  const r = await standAs(`${ID_PREFIX}bridge-resume`, rec, cwd);
+  if (r.ok) restore(rec);
+  return r.text.split("\n")[0];
+});

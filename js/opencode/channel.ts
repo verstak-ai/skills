@@ -450,10 +450,12 @@ export function setupChannel(
           }
           return;
         case "held":
-          halts.held(session); // after a stop only an explicit stand holds again (halts.ts)
-          // The marks of the session's cuts go with it, its descendants' too.
-          for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
-            cuts.forget(s);
+          if (params?.data?.automatic === false) {
+            // only an attributed explicit transition lifts the stop
+            halts.held(session);
+            for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
+              cuts.forget(s);
+            }
           }
           say(W.held(ev.key ?? ""), "info");
           return;

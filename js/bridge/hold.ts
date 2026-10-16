@@ -35,6 +35,7 @@ import {
 } from "./places.ts";
 import { otherRealm, sameRealm } from "./realms.ts";
 import { batchForWatchdogs, noteRoomKind } from "./roomstack.ts";
+import { heldProof } from "./seatproof.ts";
 import { standingLog } from "./store.ts";
 import { emit, log } from "./streams.ts";
 import { type Standing, state } from "./transport.ts";
@@ -301,11 +302,10 @@ export function holdStanding(url: string, statusUrl?: string | null): string {
   if (same && ch) repointExtras(ch);
   openHolder(url, key);
   standingLog(`held ${key}${H.standCwd ? ` cwd=${H.standCwd}` : ""}`);
-  // "held" also goes as a notification: the OpenCode plugin has no local socket to learn it
-  // from and must not reap a holding bridge on idle (#5140); the place lets a child session
-  // stand as its satellite (#6002).
+  // The plugin learns holding/place from this event (#5140, #6002), not a local socket.
+  // A positive provisional flag is this bridge's promise to honor replacement (#7972).
   const place = s ? { realm: s.realm, karta: String(s.karta), name: s.name ?? "" } : undefined;
-  notify("info", { kind: "held", key, ...(place ? { place } : {}) });
+  notify("info", heldProof(key, place));
   return key;
 }
 

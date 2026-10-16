@@ -57,6 +57,7 @@ test("a short graph against a slug is no match on the role alone", () => {
   assert.equal(sameSeat({ name: "x", realm: "r5", karta: "931" }, "r5", "931"), true);
   assert.equal(
     sameSeat({ name: "x", realm: "_nks_nks-dev", karta: "931" }, "@nks/nks-dev", "931"),
-    true,
+    false,
+    "a sanitised slug is not the graph's address",
   );
 });

@@ -42,6 +42,7 @@ import { THIN_RESUME_ID } from "./lostplaces.ts";
 import { placeFields } from "./placefields.ts";
 import { recordsFor, type ResumeSelector } from "./resumepick.ts";
 import { resumeWords } from "./resumewords.ts";
+import { seatProof } from "./seatproof.ts";
 import { publishStatus } from "./status.ts";
 import { standingLog } from "./store.ts";
 import { emit, log } from "./streams.ts";
@@ -330,11 +331,14 @@ export function holdFromEnv(): void {
   if (url) holdStanding(url, envOf(envName("CHANNEL_STATUS"))?.trim() || null);
 }
 
-const reply = (msg: JsonRpcMessage, result: unknown): JsonRpcMessage => ({
-  jsonrpc: "2.0",
-  id: msg.id,
-  result,
-});
+const reply = (msg: JsonRpcMessage, result: unknown): JsonRpcMessage => {
+  const r = result as { resumed?: boolean; holding?: boolean } | null;
+  return {
+    jsonrpc: "2.0",
+    id: msg.id,
+    result: r && (r.resumed || r.holding) ? { ...r, ...seatProof(ledKey()) } : result,
+  };
+};
 
 const selectorOf = (msg: JsonRpcMessage): ResumeSelector => ({
   key:

@@ -32,11 +32,13 @@ import { ownerRefusal } from "./owner.ts";
 import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
 import { isPulseCall, runPulse } from "./pulse.ts";
 import { READ_TOOLS } from "./repeat.ts";
-import { isCheckCall, isResumeCall, runCheck, runResume } from "./resume.ts";
+import { isCheckCall, isResumeCall } from "./resume.ts";
 import { localEnd } from "./runend.ts";
 import { satelliteChannelRefusal } from "./satellite.ts";
+import { withCallOrigin } from "./seatorigin.ts";
 import { refreshSkills } from "./skillrefresh.ts";
-import { isStandCall, runStand } from "./stand.ts";
+import { isStandCall } from "./stand.ts";
+import { resumeByOrigin, standForHarness } from "./standdelivery.ts";
 import { ensureStanding, isUnattributed, noteStanding, replyText } from "./standing.ts";
 import { localStatus } from "./status.ts";
 import { loadServerCache, saveServerCache, sleep } from "./store.ts";
@@ -284,14 +286,12 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         return;
       }
       if (isStand) {
-        // The bridge's own tool: board, seat, knock — by the agent's calls, in one move.
-        emit(withNotice(await serialized(() => runStand(msg))));
+        emit(await standForHarness(msg, withNotice));
         return;
       }
       if (isResumeCall(msg) || isCheckCall(msg)) {
-        // Plugin requests to the bridge itself, over the session opened above
-        // (graph @nks/nks-dev, node #5140).
-        emit(await serialized(() => (isResumeCall(msg) ? runResume(msg) : runCheck(msg))));
+        // Plugin's automatic return over the session opened above (#5140).
+        emit(await resumeByOrigin(msg));
         return;
       }
       if (isUsageCall(msg)) {
@@ -358,7 +358,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       // Raw connect/mint runs under an intent until the hold record (graph @nks/nks-dev, node #6706).
       endTaking =
         msg.params?.name === tool("channel") ? beginTaking(msg.params.arguments ?? {}) : null;
-      await post(msg, forward);
+      await (takes ? withCallOrigin(msg.id, () => post(msg, forward)) : post(msg, forward));
       const held = heldReply as JsonRpcMessage | null;
       if (held && msg.params?.name === tool("channel") && msg.params.arguments)
         noteLocaleEcho(msg.params.arguments, replyText(held), structuredOf(held));

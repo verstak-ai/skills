@@ -41,6 +41,8 @@ export interface HoldRecord {
   cases?: { realm?: string; room: string }[];
   /** place base: the name the bridge derived this beside place from (`name.N`); the primary's own name (#6706) */
   base?: string;
+  /** Root's service seat (#7972): only a service stand sets it; an explicit stand clears it. */
+  provisional?: boolean;
 }
 
 /** Record lifetime: the idle time the platform grants a socketless place. */
@@ -123,6 +125,9 @@ export function writeHoldRecord(
         ...rec,
         session: session ?? undefined,
         left: left || undefined,
+        provisional:
+          rec.provisional ??
+          (was?.url === rec.url && was.session === session ? was.provisional : undefined),
         base: B.get(key) ?? rec.base ?? was?.base ?? baseOnDisk(key) ?? undefined,
         at,
       }) + "\n",

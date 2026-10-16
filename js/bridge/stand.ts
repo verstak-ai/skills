@@ -70,6 +70,7 @@ import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
+import { seatProof } from "./seatproof.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
 import { standAgainWord } from "./standagain.ts";
 import { besideHoldsMain, ledIn, refusedWord, releasePrior } from "./standmoves.ts";
@@ -118,6 +119,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     id: msg.id,
     result: {
       ...(isError ? { isError: true } : {}),
+      ...(isError ? {} : { structuredContent: seatProof(heldKey(realm)) }),
       content: [{ type: "text", text: lines.join("\n") }],
     },
   });
@@ -183,7 +185,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // take=true onto another named seat of the call's graph — the main one or one beside: the
   // led one is released (#7553).
   const ledThere = sat ? undefined : ledIn(realm);
-  // A provisional seat (#777) is replaced by an explicit stand as by take=true — only it.
+  // A provisional seat (#7972) is replaced by an explicit stand as by take=true — only it (#5164).
   const replaces = provisional.replacesProvisional(realm, auto);
   const prior =
     (a.take === true || replaces) &&
