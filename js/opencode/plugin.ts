@@ -20,11 +20,12 @@ import { setupChannel } from "./channel.ts";
 import { setupCommands } from "./commands.ts";
 import { idleHalf } from "./half.ts";
 import { createHalts } from "./halts.ts";
-import { homeOf } from "./host.ts";
+import { homeOf, sessionDirectory } from "./host.ts";
 import { createKeepAlive, keepaliveTitle } from "./keepalive.ts";
 import { teller } from "./leaddoors.ts";
 import { annotate } from "./notice.ts";
 import { createPulseFeed } from "./pulse.ts";
+import { createRootSeats } from "./rootseat.ts";
 import { setupSkillReads } from "./skillread.ts";
 import { type Say, setupTools } from "./tools.ts";
 import { createTwins, sweepAll } from "./twins.ts";
@@ -153,14 +154,25 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     say(words(PLUGIN).notRaised((e as Error).message), "error");
   }
 
+  // A root of an aligned project seats itself by the cover of its directory (rootseat.ts).
+  const home = homeOf(ctx);
+  const rootSeats = createRootSeats({
+    directoryOf: async (s) => (await sessionDirectory(ctx, s)) ?? home?.directory ?? null,
+    seat: (s, realm, karta) => half.seatRoot(s, realm, karta),
+  });
+
   // The launch line with a case (launch.ts): the prompt hook waits for the standing and the entry.
+  // A root's first prompt waits for its seating, bounded (rootseat.ts), before the model's request.
   try {
     await ctx.session.hook("prompt", async (p) => {
-      const word = await half.launch(String(p.sessionID), p.prompt.text);
-      if (word) p.prompt.text = withWord(p.prompt.text, word);
-      // Counts of records that woke no turn ride the prompt that starts one (#6574); the root's only into the root.
       const sid = String(p.sessionID);
-      const counts = (await rootOf(sid)) === sid ? ch?.ride(sid) : null;
+      const root = (await rootOf(sid)) === sid;
+      const word = await half.launch(sid, p.prompt.text);
+      if (word) p.prompt.text = withWord(p.prompt.text, word);
+      const seat = root ? await rootSeats.word(sid) : null;
+      if (seat) p.prompt.text = withWord(p.prompt.text, seat);
+      // Counts of records that woke no turn ride the prompt that starts one (#6574); the root's only into the root.
+      const counts = root ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}\n\n${markFrame(counts)}`;
     });
   } catch (e) {
@@ -226,6 +238,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
           case "session.deleted":
             if (!id) break;
             pulse.forget(id);
+            rootSeats.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
@@ -246,7 +259,12 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
                 roots.set(id, root);
                 seen.set(root, Date.now());
               });
-            } else void rootOf(id);
+            } else {
+              void rootOf(id);
+              // A root of this instance's location starts its seating at once; the first prompt waits for it.
+              const dir = ev.data?.location?.directory;
+              if (typeof dir === "string" && dir === home?.directory) rootSeats.start(id, dir);
+            }
             break;
           }
           // Moved to another folder (#6550 item 3): the seat goes to the instance of its new location.

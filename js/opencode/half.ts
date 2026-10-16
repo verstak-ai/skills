@@ -1,8 +1,11 @@
 // The "tools" half from outside (tools.ts) — what plugin.ts calls it by, and its empty
 // form: no bridge found or the half did not come up, and the plugin loads on.
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK events without a schema */
+import { ROOT_SEAT } from "../delivery/index.ts";
 import type { Bridge } from "../shared/bridge-client.ts";
+import { words } from "../shared/lang.ts";
 import type { Home, LostEntry } from "./records.ts";
+import type { Seating } from "./rootseat.ts";
 import type { Slot } from "./slot.ts";
 
 export interface ToolsHalf {
@@ -12,6 +15,8 @@ export interface ToolsHalf {
   onEvent(ev: any): void;
   /** A session's first prompt — the launch line with a case runs before the model's turn (launch.ts). */
   launch(session: string, text: string): Promise<string | null>;
+  /** A root's seat by its project's cover — its own from disk, else a stand on the role (rootseat.ts). */
+  seatRoot(session: string, realm: string, karta: string): Promise<Seating>;
   /** The stop; held seats that went into a marker — upward (twins.ts). */
   stop(): void | Promise<void | LostEntry[]>;
   bridgeOf(session: string): Bridge | null; // the holding slot's bridge — for session usage (usage.ts)
@@ -41,6 +46,7 @@ export const idleHalf = (): ToolsHalf => ({
   forget() {},
   onEvent() {},
   launch: async () => null,
+  seatRoot: async () => ({ error: words(ROOT_SEAT).noBridge() }),
   stop() {},
   bridgeOf: () => null,
   leadOf: () => null,
