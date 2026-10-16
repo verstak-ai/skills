@@ -64,7 +64,7 @@ import {
   sanitize,
 } from "./names.ts";
 import { ownerRefusal } from "./owner.ts";
-import { placeFields, rememberStandModel } from "./placefields.ts";
+import { placeFields, rememberStandModel, type SeatMove } from "./placefields.ts";
 import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
@@ -225,7 +225,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const beside = !!prim && otherRealm(realm, prim.realm) && !holdsStanding(realm, karta, name);
   // The session directory goes into the hold record: a re-raised bridge returns the seat by it (#5140).
   noteStandCwd(cwd);
-  const here = () => placeFields({ realm, karta, name }, true); // seat fields on every registration (#5174)
+  const here = (move: SeatMove = "register") => placeFields({ realm, karta, name }, true, move); // seat fields on every registration (#5174)
   const reg = () => call(tool("channel"), { action: "register", realm, karta, name, ...here() });
   const { register, kept: modelKept } = clearingRegister(reg, realm); // register keeps a model (#7591)
   // 1. The board — before any change.
@@ -403,7 +403,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     return done(true);
   } else {
     const args: Record<string, unknown> = { action: "connect", realm, karta, name };
-    Object.assign(args, here());
+    Object.assign(args, here("connect"));
     if (typeof a.mute_siblings === "boolean") args.mute_siblings = a.mute_siblings;
     if (sat) args.ttl_seconds = SATELLITE_TTL_S; // a satellite's invitations do not outlive the run (#6001, condition a)
     const addr = heldAddress(realm, prior);

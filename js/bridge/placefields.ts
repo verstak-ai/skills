@@ -12,9 +12,10 @@ import { BUILD } from "./build.ts";
 import { harnessName, harnessVersion } from "./client.ts";
 import { CFG } from "./config.ts";
 import { seatField } from "./fields.ts";
+import { H } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
 import { confirmsHalts } from "./orderhalt.ts";
-import { extraOf } from "./places.ts";
+import { extraIn } from "./places.ts";
 import { otherRealm } from "./realms.ts";
 import { installedSkills } from "./skillwatch.ts";
 import { log } from "./streams.ts";
@@ -73,25 +74,37 @@ export function rememberStandModel(m: unknown): void {
 export const satelliteWithoutModel = (): boolean => CFG.satellite && !P.model;
 
 /**
- * What a stop order for this seat does (stoporder.ts): "agent" — the session's main seat, its
- * stop stops the agent; "seat" — a seat beside on the held channel (another graph than the main
- * one, as stand.ts and call.ts tell it), it goes alone — a satellite's too.
- * ack — whether stopped is the harness's confirmed stop or the bridge's word given (orderhalt.ts).
+ * What a stop order for this seat does, told the way the stop itself will find the seat
+ * (stophold.ts seatOf by the id noteStandingId put on a door, hold.ts): "agent" — the session's
+ * main door, its stop stops the agent; "seat" — the door of a seat beside (another graph on the
+ * held channel; a satellite's too), it goes alone. A connect or mint opens the channel it takes
+ * and becomes the main seat (absorb.ts): "agent", whatever was registered before. A register
+ * goes to the door of this graph's seat beside if there is one; else beside when the main seat
+ * lives in another graph; else to the main door. No door at all (a bare register without a held
+ * channel): the stop finds no seat, so no effect is claimed — null, the field is left out.
+ * ack — the harness's way of confirming the AGENT's stop (orderhalt.ts), a property of the
+ * session, not the outcome: a seat beside always ends seat_beside, whatever ack says.
  */
-function stopAttrs(place: Place): { effect: "agent" | "seat"; ack: "confirmed" | "word" } {
+function stopAttrs(
+  place: Place,
+  move: SeatMove,
+): { effect: "agent" | "seat"; ack: "confirmed" | "word" } | null {
+  const ack = confirmsHalts() ? "confirmed" : "word";
+  if (move !== "register") return { effect: "agent", ack };
   const prim = state.standing;
-  // A seat already held beside stays one even when the main binding is lost (#5168). A
-  // satellite's first seat is its own main one; its seat of another graph is beside it.
-  const beside =
-    (!!prim && otherRealm(place.realm, prim.realm)) ||
-    !!extraOf(place.realm, place.karta, place.name);
-  return { effect: beside ? "seat" : "agent", ack: confirmsHalts() ? "confirmed" : "word" };
+  if (extraIn(place.realm) || (!!prim && otherRealm(place.realm, prim.realm)))
+    return { effect: "seat", ack };
+  return H.door && H.currentKey ? { effect: "agent", ack } : null;
 }
+
+/** The seat move the fields ride on: connect and mint open a channel, register adds a seat. */
+export type SeatMove = "connect" | "mint" | "register";
 
 /** Seat fields for connect and register: always the full set. */
 export function placeFields(
   place: Place = {},
   freshSkills = false,
+  move: SeatMove = "register",
 ): {
   model?: string;
   satellite_of?: string;
@@ -114,7 +127,8 @@ export function placeFields(
       ...(harness ? { harness, harness_version: harnessVersion() } : {}),
       ...(satelliteOf ? { satellite_of: satelliteOf } : {}),
       ...(usage ? { usage } : {}),
-      stop: stopAttrs(place),
+      // The bridge's own word, over the agent's: no effect known — the key dropped (undefined).
+      stop: stopAttrs(place, move) ?? undefined,
     },
   };
 }
@@ -145,12 +159,13 @@ export function noteLocaleEcho(
 
 /**
  * connect/mint/register called by the agent itself carry the same fields; its model and
- * attrs are kept, the build marker is written over them.
+ * attrs are kept, the build marker is written over them — and so is attrs.stop: what a stop
+ * does is the bridge's to say, the agent's own value never rides.
  */
 export function withPlaceFields(args: Record<string, unknown>): Record<string, unknown> {
   if (!PLACE_ACTIONS.has(String(args.action))) return args;
   rememberModel(args.model);
   if (args.attrs && typeof args.attrs === "object" && !Array.isArray(args.attrs))
     extras.set(placeKey(args), { ...(args.attrs as Record<string, unknown>) });
-  return { ...args, ...placeFields(args, true) };
+  return { ...args, ...placeFields(args, true, String(args.action) as SeatMove) };
 }

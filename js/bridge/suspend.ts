@@ -70,7 +70,7 @@ async function rearmForPause(
     realm: s.realm,
     karta: s.karta,
     name,
-    ...placeFields({ realm: s.realm, karta: String(s.karta), name }),
+    ...placeFields({ realm: s.realm, karta: String(s.karta), name }, false, "connect"),
     ttl_seconds: PAUSE_TTL_S,
   };
   // The bridge absorbs the connect answer (absorb.ts): the new address lands in H.
