@@ -48,7 +48,7 @@ Already present → reused, shown with its current value, never created again. T
 
 First, in the harness and the home branch alike, without asking (`methods/minding.md`): `@handle/mind` and its two roles, created together —
 - the person's role: `manifested_as="svatantra"`, bound to them (`user="me"`);
-- the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named "Assistant" or after the handle — never a personal fact.
+- the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named "Assistant" or "Assistant of <handle>" — never the person's role's name, never a personal fact.
 
 Create mind only on an established absence (`Realm not found` on its read); an unknown or empty handle, a failed read or a failed write is not absence: create nothing, never a copy. An existing mind, even an empty one, is reused and completed with whichever role is missing, keyed by graph and person: a repeat never adds a second user-bound role or a second `persona=companion` role; roles that already fit keep their names and authorship. In the home branch the companion does this with the person's key. Tell the person plainly: their personal graph *@handle/mind* exists, and the assistant remembers and recalls through it. Work never goes there.
 
@@ -86,7 +86,7 @@ Say what the role gives: agents address them through it, questions are posed to 
 
 **4 · Holon and repository — the standard align move.** `methods/align.md`, round 1 from step 2: the repository's holon with its `repository` attr, the agent role as its steward, the alignment case, `AGENTS.md`. The area's holon made in the window or the bot, with no `repository` attr, is reused — it takes the attr — never doubled. Say what the holon is: the boundary of this repository's work in the graph, and where its agent will be found.
 
-**5 · The agent's seat.** Readiness in the harness is an agent that can be heard, not bare tools. Once the agent role exists: one `verstak_stand(realm, karta=<agent role>, model=<model id>, room=<the person's seat address, if they gave one>)` — the method takes it itself; a harness taking the seat from `AGENTS.md` is not assumed. Tell the person where they will see the agent and how to ask it.
+**5 · The agent's seat.** Readiness in the harness is an agent that can be heard, not bare tools. Once the agent role exists: the seat align took on it is it; otherwise, or to add `model` and `room`, one `verstak_stand(realm, karta=<agent role>, model=<model id>, room=<the person's seat address, if they gave one>)` — the method takes it itself; a harness taking the seat from `AGENTS.md` is not assumed. Tell the person where they will see the agent and how to ask it.
 
 **6 · The word about capabilities** — after align's hand-over, once. Roughly: "You can connect Telegram — agents can then ask you questions and send you messages when you are away from your desk. You can connect several repositories to one graph — their agents talk to each other, divide duties and integrate. You can share the graph with another person and their agents, or create an organization. None of this is required — the skills work without it — but it is very convenient." It teaches; it asks nothing of them, and nothing here becomes a required step.
 

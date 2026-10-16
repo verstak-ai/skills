@@ -106,7 +106,7 @@ Into the case whose subject it concerns, not the one you sit in.
 - **An assignment to an agent** — a case of its own on the subject: `Assignment by case`.
 - **Inviting a missing role** — on the user's word, or as the bounded move in `Abandoned work`: `verstak_case(action="invite", room=<case #N>, karta=<role>, holon=<holon>)`. An invitation doesn't mean an agent started or arrived: read the call's state in the case, never promise arrival. A launch is what's needed and won't happen without the user → carry that choice to them.
 
-Before the first write, take your seat and `join`: a seat the environment names or this session already holds → `verstak_channel(action="register")` under it; none → `verstak_stand(realm=<graph>, karta=<your role>)`, never a bare `register` (it opens no seat). When you hold nothing, `leave`.
+Before the first write, take your seat and `join`: a seat the environment names or this session already holds → `verstak_channel(action="register")` under it; none → say so: the runtime gives the companion its seat; never a bare `register` (it opens no seat). When you hold nothing, `leave`.
 
 ## Assignment by case
 

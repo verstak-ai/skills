@@ -11,7 +11,7 @@
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
 | **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into `@handle/mind` under its area's holon; a person as a guest role in a group; never harness-local memory |
 
-Every user gets `@handle/mind` with their own role and the assistant's in it without being asked (`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph, by `methods/align.md` when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
+Every user gets `@handle/mind` with their own role and the assistant's in it without being asked (`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph, by `methods/onboarding.md` at its step 0, by `methods/align.md` when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
 
 ## The address
 
