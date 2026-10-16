@@ -83,6 +83,7 @@ const SKILLS = {
       [" (`methods/writing.md`, `methods/design.md`)", ""],
       ["restore access (`methods/establish-mcp.md`) and read again", "say the read failed and read again"],
       ["Wire the ritual hooks of `methods/align.md`, Step 4, now", "Wire the repository's ritual hooks now"],
+      [" — byte for byte from `references/align-hooks.md`, `Initial form`", ""],
       [", modes per `methods/writing.md`", ""],
       ["; from then on the door's seat rule holds.", "."],
       ["`methods/align.md`, round 1 from step 2: the repository's holon", "The repository's holon"],
