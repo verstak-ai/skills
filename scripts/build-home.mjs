@@ -46,7 +46,7 @@ const SKILLS = {
       "The user's memory in the graph — the personal graph @handle/mind, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, opinions, their own way of working (on a development topic too), methods of their own; never harness-local memory. A project's servers, pipeline, dated duties and rules belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact — then weigh what it changes now: apply, adapt, don't apply, or ask one deciding question. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools.",
     rewrites: [
       ["(`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph,", "(Appendix, A1–A2): created at session start when the user has no graph,"],
-      ["create the graph and role (reference §1–2)", "create the graph and role (A1–A2)"],
+      ["create the graph and both roles (reference §1–2)", "create the graph and both roles (A1–A2)"],
       ["or name the graph and hand over to `methods/entry.md`.", `or name the graph and read it there: ${READ_THE_GRAPH}.`],
       ["Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).", "Shapes, in the Appendix: machines (A7), people (A2b), dated facts (A7), lessons (A8)."],
       ["not a dossier (reference §2b)", "not a dossier (A2b)"],

@@ -21,6 +21,7 @@ Read for **this person** and **the chosen graph**: the account, handle and plan 
 
 | Sign | Read | Missing → step |
 |---|---|---|
+| personal memory | `@handle/mind` readable, holding a `svatantra` role bound to the person and an `adhikarin` role with `persona=companion` | **0 · Personal memory**, unasked |
 | a working graph | `verstak_realm(action="list")` (grouped by owner) minus `@handle/mind`; `verstak_me(action="whoami")` for the handle, `verstak_me(action="orgs")` for their organizations | **1 · Area and graph** |
 | the repository's hooks | `.claude/settings.json` `SessionStart`, the OpenCode plugin naming the graph | **2 · Hooks** |
 | the person's role in this graph | `verstak_me(action="kartas")` lists a `svatantra` role bound to them in **this** graph; an agent role is not theirs | **3 · The person's role** |
@@ -48,9 +49,19 @@ Already present → reused, shown with its current value, never created again. T
 3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
 
+## 0 · Personal memory — in every branch
+
+First, in the harness and the home branch alike, without asking (**minding**): `@handle/mind` and its two roles, created together —
+- the person's role: `manifested_as="svatantra"`, bound to them (`user="me"`);
+- the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named "Assistant" or after the handle — never a personal fact.
+
+Create mind only on an established absence (`Realm not found` on its read); an unknown or empty handle, a failed read or a failed write is not absence: create nothing, never a copy. An existing mind, even an empty one, is reused and completed with whichever role is missing, keyed by graph and person: a repeat never adds a second user-bound role or a second `persona=companion` role; roles that already fit keep their names and authorship. In the home branch the companion does this with the person's key. Tell the person plainly: their personal graph *@handle/mind* exists, and the assistant remembers and recalls through it. Work never goes there.
+
+Filling mind — areas, what each live graph is for, people, machines, the local setup — is not an onboarding step: only on the person's request (**minding**). A mind holding both roles is minimal, not filled; never report it as filled. Its artifacts present and the person understanding them are checked apart.
+
 ## The home branch — a window or bot thread
 
-In the Verstak window's or the bot's onboarding thread there is no repository and no harness, and the thread may start with no graph chosen — then the person's own rows are read and **1 · Area and graph** chooses one. Steps 0, 2 and 5 below, step 4's repository half (align, the `repository` attr, the agent role, `AGENTS.md`), and the table's rows for hooks, the agent role and the agent's seat do not run there. The loop goes **1 · Area and graph** → **3 · The person's role** → **the area's first holon** → the subject steps → the word about capabilities (6), which comes once when these are done and again only on an explicit redo — never every turn.
+In the Verstak window's or the bot's onboarding thread there is no repository and no harness, and the thread may start with no graph chosen — then the person's own rows are read and **1 · Area and graph** chooses one. The repository check, steps 2 and 5 below, step 4's repository half (align, the `repository` attr, the agent role, `AGENTS.md`), and the table's rows for hooks, the agent role and the agent's seat do not run there; step 0 does. The loop goes **0 · Personal memory** → **1 · Area and graph** → **3 · The person's role** → **the area's first holon** → the subject steps → the word about capabilities (6), which comes once when these are done and again only on an explicit redo — never every turn.
 
 **The area's first holon** is not skipped: search for a holon that already covers the area (`verstak_search(realm, q=<the area>, node_type="holon")`) and reuse it, or create one on their word with `verstak_add_holon` — no `repository` attr needed. Say what it is: the boundary of their work in the graph. Offering a repository is a sentence here, not a step: a repository is bound to this holon later by the agent in that repository — the harness branch — which finds the graph, role and holon made here and reuses them.
 
@@ -58,17 +69,15 @@ You write under the companion's own seat, which the runtime gives it; the method
 
 ## The harness branch — no working graph
 
-The order is fixed: graph → initial hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
+The order is fixed: personal memory (step 0) → graph → initial hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
 
 In a graph with no agent role yet (steps 1–3) you write without a seat: there is no role of yours to stand on, and the person's role is never one. The first seat is the agent role's, once align creates it (step 4).
 
-**0 · Which repository.** Before anything is created: `git remote get-url origin` and the graphs found. Show the person both and ask whether this repository is the work they want a graph for. Signs it may not be: `origin`'s owner is neither their handle nor one of their organizations; an `upstream` remote (a fork); a tutorial, a client's or a sample repo by its README. No `origin` remote → ask which repository this is; the repository steps wait for the answer. A graph already listing this repository (the repositories read above, run on each listed graph) is the answer — continue there; several → ask which. Not this repository → no hooks, holon or `AGENTS.md` here; a graph for their area is still offered (step 1), and the repository steps wait for the repository they name. No person in the session (an autonomous start) → create nothing (the mind graph excepted); the greeting says onboarding is waiting for them.
+**Which repository.** Before step 1 creates anything: `git remote get-url origin` and the graphs found. Show the person both and ask whether this repository is the work they want a graph for. Signs it may not be: `origin`'s owner is neither their handle nor one of their organizations; an `upstream` remote (a fork); a tutorial, a client's or a sample repo by its README. No `origin` remote → ask which repository this is; the repository steps wait for the answer. A graph already listing this repository (the repositories read above, run on each listed graph) is the answer — continue there; several → ask which. Not this repository → no hooks, holon or `AGENTS.md` here; a graph for their area is still offered (step 1), and the repository steps wait for the repository they name. No person in the session (an autonomous start) → create nothing (the mind graph excepted); the greeting says onboarding is waiting for them.
 
 **1 · Area and graph.** Ask what they will work on — the area, in their words, before graph and repository. Then:
 - graphs owned by others or their organizations are listed → name them ("*X* is shared with you and already holds repositories *A*, *B*"); continuing there is the default, a graph of their own the exception they choose;
-- none → offer `verstak_realm(action="create", name=<the area in their words>)`, named for the area rather than the repository;
-- `@handle/mind` — the minimal memory, unasked (**minding**). Create it only on an established absence (`Realm not found` on its read); a failed read, an unknown handle or a failed write is not absence and never a reason for a copy. An existing mind, even an empty one, is reused and completed with what it lacks: the person's role bound to them — one; a repeat never adds a second user-bound role — and a distinct role for the assistant, as the minding method shapes it, both in that graph. Roles that already fit keep their names and authorship; default names carry no personal fact. Tell the person plainly where you remember and where you recall from: their graph *@handle/mind*. Work never goes there.
-- Filling mind — areas, what each live graph is for, people, machines, the local setup — is not an onboarding step: only on the person's request (**minding**). A mind holding both roles is minimal, not filled; never report it as filled. Its artifacts present and the person understanding them are checked apart.
+- none → offer `verstak_realm(action="create", name=<the area in their words>)`, named for the area rather than the repository.
 
 Say what a graph is for them: their place of work, shared with their agents, the same in the window and the bot.
 
@@ -94,6 +103,6 @@ Billing goes in the same word, from this text, never from the person's plan — 
 - **Redo** ("onboarding" again, a re-run for testing) → the same steps with the current values shown and the explanations repeated; it creates nothing that exists. Two runs on one account end with one graph, one role of the person's, one holon per repository. A rename is their word: `verstak_realm(action="update", realm, name=…)`, `verstak_update` on the node.
 - **Three cases to tell apart**, each checked against the data:
   - a brand-new, empty working graph → step 2's initial hooks land in this session; waiting for a role or holon first is the failure;
-  - an existing mind, empty or partial → reused and completed; no second mind, no second user-bound role, and it is not counted as filled;
+  - an existing mind, empty or partial → reused and completed with whichever of its two roles is missing, the person's or the assistant's; no second mind, no second user-bound or `persona=companion` role, and it is not counted as filled;
   - a second entry — a redo or a later start → the existing graph, the person's role and both roles in mind are shown and kept; nothing is recreated.
 - **Finishing these steps opens ordinary work**; it does not declare every sign met. The subject-node rows stay offers on the person's next task.
