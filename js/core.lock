@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 399c76361d66a2d4696f5f8cfaffe07fa5b9a204
+commit 7d688c060c17eb05c562bbc1f39d4cc11878e114
 59ec67de6f5a0c85d5e4515ec90fbd8ea5d684448fa9411e2727a28d133012e1  js/bridge/absorb.ts
 d08245193edda8fb079edcf47b3ca05fa7c4299f0883e67522b611aead4faca4  js/bridge/addressmark.ts
 e9a25451925a672a5e29b3b16fea8005d599aa89023e0641452896b6aa7ac8b9  js/bridge/askdisk.ts
@@ -64,7 +64,7 @@ aa7f901e31d39875886a6ecfb76de239f8d678690187b9e82c23ccf2013754af  js/bridge/orde
 a2bce94f122175138ee22e7768575094cd2955f753a367af8bff71162b70e0b7  js/bridge/owner.ts
 2b13af8aabd7c9e8c15cf8ad08318ba094b2b958b61fce751baf4a71c7c77ead  js/bridge/pauserecord.ts
 f3939132d2922f58a285a0fc9300b5e7b154ab2e4f4b453fd35f2260e569a891  js/bridge/pending.ts
-04ac884cb6dfd6c57312a217287830bcf07a40497bcb16554c51af25896f6c02  js/bridge/placefields.ts
+7a25c7b77dbbb2bace8122bb79efcd2e29e434719c2d18d8f4d776e393b8dbf3  js/bridge/placefields.ts
 d02f607992aa358135e15aed8827dc9cdd9618dc766d4eaa8a0ec4345d750a07  js/bridge/places.ts
 a10bd2e409c789288c8adb94acad9173be1072432447838c45943a79e2582d38  js/bridge/probe.ts
 e4bbc1486e7d86893ed136ed526efda16828c43fd0d51e06ee7ffec6a351ad08  js/bridge/pulse.ts

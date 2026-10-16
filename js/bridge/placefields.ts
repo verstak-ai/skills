@@ -80,8 +80,9 @@ export const satelliteWithoutModel = (): boolean => CFG.satellite && !P.model;
  * held channel; a satellite's too), it goes alone. A connect or mint opens the channel it takes
  * and becomes the main seat (absorb.ts): "agent", whatever was registered before. A register
  * goes to the door of this graph's seat beside if there is one; else beside when the main seat
- * lives in another graph; else to the main door. No door at all (a bare register without a held
- * channel): the stop finds no seat, so no effect is claimed — null, the field is left out.
+ * lives in another graph; else to the main door. No held channel (a bare register without one, or
+ * a seat parked after leave — its stop waits for a return that may not come): no effect is
+ * claimed — null, the field is left out.
  * ack — the harness's way of confirming the AGENT's stop (orderhalt.ts), a property of the
  * session, not the outcome: a seat beside always ends seat_beside, whatever ack says.
  */
@@ -91,12 +92,15 @@ function stopAttrs(
 ): { effect: "agent" | "seat"; ack: "confirmed" | "word" } | null {
   const ack = confirmsHalts() ? "confirmed" : "word";
   if (move !== "register") return { effect: "agent", ack };
-  // No held channel: a seat beside is not added (hold.ts addPlace) and no door takes the id —
-  // the stop finds no seat, whatever graph the register names.
-  if (!H.holder?.alive || !H.currentKey || !H.door) return null;
+  // No held channel (released or parked: holder gone): no door takes the id — the stop finds no
+  // seat, whatever graph the register names. A socket reopening keeps holder, door, key and the
+  // seats beside: the stop still finds them, the field stays.
+  if (!H.holder || !H.currentKey || !H.door) return null;
+  if (extraIn(place.realm)) return { effect: "seat", ack };
   const prim = state.standing;
-  if (extraIn(place.realm) || (!!prim && otherRealm(place.realm, prim.realm)))
-    return { effect: "seat", ack };
+  // A new seat of another graph is added only on a live socket (hold.ts addPlace).
+  if (!!prim && otherRealm(place.realm, prim.realm))
+    return H.holder.alive ? { effect: "seat", ack } : null;
   return { effect: "agent", ack };
 }
 
