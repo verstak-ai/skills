@@ -40,6 +40,10 @@ Already present → reused, shown with its current value, never created again. T
 3. Nodes you write on the person's word are written by you, under your seat; never pose as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
 
+## The home branch — a window or bot thread
+
+In the Verstak window's or the bot's onboarding thread there is no repository and no harness, and the thread may start with no graph chosen — then the person's own rows are read and **1 · Area and graph** chooses one. Steps 0, 2, 4 and 5 below, and the table's rows for hooks, the repository's holon and the agent's seat, do not run there; the loop reaches **1 · Area and graph**, **3 · The person's role** and the subject steps, and the word about capabilities (6) comes once when they are done. Say plainly that a repository is connected from the agent in that repository — the harness branch — which finds the graph and role made here and reuses them.
+
 ## The harness branch — no working graph
 
 The order is fixed: graph → hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.

@@ -72,6 +72,20 @@ const SKILLS = {
       ],
     },
   },
+  onboarding: {
+    description:
+      "Lead a person with no working graph to working on their own, one step at a time: read the readiness signs from data, offer one step, do it with them, say the result and what it means, read again. Starts from the window's onboarding progress or the bot's button after sign-in, or on the person's word. Triggers: 'onboarding', 'start onboarding', 'help me get started', 'I don't know where to start', 'where do I begin', 'redo onboarding'. Not for a person who already works in their graph — help with their task instead. Needs the verstak_* tools.",
+    rewrites: [
+      ["from the door's Survey or from `methods/align.md`, without a separate call", "at session start or from the window's or bot's onboarding button, without a separate call"],
+      ["help on the material that exists (`methods/entry.md`, then the method the task needs).", `help on the material that exists: ${READ_THE_GRAPH}.`],
+      [" (`references/align-harness-surfaces.md`)", ""],
+      [" (`methods/writing.md`, `methods/design.md`)", ""],
+      ["restore access (`methods/establish-mcp.md`) and read again", "say the read failed and read again"],
+      ["Wire the ritual hooks of `methods/align.md`, Step 4, now", "Wire the repository's ritual hooks now"],
+      [", modes per `methods/writing.md`", ""],
+      ["`methods/align.md`, round 1 from step 2: the repository's holon", "The repository's holon"],
+    ],
+  },
   widgets: {
     description:
       "Live widgets in the Verstak window instead of a retold list — only where the answer is drawn by that window. Triggers: 'show the graph's cases', 'which cases are open', 'cases on this node', 'the card for case #N', 'where does this case stand', 'who is working in the graph now', 'what are the agents busy with', 'what's in progress'. Places one of the widgets cases, case, agents as a fenced block labelled verstak with a realm parameter. Not in Claude Code, Telegram or any surface that shows the block as code.",
