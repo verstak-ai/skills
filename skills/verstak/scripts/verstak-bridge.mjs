@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.7.2";
+var VERSION = "3.8.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -1194,8 +1194,8 @@ var PROCESS = {
   log: null
 };
 var currentScope = () => als.getStore() ?? PROCESS;
-function newScope(id, origin, sessionKey) {
-  return { id, origin, sessionKey, slots: /* @__PURE__ */ new Map(), log: null };
+function newScope(id, origin2, sessionKey) {
+  return { id, origin: origin2, sessionKey, slots: /* @__PURE__ */ new Map(), log: null };
 }
 var runIn = (scope, fn) => als.run(scope, fn);
 function bindScope(fn) {
@@ -1594,12 +1594,12 @@ var takingFilePathOf = (authDir, key2) => join4(standingsDirOf(authDir), `${hash
 var spoolFilePathOf = (authDir, key2) => join4(standingsDirOf(authDir), `${hashOf(key2)}.spool`);
 function seenFilePathOf(authDir, key2, server = "") {
   if (!server) return join4(standingsDirOf(authDir), `${hashOf(key2)}.seen`);
-  let origin = server;
+  let origin2 = server;
   try {
-    origin = new URL(server).origin;
+    origin2 = new URL(server).origin;
   } catch {
   }
-  return join4(standingsDirOf(authDir), `${hashOf(key2)}.${hashOf(origin).slice(0, 8)}.seen`);
+  return join4(standingsDirOf(authDir), `${hashOf(key2)}.${hashOf(origin2).slice(0, 8)}.seen`);
 }
 
 // js/shared/seam-entrance.ts
@@ -3841,9 +3841,9 @@ function isDirectWord(frame2) {
     return false;
   const p = frame2.provenance ?? {};
   if (p.via === "graph" || p.via === "room") return false;
-  const origin = frame2.origin ?? classifyOrigin(frame2);
-  if (origin === "platform") return false;
-  return origin === "human" || !!p.from_standing || p.from_karta_seq != null;
+  const origin2 = frame2.origin ?? classifyOrigin(frame2);
+  if (origin2 === "platform") return false;
+  return origin2 === "human" || !!p.from_standing || p.from_karta_seq != null;
 }
 function holdSocket(o) {
   let fastDrops = 0;
@@ -4794,8 +4794,8 @@ function repoName(cwd = sessionCwd()) {
     return basename2(top || cwd);
   const shared = real(resolve4(cwd, common));
   if (basename2(shared) === ".git") return basename2(dirname3(shared));
-  const origin = git(["remote", "get-url", "origin"], cwd).replace(/\/+$/, "");
-  const fromOrigin = basename2(origin.replace(/^.*:/, "/")).replace(/\.git$/, "");
+  const origin2 = git(["remote", "get-url", "origin"], cwd).replace(/\/+$/, "");
+  const fromOrigin = basename2(origin2.replace(/^.*:/, "/")).replace(/\.git$/, "");
   return fromOrigin || basename2(top || cwd);
 }
 function deriveParts(model, cwd = sessionCwd()) {
@@ -5144,14 +5144,14 @@ function caseHead(frame2, withZachin) {
 }
 function whoOf2(frame2, withPlace) {
   const p = frame2.provenance ?? {};
-  const origin = frame2.origin ?? classifyOrigin(frame2);
-  if (origin === "platform") return W().whoPlatform();
+  const origin2 = frame2.origin ?? classifyOrigin(frame2);
+  if (origin2 === "platform") return W().whoPlatform();
   if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
   const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
-  if (origin === "human") return W().whoHuman(opt(" @", p.user)) + place;
+  if (origin2 === "human") return W().whoHuman(opt(" @", p.user)) + place;
   const karta = p.from_karta_seq;
   if (karta == null) return p.from_standing ?? "";
-  return (origin === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
+  return (origin2 === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
 }
 function textOf(frame2) {
   if (roomKind(frame2)?.aside) return "";
@@ -5171,7 +5171,7 @@ function tail(frame2, withReply) {
 function frameToText(frame2, raw) {
   if (!frame2) return raw;
   const f = frame2;
-  const origin = frame2.origin ?? classifyOrigin(frame2);
+  const origin2 = frame2.origin ?? classifyOrigin(frame2);
   const text2 = textOf(frame2);
   const c = caseOf(frame2);
   if (c) {
@@ -5181,7 +5181,7 @@ function frameToText(frame2, raw) {
     const entry = idOf2(f.entry_id) || idOf2(line.entry_id);
     const words2 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
     const author = rk?.author && !words2.includes(rk.author) ? rk.author : "";
-    const who = origin === "platform" ? "" : whoOf2(frame2, false);
+    const who = origin2 === "platform" ? "" : whoOf2(frame2, false);
     const by = [author, who].filter(Boolean).join(", ");
     const withReply = rk?.kind !== "body";
     const head = `${caseHead(frame2, true)}${entry ? ` [${entry}]` : ""} ${words2}${by ? ` — ${by}` : ""}${tail(frame2, withReply)}`;
@@ -5717,6 +5717,7 @@ function writeHoldRecord(key2, rec5, paused = false, at2 = Date.now()) {
         ...rec5,
         session: session ?? void 0,
         left: left2 || void 0,
+        provisional: rec5.provisional ?? (was?.url === rec5.url && was.session === session ? was.provisional : void 0),
         base: B.get(key2) ?? rec5.base ?? was?.base ?? baseOnDisk(key2) ?? void 0,
         at: at2
       }) + "\n",
@@ -6622,6 +6623,36 @@ var handoffsSettled = () => Promise.all([...pending]).then(() => void 0);
 var holdWords = () => words(HOLD);
 var deadWord = (code) => holdWords().dead(deadTokenAdvice(code));
 
+// js/bridge/seatorigin.ts
+import { AsyncLocalStorage as AsyncLocalStorage2 } from "node:async_hooks";
+
+// js/shared/serviceid.ts
+var SERVICE_ID = `${ID_PREFIX}service-`;
+
+// js/bridge/seatorigin.ts
+var origin = new AsyncLocalStorage2();
+var automaticSeat = () => origin.getStore() ?? true;
+var withSeatOrigin = (automatic, work) => origin.run(automatic, work);
+var withCallOrigin = (id, work) => withSeatOrigin(typeof id === "string" && id.startsWith(SERVICE_ID), work);
+
+// js/bridge/seatproof.ts
+function seatProof(key2) {
+  const r = key2 ? readHoldRecord(key2, true) : null;
+  if (!r) return {};
+  return {
+    key: key2 ?? void 0,
+    place: { realm: r.realm, karta: String(r.karta), name: r.name },
+    provisional: r.provisional === true && !!r.session && r.session === sessionOfBridge()
+  };
+}
+var heldProof = (key2, place) => ({
+  kind: "held",
+  key: key2,
+  ...place ? { place } : {},
+  ...seatProof(key2),
+  automatic: automaticSeat()
+});
+
 // js/bridge/hold.ts
 function keyFor() {
   const s2 = state.standing;
@@ -6793,7 +6824,7 @@ function holdStanding(url, statusUrl2) {
   openHolder(url, key2);
   standingLog(`held ${key2}${H2.standCwd ? ` cwd=${H2.standCwd}` : ""}`);
   const place = s2 ? { realm: s2.realm, karta: String(s2.karta), name: s2.name ?? "" } : void 0;
-  notify("info", { kind: "held", key: key2, ...place ? { place } : {} });
+  notify("info", heldProof(key2, place));
   return key2;
 }
 function parkStanding(reason) {
@@ -8746,11 +8777,14 @@ function holdFromEnv() {
   const url = envOf(envName("CHANNEL_SOCKET"))?.trim();
   if (url) holdStanding(url, envOf(envName("CHANNEL_STATUS"))?.trim() || null);
 }
-var reply = (msg, result) => ({
-  jsonrpc: "2.0",
-  id: msg.id,
-  result
-});
+var reply = (msg, result) => {
+  const r = result;
+  return {
+    jsonrpc: "2.0",
+    id: msg.id,
+    result: r && (r.resumed || r.holding) ? { ...r, ...seatProof(ledKey()) } : result
+  };
+};
 var selectorOf = (msg) => ({
   key: typeof msg.params?.key === "string" && msg.params.key.trim() ? msg.params.key.trim() : void 0,
   cwd: typeof msg.params?.cwd === "string" && msg.params.cwd.trim() ? msg.params.cwd.trim() : void 0,
@@ -10183,9 +10217,8 @@ function localEnd(msg) {
   return closeRun(words(RUN_END).pluginEnd(), false).then(({ failed, revoked }) => answer2({ ended: true, failed, revoked })).catch((e) => answer2({ ended: false, word: e.message }));
 }
 
-// js/bridge/stand.ts
-import { statSync as statSync8 } from "node:fs";
-import { isAbsolute as isAbsolute2 } from "node:path";
+// js/bridge/provisional.ts
+import { randomBytes as randomBytes4 } from "node:crypto";
 
 // js/bridge/standwords.ts
 var sw2 = () => words(STAND);
@@ -10216,6 +10249,120 @@ function missWord(m, of) {
   }
 }
 var needRealmKarta = (miss, of) => sw2().needRealmKarta(miss ? ` ${missWord(miss, of)}` : "");
+
+// js/bridge/standmoves.ts
+var mw = () => words(STAND_MOVES);
+var standCall = (realm, karta, name2) => `${tool("stand")}(realm="${realm}", karta=${karta}${name2 ? `, name="${name2}"` : ""})`;
+function ledIn2(realm) {
+  const prim = state.standing;
+  return prim && sameRealm(prim.realm, realm) ? prim : extraIn(realm)?.standing;
+}
+var STANDS_IN_REALM = "channel_already_stands_in_realm";
+async function releasePrior(realm, prior) {
+  const name2 = prior.name ?? "";
+  const beside = extraOf(realm, prior.karta, name2)?.door.key;
+  const args = { action: "revoke", realm, karta: String(prior.karta), standing: name2 };
+  if (beside) setRevokingBeside(beside, true);
+  const r = await callTool(tool("channel"), args).finally(() => {
+    if (beside) setRevokingBeside(beside, false);
+  });
+  if (!r.isError) {
+    if (beside) dropExtra(beside, holdWords().revokedOwn(), true, "own");
+    return { ok: true, note: mw().priorReleased(name2) };
+  }
+  return { ok: false, note: mw().priorKept(name2, short(r.text, 160), revokeCall(realm, prior)) };
+}
+var revokeCall = (realm, s2) => `${tool("channel")}(action="revoke", realm="${realm}", karta="${s2.karta}", standing="${s2.name ?? ""}")`;
+function besideHoldsMain(realm, prior, asked) {
+  const prim = state.standing;
+  if (!prim || !sameRealm(prim.realm, realm) || prim.name !== prior.name) return null;
+  const beside = extraPlaces().map((p) => p.standing);
+  if (!beside.length) return null;
+  return mw().besideHoldsMain(
+    prior.name ?? "",
+    asked,
+    beside.map((s2) => `${s2.name ?? ""} (${s2.realm})`).join(", "),
+    beside.map((s2) => revokeCall(s2.realm, s2)).join("; "),
+    standCall(realm, prior.karta, prior.name ?? "")
+  );
+}
+var REISSUE_MAX_S = 15;
+function reissueThrottled(r) {
+  if (!r.isError) return null;
+  const rule = r.refusal?.rule;
+  const hit = rule === "socket_reissue_throttled" || !rule && r.refusal?.status === 429 || r.text.includes("socket_reissue_throttled");
+  if (!hit) return null;
+  const said2 = Number(/retry in (\d+)\s*s/i.exec(r.text)?.[1] ?? NaN);
+  return Math.min(Math.max(Number.isFinite(said2) ? said2 : 10, 1), REISSUE_MAX_S);
+}
+async function awaitReissue(seconds2, held2, stopped) {
+  for (const end = Date.now() + seconds2 * 1e3; Date.now() < end; ) {
+    const stop2 = stopped();
+    if (stop2 || held2()) return { own: !stop2, stop: stop2 };
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  const stop = stopped();
+  return { own: !stop && held2(), stop };
+}
+async function throughReissue(c, again, seat2, stopsBefore) {
+  const throttle = reissueThrottled(c);
+  if (!throttle) return { c, own: false, note: null };
+  const t0 = Date.now();
+  const { own, stop } = await awaitReissue(
+    throttle,
+    () => holdsStanding(seat2.realm, seat2.karta, seat2.name),
+    () => stoppedDuring(stopsBefore)
+  );
+  if (stop) return { c, own, note: null };
+  const seconds2 = Math.round((Date.now() - t0) / 1e3);
+  return { c: own ? c : await again(), own, note: mw().reissueWaited(seconds2, own) };
+}
+function yourStandingsMove(r, realm) {
+  const names2 = standingsInRealm(r.refusal);
+  if (!names2.length) return null;
+  const call = names2.map((n) => `${tool("stand")}(realm="${realm}", karta, name="${n}")`);
+  return { call: call.join("; "), name: names2.join(", ") };
+}
+function refusedWord(what, r, realm, afterConnect) {
+  if (r.refusal?.rule === STANDS_IN_REALM || r.text.includes(STANDS_IN_REALM)) {
+    const yours = yourStandingsMove(r, realm);
+    const led = yours || afterConnect !== void 0 ? void 0 : ledIn2(realm);
+    const call = yours?.call ?? (led ? standCall(realm, led.karta, led.name ?? "") : "");
+    const board = `${tool("channel")}(action="list", realm="${realm}")`;
+    const leave = `${tool("channel")}(action="revoke", realm="${realm}", karta, standing=<${yours?.name ?? led?.name ?? "name"}>)`;
+    return mw().standsInRealm(realm, call, board, leave, !!yours);
+  }
+  return afterConnect ?? sw2().refused(what, short(r.text));
+}
+
+// js/bridge/provisional.ts
+function name(base) {
+  const suffix = `.root-${randomBytes4(6).toString("hex")}`;
+  return (base || "root").slice(0, NAME_MAX - suffix.length).replace(/[.-]+$/, "") + suffix;
+}
+var takesProvisional = (msg) => msg.params?.arguments?.provisional === true && typeof msg.id === "string" && msg.id.startsWith(SERVICE_ID);
+function replacesProvisional(realm, own) {
+  const led = ledIn2(realm);
+  if (own || !led?.name) return false;
+  const rec5 = readHoldRecord(keyOf(led.realm, led.karta, led.name), true);
+  return rec5?.provisional === true && !!sessionOfBridge() && rec5.session === sessionOfBridge();
+}
+function noteStood(own, realm, karta, name2) {
+  const key2 = keyOf(realm, karta, name2);
+  const rec5 = readHoldRecord(key2, true);
+  if (rec5) writeHoldRecord(key2, { ...rec5, provisional: own });
+}
+function restore(rec5) {
+  if (rec5.provisional !== true || !rec5.session || rec5.session !== sessionOfBridge()) return;
+  const led = ledIn2(rec5.realm);
+  if (led?.name === rec5.name && String(led.karta) === String(rec5.karta))
+    noteStood(true, led.realm, String(led.karta), rec5.name);
+}
+var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
+
+// js/bridge/stand.ts
+import { statSync as statSync8 } from "node:fs";
+import { isAbsolute as isAbsolute2 } from "node:path";
 
 // js/bridge/knock.ts
 var knocks = scoped(() => /* @__PURE__ */ new Map());
@@ -10498,116 +10645,6 @@ async function ownersOf(realm, k) {
   return seqs.includes(k);
 }
 
-// js/bridge/provisional.ts
-import { randomBytes as randomBytes4 } from "node:crypto";
-
-// js/shared/serviceid.ts
-var SERVICE_ID = `${ID_PREFIX}service-`;
-
-// js/bridge/standmoves.ts
-var mw = () => words(STAND_MOVES);
-var standCall = (realm, karta, name2) => `${tool("stand")}(realm="${realm}", karta=${karta}${name2 ? `, name="${name2}"` : ""})`;
-function ledIn2(realm) {
-  const prim = state.standing;
-  return prim && sameRealm(prim.realm, realm) ? prim : extraIn(realm)?.standing;
-}
-var STANDS_IN_REALM = "channel_already_stands_in_realm";
-async function releasePrior(realm, prior) {
-  const name2 = prior.name ?? "";
-  const beside = extraOf(realm, prior.karta, name2)?.door.key;
-  const args = { action: "revoke", realm, karta: String(prior.karta), standing: name2 };
-  if (beside) setRevokingBeside(beside, true);
-  const r = await callTool(tool("channel"), args).finally(() => {
-    if (beside) setRevokingBeside(beside, false);
-  });
-  if (!r.isError) {
-    if (beside) dropExtra(beside, holdWords().revokedOwn(), true, "own");
-    return { ok: true, note: mw().priorReleased(name2) };
-  }
-  return { ok: false, note: mw().priorKept(name2, short(r.text, 160), revokeCall(realm, prior)) };
-}
-var revokeCall = (realm, s2) => `${tool("channel")}(action="revoke", realm="${realm}", karta="${s2.karta}", standing="${s2.name ?? ""}")`;
-function besideHoldsMain(realm, prior, asked) {
-  const prim = state.standing;
-  if (!prim || !sameRealm(prim.realm, realm) || prim.name !== prior.name) return null;
-  const beside = extraPlaces().map((p) => p.standing);
-  if (!beside.length) return null;
-  return mw().besideHoldsMain(
-    prior.name ?? "",
-    asked,
-    beside.map((s2) => `${s2.name ?? ""} (${s2.realm})`).join(", "),
-    beside.map((s2) => revokeCall(s2.realm, s2)).join("; "),
-    standCall(realm, prior.karta, prior.name ?? "")
-  );
-}
-var REISSUE_MAX_S = 15;
-function reissueThrottled(r) {
-  if (!r.isError) return null;
-  const rule = r.refusal?.rule;
-  const hit = rule === "socket_reissue_throttled" || !rule && r.refusal?.status === 429 || r.text.includes("socket_reissue_throttled");
-  if (!hit) return null;
-  const said2 = Number(/retry in (\d+)\s*s/i.exec(r.text)?.[1] ?? NaN);
-  return Math.min(Math.max(Number.isFinite(said2) ? said2 : 10, 1), REISSUE_MAX_S);
-}
-async function awaitReissue(seconds2, held2, stopped) {
-  for (const end = Date.now() + seconds2 * 1e3; Date.now() < end; ) {
-    const stop2 = stopped();
-    if (stop2 || held2()) return { own: !stop2, stop: stop2 };
-    await new Promise((r) => setTimeout(r, 200));
-  }
-  const stop = stopped();
-  return { own: !stop && held2(), stop };
-}
-async function throughReissue(c, again, seat2, stopsBefore) {
-  const throttle = reissueThrottled(c);
-  if (!throttle) return { c, own: false, note: null };
-  const t0 = Date.now();
-  const { own, stop } = await awaitReissue(
-    throttle,
-    () => holdsStanding(seat2.realm, seat2.karta, seat2.name),
-    () => stoppedDuring(stopsBefore)
-  );
-  if (stop) return { c, own, note: null };
-  const seconds2 = Math.round((Date.now() - t0) / 1e3);
-  return { c: own ? c : await again(), own, note: mw().reissueWaited(seconds2, own) };
-}
-function yourStandingsMove(r, realm) {
-  const names2 = standingsInRealm(r.refusal);
-  if (!names2.length) return null;
-  const call = names2.map((n) => `${tool("stand")}(realm="${realm}", karta, name="${n}")`);
-  return { call: call.join("; "), name: names2.join(", ") };
-}
-function refusedWord(what, r, realm, afterConnect) {
-  if (r.refusal?.rule === STANDS_IN_REALM || r.text.includes(STANDS_IN_REALM)) {
-    const yours = yourStandingsMove(r, realm);
-    const led = yours || afterConnect !== void 0 ? void 0 : ledIn2(realm);
-    const call = yours?.call ?? (led ? standCall(realm, led.karta, led.name ?? "") : "");
-    const board = `${tool("channel")}(action="list", realm="${realm}")`;
-    const leave = `${tool("channel")}(action="revoke", realm="${realm}", karta, standing=<${yours?.name ?? led?.name ?? "name"}>)`;
-    return mw().standsInRealm(realm, call, board, leave, !!yours);
-  }
-  return afterConnect ?? sw2().refused(what, short(r.text));
-}
-
-// js/bridge/provisional.ts
-var P4 = scoped(() => ({ seat: null }));
-function name(base) {
-  const suffix = `.root-${randomBytes4(12).toString("hex")}`;
-  return (base || "root").slice(0, NAME_MAX - suffix.length).replace(/[.-]+$/, "") + suffix;
-}
-var takesProvisional = (msg) => msg.params?.arguments?.provisional === true && typeof msg.id === "string" && msg.id.startsWith(SERVICE_ID);
-function replacesProvisional(realm, own) {
-  const s2 = P4.seat;
-  const led = ledIn2(realm);
-  if (own || !s2 || !led) return false;
-  return sameRealm(s2.realm, led.realm) && s2.karta === String(led.karta) && s2.name === led.name;
-}
-function noteStood(own, realm, karta, name2) {
-  if (own) P4.seat = { realm, karta: String(karta), name: name2 };
-  else if (P4.seat && sameRealm(P4.seat.realm, realm)) P4.seat = null;
-}
-var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
-
 // js/bridge/standagain.ts
 async function formerSeat(realm, karta) {
   const cwd = sessionCwd();
@@ -10758,6 +10795,7 @@ async function standOnce(msg) {
     id: msg.id,
     result: {
       ...isError ? { isError: true } : {},
+      ...isError ? {} : { structuredContent: seatProof(heldKey(realm)) },
       content: [{ type: "text", text: lines.join("\n") }]
     }
   });
@@ -11034,12 +11072,15 @@ async function standOnce(msg) {
 async function standAs(id, place, cwd) {
   const { realm, karta, name: name2 } = place;
   const where = cwd && isDirectory2(cwd) ? { cwd } : {};
-  const r = await runStand({
-    jsonrpc: "2.0",
-    id,
-    method: "tools/call",
-    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name: name2, ...where } }
-  });
+  const r = await withSeatOrigin(
+    true,
+    () => runStand({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name: tool("stand"), arguments: { realm, karta: String(karta), name: name2, ...where } }
+    })
+  );
   const text2 = (r.result?.content ?? []).map((c) => c.text ?? "");
   return { ok: !r.result?.isError, text: text2.join("\n") };
 }
@@ -11053,9 +11094,11 @@ wireEviction(
     )
   )
 );
-wireTakeOwn(
-  async (rec5, cwd) => (await standAs(`${ID_PREFIX}bridge-resume`, rec5, cwd)).text.split("\n")[0]
-);
+wireTakeOwn(async (rec5, cwd) => {
+  const r = await standAs(`${ID_PREFIX}bridge-resume`, rec5, cwd);
+  if (r.ok) restore(rec5);
+  return r.text.split("\n")[0];
+});
 
 // js/bridge/stophold.ts
 var whoOf3 = (reason) => reason === "revoked:person" ? "person" : reason === "revoked:self" ? "self" : "other";
@@ -11450,7 +11493,7 @@ var lastAgentWork = () => W3.at;
 // js/bridge/pulse.ts
 var GAP_MS = Number(process.env[envName("PULSE_GAP_MS")]) || 3e4;
 var STATES = /* @__PURE__ */ new Set(["idle", "busy", "interrupted", "failed", "unknown"]);
-var P5 = scoped(() => ({
+var P4 = scoped(() => ({
   /** The harness's word: state and the moments it knows. */
   said: {},
   sent: null,
@@ -11460,7 +11503,7 @@ var P5 = scoped(() => ({
 }));
 var iso = (v) => typeof v === "string" && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : void 0;
 function current() {
-  const { state: state2, turn_at, read_at } = P5.said;
+  const { state: state2, turn_at, read_at } = P4.said;
   const work = lastAgentWork();
   return {
     type: "pulse",
@@ -11473,56 +11516,56 @@ function current() {
 }
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function send(p, holder = H2.holder) {
-  if (P5.timer) clearTimeout(P5.timer);
-  P5.timer = null;
+  if (P4.timer) clearTimeout(P4.timer);
+  P4.timer = null;
   if (!holder?.send(JSON.stringify(p))) return;
-  P5.sent = p;
-  P5.sentAt = Date.now();
+  P4.sent = p;
+  P4.sentAt = Date.now();
 }
 function consider(now2 = false) {
   if (!H2.holder?.alive || H2.unheard) return;
   const p = current();
-  if (same(P5.sent, p)) return;
-  const wait = now2 ? 0 : P5.sentAt + GAP_MS - Date.now();
+  if (same(P4.sent, p)) return;
+  const wait = now2 ? 0 : P4.sentAt + GAP_MS - Date.now();
   if (wait <= 0) return send(p);
-  if (!P5.timer) {
-    P5.timer = setTimeout(
+  if (!P4.timer) {
+    P4.timer = setTimeout(
       bindScope(() => {
-        P5.timer = null;
+        P4.timer = null;
         consider();
       }),
       wait
     );
-    P5.timer.unref?.();
+    P4.timer.unref?.();
   }
 }
 function watch() {
-  if (P5.tick) return;
-  P5.tick = setInterval(
+  if (P4.tick) return;
+  P4.tick = setInterval(
     bindScope(() => {
       if (H2.holder?.alive) return consider();
       if (H2.door) return;
-      clearInterval(P5.tick ?? void 0);
-      P5.tick = null;
+      clearInterval(P4.tick ?? void 0);
+      P4.tick = null;
     }),
     GAP_MS
   );
-  P5.tick.unref?.();
+  P4.tick.unref?.();
 }
 whenPulsed((why, holder) => {
   if (why === "hello") {
-    P5.sent = null;
+    P4.sent = null;
     watch();
     return consider(true);
   }
   if (why === "frame") return consider();
   const p = current();
-  if (!same(P5.sent, p)) send(p, holder);
-  if (P5.timer) clearTimeout(P5.timer);
-  P5.timer = null;
+  if (!same(P4.sent, p)) send(p, holder);
+  if (P4.timer) clearTimeout(P4.timer);
+  P4.timer = null;
 });
 onAgentWork(() => consider());
-var sentPulse = () => P5.sent ? { ...P5.sent, sent_at: new Date(P5.sentAt).toISOString() } : null;
+var sentPulse = () => P4.sent ? { ...P4.sent, sent_at: new Date(P4.sentAt).toISOString() } : null;
 var isPulseCall = (msg) => msg?.method === method("pulse");
 function runPulse(msg) {
   const answer2 = (result) => ({
@@ -11532,13 +11575,13 @@ function runPulse(msg) {
   });
   if (!HOSTED_CLIENTS.has(harnessName())) return answer2({ taken: false, pulse: null });
   const p = msg.params ?? {};
-  const said2 = { ...P5.said };
+  const said2 = { ...P4.said };
   if (typeof p.state === "string" && STATES.has(p.state)) said2.state = p.state;
   for (const k of ["turn_at", "read_at"]) {
     const v = iso(p[k]);
     if (v && (!said2[k] || v > said2[k])) said2[k] = v;
   }
-  P5.said = said2;
+  P4.said = said2;
   try {
     consider();
   } catch (e) {
@@ -11585,6 +11628,12 @@ async function refreshSkills() {
   });
   return S3.refreshing;
 }
+
+// js/bridge/standdelivery.ts
+var standForHarness = async (msg, notice) => forHarness(notice(await serialized(() => withCallOrigin(msg.id, () => runStand(msg)))));
+var resumeByOrigin = (msg) => serialized(
+  () => withSeatOrigin(true, () => isResumeCall(msg) ? runResume(msg) : runCheck(msg))
+);
 
 // js/bridge/deliver.ts
 function syntheticError(id, message, outcome = UpstreamError.UNKNOWN, holdOff = false) {
@@ -11733,11 +11782,11 @@ async function deliverOne(msg) {
         return;
       }
       if (isStand) {
-        emit(withNotice(await serialized(() => runStand(msg))));
+        emit(await standForHarness(msg, withNotice));
         return;
       }
       if (isResumeCall(msg) || isCheckCall(msg)) {
-        emit(await serialized(() => isResumeCall(msg) ? runResume(msg) : runCheck(msg)));
+        emit(await resumeByOrigin(msg));
         return;
       }
       if (isUsageCall(msg)) {
@@ -11777,7 +11826,7 @@ async function deliverOne(msg) {
       if (msg.method === "tools/call" && msg.params?.name === tool("channel") && msg.params.arguments)
         msg.params.arguments = withPlaceFields(msg.params.arguments);
       endTaking = msg.params?.name === tool("channel") ? beginTaking(msg.params.arguments ?? {}) : null;
-      await post2(msg, forward);
+      await (takes ? withCallOrigin(msg.id, () => post2(msg, forward)) : post2(msg, forward));
       const held2 = heldReply;
       if (held2 && msg.params?.name === tool("channel") && msg.params.arguments)
         noteLocaleEcho(msg.params.arguments, replyText(held2), structuredOf(held2));
@@ -11891,28 +11940,28 @@ async function deliverOne(msg) {
 // js/bridge/session.ts
 var HANDOVER_WAIT_MS = Number(process.env[envName("BRIDGE_HANDOVER_WAIT_MS")]) || 1e4;
 var counter = 0;
-function applyOrigin(origin) {
-  const cfg = readArgs(origin.argv);
-  if (origin.patSha !== void 0 && patShaOf(cfg.pat) !== origin.patSha)
+function applyOrigin(origin2) {
+  const cfg = readArgs(origin2.argv);
+  if (origin2.patSha !== void 0 && patShaOf(cfg.pat) !== origin2.patSha)
     throw new Error(
       "this daemon signs in otherwise than the bridge asking (its personal token differs)"
     );
   setConfig(cfg);
 }
-function openSession(io, origin, opts = {}) {
-  if (!origin) return openIn(io, null, null);
+function openSession(io, origin2, opts = {}) {
+  if (!origin2) return openIn(io, null, null);
   const scope = newScope(
     opts.id ?? `s${++counter}`,
-    { env: origin.env, cwd: origin.cwd, pid: origin.pid, path: origin.path ?? "" },
+    { env: origin2.env, cwd: origin2.cwd, pid: origin2.pid, path: origin2.path ?? "" },
     isSessionEnvKey
   );
   scope.log = opts.log ?? null;
   return runIn(scope, () => {
-    applyOrigin(origin);
-    return openIn(io, origin, scope);
+    applyOrigin(origin2);
+    return openIn(io, origin2, scope);
   });
 }
-function openIn(io, origin, scope) {
+function openIn(io, origin2, scope) {
   setSessionOutput(io.output);
   guardStream(io.output);
   holdFromEnv();
@@ -11959,7 +12008,7 @@ function openIn(io, origin, scope) {
   );
   const windDown = async (why) => {
     debug(`${why} — winding down`);
-    const handover = !!origin && handoverUnderway();
+    const handover = !!origin2 && handoverUnderway();
     const paused = suspended();
     await Promise.all([
       closeRun(why, handover).catch((e) => log(`the run's end failed: ${e.message}`)),
@@ -11969,7 +12018,7 @@ function openIn(io, origin, scope) {
     else await Promise.allSettled([...pending2, ...tokenRequestsInFlight]);
     if (paused) await pauseSettled();
     await flushStdout(io.output);
-    if (origin) {
+    if (origin2) {
       releaseSatelliteClaims();
       return;
     }
@@ -11988,7 +12037,7 @@ function openIn(io, origin, scope) {
     "close",
     bindScope(() => void leave("stdin closed, the harness is gone"))
   );
-  return { leave, ended, origin, scope, lastWork: bindScope(lastAgentWork) };
+  return { leave, ended, origin: origin2, scope, lastWork: bindScope(lastAgentWork) };
 }
 
 // js/bridge/snapshot.ts
@@ -13831,13 +13880,13 @@ function formOf2(e) {
   }
   return e.args.includes("--satellite") ? "path" : "session";
 }
-var P6 = PRODUCT_PATTERN;
+var P5 = PRODUCT_PATTERN;
 var HOME_DIR_RE = new RegExp(escapeRe(HOME_DIR));
-var EVAL_PATH_RE = new RegExp(`['"\`]([^'"\`]*${P6}[^'"\`]*\\.mjs)['"\`]`);
+var EVAL_PATH_RE = new RegExp(`['"\`]([^'"\`]*${P5}[^'"\`]*\\.mjs)['"\`]`);
 var SHELL_PATH_RE = new RegExp(
-  `"([^"]*${P6}[^"]*\\.mjs)"|'([^']*${P6}[^']*\\.mjs)'|(\\S*${P6}\\S*\\.mjs)`
+  `"([^"]*${P5}[^"]*\\.mjs)"|'([^']*${P5}[^']*\\.mjs)'|(\\S*${P5}\\S*\\.mjs)`
 );
-var ARG_PATH_RE = new RegExp(`${P6}[^\\\\/]*\\.mjs$`, "i");
+var ARG_PATH_RE = new RegExp(`${P5}[^\\\\/]*\\.mjs$`, "i");
 var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir9()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir9());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
