@@ -10,6 +10,8 @@ Each hook's `command` echoes an envelope; mind the nesting `event → array → 
 ```
 The run fills the four slots from the AGENTS.md frontmatter; no angle brackets remain. The first sentence asks for the skill by name so the door loads every session. No apostrophes (single-quoted `echo`).
 
+**Initial form** (onboarding, before the role, holon and gate exist): the same envelope, with the `additionalContext` byte for byte `Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph <Graph>; no holon or roles yet. Continue the onboarding method from the first missing sign.` — one slot, the graph's `@owner/slug`. With it, the push and merge hooks below and the memory guard as they stand (they carry no slots); spec-write waits. Align replaces this `SessionStart` entry with the full one above; a repeat of the initial form never overwrites a full entry.
+
 ## Push and merge: fire on the outcome, not the form
 `PostToolUse` entries with `"matcher": "Bash"`; gate: `jq -e '<filter>' >/dev/null && echo '<envelope>' || true`.
 - Match a **command** (at line start or after `;`, `&&`, `|`, `(`, a newline; `env` and assignments before it; `-C <path>` on git), never a substring (`echo`, `grep`, a PR body).

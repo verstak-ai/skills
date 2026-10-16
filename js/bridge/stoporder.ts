@@ -54,7 +54,8 @@ function journalRefused(id: string, outcome: boolean): void {
  * The stop itself and the harness's part of it. Where the harness confirms (the OpenCode
  * plugin), stopped is its executed interrupt and its refusal is failed with its code; where it
  * cannot (the watchdog, pi), the stop is executed once the bridge gave the stop word and let
- * the seat go. A seat beside stops no agent: it goes alone.
+ * the seat go. A seat beside stops no agent: it goes alone. stopped names which of the three it
+ * was: halt_confirmed, word_given, seat_beside.
  */
 async function stopOf(o: Order, entry: OrderEntry): Promise<OrderEntry> {
   const confirms = confirmsHalts();
@@ -66,9 +67,10 @@ async function stopOf(o: Order, entry: OrderEntry): Promise<OrderEntry> {
     return { ...entry, state: "failed", reason: "stop_failed" };
   }
   if (seat === null) return { ...entry, state: "unknown", reason: "seat_gone_before_stop" };
-  if (seat === "beside" || !confirms) return { ...entry, state: "stopped" };
+  if (seat === "beside") return { ...entry, state: "stopped", reason: "seat_beside" };
+  if (!confirms) return { ...entry, state: "stopped", reason: "word_given" };
   const code = await awaitHalt(o.id);
-  if (code === null) return { ...entry, state: "stopped" };
+  if (code === null) return { ...entry, state: "stopped", reason: "halt_confirmed" };
   log(`stop order ${o.id}: the harness's stop — ${code}`);
   return code === SILENT
     ? { ...entry, state: "unknown", reason: SILENT }

@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
 slash: true
 ---
 
@@ -28,7 +28,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
    The focus holon's `repository` attr must match `origin`: **align**, Step 2.
    Your tools carry another prefix than `verstak_` (the bridge's config sets it) → read it off your tool list and put it in place of `verstak_` wherever the methods write it.
 
-2. **A seat only for a watch** — the word "watch", a `start` with a seat address, a `verstak … case #N` launch line, a pasted seat address, a frame that woke you. Otherwise none: a seat makes you reachable by everyone. `register` signs your writes under your own name and hears nothing; `verstak_stand` takes a listening seat.
+2. **A seat for a watch or a write** — the word "watch", a `start` with a seat address, a `verstak … case #N` launch line, a pasted seat address, a frame that woke you; and the first write or case word under a role in a project graph (onboarding before any role exists writes without one). Otherwise none: a seat makes you reachable by everyone. A seat your session already holds (the plugin seated you on a launch line or from `AGENTS.md` at start — provisional, an explicit `verstak_stand` replaces it — or returned your own) is used as is. `register` only names a seat you already hold, or one on the channel your bridge holds — it never opens a seat, and with none it refuses (`standing_not_held`); `verstak_stand` takes a listening seat.
    - **Watch:** one `verstak_stand(realm=<graph>, karta=<role>, model=<model id without provider prefix>, room=<the user's seat address, if any>, status=<what you're busy with>)`; it also knocks on the user's seat. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants.
    - **`verstak <graph> <role> case #N`** → `verstak_stand` without `room`, `verstak_case(action="join", room=<case>, realm)`, `read` it and its nodes; your first `say` restates the brief.
    - **Subagent:** its own satellite bridge, never the caller's — `verstak_stand(realm, karta, satellite_of=<caller's seat>)` (from a trailing `from <seat>`), `join`, restate; done → `leave`. An `ask` of yours still open is not done: before `leave`, tell the case's lead which key awaits an answer (any seat of your role may `ack` it), or leave the question to the lead in the first place. No satellite, or `satellite_of` refused (don't retry) → no `verstak_stand`/`join`/`leave`, no writes; say so in your result's first line.
@@ -111,9 +111,9 @@ Free: `git status --short`, the branch, the stamp. The first matching row overri
 | Survey | Move |
 |---|---|
 | tools absent or silent | **establish-mcp**, then the request |
-| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: invited into a graph → write there; else `verstak_realm(action="create")` named after the repo or request; never offer others' graphs. No `AGENTS.md` → also **align** |
+| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: **onboarding** — the person names the area, a graph they were invited to is continued, a new one created only on their word; never a graph created unasked. No `AGENTS.md` → **align** after it |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
-| the move will write or speak in a case | first `verstak_channel(action="register", realm=…, karta=<role>, name=<derived name>)`, unless the environment named your seat; no seat or no holder → **collaborate**. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
+| the move will write or speak in a case | the seat you hold, if any (the environment named it, or the plugin seated you); none → first `verstak_stand(realm=…, karta=<role from AGENTS.md>)`, never a bare `register` (it opens no seat); no role, or the role is unclear → **collaborate**, not a guessed one. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
 | a write authorless **again** after naming yourself | **establish-mcp** |
 
 No override → the request; the survey's numbers go into your answer.
@@ -144,6 +144,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Do**
 - ordinary code work — "fix this", "build it", "we've decided, do it" → **code-work**, `Before code`
 - "set up this repo" → **align** (`/verstak align`)
+- "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
@@ -177,6 +178,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
 | **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
+| **onboarding** ↔ **align** | the person has no working graph or role yet vs. the repo's contract on a graph that exists |
 
 Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 
@@ -217,7 +219,7 @@ They apply unasked.
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
-| before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
+| before a `git push` that opens or updates a PR | **code-work**, `Self-review`; `Cold review` once the branch is finished, the full one only on the tag candidate |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
 | a piece finished; a wake-up tick; the case isn't yours | clean up, leave — `Case laws` |

@@ -16,7 +16,7 @@ description: "The user's memory in the graph — the personal graph @handle/mind
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
 | **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into `@handle/mind` under its area's holon; a person as a guest role in a group; never harness-local memory |
 
-Every user gets `@handle/mind` and their own role in it without being asked (Appendix, A1–A2): created at session start when the user has no graph, by **align** when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
+Every user gets `@handle/mind` with their own role and the assistant's in it without being asked (Appendix, A1–A2): created at session start when the user has no graph, by **onboarding** at its step 0, by **align** when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
 
 ## The address
 
@@ -26,7 +26,7 @@ verstak_orient(realm="@handle/mind")   → the map of holons
 ```
 
 - The address is **a convention**, not something to discover: don't scan `verstak_realm(action="list")` for a personal graph.
-- `Realm not found: "@handle/mind"` **is an answer**: create the graph and role (A1–A2) without asking; filling waits for a request. Don't fall back to listing graphs.
+- `Realm not found: "@handle/mind"` **is an answer**: create the graph and both roles (A1–A2) without asking; filling waits for a request. Don't fall back to listing graphs.
 - A personal graph under **another slug** is settled once, at bootstrap: move it to `mind`, or leave a **stub at `@handle/mind`** — one `key:true` landmark carrying the real address.
 
 ## §1 Recall
@@ -195,7 +195,7 @@ verstak_add_karta(realm=…, name="👤 role name in the user's words",
   epistemic_mode="pratyakshita", ontic_mode="vartamana", volitive_mode="upeksha")
 ```
 
-Created without asking (at session start, or by this method on `Realm not found`): name `👤 handle`, motivation "the user's memory across all their areas"; refined when the graph is filled. `user="me"` makes the user findable from outside. Give the role a `steward` arrow to each holon it is responsible for. **Don't** recreate the user's project-graph roles here — `verstak_me(action="kartas")` returns them; a copy drifts.
+Created without asking (at session start, or by this method on `Realm not found`): name `👤 handle`, motivation "the user's memory across all their areas"; refined when the graph is filled. `user="me"` makes the user findable from outside. With it, the same way, the **assistant's role**: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named `Assistant` or `Assistant of <handle>` (never the user's role's name) — never a personal fact; the assistant remembers and recalls through it. An existing mind is completed with whichever of the two is missing: never a second user-bound or `persona=companion` role, and roles that already fit keep their names and authorship. Give the user's role a `steward` arrow to each holon it is responsible for. **Don't** recreate the user's project-graph roles here — `verstak_me(action="kartas")` returns them; a copy drifts.
 
 ### A2b · The people in the user's life
 

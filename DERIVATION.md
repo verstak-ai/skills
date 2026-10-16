@@ -123,7 +123,8 @@ Not every part of the delivery is a direct canon projection. `align` and `mindin
 combine canon components with authored product rules; the door routes the shipped
 set rather than projecting a single landmark. `feedback` combines genre canon
 with placement discipline; `product-roadmap` adds a GitHub adapter and rendering;
-`establish-mcp` carries transport code and OAuth/MCP mechanics. Compare these with
+`establish-mcp` carries transport code and OAuth/MCP mechanics. `onboarding` projects the dev graph's shared onboarding skill and its
+harness branch, a product design without a canon landmark of its own. Compare these with
 the sibling delivery and their live product surfaces when either changes.
 
 Reality checking now has a canon carrier (#529), so `reality-audit` is no longer

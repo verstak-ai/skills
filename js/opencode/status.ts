@@ -21,7 +21,7 @@ export const statusTool = (text: () => string) => ({
 export function statusLines(
   path: string,
   builds: string,
-  login: { loginPending: boolean; loginUrl: string | null; loginDevice: string | null },
+  login: { pending: boolean; url: string | null; device: string | null },
   state: { serverSeen: boolean; listed: unknown[]; source: string },
   sessions: number,
   spare: number,
@@ -30,10 +30,10 @@ export function statusLines(
   return [
     W.statusBridge(path),
     builds,
-    login.loginPending
+    login.pending
       ? W.statusLoginPending(
-          login.loginUrl ? W.openInBrowser(login.loginUrl) : W.finishInBrowser(),
-          elsewhere(login.loginDevice),
+          login.url ? W.openInBrowser(login.url) : W.finishInBrowser(),
+          elsewhere(login.device),
         )
       : state.serverSeen
         ? W.statusLoginDone()

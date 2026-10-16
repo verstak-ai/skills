@@ -93,7 +93,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ### collaborate, `Exchange` — "ask the other one"
 
 **Gets:** the question at the right addressee — a case message, or a vimarsha if substantive — the addressee woken, the answer recorded. "ask the other agent" · "pass it to whoever handles it" · "tell the other one not to build the same thing" · "escalate to me" · "who owns this?"
-**Elsewhere:** "split the work" → foreman · "write down what we agreed" → by substance, not a "we talked" record. Needs a named seat, not hearing: `register` is enough to speak.
+**Elsewhere:** "split the work" → foreman · "write down what we agreed" → by substance, not a "we talked" record. Needs a named seat, not hearing: a seat you hold is enough to speak (`register` names it; none yet → `verstak_stand`).
 
 ## architect — "hold integrity", "lead the case"
 

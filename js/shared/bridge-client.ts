@@ -2,8 +2,12 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { basename } from "node:path";
 
-import { BRIDGE_CLIENT, envName, ID_PREFIX } from "../delivery/index.ts";
+import { BRIDGE_CLIENT, envName } from "../delivery/index.ts";
 import { words } from "./lang.ts";
+import { SERVICE_ID } from "./serviceid.ts";
+
+/** Id prefix of a client's service call (launch line etc.): the bridge does not count it as agent work. */
+export { SERVICE_ID };
 
 const W = () => words(BRIDGE_CLIENT);
 
@@ -21,9 +25,6 @@ export function bridgeRuntime(): { bin: string; env: NodeJS.ProcessEnv } {
   if (!/^node/i.test(basename(process.execPath))) return { bin: "node", env: process.env };
   return { bin: process.execPath, env: process.env };
 }
-
-/** Id prefix of a client's service call (launch line etc.): the bridge does not count it as agent work. */
-export const SERVICE_ID = `${ID_PREFIX}service-`;
 
 /** Grace after SIGTERM — longer than the 3 s ceiling on publishing a cleared busy status. */
 const STOP_GRACE_MS = 5000;

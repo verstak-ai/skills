@@ -38,6 +38,7 @@ const SKILLS = {
       ["Vocabulary: the door's `Answer` step — \"case\"", "Vocabulary: \"case\""],
       [" (the door, `Communication`)", ""],
       [" (the door, `One-off task`)", ""],
+      ["none → `verstak_stand(realm=<graph>, karta=<your role>)`, never a bare `register` (it opens no seat)", "none → say so: the runtime gives the companion its seat; never a bare `register` (it opens no seat)"],
       ["that's the graph: `methods/entry.md`.", `that's the graph: ${READ_THE_GRAPH}.`],
     ],
   },
@@ -46,7 +47,7 @@ const SKILLS = {
       "The user's memory in the graph — the personal graph @handle/mind, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, opinions, their own way of working (on a development topic too), methods of their own; never harness-local memory. A project's servers, pipeline, dated duties and rules belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact — then weigh what it changes now: apply, adapt, don't apply, or ask one deciding question. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools.",
     rewrites: [
       ["(`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph,", "(Appendix, A1–A2): created at session start when the user has no graph,"],
-      ["create the graph and role (reference §1–2)", "create the graph and role (A1–A2)"],
+      ["create the graph and both roles (reference §1–2)", "create the graph and both roles (A1–A2)"],
       ["or name the graph and hand over to `methods/entry.md`.", `or name the graph and read it there: ${READ_THE_GRAPH}.`],
       ["Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).", "Shapes, in the Appendix: machines (A7), people (A2b), dated facts (A7), lessons (A8)."],
       ["not a dossier (reference §2b)", "not a dossier (A2b)"],
@@ -71,6 +72,22 @@ const SKILLS = {
         ["Nothing leaves here either (`methods/minding.md`, \"Privacy\").", "Nothing leaves here either (Privacy, above)."],
       ],
     },
+  },
+  onboarding: {
+    description:
+      "Lead a person with no working graph to working on their own, one step at a time: read the readiness signs from data, offer one step, do it with them, say the result and what it means, read again. Starts from the window's onboarding progress or the bot's button after sign-in, or on the person's word. Triggers: 'onboarding', 'start onboarding', 'help me get started', 'I don't know where to start', 'where do I begin', 'redo onboarding'. Not for a person who already works in their graph — help with their task instead. Needs the verstak_* tools.",
+    rewrites: [
+      ["from the door's Survey or from `methods/align.md`, without a separate call", "at session start or from the window's or bot's onboarding button, without a separate call"],
+      ["help on the material that exists (`methods/entry.md`, then the method the task needs).", `help on the material that exists: ${READ_THE_GRAPH}.`],
+      [" (`references/align-harness-surfaces.md`)", ""],
+      [" (`methods/writing.md`, `methods/design.md`)", ""],
+      ["restore access (`methods/establish-mcp.md`) and read again", "say the read failed and read again"],
+      ["Wire the ritual hooks of `methods/align.md`, Step 4, now", "Wire the repository's ritual hooks now"],
+      [" — byte for byte from `references/align-hooks.md`, `Initial form`", ""],
+      [", modes per `methods/writing.md`", ""],
+      ["; from then on the door's seat rule holds.", "."],
+      ["`methods/align.md`, round 1 from step 2: the repository's holon", "The repository's holon"],
+    ],
   },
   widgets: {
     description:
