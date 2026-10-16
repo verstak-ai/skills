@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.2](https://github.com/verstak-ai/skills/compare/v3.7.1...v3.7.2) (2026-10-16)
+
+
+### Bug Fixes
+
+* **opencode:** switch the root autoseat off — an owner's stop is no longer undone after a reload ([#184](https://github.com/verstak-ai/skills/issues/184)) ([2b5a6cb](https://github.com/verstak-ai/skills/commit/2b5a6cba4ed01e84aa046e50058a440fdcf2e617))
+
 ## [3.7.1](https://github.com/verstak-ai/skills/compare/v3.7.0...v3.7.1) (2026-10-16)
 
 

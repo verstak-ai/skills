@@ -130,7 +130,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.7.1";
+var VERSION = "3.7.2";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -4920,6 +4920,7 @@ function readCover(dir, keys = COVER) {
 }
 
 // js/opencode/rootseat.ts
+var rootSeatOn = false;
 var rootSeatMs = () => Number(process.env[envName("ROOT_SEAT_MS")] || 15e3);
 var ceilingMs = () => rootSeatMs() + Math.min(rootSeatMs(), 5e3);
 var pause = (ms) => new Promise((r) => setTimeout(r, ms).unref?.());
@@ -5262,7 +5263,7 @@ async function setup(ctx) {
       const root = await rootOf(sid) === sid;
       const word2 = await half.launch(sid, p.prompt.text);
       if (word2) p.prompt.text = withWord(p.prompt.text, word2);
-      const seat = root ? await rootSeats.word(sid) : null;
+      const seat = root && rootSeatOn ? await rootSeats.word(sid) : null;
       if (seat) p.prompt.text = withWord(p.prompt.text, seat);
       const counts = root ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}
@@ -5345,7 +5346,8 @@ ${markFrame(counts)}`;
             } else {
               void rootOf(id);
               const dir = ev.data?.location?.directory;
-              if (typeof dir === "string" && dir === home?.directory) rootSeats.start(id, dir);
+              if (rootSeatOn && typeof dir === "string" && dir === home?.directory)
+                rootSeats.start(id, dir);
             }
             break;
           }
