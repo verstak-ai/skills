@@ -91,10 +91,13 @@ function stopAttrs(
 ): { effect: "agent" | "seat"; ack: "confirmed" | "word" } | null {
   const ack = confirmsHalts() ? "confirmed" : "word";
   if (move !== "register") return { effect: "agent", ack };
+  // No held channel: a seat beside is not added (hold.ts addPlace) and no door takes the id —
+  // the stop finds no seat, whatever graph the register names.
+  if (!H.holder?.alive || !H.currentKey || !H.door) return null;
   const prim = state.standing;
   if (extraIn(place.realm) || (!!prim && otherRealm(place.realm, prim.realm)))
     return { effect: "seat", ack };
-  return H.door && H.currentKey ? { effect: "agent", ack } : null;
+  return { effect: "agent", ack };
 }
 
 /** The seat move the fields ride on: connect and mint open a channel, register adds a seat. */
