@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.6.1";
+var VERSION = "3.7.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1407,6 +1407,11 @@ import { dirname as dirname2 } from "node:path";
 // js/shared/bridge-client.ts
 import { spawn } from "node:child_process";
 import { basename } from "node:path";
+
+// js/shared/serviceid.ts
+var SERVICE_ID = `${ID_PREFIX}service-`;
+
+// js/shared/bridge-client.ts
 var W2 = () => words(BRIDGE_CLIENT);
 function bridgeRuntime() {
   const own = process.env[envName("NODE")]?.trim();
@@ -1416,7 +1421,6 @@ function bridgeRuntime() {
   if (!/^node/i.test(basename(process.execPath))) return { bin: "node", env: process.env };
   return { bin: process.execPath, env: process.env };
 }
-var SERVICE_ID = `${ID_PREFIX}service-`;
 var STOP_GRACE_MS = 5e3;
 var Bridge = class {
   proc = null;

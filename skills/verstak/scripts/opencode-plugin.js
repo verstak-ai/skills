@@ -93,6 +93,18 @@ var CONFIG_SERVER = CONFIG.server ?? null;
 var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
+// js/delivery/patterns/cover.ts
+var COVER = {
+  /** The cover file in the session's directory. */
+  file: "AGENTS.md",
+  /** The graph slot: the value starts with @owner/slug or rN. */
+  graph: "Graph",
+  /** The agent-role slot: the value starts with exactly one reference '#N "name"'. */
+  role: "Agent role",
+  /** The quotes around the name in the role reference: opening and closing (here the same character). */
+  roleQuotes: ['"', '"']
+};
+
 // js/delivery/patterns/launch.ts
 var LAUNCH_WORD = "verstak";
 var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -118,7 +130,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.6.1";
+var VERSION = "3.7.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -182,7 +194,7 @@ var TAKE = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join12) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join12}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join13) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join13}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -436,6 +448,25 @@ var ROOM_REL = {
 };
 var VERDICT = {
   en: { ok: () => "ok", partial: () => "partial", bad: () => "slop" }
+};
+
+// js/delivery/words/rootseat.ts
+var ROOT_SEAT = {
+  en: {
+    noFrontmatter: (file) => `${file} carries no YAML front matter`,
+    noKey: (file, key) => `the front matter of ${file} has no '${key}' slot`,
+    noGraph: (file, key) => `'${key}' in ${file} does not start with @owner/slug or rN`,
+    manyGraphs: (file, key, list) => `'${key}' in ${file} names several graphs: ${list}`,
+    noRoleRef: (file, key, ref) => `'${key}' in ${file} does not start with a ${ref} reference`,
+    manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,
+    seated: (place, karta, realm, file) => `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; no ${tool("stand")} needed to write — a watch or a launch line still stands, replacing this provisional seat.`,
+    notSeated: (why) => `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
+    refused: (text) => `seating failed: ${text}`,
+    ownOther: (place, karta, realm) => `the session's own previous seat ${place} returned in another role or graph (#${karta} in ${realm}) than the cover's`,
+    uncompared: (cover, held) => `graph not compared: ${cover} in the cover, ${held} on the seat`,
+    late: (seconds) => `seating did not finish in ${seconds} s, the request goes without a seat`,
+    noBridge: () => "no bridge raised"
+  }
 };
 
 // js/delivery/words/status.ts
@@ -1186,8 +1217,8 @@ async function enterCase(l, call, satelliteOf, placeName) {
     await call(tool("stand"), stand);
   } catch (e) {
     const why = e.message;
-    const join12 = `${tool("case")}(action="join", room="${room}")`;
-    return W4.notSeated(why, l.no, join12);
+    const join13 = `${tool("case")}(action="join", room="${room}")`;
+    return W4.notSeated(why, l.no, join13);
   }
   const place = placeName() || W4.ownSeat();
   try {
@@ -1214,6 +1245,11 @@ import { join as join6, resolve as resolve3 } from "node:path";
 // js/shared/bridge-client.ts
 import { spawn } from "node:child_process";
 import { basename } from "node:path";
+
+// js/shared/serviceid.ts
+var SERVICE_ID = `${ID_PREFIX}service-`;
+
+// js/shared/bridge-client.ts
 var W2 = () => words(BRIDGE_CLIENT);
 function bridgeRuntime() {
   const own = process.env[envName("NODE")]?.trim();
@@ -1223,7 +1259,6 @@ function bridgeRuntime() {
   if (!/^node/i.test(basename(process.execPath))) return { bin: "node", env: process.env };
   return { bin: process.execPath, env: process.env };
 }
-var SERVICE_ID = `${ID_PREFIX}service-`;
 var STOP_GRACE_MS = 5e3;
 var Bridge = class {
   proc = null;
@@ -1992,11 +2027,11 @@ var processDescendants = (session) => descendantsOf(
 // js/opencode/cuts.ts
 var HALTED_MS = 1e4;
 var ANSWER_CAP_MS = Number(process.env[envName("OPENCODE_HALT_CAP_MS")]) || 3e4;
-function answerHalt(bridge, ev, outcome) {
+function answerHalt(bridge, ev, outcome2) {
   const order = ev?.order;
   if (typeof order !== "string") return Promise.resolve();
   const capped = new AbortController();
-  const answered = outcome(capped.signal).then(
+  const answered = outcome2(capped.signal).then(
     (code2) => bridge?.request(
       method("halted"),
       { order, ok: code2 === null, ...code2 ? { code: code2 } : {} },
@@ -2462,7 +2497,7 @@ function createChildren(d) {
     }
     if (!own.holding) await d.leads.fail(e.session, W3().reloadNotBack());
   }
-  async function pause() {
+  async function pause2() {
     const held = [...d.slots.values()].filter(
       (s) => s.child && s.satelliteOf && s.holding && s.session
     );
@@ -2482,7 +2517,7 @@ function createChildren(d) {
     return coming.get(session)?.catch(() => {
     });
   };
-  return { childSlot, back, pause, settled };
+  return { childSlot, back, pause: pause2, settled };
 }
 
 // js/opencode/half.ts
@@ -2492,6 +2527,7 @@ var idleHalf = () => ({
   onEvent() {
   },
   launch: async () => null,
+  seatRoot: async () => ({ error: words(ROOT_SEAT).noBridge() }),
   stop() {
   },
   bridgeOf: () => null,
@@ -3537,6 +3573,7 @@ function createModels(ctx) {
       seatsOf(bridge).see(data);
       return data?.kind;
     },
+    of,
     async name(args, session, bridge) {
       if (!args.satellite_of) return;
       const next = withHarnessModel(args, await of(session), seatsOf(bridge).realms());
@@ -3662,6 +3699,48 @@ async function revokeAsLauncher(freed, args, call) {
   }
 }
 
+// js/opencode/rootseat-by.ts
+function heldSeat(slot) {
+  if (slot.place) return { ...slot.place };
+  const [name = "", karta = "", realm = ""] = (slot.key ?? "").split("--");
+  return { name, karta, realm };
+}
+var keyPart = (t) => t.trim().replace(/[^A-Za-z0-9._-]+/g, "_");
+var short = (t) => /^r\d+$/.test(t.trim());
+function sameSeat2(seat, realm, karta) {
+  if (keyPart(seat.karta.replace(/^#/, "")) !== keyPart(karta)) return false;
+  if (short(seat.realm) !== short(realm)) return false;
+  const [x, y] = [keyPart(seat.realm), keyPart(realm)];
+  return x === y || x.endsWith(`_${y}`) || y.endsWith(`_${x}`);
+}
+function outcome(slot, realm, karta) {
+  const own = heldSeat(slot);
+  if (short(own.realm) !== short(realm))
+    return { error: words(ROOT_SEAT).uncompared(realm, own.realm) };
+  return sameSeat2(own, realm, karta) ? { place: own.name } : { other: own };
+}
+async function seatBy(d, root, realm, karta) {
+  try {
+    const slot = await d.slotFor(root);
+    slot.busy++;
+    try {
+      await d.awaitReady(slot);
+      if (slot.resume) await slot.resume;
+      if (slot.holding) return outcome(slot, realm, karta);
+      const model = await d.modelOf(root);
+      const args = { realm, karta, provisional: true, ...model ? { model } : {} };
+      const out2 = await d.callThrough(slot, STAND_TOOL2, args, root, true);
+      if (!slot.holding) return { error: out2.content || words(PLUGIN).refusalNoText(STAND_TOOL2) };
+      return outcome(slot, realm, karta);
+    } finally {
+      slot.busy--;
+      slot.lastCall = Date.now();
+    }
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
 // js/opencode/runends.ts
 var READ_TOOLS2 = new Set(["look", "orient", "search", "semantic_search"].map(tool));
 var CASE_READS = /* @__PURE__ */ new Set(["read", "history", "mine", "at"]);
@@ -3776,9 +3855,9 @@ function statusLines(path, builds, login, state2, sessions, spare) {
   return [
     W4.statusBridge(path),
     builds,
-    login.loginPending ? W4.statusLoginPending(
-      login.loginUrl ? W4.openInBrowser(login.loginUrl) : W4.finishInBrowser(),
-      elsewhere(login.loginDevice)
+    login.pending ? W4.statusLoginPending(
+      login.url ? W4.openInBrowser(login.url) : W4.finishInBrowser(),
+      elsewhere(login.device)
     ) : state2.serverSeen ? W4.statusLoginDone() : W4.statusLoginWaiting(),
     W4.statusTools(state2.listed.length, state2.source),
     W4.statusBridges(sessions + spare, sessions)
@@ -3957,14 +4036,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     say,
     () => !stopped
   );
-  const statusText = () => statusLines(
-    path,
-    builds,
-    { loginPending: login.pending, loginUrl: login.url, loginDevice: login.device },
-    state2,
-    slots.size,
-    spare ? 1 : 0
-  );
+  const statusText = () => statusLines(path, builds, login, state2, slots.size, spare ? 1 : 0);
   await ctx.tool.transform((editor) => {
     editor.add(statusTool(statusText));
     for (const t of state2.listed) {
@@ -4098,6 +4170,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   }
   return {
     launch: launcher.launch,
+    seatRoot: (...a) => seatBy({ slotFor, awaitReady, callThrough, modelOf: models.of }, ...a),
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       forget2(s);
@@ -4771,6 +4844,139 @@ function createPulseFeed(opts) {
   };
 }
 
+// js/shared/cover.ts
+import { readFileSync as readFileSync11 } from "node:fs";
+import { join as join12 } from "node:path";
+var unquote = (v) => {
+  const t = v.trim();
+  if (t.length >= 2 && t.startsWith("'") && t.endsWith("'"))
+    return t.slice(1, -1).replace(/''/g, "'");
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    try {
+      return String(JSON.parse(t));
+    } catch {
+      return t.slice(1, -1);
+    }
+  }
+  return t;
+};
+function frontMatter(text) {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+  if (lines[0]?.trim() !== "---") return null;
+  const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
+  if (end < 0) return null;
+  const pairs = /* @__PURE__ */ new Map();
+  for (const line of lines.slice(1, end)) {
+    const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line);
+    if (kv) pairs.set(unquote(kv[1]), unquote(kv[2] ?? ""));
+  }
+  return pairs;
+}
+var LEAD2 = /^[\s`'"<]*/;
+var SLUG = /(?:^|[\s(`'",;])(@[\w.-]+\/[\w.-]+)/g;
+var SHORT = /(?:^|[\s(`'",;])(r\d+)(?=$|[\s)`'",;.:])/g;
+var esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var roleRef = (q, flags = "") => new RegExp(
+  `${flags.includes("g") ? "" : "^"}#(\\d+)\\s*${esc(q[0])}[\\s\\S]*?${esc(q[1])}`,
+  flags
+);
+var distinct = (re, v) => [
+  ...new Set([...v.matchAll(re)].map((m) => m[1]))
+];
+function seatOfPairs(pairs, keys = COVER) {
+  const W4 = words(ROOT_SEAT);
+  const graph = pairs.get(keys.graph)?.trim();
+  if (!graph) return { why: W4.noKey(keys.file, keys.graph) };
+  const role = pairs.get(keys.role)?.trim();
+  if (!role) return { why: W4.noKey(keys.file, keys.role) };
+  const g = graph.replace(LEAD2, "");
+  if (!/^(?:@[\w.-]+\/[\w.-]+|r\d+)(?=$|[\s)`'",;.:])/.test(g))
+    return { why: W4.noGraph(keys.file, keys.graph) };
+  const slugs = distinct(SLUG, ` ${g}`);
+  const shorts = distinct(SHORT, ` ${g}`);
+  if (slugs.length > 1 || shorts.length > 1)
+    return { why: W4.manyGraphs(keys.file, keys.graph, [...slugs, ...shorts].join(", ")) };
+  const r = role.replace(LEAD2, "");
+  const roles = distinct(roleRef(keys.roleQuotes, "g"), r);
+  if (roles.length > 1)
+    return { why: W4.manyRoles(keys.file, keys.role, roles.map((n2) => `#${n2}`).join(", ")) };
+  const first = roleRef(keys.roleQuotes).exec(r);
+  if (!first)
+    return {
+      why: W4.noRoleRef(keys.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`)
+    };
+  return { realm: slugs[0] ?? shorts[0], karta: first[1] };
+}
+function readCover(dir, keys = COVER) {
+  let text;
+  try {
+    text = readFileSync11(join12(dir, keys.file), "utf8");
+  } catch {
+    return null;
+  }
+  const pairs = frontMatter(text);
+  if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(keys.file) };
+  return seatOfPairs(pairs, keys);
+}
+
+// js/opencode/rootseat.ts
+var rootSeatMs = () => Number(process.env[envName("ROOT_SEAT_MS")] || 15e3);
+var ceilingMs = () => rootSeatMs() + Math.min(rootSeatMs(), 5e3);
+var pause = (ms) => new Promise((r) => setTimeout(r, ms).unref?.());
+var oneLine = (text) => {
+  const t = text.replace(/\s+/g, " ").trim();
+  return t.length > 300 ? `${t.slice(0, 299)}…` : t;
+};
+function createRootSeats(d) {
+  const W4 = words(ROOT_SEAT);
+  const seatings = /* @__PURE__ */ new Map();
+  const told = /* @__PURE__ */ new Set();
+  let line = Promise.resolve();
+  function start(session, dir) {
+    const known = seatings.get(session);
+    if (known) return known;
+    const no = (word2) => ({ word: word2, seated: false });
+    const p = (async () => {
+      const where = dir ?? await d.directoryOf(session);
+      if (!where) return no(null);
+      const cover = readCover(where);
+      if (cover === null) return no(null);
+      if ("why" in cover) return no(W4.notSeated(cover.why));
+      const before = line;
+      const turn = before.then(() => d.seat(session, cover.realm, cover.karta));
+      line = before.then(() => Promise.race([turn, pause(ceilingMs())])).catch(() => {
+      });
+      const r = await turn;
+      if ("error" in r) return no(W4.notSeated(W4.refused(oneLine(r.error))));
+      if ("other" in r)
+        return no(W4.notSeated(W4.ownOther(r.other.name, r.other.karta, r.other.realm)));
+      return { word: W4.seated(r.place, cover.karta, cover.realm, COVER.file), seated: true };
+    })().catch((e) => no(W4.notSeated(W4.refused(oneLine(e.message)))));
+    seatings.set(session, p);
+    return p;
+  }
+  return {
+    start: (session, dir) => void start(session, dir),
+    async word(session) {
+      if (told.has(session)) return null;
+      told.add(session);
+      const ms = rootSeatMs();
+      const late = W4.notSeated(W4.late(Math.round(ms / 100) / 10));
+      const seating = start(session);
+      const first = await Promise.race([seating, pause(ms).then(() => null)]);
+      if (first) return first.word;
+      void seating.then((t) => {
+        if (t.seated && t.word && seatings.get(session) === seating) d.tell(session, t.word);
+      });
+      return late;
+    },
+    forget(session) {
+      seatings.delete(session);
+      told.delete(session);
+    }
+  };
+}
+
 // js/opencode/usage.ts
 var DEBOUNCE_MS = Number(process.env[envName("USAGE_DEBOUNCE_MS")] || 1e4);
 var n = (v) => typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -5044,12 +5250,21 @@ async function setup(ctx) {
   } catch (e) {
     say(words(PLUGIN).notRaised(e.message), "error");
   }
+  const home = homeOf(ctx);
+  const rootSeats = createRootSeats({
+    directoryOf: async (s) => await sessionDirectory(ctx, s) ?? home?.directory ?? null,
+    seat: (s, realm, karta) => half.seatRoot(s, realm, karta),
+    tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } })
+  });
   try {
     await ctx.session.hook("prompt", async (p) => {
-      const word2 = await half.launch(String(p.sessionID), p.prompt.text);
-      if (word2) p.prompt.text = withWord(p.prompt.text, word2);
       const sid = String(p.sessionID);
-      const counts = await rootOf(sid) === sid ? ch?.ride(sid) : null;
+      const root = await rootOf(sid) === sid;
+      const word2 = await half.launch(sid, p.prompt.text);
+      if (word2) p.prompt.text = withWord(p.prompt.text, word2);
+      const seat = root ? await rootSeats.word(sid) : null;
+      if (seat) p.prompt.text = withWord(p.prompt.text, seat);
+      const counts = root ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}
 
 ${markFrame(counts)}`;
@@ -5107,6 +5322,7 @@ ${markFrame(counts)}`;
           case "session.deleted":
             if (!id) break;
             pulse.forget(id);
+            rootSeats.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
@@ -5126,7 +5342,11 @@ ${markFrame(counts)}`;
                 roots.set(id, root);
                 seen.set(root, Date.now());
               });
-            } else void rootOf(id);
+            } else {
+              void rootOf(id);
+              const dir = ev.data?.location?.directory;
+              if (typeof dir === "string" && dir === home?.directory) rootSeats.start(id, dir);
+            }
             break;
           }
           // Moved to another folder (#6550 item 3): the seat goes to the instance of its new location.
