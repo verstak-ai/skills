@@ -16,7 +16,15 @@ export interface ToolsHalf {
   /** A session's first prompt — the launch line with a case runs before the model's turn (launch.ts). */
   launch(session: string, text: string): Promise<string | null>;
   /** A root's seat by its project's cover — its own from disk, else a stand on the role (rootseat.ts). */
-  seatRoot(session: string, realm: string, karta: string): Promise<Seating>;
+  seatRoot(
+    session: string,
+    realm: string,
+    karta: string,
+    cancelled: () => boolean,
+  ): Promise<Seating>;
+  cancelSeat(session: string): void;
+  releaseSeat(session: string): Promise<void>;
+  finishSeat(session: string): void;
   /** The stop; held seats that went into a marker — upward (twins.ts). */
   stop(): void | Promise<void | LostEntry[]>;
   bridgeOf(session: string): Bridge | null; // the holding slot's bridge — for session usage (usage.ts)
@@ -47,6 +55,9 @@ export const idleHalf = (): ToolsHalf => ({
   onEvent() {},
   launch: async () => null,
   seatRoot: async () => ({ error: words(ROOT_SEAT).noBridge() }),
+  cancelSeat() {},
+  releaseSeat: async () => {},
+  finishSeat() {},
   stop() {},
   bridgeOf: () => null,
   leadOf: () => null,

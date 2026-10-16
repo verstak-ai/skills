@@ -70,6 +70,7 @@ import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
+import { seatProof } from "./seatproof.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
 import { standAgainWord } from "./standagain.ts";
 import { besideHoldsMain, ledIn, refusedWord, releasePrior } from "./standmoves.ts";
@@ -118,6 +119,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     id: msg.id,
     result: {
       ...(isError ? { isError: true } : {}),
+      ...(isError ? {} : { structuredContent: seatProof(heldKey(realm)) }),
       content: [{ type: "text", text: lines.join("\n") }],
     },
   });

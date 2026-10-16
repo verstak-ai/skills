@@ -8,6 +8,7 @@ import { serialized } from "./call.ts";
 import { wireEviction } from "./evicted.ts";
 import { restore } from "./provisional.ts";
 import { wireTakeOwn } from "./resume.ts";
+import { withSeatOrigin } from "./seatorigin.ts";
 import { baseOf } from "./separate.ts";
 import { isDirectory, runStand } from "./stand.ts";
 
@@ -19,12 +20,14 @@ async function standAs(
 ): Promise<{ ok: boolean; text: string }> {
   const { realm, karta, name } = place;
   const where = cwd && isDirectory(cwd) ? { cwd } : {};
-  const r = await runStand({
-    jsonrpc: "2.0",
-    id,
-    method: "tools/call",
-    params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } },
-  });
+  const r = await withSeatOrigin(true, () =>
+    runStand({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name: tool("stand"), arguments: { realm, karta: String(karta), name, ...where } },
+    }),
+  );
   const text = ((r.result?.content ?? []) as { text?: string }[]).map((c) => c.text ?? "");
   return { ok: !r.result?.isError, text: text.join("\n") };
 }

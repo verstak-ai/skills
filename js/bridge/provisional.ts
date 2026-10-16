@@ -26,7 +26,7 @@ import type { JsonRpcMessage } from "./types.ts";
 /** Fresh service seats have their own address even when two instances read an empty board.
  * Never race for host.repo (or host.repo.model) and rotate the neighbour's socket. */
 export function name(base: string): string {
-  const suffix = `.root-${randomBytes(12).toString("hex")}`;
+  const suffix = `.root-${randomBytes(6).toString("hex")}`;
   return (base || "root").slice(0, NAME_MAX - suffix.length).replace(/[.-]+$/, "") + suffix;
 }
 

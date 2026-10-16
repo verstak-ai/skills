@@ -58,6 +58,10 @@ export interface ChannelEvent {
   unshown?: string[];
   /** kind="held": the held seat — the OpenCode plugin seats a child session as satellite by it (#6002). */
   place?: { realm: string; karta: string; name: string };
+  /** kind="held": this bridge understands the provisional replacement rule (#7972). */
+  provisional?: boolean;
+  /** kind="held": true for service/internal transitions, false for the explicit caller. */
+  automatic?: boolean;
   /** kind="backlog": frames pending per hello. */
   pending?: number;
   /**

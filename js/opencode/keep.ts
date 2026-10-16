@@ -30,6 +30,8 @@ export interface KeptSlot {
   session: string | null;
   /** The bridge holds a standing — such a bridge is not released for idleness. */
   holding: boolean;
+  /** Positive proof from this serving bridge's held/stand/resume reply, not from disk. */
+  provisional?: boolean;
   /** The session stood at least once — the hearing watchdog watches it. */
   stood: boolean;
   /** The session's directory — the return's key when the standing's key is unknown. */
@@ -180,6 +182,7 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
       }
       slot.holding = true;
       slot.stood = true;
+      slot.provisional = r.provisional === true;
       if (typeof r.key === "string") slot.key = r.key;
       roots.add(root);
       doors.say(W.sessionResumed(root, r.word), "info");
@@ -205,6 +208,7 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
       timeoutMs: 30_000,
     });
     if (typeof r?.key === "string") slot.key = r.key;
+    slot.provisional = r?.provisional === true;
     if (r?.stopped) {
       slot.holding = false;
       return void stoppedRoot(root, r.word);
