@@ -1,6 +1,7 @@
 // Seat fields named on every take and register (graph nks-dev: #5174, #6226): model —
 // the agent's model without the vendor prefix; attrs — the build marker {name, version,
-// stamp}, the installed skill set by the same triple, the harness and the host version.
+// stamp}, the installed skill set by the same triple, the harness and the host version, and
+// what a stop order for the seat does (stop: {effect, ack}).
 // attrs are replaced whole by the server, so the bridge always sends its full set:
 // a partial write would erase its own build marker.
 import { BRIDGE_NAME, SERVER_LOCALE } from "../delivery/index.ts";
@@ -12,8 +13,12 @@ import { harnessName, harnessVersion } from "./client.ts";
 import { CFG } from "./config.ts";
 import { seatField } from "./fields.ts";
 import { normKarta, normName } from "./names.ts";
+import { confirmsHalts } from "./orderhalt.ts";
+import { extraOf } from "./places.ts";
+import { otherRealm } from "./realms.ts";
 import { installedSkills } from "./skillwatch.ts";
 import { log } from "./streams.ts";
+import { state } from "./transport.ts";
 
 // Per session (shared/scope.ts): the machine daemon holds seats of different sessions.
 const P = scoped(() => ({
@@ -67,6 +72,22 @@ export function rememberStandModel(m: unknown): void {
 /** A satellite's seat with no model known: register alone keeps the earlier one (modelclear.ts). */
 export const satelliteWithoutModel = (): boolean => CFG.satellite && !P.model;
 
+/**
+ * What a stop order for this seat does (stoporder.ts): "agent" — the session's main seat, its
+ * stop stops the agent; "seat" — a seat beside on the held channel (another graph than the main
+ * one, as stand.ts and call.ts tell it), it goes alone — a satellite's too.
+ * ack — whether stopped is the harness's confirmed stop or the bridge's word given (orderhalt.ts).
+ */
+function stopAttrs(place: Place): { effect: "agent" | "seat"; ack: "confirmed" | "word" } {
+  const prim = state.standing;
+  // A seat already held beside stays one even when the main binding is lost (#5168). A
+  // satellite's first seat is its own main one; its seat of another graph is beside it.
+  const beside =
+    (!!prim && otherRealm(place.realm, prim.realm)) ||
+    !!extraOf(place.realm, place.karta, place.name);
+  return { effect: beside ? "seat" : "agent", ack: confirmsHalts() ? "confirmed" : "word" };
+}
+
 /** Seat fields for connect and register: always the full set. */
 export function placeFields(
   place: Place = {},
@@ -93,6 +114,7 @@ export function placeFields(
       ...(harness ? { harness, harness_version: harnessVersion() } : {}),
       ...(satelliteOf ? { satellite_of: satelliteOf } : {}),
       ...(usage ? { usage } : {}),
+      stop: stopAttrs(place),
     },
   };
 }
