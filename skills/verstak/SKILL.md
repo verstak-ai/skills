@@ -217,7 +217,7 @@ They apply unasked.
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
-| before a `git push` that opens or updates a PR | **code-work**, `Self-review`, then `Cold review` |
+| before a `git push` that opens or updates a PR | **code-work**, `Self-review`; `Cold review` once the branch is finished, the full one only on the tag candidate |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
 | a piece finished; a wake-up tick; the case isn't yours | clean up, leave — `Case laws` |
