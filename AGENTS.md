@@ -115,7 +115,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 
 ## Project structure
 - `skills/verstak/SKILL.md` — **source of truth**, one skill (`verstak`); the door selects plain Markdown methods.
-- `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `minding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `widgets`, `writing`).
+- `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `minding`, `onboarding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `widgets`, `writing`).
 - `skills/verstak/references/*.md`, `skills/verstak/templates/*` — supporting material without frontmatter. `templates/agents-template.md` + `methods/align.md` bootstrap other repos; this file is this repo's own config — don't confuse them.
 - `skills/verstak/scripts/verstak-bridge.mjs` — the stdio↔https OAuth bridge with its daemon, watchdogs and doctor; `skills/verstak/scripts/opencode-plugin.js` — the OpenCode plugin. Both derived from `js/`, never edited by hand.
 - `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (product names and the skill layout, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs`, the dev toolchain (`package.json`, lockfile, `tsconfig.json`, eslint, prettier).

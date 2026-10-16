@@ -30,6 +30,7 @@ The door selects methods for reading, writing, designing and weaving through the
 | `intake` | Bring external word into the graph. |
 | `integrity` | Trace a transformation's impact and dependencies. |
 | `minding` | Recall and record user facts in their personal graph. |
+| `onboarding` | Lead a person with no working graph to working on their own, one step at a time. |
 | `product-roadmap` | Derive product directions from verified ground and GitHub issues. |
 | `reality-audit` | Exercise acceptance falsifiers against the canonical deliverable. |
 | `reconcile` | Compare code and graph in both directions. |
