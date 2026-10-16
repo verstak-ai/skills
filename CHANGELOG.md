@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.1](https://github.com/verstak-ai/skills/compare/v3.6.0...v3.6.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **door:** a one-off task already yours opens its case on the subject; talk only when another holder must move ([#173](https://github.com/verstak-ai/skills/issues/173)) ([e665adb](https://github.com/verstak-ai/skills/commit/e665adb4525b7aa90423305426dddc7d3bddaedb))
+
 ## [3.6.0](https://github.com/verstak-ai/skills/compare/v3.5.0...v3.6.0) (2026-10-15)
 
 
