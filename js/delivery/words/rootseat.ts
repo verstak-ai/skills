@@ -24,6 +24,8 @@ export interface RootSeatWords {
   refused: (text: string) => string;
   /** The session's own previous seat returned, but of another role or graph than the cover's. */
   ownOther: (place: string, karta: string, realm: string) => string;
+  /** The cover's graph and the seat's graph could not be matched to one another. */
+  uncompared: (cover: string, held: string) => string;
   /** The seating did not finish in time; the request goes without a seat. */
   late: (seconds: number) => string;
   /** The plugin has no bridge. */
@@ -45,6 +47,7 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     refused: (text) => `seating failed: ${text}`,
     ownOther: (place, karta, realm) =>
       `the session's own previous seat ${place} returned in another role or graph (#${karta} in ${realm}) than the cover's`,
+    uncompared: (cover, held) => `graph not compared: ${cover} in the cover, ${held} on the seat`,
     late: (seconds) => `seating did not finish in ${seconds} s, the request goes without a seat`,
     noBridge: () => "no bridge raised",
   },

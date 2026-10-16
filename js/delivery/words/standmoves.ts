@@ -19,6 +19,8 @@ export interface StandMovesWords {
   standAgain: (call: string) => string;
   /** take revoked this session's former seat (#7553). */
   priorReleased: (prior: string) => string;
+  /** The provisional seat of the root's seating (#777) gave way to the seat the agent named. */
+  provisionalReplaced: (prior: string) => string;
   priorKept: (prior: string, text: string, revoke: string) => string;
   /** take onto another main name with seats beside (#6499): a refusal before connect; beside — the seats, revokes — their revoke, keep — the former name. */
   besideHoldsMain: (
@@ -48,6 +50,8 @@ export const STAND_MOVES: Readonly<Record<Lang, StandMovesWords>> = {
       `The bridge does not hold this session's seat now — take it with the full call: ${call} (status can go in the same call).`,
     priorReleased: (prior) =>
       `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
+    provisionalReplaced: (prior) =>
+      `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
     priorKept: (prior, text, revoke) =>
       `this session's former seat ${prior} is not revoked (${text}) — while it lives, cases will ask for from_standing; revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside, revokes, keep) =>

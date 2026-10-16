@@ -159,6 +159,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   const rootSeats = createRootSeats({
     directoryOf: async (s) => (await sessionDirectory(ctx, s)) ?? home?.directory ?? null,
     seat: (s, realm, karta) => half.seatRoot(s, realm, karta),
+    tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } }),
   });
 
   // The launch line with a case (launch.ts): the prompt hook waits for the standing and the entry.

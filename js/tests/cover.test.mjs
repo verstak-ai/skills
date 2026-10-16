@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { COVER } from "../delivery/index.ts";
+import { sameSeat } from "../opencode/rootseat-by.ts";
 import { frontMatter, readCover, seatOfPairs } from "../shared/cover.ts";
 import { REPO } from "./built.mjs";
 
@@ -47,4 +48,15 @@ test("no seat: two roles, a bare reference, a missing slot, two graphs, no front
 
 test("no cover file — no word at all", () => {
   assert.equal(readCover(join(REPO, "js", "delivery")), null);
+});
+
+test("a short graph against a slug is no match on the role alone", () => {
+  assert.equal(sameSeat({ name: "x", realm: "@nks/nks-dev", karta: "931" }, "r7", "931"), false);
+  assert.equal(sameSeat({ name: "x", realm: "r5", karta: "931" }, "@nks/other", "931"), false);
+  assert.equal(sameSeat({ name: "x", realm: "r5", karta: "931" }, "r7", "931"), false);
+  assert.equal(sameSeat({ name: "x", realm: "r5", karta: "931" }, "r5", "931"), true);
+  assert.equal(
+    sameSeat({ name: "x", realm: "_nks_nks-dev", karta: "931" }, "@nks/nks-dev", "931"),
+    true,
+  );
 });

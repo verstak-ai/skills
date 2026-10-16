@@ -47,7 +47,7 @@ import { createModels } from "./models.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { revokeAsLauncher } from "./release.ts";
-import { seatBy } from "./rootseat.ts";
+import { seatBy } from "./rootseat-by.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, heldPlace, STAND_TOOL, standsBy } from "./satellite.ts";
 import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
@@ -444,7 +444,7 @@ export async function setupTools(
 
   return {
     launch: launcher.launch,
-    seatRoot: (...a) => seatBy({ slotFor, awaitReady, callThrough }, ...a),
+    seatRoot: (...a) => seatBy({ slotFor, awaitReady, callThrough, modelOf: models.of }, ...a),
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       forget(s);

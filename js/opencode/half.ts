@@ -5,7 +5,7 @@ import { ROOT_SEAT } from "../delivery/index.ts";
 import type { Bridge } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
 import type { Home, LostEntry } from "./records.ts";
-import type { Seating } from "./rootseat.ts";
+import type { Seating } from "./rootseat-by.ts";
 import type { Slot } from "./slot.ts";
 
 export interface ToolsHalf {

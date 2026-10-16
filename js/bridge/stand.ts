@@ -65,6 +65,7 @@ import {
 } from "./names.ts";
 import { ownerRefusal } from "./owner.ts";
 import { placeFields, rememberStandModel, type SeatMove } from "./placefields.ts";
+import * as provisional from "./provisional.ts";
 import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
@@ -107,6 +108,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
   const a = msg.params?.arguments ?? {};
+  const auto = provisional.takesProvisional(msg);
   const stopsBefore = stopsNow(); // an owner's 4001 met by this call's own return ends it (#7439)
   let realm = typeof a.realm === "string" ? a.realm.trim() : "";
   let karta = a.karta != null ? normKarta(a.karta) : "";
@@ -149,10 +151,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   }
   // The owner's role — only on the human's word (owner.ts, #6550 p.2).
   const notOwner = await ownerRefusal(realm, karta);
-  if (notOwner) {
-    lines.push(notOwner);
-    return done(true);
-  }
+  if (notOwner) return (lines.push(notOwner), done(true));
   // A subagent's satellite seat (satellite.ts, #6002): only on a satellite bridge, and only it there.
   const gate = await satelliteGate(a, realm, karta, asked);
   if (gate && !gate.ok) {
@@ -164,7 +163,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const parts = asked || sat ? null : deriveParts(model, cwd);
   const fitted = parts ? fitName(parts) : null;
   const derived = asked || sat ? "" : (fitted?.name ?? "");
-  let name = asked || sat?.name || derived;
+  let name = asked || sat?.name || (auto ? provisional.name(derived) : derived);
   const base = sat ? "" : name; // base of a seat beside: the derived or explicit name (#6706)
   realm = await seatRealm(realm, name); // one graph form (#5838); own seat keeps its spelling (hearing.ts)
   karta = seatKarta(realm, karta, name); // "agent" — the own seat's role, before any check (hearing.ts)
@@ -184,8 +183,10 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // take=true onto another named seat of the call's graph — the main one or one beside: the
   // led one is released (#7553).
   const ledThere = sat ? undefined : ledIn(realm);
+  // A provisional seat (#777) is replaced by an explicit stand as by take=true — only it.
+  const replaces = provisional.replacesProvisional(realm, auto);
   const prior =
-    a.take === true &&
+    (a.take === true || replaces) &&
     ledThere?.name &&
     (ledThere.name !== name || String(ledThere.karta) !== karta)
       ? { ...ledThere }
@@ -200,12 +201,9 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // take=true. A graph name unresolved to @owner/slug is refused, not guessed (#5838);
   // so is an unresolved role sentinel (hearing.ts).
   const unresolved = unresolvedRefusal(realm) ?? unresolvedAgent(karta, "connect");
-  if (unresolved) {
-    lines.push(unresolved);
-    return done(true);
-  }
+  if (unresolved) return (lines.push(unresolved), done(true));
   const led = besideTaken ? null : leadsOtherPlace(realm, karta, name);
-  if (led && a.take !== true) {
+  if (led && a.take !== true && !replaces) {
     // Another session listens on the asked seat — no bare take=true advice: own name after a silent probe, another's on the human's word (#6706, #6976).
     // An unread board gives no take=true advice either: the bridge does not know who listens.
     const hearing = await askedHearing(realm, karta, name, cwd);
@@ -439,7 +437,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     // The seat retaken after a return that found no record: cases may have been lost (#6649).
     if (takeLapsed()) extra.push(sw().note(resumeWords.rejoin()));
     const freed = prior ? await releasePrior(realm, prior) : null;
-    if (freed) extra.push(sw().note(freed.note));
+    if (freed) extra.push(sw().note(provisional.releasedNote(replaces, freed, prior?.name ?? "")));
     priorKept = !!freed && !freed.ok; // the former seat lives: the call reports it, not success
   }
   lines.push(
@@ -495,5 +493,6 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   }
   const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
   if (stale) lines.push(stale);
+  if (!priorKept) provisional.noteStood(auto, realm, karta, name);
   return done(priorKept);
 }

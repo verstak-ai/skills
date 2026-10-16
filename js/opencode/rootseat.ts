@@ -6,29 +6,21 @@
 //
 // One seating per session (a memoized promise): session.created may start it early, the
 // first prompt waits for it — no longer than ROOT_SEAT_MS, then the request goes without a
-// seat and the word says so. Seatings of one instance go one at a time: the second root of the
-// same role reads the board after the first stood and takes a seat beside, not the same name.
-import { COVER, envName, PLUGIN, ROOT_SEAT } from "../delivery/index.ts";
+// seat and the word says so; a seat taken after the term is told by the channel's path. Seatings
+// of one instance go one at a time: the second root of the same role reads the board after the
+// first stood and takes a seat beside, not the same name; a seating hung in the bridge holds the
+// line no longer than its ceiling. The seat is provisional: the agent's own stand in the same
+// graph replaces it (bridge/provisional.ts).
+import { COVER, envName, ROOT_SEAT } from "../delivery/index.ts";
 import { readCover } from "../shared/cover.ts";
 import { words } from "../shared/lang.ts";
-import { STAND_TOOL } from "./satellite.ts";
-import type { Slot } from "./slot.ts";
+import type { Seating } from "./rootseat-by.ts";
 
 /** How long the first prompt waits for the seating; the variable is for probes. */
 export const rootSeatMs = (): number => Number(process.env[envName("ROOT_SEAT_MS")] || 15_000);
-
-/** A seat as the plugin knows it: the bridge's held word, else the seat's key. */
-export interface HeldSeat {
-  name: string;
-  karta: string;
-  realm: string;
-}
-
-/**
- * The seating's outcome: the seat taken; the session's own previous seat that returned in
- * another role or graph than the cover's (not taken as the root's seating); the refusal.
- */
-export type Seating = { place: string } | { other: HeldSeat } | { error: string };
+/** How long a seating holds the instance's line: the term and as much again, at most 5 s more. */
+const ceilingMs = (): number => rootSeatMs() + Math.min(rootSeatMs(), 5_000);
+const pause = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms).unref?.());
 
 /** The word is one line: a refusal's prose is folded and cut. */
 const oneLine = (text: string): string => {
@@ -40,73 +32,8 @@ export interface RootSeatDoors {
   /** The session's directory; unknown — null, and the session is not seated. */
   directoryOf(session: string): Promise<string | null>;
   seat(session: string, realm: string, karta: string): Promise<Seating>;
-}
-
-/** What seatBy needs of the "tools" half (tools.ts). */
-export interface SeatDoors {
-  slotFor(session: string): Promise<Slot>;
-  awaitReady(slot: Slot): Promise<void>;
-  callThrough(
-    slot: Slot,
-    name: string,
-    input: Record<string, unknown>,
-    session: string,
-    service: boolean,
-  ): Promise<{ content: string }>;
-}
-
-/** The seat a slot holds: the bridge's held word, else its key "name--karta--realm" (bridge/holdrecord.ts keyOf). */
-function heldSeat(slot: Slot): HeldSeat {
-  if (slot.place) return { ...slot.place };
-  const [name = "", karta = "", realm = ""] = (slot.key ?? "").split("--");
-  return { name, karta, realm };
-}
-
-const keyPart = (t: string): string => t.trim().replace(/[^A-Za-z0-9._-]+/g, "_");
-const short = (t: string): boolean => /^r\d+$/.test(t.trim());
-/**
- * The held seat is the cover's: the same role, and the same graph. A graph is compared in the
- * key's spelling, a bare slug matching its @owner/slug; rN against a slug is not resolved here,
- * and then only the role is compared.
- */
-export function sameSeat(seat: HeldSeat, realm: string, karta: string): boolean {
-  if (keyPart(seat.karta.replace(/^#/, "")) !== keyPart(karta)) return false;
-  if (short(seat.realm) !== short(realm)) return true;
-  const [x, y] = [keyPart(seat.realm), keyPart(realm)];
-  return x === y || x.endsWith(`_${y}`) || y.endsWith(`_${x}`);
-}
-
-/**
- * A root's seat by its cover: the session's own seat returns from disk first (keep.ts);
- * otherwise a stand on the role, the name derived by the bridge — beside a seat another
- * session hears, never over it. A service move, not the agent's.
- */
-export async function seatBy(
-  d: SeatDoors,
-  root: string,
-  realm: string,
-  karta: string,
-): Promise<Seating> {
-  try {
-    const slot = await d.slotFor(root);
-    slot.busy++;
-    try {
-      await d.awaitReady(slot);
-      if (slot.resume) await slot.resume;
-      if (slot.holding) {
-        const own = heldSeat(slot);
-        return sameSeat(own, realm, karta) ? { place: own.name } : { other: own };
-      }
-      const out = await d.callThrough(slot, STAND_TOOL, { realm, karta }, root, true);
-      if (!slot.holding) return { error: out.content || words(PLUGIN).refusalNoText(STAND_TOOL) };
-      return { place: heldSeat(slot).name };
-    } finally {
-      slot.busy--;
-      slot.lastCall = Date.now();
-    }
-  } catch (e) {
-    return { error: (e as Error).message };
-  }
+  /** A word into the session by the channel's path — it comes before the model's next turn. */
+  tell(session: string, text: string): void;
 }
 
 export interface RootSeats {
@@ -119,26 +46,31 @@ export interface RootSeats {
 
 export function createRootSeats(d: RootSeatDoors): RootSeats {
   const W = words(ROOT_SEAT);
-  const seatings = new Map<string, Promise<string | null>>();
+  type Told = { word: string | null; seated: boolean };
+  const seatings = new Map<string, Promise<Told>>();
   const told = new Set<string>();
   let line: Promise<unknown> = Promise.resolve(); // one seating at a time in this instance
 
-  function start(session: string, dir?: string): Promise<string | null> {
+  function start(session: string, dir?: string): Promise<Told> {
     const known = seatings.get(session);
     if (known) return known;
-    const p = (async (): Promise<string | null> => {
+    const no = (word: string | null): Told => ({ word, seated: false });
+    const p = (async (): Promise<Told> => {
       const where = dir ?? (await d.directoryOf(session));
-      if (!where) return null;
+      if (!where) return no(null);
       const cover = readCover(where);
-      if (cover === null) return null;
-      if ("why" in cover) return W.notSeated(cover.why);
-      const turn = line.then(() => d.seat(session, cover.realm, cover.karta));
-      line = turn.catch(() => {});
+      if (cover === null) return no(null);
+      if ("why" in cover) return no(W.notSeated(cover.why));
+      const before = line;
+      const turn = before.then(() => d.seat(session, cover.realm, cover.karta));
+      // A seating hung in the bridge holds the line no longer than its ceiling: the next goes.
+      line = before.then(() => Promise.race([turn, pause(ceilingMs())])).catch(() => {});
       const r = await turn;
-      if ("error" in r) return W.notSeated(W.refused(oneLine(r.error)));
-      if ("other" in r) return W.notSeated(W.ownOther(r.other.name, r.other.karta, r.other.realm));
-      return W.seated(r.place, cover.karta, cover.realm, COVER.file);
-    })().catch((e: Error) => W.notSeated(W.refused(oneLine(e.message))));
+      if ("error" in r) return no(W.notSeated(W.refused(oneLine(r.error))));
+      if ("other" in r)
+        return no(W.notSeated(W.ownOther(r.other.name, r.other.karta, r.other.realm)));
+      return { word: W.seated(r.place, cover.karta, cover.realm, COVER.file), seated: true };
+    })().catch((e: Error) => no(W.notSeated(W.refused(oneLine(e.message)))));
     seatings.set(session, p);
     return p;
   }
@@ -149,15 +81,15 @@ export function createRootSeats(d: RootSeatDoors): RootSeats {
       if (told.has(session)) return null;
       told.add(session);
       const ms = rootSeatMs();
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const late = new Promise<string>((r) => {
-        timer = setTimeout(() => r(W.notSeated(W.late(Math.round(ms / 100) / 10))), ms);
+      const late = W.notSeated(W.late(Math.round(ms / 100) / 10));
+      const seating = start(session);
+      const first = await Promise.race([seating, pause(ms).then(() => null)]);
+      if (first) return first.word;
+      // Seated after the term: the model has read "not seated"; the seat follows by the channel.
+      void seating.then((t) => {
+        if (t.seated && t.word && seatings.get(session) === seating) d.tell(session, t.word);
       });
-      try {
-        return await Promise.race([start(session), late]);
-      } finally {
-        clearTimeout(timer);
-      }
+      return late;
     },
     forget(session) {
       seatings.delete(session);
