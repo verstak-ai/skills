@@ -107,7 +107,7 @@ A case is read first by its summary (`read`): the latest record per key. **A lin
 1. **`verstak_orient(realm=…, focus=<focus holon>)`**: live transformations and when they moved, `TENSIONS` by class, active questions, open cases.
 2. **`verstak_orient(realm=…, focus=<agent role>)`**, if named: calling count, risks, `CHANNEL`. The queue is background.
 
-Free, and first: the three signs of alignment at the git root (the nearest directory upward holding `.git`) — the cover (`AGENTS.md`'s YAML frontmatter; a broken one is none), align's start hook (a `SessionStart` entry in `.claude/settings.json` asking for this skill's Start section, or `.opencode/plugins/verstak-rituals.js`), align's stamp in `AGENTS.md`. A start hook is required only of a harness align writes one for: Claude Code the settings entry, OpenCode the rituals plugin; Codex and pi get none, cover and stamp suffice. Then `git status --short`, the branch, the stamp's number. The first matching row overrides the request; tell the user why:
+Free, and first: the three signs of alignment at the git root (the nearest directory upward holding `.git`) — the cover (`AGENTS.md`'s YAML frontmatter with its `Graph` or `Agent role` key; a broken one, or one without them, is none), align's start hook (a `SessionStart` entry in `.claude/settings.json` asking for this skill's Start section, or `.opencode/plugins/verstak-rituals.js`), align's stamp in `AGENTS.md`. A start hook is required only of a harness align writes one for: Claude Code the settings entry, OpenCode the rituals plugin; Codex and pi get none, cover and stamp suffice. Then `git status --short`, the branch, the stamp's number. The first matching row overrides the request; tell the user why:
 
 | Survey | Move |
 |---|---|
