@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.10.0](https://github.com/verstak-ai/skills/compare/v3.9.0...v3.10.0) (2026-10-17)
+
+
+### Features
+
+* onboarding invited by the repository's own signs; a case line reports one movement ([#191](https://github.com/verstak-ai/skills/issues/191)) ([9f67897](https://github.com/verstak-ai/skills/commit/9f678972ecfe65edd2f1fd9b32f25dc0b7b3511f))
+
+
+### Bug Fixes
+
+* **bridge:** a case record of kind retract reads as a retracted answer ([#194](https://github.com/verstak-ai/skills/issues/194)) ([7aca6e1](https://github.com/verstak-ai/skills/commit/7aca6e1fd1988c35a9bc0dfc9bf7d8a8fcc2d682))
+
 ## [3.9.0](https://github.com/verstak-ai/skills/compare/v3.8.1...v3.9.0) (2026-10-17)
 
 
