@@ -75,7 +75,7 @@ The one exception — **probing the holder of an occupied seat** (3a), since a p
 
 **A refusal names the rule, the state and the options** you were about to guess; ask the surface about itself (`action="?"`) instead of inferring.
 
-Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role" in `AGENTS.md` holds the mandate; **your user** is whose keys you run on — reached by their seat bridge from the board, by handle, never `me` (the door, `Start`, step 6).
+Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role" in `AGENTS.md` holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
 
 1. **Recognise the boundary.** Will you finish it yourself, reversibly, within your mandate? If not, take your part and hand over the rest along mandate lines — not for parallelism; a second mind is for contesting (review, acceptance) or work too big for one context.
 2. **Find the actor in the graph, then the seat.** Holon → `verstak_orient(focus=<holon>)` names its steward; roles → `verstak_search(q="", node_type="karta")`; live seat → the board. `manifested_as` decides what to ask: `adhikarin` 能 (mandated) takes work, `svatantra` 主 (owner) grants sanction, `agantuka` 客 (guest) answers on its own clock, `pratibimba` 象 (depicted) is not addressed. A seatless role is still a full address.
@@ -112,7 +112,7 @@ Close or hand over your open lines in cases; `verstak_channel(action="leave", re
 
 ### Removal
 
-Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read that seat's cases (`verstak_case(action="mine", standing=<that seat>)`, then `read` each), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. `revoke` closes one seat; the seat that founded its channel, held by this session, goes with `verstak_channel(action="close", realm)`, which ends the channel with every seat on it. Blast radius: reference, "connect, register, revoke, close — which is which". Refused → only stepping away; tell the user.
+Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read that seat's cases (`verstak_case(action="mine", standing=<that seat>)`, then `read` each), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. `revoke` closes one seat; the seat that founded its channel, held by this session, goes with `verstak_channel(action="close", realm)`, which ends the channel with every seat on it, in every graph, for good — only when nothing on that channel should survive and the user asked for exactly that; otherwise step away. Blast radius: reference, "connect, register, revoke, close — which is which". Refused → only stepping away; tell the user.
 
 ## Where this ends
 

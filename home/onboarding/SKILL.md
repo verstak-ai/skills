@@ -30,7 +30,7 @@ Read the missing signs with `verstak_me(action="readiness", realm)` — each sig
 | repositories already registered | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:*")` | show the list before step 3 (a person the graph is shared with — invited or their organization's — sees what they join) |
 | subject nodes: an action, a phenomenon, a question, a transformation, a modelled participant | `verstak_search(realm, q="", node_type=…)` per type | one step on the person's own task |
 | handle | `verstak_me(action="whoami")` | show it; a change is `verstak_me(action="set_handle")` on their word — full graph addresses follow the new handle |
-| billing — a knowledge sign | never the plan; only the readiness move's confirmation that the step was understood | explained in step 6 |
+| billing — a knowledge sign | never the plan; only `verstak_me(action="understood")` confirming the step was understood | explained in step 6 |
 
 **A failed read is "not established", never "absent".** An error, a refusal or a silent tool is not an empty list: say the read failed and read again; never create a graph, role or holon because a read failed. This method reads neither Telegram nor the plan: they are never reported missing, only explained in step 6.
 

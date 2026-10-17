@@ -26,7 +26,7 @@ A stage you add names what it leaves outside. Every exit (waiting, failure, cont
 
 ## Graph, case and the transformation's seed
 
-Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in a child case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead in a message (the door, `Case laws`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
+Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in a child case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (the door, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
 
 **The transformation's seed is a pointer, not a log** (`methods/writing.md`, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). Whoever organises the transformation's acceptance closes the seed.
 
@@ -117,7 +117,7 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
 
-**The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up").
+**The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up: run `doctor` first").
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 
@@ -143,7 +143,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 ## 4 · Closing the work round
 
-- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead (`methods/architect.md`, `Leading a case`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
+- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (`methods/architect.md`, `Leading a case`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
 - An answered vimarsha: `addressed_by`, then release by its answer condition and kind (`methods/inquiry.md`); what changed the next judgment, if anything, goes where §6 there says.
 - **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (`methods/reality-audit.md`) and a body matching what was built; diverged → the artifact wins and the node says so.
 - **Weave the follow-through** (`methods/weaving.md`): `verstak_orient(lens="tensions", focus=<touched holon>)` — close the cycles the change opened, `sense` on new arrows; address-class lines go to the agenda.
