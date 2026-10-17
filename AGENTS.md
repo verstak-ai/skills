@@ -132,7 +132,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `DERIVATION.md` — the skills ← canon re-projection map and the four-layer language contract. `SETUP.md` — the per-harness install reference (read, not fetched to execute). `README.md` — short, for people.
 - `REALITY.md` — claim carriers. `CLAUDE.md` — a **symlink** to this file: one file answers every harness; keep it a symlink.
 - `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — delegation roles; their `description` routes them, so it stays trigger-shaped.
-- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules/`. Scratch is **not** ignored: keep working files out of the tree.
+- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules` (a directory or a worktree's symlink). Scratch is **not** ignored: keep working files out of the tree.
 
 ## Code conventions
 - Graph references: `(graph @nks/nks-dev, node #N)` in scripts, tests and this file. **Never under `skills/`**: skills ship to users without access to this graph or `methodology`, and seqs are instance-specific — name concepts by name; keep only syntax placeholders (`#42`, `#N`, GitHub `#123`). The built outputs under `skills/verstak/scripts/` and `extensions/` keep the core's code comments as they are: the sibling's source, not our prose.
