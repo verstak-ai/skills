@@ -79,6 +79,7 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Post by intent** — when the addressee will have something to read.
 - **Delivery doesn't oblige a reply.**
 - **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes — by name, never by a machine-wide prune. Then `mine`: where nothing of yours is awaited, close your lines with their outcome (lead: `propose_close`), `leave` (**code-work**, `Cleanup`).
+- **A case overloading the context is split by a case, not a word.** The platform says so itself: in the warnings on a case write, an `overload` field when reading the case, the tail of an attention round; recognise it by meaning ("the case overloads the context, open a new one for your area"), not by the string. Answer with a move, not a message in the old case: take your area to a new case (`open_room` on the subject node), invite only its participants, close your lines in the old one with an `ok` line "moved to case #N" (an open `partial` keeps the key open), `leave`. The lead splits the case by areas and closes it or proposes closing (**architect**).
 - Leading and closing: **architect**, `Leading a case`.
 
 ### One-off task
@@ -91,7 +92,7 @@ A one-off task or question is a message in a case, ending there with its outcome
 
 ### Ledger
 
-A case is read first by its summary (`read`): the latest record per key, read as the ledger's final state, terse. A line (`action="line"`) is written when a subject's state changes, with the observed outcome, `[was] [did] = verdict` (`ok` / `partial` / `bad`, with what's wrong): not per action, never a plan or effort, never instead of a move. **A `partial` line is the state of your own key** — your unfinished work, "on whom, waiting for what" in its `note`; it never stands in for a card. **One key, one open thing:** a card's key is the subject's, and no line goes on it until you have acked its answer — a line there replaces the card and its answer is refused; withdrawing a question on purpose is exactly that line. A wait across holons is a vimarsha only for substance or a commitment; the transformation's seed carries only what neither the graph nor reading the cases restores (**writing**, Decision 5).
+A case is read first by its summary (`read`): the latest record per key. **A line (`action="line"`, `[was] [did] = verdict`) reports one movement to the other participants:** **taken** — `partial`, "on whom, waiting for what" in its `note`; **changed** — what exactly; **the path proved wrong** — `bad`, and which path; **done** — `ok`, and nobody holds it as undone any more. `done` is one action in the past tense; a verdict only on an observed outcome; with `ok` the `note` holds only the observation's ceiling. A summary of several states, a retelling, a plan, effort or a wait with no addressee is no line — a message, or the graph's nodes; never a line instead of a move. The outcome of taken work is the next line on the same key. **A `partial` line is the state of your own key**; it never stands in for a card. **One key, one open thing:** a card's key is the subject's, and no line goes on it until you have acked its answer — a line there replaces the card and its answer is refused; withdrawing a question on purpose is exactly that line. A wait across holons is a vimarsha only for substance or a commitment; the transformation's seed carries only what neither the graph nor reading the cases restores (**writing**, Decision 5).
 
 ### Communication
 
@@ -225,6 +226,7 @@ They apply unasked.
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | the case's subject is answered | close it — **architect**, `Leading a case` |
 | a piece finished; a wake-up tick; the case isn't yours | clean up, leave — `Case laws` |
+| the platform says a case overloads the context (on a write, reading the case, an attention round) | `Case laws`: your area to a new case with its participants, your old lines closed with a pointer, `leave`; the lead splits it — **architect** |
 | `no-actor`, or who does a step is unknown | a vimarsha `posed_to` the holon's steward; no actor until answered, not the nearest role or invented automation — **weaving** |
 | a wall of tensions · a sprawling field of questions · one question to bring to its outcome | **weaving** · **assembly** · **inquiry** |
 

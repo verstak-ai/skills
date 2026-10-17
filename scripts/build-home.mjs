@@ -38,6 +38,7 @@ const SKILLS = {
       ["Vocabulary: the door's `Answer` step — \"case\"", "Vocabulary: \"case\""],
       [" (the door, `Communication`)", ""],
       [" (the door, `One-off task`)", ""],
+      [" (the door, `Ledger`)", ""],
       ["none → `verstak_stand(realm=<graph>, karta=<your role>)`, never a bare `register` (it opens no seat)", "none → say so: the runtime gives the companion its seat; never a bare `register` (it opens no seat)"],
       ["that's the graph: `methods/entry.md`.", `that's the graph: ${READ_THE_GRAPH}.`],
     ],
