@@ -6,6 +6,7 @@ import { scoped } from "../shared/scope.ts";
 import { type SeatKey } from "../shared/seat.ts";
 import { type Answer, callTool as call } from "./call.ts";
 import { CFG } from "./config.ts";
+import { readHoldRecord, writeHoldRecord } from "./holdrecord.ts";
 import { H } from "./holdstate.ts";
 import { normKarta } from "./names.ts";
 import { extraPlaces } from "./places.ts";
@@ -38,6 +39,20 @@ export function noteCaseEntry(name: unknown, args: unknown, reply: JsonRpcMessag
   for (const [k, c] of joined)
     if (roomNo(c.room) === no && !otherRealm(c.realm, realm)) joined.delete(k);
   if (a.action === "join") joined.set(`${realm ? canonRealm(realm) : ""}#${no}`, { realm, room });
+  keepRecordCases();
+}
+
+/**
+ * A satellite's record carries the cases it is in now (suspend.ts, holdkeep.ts): a join or leave
+ * after the return rewrites it, so a later return by key (a dead bridge replaced, no pause)
+ * seeds neither a case left nor misses one joined (case №954).
+ */
+function keepRecordCases(): void {
+  const key = H.currentKey;
+  if (!CFG.satellite || !key || !H.currentUrl) return;
+  const rec = readHoldRecord(key, true);
+  if (!rec || rec.left || rec.url !== H.currentUrl || !rec.cases) return;
+  writeHoldRecord(key, { ...rec, cases: joinedCases() }, true);
 }
 
 /** The run's cases for the satellite's pause record (suspend.ts): the next bridge leaves them. */

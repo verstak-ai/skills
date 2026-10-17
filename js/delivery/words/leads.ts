@@ -43,6 +43,8 @@ export interface LeadWords {
   reloadUnreadable: () => string;
   reloadNoKey: () => string;
   reloadNotBack: () => string;
+  /** A seat of the session's earlier epoch was not taken by the return, and the fresher one did not return; names — joined with ", ". */
+  reloadStale: (names: string) => string;
   identity: (name: string, action: string) => string;
   writeUnderParent: (name: string, of: string) => string;
   writeNoParent: () => string;
@@ -130,6 +132,8 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     reloadUnreadable: () => "plugin reload, the subagent's session is unreadable",
     reloadNoKey: () => "plugin reload, no seat key",
     reloadNotBack: () => "plugin reload, the satellite seat did not return by its key",
+    reloadStale: (names) =>
+      `plugin reload: the outdated seat ${names} was not taken — the subagent's session has a fresher seat, and it did not return`,
     identity: (name, action) =>
       `Refused (plugin): ${name}${act(action)} is the user's identity, and the child session has no seat of its own: ` +
       "it does not get it through the root's bridge. The graph and cases can be read; who you are — ask the launcher.",

@@ -12,7 +12,8 @@ import {
   setRevokingBeside,
   setRevokingOwn,
 } from "./hold.ts";
-import { stoppedInMove } from "./holdstate.ts";
+import { keyOf, noteStoodAt } from "./holdrecord.ts";
+import { H, stoppedInMove } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { listenBlock } from "./listen.ts";
 import { normKarta } from "./names.ts";
@@ -58,6 +59,11 @@ export function absorbChannelReply(msg: JsonRpcMessage, reply: JsonRpcMessage): 
     // even if the bridge held another before: the label must not lie.
     state.standing = rememberedPlace(a.realm, a.karta, a.name); // normalized, as register does
   }
+  // A connect onto another place than the held one is a stand on it: its era is now (case №954).
+  // The same place again (a pause's re-arm, a repeat) keeps its era; a return does not come here.
+  const s = state.standing;
+  if (s && keyOf(s.realm, s.karta, s.name ?? "") !== H.currentKey)
+    noteStoodAt(keyOf(s.realm, s.karta, s.name ?? ""), Date.now());
   holdStanding(trim(socket), status ? trim(status) : deriveStatusUrl(trim(socket)));
   const block = listenBlock() ?? "";
   const content = reply.result?.content;

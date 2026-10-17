@@ -11,6 +11,7 @@ import { join } from "node:path";
 
 import { OPENCODE_KEEP } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { holdFilePathOf } from "../shared/standings.ts";
 import type { KeptSlot } from "./keep.ts";
 import { processStart } from "./procstart.ts";
 import { entryOf, type Home, type LostEntry } from "./records.ts";
@@ -51,6 +52,16 @@ const otherLive = (f: string, path: string): boolean => {
   }
 };
 
+/** The era of the seat from its hold record (the bridge writes it; a pause comes before the marker). */
+function stoodAtOf(authDir: string, key: string): number | undefined {
+  try {
+    const at = JSON.parse(readFileSync(holdFilePathOf(authDir, key), "utf8"))?.stoodAt;
+    return typeof at === "number" ? at : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Holding bridges to disk, whom they held: a plugin stop or a session's move to another folder
  * (home — its location). Returns what was written; the file did not land — empty.
@@ -63,7 +74,13 @@ export function writeLostMarker(
   const entries = [...slots]
     .filter((s) => s.holding && s.session)
     .map((s) =>
-      entryOf({ ...s, session: s.session as string, of: s.satelliteOf, name: s.place?.name }),
+      entryOf({
+        ...s,
+        session: s.session as string,
+        of: s.satelliteOf,
+        name: s.place?.name,
+        stoodAt: s.key ? stoodAtOf(authDir, s.key) : undefined,
+      }),
     );
   if (!entries.length) return [];
   try {
@@ -122,7 +139,6 @@ export function takeLostMarker(
   home: Home | null,
 ): { text: string | null; entries: LostEntry[]; wordFor: (s: string) => string | null } | null {
   const entries: LostEntry[] = [];
-  const seen = new Set<string>();
   let at = "";
   let files: string[];
   try {
@@ -131,21 +147,36 @@ export function takeLostMarker(
     return null;
   }
   const mine = tagOf(home);
-  // Own-tag files first: a session's record from an older build's file does not override them.
-  files.sort((a, b) => Number(tagIn(b) !== null) - Number(tagIn(a) !== null));
+  const read: { tagged: boolean; lost: Lost }[] = [];
   for (const f of files) {
     const tag = tagIn(f);
     if (tag !== null && tag !== mine) continue; // another location's marker — its instance's
     if (otherLive(f, join(authDir, f))) continue; // another live server's marker — its instance's
     const lost = readOwn(join(authDir, f), tag, home);
+    if (lost) read.push({ tagged: tag !== null, lost });
+  }
+  // Own-tag files first: a session's record from an older build's file does not override them.
+  // Then the latest era: a gone twin server's marker lies until this location's next load or a
+  // call of a child without its slot here (adopt.now), and its record of a session that stood on
+  // another seat here since must not override that seat. The era is when the session stood on the
+  // seat (the entry's stoodAt), not when the marker was written; an older build's entry without it
+  // — its marker's `at`.
+  const eraOf = (e: LostEntry, lost: Lost) => e.stoodAt ?? (Date.parse(lost.at) || 0);
+  const best = new Map<string, { tagged: boolean; era: number; e: LostEntry; lost: Lost }>();
+  for (const { tagged, lost } of read) {
     // A move not taken by the new folder's instance at once is stale: the session went on.
-    const stale = !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS);
-    for (const e of lost?.entries ?? []) {
-      if (!e?.session || seen.has(e.session) || (e.moved && stale)) continue;
-      seen.add(e.session);
-      if (lost && lost.at > at) at = lost.at;
-      entries.push(entryOf(e));
+    const stale = !(Date.now() - Date.parse(lost.at ?? "") < LEGACY_MS);
+    for (const e of lost.entries ?? []) {
+      if (!e?.session || (e.moved && stale)) continue;
+      const era = eraOf(e, lost);
+      const had = best.get(e.session);
+      if (had && (Number(had.tagged) - Number(tagged) || had.era - era) >= 0) continue;
+      best.set(e.session, { tagged, era, e, lost });
     }
+  }
+  for (const { e, lost } of best.values()) {
+    if (lost.at > at) at = lost.at;
+    entries.push(entryOf(e));
   }
   if (!entries.length) return null;
   const when = new Date(at);

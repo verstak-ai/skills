@@ -31,6 +31,7 @@ import {
   keyOf,
   noteHarnessSession,
   noteSeatBase,
+  noteStoodAt,
   readHoldRecord,
   restoreHoldRecord,
   sessionOfBridge,
@@ -94,6 +95,7 @@ export async function resumeFromDisk(
   state.standing = { realm, karta, name };
   const prevCwd = rec.cwd ? noteStandCwd(rec.cwd) : null;
   if (rec.base) noteSeatBase(key, rec.base); // the new holder's record no longer carries it after an eviction
+  noteStoodAt(key, rec.stoodAt ?? rec.at); // a return is no new stand: the seat keeps its era (an earlier build's record: its take or pause moment)
   noteResuming(1);
   try {
     holdStanding(rec.url, rec.statusUrl);
@@ -181,6 +183,8 @@ export interface ResumeOutcome {
   legacy?: string[];
   /** Own seats whose socket a live bridge of another session holds: not taken (#6626). */
   elsewhere?: string[];
+  /** Keyed seats not taken: older than the session's other record (case №954); names. */
+  refused?: string[];
   /** The seat was taken off by its owner (#7439): no return, the word is the stop word. */
   stopped?: true;
 }
@@ -219,7 +223,12 @@ export async function resumeBy(
   register = true,
   takeOwn = false,
 ): Promise<ResumeOutcome> {
-  const { own: recs, sameDir, legacy: legacyRecs, left, neighbour } = recordsFor(sel);
+  const { own: recs, sameDir, legacy: legacyRecs, left, neighbour, stale } = recordsFor(sel);
+  // A keyed seat older than the session's other record: a journal line and the outcome (refused),
+  // no word into the session — a child's return is silent, its end is said to the parent (#6628).
+  const staleWords = stale.map((x) => resumeWords.staleKey(x.name, x.fresher));
+  for (const w of staleWords) log(`resume: ${w}`);
+  const refused = stale.length ? { refused: stale.map((x) => x.name) } : {};
   if (!recs.length) {
     const legacy = await freeLegacy(legacyRecs);
     const said = [resumeWords.noRecord(sel.key, sel.cwd)];
@@ -309,6 +318,7 @@ export async function resumeBy(
     if (others.length) lines.push(resumeWords.othersInDir(others.join(", ")));
     // Not proven own — leave, not revoke: the platform refuses to revoke the seat that founded the channel.
     if (!proven) lines.push(resumeWords.notYours());
+    lines.push(...staleWords);
     return {
       resumed: true,
       key,
@@ -320,7 +330,8 @@ export async function resumeBy(
   }
   return {
     resumed: false,
-    word: resumeWords.nothingToReturn(skipped.join("; ")),
+    word: resumeWords.nothingToReturn([...staleWords, ...skipped].join("; ")),
+    ...refused,
     ...(elsewhere.length ? { elsewhere } : {}),
   };
 }

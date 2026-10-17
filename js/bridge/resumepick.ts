@@ -7,7 +7,7 @@ import { standingsDirOf } from "../shared/standings.ts";
 import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
 import { ledKey } from "./hold.ts";
-import { type HoldRecord, keyOf, readHoldRecord } from "./holdrecord.ts";
+import { eraOf, type HoldRecord, keyOf, readHoldRecord } from "./holdrecord.ts";
 
 export interface ResumeSelector {
   /** Standing key — preferred: the exact record. */
@@ -33,9 +33,12 @@ export function recordsFor(sel: ResumeSelector): {
   legacy: HoldRecord[];
   left: string[];
   neighbour: string[];
+  /** Keyed records not taken, by name, with the fresher seat of the session that won. */
+  stale: { name: string; fresher: string }[];
 } {
   const dir = standingsDirOf(CFG.authDir);
-  if (!existsSync(dir)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
+  if (!existsSync(dir))
+    return { own: [], sameDir: [], legacy: [], left: [], neighbour: [], stale: [] };
   const mine = harnessName();
   const led = ledKey();
   const byKey: HoldRecord[] = [];
@@ -74,11 +77,35 @@ export function recordsFor(sel: ResumeSelector): {
       /* foreign or broken file */
     }
   }
+  // A satellite is one seat per session in a role and graph: of its records there only the latest
+  // era is a candidate — the session stood on it last. An earlier era's record (a stale loss marker,
+  // a gone twin server), by key or by session, is not taken, also when the latest one does not come
+  // back (case №954). The era is when the session stood (stoodAt), not the record's life (at).
+  const stale: { name: string; fresher: string }[] = [];
+  let keyed = byKey;
+  let bySession = byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+  if (CFG.satellite) {
+    const role = (r: HoldRecord) => `${r.realm}\0${String(r.karta)}`;
+    const latest = new Map<string, HoldRecord>();
+    for (const r of [...byKey, ...byCwd]) {
+      const had = latest.get(role(r));
+      if (!had || eraOf(r) > eraOf(had)) latest.set(role(r), r);
+    }
+    const kept = (r: HoldRecord) => {
+      const top = latest.get(role(r)) as HoldRecord;
+      if (top === r || eraOf(top) <= eraOf(r)) return true;
+      stale.push({ name: r.name, fresher: top.name });
+      return false;
+    };
+    keyed = byKey.filter(kept);
+    bySession = byCwd.filter(kept).sort((a, b) => eraOf(b) - eraOf(a));
+  }
   return {
-    own: [...byKey, ...byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0))],
+    own: [...keyed, ...bySession],
     sameDir,
     legacy,
     left,
     neighbour,
+    stale,
   };
 }
