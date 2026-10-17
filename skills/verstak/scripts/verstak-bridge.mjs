@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.8.0";
+var VERSION = "3.8.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -5711,7 +5711,7 @@ function writeHoldRecord(key2, rec5, paused = false, at2 = Date.now()) {
     const was = onDisk(key2);
     const session = H.session ?? rec5.session ?? (was?.url === rec5.url ? was.session : void 0);
     const left2 = rec5.left ?? was?.left === true;
-    writeFileSync9(
+    writeOwned(
       holdFilePathFor(key2),
       JSON.stringify({
         ...rec5,
@@ -5720,8 +5720,7 @@ function writeHoldRecord(key2, rec5, paused = false, at2 = Date.now()) {
         provisional: rec5.provisional ?? (was?.url === rec5.url && was.session === session ? was.provisional : void 0),
         base: B.get(key2) ?? rec5.base ?? was?.base ?? baseOnDisk(key2) ?? void 0,
         at: at2
-      }) + "\n",
-      { mode: 384 }
+      }) + "\n"
     );
   } catch (e) {
     log(`hold record not written: ${e.message}`);
@@ -5730,7 +5729,7 @@ function writeHoldRecord(key2, rec5, paused = false, at2 = Date.now()) {
 function restoreHoldRecord(key2, rec5) {
   if (CFG.satellite) return;
   try {
-    writeFileSync9(holdFilePathFor(key2), JSON.stringify(rec5) + "\n", { mode: 384 });
+    writeOwned(holdFilePathFor(key2), JSON.stringify(rec5) + "\n");
   } catch (e) {
     log(`hold record not restored: ${e.message}`);
   }
