@@ -127,7 +127,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 - **The result looks complete** (a round row count, a truncated tail, several holders of a name) → it's a page: narrow with `verstak_search(q="", node_type=…)`.
 - **Your node says something you no longer see** → confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false → "was it ever so?" (`atita` / `vikalpa`).
 - **A write has no author, or returns 409** → `methods/collaborate.md`, `Repair tree`.
-- **A method's description doesn't match its body** → the delivery is behind: `methods/align.md`.
+- **The door's description doesn't match a method's body** → the delivery is behind: `methods/align.md`.
 
 ## Reading hygiene
 

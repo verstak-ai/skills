@@ -130,8 +130,6 @@ A person is addressable when all three hold: their 主 role is bound to them, th
 
 ## Shared bridge and one seat per graph
 
-The seat binding lives on the bridge's session, and one bridge may serve the whole harness: parallel actors on it overwrite each other's binding with the last `register`. Precede an authorship-bearing write with your own `register` under the same name.
-
 The delivery bridge holds **one seat per graph**: there it refuses `register`, `connect` and `verstak_stand` for another role or name. A second actor needs its own bridge (its own harness session; OpenCode gives the child session one; Claude Code a satellite from the agent-file entry). Moving this bridge to another seat deliberately: `verstak_stand` with `take=true`. `verstak_stand` in a **different** graph stands a seat beside on the same channel: the session signs each graph's writes with that graph's seat — so a subagent on a shared bridge standing in another graph gives its seat to the whole session's writes there.
 
 Binding self-repair holds only within the platform session that registered, and that session is rebuilt silently. The bridge rebinds itself (seat header on session open, replayed `register`, a tool-reply marker); a no-author marker reaching you means it missed the case — `register` again and report it (`methods/feedback.md`).

@@ -25,7 +25,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 - `gh` authenticated (`gh auth status`); target repos accessible.
 - **A local checkout of every repo in scope** (`git clone --depth 1`; private: `gh repo clone`) — Step 2 reads real code; `gh` metadata alone short-changes the product.
-- Graph integration and checking are yours; finding and updating touched nodes, harvesting, reading code and rendering may go to subagents in the run's case (→ door, `Work goes to subagents`). Results pass as **files on disk** with short confirmations and paths (large returns drop the connection); check a step by its artifact, not its report.
+- Delegation as the door's `Work goes to subagents` says; here harvesting, reading code and rendering may go to subagents in the run's case. Results pass as **files on disk** with short confirmations and paths (large returns drop the connection); check a step by its artifact, not its report.
 
 ## Step 1 — Frame and bootstrap
 
