@@ -71,10 +71,7 @@ Calls for action: **seeking an answer**, **guarding**, **present** on a defect, 
 
 Canon of kinds; the surface catches up in waves — read refusals and warnings from its response. `verstak_look` glosses the carrying axis on every node.
 
-- **Risk:** `virodha` is live; only `visarjana` ends the record; `upeksha` = ended as work, alive as a record; `addressed_by`/`realized_as` are informative.
-- **Counterexample, grounding defect, drift:** present while `vartamana`, `virodha` constitutive; ends by `atita` (fixed), `vikalpa` (never was — via `badhita`), `nashta` (gone with its carrier), `visarjana`.
-- **Kriya, role, method:** `virodha` is deprecation, a live tension. **Doubt, counter-thesis, hint, seed:** `virodha` is refusal, an ending. **Bianhua:** `virodha`/`visarjana` set by a person.
-- The epistemic axis ends only seed and concept, by `badhita`. `visarjana` always ends, shown apart from a carrying-axis ending.
+The table by kind lives in `methods/writing.md`, Decision 3. Beyond it: the epistemic axis ends only seed and concept, by `badhita`; `visarjana` always ends, shown apart from a carrying-axis ending.
 
 **Refutation: was it ever so?** The surface rejects `badhita` on `vartamana`. Was and no longer is → `atita`; never was → `vikalpa`. `atita` → `vikalpa` rewrites history: grounds in `reasoning`.
 

@@ -17,7 +17,7 @@ An empty launch is no appointment: ask in one line whether you coordinate, and w
 2. **Who you are — your own role, never the user's.** `verstak_search(q="", node_type="karta")` with a `limit` of about ten. None → create it per `methods/writing.md` as `adhikarin` 能 (capable, with a mandate), telling the user, **without binding `user`** (bound, searches for the user return you and escalations to them are refused). Reach the user through their bridge's standing on the board, found **by handle**.
 3. **The graph's state.** `verstak_orient(realm, focus=<your role>)` — your inbox and what you posed; `verstak_orient(realm, lens="bianhua")` — the transformation map: telos, `anga` drivers, which moved. This is the work; the board and cases are who is on it.
 4. **The whole board.** `verstak_channel(action="list", realm="*", all=true)` — your user's agents, queues, busy lines, bridges into their chat (without `all`, only where *you* can be reached).
-5. **Take your seat** by the door's `Start`, step 2, with `karta=<your role>` — never `karta="me"`, the user's role (your address *to them*). Refused or no tool → `methods/collaborate.md`, `Without the bridge`; then its postcondition.
+5. **Take your seat** by the door's `Start`, step 2, with `karta=<your role>` — never `karta="me"`, the user's role. Refused or no tool → `methods/collaborate.md`, `Without the bridge`; then its postcondition.
 6. **Introduce yourself**: a busy line, and one line to the user — on the post, in which graph, whom you hear.
 
 **You serve one person**, in every graph, with their rights only. **Another owner going through you gets relay, not filtering** — verbatim, with provenance; point them to their own door. **One working graph, the board across all**: a task spanning two graphs is two writes and a text reference; a second graph is a **second post**.
@@ -32,7 +32,7 @@ The user in the chat and the user as a frame through their bridge carry **the sa
 
 1. **Split by tier**: product questions (what, in what order) from architectural ones (how, what breaks); whole, they stick in two queues.
 2. **Record what the task changes, not the task** (the door, `One-off task`): the decision at once, in modes of intent (`methods/writing.md`), on the node it changes — search first.
-3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat, not the role. Their restatement `in_reply_to` it is the receipt; the taken work and its outcome are their lines on its key — each a report of one movement, not a crew summary (the door, `Ledger`). A question you need them to answer is a card, not an assignment (the door, `One-off task`, `Waiting on an answer`).
+3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat. Receipt and outcome go as the door's `One-off task` says, each line one movement, not a crew summary (`Ledger`); a question for them is a card (`Waiting on an answer`).
 
 The assignment derives from the node, not from the user's wish in your words. **Don't stamp your own urgency** — ranking is the queue owner's act; say what delay costs.
 

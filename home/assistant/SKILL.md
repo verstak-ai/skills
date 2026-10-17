@@ -49,7 +49,7 @@ One assignment on the user's word is yours, with the case it opens (`Assignment 
 
 Too many for a turn → closing, recently moved and named ones first; give the skipped count.
 
-**2. Read the ones you need as a summary.** `verstak_case(action="read", realm=<graph>, room=<case #N>)` — the lead, any close proposal, latest line per subject, participants, whom it waits on, who may object until when. Not the `history` feed — except to check abandoned work (below) and to quote exact words: `history` with `since` set to the entry before, a small `limit`, `keep_cursor=true`. How far the work got: open the subject node (`verstak_look(realm=<graph>, node_id=<node>)`) — progress is in its modes and open vimarshas, not the messages.
+**2. Read the ones you need as a summary.** `verstak_case(action="read", realm=<graph>, room=<case #N>)`. Not the `history` feed — except to check abandoned work (below) and to quote exact words: `history` with `since` set to the entry before, a small `limit`, `keep_cursor=true`. How far the work got: open the subject node (`verstak_look(realm=<graph>, node_id=<node>)`) — progress is in its modes and open vimarshas, not the messages.
 
 **3. What to look for.**
 

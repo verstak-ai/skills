@@ -35,14 +35,13 @@ Names, `given_as` and modes: `methods/writing.md`, at every write. This method d
 
 **`source_kind="shabda"` is provenance**, orthogonal to the **epistemic mode**. Coming from outside sets no confidence: name the claim, its subject and the means that reached it, then grade the claim.
 
-- **Code read directly** observes the code: "the file contains X" is seen; "the system does X" stays `anumita` until a run is observed. A visible release tag is seen as a tag.
+- **Code read directly** observes the code, not what the system does (`methods/writing.md`, Decision 3); a visible release tag is seen as a tag.
 - **A report of a run** observes the report; the run itself is testimony, with the reporter's means and limits.
 - **A normative text** (spec, contract, policy) establishes its own content by reading; whether anything complies is a separate claim.
 - **An unreproducible past** is judged by the testimony available, its origin, dependencies and limits (step 5).
 - **Ontic follows the subject**: ahead → `anagata`, running → `vartamana`, past → `atita`.
 - **The owner's will.** The owner's own word is not shabda to be checked: it establishes their scoped act (`chanda`/`adhimoksha`, witnessed), not its execution. Someone else's retelling of it is testimony about the act; it may ground recording the act only when it points to the owner's checkable word, with that provenance.
 - **Unknown provenance** limits your own claim, not a mandate established separately.
-- **`pramanita`** needs independent grounds; retellings of one source count once.
 - **An outdated document contradicting reality** — `badhita` on the particular judgment reality defeated (step 5), kept: it teaches how not to think.
 - **`kalpita` is never permanent** — step 5 grades it.
 

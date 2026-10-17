@@ -8,13 +8,13 @@ The agent is the **agent role** from AGENTS.md (a `karta`), steward of the repos
 
 **Two rounds.** The **duty round** is cheap and frequent: wake, see what changed, decide, sleep. The **work round** is expensive and rare: grasp, mark, ship, relay, integrate, weave, close.
 
-**The watch checks the result** — when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge; subagents also take code, the gate, review and verification (the door, `Work goes to subagents`). The decision, weaving and integration stay with the watch. **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
+**The decision, weaving and integration stay with the watch; the volume goes to subagents, and the watch checks the result** (the door, `Work goes to subagents`). **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
 
 **Count a stage by an outside sign**, not an inside one ("connected", "reported"):
 
 | Stage | Outside sign |
 |---|---|
-| On watch | a real message reached your user, or their seat answered with a machine header |
+| On watch | a real message reached your user, or their seat's reply carried the bridge's header |
 | Looked around | you read the whole board listing, not just your line |
 | Took work on a signal | the intent is marked on nodes (§2c), a subagent launched, or a question was recorded |
 | Worked a round | a node, an arrow, a mode change, a commit or a probe result exists — a message alone is not one |
@@ -26,9 +26,9 @@ A stage you add names what it leaves outside. Every exit (waiting, failure, cont
 
 ## Graph, case and the transformation's seed
 
-Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in a child case (§3); a case whose goal is met is closed (`propose_close`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result, and a failed outcome alone does not prove a bad decision: a decision is judged by what was known when it was made.
+Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in a child case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (the door, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
 
-**The transformation's seed** (`methods/writing.md`, Decision 5) **is a pointer, not a log**: done work changes the graph, not the seed; a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). Whoever organises the transformation's acceptance closes the seed.
+**The transformation's seed is a pointer, not a log** (`methods/writing.md`, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). Whoever organises the transformation's acceptance closes the seed.
 
 ## 0 · Going on watch — announce, look around, get on the channel
 
@@ -38,7 +38,7 @@ Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (�
 | `sleep-poll` | you | 5–10 min in a wave; longer when nobody waits | sleep again |
 | interactive | the user | — | end the turn with a change if a signal came, a word about your standing if not |
 
-**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (`references/align-harness-surfaces.md`); neither → interactive. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause, not a wake-up for every seat of the role.
+**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (`references/align-harness-surfaces.md`); neither → interactive.
 
 No agent role (the door's `Start`) → `methods/align.md` instead.
 
@@ -50,13 +50,13 @@ Without a request, a frame or a `posed_to`, don't patrol the field or put out te
 
 ### Debts at three moments
 
-Going on watch, the platform's periodic wake-up, the user asking. Only your own: the queue from `verstak_orient(focus=<role>)`; `verstak_case(action="mine")` and `read`; earlier seats (`verstak_channel(action="list", realm, karta=<role>)`, your "machine.repo" prefix, no satellites) with `mine` and `standing` each; **the role's cases** from its board `verstak_orient(lens="board", focus=<role>)`, section "Cases": one marked `lead_gone` or `ownerless` is a role case nobody leads, and it is yours whichever seat opened it (an earlier session name, a satellite, another person under the same role); one with a live sibling as lead is theirs; your own `partial` line "on the owner…" or "on <role>…" with no `ask` card is a mute request nobody receives — post the card (§5) or drop the line; `gh` (branch without PR, PR without merge, merges since the last release tag). To the user: a short list (what, on whom, how long) when asked, else only on change. The platform's word that a case overloads the context is a move of §3, not a debt. A debt is visible, not blocking.
+Going on watch, the platform's periodic wake-up, the user asking. Only your own: the queue from `verstak_orient(focus=<role>)`; `verstak_case(action="mine")` and `read`; earlier seats (`verstak_channel(action="list", realm, karta=<role>)`, your "machine.repo" prefix, no satellites) with `mine` and `standing` each; **the role's cases** from its board `verstak_orient(lens="board", focus=<role>)`, section "Cases": one marked `lead_gone` or `ownerless` is a role case nobody leads, and it is yours whichever seat opened it (an earlier session name, a satellite, another person under the same role); one with a live sibling as lead is theirs; your own `partial` line "on the owner…" or "on <role>…" with no `ask` card is a mute request nobody receives — post the card (§5) or drop the line; the forge CLI `AGENTS.md` names (`gh`, `fj`, …): branch without PR, PR without merge, merges since the last release tag. To the user: a short list (what, on whom, how long) when asked, else only on change. The platform's word that a case overloads the context is a move of §3, not a debt. A debt is visible, not blocking.
 
 **An abandoned role case is worked through and closed, not hoarded.** Join (joining a case without a lead makes you its lead), `read` it (`history` for one key) and answer four questions: what the ledger shows that holds outside this case → the node it touches (`methods/writing.md`), judging decisions by what was known then, not by the outcome; nothing → say so in a line; done but the graph doesn't know → catch the graph up (`methods/reconcile.md`); not done and not in the graph → a vimarsha or the transformation's map. Then `propose_close` with the evidence: what remains lives in the graph, not the case. Another role's open line is not yours to close — call its role. Leaving yourself, hand the lead over or propose closing (the door, `Case laws`), or your case becomes the next `lead_gone`.
 
 ### Get on the channel
 
-The door's `Start`, steps 2 and 6; not through → fixing the channel is the round (`methods/collaborate.md`). The user's seat counts only once a reply returns with a machine header: knock again (`repeat_knock=true`) after two minutes, then ask the user to open the chat. Arm a bounded fallback wake-up in every mode.
+The door's `Start`, steps 2 and 6; not through → fixing the channel is the round (`methods/collaborate.md`). The user's seat counts only once a reply returns carrying the bridge's header: knock again (`repeat_knock=true`) after two minutes, then ask the user to open the chat. Arm a bounded fallback wake-up in every mode.
 
 ## 1 · Duty round — cheap by construction
 
@@ -93,7 +93,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 **Read the task by its references, not the brief's text**: the reference standard, "Answered when", touched phenomena and kriyas, the transformation and its telos. Strike the text — do you still know what to build, how to check it, whom it touches? No → ask which nodes should stand. Text and nodes disagree → nodes win. **The tasking names how reality checks it** — carrier and probe, a negative one included; if not, ask.
 
-A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. Unfinished or unattested close proposal → `object` on its [N], reason `not_done`, `unverified` or `other`; silence consents only if you received it and could object.
+A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: `methods/architect.md`, `Leading a case`).
 
 Read the item in context (`verstak_orient(focus=<node>)`, then its arrows) and hold five things before taking it: **where it integrates** and who else is on that surface; **what changes**, before and after (can't say it → not grasped); **where the risk is** and how loudly it breaks; **anything irreversible** (§3's sanction gate); **which transformation it moves** (`verstak_orient(lens="bianhua", focus=<N>)`). Ask for what's missing, don't infer it (`methods/collaborate.md`, `Exchange`); a well-specified item may still belong to another mandate.
 
@@ -117,13 +117,13 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
 
-**The subagent's seat**: the door's `Start`, step 2 (its own satellite bridge from the agent file's `--satellite` entry, `methods/align.md`); the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` takes no seat. Runs of one agent file share a bridge, which the first to finish shuts — one seat-taking run per agent file at a time. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `references/align-delegation.md`, "Bridge didn't come up: run `doctor` first".
+**The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up: run `doctor` first").
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 
 **Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split.
 
-**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting. **Up**: an answer you wait on → an `ask` card to the seat that owes it (the door, `Waiting on an answer`); your own unfinished state → a `partial` line on your key, its outcome the next line — a line reports a movement (`Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them. **A case overloading the context** (the platform's word on a write, on reading the case, in an attention round) → answer with a move in the same round, no separate wake-up: your area to a new case, your lines in the old one closed with a pointer, `leave`; leading it → split it (`methods/architect.md`; the door, `Case laws`).
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting. **Up**: an answer you wait on is a card, your own unfinished state a line on your key (the door, `Waiting on an answer`, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them. **A case overloading the context** → answer with a move in the same round, no separate wake-up (the door, `Case laws`; leading it — `methods/architect.md`).
 
 A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
 
@@ -143,7 +143,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 ## 4 · Closing the work round
 
-- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, propose closing in that same move (the door, `Case laws`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
+- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (`methods/architect.md`, `Leading a case`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
 - An answered vimarsha: `addressed_by`, then release by its answer condition and kind (`methods/inquiry.md`); what changed the next judgment, if anything, goes where §6 there says.
 - **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (`methods/reality-audit.md`) and a body matching what was built; diverged → the artifact wins and the node says so.
 - **Weave the follow-through** (`methods/weaving.md`): `verstak_orient(lens="tensions", focus=<touched holon>)` — close the cycles the change opened, `sense` on new arrows; address-class lines go to the agenda.
@@ -154,7 +154,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 1. **Reconcile** (`methods/reconcile.md`): true modes, remaining debts as vimarshas.
 2. **Hand over** in the seed and in the case: what was taken, promised to whom, open — and where the next one finds why: the decisions' grounds, the case against, what was outside your mandate (node numbers, not retelling).
 3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead by a card and its `ack` (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
-4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`). No `revoke`: it deafens the seat when mail matters most and removes a successor's seat on the same name.
+4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`).
 
 Without the user's word there is no handover; a session's end is an absence.
 
@@ -166,7 +166,7 @@ Not yours: refusal, the order between questions, scope and telos, production and
 
 **Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
-The owner's answer counts once woven in: `ack` an answer to a card (what you accepted, what you'll do), update the touched nodes in the form the deed needs (`methods/writing.md`, Decision 1), carry the change through, end the question by axis — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
+The owner's answer counts once woven in: `ack` it (the door, `Waiting on an answer`), update the touched nodes (`methods/writing.md`, Decision 1), carry the change through, end the question by axis — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
 
 ## Surviving context compaction
 

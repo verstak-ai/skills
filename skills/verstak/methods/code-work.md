@@ -39,9 +39,9 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 A push shipped nothing; these acts hang on the merge, all mandatory, in the same move — also after a forge merge plus `git merge --ff-only`, which fires no hook. On work tasked by another agent, weaving, ending and reconciling are the tasker's; you leave the seed and delivery modes (`methods/autonomous.md`).
 
 1. **Weave** (`methods/weaving.md`): what shipped → nodes and arrows with `sense` in the target system; repo mechanics stay in git. Zero nodes after a real change — say why.
-2. **Advance the map**: open work stays `anga` on the transformation; its seed (`methods/writing.md`) keeps only what matters after the session, never a log of the merge.
+2. **Advance the map**: open work stays `anga` on the transformation; its seed is never a log of the merge (`methods/writing.md`, Decision 5).
 3. **Switch modes on evidence it runs, not on merge.** The merge moves the map and the nodes of what the code now carries. A kriya goes `anagata`→`vartamana` (and up from `kalpita`) only when an actor does it, a rollout or an observed run shows it (`methods/reality-audit.md`). None → it stays `anagata`; ask for what's missing in a vimarsha `posed_to` whoever runs it.
-4. **End by axis** (`methods/inquiry.md`), answer the `posed_to` inbox, `propose_close` with evidence.
+4. **End by axis** (`methods/inquiry.md`), answer the `posed_to` inbox; as lead, `propose_close` with evidence.
 5. **Reconcile** (`methods/reconcile.md`): nodes against code, code against graph; the remainder as vimarshas.
 6. **Feedback reflection** unless `AGENTS.md` sets `Feedback reflection` to `no`, and at session end without a merge: experience about the method, as a concrete instance (`methods/feedback.md`); zero entries is valid.
 7. **Vocabulary pass** over what landed.
