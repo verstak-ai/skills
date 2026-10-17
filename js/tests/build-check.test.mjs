@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
   copyFileSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -14,7 +15,11 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 
-import { REPO } from "./built.mjs";
+import { BUILT_ONBOARD_HOOK, REPO } from "./built.mjs";
+
+/** The dev mark as js/build.mjs reads it from the delivery's version source. */
+const devMark = (root) =>
+  `"${/^export const CHANNEL_MARK: string = "([^"]+:dev)";$/m.exec(readFileSync(join(root, "js/delivery/version.ts"), "utf8"))[1]}"`;
 
 const OUTPUTS = [
   "skills/verstak/scripts/verstak-bridge.mjs",
@@ -22,6 +27,8 @@ const OUTPUTS = [
   "extensions/verstak.js",
 ];
 const VERSION_LINE = /^var VERSION = "[^"]+";$/m;
+/** The onboarding hook: no embedded VERSION, absent from main until its first release. */
+const HOOK = "hooks/onboard.mjs";
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "verstak-build-check-"));
@@ -38,6 +45,10 @@ function fixture(t) {
     const path = join(root, rel);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, text.replace(VERSION_LINE, `var VERSION = "${version}";`));
+  }
+  if (existsSync(join(REPO, HOOK))) {
+    mkdirSync(join(root, "hooks"), { recursive: true });
+    copyFileSync(join(REPO, HOOK), join(root, HOOK));
   }
   return root;
 }
@@ -67,6 +78,50 @@ test("check-js rejects outputs left behind by a release-please version bump", (t
   assert.equal(result.status, 1, result.stdout + result.stderr);
   for (const rel of OUTPUTS) assert.ok(result.stderr.includes(rel), result.stderr);
   assert.match(result.stderr, /stamped version 99\.0\.0/);
+});
+
+/** The fixture with the committed bridge at version v and the onboarding hook absent. */
+function withoutHook(t, v) {
+  const root = fixture(t);
+  rmSync(join(root, HOOK), { force: true });
+  const bridge = join(root, OUTPUTS[0]);
+  writeFileSync(
+    bridge,
+    readFileSync(bridge, "utf8").replace(VERSION_LINE, `var VERSION = "${v}";`),
+  );
+  const source = join(root, "js/delivery/version.ts");
+  writeFileSync(
+    source,
+    readFileSync(source, "utf8").replace(
+      /^export const VERSION = "[^"]+";/m,
+      `export const VERSION = "${v}";`,
+    ),
+  );
+  return root;
+}
+
+test("check-js lets the onboarding hook be absent before the release that first ships it", (t) => {
+  const result = check(withoutHook(t, "3.9.0"));
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.stdout.includes(`${HOOK}: first ships with 3.10.0`), result.stdout);
+});
+
+test("check-js requires the onboarding hook from the release that first ships it", (t) => {
+  const result = check(withoutHook(t, "3.10.0"));
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.ok(result.stderr.includes(`${HOOK}: missing`), result.stderr);
+});
+
+test("check-js rejects a dev-built onboarding hook", (t) => {
+  const root = fixture(t);
+  mkdirSync(join(root, "hooks"), { recursive: true });
+  writeFileSync(
+    join(root, HOOK),
+    readFileSync(BUILT_ONBOARD_HOOK, "utf8") + `// ${devMark(root)}\n`,
+  );
+  const result = check(root);
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.ok(result.stderr.includes(`${HOOK}: carries the dev mark`), result.stderr);
 });
 
 test("bundle-sync checks the release build before committing it", () => {

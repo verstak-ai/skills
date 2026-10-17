@@ -20,12 +20,20 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
 
 // The paths follow js/delivery/product.ts: BRIDGE_SKILL/scripts/{BRIDGE_FILE,PLUGIN_FILE}
-// and extensions/<PRODUCT>.js, where pi loads extensions from.
+// and extensions/<PRODUCT>.js, where pi loads extensions from; hooks/ at the plugin root,
+// beside the hooks/hooks.json Claude Code reads.
 const BRIDGE = "skills/verstak/scripts/verstak-bridge.mjs";
 const PLUGIN = "skills/verstak/scripts/opencode-plugin.js";
 const EXTENSION = "extensions/verstak.js";
+const ONBOARD_HOOK = "hooks/onboard.mjs";
 /** Build outputs — paths from the repo root (committed) and from dist/dev (dev). */
-const OUTPUTS = [BRIDGE, EXTENSION, PLUGIN];
+const OUTPUTS = [BRIDGE, EXTENSION, PLUGIN, ONBOARD_HOOK];
+/**
+ * An output no release has carried yet: until the release of this version (by the committed
+ * bridge's VERSION) it is absent from its committed path — the release job writes it first,
+ * not a branch.
+ */
+const PENDING = new Map([[ONBOARD_HOOK, [3, 10, 0]]]);
 
 const common = {
   bundle: true,
@@ -63,6 +71,9 @@ async function produce() {
   // @opencode/plugin types are erased by the build. It ships beside the bridge,
   // installed by the same step.
   outputs.set(PLUGIN, await bundleNode("js/opencode/plugin.ts"));
+  // The Claude Code plugin's SessionStart hook (hooks/hooks.json): the onboarding invitation
+  // by the repository's signs — a small file of its own, not the bridge: session start waits on it.
+  outputs.set(ONBOARD_HOOK, await bundleNode("js/cli/onboard-hook.ts"));
   return outputs;
 }
 
@@ -84,14 +95,31 @@ const RELEASE_MARK = `"${markDev.replace(/:dev$/, ":release")}"`;
 const RELEASE = process.env.VERSTAK_BUILD_CHANNEL === "release";
 const DEV_DIR = process.env.VERSTAK_BUILT_DIR || join(ROOT, "dist", "dev");
 
+/** The outputs that embed the delivery's VERSION; the onboarding hook imports only its words. */
+const VERSIONED = new Set([BRIDGE, EXTENSION, PLUGIN]);
+const VERSION_DECL = /^var VERSION = "([^"]+)";$/gm;
+const versionOf = (text) =>
+  /^var VERSION = "(\d+)\.(\d+)\.(\d+)";$/m
+    .exec(text ?? "")
+    ?.slice(1)
+    .map(Number);
+const below = (v, w) => !!v && (v[0] - w[0] || v[1] - w[1] || v[2] - w[2]) < 0;
+
 if (CHECK) {
   let bad = 0;
+  let pending = 0;
+  const bridge = existsSync(join(ROOT, BRIDGE)) ? readFileSync(join(ROOT, BRIDGE), "utf8") : null;
   for (const rel of OUTPUTS) {
     const path = join(ROOT, rel);
     const have = existsSync(path) ? readFileSync(path, "utf8") : null;
-    // esbuild preserves this delivery-layer declaration in all three outputs.
+    if (have === null && PENDING.has(rel) && below(versionOf(bridge), PENDING.get(rel))) {
+      pending++;
+      console.log(`· ${rel}: first ships with ${PENDING.get(rel).join(".")} — absent until then`);
+      continue;
+    }
+    // esbuild preserves this delivery-layer declaration in the versioned outputs.
     // Match the declaration, not a version string elsewhere in the bundle.
-    const versions = [...(have ?? "").matchAll(/^var VERSION = "([^"]+)";$/gm)];
+    const versions = [...(have ?? "").matchAll(VERSION_DECL)];
     const why =
       have === null
         ? "missing"
@@ -99,11 +127,13 @@ if (CHECK) {
           ? "carries the dev mark"
           : rel === BRIDGE && !have.includes(RELEASE_MARK)
             ? "has no release mark"
-            : versions.length !== 1
-              ? "must carry exactly one embedded VERSION declaration"
-              : versions[0][1] !== version
-                ? `version ${versions[0][1]} differs from stamped version ${version} in ${MARK_SOURCE}`
-                : null;
+            : !VERSIONED.has(rel)
+              ? null
+              : versions.length !== 1
+                ? "must carry exactly one embedded VERSION declaration"
+                : versions[0][1] !== version
+                  ? `version ${versions[0][1]} differs from stamped version ${version} in ${MARK_SOURCE}`
+                  : null;
     if (why) {
       bad++;
       console.error(`✗ ${rel}: ${why} — it is written by make build-release (the release job)`);
@@ -111,7 +141,7 @@ if (CHECK) {
   }
   if (bad) process.exit(1);
   process.stdout.write(
-    `✓ ${OUTPUTS.length} committed JS outputs are a release build, no dev mark, version ${version}\n`,
+    `✓ ${OUTPUTS.length - pending} committed JS outputs are a release build, no dev mark, version ${version}\n`,
   );
 } else {
   const outputs = await produce();

@@ -10,3 +10,4 @@ export const BUILT = process.env.VERSTAK_BUILT_DIR || join(REPO, "dist", "dev");
 export const BUILT_BRIDGE = join(BUILT, "skills", "verstak", "scripts", "verstak-bridge.mjs");
 export const BUILT_PLUGIN = join(BUILT, "skills", "verstak", "scripts", "opencode-plugin.js");
 export const BUILT_EXTENSION = join(BUILT, "extensions", "verstak.js");
+export const BUILT_ONBOARD_HOOK = join(BUILT, "hooks", "onboard.mjs");

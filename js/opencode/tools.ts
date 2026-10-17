@@ -47,7 +47,7 @@ import type { HeldSeat } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, STAND_TOOL, standsBy } from "./satellite.ts";
-import { inSlot, serviceCalls } from "./service.ts";
+import { inSlot } from "./service.ts";
 import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
 import { statusLines, statusTool } from "./status.ts";
 
@@ -206,7 +206,7 @@ export async function setupTools(
    * A root session's bridge: the load's spare first, then its own; a dead one is replaced.
    * touch=false — the watchdog's look, not a call: the idle time is not refreshed.
    */
-  async function slotFor(sessionID: string, touch = true, resume = true): Promise<Slot> {
+  async function slotFor(sessionID: string, touch = true): Promise<Slot> {
     seats.guard(sessionID);
     const root = await rootOf(sessionID);
     mv.guard(root, sessionID); // the root moved away — a child does not raise its bridge here
@@ -246,7 +246,7 @@ export async function setupTools(
     }
     // A previous instance's seat returns from disk by the session's directory before the first call; never for a foreign root.
     const s = slot;
-    if (resume && far !== "foreign" && unasked.delete(s))
+    if (far !== "foreign" && unasked.delete(s))
       s.resume = keeper.resume(s, root).finally(() => (s.resume = null));
     if (touch) slot.lastCall = Date.now();
     return slot;
@@ -451,7 +451,6 @@ export async function setupTools(
   return {
     launch: launcher.launch,
     ...seats.half,
-    onboardCall: serviceCalls((s) => slotFor(s, true, false), awaitReady),
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       seats.cancel(s);

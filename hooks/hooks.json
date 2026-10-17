@@ -1,0 +1,17 @@
+{
+  "description": "Onboarding invitation at session start in a repository not yet aligned for the agent",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const r=process.env.CLAUDE_PLUGIN_ROOT;if(r)import(require('node:url').pathToFileURL(require('node:path').join(r,'hooks','onboard.mjs')).href).catch(()=>{})\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

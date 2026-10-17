@@ -168,7 +168,6 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
 
   const onboard = createOnboardStart(
     ctx,
-    (s) => half.onboardCall(s),
     (s) => parents.has(s) || (roots.has(s) && roots.get(s) !== s),
     closed,
   );
@@ -180,7 +179,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       const root = (await rootOf(sid)) === sid;
       const word = await half.launch(sid, p.prompt.text);
       if (word) p.prompt.text = withWord(p.prompt.text, word);
-      // Mutually exclusive by readCover; start both reads together, never sum their ceilings.
+      // An invitation needs no cover, so no seat beside it; the seating's ceiling alone bounds both.
       const [seat, invitation] = root
         ? await Promise.all([rootSeats.word(sid), onboard.prompt(sid)])
         : [null, null];
