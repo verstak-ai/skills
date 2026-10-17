@@ -12,7 +12,7 @@ One loop serves every entry: **read the signs → choose one step → do it with
 
 Read for **this person** and **the chosen graph**: the account, handle and plan are the person's; roles, repositories and subject nodes belong to one graph. A role in another graph does not count here; `@handle/mind` is never a working graph; a graph the person can read is not yet a graph they chose.
 
-`verstak_me(action="?")` names the readiness move when this surface has it — read the missing signs from it, and confirm an understood step with it; without it, read the signs yourself as the table says.
+Read the missing signs with `verstak_me(action="readiness", realm)` — each sign with its state, receipt and next step; a sign it doesn't establish, read yourself as the table says. Confirm a step the person understood with `verstak_me(action="understood", key)`.
 
 | Sign | Read | Missing → step |
 |---|---|---|
@@ -40,7 +40,7 @@ Already present → reused, shown with its current value, never created again. T
 ## Accompany the chosen step
 
 1. **Do it with the person** — their words for names, their choice where there is one; search before every create.
-2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show. Once the person shows they understood, confirm the step with the readiness move where the surface has it (`Signs, read from data`).
+2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show. Once the person shows they understood, confirm the step with `understood` (`Signs, read from data`).
 3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
 
@@ -93,9 +93,9 @@ Say what the role gives: agents address them through it, questions are posed to 
 
 **5 · The agent's seat.** Readiness in the harness is an agent that can be heard, not bare tools. Once the agent role exists: the seat align took on it is it; otherwise, or to add `model` and `room`, one `verstak_stand(realm, karta=<agent role>, model=<model id>, room=<the person's seat address, if they gave one>)` — the method takes it itself; a harness taking the seat from `AGENTS.md` is not assumed. Tell the person where they will see the agent and how to ask it.
 
-**6 · The word about capabilities** — after align's hand-over, once. Roughly: "You can connect Telegram — agents can then ask you questions and send you messages when you are away from your desk. You can connect several repositories to one graph — their agents talk to each other, divide duties and integrate. You can share the graph with another person and their agents, or create an organization. None of this is required — the skills work without it — but it is very convenient." It teaches; it asks nothing of them, and nothing here becomes a required step.
+**6 · The word about capabilities** — after align's hand-over, once. Roughly: "You can connect Telegram — agents can then ask you questions and send you messages when you are away from your desk. You can connect several repositories to one graph — their agents talk to each other, divide duties and integrate. You can share the graph with another person and their agents, or create an organization. None of this is required — the skills work without it." It teaches; it asks nothing of them, and nothing here becomes a required step.
 
-Billing goes in the same word, from this text, never from the person's plan — an unknown plan still gets these conditions explained. Every skill and the whole method are free; what is metered is the agents' work in the graph — writes (a node or edge an agent creates or changes) and, separately, reads (orienting, browsing, search) — up to a monthly allowance. A paid plan raises both allowances; one pays when agents work in the graph every session and the free allowance runs short. In the interface you can connect your own model provider or pay for stronger models; skills and the method work on any model — connecting your own provider is free. Confirm it as understood with the readiness move where the surface has it. Urging a purchase is the window's and the bot's, not this method's.
+Billing goes in the same word, from this text, never from the person's plan — an unknown plan still gets these conditions explained. Every skill and the whole method are free; what is metered is the agents' work in the graph — writes (a node or edge an agent creates or changes) and, separately, reads (orienting, browsing, search) — up to a monthly allowance. A paid plan raises both allowances; one pays when agents work in the graph every session and the free allowance runs short. In the interface you can connect your own model provider or pay for stronger models; skills and the method work on any model — connecting your own provider is free. Confirm it as understood with `understood`. Urging a purchase is the window's and the bot's, not this method's.
 
 ## Deferral and redo
 

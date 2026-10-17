@@ -19,7 +19,7 @@ The gate never blocks a method's applying kriya with its phases as `contains` ch
 
 ## Decision 1: what changes — then which node type?
 
-**A correction or decision changes the deed, not the rulebook.** Find the existing nodes it touches: the kriya where the decision is taken, its carriers, phenomena and open vimarshas. Update their bodies, arrows and modes (will, ontic, epistemic) as the change in the world requires; several new nodes may be needed together — a kriya, its phenomenon, a vimarsha — but not one principle per word. A ban said in a case changes nothing: nobody meets it at the moment of acting. When there are many touched nodes, finding and updating them may go to a `designer` on its own satellite bridge; the launcher checks the result against their neighbourhood, a mismatch is redone (the door, `Work goes to subagents`). New nodes still pass the novelty gate.
+**A correction or decision changes the deed, not the rulebook.** Find the existing nodes it touches: the kriya where the decision is taken, its carriers, phenomena and open vimarshas. Update their bodies, arrows and modes (will, ontic, epistemic) as the change in the world requires; several new nodes may be needed together — a kriya, its phenomenon, a vimarsha — but not one principle per word. A ban said in a case changes nothing: nobody meets it at the moment of acting. Delegating the update of many touched nodes: the door, `Work goes to subagents`. New nodes still pass the novelty gate.
 
 | If it… | Type | Tool |
 |---|---|---|

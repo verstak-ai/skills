@@ -61,5 +61,3 @@ A sibling in the same `PostToolUse` array; false positives are harmless; never a
 { "matcher": "Write|Edit", "hooks": [ { "type": "command",
   "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '(^|/)specs/[^/]+\\.md$|(^|/)docs/.*design[^/]*\\.md$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A design draft was written; per AGENTS.md this file is a draft view and the graph is the design record. Bring it into the graph in this session (verstak skill: the intake method, then design); do not defer it to a push.\"}}' || true" } ] }
 ```
-
-A write to `.claude/settings.json` may be flagged as self-modification; ask the user to confirm.
