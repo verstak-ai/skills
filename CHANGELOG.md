@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1](https://github.com/verstak-ai/skills/compare/v3.8.0...v3.8.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **bridge:** write the seat's hold record atomically — a reload under a race no longer loses the seat ([#187](https://github.com/verstak-ai/skills/issues/187)) ([c06af41](https://github.com/verstak-ai/skills/commit/c06af413195b6adb2677f3887fd9ef5bb1cf5507))
+
 ## [3.8.0](https://github.com/verstak-ai/skills/compare/v3.7.2...v3.8.0) (2026-10-16)
 
 
