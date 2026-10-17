@@ -25,6 +25,8 @@ export interface RoomWords {
   left: (who: string, reason: string) => string;
   invite: (author: string, who: string) => string;
   withdraw: (author: string) => string;
+  /** An answer taken back; afterAck — already after the asker accepted it. */
+  retract: (author: string, answer: string, afterAck: boolean) => string;
   node: (seq: string, name: string, realm: string, reasoning: string) => string;
   nodeUpdated: (seq: string, name: string, reasoning: string) => string;
   nodeDeleted: (seq: string, name: string, reasoning: string) => string;
@@ -71,6 +73,8 @@ export const ROOM: Readonly<Record<Lang, RoomWords>> = {
     left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
+    retract: (author, answer, afterAck) =>
+      `answer [${answer}] retracted${afterAck ? " after acceptance" : ""} by ${author}`,
     node: (seq, name, realm, reasoning) =>
       `node #${seq} ${name} (${realm}) in the case${reasoning}`,
     nodeUpdated: (seq, name, reasoning) => `node #${seq} ${name} updated${reasoning}`,

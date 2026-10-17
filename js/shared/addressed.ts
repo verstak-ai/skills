@@ -121,7 +121,8 @@ export function addressedToMine(frame: Frame | null | undefined): boolean {
   }
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
   // Question kinds have an addressee (#6867): a person's answer to someone else is not a word to me.
-  if ((rk && ASK_KINDS.has(rk.kind)) || askFromPerson(f)) return false;
+  // A retract names the answer it takes back (#8074): like the answer, it is the asker's word, not everyone's.
+  if ((rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract")) || askFromPerson(f)) return false;
   // The bridge marks origin on a person's body (roomstack.ts, #5953): its provenance does not carry it.
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || undefined)) === "human";
 }
