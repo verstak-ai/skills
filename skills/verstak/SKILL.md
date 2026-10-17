@@ -43,7 +43,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
-6. **Speak, then listen — watch only.** One real message (where you stand, what you hold, what you'll ask) proves you're reachable: to a frame from the user's seat, `send` with `in_reply_to`; to a case frame (first line `case #N`), `say` in that case; no seat address → the owner role's row on the board (`verstak_channel(action="list")`), never `me`; an agent only in a case. Delivered → the reply's watchdog, then `hello`; else **collaborate**.
+6. **Speak, then listen — watch only.** One real message (where you stand, what you hold, what you'll ask) proves you're reachable: to a frame from the user's seat, `send` with `in_reply_to`; to a case frame (first line `case #N`), `say` in that case; no seat address → `send` to `karta="me"`, the human whose keys you run on (refused → their seat row on the board, `verstak_channel(action="list")`, by handle); an agent only in a case. `me` names an addressee, never a seat to take: no `verstak_stand`, `register` or `connect` with it — an agent does not stand in the owner's role, and the bridge refuses it. Delivered → the reply's watchdog, then `hello`; else **collaborate**.
 
 7. **Stop.** The user's word or a frame decides: watch → **autonomous**; what's recorded → **entry**; else the routes.
 
