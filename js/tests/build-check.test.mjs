@@ -80,15 +80,14 @@ test("check-js rejects outputs left behind by a release-please version bump", (t
   assert.match(result.stderr, /stamped version 99\.0\.0/);
 });
 
-/** The fixture with the committed bridge at version v and the onboarding hook absent. */
+/** The fixture with every committed output at version v and the onboarding hook absent. */
 function withoutHook(t, v) {
   const root = fixture(t);
   rmSync(join(root, HOOK), { force: true });
-  const bridge = join(root, OUTPUTS[0]);
-  writeFileSync(
-    bridge,
-    readFileSync(bridge, "utf8").replace(VERSION_LINE, `var VERSION = "${v}";`),
-  );
+  for (const rel of OUTPUTS) {
+    const path = join(root, rel);
+    writeFileSync(path, readFileSync(path, "utf8").replace(VERSION_LINE, `var VERSION = "${v}";`));
+  }
   const source = join(root, "js/delivery/version.ts");
   writeFileSync(
     source,
