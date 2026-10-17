@@ -84,6 +84,7 @@ export {
   DEVICE_CLIENT,
   type DeviceClientWords,
 } from "./words/oauth.ts";
+export { ONBOARD_START, type OnboardStartWords } from "./words/onboardstart.ts";
 export { OPENCODE, type OpencodeWords } from "./words/opencode.ts";
 export { OPENCODE_KEEP, type OpencodeKeepWords } from "./words/opencode-keep.ts";
 export { OWNER, type OwnerWords } from "./words/owner.ts";

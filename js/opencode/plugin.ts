@@ -24,6 +24,7 @@ import { homeOf, sessionDirectory } from "./host.ts";
 import { createKeepAlive, keepaliveTitle } from "./keepalive.ts";
 import { teller } from "./leaddoors.ts";
 import { annotate } from "./notice.ts";
+import { createOnboardStart } from "./onboardstart.ts";
 import { createPulseFeed } from "./pulse.ts";
 import { createRootSeats } from "./rootseat.ts";
 import { setupSkillReads } from "./skillread.ts";
@@ -165,6 +166,12 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } }),
   });
 
+  const onboard = createOnboardStart(
+    ctx,
+    (s) => half.onboardCall(s),
+    (s) => parents.has(s) || (roots.has(s) && roots.get(s) !== s),
+    closed,
+  );
   // The launch line with a case (launch.ts): the prompt hook waits for the standing and the entry.
   // A root's first prompt waits for its seating, bounded (rootseat.ts), before the model's request.
   try {
@@ -173,8 +180,12 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       const root = (await rootOf(sid)) === sid;
       const word = await half.launch(sid, p.prompt.text);
       if (word) p.prompt.text = withWord(p.prompt.text, word);
-      const seat = root ? await rootSeats.word(sid) : null;
+      // Mutually exclusive by readCover; start both reads together, never sum their ceilings.
+      const [seat, invitation] = root
+        ? await Promise.all([rootSeats.word(sid), onboard.prompt(sid)])
+        : [null, null];
       if (seat) p.prompt.text = withWord(p.prompt.text, seat);
+      if (invitation && !closed(sid)) p.prompt.text = withWord(p.prompt.text, invitation);
       // Counts of records that woke no turn ride the prompt that starts one (#6574); the root's only into the root.
       const counts = root ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}\n\n${markFrame(counts)}`;
@@ -243,6 +254,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
             if (!id) break;
             pulse.forget(id);
             rootSeats.forget(id);
+            onboard.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
