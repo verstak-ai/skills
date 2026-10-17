@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.9.0";
+var VERSION = "3.10.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -721,6 +721,7 @@ var ROOM = {
     left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
+    retract: (author, answer2, afterAck) => `answer [${answer2}] retracted${afterAck ? " after acceptance" : ""} by ${author}`,
     node: (seq3, name2, realm, reasoning) => `node #${seq3} ${name2} (${realm}) in the case${reasoning}`,
     nodeUpdated: (seq3, name2, reasoning) => `node #${seq3} ${name2} updated${reasoning}`,
     nodeDeleted: (seq3, name2, reasoning) => `node #${seq3} ${name2} deleted${reasoning}`,
@@ -4238,6 +4239,8 @@ var RULES = {
   // Only the answer to the waiting seat interrupts (graph @nks/nks-dev, nodes #6655, #6868).
   ask: "batch",
   answer: "addressed",
+  // An answer taken back (api, #7472): in_reply_to names the answer; it wakes the one it was given to.
+  retract: "addressed",
   ack: "batch",
   progress: "batch",
   opened: "batch",
@@ -4306,6 +4309,8 @@ function kindText(kind, v, f, pending2, aborted) {
       return W4.invite(n("author"), n("who"));
     case "withdraw":
       return W4.withdraw(n("author"));
+    case "retract":
+      return W4.retract(n("author"), n("refers_to"), v.after_ack === true);
     case "node":
       return W4.node(n("seq"), n("name"), n("realm"), reasoning);
     case "link":
@@ -4358,7 +4363,9 @@ function roomKind(frame2) {
     realm: node.realm,
     // A node delta's reasoning is the record's body, not a field (graph @nks/nks-dev, node #6070).
     reasoning: kind === "node" ? line.done || f.body : void 0,
-    withdraws: fields.withdraws
+    withdraws: fields.withdraws,
+    // Observed on the wire (#5893 §4.2, case №1010 [8]): line.fields.after_ack.
+    after_ack: fields.after_ack === true
   };
   const W4 = words(ROOM);
   const rule = RULES[kind];
@@ -4474,7 +4481,7 @@ function addressedToMine(frame2) {
     if (rk.kind === "invite" && myRole(f, fields)) return true;
   }
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
-  if (rk && ASK_KINDS.has(rk.kind) || askFromPerson(f)) return false;
+  if (rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract") || askFromPerson(f)) return false;
   return (frame2.origin ?? classifyOrigin(frame2, str(f.karta_seq) || void 0)) === "human";
 }
 
