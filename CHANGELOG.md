@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.0](https://github.com/verstak-ai/skills/compare/v3.8.1...v3.9.0) (2026-10-17)
+
+
+### Features
+
+* **opencode:** a root session with no working graph is pointed at the onboarding method; core iskron v7.14.0 ([#189](https://github.com/verstak-ai/skills/issues/189)) ([7173b5f](https://github.com/verstak-ai/skills/commit/7173b5fea53a9ffb2031ca97d335921d8d15b944))
+
 ## [3.8.1](https://github.com/verstak-ai/skills/compare/v3.8.0...v3.8.1) (2026-10-17)
 
 

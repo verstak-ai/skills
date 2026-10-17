@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.8.1";
+var VERSION = "3.9.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -648,6 +648,7 @@ var RESUME = {
     foreignDir: (foreign) => `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
     neighbourKey: (keys) => `another session stood on the seat ${keys} — a return does not take a neighbour's seat; ${via} will take your own`,
     left: (left2) => `the seat was released by the holder's word (leave): ${left2} — it will not return by itself, to bring it back: ${via} with the same name`,
+    staleKey: (stale, fresher) => `the seat ${stale} is not taken by the return: this session has a fresher record in the same role — ${fresher}; to bring the seat back: ${via}(name="${fresher}"), the former one — ${via}(name="${stale}")`,
     alreadyHolding: () => "the bridge already holds this seat",
     byRecord: () => "return by record",
     otherSeat: (key2, led) => `${key2}: the bridge leads another seat ${led}`,
@@ -5667,6 +5668,11 @@ function keyOf(realm, karta, name2) {
   return `${name2 || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
 }
 var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
+var eraOf = (r) => r.stoodAt ?? r.at ?? 0;
+var S2 = scoped(() => /* @__PURE__ */ new Map());
+function noteStoodAt(key2, at2) {
+  if (typeof at2 === "number") S2.set(key2, at2);
+}
 var H = scoped(() => ({ session: null }));
 function noteHarnessSession(id) {
   if (id) H.session = id;
@@ -5719,6 +5725,7 @@ function writeHoldRecord(key2, rec5, paused = false, at2 = Date.now()) {
         left: left2 || void 0,
         provisional: rec5.provisional ?? (was?.url === rec5.url && was.session === session ? was.provisional : void 0),
         base: B.get(key2) ?? rec5.base ?? was?.base ?? baseOnDisk(key2) ?? void 0,
+        stoodAt: S2.get(key2) ?? rec5.stoodAt ?? was?.stoodAt,
         at: at2
       }) + "\n"
     );
@@ -8127,6 +8134,121 @@ async function besideBack(url, primary) {
   }
 }
 
+// js/bridge/refusal.ts
+function refusalOf(reply2) {
+  const r = reply2?.result?._meta?.[serverProtocol.refusal];
+  if (!isObj(r) || !is.str(r.rule) || !is.num(r.status)) return null;
+  return {
+    ...typeof r.rule === "string" ? { rule: r.rule } : {},
+    ...typeof r.status === "number" ? { status: r.status } : {},
+    ...isObj(r.data) ? { data: r.data } : {}
+  };
+}
+var SEAT_GONE_RULES = /* @__PURE__ */ new Set([
+  "standing_already_ended",
+  "standing_not_found",
+  "standing_not_held"
+]);
+var seatAlreadyOff = (r) => !!r && (!!r.rule && SEAT_GONE_RULES.has(r.rule) || r.status === 410 || r.status === 404 && !r.rule);
+var standingsInRealm = (r) => {
+  if (r?.rule !== "channel_already_stands_in_realm") return [];
+  const list3 = r.data?.your_standings;
+  return Array.isArray(list3) ? list3.flatMap(
+    (s2) => isObj(s2) && typeof s2.name === "string" && s2.name ? [s2.name] : []
+  ) : [];
+};
+var openedConcurrently = (reply2) => {
+  const r = reply2?.result?.isError ? refusalOf(reply2) : null;
+  return !!r && !r.rule && r.status === 409;
+};
+
+// js/bridge/caseexit.ts
+var LEAVE_CAP_MS = Number(process.env[envName("CASE_LEAVE_MS")]) || 1500;
+var joined = scoped(() => /* @__PURE__ */ new Map());
+var roomNo = (room) => room.replace(/^[#\u2116]\s*/, "");
+function noteCaseEntry(name2, args, reply2) {
+  if (reply2.result?.isError || name2 !== tool("case")) return;
+  const a = args ?? {};
+  if (a.action !== "join" && a.action !== "leave") return;
+  const room = typeof a.room === "string" ? a.room.trim() : "";
+  if (!room || a.action === "join" && room.startsWith("-")) return;
+  const realm = typeof a.realm === "string" ? a.realm : void 0;
+  const no = roomNo(room);
+  for (const [k, c] of joined)
+    if (roomNo(c.room) === no && !otherRealm(c.realm, realm)) joined.delete(k);
+  if (a.action === "join") joined.set(`${realm ? canonRealm(realm) : ""}#${no}`, { realm, room });
+  keepRecordCases();
+}
+function keepRecordCases() {
+  const key2 = H2.currentKey;
+  if (!CFG.satellite || !key2 || !H2.currentUrl) return;
+  const rec5 = readHoldRecord(key2, true);
+  if (!rec5 || rec5.left || rec5.url !== H2.currentUrl || !rec5.cases) return;
+  writeHoldRecord(key2, { ...rec5, cases: joinedCases() }, true);
+}
+var joinedCases = () => [...joined.values()];
+function seedJoined(cases) {
+  for (const c of cases ?? [])
+    if (c?.room) joined.set(`${c.realm ? canonRealm(c.realm) : ""}#${roomNo(c.room)}`, c);
+}
+async function leaveJoinedCases() {
+  if (!CFG.satellite || !joined.size) return;
+  const cases = [...joined.values()];
+  joined.clear();
+  const leaves = cases.map(async (c) => {
+    try {
+      const r = await callTool(tool("case"), { action: "leave", ...c });
+      log(
+        r.isError ? `could not leave case ${c.room} at the run's end: ${r.text.slice(0, 120)}` : `left case ${c.room} at the run's end (#6573)`
+      );
+    } catch (e) {
+      log(`could not leave case ${c.room} at the run's end: ${e.message}`);
+    }
+  });
+  if (!await underCap(Promise.allSettled(leaves)))
+    log(
+      `case leave at the run's end exceeded ${LEAVE_CAP_MS} ms — the place goes, the rest lapse by term`
+    );
+}
+var satellitePlaces = () => CFG.satellite ? [
+  // An evicted (4000) seat belongs to its taker: revoking it would remove theirs.
+  H2.evictedKey && H2.evictedKey === H2.currentKey ? null : state.standing,
+  ...extraPlaces().map((p) => p.standing)
+].filter((s2) => !!s2?.name) : [];
+async function revokeSatellitePlaces(places) {
+  const failed = new Set(places);
+  const revoked = [];
+  const revokes = places.map(
+    (s2) => callTool(tool("channel"), { action: "revoke", realm: s2.realm, karta: s2.karta, standing: s2.name }).then((r) => {
+      const how2 = revokeOutcome(r);
+      if (how2 === "failed")
+        return log(`place ${s2.name} NOT revoked at the run's end: ${r.text.slice(0, 120)}`);
+      failed.delete(s2);
+      if (how2 === "probably")
+        return log(`${s2.name} probably revoked at the run's end: ${r.text.slice(0, 120)}`);
+      revoked.push({ realm: canonRealm(s2.realm), karta: normKarta(s2.karta), name: s2.name ?? "" });
+      log(`revoked ${s2.name} in ${s2.realm} at the run's end (#6593)`);
+    }).catch((e) => log(`place ${s2.name} NOT revoked at the run's end: ${e.message}`))
+  );
+  if (places.length && !await underCap(Promise.allSettled(revokes)))
+    log(
+      `revoke at the run's end exceeded ${LEAVE_CAP_MS} ms — the place lapses by the channel's term`
+    );
+  return { failed: [...new Set([...failed].map((s2) => s2.name))], revoked: [...revoked] };
+}
+var revokeOutcome = (r) => {
+  if (!r.isError) return "confirmed";
+  if (r.refusal) return seatAlreadyOff(r.refusal) ? "confirmed" : "failed";
+  return CASE_EXIT_CLOSED.test(r.text) ? "probably" : "failed";
+};
+async function underCap(work) {
+  let timer;
+  const cap = new Promise((r) => timer = setTimeout(() => r("cap"), LEAVE_CAP_MS));
+  const got = await Promise.race([work, cap]);
+  clearTimeout(timer);
+  return got !== "cap";
+}
+
 // js/bridge/holdkeep.ts
 function keepHoldRecord() {
   const s2 = state.standing;
@@ -8160,12 +8282,21 @@ function keepHoldRecord() {
   }
 }
 function signHeldRecord() {
+  refreshHeldRecord();
   const key2 = H2.currentKey;
   if (!key2 || !H2.holder?.alive || !sessionOfBridge()) return;
   for (const k of [key2, ...extraPlaces().map((p) => p.door.key)]) {
     const rec5 = readHoldRecord(k);
     if (rec5 && !rec5.session && rec5.url === H2.currentUrl) writeHoldRecord(k, rec5);
   }
+}
+function refreshHeldRecord() {
+  const key2 = H2.currentKey;
+  if (!key2 || !H2.holder?.alive || !H2.currentUrl) return;
+  const rec5 = readHoldRecord(key2, true);
+  if (!rec5 || rec5.left || rec5.url !== H2.currentUrl) return;
+  if (typeof rec5.at === "number" && Date.now() - rec5.at < HOLD_RECORD_MAX_AGE_MS / 2) return;
+  writeHoldRecord(key2, { ...rec5, cases: CFG.satellite ? joinedCases() : rec5.cases }, CFG.satellite);
 }
 
 // js/bridge/lostplaces.ts
@@ -8303,7 +8434,8 @@ import { existsSync as existsSync5, readdirSync as readdirSync8, readFileSync as
 import { join as join18 } from "node:path";
 function recordsFor(sel) {
   const dir2 = standingsDirOf(CFG.authDir);
-  if (!existsSync5(dir2)) return { own: [], sameDir: [], legacy: [], left: [], neighbour: [] };
+  if (!existsSync5(dir2))
+    return { own: [], sameDir: [], legacy: [], left: [], neighbour: [], stale: [] };
   const mine = harnessName();
   const led = ledKey();
   const byKey = [];
@@ -8317,10 +8449,10 @@ function recordsFor(sel) {
       const rec5 = JSON.parse(readFileSync20(join18(dir2, f), "utf8"));
       if (!rec5 || rec5.client !== mine) continue;
       const key2 = keyOf(rec5.realm, rec5.karta, rec5.name);
-      const keyed2 = !!sel.key && key2 === sel.key;
+      const keyed3 = !!sel.key && key2 === sel.key;
       const inDir = sameDir(rec5.cwd, sel.cwd);
       const stoodBy = !!sel.session && rec5.session === sel.session;
-      if (!keyed2 && !inDir && !stoodBy) continue;
+      if (!keyed3 && !inDir && !stoodBy) continue;
       const fresh2 = readHoldRecord(key2);
       if (!fresh2) continue;
       if (inDir) sameDir2.push(key2);
@@ -8330,19 +8462,39 @@ function recordsFor(sel) {
       }
       const stoodHere = key2 === led || !!sel.session && fresh2.session === sel.session;
       const theirs = !!sel.session && !!fresh2.session && fresh2.session !== sel.session;
-      if (keyed2 && theirs) neighbour.push(key2);
-      else if (keyed2) byKey.push(fresh2);
+      if (keyed3 && theirs) neighbour.push(key2);
+      else if (keyed3) byKey.push(fresh2);
       else if (stoodHere) byCwd.push(fresh2);
       else if (!fresh2.session) legacy.push(fresh2);
     } catch {
     }
   }
+  const stale = [];
+  let keyed2 = byKey;
+  let bySession = byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+  if (CFG.satellite) {
+    const role = (r) => `${r.realm}\0${String(r.karta)}`;
+    const latest = /* @__PURE__ */ new Map();
+    for (const r of [...byKey, ...byCwd]) {
+      const had = latest.get(role(r));
+      if (!had || eraOf(r) > eraOf(had)) latest.set(role(r), r);
+    }
+    const kept2 = (r) => {
+      const top = latest.get(role(r));
+      if (top === r || eraOf(top) <= eraOf(r)) return true;
+      stale.push({ name: r.name, fresher: top.name });
+      return false;
+    };
+    keyed2 = byKey.filter(kept2);
+    bySession = byCwd.filter(kept2).sort((a, b) => eraOf(b) - eraOf(a));
+  }
   return {
-    own: [...byKey, ...byCwd.sort((a, b) => (b.at ?? 0) - (a.at ?? 0))],
+    own: [...keyed2, ...bySession],
     sameDir: sameDir2,
     legacy,
     left: left2,
-    neighbour
+    neighbour,
+    stale
   };
 }
 
@@ -8350,113 +8502,6 @@ function recordsFor(sel) {
 var resumeWords = new Proxy({}, {
   get: (_, k) => words(RESUME)[k]
 });
-
-// js/bridge/refusal.ts
-function refusalOf(reply2) {
-  const r = reply2?.result?._meta?.[serverProtocol.refusal];
-  if (!isObj(r) || !is.str(r.rule) || !is.num(r.status)) return null;
-  return {
-    ...typeof r.rule === "string" ? { rule: r.rule } : {},
-    ...typeof r.status === "number" ? { status: r.status } : {},
-    ...isObj(r.data) ? { data: r.data } : {}
-  };
-}
-var SEAT_GONE_RULES = /* @__PURE__ */ new Set([
-  "standing_already_ended",
-  "standing_not_found",
-  "standing_not_held"
-]);
-var seatAlreadyOff = (r) => !!r && (!!r.rule && SEAT_GONE_RULES.has(r.rule) || r.status === 410 || r.status === 404 && !r.rule);
-var standingsInRealm = (r) => {
-  if (r?.rule !== "channel_already_stands_in_realm") return [];
-  const list3 = r.data?.your_standings;
-  return Array.isArray(list3) ? list3.flatMap(
-    (s2) => isObj(s2) && typeof s2.name === "string" && s2.name ? [s2.name] : []
-  ) : [];
-};
-var openedConcurrently = (reply2) => {
-  const r = reply2?.result?.isError ? refusalOf(reply2) : null;
-  return !!r && !r.rule && r.status === 409;
-};
-
-// js/bridge/caseexit.ts
-var LEAVE_CAP_MS = Number(process.env[envName("CASE_LEAVE_MS")]) || 1500;
-var joined = scoped(() => /* @__PURE__ */ new Map());
-var roomNo = (room) => room.replace(/^[#\u2116]\s*/, "");
-function noteCaseEntry(name2, args, reply2) {
-  if (reply2.result?.isError || name2 !== tool("case")) return;
-  const a = args ?? {};
-  if (a.action !== "join" && a.action !== "leave") return;
-  const room = typeof a.room === "string" ? a.room.trim() : "";
-  if (!room || a.action === "join" && room.startsWith("-")) return;
-  const realm = typeof a.realm === "string" ? a.realm : void 0;
-  const no = roomNo(room);
-  for (const [k, c] of joined)
-    if (roomNo(c.room) === no && !otherRealm(c.realm, realm)) joined.delete(k);
-  if (a.action === "join") joined.set(`${realm ? canonRealm(realm) : ""}#${no}`, { realm, room });
-}
-var joinedCases = () => [...joined.values()];
-function seedJoined(cases) {
-  for (const c of cases ?? [])
-    if (c?.room) joined.set(`${c.realm ? canonRealm(c.realm) : ""}#${roomNo(c.room)}`, c);
-}
-async function leaveJoinedCases() {
-  if (!CFG.satellite || !joined.size) return;
-  const cases = [...joined.values()];
-  joined.clear();
-  const leaves = cases.map(async (c) => {
-    try {
-      const r = await callTool(tool("case"), { action: "leave", ...c });
-      log(
-        r.isError ? `could not leave case ${c.room} at the run's end: ${r.text.slice(0, 120)}` : `left case ${c.room} at the run's end (#6573)`
-      );
-    } catch (e) {
-      log(`could not leave case ${c.room} at the run's end: ${e.message}`);
-    }
-  });
-  if (!await underCap(Promise.allSettled(leaves)))
-    log(
-      `case leave at the run's end exceeded ${LEAVE_CAP_MS} ms — the place goes, the rest lapse by term`
-    );
-}
-var satellitePlaces = () => CFG.satellite ? [
-  // An evicted (4000) seat belongs to its taker: revoking it would remove theirs.
-  H2.evictedKey && H2.evictedKey === H2.currentKey ? null : state.standing,
-  ...extraPlaces().map((p) => p.standing)
-].filter((s2) => !!s2?.name) : [];
-async function revokeSatellitePlaces(places) {
-  const failed = new Set(places);
-  const revoked = [];
-  const revokes = places.map(
-    (s2) => callTool(tool("channel"), { action: "revoke", realm: s2.realm, karta: s2.karta, standing: s2.name }).then((r) => {
-      const how2 = revokeOutcome(r);
-      if (how2 === "failed")
-        return log(`place ${s2.name} NOT revoked at the run's end: ${r.text.slice(0, 120)}`);
-      failed.delete(s2);
-      if (how2 === "probably")
-        return log(`${s2.name} probably revoked at the run's end: ${r.text.slice(0, 120)}`);
-      revoked.push({ realm: canonRealm(s2.realm), karta: normKarta(s2.karta), name: s2.name ?? "" });
-      log(`revoked ${s2.name} in ${s2.realm} at the run's end (#6593)`);
-    }).catch((e) => log(`place ${s2.name} NOT revoked at the run's end: ${e.message}`))
-  );
-  if (places.length && !await underCap(Promise.allSettled(revokes)))
-    log(
-      `revoke at the run's end exceeded ${LEAVE_CAP_MS} ms — the place lapses by the channel's term`
-    );
-  return { failed: [...new Set([...failed].map((s2) => s2.name))], revoked: [...revoked] };
-}
-var revokeOutcome = (r) => {
-  if (!r.isError) return "confirmed";
-  if (r.refusal) return seatAlreadyOff(r.refusal) ? "confirmed" : "failed";
-  return CASE_EXIT_CLOSED.test(r.text) ? "probably" : "failed";
-};
-async function underCap(work) {
-  let timer;
-  const cap = new Promise((r) => timer = setTimeout(() => r("cap"), LEAVE_CAP_MS));
-  const got = await Promise.race([work, cap]);
-  clearTimeout(timer);
-  return got !== "cap";
-}
 
 // js/bridge/pauserecord.ts
 var P2 = scoped(() => ({
@@ -8574,7 +8619,14 @@ async function pauseSettled() {
 }
 function afterResume(key2) {
   if (!CFG.satellite || !key2) return;
-  seedJoined(readHoldRecord(key2)?.cases);
+  const rec5 = readHoldRecord(key2);
+  seedJoined(rec5?.cases);
+  if (rec5 && H2.currentKey === key2 && H2.currentUrl)
+    writeHoldRecord(
+      key2,
+      { ...rec5, url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cases: joinedCases() },
+      true
+    );
 }
 
 // js/bridge/resume.ts
@@ -8607,6 +8659,7 @@ async function resumeFromDisk(realm, karta, name2) {
   state.standing = { realm, karta, name: name2 };
   const prevCwd = rec5.cwd ? noteStandCwd(rec5.cwd) : null;
   if (rec5.base) noteSeatBase(key2, rec5.base);
+  noteStoodAt(key2, rec5.stoodAt ?? rec5.at);
   noteResuming(1);
   try {
     holdStanding(rec5.url, rec5.statusUrl);
@@ -8677,7 +8730,10 @@ async function backToParked(key2, how2) {
   };
 }
 async function resumeBy(sel, register = true, takeOwn = false) {
-  const { own: recs, sameDir: sameDir2, legacy: legacyRecs, left: left2, neighbour } = recordsFor(sel);
+  const { own: recs, sameDir: sameDir2, legacy: legacyRecs, left: left2, neighbour, stale } = recordsFor(sel);
+  const staleWords = stale.map((x) => resumeWords.staleKey(x.name, x.fresher));
+  for (const w of staleWords) log(`resume: ${w}`);
+  const refused = stale.length ? { refused: stale.map((x) => x.name) } : {};
   if (!recs.length) {
     const legacy = await freeLegacy(legacyRecs);
     const said2 = [resumeWords.noRecord(sel.key, sel.cwd)];
@@ -8757,6 +8813,7 @@ async function resumeBy(sel, register = true, takeOwn = false) {
     ].filter((k) => k !== key2 && readHoldRecord(k) !== null);
     if (others.length) lines.push(resumeWords.othersInDir(others.join(", ")));
     if (!proven) lines.push(resumeWords.notYours());
+    lines.push(...staleWords);
     return {
       resumed: true,
       key: key2,
@@ -8768,7 +8825,8 @@ async function resumeBy(sel, register = true, takeOwn = false) {
   }
   return {
     resumed: false,
-    word: resumeWords.nothingToReturn(skipped.join("; ")),
+    word: resumeWords.nothingToReturn([...staleWords, ...skipped].join("; ")),
+    ...refused,
     ...elsewhere.length ? { elsewhere } : {}
   };
 }
@@ -9315,6 +9373,9 @@ function absorbChannelReply(msg, reply2) {
   if (a.realm && a.karta != null) {
     state.standing = rememberedPlace(a.realm, a.karta, a.name);
   }
+  const s2 = state.standing;
+  if (s2 && keyOf(s2.realm, s2.karta, s2.name ?? "") !== H2.currentKey)
+    noteStoodAt(keyOf(s2.realm, s2.karta, s2.name ?? ""), Date.now());
   holdStanding(trim(socket), status ? trim(status) : statusUrl(trim(socket)));
   const block = listenBlock() ?? "";
   const content = reply2.result?.content;
@@ -9561,7 +9622,7 @@ async function statusWord(text2, realm) {
   return [st.body, true];
 }
 function busyLine(text2, realm) {
-  const a = S2.accepted.get(statusAddress(realm)?.key ?? "");
+  const a = S3.accepted.get(statusAddress(realm)?.key ?? "");
   const line = a?.sent === text2 ? a.doing : text2;
   const nudge = a?.sent === text2 && a.trimmed ? `; ${trimNudge(a.trimmed)}` : "";
   return words(STATUS).busyLine(placeLabel(realm), line, nudge);
@@ -9622,12 +9683,12 @@ function ledIn(realm) {
   const prim = state.standing;
   return prim && (prim.realm === realm || sameRealm(prim.realm, realm)) ? prim : extraIn(realm)?.standing;
 }
-var S2 = scoped(() => ({
+var S3 = scoped(() => ({
   lastPublished: "",
   /** The last accepted line per seat (address key): sent, landed (the answer's doing) and trim. */
   accepted: /* @__PURE__ */ new Map()
 }));
-var publishedStatus = () => S2.lastPublished;
+var publishedStatus = () => S3.lastPublished;
 async function publishStatus(text2, realm, everyPlace = false) {
   const addr = statusAddress(realm);
   if (!addr) {
@@ -9638,8 +9699,8 @@ async function publishStatus(text2, realm, everyPlace = false) {
   const st = await publishStatusTo(addr.url, text2, 5e3, everyPlace ? null : addr.standingId);
   if (st.ok) {
     const kept2 = st.doing ?? text2;
-    S2.accepted.set(addr.key, { sent: text2, doing: kept2, trimmed: st.trimmed });
-    if (addr.key === statusAddress()?.key) S2.lastPublished = kept2;
+    S3.accepted.set(addr.key, { sent: text2, doing: kept2, trimmed: st.trimmed });
+    if (addr.key === statusAddress()?.key) S3.lastPublished = kept2;
     rememberStatus(kept2, realm);
   }
   return st;
@@ -11590,10 +11651,10 @@ function runPulse(msg) {
 }
 
 // js/bridge/skillrefresh.ts
-var S3 = scoped(() => ({ refreshing: null }));
+var S4 = scoped(() => ({ refreshing: null }));
 async function refreshSkills() {
-  if (S3.refreshing) return S3.refreshing;
-  S3.refreshing = serialized(async () => {
+  if (S4.refreshing) return S4.refreshing;
+  S4.refreshing = serialized(async () => {
     const primary = state.standing;
     if (!primary || !state.sessionId || !skillsCheckDue()) return;
     for (const place of [primary, ...state.places]) {
@@ -11623,9 +11684,9 @@ async function refreshSkills() {
     retrySkillsCheck();
     log(`skills refresh failed: ${errorMessage(e)}`);
   }).finally(() => {
-    S3.refreshing = null;
+    S4.refreshing = null;
   });
-  return S3.refreshing;
+  return S4.refreshing;
 }
 
 // js/bridge/standdelivery.ts

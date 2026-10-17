@@ -130,7 +130,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.8.1";
+var VERSION = "3.9.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -194,7 +194,7 @@ var TAKE = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join13) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join13}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join14) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join14}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -247,6 +247,7 @@ ${last || "(it left no text — see its case)"}`,
     reloadUnreadable: () => "plugin reload, the subagent's session is unreadable",
     reloadNoKey: () => "plugin reload, no seat key",
     reloadNotBack: () => "plugin reload, the satellite seat did not return by its key",
+    reloadStale: (names2) => `plugin reload: the outdated seat ${names2} was not taken — the subagent's session has a fresher seat, and it did not return`,
     identity: (name, action) => `Refused (plugin): ${name}${act(action)} is the user's identity, and the child session has no seat of its own: it does not get it through the root's bridge. The graph and cases can be read; who you are — ask the launcher.`,
     writeUnderParent: (name, of) => `Refused (plugin): a child session writes only with its own satellite seat — ${name} would go under the parent's seat ${of}. Stand: ${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat; reading works as is.`,
     writeNoParent: () => "Refused (plugin): a child session writes only with its own satellite seat, and the parent's seat is unknown — the root holds no seat. It cannot have a seat of its own; reading works as is, writing — by a word to the launcher.",
@@ -260,6 +261,13 @@ ${last || "(it left no text — see its case)"}`,
     more: (n2) => ` and ${n2} more`,
     action: () => "action",
     interrupt: (who, reason2) => `Verstak: the turn of subagent ${who} was interrupted (${reason2}).`
+  }
+};
+
+// js/delivery/words/onboardstart.ts
+var ONBOARD_START = {
+  en: {
+    start: () => "Verstak: you have no working graph yet — load the verstak skill and run its onboarding method before anything else; it creates nothing without the person's word."
   }
 };
 
@@ -639,7 +647,7 @@ var askFromPerson = (frame) => {
   const asking = ASK_KINDS.has(kind) || kind === "progress" && !!str(obj(line.fields).withdraws);
   return asking && classifyOrigin(frame) === "human";
 };
-var handleOf = (address) => /^@([^:]+):/.exec(address)?.[1] ?? "";
+var handleOf = (address2) => /^@([^:]+):/.exec(address2)?.[1] ?? "";
 function askedMine(frame, fields) {
   const mine = mineOf(frame);
   if (byMe(frame)) return false;
@@ -1229,8 +1237,8 @@ async function enterCase(l, call, satelliteOf, placeName) {
     await call(tool("stand"), stand);
   } catch (e) {
     const why = e.message;
-    const join13 = `${tool("case")}(action="join", room="${room}")`;
-    return W4.notSeated(why, l.no, join13);
+    const join14 = `${tool("case")}(action="join", room="${room}")`;
+    return W4.notSeated(why, l.no, join14);
   }
   const place = placeName() || W4.ownSeat();
   try {
@@ -1380,12 +1388,12 @@ var Bridge = class {
         opts.signal?.removeEventListener("abort", onAbort);
         fn(v);
       };
-      const resolve6 = settle2(res);
+      const resolve7 = settle2(res);
       const reject = settle2(rej);
       function onAbort() {
         reject(new Error(W2().aborted()));
       }
-      this.pending.set(id, { resolve: resolve6, reject });
+      this.pending.set(id, { resolve: resolve7, reject });
       if (opts.signal) {
         if (opts.signal.aborted) return onAbort();
         opts.signal.addEventListener("abort", onAbort, { once: true });
@@ -1823,6 +1831,7 @@ var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 
 // js/bridge/holdrecord.ts
 var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
+var S2 = scoped(() => /* @__PURE__ */ new Map());
 var H = scoped(() => ({ session: null }));
 var B = scoped(() => /* @__PURE__ */ new Map());
 
@@ -2216,6 +2225,7 @@ var entryOf = (e) => ({
   dir: e.dir ?? null,
   key: e.key ?? null,
   child: !!e.child,
+  ...typeof e.stoodAt === "number" ? { stoodAt: e.stoodAt } : {},
   ...e.moved ? { moved: true } : {},
   ...e.child ? {
     of: e.of ?? null,
@@ -2243,9 +2253,23 @@ var otherLive = (f, path) => {
     return false;
   }
 };
+function stoodAtOf(authDir2, key) {
+  try {
+    const at = JSON.parse(readFileSync7(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
+    return typeof at === "number" ? at : void 0;
+  } catch {
+    return void 0;
+  }
+}
 function writeLostMarker(authDir2, slots, home) {
   const entries = [...slots].filter((s) => s.holding && s.session).map(
-    (s) => entryOf({ ...s, session: s.session, of: s.satelliteOf, name: s.place?.name })
+    (s) => entryOf({
+      ...s,
+      session: s.session,
+      of: s.satelliteOf,
+      name: s.place?.name,
+      stoodAt: s.key ? stoodAtOf(authDir2, s.key) : void 0
+    })
   );
   if (!entries.length) return [];
   try {
@@ -2289,7 +2313,6 @@ function readOwn(path, tag, home) {
 }
 function takeLostMarker(authDir2, home) {
   const entries = [];
-  const seen = /* @__PURE__ */ new Set();
   let at = "";
   let files;
   try {
@@ -2298,19 +2321,29 @@ function takeLostMarker(authDir2, home) {
     return null;
   }
   const mine = tagOf(home);
-  files.sort((a, b) => Number(tagIn(b) !== null) - Number(tagIn(a) !== null));
+  const read2 = [];
   for (const f of files) {
     const tag = tagIn(f);
     if (tag !== null && tag !== mine) continue;
     if (otherLive(f, join8(authDir2, f))) continue;
     const lost = readOwn(join8(authDir2, f), tag, home);
-    const stale = !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS);
-    for (const e of lost?.entries ?? []) {
-      if (!e?.session || seen.has(e.session) || e.moved && stale) continue;
-      seen.add(e.session);
-      if (lost && lost.at > at) at = lost.at;
-      entries.push(entryOf(e));
+    if (lost) read2.push({ tagged: tag !== null, lost });
+  }
+  const eraOf = (e, lost) => e.stoodAt ?? (Date.parse(lost.at) || 0);
+  const best = /* @__PURE__ */ new Map();
+  for (const { tagged, lost } of read2) {
+    const stale = !(Date.now() - Date.parse(lost.at ?? "") < LEGACY_MS);
+    for (const e of lost.entries ?? []) {
+      if (!e?.session || e.moved && stale) continue;
+      const era = eraOf(e, lost);
+      const had = best.get(e.session);
+      if (had && (Number(had.tagged) - Number(tagged) || had.era - era) >= 0) continue;
+      best.set(e.session, { tagged, era, e, lost });
     }
+  }
+  for (const { e, lost } of best.values()) {
+    if (lost.at > at) at = lost.at;
+    entries.push(entryOf(e));
   }
   if (!entries.length) return null;
   const when = new Date(at);
@@ -2511,7 +2544,11 @@ function createChildren(d) {
       }
       if (await own.resume === "elsewhere") break;
     }
-    if (!own.holding) await d.leads.fail(e.session, W3().reloadNotBack());
+    if (!own.holding)
+      await d.leads.fail(
+        e.session,
+        own.refused?.length ? W3().reloadStale(own.refused.join(", ")) : W3().reloadNotBack()
+      );
   }
   async function pause2() {
     const held = [...d.slots.values()].filter(
@@ -2550,6 +2587,7 @@ var idleHalf = () => ({
   },
   finishSeat() {
   },
+  onboardCall: () => async () => null,
   stop() {
   },
   bridgeOf: () => null,
@@ -2878,6 +2916,7 @@ function createKeeper(doors) {
         timeoutMs: 3e4
       });
       const elsewhere2 = Array.isArray(r?.elsewhere) && r.elsewhere.length ? r.elsewhere : null;
+      if (slot.child && Array.isArray(r?.refused) && r.refused.length) slot.refused = r.refused;
       if (!r?.resumed && elsewhere2 && !final) return "elsewhere";
       marked.delete(root);
       if (r?.stopped) return stoppedRoot(root, r.word);
@@ -3033,21 +3072,21 @@ function createKeepAlive(ctx, d) {
     d.say(W4.noId(JSON.stringify(s ?? null).slice(0, 160), title), "error");
     return null;
   }
-  async function tidy(fresh) {
+  async function tidy(fresh2) {
     for (const id of [...leftover]) if (await removeOnce(id)) leftover.delete(id);
-    if (!fresh) return;
-    if (await removeOnce(fresh) || await removeOnce(fresh)) return;
-    remember(fresh);
-    if (!noRemoveSaid) d.say(W4.notRemoved(fresh));
+    if (!fresh2) return;
+    if (await removeOnce(fresh2) || await removeOnce(fresh2)) return;
+    remember(fresh2);
+    if (!noRemoveSaid) d.say(W4.notRemoved(fresh2));
   }
   async function tick() {
-    let fresh = null;
+    let fresh2 = null;
     const held = Date.now() - last >= EVERY_MS ? d.holders() : [];
     if (held.length) {
       last = Date.now();
-      fresh = await touch(held[0]);
+      fresh2 = await touch(held[0]);
     }
-    await tidy(fresh);
+    await tidy(fresh2);
   }
   const timer = setInterval(
     () => {
@@ -4112,6 +4151,42 @@ function createRunEnds() {
   };
 }
 
+// js/opencode/service.ts
+async function inSlot(slot, call) {
+  slot.busy++;
+  try {
+    return await call();
+  } finally {
+    slot.busy--;
+    slot.lastCall = Date.now();
+  }
+}
+function serviceCalls(slotFor, ready) {
+  return (session) => async (name, args, signal) => {
+    signal.throwIfAborted();
+    const slot = await slotFor(session);
+    return inSlot(slot, async () => {
+      let onAbort;
+      const aborted = new Promise((_resolve, reject) => {
+        onAbort = () => reject(signal.reason);
+        signal.addEventListener("abort", onAbort, { once: true });
+        if (signal.aborted) onAbort();
+      });
+      try {
+        await Promise.race([ready(slot), aborted]);
+      } finally {
+        if (onAbort) signal.removeEventListener("abort", onAbort);
+      }
+      signal.throwIfAborted();
+      return slot.bridge.request(
+        "tools/call",
+        { name, arguments: args },
+        { service: true, signal }
+      );
+    });
+  };
+}
+
 // js/opencode/slot.ts
 var IDLE_MS = Number(process.env[envName("BRIDGE_IDLE_MS")] || 30 * 6e4);
 if (IDLE_MS <= WATCH_MS)
@@ -4261,7 +4336,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   if (lost?.text) say(lost.text, "warning");
   if (lost) adopt.take(lost.entries);
   const adoptNow = () => void (stopped || adopt.now());
-  async function slotFor(sessionID, touch = true) {
+  async function slotFor(sessionID, touch = true, resume = true) {
     seats.guard(sessionID);
     const root = await rootOf(sessionID);
     mv.guard(root, sessionID);
@@ -4296,7 +4371,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       unasked.add(slot);
     }
     const s = slot;
-    if (far !== "foreign" && unasked.delete(s))
+    if (resume && far !== "foreign" && unasked.delete(s))
       s.resume = keeper.resume(s, root).finally(() => s.resume = null);
     if (touch) slot.lastCall = Date.now();
     return slot;
@@ -4454,15 +4529,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
         throw new Error(childWriteRefusal(null, STAND_TOOL2, {}, false) ?? "");
       return children.childSlot(sessionID, slots.get(root));
     },
-    async call(slot, name, args, sessionID) {
-      slot.busy++;
-      try {
-        return (await callThrough(slot, name, args, sessionID, true)).content;
-      } finally {
-        slot.busy--;
-        slot.lastCall = Date.now();
-      }
-    }
+    call: (slot, name, args, sessionID) => inSlot(slot, async () => (await callThrough(slot, name, args, sessionID, true)).content)
   });
   function forget2(session) {
     runEnds.clear(session);
@@ -4473,6 +4540,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   return {
     launch: launcher.launch,
     ...seats.half,
+    onboardCall: serviceCalls((s) => slotFor(s, true, false), awaitReady),
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       seats.cancel(s);
@@ -4669,7 +4737,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
   function flush(p) {
     if (p.timer) clearTimeout(p.timer);
     p.timer = null;
-    const frames = fresh(p, p.held.splice(0));
+    const frames = fresh2(p, p.held.splice(0));
     if (!frames.length) return;
     if (!frames.some((f) => addressedToMine(f))) {
       p.riders.push(...frames);
@@ -4679,7 +4747,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     const at = Date.now();
     p.pending = { session: "", inbox: null, at };
     const text = [
-      batchHead([...fresh(p, p.riders.splice(0)), ...frames]),
+      batchHead([...fresh2(p, p.riders.splice(0)), ...frames]),
       ...batchLines(frames)
     ].join("\n");
     void deliver(p.session, text, W4.caseBatch(frames.length), "queue", p.child).then((got) => {
@@ -4718,9 +4786,9 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     for (const k of keys ?? []) p.marks.add(k);
     for (const old of p.marks) if (p.marks.size > MARKS_KEPT) p.marks.delete(old);
   }
-  const fresh = (p, fs) => fs.filter((f) => !eventIn(f, (k) => p.marks.has(k)));
+  const fresh2 = (p, fs) => fs.filter((f) => !eventIn(f, (k) => p.marks.has(k)));
   function riding(ps) {
-    const got = ps.flatMap((p) => fresh(p, p.riders.splice(0)));
+    const got = ps.flatMap((p) => fresh2(p, p.riders.splice(0)));
     return got.length ? [batchHead(got)] : [];
   }
   function loud(session2, text, child = false) {
@@ -4996,6 +5064,267 @@ function annotate(req, nameOf) {
     }
 }
 
+// js/shared/cover.ts
+import { readFileSync as readFileSync12 } from "node:fs";
+import { join as join12 } from "node:path";
+var unquote = (v) => {
+  const t = v.trim();
+  if (t.length >= 2 && t.startsWith("'") && t.endsWith("'"))
+    return t.slice(1, -1).replace(/''/g, "'");
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    try {
+      return String(JSON.parse(t));
+    } catch {
+      return t.slice(1, -1);
+    }
+  }
+  return t;
+};
+function frontMatter(text) {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+  if (lines[0]?.trim() !== "---") return null;
+  const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
+  if (end < 0) return null;
+  const pairs = /* @__PURE__ */ new Map();
+  for (const line of lines.slice(1, end)) {
+    const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line);
+    if (kv) pairs.set(unquote(kv[1]), unquote(kv[2] ?? ""));
+  }
+  return pairs;
+}
+var LEAD2 = /^[\s`'"<]*/;
+var SLUG = /(?:^|[\s(`'",;])(@[\w.-]+\/[\w.-]+)/g;
+var SHORT = /(?:^|[\s(`'",;])(r\d+)(?=$|[\s)`'",;.:])/g;
+var esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var roleRef = (q, flags = "") => new RegExp(
+  `${flags.includes("g") ? "" : "^"}#(\\d+)\\s*${esc(q[0])}[\\s\\S]*?${esc(q[1])}`,
+  flags
+);
+var distinct = (re, v) => [
+  ...new Set([...v.matchAll(re)].map((m) => m[1]))
+];
+function seatOfPairs(pairs, keys = COVER) {
+  const W4 = words(ROOT_SEAT);
+  const graph = pairs.get(keys.graph)?.trim();
+  if (!graph) return { why: W4.noKey(keys.file, keys.graph) };
+  const role = pairs.get(keys.role)?.trim();
+  if (!role) return { why: W4.noKey(keys.file, keys.role) };
+  const g = graph.replace(LEAD2, "");
+  if (!/^(?:@[\w.-]+\/[\w.-]+|r\d+)(?=$|[\s)`'",;.:])/.test(g))
+    return { why: W4.noGraph(keys.file, keys.graph) };
+  const slugs = distinct(SLUG, ` ${g}`);
+  const shorts = distinct(SHORT, ` ${g}`);
+  if (slugs.length > 1 || shorts.length > 1)
+    return { why: W4.manyGraphs(keys.file, keys.graph, [...slugs, ...shorts].join(", ")) };
+  const r = role.replace(LEAD2, "");
+  const roles = distinct(roleRef(keys.roleQuotes, "g"), r);
+  if (roles.length > 1)
+    return { why: W4.manyRoles(keys.file, keys.role, roles.map((n2) => `#${n2}`).join(", ")) };
+  const first = roleRef(keys.roleQuotes).exec(r);
+  if (!first)
+    return {
+      why: W4.noRoleRef(keys.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`)
+    };
+  return { realm: slugs[0] ?? shorts[0], karta: first[1] };
+}
+function readCover(dir, keys = COVER) {
+  let text;
+  try {
+    text = readFileSync12(join12(dir, keys.file), "utf8");
+  } catch {
+    return null;
+  }
+  const pairs = frontMatter(text);
+  if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(keys.file) };
+  return seatOfPairs(pairs, keys);
+}
+
+// js/shared/onboardstart.ts
+var object = (v) => v !== null && typeof v === "object" && !Array.isArray(v) ? v : null;
+var textOf3 = (v) => Array.isArray(v.content) ? v.content.map((c) => object(c)?.text ?? "").join("\n") : "";
+function payload(v) {
+  if ("structuredContent" in v) return v.structuredContent;
+  try {
+    return JSON.parse(textOf3(v));
+  } catch {
+    return null;
+  }
+}
+function emptyList(v) {
+  const fields = object(v.structuredContent);
+  if (!fields || fields.action !== "list" || !Array.isArray(fields.realms)) return null;
+  if (fields.incomplete === true || fields.dropped !== void 0 && fields.dropped !== 0)
+    return null;
+  let working = false;
+  for (const value of fields.realms) {
+    const row = object(value);
+    if (!row || typeof row.ref !== "string" || !/^@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(row.ref) || typeof row.short !== "string" || !/^r\d+$/.test(row.short) || typeof row.owner !== "string" || !row.owner || row.owner_kind !== "user" && row.owner_kind !== "org")
+      return null;
+    if (row.owner_kind !== "user" || row.ref.split("/")[1] !== "mind") working = true;
+  }
+  return !working;
+}
+var answeredError = (e) => {
+  const code2 = object(e)?.code;
+  return typeof code2 === "number" && code2 < 0 && code2 !== -32001 && code2 !== -32601;
+};
+async function wizardDue(call, signal) {
+  try {
+    const result = object(await call(tool("me"), { action: "readiness" }, signal));
+    if (result && !result.isError) {
+      const due = object(payload(result))?.wizard_due;
+      if (typeof due === "boolean") return due;
+    }
+  } catch {
+  }
+  signal.throwIfAborted();
+  try {
+    const result = object(await call(tool("realm"), { action: "list" }, signal));
+    if (!result) return null;
+    const due = !result.isError ? emptyList(result) : null;
+    return due ?? "unsupported";
+  } catch (e) {
+    return answeredError(e) ? "unsupported" : null;
+  }
+}
+
+// js/opencode/workgraphs.ts
+import { createHash as createHash6, randomUUID as randomUUID2 } from "node:crypto";
+import { mkdirSync as mkdirSync5, readFileSync as readFileSync13, renameSync, unlinkSync as unlinkSync4, writeFileSync as writeFileSync5 } from "node:fs";
+import { join as join13, resolve as resolve6 } from "node:path";
+var TTL_MS = 15 * 6e4;
+var hash2 = (text) => createHash6("sha256").update(text).digest("hex");
+var read = (file) => {
+  try {
+    return readFileSync13(file, "utf8").trim();
+  } catch {
+    return "";
+  }
+};
+var registry2 = () => {
+  const root = globalThis;
+  return root[`${GLOBAL_PREFIX}WorkGraphs`] ??= /* @__PURE__ */ new Map();
+};
+function address() {
+  try {
+    const dir = resolve6(authDir());
+    const server = new URL(
+      process.env[envName("BRIDGE_URL")]?.trim() || read(join13(dir, "server")) || DEFAULT_SERVER_URL
+    );
+    const identity = server.origin + server.pathname;
+    let credential = process.env[envName("BRIDGE_TOKEN")]?.trim() || read(join13(dir, "token"));
+    if (!credential) {
+      const suffix = createHash6("sha256").update(identity).digest("base64url").slice(0, 10);
+      const tokens = JSON.parse(read(join13(dir, `${server.hostname}_${suffix}.json`))).tokens;
+      if (!tokens || typeof tokens !== "object" || typeof tokens.access_token !== "string" || !tokens.access_token)
+        return null;
+      credential = JSON.stringify(tokens);
+    }
+    const account = hash2(credential);
+    const file = join13(dir, `opencode-work-graphs.${hash2(identity).slice(0, 16)}.cache`);
+    return { file, account, key: `${file}:${account}` };
+  } catch {
+    return null;
+  }
+}
+var fresh = (at) => typeof at === "number" && at <= Date.now() && Date.now() - at < TTL_MS;
+function knownStartupSilence() {
+  const a = address();
+  if (!a) return false;
+  const memory = registry2().get(a.key);
+  if (fresh(typeof memory === "number" ? memory : memory?.at)) return true;
+  try {
+    const mark = JSON.parse(read(a.file));
+    if (mark.account !== a.account || !fresh(mark.at)) return false;
+    const reason2 = mark.version === 1 && mark.has_work_graph === true ? "work-graph" : mark.version === 2 ? mark.reason : null;
+    if (reason2 !== "work-graph" && reason2 !== "unsupported") return false;
+    registry2().set(a.key, { at: mark.at, reason: reason2 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+function rememberStartupSilence(reason2 = "work-graph") {
+  const a = address();
+  if (!a) return;
+  const at = Date.now();
+  registry2().set(a.key, { at, reason: reason2 });
+  const tmp = `${a.file}.${process.pid}.${randomUUID2()}.tmp`;
+  try {
+    mkdirSync5(authDir(), { recursive: true, mode: 448 });
+    writeFileSync5(tmp, JSON.stringify({ version: 2, account: a.account, at, reason: reason2 }), {
+      mode: 384
+    });
+    renameSync(tmp, a.file);
+  } catch {
+    try {
+      unlinkSync4(tmp);
+    } catch {
+    }
+  }
+}
+
+// js/opencode/onboardstart.ts
+function createOnboardStart(ctx, call, child = () => false, halted = () => false) {
+  const seen = /* @__PURE__ */ new Set();
+  const attempts = /* @__PURE__ */ new Map();
+  const pending = /* @__PURE__ */ new Set();
+  const configured = Number(process.env[envName("ONBOARD_START_MS")] || 4e3);
+  const ms = Number.isFinite(configured) && configured > 0 ? Math.min(configured, 5e3) : 4e3;
+  return {
+    forget: (session) => {
+      seen.delete(session);
+      attempts.delete(session);
+    },
+    async prompt(session) {
+      if (seen.has(session) || pending.has(session) || child(session) || halted(session))
+        return null;
+      if (knownStartupSilence()) {
+        seen.add(session);
+        return null;
+      }
+      const attempt = (attempts.get(session) ?? 0) + 1;
+      if (attempt > 3) return null;
+      attempts.set(session, attempt);
+      pending.add(session);
+      const controller = new AbortController();
+      let timer;
+      const ceiling = new Promise((resolve7) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          resolve7(null);
+        }, ms);
+      });
+      const read2 = async () => {
+        const response = await ctx.session.get({ sessionID: session });
+        const raw = response;
+        const info = raw?.data ?? raw;
+        if (!info?.id || info.parentID || !info.location?.directory) return null;
+        if (readCover(info.location.directory) !== null) {
+          seen.add(session);
+          return null;
+        }
+        if (halted(session)) return null;
+        controller.signal.throwIfAborted();
+        const due = await wizardDue(call(session), controller.signal);
+        controller.signal.throwIfAborted();
+        if (due === null) return null;
+        seen.add(session);
+        if (due === false || due === "unsupported")
+          rememberStartupSilence(due === false ? "work-graph" : "unsupported");
+        return due === true && !halted(session) ? words(ONBOARD_START).start() : null;
+      };
+      try {
+        return await Promise.race([read2().catch(() => null), ceiling]);
+      } finally {
+        clearTimeout(timer);
+        controller.abort();
+        pending.delete(session);
+      }
+    }
+  };
+}
+
 // js/opencode/inbox.ts
 var TAKEN_MAX = 100;
 var CANCELLED_MAX = 100;
@@ -5140,81 +5469,6 @@ function createPulseFeed(opts) {
       inboxes.clear();
     }
   };
-}
-
-// js/shared/cover.ts
-import { readFileSync as readFileSync12 } from "node:fs";
-import { join as join12 } from "node:path";
-var unquote = (v) => {
-  const t = v.trim();
-  if (t.length >= 2 && t.startsWith("'") && t.endsWith("'"))
-    return t.slice(1, -1).replace(/''/g, "'");
-  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
-    try {
-      return String(JSON.parse(t));
-    } catch {
-      return t.slice(1, -1);
-    }
-  }
-  return t;
-};
-function frontMatter(text) {
-  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
-  if (lines[0]?.trim() !== "---") return null;
-  const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
-  if (end < 0) return null;
-  const pairs = /* @__PURE__ */ new Map();
-  for (const line of lines.slice(1, end)) {
-    const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line);
-    if (kv) pairs.set(unquote(kv[1]), unquote(kv[2] ?? ""));
-  }
-  return pairs;
-}
-var LEAD2 = /^[\s`'"<]*/;
-var SLUG = /(?:^|[\s(`'",;])(@[\w.-]+\/[\w.-]+)/g;
-var SHORT = /(?:^|[\s(`'",;])(r\d+)(?=$|[\s)`'",;.:])/g;
-var esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-var roleRef = (q, flags = "") => new RegExp(
-  `${flags.includes("g") ? "" : "^"}#(\\d+)\\s*${esc(q[0])}[\\s\\S]*?${esc(q[1])}`,
-  flags
-);
-var distinct = (re, v) => [
-  ...new Set([...v.matchAll(re)].map((m) => m[1]))
-];
-function seatOfPairs(pairs, keys = COVER) {
-  const W4 = words(ROOT_SEAT);
-  const graph = pairs.get(keys.graph)?.trim();
-  if (!graph) return { why: W4.noKey(keys.file, keys.graph) };
-  const role = pairs.get(keys.role)?.trim();
-  if (!role) return { why: W4.noKey(keys.file, keys.role) };
-  const g = graph.replace(LEAD2, "");
-  if (!/^(?:@[\w.-]+\/[\w.-]+|r\d+)(?=$|[\s)`'",;.:])/.test(g))
-    return { why: W4.noGraph(keys.file, keys.graph) };
-  const slugs = distinct(SLUG, ` ${g}`);
-  const shorts = distinct(SHORT, ` ${g}`);
-  if (slugs.length > 1 || shorts.length > 1)
-    return { why: W4.manyGraphs(keys.file, keys.graph, [...slugs, ...shorts].join(", ")) };
-  const r = role.replace(LEAD2, "");
-  const roles = distinct(roleRef(keys.roleQuotes, "g"), r);
-  if (roles.length > 1)
-    return { why: W4.manyRoles(keys.file, keys.role, roles.map((n2) => `#${n2}`).join(", ")) };
-  const first = roleRef(keys.roleQuotes).exec(r);
-  if (!first)
-    return {
-      why: W4.noRoleRef(keys.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`)
-    };
-  return { realm: slugs[0] ?? shorts[0], karta: first[1] };
-}
-function readCover(dir, keys = COVER) {
-  let text;
-  try {
-    text = readFileSync12(join12(dir, keys.file), "utf8");
-  } catch {
-    return null;
-  }
-  const pairs = frontMatter(text);
-  if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(keys.file) };
-  return seatOfPairs(pairs, keys);
 }
 
 // js/opencode/rootseat.ts
@@ -5617,14 +5871,21 @@ async function setup(ctx) {
     finished: (s) => half.finishSeat(s),
     tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } })
   });
+  const onboard = createOnboardStart(
+    ctx,
+    (s) => half.onboardCall(s),
+    (s) => parents.has(s) || roots.has(s) && roots.get(s) !== s,
+    closed
+  );
   try {
     await ctx.session.hook("prompt", async (p) => {
       const sid = String(p.sessionID);
       const root = await rootOf(sid) === sid;
       const word2 = await half.launch(sid, p.prompt.text);
       if (word2) p.prompt.text = withWord(p.prompt.text, word2);
-      const seat = root ? await rootSeats.word(sid) : null;
+      const [seat, invitation] = root ? await Promise.all([rootSeats.word(sid), onboard.prompt(sid)]) : [null, null];
       if (seat) p.prompt.text = withWord(p.prompt.text, seat);
+      if (invitation && !closed(sid)) p.prompt.text = withWord(p.prompt.text, invitation);
       const counts = root ? ch?.ride(sid) : null;
       if (counts) p.prompt.text = `${p.prompt.text}
 
@@ -5684,6 +5945,7 @@ ${markFrame(counts)}`;
             if (!id) break;
             pulse.forget(id);
             rootSeats.forget(id);
+            onboard.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
