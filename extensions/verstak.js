@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.9.0";
+var VERSION = "3.10.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -253,6 +253,7 @@ var ROOM = {
     left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
     invite: (author, who) => `${author} invites ${who} to the case`,
     withdraw: (author) => `invitation withdrawn by ${author}`,
+    retract: (author, answer, afterAck) => `answer [${answer}] retracted${afterAck ? " after acceptance" : ""} by ${author}`,
     node: (seq, name, realm, reasoning) => `node #${seq} ${name} (${realm}) in the case${reasoning}`,
     nodeUpdated: (seq, name, reasoning) => `node #${seq} ${name} updated${reasoning}`,
     nodeDeleted: (seq, name, reasoning) => `node #${seq} ${name} deleted${reasoning}`,
@@ -596,6 +597,8 @@ var RULES = {
   // Only the answer to the waiting seat interrupts (graph @nks/nks-dev, nodes #6655, #6868).
   ask: "batch",
   answer: "addressed",
+  // An answer taken back (api, #7472): in_reply_to names the answer; it wakes the one it was given to.
+  retract: "addressed",
   ack: "batch",
   progress: "batch",
   opened: "batch",
@@ -664,6 +667,8 @@ function kindText(kind, v, f, pending, aborted) {
       return W3.invite(n2("author"), n2("who"));
     case "withdraw":
       return W3.withdraw(n2("author"));
+    case "retract":
+      return W3.retract(n2("author"), n2("refers_to"), v.after_ack === true);
     case "node":
       return W3.node(n2("seq"), n2("name"), n2("realm"), reasoning);
     case "link":
@@ -716,7 +721,9 @@ function roomKind(frame) {
     realm: node.realm,
     // A node delta's reasoning is the record's body, not a field (graph @nks/nks-dev, node #6070).
     reasoning: kind === "node" ? line.done || f.body : void 0,
-    withdraws: fields.withdraws
+    withdraws: fields.withdraws,
+    // Observed on the wire (#5893 §4.2, case №1010 [8]): line.fields.after_ack.
+    after_ack: fields.after_ack === true
   };
   const W3 = words(ROOM);
   const rule = RULES[kind];
@@ -832,7 +839,7 @@ function addressedToMine(frame) {
     if (rk.kind === "invite" && myRole(f, fields)) return true;
   }
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
-  if (rk && ASK_KINDS.has(rk.kind) || askFromPerson(f)) return false;
+  if (rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract") || askFromPerson(f)) return false;
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || void 0)) === "human";
 }
 
