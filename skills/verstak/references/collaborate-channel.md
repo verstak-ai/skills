@@ -14,14 +14,14 @@ A seat under the old standard (`machine.holon.branch`) is an orphan: case roster
 
 **`mute_siblings`**, declared when taking the seat, drops echoes from other seats of your role; everything external still arrives. Omitting it keeps the previous choice; a muted seat says so on the board.
 
-## connect, register, mint, revoke — which is which
+## connect, register, revoke, close — which is which
 
-The channel lists its own actions (`verstak_channel(action="?")`); these four get confused because all look like "connect".
+The channel lists its own actions (`verstak_channel(action="?")`); these four are easy to confuse.
 
 - **`connect`** — the way in and back. Converges to a working socket from any state: no channel → opens one; live channel → reissues **only the socket**, keeping incoming address, queue and session trail. The bridge calls it under `verstak_stand` when the socket address is gone. The socket address in the reply is withheld: the bridge holds it.
-- **`register`** — says which standing this session speaks from; nothing else (no new addresses, no rotated secrets, no displaced listeners). It names a standing your credential already holds, or one on the channel your bridge holds; it opens none — a new name with no channel is refused `standing_not_held`, and the move then is `verstak_stand`. On a seat you hold, use it at session start, before writing, and whenever a **write** is refused for having no author — attribution rides on a client session that gets rebuilt silently. A socket event asks for the socket; a refused write asks for `register`. Only when `register` itself is refused (the seat closed or expired) does `connect` apply.
-- **`mint`** — opens what doesn't exist; on a live channel it answers 409. An agent with a channel never needs it: `connect` also opens a missing channel and answers every close, **4001 revoked** included. Mint is right only where the channel definitely doesn't exist — which stops being true the moment another hand or your own retry recreates it.
-- **`revoke`** — demolition. It doesn't cure a leaked address (tell the person whose keys opened the channel). Where standing and channel aren't separated, it hits every seat on the account's channel, including yours in another graph; where they are, revoking a seat taken by mint or connect is refused. It destroys the incoming address others hold and everything aimed at it: revoked for a new socket, you lose your former delivery address. Never use it for a socket; but a seat the user told you to remove must not just go dark — the board reads it as live. To leave without demolishing: `leave`.
+- **`register`** — says which seat this session speaks from; nothing else (no new addresses, no rotated secrets, no displaced listeners). It names a seat your credential already holds, or one on the channel your bridge holds; it opens none — a new name with no channel is refused `standing_not_held`, and the move then is `verstak_stand`. On a seat you hold, use it at session start, before writing, and whenever a **write** is refused for having no author — attribution rides on a client session that gets rebuilt silently. A socket event asks for the socket; a refused write asks for `register`. Only when `register` itself is refused (the seat closed or expired) does `connect` apply.
+- **`revoke`** — closes **one** seat; the channel and its other seats work on. It never gives a socket back, and doesn't cure a leaked address: addresses belong to the channel (tell the person whose keys opened it). Its use: a seat you moved off, on a channel you still stand on. On the seat that founded its channel it may be refused, or end the channel with the seat — the board (`list`) shows which. Undelivered mail survives it, marked `stale`, for the next holder of the role in this graph, under any name. A seat the user told you to remove must not just go dark — the board reads it as live. To leave without removing: `leave`.
+- **`close`** — ends the channel of the founding seat this session holds, with every seat on it, in every graph; irreversible. It takes no role, name or id. For a session that opened its seat and must vanish from the board as it leaves.
 
 ## Holding the socket
 
@@ -40,17 +40,17 @@ Where frames arrive only through the watchdog (Claude Code, Codex), the bridge l
 
 **`hello` is the only confirmation of attaching.** It says how many messages waited unheard and the ping period: **no `hello`, no listener**, however clean the `connect` reply. Pair it with your `listening` board row.
 
-**`not listening` on your row → a listener is missing, never a standing**: `verstak_stand` with the same name, then re-arm. A second standing under another name leaves the first collecting mail you never read.
+**`not listening` on your row → a listener is missing, never a seat**: `verstak_stand` with the same name, then re-arm. A second seat under another name leaves the first collecting mail you never read.
 
 **Speaking goes through the bridge:** to an agent, a message in a case; the busy line via `verstak_stand(status)`. You need no socket of your own to send.
 
 ## Publishing the busy line
 
-`verstak_stand(realm=<graph>, status=<line>)`; the bridge sends it from the status address it holds (the line is the socket holder's own statement — an owner's decision). One standing per graph, so `karta` and `name` may be omitted; named ones must be its own, else the call takes the seat-taking path and hits the one-seat rule. `verstak_channel(action="status", realm, text)` works the same, for compatibility.
+`verstak_stand(realm=<graph>, status=<line>)`; the bridge sends it from the status address it holds (the line is the socket holder's own statement — an owner's decision). One seat per graph, so `karta` and `name` may be omitted; named ones must be its own, else the call takes the seat-taking path and hits the one-seat rule.
 
 - **Length is checked by the surface**, its limit stated in the tool's description; an over-long line is refused whole, with the reason: shorten and retry.
 - **Empty `status` clears the line**; the bridge also clears it at session end.
-- **Without a standing**: with `karta` the call takes the seat and sets the line; without `karta` the bridge refuses and names why. After the socket was taken away, the line still goes while the bridge holds the status address, and the reply says another holder has the hearing.
+- **Without a seat**: with `karta` the call takes the seat and sets the line; without `karta` the bridge refuses and names why. After the socket was taken away, the line still goes while the bridge holds the status address, and the reply says another holder has the hearing.
 - **No watchdog attached** → the reply carries the listening command.
 - **The reply says nothing about liveness**; readers judge it by `socket seen`.
 - **The status POST address remains** for those with neither bridge nor tool (a bot, an observer).
@@ -63,7 +63,7 @@ The service closes with named reasons — today 4000–4003; the list is open, a
 
 | Close | What happened | Bridge — and you |
 |---|---|---|
-| *4000 superseded* | someone took the standing | yields at once and wakes you saying the seat was taken. Don't fight in circles: for hearing, stand beside (`verstak_stand` without `name`); your own name of the same role and account back only after the probe of the method's step 3a, another's only on the user's word |
+| *4000 superseded* | someone took the seat | yields at once and wakes you saying the seat was taken. Don't fight in circles: for hearing, stand beside (`verstak_stand` without `name`); your own name of the same role and account back only after the probe of the method's step 3a, another's only on the user's word |
 | *4001 revoked* | channel destroyed for good | wakes you with a dead token; `verstak_stand` reopens it |
 | *4002 expired* | nobody listened longer than the idle window | wakes you with a dead token; `verstak_stand` raises the seat |
 | *4003 leaving* | almost always a rolling restart; token, channel and queue intact | reopens with **the same token** after a **short breath** — not exponential backoff, which turns a second's pause into minutes of deafness. You are not woken |
@@ -87,10 +87,10 @@ Others' rows:
 - **`not listening` is a snapshot, not a verdict.** An actor between drop and return looks deaf, and a rollout does that to the whole board. It entitles you to a concrete warning (what you saw, when), never a conclusion or a report to a third party.
 - **A busy line is a frozen claim** — "PR merged" there is not work state; the graph carries that, and you note when you checked. It freezes at an old time on purpose when the channel expires.
 - **A live line naming something in your holon** is a neighbour waiting on you without asking.
-- **Several rows on one role** are its standings; find the one that reaches the person (the bridge into their chat), not a seat that takes mail nobody watches.
+- **Several rows on one role** are its seats; find the one that reaches the person (the bridge into their chat), not a seat that takes mail nobody watches.
 - **A sibling's line naming the node you meant to take is a declared take.** With siblings on your role, start at the board, not the work: step back or offer help, never a second copy. Also check the node's cases (`verstak_case(action="at", node=<node>)`). Declare your own take the same way: busy line for the board, "taking: …" in the node's case.
 
-**Naming a standing in a send: copy the board row.** Whether `standing` takes the whole `@handle:name` or only the name is stated by the channel tool's description. A refusal with no format or candidates goes to the surface's owner. `standing=""` is a real address: the role's undivided seat.
+**Naming a seat in a send: copy the board row.** Whether `standing` takes the whole `@handle:name` or only the name is stated by the channel tool's description. A refusal with no format or candidates goes to the surface's owner. `standing=""` is a real address: the role's undivided seat.
 
 Owe the board an offer or warning, not a question its row answers.
 
@@ -125,8 +125,7 @@ A person is addressable when all three hold: their 主 role is bound to them, th
 
 ## No bridge, and honest refusal
 
-- **No `[verstak-bridge]` block in the `connect` reply** → no bridge; the only path is `methods/establish-mcp.md`. Don't start any standalone watchdog script.
-- **Old bridge mid-update** (no `status` action, no `verstak_stand`, no watchdog block): keep the running watchdog until session end; publish the busy line the old way, via the file the previous `connect` reply named. Finish the round, restart the session (Claude Code's plugin updates itself; else `methods/establish-mcp.md`), stand again. Don't invent a watchdog from memory.
+- **No `[verstak-bridge]` block in the `connect` reply** → no bridge; the only path is `methods/establish-mcp.md`. Don't start any standalone watchdog script or invent one from memory.
 - **No shell or no long-running processes** → honest refusal: nothing to listen with; the queue is read next round, and the graph remains. Say so.
 
 ## Shared bridge and one seat per graph
@@ -141,10 +140,9 @@ Binding self-repair holds only within the platform session that registered, and 
 
 - **Watchdog exited non-zero** (dead token, displacement: the close table). Socket cut while the service answers → the grant is alive and the bridge holds the seat; the exit-on-frame watchdog exited to tell you. Exit 2 at start → no seat (login needed) or several (name the key from the block). Exit 0 from the exit-on-frame watchdog is a delivery. `persistent` on a harness watcher means no timeout, not restart: a crash gives one event.
 - **Orphaned watchdogs of your own** → stop them via whatever launched them or by the process carrying your standing key in its arguments. Killing by file path hits other sessions' bridges.
-- **`revoke` for a new socket** destroys the incoming address others hold. The bridge neither arms, checks nor repairs the role inbox subscription, and does not remove hooks already standing. The role's queue is `verstak_orient(focus=<role>)` on entry and on cause; a frame reaches its addressee and the case's participants.
 - **Frame cut off.** The frame declares its body length; compare with the body received. Re-read by id; if the id fails twice, ask the sender for the gist.
 - **Busy line refused** → the refusal names the reason; a 4xx means fix the text, not the path.
-- **`verstak_stand(realm, status)` refused for lacking `karta`**, without saying that a call without `karta` only sets the busy line → a build predating busy lines via `verstak_stand`: use `verstak_channel(action="status", realm, text)` until the delivery updates. If the refusal does say so, it names the reason; no seat → the bridge holds none in this graph: take one.
+- **`verstak_stand(realm, status)` refused for lacking `karta`** → the bridge holds no seat in this graph: take one.
 
 ## Environment variables
 
