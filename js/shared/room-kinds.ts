@@ -46,6 +46,8 @@ const RULES: Readonly<Record<string, Rule>> = {
   // Only the answer to the waiting seat interrupts (graph @nks/nks-dev, nodes #6655, #6868).
   ask: "batch",
   answer: "addressed",
+  // An answer taken back (api, #7472): in_reply_to names the answer; it wakes the one it was given to.
+  retract: "addressed",
   ack: "batch",
   progress: "batch",
   opened: "batch",
@@ -139,6 +141,8 @@ function kindText(kind: string, v: Rec, f: Rec, pending: boolean, aborted: boole
       return W.invite(n("author"), n("who"));
     case "withdraw":
       return W.withdraw(n("author"));
+    case "retract":
+      return W.retract(n("author"), n("refers_to"), v.after_ack === true);
     case "node":
       return W.node(n("seq"), n("name"), n("realm"), reasoning);
     case "link":
@@ -200,6 +204,8 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
     // A node delta's reasoning is the record's body, not a field (graph @nks/nks-dev, node #6070).
     reasoning: kind === "node" ? line.done || f.body : undefined,
     withdraws: fields.withdraws,
+    // Observed on the wire (#5893 §4.2, case №1010 [8]): line.fields.after_ack.
+    after_ack: fields.after_ack === true,
   };
   const W = words(ROOM);
   const rule = RULES[kind];
