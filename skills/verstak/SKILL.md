@@ -39,7 +39,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
 5. **Alignment — contract `4`** (the description's number; **align**, `Contract`).
-   - **Stamp below `4`** → **align**, full arc; no file → its first round. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+   - **Stamp below `4`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -106,10 +106,12 @@ A case is read first by its summary (`read`): the latest record per key, read as
 1. **`verstak_orient(realm=…, focus=<focus holon>)`**: live transformations and when they moved, `TENSIONS` by class, active questions, open cases.
 2. **`verstak_orient(realm=…, focus=<agent role>)`**, if named: calling count, risks, `CHANNEL`. The queue is background.
 
-Free: `git status --short`, the branch, the stamp. The first matching row overrides the request; tell the user why:
+Free, and first: the three signs of alignment at the git root (the nearest directory upward holding `.git`) — the cover (`AGENTS.md`'s YAML frontmatter; a broken one is none), align's start hook (a `SessionStart` entry in `.claude/settings.json` asking for this skill's Start section, or `.opencode/plugins/verstak-rituals.js`), align's stamp in `AGENTS.md`. A start hook is required only of a harness align writes one for: Claude Code the settings entry, OpenCode the rituals plugin; Codex and pi get none, cover and stamp suffice. Then `git status --short`, the branch, the stamp's number. The first matching row overrides the request; tell the user why:
 
 | Survey | Move |
 |---|---|
+| in a git repository, none of the three signs | **onboarding**, its harness branch — in any harness, whether a start hook spoke or not; tools absent → **establish-mcp** first |
+| a sign present, but some of what align writes for your harness missing | **align** (`Start`, `Alignment`), not onboarding |
 | tools absent or silent | **establish-mcp**, then the request |
 | no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: **onboarding** — the person names the area, a graph they were invited to is continued, a new one created only on their word; never a graph created unasked. No `AGENTS.md` → **align** after it |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
@@ -178,7 +180,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
 | **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
-| **onboarding** ↔ **align** | the person has no working graph or role yet vs. the repo's contract on a graph that exists |
+| **onboarding** ↔ **align** | the person has no working graph or role yet, or the repository bears no sign of alignment, vs. the repo's contract on a graph that exists |
 
 Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 

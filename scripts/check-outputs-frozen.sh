@@ -24,6 +24,7 @@ outputs=(
   skills/verstak/scripts/verstak-bridge.mjs
   skills/verstak/scripts/opencode-plugin.js
   extensions/verstak.js
+  hooks/onboard.mjs
 )
 release_branch() { [[ "$1" == release-please--* ]]; }
 release_commit() {

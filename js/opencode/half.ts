@@ -4,7 +4,6 @@
 import { ROOT_SEAT } from "../delivery/index.ts";
 import type { Bridge } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
-import type { OnboardCall } from "../shared/onboardstart.ts";
 import type { Home, LostEntry } from "./records.ts";
 import type { Seating } from "./rootseat-by.ts";
 import type { Slot } from "./slot.ts";
@@ -26,8 +25,6 @@ export interface ToolsHalf {
   cancelSeat(session: string): void;
   releaseSeat(session: string): Promise<void>;
   finishSeat(session: string): void;
-  /** Read-only service calls, without returning or taking a standing. */
-  onboardCall(session: string): OnboardCall;
   /** The stop; held seats that went into a marker — upward (twins.ts). */
   stop(): void | Promise<void | LostEntry[]>;
   bridgeOf(session: string): Bridge | null; // the holding slot's bridge — for session usage (usage.ts)
@@ -61,7 +58,6 @@ export const idleHalf = (): ToolsHalf => ({
   cancelSeat() {},
   releaseSeat: async () => {},
   finishSeat() {},
-  onboardCall: () => async () => null,
   stop() {},
   bridgeOf: () => null,
   leadOf: () => null,

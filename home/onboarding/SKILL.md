@@ -5,7 +5,7 @@ description: "Lead a person with no working graph to working on their own, one s
 
 # onboarding — from no working graph to working on one's own
 
-**Use when:** the person has **no working graph** — `verstak_realm(action="list")` shows nothing but their `@handle/mind`, or only graphs owned by others or an organization while no `AGENTS.md` names one; it fires by itself, at session start or from the window's or bot's onboarding button, without a separate call. Or the person asks: an explicit "onboarding" or a redo runs whatever the signs; only words like "help me get started", "I don't know where to start" are gated by them — **while a lasting sign below is missing**.
+**Use when:** the person has **no working graph** — `verstak_realm(action="list")` shows nothing but their `@handle/mind`, or only graphs owned by others or an organization while no `AGENTS.md` names one; or, in a git repository, none of the three signs of alignment is there — the `AGENTS.md` cover, align's start hook, align's stamp — whatever graphs the person has; it fires by itself, at session start or from the window's or bot's onboarding button, without a separate call. Or the person asks: an explicit "onboarding" or a redo runs whatever the signs; only words like "help me get started", "I don't know where to start" are gated by them — **while a lasting sign below is missing**.
 
 **Not when:** every lasting sign below is met and the person says they don't know where to start. Decide by the lasting signs — a working graph, the person's role in it, and in a harness the repository's holon and agent role; a missing seat or hooks alone routes to Start or align, never to onboarding. They have a graph and know it; the words are about their task. Ask what they are working on now and help on the material that exists: open the node with `verstak_look`, walk the arrow the question needs, and run `verstak_orient(focus=<node>, lens=…)` there for a pattern; answer from what they show — "I don't see it", never "there is none". Explaining the graph to someone who has kept it for months is the failure here.
 
@@ -69,11 +69,15 @@ You write under the companion's own seat, which the runtime gives it; the method
 
 ## The harness branch — no working graph
 
+It also runs in a repository with none of the three signs of alignment, in any harness; the Claude Code plugin's start hook and the OpenCode plugin's first prompt say so in one line, but the signs decide, not the line. A sign present with the rest missing is align's, not this branch's.
+
 The order is fixed: personal memory (step 0) → graph → initial hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
 
 In a graph with no agent role yet (steps 1–3) you write without a seat: there is no role of yours to stand on, and the person's role is never one. The first seat is the agent role's, once align creates it (step 4).
 
 **Which repository.** Before step 1 creates anything: `git remote get-url origin` and the graphs found. Show the person both and ask whether this repository is the work they want a graph for. Signs it may not be: `origin`'s owner is neither their handle nor one of their organizations; an `upstream` remote (a fork); a tutorial, a client's or a sample repo by its README. No `origin` remote → ask which repository this is; the repository steps wait for the answer. A graph already listing this repository (the repositories read above, run on each listed graph) is the answer — continue there; several → ask which. Not this repository → no hooks, holon or `AGENTS.md` here; a graph for their area is still offered (step 1), and the repository steps wait for the repository they name. No person in the session (an autonomous start) → create nothing (the mind graph excepted); the greeting says onboarding is waiting for them.
+
+**The person already has working graphs** (the branch ran on an unaligned repository) → one question before any first move: connect this repository to one of them (list them; `origin` and a holon whose `repository` attr names it are the hint) or start a new one. No answer, no graph created.
 
 **1 · Area and graph.** Ask what they will work on — the area, in their words, before graph and repository. Then:
 - graphs owned by others or their organizations are listed → name them ("*X* is shared with you and already holds repositories *A*, *B*"); continuing there is the default, a graph of their own the exception they choose;
