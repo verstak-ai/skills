@@ -44,10 +44,25 @@ export interface HoldRecord {
   base?: string;
   /** Root's service seat (#7972): only a service stand sets it; an explicit stand clears it. */
   provisional?: boolean;
+  /**
+   * When a session last stood on this place (epoch ms): set by a take (stand, connect, register),
+   * kept by a return, a pause and a refresh. The era of the seat — which of a session's seats is
+   * its latest (case №954); `at` only says the record is alive.
+   */
+  stoodAt?: number;
 }
 
 /** Record lifetime: the idle time the platform grants a socketless place. */
 export const HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+/** The era of a record: when the session stood on the place; an older build's record — its `at`. */
+export const eraOf = (r: Pick<HoldRecord, "stoodAt" | "at">): number => r.stoodAt ?? r.at ?? 0;
+
+/** Places this bridge took and when (hold.ts take, resume.ts return): the record carries it. */
+const S = scoped(() => new Map<string, number>());
+export function noteStoodAt(key: string, at: number | undefined): void {
+  if (typeof at === "number") S.set(key, at);
+}
 
 /** The harness session of this bridge, named by the plugin in its resume and check methods (resume.ts). */
 const H = scoped(() => ({ session: null as string | null }));
@@ -114,7 +129,8 @@ export function writeHoldRecord(
   paused = false,
   at = Date.now(),
 ): void {
-  // A satellite's place lives for the run (satellite.ts); only a plugin-reload pause restores it from disk (suspend.ts).
+  // A satellite's place lives for the run (satellite.ts); only a plugin-reload pause restores it from disk
+  // (suspend.ts): `paused` — the pause, the return after it and the held seat's refresh (holdkeep.ts).
   if (CFG.satellite && !paused) return;
   try {
     const was = onDisk(key);
@@ -132,6 +148,7 @@ export function writeHoldRecord(
           rec.provisional ??
           (was?.url === rec.url && was.session === session ? was.provisional : undefined),
         base: B.get(key) ?? rec.base ?? was?.base ?? baseOnDisk(key) ?? undefined,
+        stoodAt: S.get(key) ?? rec.stoodAt ?? was?.stoodAt,
         at,
       }) + "\n",
     );

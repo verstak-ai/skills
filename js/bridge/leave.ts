@@ -81,8 +81,9 @@ export async function leaveStanding(reason: string, byWord = false): Promise<str
 }
 
 /**
- * A satellite's leave by word is whole (#6361): it has no hold record, so a park
- * mark would land nowhere and the plugin's watchdog would raise the seat again.
+ * A satellite's leave by word is whole (#6361): the seat is released and its hold record (a
+ * pause's, or the one its return rewrote) dropped — a parked seat would keep a record the
+ * plugin's watchdog raises it by again.
  */
 async function leaveSatellite(reason: string): Promise<string> {
   const W = words(LEAVE);

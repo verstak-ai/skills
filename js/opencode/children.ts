@@ -85,7 +85,12 @@ export function createChildren(d: ChildDoors) {
       }
       if ((await own.resume) === "elsewhere") break; // the previous bridge's socket did not go within the term
     }
-    if (!own.holding) await d.leads.fail(e.session, W().reloadNotBack());
+    // An earlier era's seat refused by the bridge (case №954): the parent hears why, the child nothing.
+    if (!own.holding)
+      await d.leads.fail(
+        e.session,
+        own.refused?.length ? W().reloadStale(own.refused.join(", ")) : W().reloadNotBack(),
+      );
   }
 
   /** The plugin stops: the children's holding bridges pause, their seat and cases wait for the new instance. */

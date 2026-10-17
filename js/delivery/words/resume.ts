@@ -13,6 +13,11 @@ export interface ResumeWords {
   foreignDir: (foreign: string) => string;
   neighbourKey: (keys: string) => string;
   left: (left: string) => string;
+  /**
+   * Satellite: the seat by key is older than another seat's record of the same session in the same role and graph —
+   * the key is not taken; stale — the name of the seat by key, fresher — the name of the fresher seat.
+   */
+  staleKey: (stale: string, fresher: string) => string;
   alreadyHolding: () => string;
   byRecord: () => string;
   otherSeat: (key: string, led: string) => string;
@@ -62,6 +67,8 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
       `another session stood on the seat ${keys} — a return does not take a neighbour's seat; ${via} will take your own`,
     left: (left) =>
       `the seat was released by the holder's word (leave): ${left} — it will not return by itself, to bring it back: ${via} with the same name`,
+    staleKey: (stale, fresher) =>
+      `the seat ${stale} is not taken by the return: this session has a fresher record in the same role — ${fresher}; to bring the seat back: ${via}(name="${fresher}"), the former one — ${via}(name="${stale}")`,
     alreadyHolding: () => "the bridge already holds this seat",
     byRecord: () => "return by record",
     otherSeat: (key, led) => `${key}: the bridge leads another seat ${led}`,

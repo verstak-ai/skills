@@ -19,6 +19,8 @@ export interface LostEntry {
   /** The child's seat name and last text — the outcome at the end after a reload. */
   name?: string;
   last?: string;
+  /** When the session stood on the seat (its hold record's stoodAt): the era two markers are judged by (case №954). */
+  stoodAt?: number;
 }
 
 /**
@@ -30,6 +32,7 @@ export const entryOf = (e: LostEntry): LostEntry => ({
   dir: e.dir ?? null,
   key: e.key ?? null,
   child: !!e.child,
+  ...(typeof e.stoodAt === "number" ? { stoodAt: e.stoodAt } : {}),
   ...(e.moved ? { moved: true } : {}),
   ...(e.child
     ? {

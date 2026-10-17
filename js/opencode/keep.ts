@@ -48,6 +48,8 @@ export interface KeptSlot {
   noted?: boolean;
   /** The child's last text — the "ended" outcome survives a reload. */
   last?: string;
+  /** Seats the bridge's return did not take as of an earlier era (case №954): the child's end names them to the parent. */
+  refused?: string[];
 }
 
 /**
@@ -166,6 +168,7 @@ export function createKeeper<S extends KeptSlot>(doors: KeeperDoors<S>): Keeper<
         timeoutMs: 30_000,
       });
       const elsewhere = Array.isArray(r?.elsewhere) && r.elsewhere.length ? r.elsewhere : null;
+      if (slot.child && Array.isArray(r?.refused) && r.refused.length) slot.refused = r.refused;
       if (!r?.resumed && elsewhere && !final) return "elsewhere"; // wait silently for its socket to go
       marked.delete(root);
       if (r?.stopped) return stoppedRoot(root, r.word); // taken off by its owner: no word into the session (#7439)
