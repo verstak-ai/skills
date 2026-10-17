@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { scoped } from "../shared/scope.ts";
 import { baseFilePathOf, holdFilePathOf } from "../shared/standings.ts";
 import { CFG } from "./config.ts";
+import { writeOwned } from "./doorfiles.ts";
 import { log } from "./streams.ts";
 
 const holdFilePathFor = (key: string): string => holdFilePathOf(CFG.authDir, key);
@@ -119,7 +120,9 @@ export function writeHoldRecord(
     const was = onDisk(key);
     const session = H.session ?? rec.session ?? (was?.url === rec.url ? was.session : undefined);
     const left = rec.left ?? was?.left === true;
-    writeFileSync(
+    // Via rename: a reader in another process (sweep, resume, the plugin) never meets the file
+    // truncated mid-write — the sweep erases an unreadable record.
+    writeOwned(
       holdFilePathFor(key),
       JSON.stringify({
         ...rec,
@@ -131,7 +134,6 @@ export function writeHoldRecord(
         base: B.get(key) ?? rec.base ?? was?.base ?? baseOnDisk(key) ?? undefined,
         at,
       }) + "\n",
-      { mode: 0o600 },
     );
   } catch (e) {
     log(`hold record not written: ${(e as Error).message}`);
@@ -144,7 +146,7 @@ export function writeHoldRecord(
 export function restoreHoldRecord(key: string, rec: HoldRecord): void {
   if (CFG.satellite) return;
   try {
-    writeFileSync(holdFilePathFor(key), JSON.stringify(rec) + "\n", { mode: 0o600 });
+    writeOwned(holdFilePathFor(key), JSON.stringify(rec) + "\n");
   } catch (e) {
     log(`hold record not restored: ${(e as Error).message}`);
   }

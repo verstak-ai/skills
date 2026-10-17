@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 1229ebb0ec19118c6a02cb0543eadca0e5b84851
+commit 1e159f4cb9e39828d49bbb9fe7f74d0becc5adf3
 59ec67de6f5a0c85d5e4515ec90fbd8ea5d684448fa9411e2727a28d133012e1  js/bridge/absorb.ts
 d08245193edda8fb079edcf47b3ca05fa7c4299f0883e67522b611aead4faca4  js/bridge/addressmark.ts
 e9a25451925a672a5e29b3b16fea8005d599aa89023e0641452896b6aa7ac8b9  js/bridge/askdisk.ts
@@ -31,7 +31,7 @@ f32be0bb254b6f6a9bd6304680232ae4ff5f6b30ec88764b79f48ed5772ea5d9  js/bridge/hand
 afcd4353a666c904145f41dcdec92027699e7015c72fc8c5db77668568c15618  js/bridge/hearing.ts
 31b81b521840fa07a2815700ab525891e3c0352ee406cbc1d8abca947a33832e  js/bridge/hold.ts
 c657b27bf16f833f7e28e963c51f763b9a279e4d33f2ea7e1dc05c06a651478a  js/bridge/holdkeep.ts
-133bbfda534e7b6e846120e32ded6360aaad998a2f88959de3e68ebbea057494  js/bridge/holdrecord.ts
+e73213a468061c585f7ec9b83726e5cf964eb935bd963cb2c5cebdb297876f0b  js/bridge/holdrecord.ts
 187348923a11878d042d68c8d8020a120594389412c1bba09b6d5992ff174c77  js/bridge/holdstate.ts
 654bc1ef262648cd58f787fe1138815e886eaf43b11ab464b5ad04b2a709820e  js/bridge/holdwords.ts
 4eb268e616b7ebb574889993700327b5bca76c50327ad3ef5f68077b20838543  js/bridge/humanwords.ts
