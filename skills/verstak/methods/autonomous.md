@@ -26,7 +26,7 @@ A stage you add names what it leaves outside. Every exit (waiting, failure, cont
 
 ## Graph, case and the transformation's seed
 
-Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in a child case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (the door, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
+Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in its assignment's case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (the door, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
 
 **The transformation's seed is a pointer, not a log** (`methods/writing.md`, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). Whoever organises the transformation's acceptance closes the seed.
 
