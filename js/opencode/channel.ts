@@ -9,7 +9,7 @@
 // below it only lines addressed to the seat (#6574). While the pile's previous prompt is not
 // taken, new frames gather here and leave as one when OpenCode says it took it; a pile of counts
 // only wakes no turn and rides the next prompt into the session (the prompt hook). A direct word
-// and a human's word go steer, whole. Delivery is handing control back to the agent; a frame
+// and a human's word go steer, whole. A life check goes queue, alone, to the root (case #1046). Delivery is handing control back to the agent; a frame
 // gone to a log is a silencer (#4355).
 //
 // The addressee is the session whose bridge brought the frame; a frame of a bridge given to
@@ -23,12 +23,13 @@ import { classifyOrigin, type Frame, isDirectWord } from "../shared/channel.ts";
 import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
-import { deliveryKeys, eventIn } from "../shared/seen.ts";
+import { deliveryKeys, eventIn, isLifeCheck } from "../shared/seen.ts";
 import { authDir } from "./bridge-io.ts";
 import { createCuts } from "./cuts.ts";
 import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
+import { createLifeChecks } from "./lifecheck.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -301,6 +302,13 @@ export function setupChannel(
     return !!frames?.some((f) => fromLauncher(f, launcher));
   };
 
+  /** The life check (lifecheck.ts): queued, alone, to the root — a child's seat is named to it. */
+  const lives = createLifeChecks(parents);
+  function lifeCheck(session: string | null, child: boolean, frame: Frame): void {
+    const p = lives.prompt(session, child, frame);
+    void deliver(p.session, p.text, p.what, "queue");
+  }
+
   function dropPile(key: string): void {
     const p = piles.get(key);
     if (p?.timer) clearTimeout(p.timer);
@@ -348,6 +356,7 @@ export function setupChannel(
     },
     gone(session) {
       tacts.gone(session);
+      lives.gone(session);
       halts.gone(session);
       cuts.forget(session);
     },
@@ -413,6 +422,7 @@ export function setupChannel(
           if (frame?.type === "status") return;
           // The frame's path (#5851): with event_kind — the kind's rule, without — its own stack (#4957).
           // The launcher's word to its working lead steers its turn whatever its stack (#7505).
+          if (isLifeCheck(frame)) return lifeCheck(session, child, frame as Frame);
           const steers = !!frame && launcherWordIn(session, child, [frame]);
           if (frame && !steers && toPile(frame)) return pile(session, child, frame);
           const own = piles.get(`${child ? "child" : "root"}:${session ?? ""}`);
@@ -450,6 +460,7 @@ export function setupChannel(
           }
           return;
         case "held":
+          if (child && session) lives.held(session, ev.place);
           if (params?.data?.automatic === false) {
             // only an attributed explicit transition lifts the stop
             halts.held(session);

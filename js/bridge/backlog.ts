@@ -10,7 +10,7 @@ import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame, isDirectWord } from "../shared/channel.ts";
 import { caseCountLines, frameToText } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
-import { type Marks, splitBatch } from "../shared/seen.ts";
+import { isLifeCheck, type Marks, splitBatch } from "../shared/seen.ts";
 import { type ChannelEvent } from "./door.ts";
 
 /** The accumulation window; the variable is a seam for probes, not a human's knob. */
@@ -66,11 +66,11 @@ export class Backlog {
   }
 
   /**
-   * false — no window, or a direct word that goes its own way whole.
+   * false — no window, a direct word or a life check: each goes its own way whole.
    * A repeated id already in the window is not counted.
    */
   note(frame: Frame): boolean {
-    if (!this.timer) return false;
+    if (!this.timer || isLifeCheck(frame)) return false;
     if (isDirectWord(frame)) {
       this.direct++;
       return false;

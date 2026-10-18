@@ -41,6 +41,13 @@ export interface OpencodeWords {
   tact: () => string;
   tactWaits: () => string;
   tactWaitsFolded: () => string;
+  /** The life check's label in the log (channel.ts). */
+  lifeCheck: () => string;
+  /**
+   * The root's line about a child session's seat the platform warned: the child is not woken.
+   * Empty name, role or graph — a placeholder.
+   */
+  lifeCheckChild: (name: string, karta: string, realm: string) => string;
   childGone: (frame: string, id: string, text: string) => string;
   /** text — the start of the frame. */
   childEnded: (frame: string, id: string, text: string) => string;
@@ -109,6 +116,11 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     tactWaits: () => "Verstak: the attention tact waits for the end of the session's turn",
     tactWaitsFolded: () =>
       "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
+    lifeCheck: () => "life check",
+    lifeCheckChild: (name, karta, realm) =>
+      `Verstak: the platform warned the subagent's seat ${name || "<seat name>"} that it will be put out unless it acts: ` +
+      `still working — it answers with its own move; ended — release the seat: ${tool("channel")}(realm="${realm || "<graph>"}", ` +
+      `action="revoke", standing="${name || "<seat name>"}", karta=${karta || "<role>"}).`,
     childGone: (frame, id, text) =>
       `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; ` +
       `a case record stays in the case (${tool("case")} history), a direct word did not reach the root; the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text}`,
