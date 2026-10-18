@@ -125,7 +125,7 @@ verstak_search(realm=R, q="", posed_to=seq,
 ```
 
 - The `volitive_mode` filter keeps answered and released rows off the wire.
-- Drop while reading: rows the search marks as ended on their carrying axis (a cell word after the modes, e.g. `fixed`), and `virodha` rows of a doubt, counter-thesis or hint (declined); a risk in `virodha` is guarded and a counterexample, grounding defect or drift in `virodha` still present — both live.
+- Drop while reading: rows the search marks as ended on their carrying axis (a cell word after the modes), and `virodha` rows of a doubt, counter-thesis or hint (declined); a risk in `virodha` is guarded and a counterexample, grounding defect or drift in `virodha` still present — both live.
 - `upeksha` rows are a separate pile — accepted as is, woken by a change at their anchor, not by a read (**inquiry**); list them apart and leave them.
 - **Read the "N of M" header** and page until N = M: a cut agenda looks complete.
 - **Sweep `@handle/mind` too** — duties posed to the user's own owner role live only there.
