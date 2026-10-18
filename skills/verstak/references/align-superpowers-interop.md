@@ -36,4 +36,4 @@ Stamp the installed version and the agreed mode (`full` / `prose-only`) as a pla
 
 ## Re-verify checklist (maintainers only, on a superpowers upgrade)
 
-Grep the installed plugin cache for: `docs/superpowers/specs/` with "(User preferences for spec location override this default)"; skills `using-superpowers`, `brainstorming`; "take any implementation action" and "writing-plans is the next step"; "user instructions always take precedence" and "User's explicit instructions (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests)" (also quoted in `methods/entry.md`: update both).
+Grep the installed plugin cache for: `docs/superpowers/specs/` with "(User preferences for spec location override this default)"; skills `using-superpowers`, `brainstorming`; "take any implementation action" and "writing-plans is the next step"; "user instructions always take precedence" and "User's explicit instructions (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests)".

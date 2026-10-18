@@ -44,7 +44,6 @@ One assignment on the user's word is yours, with the case it opens (`Assignment 
 
 **1. Find the cases.** In the graph the user named; otherwise `verstak_realm(action="list")`, and with several project graphs ask in one line which. Note each graph's short id (`rN`). Per graph:
 - `verstak_orient(realm=<graph>, lens="board", scope="graph")` — cases, addressed questions and seats in one slice; on a subject holon or role, `focus=<node>` instead of `scope`. Limits and paging: `verstak_orient(action="?")`; never present a cut slice as complete. A named subject of another kind → `verstak_case(action="at", realm=<graph>, node=<subject node>)`: the cases in its scope.
-- An older surface refuses `lens="board"` → per graph `verstak_case(action="at", realm=<graph>)` (open cases, newest first), then `read` the ones you need; say the summary came without the board.
 - `verstak_case(action="mine", realm=<graph>)` — where this session sits or is invited. An embedded agent's `mine` is its own seat, not the user's: the user's cases come from the board.
 
 Too many for a turn → closing, recently moved and named ones first; give the skipped count.
@@ -88,7 +87,7 @@ During a summary, or on "tidy up abandoned cases", deal yourself with what nobod
 2. **Check "already done" before calling anyone.** Open the subject node with `verstak_look`: modes are a claim, not evidence. Check the grounds with `verstak_history`, then the case's latest lines (`read`, `full=true` if needed) and the history of the relevant key (`verstak_case(action="history", key=<exact key>, keep_cursor=true)`). Compare with what the line promised. An answer that needs the repo comes only through the role responsible for it, never from your own craft; no evidence → don't close it as done.
 3. **Whom to call.** For an open work line, its role, even if its seat went dark; for a case without a holder, the steward of the subject node or its holon, found along the arrows. Tell line kinds apart: an `ask` is answered by the addressed role, an `answer` is accepted by the asker's role with `ack`, an `invite` is answered by the invited role joining — don't substitute a work line for these moves. Don't invent an addressee. Read participants and invitations: the platform already calls the role of a seat that went dark, and a seat that takes the work over posts a line under the same key. Don't duplicate an open call; a join without that line isn't a pickup. With no live seats a case may close on its silence deadline — not evidence the work was done.
 4. **The bounded move.** Take your seat and join as in `From the user into cases`, and re-read the state before writing. Work verified done and the key's latest line a work line (`[was] [did] = verdict`) → `verstak_case(action="line", room=<case #N>, key=<same key>, done=<what you checked, past tense>, verdict="ok", note=<evidence and its ceiling>)` closes it with the outcome of your check, without claiming the work. Otherwise `verstak_case(action="invite", room=<case #N>, karta=<role>, holon=<subject holon>)` calls the role in; leave it a message with the subject, the key and what your check found. Writes refused or the key held → a message to the holder, never a way around the rights. Never do the work, never launch an agent, never close the case: closing is the lead's. Done → leave.
-5. **To the user: the outcome and any choice only they can make.** No list of abandoned work under `Blockages` or `Unusual`: briefly, what you checked, which line you closed or which role you invited, with case number and graph; an invitation isn't an arrival. Choosing the role, changing what was promised or giving permission needs their word — carry exactly that choice, not the whole sweep. Never promise an agent was started.
+5. **To the user: the outcome and any choice only they can make.** No list of abandoned work under `Blockages` or `Unusual`: briefly, what you checked, which line you closed or which role you invited, with case number and graph; an invitation isn't an arrival. Choosing the role, changing what was promised or giving permission needs their word — carry exactly that choice, not the whole sweep.
 
 ## From cases to the user: verbatim, with provenance
 
@@ -116,11 +115,11 @@ Before the first write, take your seat and `join`: a seat the environment names 
 2. **Assignee** — their seat on the board (`verstak_channel(action="list", realm=<graph>)`); no seat → step 5.
 3. **The case and the task in one call** — `verstak_case(action="talk", realm=<graph>, with=<seat>, about=<subject, one line>, text=<what, what counts as done, by when, why now; the user's words quoted>)`. The same `about` returns the same case: one subject, one case. A case already open on the subject (`verstak_case(action="at", realm=<graph>, node=<subject>)`) → `say` `to` their seat there.
 4. **The receipt is theirs** — their restatement `in_reply_to` your message and their `partial` line on the key "assignment: <what>", marked "on me"; their next line on that key is the outcome; a line reports one movement. You read that key and never write on it: a key is its holder's, and a line on a key another holds is refused.
-5. **No seat** — nobody stands for the role: `talk` as in step 3 `with=<role>`, which calls the role in. `read` the case: no open invitation shows → `verstak_case(action="invite", room=<case #N>, karta=<role>, holon=<subject holon>)`. Give the user the launch line `verstak <graph> <role> case #N`. An invitation is not an arrival: never say an agent was launched or started.
+5. **No seat** — nobody stands for the role: `talk` as in step 3 `with=<role>`, which calls the role in. `read` the case: no open invitation shows → `verstak_case(action="invite", room=<case #N>, karta=<role>, holon=<subject holon>)`. Give the user the launch line `verstak <graph> <role> case #N`.
 6. **To the user** — one line: case #N, graph, to whom, what it waits for (their receipt). Say what the call printed: recorded in the case, waiting for the role.
 7. **Closing** — you opened the case, so the platform makes you its lead; the lead stays with you, and so do you until it closes. Once the assignee's line on the key is `ok`, tell the user; on their word, `verstak_case(action="propose_close", room=<case #N>, text=<what that line attests>, evidence=[<the [N] of that line>])` — never on your own judgment of the work.
 
-A channel send never carries the task: it only calls the seat to the case ("case #N waits for your word") when it isn't listening or hasn't joined. One assignment is yours; several to spread, a choice of assignees, or agents to raise → the foreman (above).
+A channel send never carries the task: it only calls the seat to the case ("case #N waits for your word") when it isn't listening or hasn't joined.
 
 ## What's in work
 
@@ -135,8 +134,6 @@ A channel send never carries the task: it only calls the seat to the case ("case
 Join only to put the user's words in, carry out their instruction, or make the bounded move in `Abandoned work` — never to read for a summary. A holon refusing reads without a seat → tell the user; join with their consent.
 
 **Invite the user instead of relaying** when the answer must be their own words (permission for something irreversible, a decision agents act on only from the user, a commitment to outsiders), when relaying would distort a needed conversation, or when they told you to: one line to them on where and why, then `verstak_case(action="invite", room=<case #N>, standing=<user's seat>)`. "Call me in if needed" consents to that kind of invitation, not to everything.
-
-Many cases at once: `verstak_orient(lens="board")`; one case's exact lines and participants: `read`, never a guess from the slice. No view of another seat's cases (`mine` is this session; the user shows in participants on `read`). New moves: `action="?"`.
 
 ## Done, and what comes next
 

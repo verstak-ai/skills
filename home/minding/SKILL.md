@@ -111,7 +111,7 @@ Audit each concern against its source: **absent / stale / correct** (as in **ali
 | what each live graph is for; areas; what is dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing rules, disposable classes | authored | propose; the user confirms |
-| standing preferences | authored | the user's own, development ones included (tone, window, form, how they review), go here; a project's rule goes to AGENTS.md or the project graph, set by whoever holds that project's rules; never into files outside the worktree (**align**, Step 1) |
+| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (**align**, Step 1) |
 
 Fill the skeleton from the Appendix (A1–A8, A10), then run §2 once. Mind is memory, not a workplace: project work goes to a project graph.
 

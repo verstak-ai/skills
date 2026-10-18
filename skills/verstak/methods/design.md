@@ -110,9 +110,8 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 ## Rules that bite while designing
 
 - **Broken cycles** (trace gap, `leaked`, `relay-gap`) → `methods/weaving.md`, Operation 5.
-- **Arrow legality** (`vollzug`/`grundsatz` are applied only via `upadhi`; `ahara`/`utpatti` to them returns 422) and **the boundary** (an observation or hand-off kriya, its phenomenon in the external holon): `methods/writing.md`, Decision 5. `leaked`/`relay-gap` at the boundary are modelling debt, not false alarms.
-- **Naming, before/after, fat nodes, modes, batch order**: `methods/writing.md`, at every write.
-- **Concurrency**: mutations need `basis_version` (`v<N>` from `verstak_look`); on conflict, re-read and retry.
+- **Arrow legality** (`vollzug`/`grundsatz` are applied only via `upadhi`) and **the boundary** (an observation or hand-off kriya, its phenomenon in the external holon): `methods/writing.md`, Decision 5. `leaked`/`relay-gap` at the boundary are modelling debt, not false alarms.
+- **Naming, before/after, fat nodes, modes, batch order, `basis_version`**: `methods/writing.md`, at every write.
 
 ## Tension cheat sheet
 

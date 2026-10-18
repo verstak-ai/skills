@@ -77,7 +77,7 @@ Required on a role: how this actor is present as the origin of action. Gate firs
 | **won't answer** — its path is modelled, not lived | `pratibimba` 象 (depicted figure) | a customer-journey persona |
 | answers **on its own clock**, from beyond the boundary | `agantuka` 客 (guest) | regulator, counterparty, vendor |
 
-Addressing: 主 gets strategic questions ("do we take this on?"), never tasks; 能 gets working questions — find it by `steward` from the question's holon, go to 主 when it's outside that mandate; 象 is **never** a `posed_to` target; 客 may be asked, but slowly. Take the addressee from the actual set (`verstak_search(q="", node_type="karta")` or `steward`), not from an orient's root-roles line or a keyword match.
+Addressing: 主 gets strategic questions ("do we take this on?"), never tasks; 能 gets working questions — find it by `steward` from the question's holon, go to 主 when it's outside that mandate; 象 is **never** a `posed_to` target; 客 may be asked, but slowly. Take the addressee from the actual set (`verstak_search(q="", node_type="karta")` or `steward`), not from the overview's roles (only those carrying a signal now) or a keyword match.
 
 Traps: a person's name is not a role ("Product owner", not "Alex"); one external party is often two nodes (its API as `ding`, its account manager as 客); a working mode (Assembler, Weaver) is a sub-role via `group` and inherits the kind; only 主 or 能 steward a holon.
 
@@ -180,6 +180,6 @@ Can't pick → two questions are tangled. Can name where it breaks → `risk`; c
 
 ## Operational
 
-`reasoning="…"` on every write — why; it goes into the history. `basis_version` on update / delete / reconnect: read → write → on conflict, re-read. Batches: `references/writing-batch.md` — a kriya's `ahara`/`utpatti` inline in its create; phenomena before the kriyas that reference them. **A write that errored or timed out may have landed:** find it (`verstak_search`, `verstak_history(action="realm")`) before retrying.
+`reasoning="…"` on every write — why; it goes into the history. `basis_version` on update / delete / reconnect: read → write → on conflict, re-read. Rewriting a body → read it with `verstak_look(raw=true)` first (it prints the body alone; the version comes from the plain card): the plain card formats the body for the reader, and a rewrite composed from it writes that formatting back into the stored text. Batches: `references/writing-batch.md` — a kriya's `ahara`/`utpatti` inline in its create; phenomena before the kriyas that reference them. **A write that errored or timed out may have landed:** find it (`verstak_search`, `verstak_history(action="realm")`) before retrying.
 
 **Probe a node address from another actor in the same move.** A number from a frame or message isn't an address until `verstak_look` answers; if it doesn't, say in words where the question stands. A failed read says nothing about the node's past. A single machine's state (a key, a file) never gets a node — ask in words.

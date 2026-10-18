@@ -12,7 +12,7 @@ A one-off task lives as a message in a case and ends there with an outcome, not 
 
 An unanchored vimarsha appears in no `lens="vimarshas"` and reaches no node. Every vimarsha needs **`vimarsha_of`** → the node(s) it is *about*, and **`arose_from`** → the observation it was *seen from* (a node, an incident, an earlier vimarsha).
 
-A vimarsha carrying an **expectation** (`posed_to` a role, `anga` to a transformation) needs its anchor twice over: agents find work by orienting on a holon, and neither `anga` nor `posed_to` puts it in one. Anchor at least to the holon where the work lives, better to the exact node — when you pose; the `unanchored` detector fires only afterwards. Waiting on someone → `posed_to` the `adhikarin` stewarding the work's holon (the `steward` arrow or `verstak_search(q="", node_type="karta")`, not orient's partial list of root roles). Address rules and the mirror failures: `methods/writing.md`, Decision 5.
+A vimarsha carrying an **expectation** (`posed_to` a role, `anga` to a transformation) needs its anchor twice over: agents find work by orienting on a holon, and neither `anga` nor `posed_to` puts it in one. Anchor at least to the holon where the work lives, better to the exact node — when you pose; the `unanchored` detector fires only afterwards. Waiting on someone → `posed_to` the `adhikarin` stewarding the work's holon (the `steward` arrow or `verstak_search(q="", node_type="karta")`, not the overview's roles, only those carrying a signal now). Address rules and the mirror failures: `methods/writing.md`, Decision 5.
 
 Hanging vimarsha in orient: anchor first, then triage.
 

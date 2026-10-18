@@ -132,8 +132,8 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 ## Reading hygiene
 
 - **Save on output, not on reading.** Enter the boundary, filter by motivation; cut wide outputs and needless writes, never the reading of nodes you act on. Wandering guard: ~five calls of aimless navigation per reply, or seven without a synthesis → answer with what you have and flag the gap. Entry steps and nodes at the place of change don't count.
-- **Navigate by tension** — the most tense neighbour is the most informative. `lens="tensions"` groups by move: weave → `weaving`; address → `inquiry` or `assembly`; reverify — background; "know your neighbour" on a holon is a link. The overview and `has_tension` cover only part of the lens.
-- **Partial output.** The overview shows only root roles and truncates kriya lists: find addressees and confirm absence with `verstak_search(q="", node_type=…)`. Page a role's queue by the `offset` the output names.
+- **Navigate by tension** — the most tense neighbour is the most informative. `lens="tensions"` groups by move: weave → `weaving`; address → `inquiry` or `assembly`; reverify — background; "know your neighbour" on a holon is a link; the accepted as is — read, not repaired (`weaving`). The overview and `has_tension` cover only part of the lens.
+- **Partial output.** The overview shows root holons and only the roles carrying a signal now (the quiet part as a number), and truncates kriya lists: find addressees and confirm absence with `verstak_search(q="", node_type=…)`. Page a role's queue by the `offset` the output names.
 - **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`). Time matters to evidence, not to questions: an observation of a surface that has since moved may no longer ground the claim.
 - **Read the call from the printed mark**, not the volitive mode: `virodha` on a risk stands while the defect lives. Orient's active sections pre-filter; raw search doesn't.
 - **Emoji are the author's voice.**
