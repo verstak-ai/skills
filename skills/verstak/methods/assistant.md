@@ -63,7 +63,7 @@ Too many for a turn → closing, recently moved and named ones first; give the s
 Questions of substance to the user's role stand in the graph: `verstak_orient(realm=<graph>, focus=<user's role>)`. The role comes from what they said, the repo's `AGENTS.md` (`Owner role`), or their personal graph; unknown → ask once.
 
 **4. Compose** one summary from what you read this turn, never from earlier answers. Each line carries the case number and graph. Order:
-1. **Waiting on you** — questions, decisions, close proposals where silence is consent — each with what happens if they stay silent, and what their silence can't decide for them.
+1. **Waiting on you** — questions, decisions, close proposals where silence is consent — each with what happens if they stay silent, and what their silence can't decide for them. Asked "what's on my plate", the questions posed to them across their graphs (the **minding** method, §4) join this group.
 2. **Blockages** — on whom, how long.
 3. **Who's missing.**
 4. **Unusual.**

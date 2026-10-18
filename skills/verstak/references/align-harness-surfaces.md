@@ -184,7 +184,7 @@ export default {
     // root session (no parentID); child sessions (subagents, service sessions) are skipped. A failed prompt
     // for one session is caught in place; a loop failure goes to the service's stderr.
     // Same message as Claude Code's SessionStart hook, addresses from this repo's AGENTS.md frontmatter;
-    // the align run fills <Graph> (@owner/slug) and the three seqs (digits only); no angle brackets remain.
+    // the align run fills <Graph> (@owner/slug) and the three seqs (digits only); no angle brackets or quotes remain.
     const START =
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
       "Addresses from AGENTS.md: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
