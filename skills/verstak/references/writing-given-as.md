@@ -41,7 +41,7 @@ The same thing changes `given_as` as it moves along lines of work: a thing under
 | upadhi ← kriya | ○ | ○ | ✓ | ? | ✓ | ✓ |
 | vimarsha_of ← vim. | ○ | ○ | ✓ | ✓ | ○ | ✓ |
 | addressed_by ← vim. | ○ | ✓ | ✓ | ✗ | ○ | ✓ |
-| realized_as ← risk | ✓ | ✓ | ○ | ✓ | ○ | ✗ |
+| realized_as ← risk | ○ | ✓ | ○ | ○ | ○ | ✗ |
 | supersedes | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
 
 Between phenomena: `contains`, `derived_from`, `specifies`, `arose_from`.

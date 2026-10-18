@@ -23,7 +23,7 @@ Read the missing signs with `verstak_me(action="readiness", realm)` — each sig
 |---|---|---|
 | personal memory | `@handle/mind` readable, holding a `svatantra` role bound to the person and an `adhikarin` role with `persona=companion` | **0 · Personal memory**, unasked |
 | a working graph | `verstak_realm(action="list")` (grouped by owner) minus `@handle/mind`; `verstak_me(action="whoami")` for the handle, `verstak_me(action="orgs")` for their organizations | **1 · Area and graph** |
-| the repository's hooks | `.claude/settings.json` `SessionStart`, the OpenCode plugin naming the graph | **2 · Hooks** |
+| the repository's hooks (Claude Code, OpenCode; none elsewhere) | `.claude/settings.json` `SessionStart`, the OpenCode plugin naming the graph | **2 · Hooks** |
 | the person's role in this graph | `verstak_me(action="kartas")` lists a role bound to them in **this** graph, of whatever kind it is; the agent role and the assistant's `persona=companion` role are not theirs | **3 · The person's role** |
 | the repository's holon and its agent role | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:<host/org/repo>")`; `verstak_search(realm, q="", node_type="karta", steward_of=<holon>)` | **4 · Holon and repository** |
 | the agent can be heard | `verstak_channel(action="list", realm)` shows a seat on the agent role; a word delivered to it is the proof, not presence on the board | **5 · The agent's seat** |

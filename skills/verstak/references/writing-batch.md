@@ -13,7 +13,7 @@ Same as `arrow_link`, the new node the implicit source: `{arrow_type, target, se
 - **Inline** — arrows leaving the new node (`vimarsha_of`, `context`, `ahara`/`utpatti`/`actor`).
 - **`arrow_link` with `temp:N`** — arrows between batch nodes or into a new node.
 
-**A kriya's `ahara`/`utpatti` stay inline:** the factory checks each `add_kriya` by its own inline `arrows`; a trailing `arrow_link` fails it. Trailing links are for `next` and `upadhi`. On `verstak_add_bianhua`, `anga=` / `anantara_after=`, never `arrows`.
+**A kriya's `ahara`/`utpatti` stay inline:** the factory checks each `add_kriya` by its own inline `arrows`; a trailing `arrow_link` fails it. Trailing links are for `next` and `upadhi`. On `verstak_add_bianhua`, `anga=` / `anantara_after=`: each sets its direction itself, where an inline `anga` needs `direction: "from"`.
 
 ## Mutating operations
 

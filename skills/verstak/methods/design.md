@@ -85,7 +85,7 @@ For a and b, link `addressed_by` from the vimarsha; acceptance ends by mode, not
 
 ### Phase 4: delivery impulse
 
-Only for graphs designing external systems (not a methodology or CJM), once all is designed, `anagata`, and idle.
+Only for graphs designing external systems (not a methodology or customer journey map), once all is designed, `anagata`, and idle.
 
 1. **Put the work on a transformation** (above): `anga` to an existing one first; else a new one at `chanda`, proposed to the owner.
 2. **Stage the flow**: staged delivery (test → staging → full) is ONE delivery transformation whose stages are sub-transformations (`anga`) ordered by `anantara`, each gathering its kriyas — the owner reads it as the release plan.
@@ -110,7 +110,7 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 ## Rules that bite while designing
 
 - **Broken cycles** (trace gap, `leaked`, `relay-gap`) → `methods/weaving.md`, Operation 5.
-- **Arrow legality** (`vollzug`/`grundsatz` are applied only via `upadhi`) and **the boundary** (an observation or hand-off kriya, its phenomenon in the external holon): `methods/writing.md`, Decision 5. `leaked`/`relay-gap` at the boundary are modelling debt, not false alarms.
+- **Arrow legality** (`vollzug`/`grundsatz` are applied only via `upadhi`): `methods/writing.md`, Decision 2; **the boundary** (an observation or hand-off kriya, its phenomenon in the external holon): Decision 5. `leaked`/`relay-gap` at the boundary are modelling debt, not false alarms.
 - **Naming, before/after, fat nodes, modes, batch order, `basis_version`**: `methods/writing.md`, at every write.
 
 ## Tension cheat sheet

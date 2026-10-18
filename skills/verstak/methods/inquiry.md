@@ -12,7 +12,7 @@ A one-off task lives as a message in a case and ends there with an outcome, not 
 
 An unanchored vimarsha appears in no `lens="vimarshas"` and reaches no node. Every vimarsha needs **`vimarsha_of`** → the node(s) it is *about*, and **`arose_from`** → the observation it was *seen from* (a node, an incident, an earlier vimarsha).
 
-A vimarsha carrying an **expectation** (`posed_to` a role, `anga` to a transformation) needs its anchor twice over: agents find work by orienting on a holon, and neither `anga` nor `posed_to` puts it in one. Anchor at least to the holon where the work lives, better to the exact node — when you pose; the `unanchored` detector fires only afterwards. Waiting on someone → `posed_to` the `adhikarin` stewarding the work's holon (the `steward` arrow or `verstak_search(q="", node_type="karta")`, not the overview's roles, only those carrying a signal now). Address rules and the mirror failures: `methods/writing.md`, Decision 5.
+A vimarsha carrying an **expectation** (`posed_to` a role, `anga` to a transformation) needs its anchor twice over: agents find work by orienting on a holon, and neither `anga` nor `posed_to` puts it in one. Anchor at least to the holon where the work lives, better to the exact node — when you pose; the `unanchored` detector fires only afterwards. Waiting on someone → `posed_to` the `adhikarin` stewarding the work's holon (the `steward` arrow or `verstak_search(q="", node_type="karta")` — not the overview, which lists only roles carrying a signal now). Address rules and the mirror failures: `methods/writing.md`, Decision 5.
 
 Hanging vimarsha in orient: anchor first, then triage.
 
@@ -24,7 +24,7 @@ A vimarsha stays in work while it calls: a doubt *seeking an answer*, a risk *gu
 |---|---|---|
 | **Resolution** | answered by an acting or deciding node | `addressed_by` to the answering node; release, as its own act, when the answer condition is met and the release is yours by kind. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (`methods/reality-audit.md`) |
 | **Death** | released *without* an answer — wrong, fell away, superseded | `visarjana` with a reasoning line saying *why* |
-| **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it. Shaping the form ends nothing: the vimarsha then moves on its own carrying axis — released as under Resolution, held while the question still stands |
+| **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it. The insight exits, the vimarsha doesn't: it then moves on its own carrying axis — released as under Resolution, held while the question still stands |
 
 Two non-terminal moves:
 - **Supersession** — a later question absorbs this one: `supersedes` on the replacement, the old one → `visarjana`.
@@ -57,11 +57,11 @@ Decide deliberately: is the vimarsha part of a **bianhua** (a qualitative transf
 - **`anga` of a transformation** — its resolution moves it: `verstak_arrow(action="link", arrow_type="anga", source=<vimarsha>, target=<bianhua>)`; it keeps its own `vimarsha_of`. The genre sets the contribution: a doubt removes a blocking uncertainty, a risk protects, a counterexample fixes a defect, a counter-thesis decision moves it. Attach to the existing forest (`lens="bianhua"`); one vimarsha never justifies a new transformation — none fits → ask the user.
 - **Free** — a genuine open question, left free on purpose.
 
-`verstak_search(anga_of=<bianhua>)` also shows **carrier kriyas** (the *arrival*, beside the vimarshas' *path*); what counts as progress is the surface's response, not this text. Clustering the field is assembly's job; this method decides each vimarsha's fate.
+`verstak_search(realm, q="", anga_of=<bianhua>)` also shows **carrier kriyas** (the *arrival*, beside the vimarshas' *path*); what counts as progress is the surface's response, not this text. Clustering the field is assembly's job; this method decides each vimarsha's fate.
 
 ## 5. Escalation
 
-| You decide (alongside weaving) | You put on the owner's agenda |
+| You decide (as weaving does) | You put on the owner's agenda |
 |---|---|
 | anchor a hanging vimarsha | decline a proposal |
 | end an answered question | prioritise between questions |

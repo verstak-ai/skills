@@ -106,7 +106,7 @@ Audit each concern against its source: **absent / stale / correct** (as in `meth
 | what each live graph is for; areas; what is dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing rules, disposable classes | authored | propose; the user confirms |
-| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (`methods/align.md`, Step 1) |
+| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (`methods/align.md`, Step 1, Cross-project memory) |
 
 Fill the skeleton from the reference, then run §2 once. Mind is memory, not a workplace: project work goes to a project graph (the door's `Survey` table, "no project graph").
 
@@ -120,7 +120,7 @@ verstak_search(realm=R, q="", posed_to=seq,
 ```
 
 - The `volitive_mode` filter keeps answered and released rows off the wire.
-- Drop while reading: rows with the 🌅 sunset badge (ended by their carrier), and `virodha` rows of any genre except `risk` (a risk in `virodha` is being guarded — live).
+- Drop while reading: rows the search marks as ended on their carrying axis (a cell word after the modes, e.g. `fixed`), and `virodha` rows of a doubt, counter-thesis or hint (declined); a risk in `virodha` is guarded and a counterexample, grounding defect or drift in `virodha` still present — both live.
 - `upeksha` rows are a separate pile — accepted as is, woken by a change at their anchor, not by a read (`methods/inquiry.md`); list them apart and leave them.
 - **Read the "N of M" header** and page until N = M: a cut agenda looks complete.
 - **Sweep `@handle/mind` too** — duties posed to the user's own owner role live only there.
@@ -153,7 +153,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a role** (§1b), bound with `user=their sub` when on the platform (`methods/writing.md`, Decision 2b).
+- **A person is a role** (§1b), bound with `user=their sub` when on the platform.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (`methods/writing.md`, Decision 4); a recurring duty is a kriya.
 
 ## Limits
@@ -164,7 +164,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ## Acceptance
 
-- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write offered only after a real miss on a graph you could read; `Realm not found` read as routing.
+- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read; `Realm not found` read as routing.
 - A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
 - Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it.

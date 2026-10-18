@@ -14,13 +14,13 @@ An integration hands something across a boundary while closing a lifecycle: born
 2. **Write in what is missing.** Phenomena and kriyas that don't exist yet go in with the design triad (`methods/writing.md`, Decision 3). The phenomenon handed across is the heart of the spec: its birth and consumption *are* the integration.
 3. **Ask and weave as you go.** Questions to the neighbour go into the integration case (below). Implied links → `methods/weaving.md`. Decisions and changed situations go into the graph at once (→ door, `Cross-cutting norms`).
 4. **Then the work, by the spec.** On the watch (`methods/autonomous.md`) its marked intent (§2c) is this spec. Refine it as you go; never drift from it unrecorded.
-5. **Validate.** Delivery in CI; reconcile the marked intent with what shipped; report what was specified, done, and diverged. Then **another pair of eyes**: the steward of the adjacent surface (the `steward` arrows of the touched holons) accepts the interface, spec and report — not the code — by a card in the integration case.
+5. **Validate.** Confirm delivery in CI; reconcile the marked intent with what shipped; report what was specified, done, and diverged. Then **another pair of eyes**: the steward of the adjacent surface (the `steward` arrows of the touched holons) accepts the interface, spec and report — not the code — by a card in the integration case.
 
 Plan in the graph, act, reflect, kept moving by communication. Under-specifying costs more than over: an extra node is cheap, an unwritten requirement costs rounds on both sides of the boundary.
 
 ### The integration case
 
-A vimarsha `posed_to` the neighbour's steward wakes no one (`methods/collaborate.md`, `Exchange`). An integration that needs the other side now therefore runs as a case on the thing handed across; a vimarsha keeps only the substance a later reader needs. Talk: `methods/collaborate.md`, `Exchange`; cards and `ack`: the door, `Waiting on an answer`; leading and closing: `methods/architect.md`, `Leading a case`.
+A vimarsha `posed_to` the neighbour's steward reaches a seat listening on that role; with none, it waits in the role's queue (`methods/collaborate.md`, `Exchange`). An integration that needs the other side now therefore runs as a case on the thing handed across; a vimarsha keeps only the substance a later reader needs. Talk: `methods/collaborate.md`, `Exchange`; cards and `ack`: the door, `Waiting on an answer`; leading and closing: `methods/architect.md`, `Leading a case`.
 
 - **Opened** by the side starting the integration, **on the phenomenon handed across**: `open_room` on its write — its creation in step 2, or a `verstak_update` when it exists. First `verstak_case(action="at", node=<phenomenon>)`: a case already open on that node → join it, never a second. Your work already runs in a case → `parent_room`.
 - **Called:** the steward role of each touched holon — `verstak_orient(focus=<holon>)` names it — your own side's too when it isn't your role. Someone stands for the role on the board → `invite` with `standing`; nobody → `verstak_case(action="invite", karta=<steward role>, holon=<their holon>)`, which waits until someone stands for it.
@@ -100,7 +100,8 @@ For each approved cluster:
 ```
 verstak_add_vimarsha(genre="samshaya",
   name="<emoji> Is <X> affected by the transformation \"<bianhua>\"?",
-  vimarsha_of=<first anchor>, posed_by=<short address: role, standing or name>,   # not prose; the why goes in reasoning
+  vimarsha_of=<first anchor>, posed_by=<short address: role, standing or name>,   # not prose
+  description=<what the telos means for these nodes; what counts as an answer>,
   epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")
 → extra anchors: verstak_arrow(action="link", arrow_type="vimarsha_of", ...)
 → verstak_arrow(action="link", arrow_type="anga", source=<new>, target=<bianhua>,
@@ -109,7 +110,7 @@ verstak_add_vimarsha(genre="samshaya",
    sense="addressed to the steward of the affected holon")
 ```
 
-`posed_to` goes to the role stewarding the affected holon — `svatantra` or `adhikarin`, never `pratibimba`; it waits for that role's next orientation, so an answer needed now goes to a case. A wave question hands no phenomenon across: open it with `open_room` on the vimarsha's own write and call the steward as in Mode 0, `The integration case`. The description says what the telos means for these nodes and **what counts as an answer**: "not affected" (release with `visarjana`, reason recorded) or "affected" (design the adaptation by `methods/design.md`; the new work `arose_from` this question).
+`posed_to` goes to the role stewarding the affected holon — `svatantra` or `adhikarin`, never `pratibimba`; without a listening seat it waits for that role's next orientation, so an answer needed now goes to a case. A wave question hands no phenomenon across: open it with `open_room` on the vimarsha's own write and call the steward as in Mode 0, `The integration case`. The description says what the telos means for these nodes and **what counts as an answer**: "not affected" (release with `visarjana`, reason recorded) or "affected" (design the adaptation by `methods/design.md`; the new work `arose_from` this question).
 
 ### 6. Report
 

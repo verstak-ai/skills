@@ -84,7 +84,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 ## Step 5 — Write the backlog (shabda intake + roadmap additions)
 
-**Run `methods/intake.md` over the harvest** — Steps 3–4 are its adapter (content, form, provenance, authority per item). The maintainer's own committed will is not `kalpita`-awaiting-check.
+**Run `methods/intake.md` over the harvest** — Steps 3–4 are its adapter (content, form, provenance, authority per item). The maintainer's own commitment is their word, not a `kalpita` claim awaiting a check; it sets no will in this graph (`Roadmap additions`, modes).
 
 **One departure from intake's table:** a feature request lands as a **phenomenon** (a wanted capability, sinn/bildung) or a seed **kriya** (`anagata`/`chanda`) — not a bianhua; directions are discerned in Step 6.
 
@@ -98,7 +98,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 - **Anchor every item to its subsystem** (`context` / `vimarsha_of` → the Step 2 holon or the capability it extends). No home → under-modelled ground (back to Step 2) or new ground — say which. A cross-repo theme anchors to the focus holon, linking every subsystem it touches.
 - **Dedupe against the GROUND too:** a request matching a shipped capability is "improve X", never "add X" — name the real remaining gap. GitHub reference (number, author, weight) in `attrs`.
-- **Modes as they stand now:** milestone-committed or speculative → `chanda` (the milestone is evidence in `attrs` and ranking weight, not will); being designed → `anagata`; the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
+- **Modes as they stand now:** a backlog item, milestone-committed or speculative, is `anagata` + `chanda` (the milestone is evidence in `attrs` and ranking weight, not will); the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
 - **Each backlog kriya's `actor`** is the verified author's dev-driver role, never a runtime actor — ownership as an edge.
 
 ## Step 6 — Assembly (discern the directions)

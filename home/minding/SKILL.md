@@ -111,7 +111,7 @@ Audit each concern against its source: **absent / stale / correct** (as in **ali
 | what each live graph is for; areas; what is dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing rules, disposable classes | authored | propose; the user confirms |
-| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (**align**, Step 1) |
+| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (**align**, Step 1, Cross-project memory) |
 
 Fill the skeleton from the Appendix (A1–A8, A10), then run §2 once. Mind is memory, not a workplace: project work goes to a project graph.
 
@@ -125,7 +125,7 @@ verstak_search(realm=R, q="", posed_to=seq,
 ```
 
 - The `volitive_mode` filter keeps answered and released rows off the wire.
-- Drop while reading: rows with the 🌅 sunset badge (ended by their carrier), and `virodha` rows of any genre except `risk` (a risk in `virodha` is being guarded — live).
+- Drop while reading: rows the search marks as ended on their carrying axis (a cell word after the modes, e.g. `fixed`), and `virodha` rows of a doubt, counter-thesis or hint (declined); a risk in `virodha` is guarded and a counterexample, grounding defect or drift in `virodha` still present — both live.
 - `upeksha` rows are a separate pile — accepted as is, woken by a change at their anchor, not by a read (**inquiry**); list them apart and leave them.
 - **Read the "N of M" header** and page until N = M: a cut agenda looks complete.
 - **Sweep `@handle/mind` too** — duties posed to the user's own owner role live only there.
@@ -158,7 +158,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a role** (§1b), bound with `user=their sub` when on the platform (**writing**, Decision 2b).
+- **A person is a role** (§1b), bound with `user=their sub` when on the platform.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (**writing**, Decision 4); a recurring duty is a kriya.
 
 ## Limits
@@ -169,7 +169,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ## Acceptance
 
-- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write offered only after a real miss on a graph you could read; `Realm not found` read as routing.
+- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read; `Realm not found` read as routing.
 - A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
 - Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it.
@@ -202,7 +202,7 @@ Created without asking (at session start, or by this method on `Realm not found`
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; **writing**, Decision 2b):
 
 - `manifested_as="agantuka"` 客 by default — they answer on their own time from beyond the user's boundary (relative, friend, client, counterparty, doctor). `svatantra` / `adhikarin` only for people acting in the user's own rhythm.
-- `user=their sub` when on the platform (`verstak_admin(action="search_users")`) — that's how the graph knows it's the same person met in a project graph.
+- `user=their sub` when on the platform (the `sub` `verstak_admin(action="list_members")` prints) — that's how the graph knows it's the same person met in a project graph.
 - What's open with them is a vimarsha `posed_to` their role: the relationship is carried by what passes between you.
 - **Groups** — a group role, also `agantuka` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
@@ -246,7 +246,7 @@ verstak_add_phenomenon(realm=…, given_as="grundsatz", attrs={"key": true},
   name="⚖️ Graphs matching PATTERN are disposable",
   description="PATTERN marks throwaway graphs — benchmark runs, experiments.
     Never route a question there, never index them one by one, close them on the spot.",
-  epistemic_mode="pramanita", ontic_mode="vartamana", volitive_mode="adhimoksha")
+  epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")   # adhimoksha once the user confirms
 ```
 
 The rule outlives its population; in a graph-heavy area it is what keeps recall (§1) cheap.

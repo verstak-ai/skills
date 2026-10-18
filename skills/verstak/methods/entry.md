@@ -84,7 +84,7 @@ Every call carries `realm`; take each fork by the response. Where direction shou
 4. **Establish the situation** by reading:
    - **Place.** The node this work lives on: `verstak_orient(realm=<graph>, focus=<node>)` — tensions, vimarshas, neighbours.
    - **What is here.** Vimarshas and dead ends (`lens="vimarshas"`, `include_closed=true`), decisions in bodies, relays (`lens="trace"`). Check a queue item against the node's current version and the world.
-   - **Ownership.** `verstak_look(realm=<graph>, node_id=<node>, breadcrumb=true)` up to the holon, then `verstak_search(realm=<graph>, q="", node_type="karta", steward_of=<holon>)`; `posed_to="steward"` does the same walk.
+   - **Ownership.** `verstak_look(realm=<graph>, node_id=<node>, breadcrumb=true)` up to the holon, then `verstak_search(realm=<graph>, q="", node_type="karta", steward_of=<holon>)`; posing a vimarsha with `posed_to="steward"` does the same walk.
 
    **Yours** → act; **someone else's** → a vimarsha to the steward (`methods/writing.md`) or a message to the live holder (`methods/collaborate.md`, `Exchange`). No role of your own → "yours" is the mandate of whoever's keys you run on. **Sign:** "mine, because…" or the exit, after the reading.
 
@@ -127,7 +127,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 - **The result looks complete** (a round row count, a truncated tail, several holders of a name) → it's a page: narrow with `verstak_search(q="", node_type=…)`.
 - **Your node says something you no longer see** → confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false → "was it ever so?" (`atita` / `vikalpa`).
 - **A write has no author, or returns 409** → `methods/collaborate.md`, `Repair tree`.
-- **The door's description doesn't match a method's body** → the delivery is behind: `methods/align.md`.
+- **The door's description doesn't match a method's body** → the delivery is behind: `methods/establish-mcp.md`, `Updating`.
 
 ## Reading hygiene
 

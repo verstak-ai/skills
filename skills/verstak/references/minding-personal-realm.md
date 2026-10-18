@@ -24,7 +24,7 @@ Created without asking (by the door, or by minding on `Realm not found`): name `
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; `methods/writing.md`, Decision 2b):
 
 - `manifested_as="agantuka"` 客 by default — they answer on their own time from beyond the user's boundary (relative, friend, client, counterparty, doctor). `svatantra` / `adhikarin` only for people acting in the user's own rhythm.
-- `user=their sub` when on the platform (`verstak_admin(action="search_users")`) — that's how the graph knows it's the same person met in a project graph.
+- `user=their sub` when on the platform (the `sub` `verstak_admin(action="list_members")` prints) — that's how the graph knows it's the same person met in a project graph.
 - What's open with them is a vimarsha `posed_to` their role: the relationship is carried by what passes between you.
 - **Groups** — a group role, also `agantuka` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
@@ -68,7 +68,7 @@ verstak_add_phenomenon(realm=…, given_as="grundsatz", attrs={"key": true},
   name="⚖️ Graphs matching PATTERN are disposable",
   description="PATTERN marks throwaway graphs — benchmark runs, experiments.
     Never route a question there, never index them one by one, close them on the spot.",
-  epistemic_mode="pramanita", ontic_mode="vartamana", volitive_mode="adhimoksha")
+  epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")   # adhimoksha once the user confirms
 ```
 
 The rule outlives its population; in a graph-heavy area it is what keeps §1 cheap.

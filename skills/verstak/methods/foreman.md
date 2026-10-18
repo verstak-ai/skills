@@ -2,7 +2,7 @@
 
 **Use when:** the user appoints you to coordinate ("take the post", "split this across the agents", "run a crew"); there are more agents than the user can listen to; an escalation comes up and needs filtering; a unit went quiet ("who's stuck", "who else should we bring up").
 
-**Grounding:** owner acts are not delegated (`methods/writing.md`, Decision 3); `manifested_as` decides who answers and who decides. Staff makes shared understanding explicit, without hierarchy. The coordinating role is the method's working rule, not an owner mandate.
+**Grounding:** owner acts are not delegated (`methods/writing.md`, Decision 3); `manifested_as` decides who answers and who decides. Staff work makes shared understanding explicit, without hierarchy. The coordinating role is this delivery's product rule (the door, `Communication`), not an owner mandate.
 
 The agent on watch does the work (`methods/autonomous.md`). This tier holds **what reaches the user** and **whether assignees are working**. A case digest is `methods/assistant.md`.
 

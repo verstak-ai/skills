@@ -2,7 +2,7 @@
 
 **Use when:** a signal reaches the agent role AGENTS.md names — the user's word, an agent's message or `posed_to` vimarsha arriving as a frame, an event in reality (red CI, a watchdog line, a failed probe); an autonomous session starts in an aligned repository; a transformation needs driving; the user says "stand watch", "you're on duty", "work on your own". Work starts only on a signal, never from the inbox alone.
 
-**Grounding:** the watch declares cause and focus, measures the delta, takes one piece of work to handover, addresses dependants and arms the next wake-up. A round changes the graph, code or an observed result; a message reports it. Taking work only on a signal is the method's working rule.
+**Grounding:** the watch declares cause and focus, measures the delta, takes one piece of work to handover, addresses dependants and arms the next wake-up. A round changes the graph, code or an observed result; a message reports it. Taking work only on a signal is this delivery's product rule (the door, `Communication`).
 
 The agent is the **agent role** from AGENTS.md (a `karta`), steward of the repository's holon. Its **inbox** is the `posed_to` vimarshas; its **channel** brings work now rather than next round. **The watch** is the cycle it runs itself, from the arrival that woke it to the merge that closes it — asking about what isn't its to decide, never about what is.
 
@@ -38,7 +38,7 @@ Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (�
 | `sleep-poll` | you | 5–10 min in a wave; longer when nobody waits | sleep again |
 | interactive | the user | — | end the turn with a change if a signal came, a word about your standing if not |
 
-**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (`references/align-harness-surfaces.md`); neither → interactive.
+**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (`methods/collaborate.md`, `Choosing the watchdog`); neither → interactive.
 
 No agent role (the door's `Start`) → `methods/align.md` instead.
 
@@ -115,9 +115,9 @@ Mark what you're about to do, not the whole design; an act you can't state as a 
 
 Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md`; design → `methods/design.md`; graph repair → `methods/weaving.md`. The repository's ritual is law; merge your own PR only with AGENTS.md's sanction. A PR in review isn't mirrored as a vimarsha unless it blocks someone's anga.
 
-**Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
+**Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N from <your seat>`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
 
-**The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up: run `doctor` first").
+**The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` or `searcher` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up: run `doctor` first").
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 
