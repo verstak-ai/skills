@@ -53,7 +53,7 @@ outside this delivery and omitted.
 | Mass arrives as a question, not a count; the passer-by leaves a second anchor rather than repairing each row; silence mandates assembly and one question to the user | pattern #724; trial: nks-dev #5279 | `methods/autonomous.md` → "Silence is a mandate to assemble" and "1 · Duty round — cheap by construction"; `methods/weaving.md` → "Route by the resolving move first" and "Decision tree"; `methods/assembly.md` → "4. The agenda → to the user"; `methods/architect.md` → "The round", silence occupations | the trial is withdrawn or crystallized, or the lens prints the mass question and ready call |
 | 正名: a living name invites the reader; a hook, not completeness; 64/128 limits and anti-patterns | #72, #722; per-kind rules forming in #723 | `methods/writing.md` → "Decision 4: name and description", name paragraph | the naming rule changes or #723 crystallizes |
 | Timeless records: provenance in attrs, arose_from, history, not a dated body | #440 | `methods/writing.md` → "Decision 4: name and description", timelessness paragraph; `methods/inquiry.md` → "2. Lifecycle — three exits", terminal-mode update; `methods/minding.md` → "People and dated facts"; `references/minding-personal-realm.md` → "7 · The local setup — `ding` with a closed lifecycle" | timelessness or provenance placement changes |
-| 時 assembly cycle, bianhua (变/化, anga, anantara), assembly roles and composition | #431, #432, #434, #435 | `methods/assembly.md` → "The 時 cycle", "Roles", "形 has two halves", "Protocol"; `methods/inquiry.md` → "4. Inquiry and transformation (bianhua)"; `methods/design.md` → "A kriya born of will belongs to a transformation" | the ritual, roles or either half of 形 changes |
+| 時 assembly cycle, bianhua (变/化, anga, anantara), assembly roles and composition | #431, #432, #434, #435 | `methods/assembly.md` → "The 時 cycle" (the owner's part), "形 has two halves", "Protocol", "6. Impulse for the navigator"; `methods/inquiry.md` → "4. Inquiry and transformation (bianhua)"; `methods/design.md` → "A kriya born of will belongs to a transformation" | the ritual, roles or either half of 形 changes |
 | Vimarsha life: outcomes and crystallization, discharged by genre | #387 + genre rows #464 | `methods/inquiry.md` → "2. Lifecycle — three exits", "3. The genre sets what discharges it — and which axis ends it"; `methods/writing.md` → "Vimarsha genres"; `methods/feedback.md` → "Form", genre table | an outcome or genre-resolution rule changes |
 | Shabda: source kinds, admission and checking by levels | #104, #165, #157, #340 | `methods/intake.md` → "1. Map the form to a node type", "2. Claim, means and provenance", "5. Check — and name the level"; `methods/product-roadmap.md` → "Step 5 — Write the backlog (shabda intake + roadmap additions)" | a source kind or checking level changes |
 | Thread 3: design; backward chaining as lean pull | #339, #160, #405 | `methods/design.md` → "Four phases" and its four phase headings | the thread or a phase changes |
@@ -63,7 +63,7 @@ outside this delivery and omitted.
 | Human will is read from words, not inferred; need/want → chanda, decided/held → adhimoksha, reject → virodha, release → visarjana, let it stand → upeksha | #477 + its inquiry on the working word-to-mode map (not yet a crystallized method) | `methods/writing.md` → "Decision 3: modes", user's will paragraph | the map crystallizes as a method or is rejected |
 | virodha polarity: defect (sachverhalt) versus deprecation (kriya, role, method); ahara on a defect is its removal | #464, #526 (U3); counterexample: nks-dev #5100 | `references/writing-modes.md` → "Polarity of virodha and ending" | U3 changes |
 | Bianhua sanction: the owner accepts name and telos; acceptance of telos is a 主 act | #477 + factory SANCTION; #432 defines bianhua, not sanction | `methods/writing.md` → "Decision 1: what changes — then which node type?", bianhua paragraph; `methods/assembly.md` → "5. Produce 形 — and arrive at understanding"; `methods/design.md` → "Phase 4: delivery impulse"; `methods/inquiry.md` → "4. Inquiry and transformation (bianhua)", no new transformation without the user | sanction discipline changes |
-| The edit's wave: a correction is unfinished until its downstream wave is examined | #480 | `methods/integrity.md` → opening law of the wave, "Mode 1 — integration scope of a change: before code and in cold review", "Protocol"; `methods/align.md` → "Step 2 — Bootstrap the graph", scope roots; `methods/code-work.md` → "Before code", "Cold review"; `references/align-delegation.md` → "Doctrine (platform-neutral)", cold reviewer | the wave law or consumer traversal changes |
+| The edit's wave: a correction is unfinished until its downstream wave is examined | #480 | `methods/integrity.md` → opening law of the wave, "Mode 1 — integration scope of a change: before code and in cold review", "Mode 2 — the wavefront protocol"; `methods/align.md` → "Step 2 — Bootstrap the graph", scope roots; `methods/code-work.md` → "Before code", "Cold review"; `references/align-delegation.md` → "Doctrine (platform-neutral)", cold reviewer | the wave law or consumer traversal changes |
 | Watch components: inbox protocol, forward knowledge, owner acts are not delegated; no unified watch canon | #460 (consequences), #475, #131; owner acts #477 | `methods/autonomous.md` → opening inbox/role distinction, "Graph, case and the transformation's seed", "5 · Escalation" | a component changes; the whole watch remains a product form until canon carries it |
 | Architect as the owner's staff: intent, integrity, reference tasking, check by running, no execution; layers from telos to acceptance | #477, #715, #713; owner dictations #615, #616 (still hints); development: nks-dev #4968, #5845, #4357, #4368, #4954, #5835, #5772, #5840, #3494, #2270, #5130; staff tradition: methodology repo `reference/metaschlieffen.md` | `methods/architect.md` → "What the lead holds — and what it doesn't do", "Layers you can't skip", "Leading a case", "The round"; `methods/autonomous.md` → "2a · Grasp before you take" (receiving side); `methods/foreman.md` → coordinating tier. Role form and case mechanics are product projections, not one canonical grundsatz | the mandate, reference-tasking rule, boundary order or silence mode changes; #615 crystallizes; case operations or recorded lead handover change |
 | Standing is one actor holding the role here and now of the map; its name derives from what the doer is; unnamed is lawful; address the standing, not the role | #538; grounding: methodology repo `reference/standing-term-groundings` | `methods/collaborate.md` → grounding, "Entry protocol — one call on the bridge", "Repair tree", "Exchange — whom, what, in which form"; `references/collaborate-channel.md` → "The seat name"; `SKILL.md` → "Start", step 2; `methods/autonomous.md` → "Get on the channel"; `methods/foreman.md` → "Appointment: by the user's word, not by silence" | #538 changes |
@@ -103,10 +103,34 @@ reference texts, a single witnessed case, or development decisions as canon.
   nks-mcp renames or drops a tool, or changes factory behaviour, search
   `skills/verstak/` for its `verstak_*` name. Names and enums are checked against
   `fixtures/surface.json`; behavioural claims still need observation and review.
-- **superpowers → interop**: `references/align-superpowers-interop.md` →
-  "Re-verify checklist (maintainers only, on a superpowers upgrade)" carries the
-  checklist. Harness and role-file changes also require the maintainer checklists
-  in `references/align-harness-surfaces.md` and `references/align-delegation.md`.
+- **superpowers → interop** (`references/align-superpowers-interop.md`): on a
+  superpowers upgrade, grep the installed plugin cache for:
+  `docs/superpowers/specs/` with "(User preferences for spec location override
+  this default)"; skills `using-superpowers`, `brainstorming`; "take any
+  implementation action" and "writing-plans is the next step"; "user instructions
+  always take precedence" and "User's explicit instructions (CLAUDE.md, GEMINI.md,
+  AGENTS.md, direct requests)".
+- **Harness surfaces → align** (`references/align-harness-surfaces.md`): on harness
+  upgrades re-check Claude Code — settings path, hook events, `CLAUDE.md` import
+  syntax; Codex — hook events and file form, `SessionStart` sources, `AGENTS.md` /
+  `AGENTS.override.md` names and merge order; OpenCode — `.opencode/plugins/`,
+  `{ id, setup(ctx) }`, `execute.before`/`execute.after` and the throw-block, the
+  `session.created` shape, `ctx.location`. A harness gaining or losing a surface:
+  update the table first, then align's Step 4.
+- **Role files → delegation** (`references/align-delegation.md`): on platform
+  upgrades re-check Claude Code — `.claude/agents/`, keys `name`, `description`,
+  `model` (aliases), `tools`, `mcpServers`, `disallowedTools`; OpenCode —
+  `.opencode/agents/`, keys `description`, `mode: subagent`, `model`, model
+  inheritance, skill discovery from `.claude/skills/` and `~/.claude/skills/`.
+- **Server surface → minding** (`references/minding-personal-realm.md`): one call
+  per line when the server surface changes — `verstak_me(action="whoami")` prints
+  the handle and `action="kartas"` returns cross-graph roles as `#seq · realm-slug`;
+  `user="me"` exists on `verstak_add_karta` and `verstak_update` (minding §2 step
+  3); `verstak_realm(action="list")` and `verstak_org(action="list")` keep their
+  shape; `@owner/slug` resolves, and an unknown address fails with a readable
+  `Realm not found` naming it; the orient overview still prints `attrs.key=true`
+  landmarks (minding-personal-realm §4, §5) — if not, the routing table needs
+  another home.
 - **Human bridge → collaborate**: the address-line contract is duplicated across
   deliveries; if its fields change, re-project `methods/collaborate.md` →
   "Incoming — what arrived, where to answer" in the same move.
@@ -166,7 +190,7 @@ What the methods assume that no canon node carries. Re-project each when a canon
 - **establish-mcp:** bridge, grant and sign-in implementation. Standing and attested authorship are canonical; OAuth, installation and harness wiring are product mechanics.
 - **autonomous:** webhook/sleep-poll/interactive implementations, fallback wake-up mechanisms and cadence. Signal-only task selection is the method's working rule grounded in the r4 #616 hint; the watch cycle itself is present.
 - **collaborate / autonomous:** satellite seats, one seat-taking run per agent file, reader without a seat, stepping away versus removal and `revoke` semantics. r4 #538's actor/standing rule does not define these mechanisms.
-- **foreman:** appointment and exact coordinating-tier protocol, escalation filter/costlier-error rule, four liveness readings, roster file. Explicit staff practice is in r4 #748; the coordinating role is in the r4 #615 hint, not absent from the methodology.
+- **foreman:** appointment and exact coordinating-tier protocol, escalation filter/costlier-error rule, four liveness readings, roster in the case and the graph (a file only while the case surface is unavailable). Explicit staff practice is in r4 #748; the coordinating role is in the r4 #615 hint, not absent from the methodology.
 - **work by reference:** the rule that the task-setter alone weaves, ends by axis and reconciles, while the assignee supplies delivery modes, seed and outcome. r4 #745 covers tasking and acceptance, not this allocation. r4 #619 (hint) and #628 model continuous graph maintenance in the acting agent's area; the split is a product working rule, not a canon requirement.
 - **destructive work:** permission conveyed through `AGENTS.md`. Owner authority is canonical; this particular permission carrier is not supplied by the joint-work cluster.
 - **align:** two rounds without waiting for the user; derived/agreed/not-agreed slots; contract counter and stamp ordering; strictest-permitted quality gate; ritual hooks and memory-guard freeze; six delegation roles and model tiers; `REALITY.md` as the carrier's home. r4 #627 models workbench preparation, including `AGENTS.md` and safety hooks; r4 #748 supplies the explicit external-carrier rationale, not these implementation details.

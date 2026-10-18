@@ -6,7 +6,7 @@ The machinery under `methods/collaborate.md`, read when the channel broke or you
 
 Derive it, don't recall it: `machine.repo.model`, each part short but distinguishing. The model is the one you run on, id without vendor prefix (`opus-5`, `fable-5-1`) — not the branch. Without a bridge the holder owns the grammar: the first part is the deployment's stable identity (not a pod name); the model is a part only where it belongs to the process rather than the conversation (otherwise it goes in the busy line); a thread's seat in a conversation host is named by the thread. An agent's seat always has a name: the bridge refuses an empty one on every path. A nameless seat is only a person's own, by their word.
 
-The server owns the character rule: lowercase Latin letters, digits, `.`, `_`, `-`, starting with a letter or digit. The length limit is the server's; a copied number goes stale silently. An explicit name is accepted exactly or refused with the reason; a derived one over the limit is shortened in its repo part, and the reply's first line says so.
+The server owns the character rule and the length limit. An explicit name is accepted exactly or refused with the reason; a derived one over the limit is shortened in its repo part, and the reply's first line says so.
 
 A seat under the old standard (`machine.holon.branch`) is an orphan: case rosters still hold its address, nobody listens. Remove it once you stand under the new name (`verstak_stand` names such seats), per the method's "Removal".
 
@@ -46,7 +46,7 @@ Where frames arrive only through the watchdog (Claude Code, Codex), the bridge l
 
 ## Publishing the busy line
 
-`verstak_stand(realm=<graph>, status=<line>)`; the bridge sends it from the status address it holds (the line is the socket holder's own statement — an owner's decision). One seat per graph, so `karta` and `name` may be omitted; named ones must be its own, else the call takes the seat-taking path and hits the one-seat rule.
+`verstak_stand(realm=<graph>, status=<line>)`; the bridge sends it from the status address it holds (the line is the socket holder's own statement). One seat per graph, so `karta` and `name` may be omitted; named ones must be its own, else the call takes the seat-taking path and hits the one-seat rule.
 
 - **Length is checked by the surface**, its limit stated in the tool's description; an over-long line is refused whole, with the reason: shorten and retry.
 - **Empty `status` clears the line**; the bridge also clears it at session end.

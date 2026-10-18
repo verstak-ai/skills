@@ -63,7 +63,7 @@ The bridge and watchdog name their fix — do what they say. What they won't tel
 - **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → 3a). Code 2 → the bridge holds no seat, or several (name the key).
 - **Write without an author** → `verstak_stand` again (on your own seat it only registers), retry; what landed authorless stays so; report it (`methods/feedback.md`).
 - **Sent under another name** → a shared bridge; reference, "Shared bridge and one seat per graph".
-- **Never `connect` for anyone but yourself** (owner's decision): it binds the seat to the calling session.
+- **Never `connect` for anyone but yourself**: it binds the seat to the calling session.
 - **Never `revoke` for a new socket**: it closes the seat and never gives a socket back.
 - **Frame cut off** → the case record in full by the frame's own "in full —" pointer (`verstak_case(action="history", room=<case #N>)`); a direct word → ask for the gist again; never act on a fragment.
 

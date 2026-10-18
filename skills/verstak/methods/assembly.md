@@ -2,22 +2,13 @@
 
 **Use when:** orient shows an ungrouped field — many free vimarshas, a wall of top-level kriyas; a transformation arrived or the map went stale; the work calls for stepping back to see the pattern (failure 5, the door's `The method fails in five ways`). The central ritual of the time cycle (時): seeing the pattern over the field of inquiry and activity and producing the assembly map. Phrases: "assemble the graph", "reassemble", "what is really going on here", "the agenda", "map the transformations".
 
-A mature graph accumulates experience flat: the umbrellas that would organise it are visible only in hindsight. Your work is that hindsight: distinguish the **bianhua** (qualitative transformations the system is going through) and produce **the map, 形**, which the navigator acts from.
+A mature graph accumulates experience flat: the umbrellas that would organise it are visible only in hindsight. Your work is that hindsight: distinguish the **bianhua** (qualitative transformations the system is going through) and produce **the map, 形**, which the navigator — whoever decides where to put effort now — acts from.
 
 ## The 時 cycle
 
 The ritual (provocation → seeing → seed form → the visible map) produces a map that then stands and is relied on; light updates patch it between rituals, never rewrite it; it grows stale and is released. Reassembly is cheaper than the first assembly: the recipe (seed form, filters, lenses) and the basis (nodes and versions) are reproducible.
 
-You produce and refresh the map; you don't decide *when* to reassemble.
-
-## Roles
-
-| Role | Motivation | In assembly |
-|---|---|---|
-| **The graph's owner** | "don't drown, see the whole" | provokes assembly, validates the map ("that captures it", "the map is lying"), decides when to reassemble |
-| **Assembler** (you) | see the pattern, produce the map | draws the map; an owner-level move (step 4) goes on the owner's agenda |
-| **Navigator** | "where to put effort now" | reads the map, picks a focus, works, feeds back |
-| **Coordinator** | "keep people in sync" | uses the map as shared language: "who is moving which transformation?" |
+You produce and refresh the map; you don't decide *when* to reassemble. **The graph's owner** provokes assembly, validates the map ("that captures it", "the map is lying") and decides when to reassemble; an owner-level move (step 4) goes on their agenda.
 
 ## 形 has two halves
 
@@ -72,6 +63,6 @@ Then build the map:
 
 ### 6. Impulse for the navigator
 
-The bianhua not blocked by `anantara` (`lens="bianhua"` sorts ready / blocked / done) *is* the impulse.
+The navigator — whoever reads the map to pick where to put effort now — takes the bianhua not blocked by `anantara` (`lens="bianhua"` sorts ready / blocked / done): that *is* the impulse.
 
 Read progress truthfully: parts accepted as is are unanswered — a transformation of only those stands still. `upeksha` on the transformation itself is a kind error — release it or restore its will. "It has arrived" is a behavioural claim: check it on the canonical carrier before proposing to end it (`methods/reality-audit.md`), not by the map agreeing with itself. Next moment: the user accepted a telos → `methods/integrity.md`.

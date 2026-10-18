@@ -155,7 +155,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `README.md` — the skill and method tables, whenever the set changes.
 - `DERIVATION.md` — walk it after any methodology-canon change; extend it when a new canon landmark is projected into a skill.
 - `methods/align.md` + `templates/agents-template.md` — improving the bootstrap for all future repos; a change that makes generated files wrong raises the contract.
-- `references/align-superpowers-interop.md`, `references/align-delegation.md`, `references/align-harness-surfaces.md` — when superpowers, the harnesses' agent-file surfaces, or where a harness reads instructions and fires automation change (re-verify checklists inside).
+- `references/align-superpowers-interop.md`, `references/align-delegation.md`, `references/align-harness-surfaces.md` — when superpowers, the harnesses' agent-file surfaces, or where a harness reads instructions and fires automation change (re-verify checklists: `DERIVATION.md`, Extra sync obligations).
 - `methods/collaborate.md` — when the bridge that relays a human onto an agent's channel changes its address line (`re #SEQ vVERSION`): the contract lives there and here, and neither side can read the other's — a field added, dropped or renamed lands here in the same breath.
 - `r5`, #844 — every merge: both halves of every touched method to the shipped state (phenomenon, applying kriya and its step sub-kriyas with `next` and `upadhi` edges), then what the merge settled, ended by axis.
 

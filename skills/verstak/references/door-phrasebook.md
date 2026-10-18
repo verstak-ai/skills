@@ -138,4 +138,4 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## product-roadmap — "drowning in tickets"
 
 **Gets:** a roadmap on disk: what the product is, the next three moves, directions in dependency order. "what should I do next here?" · "three repos, one product"
-**Elsewhere:** "what's in progress" → entry · "plan this feature" → design · "estimate the timeline" → not here; directions stay hypotheses. An empty backlog is no stop: the present and merged changes drive it.
+**Elsewhere:** "what's in progress" → assistant (widgets in the Verstak window) · "plan this feature" → design · "estimate the timeline" → not here; directions stay hypotheses. An empty backlog is no stop: the present and merged changes drive it.

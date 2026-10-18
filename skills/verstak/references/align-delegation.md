@@ -17,11 +17,11 @@ Split work by **role**, not by size. Six roles, two model tiers: the top tier ca
 
 The orchestrator keeps the dialogue with the user, orchestration, edits that need the conversation, and what rule 6 leaves it. `designer` asks the user nothing, even in a run started on the user's word: its question goes into the case and the return, and the orchestrator asks it.
 
-Rules, from a five-task benchmark across tiers:
+Rules:
 
 1. **No role gets the cheap tier, recon included**: it garbles findings, and re-checking costs more than it saved. Don't take a count, an aggregate or a "final fact" from recon unverified, even from mid tier.
 2. **Check the artifact, not the report**: a subagent can do the work right and describe it wrong.
-3. **The return contract is load-bearing.** Every brief states `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`, a line cap and pointers instead of dumps; artifacts go to disk, since whatever a subagent prints stays in the orchestrator's context. **The next line is `NODES: #N, #M…`** (or "did not read the graph"), so the caller re-reads nodes, not a retelling; `verifier` observes a carrier and skips it; a bridge-status line replaces it when the bridge did not come up. In the case: the restated task and the result as messages, no progress or verdict lines.
+3. **The return contract is load-bearing.** Every brief states `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`, a line cap and pointers instead of dumps; artifacts go to disk, since whatever a subagent prints stays in the orchestrator's context. **The next line is `NODES: #N, #M…`** (or "did not read the graph"), so the caller re-reads nodes, not a retelling; `verifier` observes a carrier and skips it; a bridge-status line replaces it when the bridge did not come up. In the case: the restated task and the result as messages; taken work and its outcome as lines on the assignment's key (→ door, `Ledger`).
 4. **Briefs are self-contained**: the subagent sees no history. **The first line is `verstak <graph> <role> case #N`**, the assignment's child case (→ door, `Work goes to subagents`), never the caller's own; `reader` and `searcher` produce leads, so they don't write into cases or take a seat. Satellite bridges and their failure: below. Also include the task, constraints ("do not spawn subagents", "read-only"), the return contract and the reality license: *if the brief disagrees with reality, follow reality and say so in the return*.
 5. **Never run writers in parallel over a shared namespace** (same files, graph or node names): writes collide or cross-contaminate. Parallel readers are free.
 6. **The decision, weaving and integration stay with whoever decides; updating many touched nodes may go to `designer`, checked by the launcher** (→ door, `Work goes to subagents`). In an align run the graph part (holon, role, attributes, the alignment case) stays with the agent; the subagent gets the file projection. Other roles take volume read-only in the graph: code and files, the gate, code review, behaviour checks, candidate search. Not tasks needing the full conversation, debugging whose hypothesis changes every step, or files another lane is editing.
@@ -38,7 +38,7 @@ The fenced blocks are deployable; the prose is guidance. A role file's repositor
 
 ### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
-Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no role (rule 1).
+Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no role (rule 1). Bare role names may collide with user-level agents (the project file wins); rename per repo if it bites.
 
 **Every subagent has its own satellite bridge, declared in its agent file.** On the caller's bridge it cannot hear the case, speaks from someone else's seat and cannot talk to the user, so that launch is not allowed.
 
@@ -220,10 +220,3 @@ model: <provider/tier-id — resolve at projection time>
 - The calling agent invokes them through the task tool; `@reader` … `@designer` are the user's affordance.
 
 Codex gets no role files.
-
-## Maintainer notes (not deployed)
-
-- Re-check on platform upgrades. Claude Code: `.claude/agents/`, keys `name`, `description`, `model` (aliases), `tools`, `mcpServers`, `disallowedTools`. OpenCode: `.opencode/agents/`, keys `description`, `mode: subagent`, `model`, model inheritance, skill discovery from `.claude/skills/` and `~/.claude/skills/`.
-- **Satellite entry**, observed on Claude Code 2.1.285 (`mcp-logs-verstak-sub-<role>` log): a list of single-key maps, connected per run; `${HOME}` in `args` not expanded (`MODULE_NOT_FOUND`), `sh -c` fails on Windows (2.1.138); a project agent file beats a same-named user-level one; a string entry (naming a session server) may or may not share the caller's connection; an untrusted folder silently ignores the server (`doctor` compares paths with `~/.claude.json` case-insensitively: `C:/` vs `c:/` broke trust on Windows); no frontmatter server for a plugin's agent, `--strict-mcp-config`, `--bare`/`--safe-mode`, remote mode, an enterprise MCP config or `strictPluginOnlyCustomization`; the file's server is added on top of `tools`, narrowed only by `disallowedTools`.
-- **Why agent files:** `description` is the only channel present in every session on both platforms; skill bodies load on demand.
-- Bare role names may collide with user-level agents; rename per repo if it bites.

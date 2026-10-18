@@ -20,7 +20,7 @@ Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). Hooks: committed in 
 
 **Reads `AGENTS.md` natively; no pointer file.** It merges every `AGENTS.md` from the project root to the cwd over `~/.codex/AGENTS.md` (which does not configure agent behaviour, Step 1). `AGENTS.override.md` beats `AGENTS.md` in its directory: for machine-local notes, never committed.
 
-**Align does not wire Codex hooks** (Step 4): they are machine-local; `AGENTS.md`'s opening paragraph and `methods/code-work.md` carry the rituals. The 0.151 `project` hook source has an unobserved path; observe it before wiring there. Below is for repairing existing hooks; a `SessionStart` there carries the start message.
+**Align does not wire Codex hooks** (Step 4): they are machine-local; `AGENTS.md`'s opening paragraph and `methods/code-work.md` carry the rituals. The `project` hook source has an unobserved path; observe it before wiring there. Below is for repairing existing hooks; a `SessionStart` there carries the start message.
 
 - **Find CODEX_HOME with `codex doctor`**; it is not always `~/.codex`.
 - **Hooks are declared in `hooks.json` there**, not in TOML: `config.toml`'s `[hooks.state."<path to hooks.json>:<event>:0:0"]` tables are bookkeeping. Shape: event → groups → commands:
@@ -211,9 +211,5 @@ export default {
 
 - **Hooks.** A throw from `execute.before` is the block. In `execute.after`, replace `result` whole (its fields are read-only). Checked against the 2.0.4 types (`@opencode/plugin`, `@opencode/schema`).
 - **Scope.** The event stream carries every directory in the machine's OpenCode service: unfiltered, the start message would seat foreign sessions under this repo's role, hence the sample's checks. `mine` re-checks tool hooks, whose own-directory scope the types don't promise.
-- **Observed on 2.0.24** (two directories): tool names as in the sample; one greeting, own root only (two without the once-set); the guard refused own-session memory only; one push reminder, own session only. Unobserved: the merge reminder, `edit`, the guard on `patch`; check against the types and the `REALITY.md` row on upgrade.
+- Unobserved, so never reported as working: the merge reminder, `edit`, the guard on `patch`. On an OpenCode upgrade, check the sample against the types and the `REALITY.md` row.
 - No TUI: messages go as a session prompt or to stderr. 2.x drops `slash: true`; register `/` commands via `ctx.command.transform`. Role files: `.opencode/agents/` (`references/align-delegation.md`).
-
-## Re-verify checklist (maintainers)
-
-On harness upgrades: Claude Code — settings path, hook events, `CLAUDE.md` import syntax. Codex — hook events and file form, `SessionStart` sources, `AGENTS.md` / `AGENTS.override.md` names and merge order. OpenCode — `.opencode/plugins/`, `{ id, setup(ctx) }`, `execute.before`/`execute.after` and the throw-block, the `session.created` shape, `ctx.location`. A harness gaining or losing a surface: update the table first, then Step 4.

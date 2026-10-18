@@ -103,6 +103,6 @@ Billing goes in the same word, from this text, never from the person's plan — 
 - **Redo** ("onboarding" again, a re-run for testing) → the same steps with the current values shown and the explanations repeated; it creates nothing that exists. Two runs on one account end with one graph, one role of the person's, one holon per repository. A rename is their word: `verstak_realm(action="update", realm, name=…)`, `verstak_update` on the node.
 - **Three cases to tell apart**, each checked against the data:
   - a brand-new, empty working graph → step 2's initial hooks land in this session; waiting for a role or holon first is the failure;
-  - an existing mind, empty or partial → reused and completed with whichever of its two roles is missing, the person's or the assistant's; no second mind, no second user-bound or `persona=companion` role, and it is not counted as filled;
+  - an existing mind, empty or partial → reused and completed as step 0 says, never doubled, not counted as filled;
   - a second entry — a redo or a later start → the existing graph, the person's role and both roles in mind are shown and kept; nothing is recreated.
 - **Finishing these steps opens ordinary work**; it does not declare every sign met. The subject-node rows stay offers on the person's next task.
