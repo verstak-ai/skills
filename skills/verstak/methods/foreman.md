@@ -86,4 +86,4 @@ Plain words, no method vocabulary: what's happening → what's needed from them 
 ## Cleanup and the end
 
 - Stop your own watchdogs and bridge processes that outlived their session; release seats of agents that left. Keep your busy line current; answer a generic wake-up with a sweep.
-- **Next moves:** a unit's case answered its subject → close it; a unit merged → weave its area (`methods/weaving.md`); a structural choice surfaced → `methods/design.md`; only the user's decisions left → say so; on their word release the seats, stop the servers the crew started, close your lines in the units' cases with their outcome — where everything stood.
+- **Next moves:** a unit's case answered its subject → close it; a unit merged → weave its area (`methods/weaving.md`); a structural choice surfaced → `methods/design.md`; only the user's decisions left → say so; on their word release the seats, stop the servers the crew started, close your lines in the units' cases with their outcome, so they show where everything stood.

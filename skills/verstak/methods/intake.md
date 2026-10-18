@@ -78,4 +78,4 @@ Never the whole tracker, never "all the docs". Declare the slice (open / labelle
 
 ## After writing
 
-`methods/writing.md`, `After writing` — `CHECKS:` and, on the key phenomena, the trace: did the lifecycle connect? Next moment: the admitted items show a shared pattern → `methods/assembly.md`.
+`methods/writing.md`, `After writing` — `CHECKS:` (a fresh phenomenon's orphan flag: stitch it to the kriya that takes it) and, on the key phenomena, the trace: did the lifecycle connect? Next moment: the admitted items show a shared pattern → `methods/assembly.md`.

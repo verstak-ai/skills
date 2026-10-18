@@ -2,7 +2,7 @@
 
 **Use when:** orient shows an ungrouped field — many free vimarshas, a wall of top-level kriyas; a transformation arrived or the map went stale; the work calls for stepping back to see the pattern (failure 5, the door's `The method fails in five ways`). The central ritual of the time cycle (時): seeing the pattern over the field of inquiry and activity and producing the assembly map. Phrases: "assemble the graph", "reassemble", "what is really going on here", "the agenda", "map the transformations".
 
-A mature graph accumulates experience flat: the umbrellas that would organise it are visible only in hindsight. Your work is that hindsight: distinguish the **bianhua** (qualitative transformations the system is going through) and produce **the map, 形**, which the navigator acts from.
+A mature graph accumulates experience flat: the umbrellas that would organise it are visible only in hindsight. Your work is that hindsight: distinguish the **bianhua** (qualitative transformations the system is going through) and produce **the map, 形**, which the navigator — whoever decides where to put effort now — acts from.
 
 ## The 時 cycle
 

@@ -147,7 +147,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Do**
 - ordinary code work — "fix this", "build it", "we've decided, do it" → **code-work**, `Before code`
 - "set up this repo" → **align** (`/verstak align`)
-- "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**; a thread's first word that is a bare readiness-sign key (one Latin word, e.g. `working_graph`) → **onboarding**, from that step
+- "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**; a thread's first word that is a bare readiness-sign key (one of the keys `verstak_me(action="readiness")` prints, e.g. `working_graph`) → **onboarding**, from that step
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
