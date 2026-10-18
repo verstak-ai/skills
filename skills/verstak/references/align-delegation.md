@@ -17,11 +17,11 @@ Split work by **role**, not by size. Six roles, two model tiers: the top tier ca
 
 The orchestrator keeps the dialogue with the user, orchestration, edits that need the conversation, and what rule 6 leaves it. `designer` asks the user nothing, even in a run started on the user's word: its question goes into the case and the return, and the orchestrator asks it.
 
-Rules, from a five-task benchmark across tiers:
+Rules:
 
 1. **No role gets the cheap tier, recon included**: it garbles findings, and re-checking costs more than it saved. Don't take a count, an aggregate or a "final fact" from recon unverified, even from mid tier.
 2. **Check the artifact, not the report**: a subagent can do the work right and describe it wrong.
-3. **The return contract is load-bearing.** Every brief states `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`, a line cap and pointers instead of dumps; artifacts go to disk, since whatever a subagent prints stays in the orchestrator's context. **The next line is `NODES: #N, #M…`** (or "did not read the graph"), so the caller re-reads nodes, not a retelling; `verifier` observes a carrier and skips it; a bridge-status line replaces it when the bridge did not come up. In the case: the restated task and the result as messages, no progress or verdict lines.
+3. **The return contract is load-bearing.** Every brief states `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`, a line cap and pointers instead of dumps; artifacts go to disk, since whatever a subagent prints stays in the orchestrator's context. **The next line is `NODES: #N, #M…`** (or "did not read the graph"), so the caller re-reads nodes, not a retelling; `verifier` observes a carrier and skips it; a bridge-status line replaces it when the bridge did not come up. In the case: the restated task and the result as messages; taken work and its outcome as lines on the assignment's key (→ door, `Ledger`).
 4. **Briefs are self-contained**: the subagent sees no history. **The first line is `verstak <graph> <role> case #N`**, the assignment's child case (→ door, `Work goes to subagents`), never the caller's own; `reader` and `searcher` produce leads, so they don't write into cases or take a seat. Satellite bridges and their failure: below. Also include the task, constraints ("do not spawn subagents", "read-only"), the return contract and the reality license: *if the brief disagrees with reality, follow reality and say so in the return*.
 5. **Never run writers in parallel over a shared namespace** (same files, graph or node names): writes collide or cross-contaminate. Parallel readers are free.
 6. **The decision, weaving and integration stay with whoever decides; updating many touched nodes may go to `designer`, checked by the launcher** (→ door, `Work goes to subagents`). In an align run the graph part (holon, role, attributes, the alignment case) stays with the agent; the subagent gets the file projection. Other roles take volume read-only in the graph: code and files, the gate, code review, behaviour checks, candidate search. Not tasks needing the full conversation, debugging whose hypothesis changes every step, or files another lane is editing.
@@ -38,7 +38,7 @@ The fenced blocks are deployable; the prose is guidance. A role file's repositor
 
 ### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
-Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no role (rule 1).
+Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no role (rule 1). Bare role names may collide with user-level agents (the project file wins); rename per repo if it bites.
 
 **Every subagent has its own satellite bridge, declared in its agent file.** On the caller's bridge it cannot hear the case, speaks from someone else's seat and cannot talk to the user, so that launch is not allowed.
 
@@ -49,7 +49,7 @@ Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no rol
 - **The entry needs a home bridge that knows `--satellite`**: an older one exits on the flag, leaving no graph tools. Update first (`node ~/.verstak-bridge/verstak-bridge.mjs update`). A flag, not an environment variable, so an old bridge fails loudly instead of silently taking the session's seat.
 - **Entry didn't come up = launch didn't happen**: the subagent says so first and writes nothing; the launching agent writes to the graph and the case and runs `doctor` (below). Same if the bridge answers `satellite_of` that it is a session bridge: no `verstak_stand`, `join` or `leave`.
 
-**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all six except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so the file is committed as is. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
+**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all six except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so the file is committed as is. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
 
 **Tool set per role.** Claude Code sends every tool schema whole on every request (a full server list costs tens of thousands of tokens). `--tools a,b,c`, last in `args` after `--satellite`, names the whole set, `verstak_stand` always included; a tool outside it is refused out loud, so add a needed tool rather than drop the flag. Every bridge hides `verstak_channel`'s `mint`, `connect`, `sessions`; `register` and `revoke` stay. **Use `--tools` only with a bridge that knows it**: an older one exits on it (`doctor`: "home bridge older than the --tools flag"). `doctor` keeps a `--tools` tail in the block it prints.
 
@@ -220,10 +220,3 @@ model: <provider/tier-id — resolve at projection time>
 - The calling agent invokes them through the task tool; `@reader` … `@designer` are the user's affordance.
 
 Codex gets no role files.
-
-## Maintainer notes (not deployed)
-
-- Re-check on platform upgrades. Claude Code: `.claude/agents/`, keys `name`, `description`, `model` (aliases), `tools`, `mcpServers`, `disallowedTools`. OpenCode: `.opencode/agents/`, keys `description`, `mode: subagent`, `model`, model inheritance, skill discovery from `.claude/skills/` and `~/.claude/skills/`.
-- **Satellite entry**, observed on Claude Code 2.1.285 (`mcp-logs-verstak-sub-<role>` log): a list of single-key maps, connected per run; `${HOME}` in `args` not expanded (`MODULE_NOT_FOUND`), `sh -c` fails on Windows (2.1.138); a project agent file beats a same-named user-level one; a string entry (naming a session server) may or may not share the caller's connection; an untrusted folder silently ignores the server (`doctor` compares paths with `~/.claude.json` case-insensitively: `C:/` vs `c:/` broke trust on Windows); no frontmatter server for a plugin's agent, `--strict-mcp-config`, `--bare`/`--safe-mode`, remote mode, an enterprise MCP config or `strictPluginOnlyCustomization`; the file's server is added on top of `tools`, narrowed only by `disallowedTools`.
-- **Why agent files:** `description` is the only channel present in every session on both platforms; skill bodies load on demand.
-- Bare role names may collide with user-level agents; rename per repo if it bites.

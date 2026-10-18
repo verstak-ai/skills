@@ -10,7 +10,7 @@ Read by the `writing` method (`methods/writing.md`, Decision 3) when a triad is 
 
 ## Self-check
 
-Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive] it."
+Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive] it." Abbreviations: Kl `kalpita`, An `anumita`, Pt `pratyakshita`, Pm `pramanita`, Ba `badhita`; Va `vartamana`, Ag `anagata`, At `atita`, Vk `vikalpa`, Na `nashta`; Ch `chanda`, Ad `adhimoksha`, Up `upeksha`, Vi `virodha`, Vs `visarjana`.
 
 ✓ "We *observed* this, it *is in effect*, and we *accept* it." → Pt/Va/Up.
 ✗ "We *inferred* this, it *doesn't exist yet*, and we *accept* it." → An/Ag/Up — designed the future and don't care? Likely An/Ag/Ch.

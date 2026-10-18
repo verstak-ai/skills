@@ -111,13 +111,3 @@ How the user changes across graphs lives here as bianhua. **The owner accepts ev
 - a copy of a project graph's content.
 
 Nothing leaves here either (`methods/minding.md`, "Privacy").
-
-## Re-verification checklist (for the method's maintainers)
-
-One call per line, when the server surface changes:
-
-- [ ] `verstak_me(action="whoami")` prints the handle; `action="kartas"` returns cross-graph roles as `#seq · realm-slug`.
-- [ ] `user="me"` exists on `verstak_add_karta` and `verstak_update` (minding §2 step 3).
-- [ ] `verstak_realm(action="list")` and `verstak_org(action="list")` keep their shape.
-- [ ] `@owner/slug` resolves, and an unknown address fails with a readable `Realm not found` naming it.
-- [ ] The orient overview still prints `attrs.key=true` landmarks (§4, §5); if not, the routing table needs another home.

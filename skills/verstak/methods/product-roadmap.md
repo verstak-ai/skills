@@ -103,7 +103,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 ## Step 6 — Assembly (discern the directions)
 
-Run `methods/assembly.md` over the seeded graph. You propose the directions' names and teloses (`chanda`); the owner accepts them (`methods/writing.md`, Decision 1, the bianhua paragraph): playing the maintainer is no act of acceptance. Risks stay risks.
+Run `methods/assembly.md` over the seeded graph; the directions' names and teloses go as its step 5 says — playing the maintainer is no act of acceptance. Risks stay risks.
 
 - **Refresh reconciles:** update directions that hold; add one only for a new theme; release (`visarjana`) shipped ones. Never a twin.
 - **Figure on ground as a real arrow:** the leading kriya reaches a ground capability via `upadhi` / `context` — never `ahara` from the bianhua (forbidden). No ground touched → new ground (say so) or an under-modelled Step 2.

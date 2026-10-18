@@ -10,7 +10,7 @@ The law of the wave: every changed node has sources (the requirements on it) and
 
 An integration hands something across a boundary while closing a lifecycle: born in one holon, consumed in another. So it starts with a specification taken from the graph — and **the specification is a graph cluster, not a document**.
 
-1. **Scout the lifecycles.** `verstak_orient(lens="trace")` on the thing handed over, from each side: where it is born, who must consume it, where the relay breaks. Then the wavefront (Protocol below).
+1. **Scout the lifecycles.** `verstak_orient(lens="trace")` on the thing handed over, from each side: where it is born, who must consume it, where the relay breaks. Then the wavefront (Mode 2 below).
 2. **Write in what is missing.** Phenomena and kriyas that don't exist yet go in with the design triad (`methods/writing.md`, Decision 3). The phenomenon handed across is the heart of the spec: its birth and consumption *are* the integration.
 3. **Ask and weave as you go.** Questions to the neighbour go into the integration case (below). Implied links → `methods/weaving.md`. Decisions and changed situations go into the graph at once (→ door, `Cross-cutting norms`).
 4. **Then the work, by the spec.** On the watch (`methods/autonomous.md`) its marked intent (§2c) is this spec. Refine it as you go; never drift from it unrecorded.
@@ -29,7 +29,7 @@ A vimarsha `posed_to` the neighbour's steward wakes no one (`methods/collaborate
 
 ## Mode 1 — integration scope of a change: before code and in cold review
 
-**This mode only reads**; the Protocol writes and is not part of it — a cold reviewer never goes there.
+**This mode only reads**; Mode 2 writes and is not part of it — a cold reviewer never goes there.
 
 No hand-written list of "shared surfaces" is needed: the repository's standing anchors — **its focus holon and steward role** — plus the nodes whose embodiment changes are enough. Everything else is derived afresh; a prose list goes stale and stands in for the traversal.
 
@@ -41,7 +41,7 @@ No hand-written list of "shared surfaces" is needed: the repository's standing a
 
 ### 2. Derive the closure
 
-Per node, the semantic closure of Protocol §2. Crossing a boundary continues the walk in the neighbouring holon and leads to its steward role. Then read the vimarshas that call on the touched nodes and holons.
+Per node, the semantic closure of Mode 2, step 2. Crossing a boundary continues the walk in the neighbouring holon and leads to its steward role. Then read the vimarshas that call on the touched nodes and holons.
 
 The trace doesn't reach a consumer the code or task implies → a model defect, not a report line: `design` fills in kriyas and phenomena, `weaving` stitches edges. A new consumer appears in code and graph in the same move, the link in the edge, its reason in `sense`.
 
@@ -64,7 +64,7 @@ Per touched lifecycle or neighbouring holon, one status:
 
 The output is the decision for the current move and, where structure is incomplete, new nodes, edges and vimarshas — not a dependency document.
 
-## Protocol
+## Mode 2 — the wavefront protocol
 
 ### 1. Stand on the transformation
 
@@ -128,5 +128,5 @@ The audit writes nothing; it produces a claims table — each claim carried or n
 ## Noise discipline
 
 - One `samshaya` per cluster, with the justification in every description. A question whose reader can't name the next move is noise.
-- Idempotent re-runs (Protocol step 3).
+- Idempotent re-runs (Mode 2, step 3).
 - **Never a new transformation out of this pass.** Something that looks like *another* transformation is an assembly observation: take it to the user.

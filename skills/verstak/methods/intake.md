@@ -78,4 +78,4 @@ Never the whole tracker, never "all the docs". Declare the slice (open / labelle
 
 ## After writing
 
-Read `CHECKS:` (orphan, missing anchor); a fresh phenomenon stays flagged `not_orphan` until a kriya picks it up — stitch it. Then `verstak_orient(lens="trace", focus=<seq>)` on the key phenomena: did the lifecycle connect? Next moment: the admitted items show a shared pattern → `methods/assembly.md`.
+`methods/writing.md`, `After writing` — `CHECKS:` and, on the key phenomena, the trace: did the lifecycle connect? Next moment: the admitted items show a shared pattern → `methods/assembly.md`.

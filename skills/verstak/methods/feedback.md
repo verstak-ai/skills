@@ -30,7 +30,7 @@ An installed copy can lag the maintained one by several releases, and stale text
 
 A second node saying what one already says splits the answer, and the second gets ignored. Choose the **destination graph** first (below); search and write there.
 
-`verstak_semantic_search(realm=<destination>, q=<the instance in one sentence>)` — **one idea per query, as a natural phrase**: the whole string becomes one vector, and a centroid between several meanings lies near nothing. Two ideas, two queries. Lexical `verstak_search` is the wrong tool here: tokens match with AND, no stemming, so a multi-word query returns nothing.
+`verstak_semantic_search(realm=<destination>, q=<the instance in one sentence>)` — **one idea per query, as a natural phrase**: a query mixing several meanings finds none of them. Two ideas, two queries. Lexical `verstak_search` is the wrong tool here: a multi-word query returns nothing.
 
 **On a hit — a near-hit counts — add what's new to the existing node**: another holon where it reproduced, an unnamed mechanism, an instance that narrows or widens it. A second witness turns an accident into a pattern; as a duplicate it's worth nothing. Open a new node only when adding yours would make the existing one about two things.
 
