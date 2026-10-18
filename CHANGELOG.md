@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.0](https://github.com/verstak-ai/skills/compare/v3.10.0...v3.11.0) (2026-10-18)
+
+
+### Features
+
+* **verstak:** skills quality wave — one home per norm, teaching true to the tool surface ([#200](https://github.com/verstak-ai/skills/issues/200)) ([103eff4](https://github.com/verstak-ai/skills/commit/103eff40406f9e40f63771b66d99ec73edcebcfb))
+
 ## [3.10.0](https://github.com/verstak-ai/skills/compare/v3.9.0...v3.10.0) (2026-10-17)
 
 
