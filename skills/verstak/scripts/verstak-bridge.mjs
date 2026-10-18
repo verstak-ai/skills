@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.11.1";
+var VERSION = "3.12.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -209,7 +209,8 @@ var FRAME_TEXT = {
     count: (head, n, mine) => `${head}: ${n} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
-    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
+    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
+    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`
   }
 };
 var CASE_LINE = {
@@ -982,6 +983,7 @@ var STATUS_POST = {
 var WHO_EN = {
   person: "by the human",
   self: "by a session of the same account",
+  silent: "by the platform: no action of yours after the liveness wake-up",
   other: "by the owner or another session"
 };
 var STOP = {
@@ -4513,6 +4515,7 @@ function eventIn(frame2, has) {
   return keys.some(has);
 }
 var isTact = (frame2) => frame2?.provenance?.wake === "look_up";
+var isLifeCheck = (frame2) => frame2?.provenance?.wake === "life_check";
 function foldedTacts(all2) {
   const tacts = all2.filter((f) => isTact(f));
   const last = tacts.reduce((a, f) => a && tactAt([a]) > tactAt([f]) ? a : f, null);
@@ -5199,6 +5202,7 @@ function frameToText(frame2, raw) {
   }
   const lines = [`${whoOf2(frame2, true) || "?"}${tail(frame2, true)}`];
   if (text2) lines.push(text2);
+  if (isLifeCheck(frame2)) lines.push(T2().lifeCheckReply());
   return lines.join("\n");
 }
 var BATCH_TEXT = 160;
@@ -5310,11 +5314,11 @@ var Backlog = class {
     return this.all.splice(0).length;
   }
   /**
-   * false — no window, or a direct word that goes its own way whole.
+   * false — no window, a direct word or a life check: each goes its own way whole.
    * A repeated id already in the window is not counted.
    */
   note(frame2) {
-    if (!this.timer) return false;
+    if (!this.timer || isLifeCheck(frame2)) return false;
     if (isDirectWord(frame2)) {
       this.direct++;
       return false;
@@ -6870,7 +6874,7 @@ function deliverTo(d, raw, frame2, full) {
   if (redundantCopy(full, d)) return;
   if (full?.type === "message") markAddressed(full, seenPath, d.seen);
   const again = isDelivered(id ? [id] : [], d.seen, seenPath);
-  if (full?.type === "message" && full.stale === true && !isDirectWord(full))
+  if (full?.type === "message" && full.stale === true && !isDirectWord(full) && !isLifeCheck(full))
     return again ? log(`stale frame ${id} already delivered — dropped`) : d.stale.note(full, (ev2) => {
       if (notifiedClient()) for (const k of ev2.marks ?? []) noteSeen(seenPath, k, d.seen);
       d.broadcast(ev2);
@@ -6896,7 +6900,7 @@ function deliverTo(d, raw, frame2, full) {
     };
     if (hello && Number(full.pending) > 0) d.backlog.open(Number(full.pending), flushBacklog);
     if (full?.type === "message") {
-      if (full.origin === "platform") d.backlog.open(0, flushBacklog);
+      if (full.origin === "platform" && !isLifeCheck(full)) d.backlog.open(0, flushBacklog);
       if (d.backlog.note(full)) return;
     }
     for (const k of deliveryKeys(full)) noteSeen(seenPath, k, d.seen);
@@ -11168,7 +11172,12 @@ wireTakeOwn(async (rec5, cwd) => {
 });
 
 // js/bridge/stophold.ts
-var whoOf3 = (reason) => reason === "revoked:person" ? "person" : reason === "revoked:self" ? "self" : "other";
+var WHO_BY_REASON = {
+  "revoked:person": "person",
+  "revoked:self": "self",
+  "revoked:silent": "silent"
+};
+var whoOf3 = (reason) => WHO_BY_REASON[reason] ?? "other";
 var stopWord = (name2, reason) => words(STOP).stopped(name2, whoOf3(reason));
 function dropUnsent(key2, doors2) {
   const n = doors2.reduce((sum, d) => sum + (d?.dropBatches() ?? 0), 0);
@@ -11215,7 +11224,7 @@ function seatOf(id) {
 var holdsSeat = (id, framed) => framed ? seatOf(id) !== null : H2.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
 function seatEnded(key2, frame2) {
   const id = typeof frame2.standing_id === "string" ? frame2.standing_id : "";
-  const reason = typeof frame2.by === "string" ? `revoked:${frame2.by}` : "";
+  const reason = typeof frame2.by === "string" ? `revoked:${frame2.by}` : frame2.reason === "silent" ? "revoked:silent" : "";
   const beside = id ? extraPlaces().find((p) => p.door.standingId === id) : void 0;
   if (beside) {
     const own = H2.closingOwn ? holdWords().closedOwn() : H2.revokingBeside.has(beside.door.key) ? holdWords().revokedOwn() : null;
