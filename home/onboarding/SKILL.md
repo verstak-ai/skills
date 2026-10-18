@@ -53,7 +53,7 @@ Already present → reused, shown with its current value, never created again. T
 
 First, in the harness and the home branch alike, without asking (**minding**): `@handle/mind` and its two roles, created together —
 - the person's role: `manifested_as="svatantra"`, bound to them (`user="me"`);
-- the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named "Assistant" or "Assistant of <handle>" — never the person's role's name, never a personal fact.
+- the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named as in the call below — never the person's role's name, never a personal fact.
 
 Take the personal graph by readiness's link (the `personal_mind` item's artifact link); never search for "mind" nodes or guess the graph's number. Create mind only on an established absence (`Realm not found` on its read); an unknown or empty handle, a failed read or a failed write is not absence: create nothing, never a copy. An existing mind, even an empty one, is reused and completed with whichever role is missing, keyed by graph and person: a repeat never adds a second user-bound role or a second `persona=companion` role; roles that already fit keep their names and authorship. In the home branch the companion does this with the person's key. A thread already running in mind shows the graph exists, not the step met: it is met only once readiness names nothing missing there.
 
