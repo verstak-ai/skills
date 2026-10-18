@@ -12,7 +12,7 @@ Fetching is the adapter's job (`gh`, a file read, a transcript). Per item it han
 
 - **content** — the claim (title + trimmed body, or a fragment of prose);
 - **form** — bug / feature request / RFC / design doc / fact from code / decision; the core maps by it;
-- **provenance** — a stable back-link (issue URL, path + symbol, "conversation of 2026-…") for `arose_from`;
+- **provenance** — a stable back-link (issue URL, path + symbol, "conversation of 2026-…") for `arose_from` or `attrs.source` (step 4);
 - **speaker and means** — who said it, with what claimed standing, by what means and with what evidence: inputs to the judgment of step 2, not a grade.
 
 No provenance → it doesn't get in. Cut along the distinctions the graph will carry, not the source's paragraphs: too fine gives many nodes, too coarse gives containers.
@@ -57,7 +57,7 @@ Before every insert: `verstak_semantic_search(q=<the claim as a phrase>, realm=�
 
 ## 4. Anchor every node to its origin
 
-- **`arose_from`** → the provenance (issue, file, conversation). Provenance lives in this edge and `attrs`; who let it in, on whose word, goes in `reasoning` — the body carries the claim.
+- **`arose_from`** → the node that stands for the provenance (a document `ding`, an issue's node), where one does; its URL or path in `attrs.source` (`methods/writing.md`, Decision 4). Who let it in, on whose word, goes in `reasoning` — the body carries the claim.
 - The type's home: a vimarsha → **`vimarsha_of`** what it is about; a phenomenon → **`context`** its holon.
 
 Anchor at intake, not afterwards (`methods/inquiry.md`, §1).
@@ -68,9 +68,9 @@ Intake ends when the claim is *checked*, and "checked" names its level (`methods
 
 - **First level — shabda against the graph** (this method). Compare the bounded claim, choosing the view by the question (`methods/entry.md`, `From a card to evidence`): a card for content and modes, a lens for what pulls on it or where it travels. Agreement here is the text agreeing with the record, not confirmation by reality.
 - **Second level — the graph against the world** — is not done here; witnessing on the canonical carrier carries it.
-- **Shabda about an unreproducible past** can't be observed: testimony is checked against testimony — independent sources converge → `pramanita`; inference from documents while witnesses are silent → `anumita`; witnesses diverge → `vyabhichara`, not `badhita`. That is the kind's honest ceiling; testimony keeps its force.
+- **Shabda about an unreproducible past** can't be observed: testimony is checked against testimony — independent sources converge → `pramanita`; inference from documents while witnesses are silent → `anumita`; witnesses diverge → a `vyabhichara` vimarsha, not `badhita`. That is the kind's honest ceiling; testimony keeps its force.
 
-Then grade: **matches the graph** → agreement with the record; it raises nothing when the node was written from the same source, and never raises a claim about execution. **Contradicts the graph** → a relation to investigate, not a verdict: separate theses from grounds — a concrete counter-case → `vyabhichara`; two readings not yet told apart → `samshaya`; `badhita` only on the particular judgment that relevant grounds actually defeated, on whichever side that is. Disagreement with the graph alone refutes nothing. **The mode drifted** → update the record's mode.
+Then grade: **matches the graph** → agreement with the record; it raises nothing when the node was written from the same source, and never raises a claim about execution. **Contradicts the graph** → a relation to investigate, not a verdict: separate theses from grounds — a concrete counter-case → a `vyabhichara` vimarsha; two readings not yet told apart → `samshaya`; `badhita` only on the particular judgment that relevant grounds actually defeated, on whichever side that is. Disagreement with the graph alone refutes nothing. **The mode drifted** → update the record's mode.
 
 ## 6. Selectivity is a guard, not a convenience
 

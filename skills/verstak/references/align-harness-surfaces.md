@@ -184,14 +184,11 @@ export default {
     // root session (no parentID); child sessions (subagents, service sessions) are skipped. A failed prompt
     // for one session is caught in place; a loop failure goes to the service's stderr.
     // Same message as Claude Code's SessionStart hook, addresses from this repo's AGENTS.md frontmatter;
-    // the align run fills <Graph>, <Focus holon>, <Agent role>, <Owner role>; no angle brackets remain.
+    // the align run fills <Graph> (@owner/slug) and the three seqs (digits only); no angle brackets or quotes remain.
     const START =
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
-      "Addresses (AGENTS.md frontmatter): graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
-      "owner role #<Owner role>. Take a seat only to stand watch, with one verstak_stand. " +
-      "A launch line of the form verstak GRAPH ROLE case #N enters that case. " +
-      "A subagent works on its own satellite bridge (verstak_stand with satellite_of, then join and leave on it); " +
-      "on the bridge of the agent that launched it, it writes nothing to the graph.";
+      "Addresses from AGENTS.md: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
+      "owner role #<Owner role>.";
     const ac = new AbortController();
     (async () => {
       for await (const ev of await ctx.event.subscribe({ signal: ac.signal })) {

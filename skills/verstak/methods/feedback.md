@@ -58,7 +58,7 @@ Who and from where (holon, harness, date) go in `reasoning`; `posed_by` is the a
 ## Put it where the tool is maintained — addressed
 
 - **Your graph has a holon for the tool with a steward** (it's where this delivery is developed): the report goes there — a method in its delivery's holon, a tool in its surface's holon, channel discipline in its own sub-boundary.
-- **It doesn't** (your project's graph; others maintain the delivery): a report about the delivery's methods, bridge or tools goes to its feedback destination, named by the user or by `AGENTS.md`; neither names one → ask the user. Not into your project's graph — the delivery has no steward there.
+- **It doesn't** (your project's graph; others maintain the delivery): a report about the delivery's methods, bridge or tools goes to its feedback destination, named by the user; none named → ask the user. Not into your project's graph — the delivery has no steward there.
 
 Two edges, two questions:
 

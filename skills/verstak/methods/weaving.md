@@ -18,7 +18,7 @@
 
 **Don't fix a mass one row at a time.** Uniform rows converging on one neighbour are one undistinguished thing. Touching a node in the mass, leave a remark, not a copied fix: a second `vimarsha_of` anchor from the mass's vimarsha to this node, its sense saying what you noticed. No vimarsha on the cause → pose one there, addressed to the steward of its holon. Not folded into one row by the lens → judge convergence yourself. The distinction ("what is not distinguished here?") is an assembly move; its answer clears the mass at once.
 
-**Each door judges by its own rules.** The tensions lens uses its registry, a node card the rules that come with the node; neither is a superset. A vanished card warning → the node's history. `has_tension` covers a subset of detectors (coverage in each response's header). Weave from `lens="tensions"` with `focus` on a holon (else no neighbours print); a thin `has_tension` list is not a clean graph.
+**Each view judges by its own rules.** The tensions lens uses its registry, a node card the rules that come with the node; neither is a superset. A vanished card warning → the node's history. `has_tension` covers a subset of detectors (coverage in each response's header). Weave from `lens="tensions"` with `focus` on a holon (else no neighbours print); a thin `has_tension` list is not a clean graph.
 
 ### A boundary is the edge of the world, not a break
 
@@ -63,7 +63,7 @@ Trace the gap: `utpatti` with no consumer → who picks it up? `ahara` with no p
 
 ### 2. Writing sense
 
-Read both ends (`verstak_look`) and ask what the target *does* for the source. By arrow type (`methods/writing.md`, Decision 5): `next` → a needle-question ✓ "Path built — where can it break?" ✗ "Go to the next step"; `upadhi` → what this context gives this kriya ✓ "when designing: every lifecycle must be closed" ✗ "lifecycle closure principle"; `arose_from` → what raised the question; `ahara` → what is consumed and why. Record via `verstak_arrow(action="link")` or `action="update"`. **Sign of a bad sense:** it repeats the target's name.
+Read both ends (`verstak_look`) and ask what the target *does* for the source. By arrow type (`methods/writing.md`, Decision 5): `next` → a needle-question ✓ "Path built — where can it break?" ✗ "Go to the next step"; `upadhi` → what this context gives this kriya ✓ "when designing: every lifecycle must be closed" ✗ "lifecycle closure principle"; `arose_from` → what raised the question; `ahara` → what is consumed and why. Record on an existing arrow with `verstak_arrow(action="update", sense=…)` — a repeated `link` changes nothing; `link` only for a new arrow. **Sign of a bad sense:** it repeats the target's name.
 
 ### 3. Splitting a double kriya
 
@@ -79,7 +79,7 @@ A call is communication, not nesting.
 
 ### 4. Re-linking after a distinction
 
-"Config" became "Runtime Config" + "Build Config": every arrow to "Config" is ambiguous. Find them all (`verstak_look`), decide which each means, redirect with `verstak_arrow(action="reconnect")` — atomic, never half-done. Release or delete the emptied phenomenon; re-look the affected kriyas for `CHECKS:`.
+"Config" became "Runtime Config" + "Build Config": every arrow to "Config" is ambiguous. Find them all (`verstak_look`), decide which each means, redirect with `verstak_arrow(action="reconnect")` — atomic, never half-done; it takes no `sense`, so re-read each and write its new one with `action="update"`. Release or delete the emptied phenomenon; re-look the affected kriyas for `CHECKS:`.
 
 ### 5. Closing a lifecycle
 

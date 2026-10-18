@@ -98,7 +98,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## architect — "hold integrity", "lead the case"
 
 **Gets:** one agent holding intent and integrity, or one shared case: decisions prepared with options and cost, agents tasked from the woven graph with a check, acceptance by running it. "hold the architecture" · "prep a decision, I'll choose" · "check what we built against what we designed"
-**Elsewhere:** a feature inside one holon → design · "check it works" with no tasking → reality-audit · "spread across the agents" → foreman · "do it yourself" → work.
+**Elsewhere:** a feature inside one holon → design · "check it works" with no tasking → reality-audit · "spread across the agents" → foreman · "do it yourself" → code-work.
 
 ## foreman — "spread this across the agents"
 
@@ -118,7 +118,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## feedback — "the tool let me down"
 
 **Gets:** a concrete instance, recorded where whoever fixes it acts. "this skill is broken, log it" · "I lost an hour because this isn't written anywhere"
-**Elsewhere:** the product broken → code-work · an opinion with no instance → doesn't start · "my skill is old" → align.
+**Elsewhere:** the product broken → code-work · an opinion with no instance → doesn't start · "my skill is old" → establish-mcp, `Updating`.
 
 ## establish-mcp — "connect the graph"
 

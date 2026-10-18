@@ -1,4 +1,4 @@
-# reality-audit — witnessing: spend the tail on what ships
+# reality-audit — witnessing: spend the final effort on what ships
 
 **Use when:** you are about to say `verified`, `done`, `green`, "works" or "no work left" after the last material change to behaviour — out of failure 5 (the door, `The method fails in five ways`); again after an owner correction or a reproduced falsifier invalidates evidence; whenever a test or tool returned a non-zero exit code or mixed pass/fail output to summarise. Triggers: "reality audit", "reality check", "check the canonical artifact", "prove it works", "tests passed". Not at a task's start; never interrupt implementation with graph modelling for it.
 
@@ -6,7 +6,7 @@ This terminal protocol decides whether the behaviour that ships was exercised �
 
 **"Checked" always names its level.** First: against the graph (`verstak_look`, `verstak_orient`, `lens="trace"`) — words against the record; the graph directly observes recorded content and relations, not the execution they describe. Second: a fresh observation on the canonical carrier — only this closes a behavioural claim. Every verdict here is second-level; any "verified" says what it was verified against. **A text claim is not a behaviour claim:** what a text, graph or code *says* is accepted by reading it with a check that would show the claim false — an observation of its subject; what it *does* needs its carrier.
 
-**A witness, not the author**: the maker sees the reflection of their own intent, so name the falsifier *before* looking and observe afresh — a fresh agent or black-box run where the risk of self-substitution matters or the repository's rule requires it.
+**A witness, not the author**: the maker sees the reflection of their own intent, so name the falsifier *before* looking and observe afresh — a fresh agent or black-box run where the risk of self-substitution matters or a rule requires it — this delivery's own does before `verified` (the door, `Communication`).
 
 **Proportionality.** A change that alters no public contract (no new or changed exported symbol, output format, config or schema shape, documented behaviour) shrinks the ladder to steps 1–2 on the touched path: rebuild the canonical deliverable, exercise the changed path once with an asserted expectation, record the command and exit code in one line. Unsure whether the contract changed? It did.
 
@@ -39,7 +39,7 @@ After the last material change:
 3. **Re-run the exact earlier falsifier.** A refuted claim stays refuted until the same or a strictly stronger case passes against the fresh deliverable.
 4. **Re-run the old requirements the change touches** — acceptance cases for the changed shared code first; the broad suite only after the new path ran.
 
-A material change after step 1 invalidates the tail: rebuild, repeat the affected probes. Cleanup, graph work and narration don't eat the probing budget.
+A material change after step 1 invalidates the evidence gathered since: rebuild, repeat the affected probes. Cleanup, graph work and narration don't eat the probing budget.
 
 **The graph comes after the evidence and never enters it.** Verdicts frozen and changes finished first; then at most one terminal update, only when a durable correction or contradiction will change a later agent's decision (a later material patch makes it premature until re-run and re-attested). Reading the graph is fine in its place; here you read the world. The limit covers this audit's hand-off, not the round's modelling.
 
