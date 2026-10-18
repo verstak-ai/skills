@@ -90,6 +90,14 @@ export const isTact = (frame: Frame | null | undefined): boolean =>
   frame?.provenance?.wake === "look_up";
 
 /**
+ * Life check frame (case #1046): provenance.wake="life_check" — the platform's warning that
+ * the seat will be put out without the agent's action, one frame per warning (api 0.130.0,
+ * not observed on the wire). Not a tact: it is never folded, batched or held, and goes alone.
+ */
+export const isLifeCheck = (frame: Frame | null | undefined): boolean =>
+  frame?.provenance?.wake === "life_check";
+
+/**
  * Tact folding (#6569): of the tacts in `all` only the last enters the turn; earlier ones
  * are marked delivered with it. While the turn is busy a tact waits and a newer one
  * replaces it (`onlyTacts`).

@@ -8,7 +8,7 @@
 import { LOGGERS } from "../delivery/index.ts";
 import { holdSocket, isDirectWord, statusUrl as deriveStatusUrl } from "../shared/channel.ts";
 import { bindAll } from "../shared/scope.ts";
-import { deliveryKeys, noteSeen } from "../shared/seen.ts";
+import { deliveryKeys, isLifeCheck, noteSeen } from "../shared/seen.ts";
 import { socketPathOf } from "../shared/standings.ts";
 import { markAddressed } from "./addressmark.ts";
 import { harnessName, notifiedClient } from "./client.ts";
@@ -352,8 +352,8 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
   // service repeat after a session rebuild) costs no turn but is not lost: one batch per lane;
   // a stale copy of a delivered frame is skipped. In pi and OpenCode the batch notification is
   // the delivery, so every frame of the lane is marked seen, else the platform re-sends and
-  // wakes again after reconnect (#5831). A direct word skips the stale batch and goes live.
-  if (full?.type === "message" && full.stale === true && !isDirectWord(full))
+  // wakes again after reconnect (#5831). A direct word and a life check skip it and go live.
+  if (full?.type === "message" && full.stale === true && !isDirectWord(full) && !isLifeCheck(full))
     return again
       ? log(`stale frame ${id} already delivered — dropped`)
       : d.stale.note(full, (ev) => {
@@ -387,7 +387,7 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
     };
     if (hello && Number(full.pending) > 0) d.backlog.open(Number(full.pending), flushBacklog);
     if (full?.type === "message") {
-      if (full.origin === "platform") d.backlog.open(0, flushBacklog);
+      if (full.origin === "platform" && !isLifeCheck(full)) d.backlog.open(0, flushBacklog);
       if (d.backlog.note(full)) return;
     }
     for (const k of deliveryKeys(full)) noteSeen(seenPath, k, d.seen);

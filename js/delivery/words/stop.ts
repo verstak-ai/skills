@@ -4,8 +4,11 @@
 // taking it again is an explicit call.
 import type { Lang } from "../lang.ts";
 
-/** Who took the seat off — by the close reason (`revoked:person`, `revoked:self`), or unknown. */
-export type StopWho = "person" | "self" | "other";
+/**
+ * Who took the seat off — by the close reason (`revoked:person`, `revoked:self`, `revoked:silent` —
+ * the platform, for silence after the liveness wake-up), or unknown.
+ */
+export type StopWho = "person" | "self" | "silent" | "other";
 
 export interface StopWords {
   /** The agent's word, one on every path: a close, a frame, a bridge move meeting the removal. */
@@ -20,6 +23,7 @@ export interface StopWords {
 const WHO_EN: Record<StopWho, string> = {
   person: "by the human",
   self: "by a session of the same account",
+  silent: "by the platform: no action of yours after the liveness wake-up",
   other: "by the owner or another session",
 };
 

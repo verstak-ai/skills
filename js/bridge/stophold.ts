@@ -20,8 +20,12 @@ import { standingLog } from "./store.ts";
 import { log } from "./streams.ts";
 import { state } from "./transport.ts";
 
-const whoOf = (reason: string): StopWho =>
-  reason === "revoked:person" ? "person" : reason === "revoked:self" ? "self" : "other";
+const WHO_BY_REASON: Readonly<Record<string, StopWho>> = {
+  "revoked:person": "person",
+  "revoked:self": "self",
+  "revoked:silent": "silent",
+};
+const whoOf = (reason: string): StopWho => WHO_BY_REASON[reason] ?? "other";
 
 const stopWord = (name: string, reason: string): string => words(STOP).stopped(name, whoOf(reason));
 
@@ -85,10 +89,15 @@ export const holdsSeat = (id: string, framed: boolean): boolean =>
     ? seatOf(id) !== null
     : H.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
 
-/** One seat of a live channel taken off (api: standing_ended {standing_id, by}). */
+/** One seat of a live channel taken off (api: standing_ended {standing_id, by | reason}). */
 function seatEnded(key: string, frame: Frame): void {
   const id = typeof frame.standing_id === "string" ? frame.standing_id : "";
-  const reason = typeof frame.by === "string" ? `revoked:${frame.by}` : "";
+  const reason =
+    typeof frame.by === "string"
+      ? `revoked:${frame.by}`
+      : frame.reason === "silent"
+        ? "revoked:silent"
+        : "";
   const beside = id ? extraPlaces().find((p) => p.door.standingId === id) : undefined;
   if (beside) {
     // The frame outran the answer of the session's own revoke of that seat or close of the channel.

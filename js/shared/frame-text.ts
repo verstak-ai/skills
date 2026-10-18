@@ -5,6 +5,7 @@ import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
 import { need, opt } from "./room-fields.ts";
 import { roomKind } from "./room-kinds.ts";
+import { isLifeCheck } from "./seen.ts";
 
 const W = () => wordsOf(ROOM);
 const T = () => wordsOf(FRAME_TEXT);
@@ -92,7 +93,7 @@ export const markFrame = (text: string): string => `${FRAME_MARK} ${text}`;
  * who; then the text once. Rule #6574: a case record not addressed to the seat goes
  * as a count (caseCountLine). The bridge has already checked the frame; provenance and
  * envelope are never printed raw (case history reads the whole record), and
- * delivery never tells the agent to answer.
+ * delivery never tells the agent to answer — but for the life check.
  */
 export function frameToText(frame: Frame | null | undefined, raw: string): string {
   if (!frame) return raw;
@@ -119,9 +120,11 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
     if (text && !words.includes(text.trim())) lines.push(text);
     return lines.join("\n");
   }
-  // Direct word, wake-up, graph event — no instruction to answer (#6574).
+  // Direct word, wake-up, graph event — no instruction to answer (#6574); the life check alone
+  // names the way to answer (case #1046): a seat silent past it is put out.
   const lines = [`${whoOf(frame, true) || "?"}${tail(frame, true)}`];
   if (text) lines.push(text);
+  if (isLifeCheck(frame)) lines.push(T().lifeCheckReply());
   return lines.join("\n");
 }
 

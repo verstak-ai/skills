@@ -21,6 +21,7 @@ import { RESUME } from "../delivery/words/resume.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
 import { STALE } from "../delivery/words/stalebatch.ts";
 import { STATUS } from "../delivery/words/status.ts";
+import { STOP } from "../delivery/words/stop.ts";
 import { REPO } from "./built.mjs";
 
 const DIR = join(REPO, "js", "delivery", "words");
@@ -104,6 +105,32 @@ test("left-out and lost frames point at the seat's cases, never the channel log 
     assert.match(text, /a case record stays in the case \(verstak_case history\)/);
     assert.doesNotMatch(text, /verstak_channel/);
   }
+});
+
+// The life check (graph @nks/nks-dev, case #1046): the way to answer under the platform's text,
+// the root's line about a warned child seat, and the stop for silence after it (#8121).
+test("the life check names the way to answer, a child seat's release, and the stop for silence", () => {
+  assert.equal(
+    FRAME_TEXT.en.lifeCheckReply(),
+    "Answer with an action: update your status — verstak_stand(realm, status=<what you are doing>) — or say a word in the case.",
+  );
+  const child = OPENCODE.en.lifeCheckChild("s.sub-1", "931", "@x/dev");
+  assert.match(child, /^Verstak: .*s\.sub-1/);
+  assert.ok(
+    child.includes(
+      'verstak_channel(realm="@x/dev", action="revoke", standing="s.sub-1", karta=931)',
+    ),
+    child,
+  );
+  assert.doesNotMatch(child, /verstak_stand/, "the root's status saves no child's seat");
+  assert.match(
+    OPENCODE.en.lifeCheckChild("", "", ""),
+    /realm="<graph>", action="revoke", standing="<seat name>", karta=<role>/,
+  );
+  assert.match(
+    STOP.en.stopped("proba", "silent"),
+    /taken off \(by the platform: no action of yours after the liveness wake-up\)/,
+  );
 });
 
 test("the delivery layer has word dictionaries", () => {

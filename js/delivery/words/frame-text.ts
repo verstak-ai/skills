@@ -12,6 +12,8 @@ export interface FrameTextWords {
   supersededLines: (gone: number) => string;
   inFull: (cases: string) => string;
   caseHistory: (args: string, since: number) => string;
+  /** Below the text of a life check: how to answer it. */
+  lifeCheckReply: () => string;
 }
 
 export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
@@ -24,6 +26,8 @@ export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
+    lifeCheckReply: () =>
+      `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
   },
 };
 
