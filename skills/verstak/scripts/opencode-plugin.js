@@ -150,7 +150,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.11.1";
+var VERSION = "3.12.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -180,7 +180,8 @@ var FRAME_TEXT = {
     count: (head, n2, mine) => `${head}: ${n2} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
-    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`
+    caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
+    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`
   }
 };
 var CASE_LINE = {
@@ -333,6 +334,8 @@ var OPENCODE = {
     tact: () => "attention tact",
     tactWaits: () => "Verstak: the attention tact waits for the end of the session's turn",
     tactWaitsFolded: () => "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
+    lifeCheck: () => "life check",
+    lifeCheckChild: (name, karta, realm) => `Verstak: the platform warned the subagent's seat ${name || "<seat name>"} that it will be put out unless it acts: still working — it answers with its own move; ended — release the seat: ${tool("channel")}(realm="${realm || "<graph>"}", action="revoke", standing="${name || "<seat name>"}", karta=${karta || "<role>"}).`,
     childGone: (frame, id, text2) => `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; a case record stays in the case (${tool("case")} history), a direct word did not reach the root; the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text2}`,
     childEnded: (frame, id, text2) => `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; a case record stays in the case (${tool("case")} history) — ${text2}`,
     sessionClosed: (id, frame) => `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
@@ -1096,6 +1099,36 @@ function superseded(frames) {
   return out2;
 }
 
+// js/shared/seen.ts
+var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
+function eventKeyOf(frame) {
+  const via2 = frame?.provenance?.via;
+  if (via2 === "room") return evOf(frame?.event_id);
+  if (via2 !== "graph") return "";
+  const body = frame?.body;
+  if (!body || typeof body !== "object" || Array.isArray(body)) return "";
+  return evOf(body.event_id);
+}
+var asText = (frame) => addressedToMine(frame);
+function deliveryKeys(frame, named = false) {
+  const id = typeof frame?.id === "string" ? frame.id : "";
+  const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
+  const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
+  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
+}
+function eventIn(frame, has) {
+  const ev = frame ? eventKeyOf(frame) : "";
+  if (!ev || !frame) return false;
+  const n2 = ev.slice(3);
+  const stale = frame.stale === true;
+  const keys = !asText(frame) ? [ev, `evs:${n2}`] : stale ? [ev, `evs:${n2}`, `cev:${n2}`, `cevs:${n2}`] : [ev, `cev:${n2}`];
+  return keys.some(has);
+}
+var isTact = (frame) => frame?.provenance?.wake === "look_up";
+var isLifeCheck = (frame) => frame?.provenance?.wake === "life_check";
+var tactAt = (frames) => (frames ?? []).filter(isTact).map((f) => typeof f.received_at === "string" ? f.received_at : "").reduce((a, b) => b > a ? b : a, "");
+var onlyTacts = (frames) => !!frames?.length && frames.every(isTact);
+
 // js/shared/frame-text.ts
 var W = () => words(ROOM);
 var T = () => words(FRAME_TEXT);
@@ -1179,6 +1212,7 @@ function frameToText(frame, raw) {
   }
   const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
   if (text2) lines.push(text2);
+  if (isLifeCheck(frame)) lines.push(T().lifeCheckReply());
   return lines.join("\n");
 }
 var BATCH_TEXT = 160;
@@ -1705,35 +1739,6 @@ async function refreshToolList(b, state2, reload, say, live) {
   }
 }
 
-// js/shared/seen.ts
-var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
-function eventKeyOf(frame) {
-  const via2 = frame?.provenance?.via;
-  if (via2 === "room") return evOf(frame?.event_id);
-  if (via2 !== "graph") return "";
-  const body = frame?.body;
-  if (!body || typeof body !== "object" || Array.isArray(body)) return "";
-  return evOf(body.event_id);
-}
-var asText = (frame) => addressedToMine(frame);
-function deliveryKeys(frame, named = false) {
-  const id = typeof frame?.id === "string" ? frame.id : "";
-  const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
-  const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
-  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
-}
-function eventIn(frame, has) {
-  const ev = frame ? eventKeyOf(frame) : "";
-  if (!ev || !frame) return false;
-  const n2 = ev.slice(3);
-  const stale = frame.stale === true;
-  const keys = !asText(frame) ? [ev, `evs:${n2}`] : stale ? [ev, `evs:${n2}`, `cev:${n2}`, `cevs:${n2}`] : [ev, `cev:${n2}`];
-  return keys.some(has);
-}
-var isTact = (frame) => frame?.provenance?.wake === "look_up";
-var tactAt = (frames) => (frames ?? []).filter(isTact).map((f) => typeof f.received_at === "string" ? f.received_at : "").reduce((a, b) => b > a ? b : a, "");
-var onlyTacts = (frames) => !!frames?.length && frames.every(isTact);
-
 // js/bridge/build.ts
 var BUILD = buildOf(import.meta.url);
 
@@ -2210,6 +2215,87 @@ function fromLauncher(frame, launcher) {
     f.provenance?.from_standing ?? f.line?.author?.standing ?? ""
   );
   return by === launcher || by.endsWith(`:${launcher}`);
+}
+
+// js/shared/busyargs.ts
+var STATUS_ONLY_ARGS = /* @__PURE__ */ new Set([
+  "realm",
+  "karta",
+  "name",
+  "cwd",
+  "status",
+  "satellite_of"
+]);
+var unset = (v) => v == null || v === false || v === "";
+var takingArgs = (args) => Object.keys(args).filter((k) => !STATUS_ONLY_ARGS.has(k) && !unset(args[k]));
+
+// js/opencode/satellite.ts
+var STAND_TOOL2 = tool("stand");
+function standsBy(name, args) {
+  if (name === STAND_TOOL2) return true;
+  return name === tool("channel") && ["connect", "mint", "register"].includes(String(args.action));
+}
+var busyOnly = (args) => typeof args.status === "string" && takingArgs(args).length === 0;
+function ownPlace(slot) {
+  const p = slot?.child ? slot.place : null;
+  if (!p?.name) return null;
+  const of = slot?.satelliteOf?.name;
+  return of && isSatelliteOf(of, p.name) ? null : p.name;
+}
+function heldPlace(data) {
+  const p = data?.place;
+  if (typeof p?.name !== "string" || !p.name) return null;
+  return { realm: String(p.realm), karta: String(p.karta), name: p.name };
+}
+function asSatellite(args, of, leads = false) {
+  const busy = busyOnly(args);
+  if (!of) return busy;
+  args.satellite_of ??= of.name;
+  if (!(leads && busy) && (args.karta == null || args.karta === "")) args.karta = of.karta;
+  return busy;
+}
+
+// js/opencode/lifecheck.ts
+var str2 = (v) => typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
+function createLifeChecks(parents) {
+  const places = /* @__PURE__ */ new Map();
+  return {
+    held(session, place) {
+      if (place?.name) places.set(session, place);
+      for (const k of places.keys()) if (places.size > 100) places.delete(k);
+    },
+    gone(session) {
+      places.delete(session);
+    },
+    prompt(session, child, frame) {
+      const W4 = words(OPENCODE);
+      const id = frame.id != null ? W4.frameId(String(frame.id)) : W4.frameNoId();
+      const what = `${W4.lifeCheck()}, ${id}`;
+      if (!child || !session) {
+        const body = typeof frame.body === "string" ? frame.body : JSON.stringify(frame.body ?? "");
+        return { session, text: `${body}
+
+${words(FRAME_TEXT).lifeCheckReply()}`, what };
+      }
+      const p = places.get(session);
+      const name = p?.name ?? str2(frame.to_standing).replace(/^.*:/, "");
+      const text2 = W4.lifeCheckChild(
+        name,
+        p?.karta ?? str2(frame.karta_seq),
+        p?.realm ?? str2(frame.realm)
+      );
+      return { session: rootAbove(session, parents), text: text2, what };
+    }
+  };
+}
+function rootAbove(session, parents) {
+  const visited = /* @__PURE__ */ new Set([session]);
+  let root = null;
+  for (let up = parents.get(session); up && !visited.has(up); up = parents.get(up)) {
+    visited.add(up);
+    root = up;
+  }
+  return root;
 }
 
 // js/opencode/marker.ts
@@ -3131,44 +3217,6 @@ function createKeepAlive(ctx, d) {
     },
     stop: () => clearInterval(timer)
   };
-}
-
-// js/shared/busyargs.ts
-var STATUS_ONLY_ARGS = /* @__PURE__ */ new Set([
-  "realm",
-  "karta",
-  "name",
-  "cwd",
-  "status",
-  "satellite_of"
-]);
-var unset = (v) => v == null || v === false || v === "";
-var takingArgs = (args) => Object.keys(args).filter((k) => !STATUS_ONLY_ARGS.has(k) && !unset(args[k]));
-
-// js/opencode/satellite.ts
-var STAND_TOOL2 = tool("stand");
-function standsBy(name, args) {
-  if (name === STAND_TOOL2) return true;
-  return name === tool("channel") && ["connect", "mint", "register"].includes(String(args.action));
-}
-var busyOnly = (args) => typeof args.status === "string" && takingArgs(args).length === 0;
-function ownPlace(slot) {
-  const p = slot?.child ? slot.place : null;
-  if (!p?.name) return null;
-  const of = slot?.satelliteOf?.name;
-  return of && isSatelliteOf(of, p.name) ? null : p.name;
-}
-function heldPlace(data) {
-  const p = data?.place;
-  if (typeof p?.name !== "string" || !p.name) return null;
-  return { realm: String(p.realm), karta: String(p.karta), name: p.name };
-}
-function asSatellite(args, of, leads = false) {
-  const busy = busyOnly(args);
-  if (!of) return busy;
-  args.satellite_of ??= of.name;
-  if (!(leads && busy) && (args.karta == null || args.karta === "")) args.karta = of.karta;
-  return busy;
 }
 
 // js/opencode/launch.ts
@@ -4806,6 +4854,11 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     const launcher = child ? leads.launcherOf(session2 ?? "") : null;
     return !!frames?.some((f) => fromLauncher(f, launcher));
   };
+  const lives = createLifeChecks(parents);
+  function lifeCheck(session2, child, frame) {
+    const p = lives.prompt(session2, child, frame);
+    void deliver(p.session, p.text, p.what, "queue");
+  }
   function dropPile(key) {
     const p = piles.get(key);
     if (p?.timer) clearTimeout(p.timer);
@@ -4840,6 +4893,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     },
     gone(session2) {
       tacts.gone(session2);
+      lives.gone(session2);
       halts.gone(session2);
       cuts.forget(session2);
     },
@@ -4901,6 +4955,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           const frame = ev.frame ?? null;
           if (frame?.type === "hello") return say(P.listening(), "info");
           if (frame?.type === "status") return;
+          if (isLifeCheck(frame)) return lifeCheck(session2, child, frame);
           const steers = !!frame && launcherWordIn(session2, child, [frame]);
           if (frame && !steers && toPile(frame)) return pile(session2, child, frame);
           const own = piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`);
@@ -4935,6 +4990,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           }
           return;
         case "held":
+          if (child && session2) lives.held(session2, ev.place);
           if (params?.data?.automatic === false) {
             halts.held(session2);
             for (const s of session2 ? [session2, ...descendantsOf(session2, parents)] : []) {

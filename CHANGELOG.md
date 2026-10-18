@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.0](https://github.com/verstak-ai/skills/compare/v3.11.1...v3.12.0) (2026-10-18)
+
+
+### Features
+
+* **verstak:** sync the bridge core to 0e44b1df and the onboarding fixes ([#204](https://github.com/verstak-ai/skills/issues/204)) ([81bbd25](https://github.com/verstak-ai/skills/commit/81bbd2555751b55b9192aeb709f27bab9b66a687))
+
 ## [3.11.1](https://github.com/verstak-ai/skills/compare/v3.11.0...v3.11.1) (2026-10-18)
 
 
