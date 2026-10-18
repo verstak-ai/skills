@@ -38,20 +38,20 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 **Read what IS:** README and docs (the claim); CHANGELOG and `gh release list` (what shipped, current version); code structure (subsystem boundaries, entry points, route tables); config (flags, env); API surface (endpoints, CLI commands).
 
-**Seed the ground in observation modes (Pt/Va/Up — observed, in effect, accepted)**, apart from the backlog:
+**Seed the ground as An/Va/Up — `anumita` · `vartamana` · `upeksha`: inferred by reading, in effect, accepted —** apart from the backlog. Reading README, docs and code sees the content, not a run: the ground's epistemic mode by reading is at most `anumita` (`methods/writing.md`, Decision 3):
 
 | What you read | Node | given_as | modes |
 |---|---|---|---|
 | a subsystem (crawler, indexer, auth, storage) | **holon** | — | (a boundary) |
-| an existing capability ("full-text search") | **phenomenon** | vollzug / sachverhalt | Pt/Va/Up |
-| a domain object (Bookmark, Library, User) | **phenomenon** | bildung / sinn | Pt/Va/Up |
-| a key flow the product runs today | **kriya** | — | Pt/Va/Up |
-| a shipped fact confirmed by a release | phenomenon | sachverhalt | **Pm**/Va/Up |
+| an existing capability ("full-text search") | **phenomenon** | vollzug / sachverhalt | An/Va/Up |
+| a domain object (Bookmark, Library, User) | **phenomenon** | bildung / sinn | An/Va/Up |
+| a key flow the product runs today | **kriya** | — | An/Va/Up |
+| a shipped fact confirmed by a release | phenomenon | sachverhalt | An/Va/Up — a release note is the maintainer's word, not an observation |
 
 - Subsystems nest under the focus holon (`contains`), capabilities and objects in their subsystem. **Multi-repo: the repositories ARE the top-level subsystems** (`attrs.repo`).
 - **Grounding:** the real primitive in `attrs.source_ref` (module path, flag, endpoint, release tag; repo-qualified) — the **exact** symbol at that path, where behaviour is **implemented** not read, **executable over doc prose**, versions from the **manifest**. No citable primitive → a guess: downgrade or drop. A feature request is backlog, not ground.
 - **Scope:** a map the maintainer recognises as "my product", not a reverse-engineering.
-- **Actors — role test first (`methods/writing.md`, Decision 1).** Two layers, never collapsed:
+- **Actors — role test first (`methods/writing.md`, Decision 2b).** Two layers, never collapsed:
   - **Runtime operators** — who acts on or is served by the live system, from the **ground** (they rarely write issues): external consumer → `agantuka` 客; internal operator (admin, moderator, staff) → `adhikarin` 能, an *active* actor, not a "served" party. Workers / CI / cron are a ⚙️ phenomenon (`upadhi`), not a role — never promoted to silence `no-actor`.
   - **Development drivers** — who authors the backlog (the only layer the harvest shows): the maintainer → `svatantra` 主 (a delegated dev scope → `adhikarin`); a drive-by contributor → `agantuka`.
 
@@ -98,12 +98,12 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 - **Anchor every item to its subsystem** (`context` / `vimarsha_of` → the Step 2 holon or the capability it extends). No home → under-modelled ground (back to Step 2) or new ground — say which. A cross-repo theme anchors to the focus holon, linking every subsystem it touches.
 - **Dedupe against the GROUND too:** a request matching a shipped capability is "improve X", never "add X" — name the real remaining gap. GitHub reference (number, author, weight) in `attrs`.
-- **Modes as they stand now:** milestone-committed or speculative → `chanda` (the milestone is evidence in `attrs` and ranking weight, not will); being designed → `anagata`; the ground stays `vartamana`/`pramanita`. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
+- **Modes as they stand now:** milestone-committed or speculative → `chanda` (the milestone is evidence in `attrs` and ranking weight, not will); being designed → `anagata`; the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
 - **Each backlog kriya's `actor`** is the verified author's dev-driver role, never a runtime actor — ownership as an edge.
 
 ## Step 6 — Assembly (discern the directions)
 
-Run `methods/assembly.md` over the seeded graph. Playing the owner, accept names and teloses inline, with its discipline intact; risks stay risks.
+Run `methods/assembly.md` over the seeded graph. You propose the directions' names and teloses (`chanda`); the owner accepts them (`methods/writing.md`, Decision 1, the bianhua paragraph): playing the maintainer is no act of acceptance. Risks stay risks.
 
 - **Refresh reconciles:** update directions that hold; add one only for a new theme; release (`visarjana`) shipped ones. Never a twin.
 - **Figure on ground as a real arrow:** the leading kriya reaches a ground capability via `upadhi` / `context` — never `ahara` from the bianhua (forbidden). No ground touched → new ground (say so) or an under-modelled Step 2.

@@ -20,7 +20,7 @@ Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). Hooks: committed in 
 
 **Reads `AGENTS.md` natively; no pointer file.** It merges every `AGENTS.md` from the project root to the cwd over `~/.codex/AGENTS.md` (which does not configure agent behaviour, Step 1). `AGENTS.override.md` beats `AGENTS.md` in its directory: for machine-local notes, never committed.
 
-**Align does not wire Codex hooks** (Step 1): they are machine-local; `AGENTS.md`'s opening paragraph and `methods/code-work.md` carry the rituals. The 0.151 `project` hook source has an unobserved path; observe it before wiring there. Below is for repairing existing hooks; a `SessionStart` there carries the start message.
+**Align does not wire Codex hooks** (Step 4): they are machine-local; `AGENTS.md`'s opening paragraph and `methods/code-work.md` carry the rituals. The 0.151 `project` hook source has an unobserved path; observe it before wiring there. Below is for repairing existing hooks; a `SessionStart` there carries the start message.
 
 - **Find CODEX_HOME with `codex doctor`**; it is not always `~/.codex`.
 - **Hooks are declared in `hooks.json` there**, not in TOML: `config.toml`'s `[hooks.state."<path to hooks.json>:<event>:0:0"]` tables are bookkeeping. Shape: event → groups → commands:
@@ -42,7 +42,7 @@ Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). Hooks: committed in 
 
 **Reads `AGENTS.md` natively, no pointer.** Extra rule files go in `instructions` in the project's `opencode.json` (globs allowed: reuse, don't copy); never the global config (Step 1).
 
-Rituals go in a **plugin** in the project's `.opencode/plugins/`; the global `~/.config/opencode/plugins/` holds only the delivered verstak plugin (Step 1). **Shape: OpenCode 2 (`@opencode/plugin` 2.0.4), a default export `{ id, setup(ctx) }`, no imports.** The 2.x loader rejects the 1.x shape (service log `SchemaError(Missing key at ["default"])`) and the rituals silently don't run.
+Rituals go in a **plugin** in the project's `.opencode/plugins/`; the global `~/.config/opencode/plugins/` holds only the delivered verstak plugin (Step 4). **Shape: OpenCode 2 (`@opencode/plugin` 2.0.4), a default export `{ id, setup(ctx) }`, no imports.** The 2.x loader rejects the 1.x shape (service log `SchemaError(Missing key at ["default"])`) and the rituals silently don't run.
 
 ```js
 // .opencode/plugins/verstak-rituals.js — OpenCode 2
