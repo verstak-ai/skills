@@ -212,8 +212,8 @@ Ground these in the canon, not in the product decision.
 The skill keeps the product rule and does not annotate it; re-decide here when either side moves.
 
 1. **Main reading and ledger — resolved, no longer a departure.** The door now follows r4 #744: a case is read first by its ledger summary (latest `[was] [did] = verdict` per subject, verdict on observed outcomes), the snapshot of the work in progress; the lasting result lives in the graph (modes, nodes, arrows), and a closed case is dropped. The owner's word: the summary is the case's main reading; state and effect stay in the graph.
-2. **Every subagent assignment gets a child case:** the door requires a new child case. r4 #745 allows the launching agent's own case, a child case, or the case of the particular work. The product deliberately narrows that choice; unchanged.
-3. **Closure procedure:** architect/autonomous use the surface's `ends_at` objection deadline and participant eligibility. r4 #747 makes journal order before the final closure entry decisive and continues late substance in a new case. Exact calls remain unchanged; the skills now state the canon's receiving/could-object condition rather than treating every silent participant as consenting.
+2. **The case of a subagent assignment — resolved, no longer a departure.** The door follows r4 #745: the launching agent's own case, a child case, or the case of the particular work, chosen by the subject (the owner's word, r5 №996 [368]).
+3. **Closure procedure — resolved, no longer a departure.** architect follows r4 #747: journal order before the final closure record decides; the surface's `ends_at` is delivery mechanics, not the ground; late substance continues in a new case (the owner's word, r5 №996 [368]).
 
 **Open canon tension, not a settled departure:** r4 #570 requires relay as an addressed vimarsha; r4 #746 distinguishes substantive relay from one-off requests, and r4 #751 explicitly asks how these converge. Autonomous relays to each dependant by kind: a vimarsha `posed_to` them for a question of substance or a continuing commitment, a `say` in the related case for a one-off request. This does not settle #751.
 
