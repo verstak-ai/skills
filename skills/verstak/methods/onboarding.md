@@ -12,7 +12,7 @@ One loop serves every entry: **read the signs → choose one step → do it with
 
 Read for **this person** and **the chosen graph**: the account, handle and plan are the person's; roles, repositories and subject nodes belong to one graph. A role in another graph does not count here; `@handle/mind` is never a working graph; a graph the person can read is not yet a graph they chose.
 
-Read the missing signs with `verstak_me(action="readiness", realm)` — each sign with its state, receipt and next step; a sign it doesn't establish, read yourself as the table says. Confirm a step the person understood with `verstak_me(action="understood", key)`.
+Read the missing signs with `verstak_me(action="readiness", realm)` — the count, each sign with its state, receipt and next step, the artifacts' links; without `realm` the person's signs, with it that graph's; a sign it doesn't establish, read yourself as the table says. The count ("N of M") and a step's hint are retold from readiness, never composed. Confirm a step the person understood with `verstak_me(action="understood", key)`.
 
 | Sign | Read | Missing → step |
 |---|---|---|
@@ -24,7 +24,7 @@ Read the missing signs with `verstak_me(action="readiness", realm)` — each sig
 | the agent can be heard | `verstak_channel(action="list", realm)` shows a seat on the agent role; a word delivered to it is the proof, not presence on the board | **5 · The agent's seat** |
 | repositories already registered | `verstak_search(realm, q="", node_type="holon", attrs_filter="repository:*")` | show the list before step 3 (a person the graph is shared with — invited or their organization's — sees what they join) |
 | subject nodes: an action, a phenomenon, a question, a transformation, a modelled participant | `verstak_search(realm, q="", node_type=…)` per type | one step on the person's own task (`methods/writing.md`, `methods/design.md`) |
-| handle | `verstak_me(action="whoami")` | show it; a change is `verstak_me(action="set_handle")` on their word — full graph addresses follow the new handle |
+| account, name and handle | `verstak_me(action="whoami")` | not a step: name it in the greeting, one line ("account: <name>, @<handle>"); nothing to confirm, the method never changes the handle itself — a change is `verstak_me(action="set_handle")` on their word, and full graph addresses follow the new handle |
 | billing — a knowledge sign | never the plan; only `verstak_me(action="understood")` confirming the step was understood | explained in step 6 |
 
 **A failed read is "not established", never "absent".** An error, a refusal or a silent tool is not an empty list: restore access (`methods/establish-mcp.md`) and read again; never create a graph, role or holon because a read failed. This method reads neither Telegram nor the plan: they are never reported missing, only explained in step 6.
@@ -33,7 +33,7 @@ Read the missing signs with `verstak_me(action="readiness", realm)` — each sig
 
 1. Read the table from the top; the first missing sign is the candidate. In the harness branch the order below wins.
 2. **Offer one step**, in the person's language: what you will do, what it leaves behind, what it is for, and the condition that matters (who will own it, whether it can be renamed). One step, not the tour.
-3. The person goes on, refines or defers. A refinement changes the step, not the order; a deferral stops here (`Deferral and redo`).
+3. The person goes on, refines or defers. A refinement changes the step, not the order; a deferral ("skip") leads on to the next missing sign (`Deferral and redo`).
 
 Already present → reused, shown with its current value, never created again. The person who still doesn't understand gets the explanation again on what exists, not a second copy of the artifact.
 
@@ -50,7 +50,18 @@ First, in the harness and the home branch alike, without asking (`methods/mindin
 - the person's role: `manifested_as="svatantra"`, bound to them (`user="me"`);
 - the assistant's role: `manifested_as="adhikarin"`, `attrs={"persona":"companion"}`, bound to no user, named "Assistant" or "Assistant of <handle>" — never the person's role's name, never a personal fact.
 
-Create mind only on an established absence (`Realm not found` on its read); an unknown or empty handle, a failed read or a failed write is not absence: create nothing, never a copy. An existing mind, even an empty one, is reused and completed with whichever role is missing, keyed by graph and person: a repeat never adds a second user-bound role or a second `persona=companion` role; roles that already fit keep their names and authorship. In the home branch the companion does this with the person's key. Tell the person plainly: their personal graph *@handle/mind* exists, and the assistant remembers and recalls through it what is theirs across projects — their machines, people, habits, their own environment. Work never goes there: a project's deployment, infrastructure and decisions go to that project's graph.
+Take the personal graph by readiness's link (the `personal_mind` item's artifact link); never search for "mind" nodes or guess the graph's number. Create mind only on an established absence (`Realm not found` on its read); an unknown or empty handle, a failed read or a failed write is not absence: create nothing, never a copy. An existing mind, even an empty one, is reused and completed with whichever role is missing, keyed by graph and person: a repeat never adds a second user-bound role or a second `persona=companion` role; roles that already fit keep their names and authorship. In the home branch the companion does this with the person's key. A thread already running in mind shows the graph exists, not the step met: it is met only once readiness names nothing missing there.
+
+The assistant's role missing → take a fitting existing one (`verstak_search(realm=<personal graph>, q="", node_type="karta", attrs_filter="persona:companion")`), never a second; none → create it with exactly this call, without `user` — without `attrs` the platform does not recognise it as the assistant:
+
+```
+verstak_add_karta(realm=<personal graph>, name="🤖 Assistant",
+  motivation="remembers and recalls what is the person's own, across all their holons",
+  manifested_as="adhikarin", attrs={"persona":"companion"},
+  epistemic_mode="pratyakshita", ontic_mode="vartamana", volitive_mode="upeksha")
+```
+
+Then read readiness again. Only then tell the person plainly: their personal graph *@handle/mind* exists, and the assistant remembers and recalls through it what is theirs across projects — their machines, people, habits, their own environment. Work never goes there: a project's deployment, infrastructure and decisions go to that project's graph. A write that did not land is said as such: the assistant's role could not be created, and why.
 
 Filling mind — areas, what each live graph is for, people, their machines and local setup — is not an onboarding step: only on the person's request (`methods/minding.md`). A mind holding both roles is minimal, not filled; never report it as filled. Its artifacts present and the person understanding them are checked apart.
 
@@ -99,7 +110,7 @@ Billing goes in the same word, from this text, never from the person's plan — 
 
 ## Deferral and redo
 
-- **Defer** → stop after the current step; nothing half-made is left (a graph without hooks is fine; a role proposed but not accepted is not written). The next start reads the signs again and continues from the first missing one.
+- **Defer** ("skip") → go on to the next missing sign; the deferred step does not come back in this conversation, even when readiness names it next again. Say what stays missing and how to return ("say 'onboarding'"). Nothing half-made is left (a graph without hooks is fine; a role proposed but not accepted is not written). The next start reads the signs again and continues from the first missing one.
 - **Redo** ("onboarding" again, a re-run for testing) → the same steps with the current values shown and the explanations repeated; it creates nothing that exists. Two runs on one account end with one graph, one role of the person's, one holon per repository. A rename is their word: `verstak_realm(action="update", realm, name=…)`, `verstak_update` on the node.
 - **Three cases to tell apart**, each checked against the data:
   - a brand-new, empty working graph → step 2's initial hooks land in this session; waiting for a role or holon first is the failure;
