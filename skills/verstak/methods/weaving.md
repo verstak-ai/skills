@@ -12,7 +12,7 @@
 | answer or end a question | unresolved risk, unanchored vimarsha, bug without a vimarsha | the agenda (`methods/inquiry.md`, `methods/assembly.md`) — it carries the owner's will |
 | touch a mode | conflicting modes, a transformation's record behind its case | confirm / release / raise a doubt — don't restructure; a confirming touch names its level, graph or world |
 | neighbour (only with `focus` on a holon) | a scope pair covered by an action outside — a link, not a tension | know the neighbour's steward; nothing to weave |
-| read the accepted as is | the unwanted in `upeksha`, a question accepted as is | read it; nothing to repair (below) |
+| read the accepted as is | the unwanted in `upeksha`, a question accepted as is | read it; nothing to repair (below); its count and growth go to the agenda (**assembly**, accepted items) |
 
 **Don't repair what was accepted.** The unwanted in `upeksha`, or a question accepted as is, is someone's decision; "fixing" it undoes it.
 
