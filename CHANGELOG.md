@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.1](https://github.com/verstak-ai/skills/compare/v3.11.0...v3.11.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* **verstak:** subagent assignment case and closure follow the canon ([#202](https://github.com/verstak-ai/skills/issues/202)) ([891bb80](https://github.com/verstak-ai/skills/commit/891bb809e00706988cde4d250460e288b9078bb5))
+
 ## [3.11.0](https://github.com/verstak-ai/skills/compare/v3.10.0...v3.11.0) (2026-10-18)
 
 
