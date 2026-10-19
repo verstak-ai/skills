@@ -20,6 +20,7 @@ import { holdStray, letGo, takeSpool } from "./handoff.ts";
 import { dropOwnHoldRecord, keyOf, readHoldRecord, writeHoldRecord } from "./holdrecord.ts";
 import { drainWhenFree, E, type Frame, H, handoverReason } from "./holdstate.ts";
 import { deadWord, holdWords } from "./holdwords.ts";
+import { routeNamed } from "./lifeseat.ts";
 import {
   addExtra,
   type Channel,
@@ -31,7 +32,6 @@ import {
   type Place,
   rememberExtraStatus,
   repointExtras,
-  routeFrame,
 } from "./places.ts";
 import { otherRealm, sameRealm } from "./realms.ts";
 import { batchForWatchdogs, noteRoomKind } from "./roomstack.ts";
@@ -439,7 +439,7 @@ function openHolder(url: string, key: string): void {
           if (full?.type === "hello") learnFromHello(full, primary); // hello names the channel's places: their ids and canonical graphs (#5838)
           if (holdStray(raw, full, held, () => onFrame(raw, frame))) return; // its seat beside is coming back (#7602)
           // A frame goes to its place's door by to_standing_id; an unmatched one to the primary with a note.
-          const { door: d, note } = routeFrame(full?.type === "hello" ? null : full, primary);
+          const { door: d, note } = routeNamed(full?.type === "hello" ? null : full, primary);
           if (note) {
             log(note);
             d.broadcast({ kind: "note", text: note });

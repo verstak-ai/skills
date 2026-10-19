@@ -18,10 +18,13 @@ import { join } from "node:path";
 import { GLOBAL_PREFIX } from "../delivery/index.ts";
 
 export interface Halts {
-  /** `word` — what the session's turns read while it stays stopped; null — none (a child). */
-  stop(session: string, word: string | null): void;
+  /**
+   * `word` — what the session's turns read while it stays stopped; null — none (a child).
+   * `alone` — the stop is the session's only, not its descendants' (a seat put out for silence).
+   */
+  stop(session: string, word: string | null, alone?: boolean): void;
   held(session: string | null): void;
-  /** The session or any of its ancestors is stopped. */
+  /** The session or any of its ancestors is stopped (an ancestor's stop `alone` does not count). */
   halted(session: string): boolean;
   /** The ids of the stops over the session and its ancestors; null — none. */
   stopOf(session: string): string | null;
@@ -51,6 +54,8 @@ const ids = (): Map<string, string> =>
 /** The word of each stop in the registry. */
 const words = (): Map<string, string | null> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}StopWords`] ??= new Map<string, string | null>());
+/** The stops in the registry that are their session's only (case #1046). */
+const alones = (): Set<string> => ((globalThis as any)[`${GLOBAL_PREFIX}StopAlone`] ??= new Set());
 
 const code = (e: unknown): string | undefined => (e as NodeJS.ErrnoException).code;
 
@@ -58,6 +63,7 @@ const code = (e: unknown): string | undefined => (e as NodeJS.ErrnoException).co
 interface Mark {
   id: string;
   word?: string | null;
+  alone?: boolean;
 }
 
 /**
@@ -71,9 +77,10 @@ function recorded(file: string, since: number | undefined): Mark | null {
       lifted?: string;
       id?: string;
       word?: string | null;
+      alone?: boolean;
     };
     if (r.lifted || (since !== undefined && Date.parse(r.at ?? "") <= since)) return null;
-    return { id: r.id ?? r.at ?? "?", word: r.word };
+    return { id: r.id ?? r.at ?? "?", word: r.word, alone: r.alone === true };
   } catch (e) {
     return code(e) === "ENOENT" ? null : { id: "?" };
   }
@@ -92,12 +99,13 @@ export function createHalts(
 ): Halts {
   const marked = (s: string): Mark | null =>
     stops().has(s)
-      ? { id: ids().get(s) ?? "?", word: words().get(s) }
+      ? { id: ids().get(s) ?? "?", word: words().get(s), alone: alones().has(s) }
       : recorded(fileOf(dir(), s), lifted().get(s));
   const drop = (s: string): void => {
     stops().delete(s);
     ids().delete(s);
     words().delete(s);
+    alones().delete(s);
     lifted().set(s, Date.now());
     const file = fileOf(dir(), s);
     try {
@@ -119,21 +127,24 @@ export function createHalts(
     const seen = new Set<string>();
     for (let s: string | undefined = session; s && !seen.has(s); s = parentOf(s)) {
       const m = marked(s);
-      if (m) found.push(m.id);
+      if (m && (s === session || !m.alone)) found.push(m.id);
       seen.add(s);
     }
     return found.length ? found.join(" ") : null;
   }
   return {
-    stop(session, word) {
+    stop(session, word, alone = false) {
       const id = randomUUID();
       stops().add(session);
       ids().set(session, id);
       words().set(session, word);
+      if (alone) alones().add(session);
+      else alones().delete(session);
       lifted().delete(session);
       try {
         mkdirSync(dir(), { recursive: true, mode: 0o700 });
-        const record = JSON.stringify({ session, at: new Date().toISOString(), id, word });
+        const at = new Date().toISOString();
+        const record = JSON.stringify({ session, at, id, word, ...(alone ? { alone } : {}) });
         writeFileSync(fileOf(dir(), session), record, { mode: 0o600 });
       } catch (e) {
         unwritten(session, (e as Error).message);

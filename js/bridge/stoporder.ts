@@ -39,6 +39,8 @@ function orderOf(frame: Frame): Order | null {
     by: str(frame.by),
     issued_at: str(frame.issued_at),
     ...(typeof span === "number" ? { ack_window_seconds: span } : {}),
+    ...(str(frame.to_standing_id) ? { to_standing_id: str(frame.to_standing_id) } : {}),
+    ...(str(frame.to_standing) ? { to_standing: str(frame.to_standing) } : {}),
   };
 }
 
@@ -61,7 +63,7 @@ async function stopOf(o: Order, entry: OrderEntry): Promise<OrderEntry> {
   const confirms = confirmsHalts();
   let seat: "main" | "beside" | null;
   try {
-    seat = stopSeatByOrder(o.standing_id, o.by ?? "", o.id);
+    seat = stopSeatByOrder(o.standing_id, o.by ?? "", o.id, o);
   } catch (e) {
     log(`stop order ${o.id}: the stop failed — ${(e as Error).message}`);
     return { ...entry, state: "failed", reason: "stop_failed" };
@@ -111,7 +113,7 @@ async function carry(o: Order, base: string, f: { end: OrderEntry | null }): Pro
     pid: process.pid,
     until: windowEnd(o, at),
   };
-  if (!holdsSeat(o.standing_id, true))
+  if (!holdsSeat(o.standing_id, true, o))
     return finish({ ...entry, state: "refused", reason: "seat_not_held" });
   // accepted is the order on disk (#7510): not on disk — no accepted, the outcome goes alone.
   const kept = writeOrder(entry);
