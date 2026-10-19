@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.13.0](https://github.com/verstak-ai/skills/compare/v3.12.1...v3.13.0) (2026-10-19)
+
+
+### Features
+
+* **verstak:** telos check and re-assembly — the door's signal, assembly's review ([#210](https://github.com/verstak-ai/skills/issues/210)) ([2e035b4](https://github.com/verstak-ai/skills/commit/2e035b4c56a6ca37a63f7c5ea1068559da92a9ca))
+
 ## [3.12.1](https://github.com/verstak-ai/skills/compare/v3.12.0...v3.12.1) (2026-10-19)
 
 
