@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.12.0";
+var VERSION = "3.12.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -142,7 +142,8 @@ var FRAME_TEXT = {
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
-    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`
+    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
+    lifeCheckSeat: (name) => `Seat warned: ${name || "the platform did not name the seat"}.`
   }
 };
 var CASE_LINE = {
@@ -1111,9 +1112,10 @@ function frameToText(frame, raw) {
   }
   const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
   if (text) lines.push(text);
-  if (isLifeCheck(frame)) lines.push(T2().lifeCheckReply());
+  if (isLifeCheck(frame)) lines.push(T2().lifeCheckSeat(warnedSeat(frame)), T2().lifeCheckReply());
   return lines.join("\n");
 }
+var warnedSeat = (frame) => typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
 var BATCH_TEXT = 160;
 function batchLine(frame, run, withZachin = true) {
   const f = frame;

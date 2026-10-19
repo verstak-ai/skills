@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.12.0";
+var VERSION = "3.12.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -210,7 +210,8 @@ var FRAME_TEXT = {
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
-    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`
+    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
+    lifeCheckSeat: (name2) => `Seat warned: ${name2 || "the platform did not name the seat"}.`
   }
 };
 var CASE_LINE = {
@@ -5202,9 +5203,10 @@ function frameToText(frame2, raw) {
   }
   const lines = [`${whoOf2(frame2, true) || "?"}${tail(frame2, true)}`];
   if (text2) lines.push(text2);
-  if (isLifeCheck(frame2)) lines.push(T2().lifeCheckReply());
+  if (isLifeCheck(frame2)) lines.push(T2().lifeCheckSeat(warnedSeat(frame2)), T2().lifeCheckReply());
   return lines.join("\n");
 }
+var warnedSeat = (frame2) => typeof frame2.to_standing === "string" ? frame2.to_standing.replace(/^.*:/, "") : "";
 var BATCH_TEXT = 160;
 function batchLine(frame2, run, withZachin = true) {
   const f = frame2;
@@ -6640,6 +6642,19 @@ var handoffsSettled = () => Promise.all([...pending]).then(() => void 0);
 var holdWords = () => words(HOLD);
 var deadWord = (code) => holdWords().dead(deadTokenAdvice(code));
 
+// js/bridge/lifeseat.ts
+function nameWarnedSeat(frame2, primary) {
+  if (!frame2 || !isLifeCheck(frame2)) return;
+  if (typeof frame2.to_standing === "string" && frame2.to_standing) return;
+  const id = typeof frame2.to_standing_id === "string" ? frame2.to_standing_id : "";
+  const seat2 = id ? [primary, ...extraPlaces()].find((p) => p.door.standingId === id) : void 0;
+  if (seat2?.standing.name) frame2.to_standing = seat2.standing.name;
+}
+function routeNamed(frame2, primary) {
+  nameWarnedSeat(frame2, primary);
+  return routeFrame(frame2, primary);
+}
+
 // js/bridge/seatorigin.ts
 import { AsyncLocalStorage as AsyncLocalStorage2 } from "node:async_hooks";
 
@@ -6941,7 +6956,7 @@ function openHolder(url, key2) {
           if (!primary) return H2.door ? deliverTo(H2.door, raw, frame2, full) : void 0;
           if (full?.type === "hello") learnFromHello(full, primary);
           if (holdStray(raw, full, held, () => onFrame(raw, frame2))) return;
-          const { door: d, note: note3 } = routeFrame(full?.type === "hello" ? null : full, primary);
+          const { door: d, note: note3 } = routeNamed(full?.type === "hello" ? null : full, primary);
           if (note3) {
             log(note3);
             d.broadcast({ kind: "note", text: note3 });
@@ -11206,22 +11221,20 @@ function stopBeside(beside, reason) {
   dropUnsent(beside.door.key, [beside.door]);
   dropExtra(beside.door.key, text2, true, "beside");
 }
-function stopSeatByOrder(id, by, order) {
+function stopSeatByOrder(id, by, order, to = {}) {
   const reason = by ? `revoked:${by}` : "";
-  const seat2 = seatOf(id);
+  const seat2 = seatOf(id, to);
   if (seat2 === "main" && H2.currentKey)
     stopAgent(H2.currentKey, `stop order ${order}`, reason, order);
   else if (seat2 && seat2 !== "main") stopBeside(seat2, reason);
   return seat2 === null ? null : seat2 === "main" ? "main" : "beside";
 }
-function seatOf(id) {
+function seatOf(id, to) {
   const beside = extraPlaces().find((p) => p.door.standingId === id);
   if (beside) return beside;
-  const main = H2.door?.standingId;
-  if (!H2.door || !H2.currentKey || (main ? main !== id : extraPlaces().length > 0)) return null;
-  return "main";
+  return H2.door && H2.currentKey && namesMain(id, to) ? "main" : null;
 }
-var holdsSeat = (id, framed) => framed ? seatOf(id) !== null : H2.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
+var holdsSeat = (id, framed, to = {}) => framed ? seatOf(id, to) !== null : H2.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
 function seatEnded(key2, frame2) {
   const id = typeof frame2.standing_id === "string" ? frame2.standing_id : "";
   const reason = typeof frame2.by === "string" ? `revoked:${frame2.by}` : frame2.reason === "silent" ? "revoked:silent" : "";
@@ -11236,11 +11249,18 @@ function seatEnded(key2, frame2) {
     }
     return stopBeside(beside, reason);
   }
-  const main = H2.door?.standingId;
-  if (id && (main ? main !== id : extraPlaces().length > 0))
-    return log(`standing_ended for seat ${id}, not one this bridge knows — ignored`);
+  if (!namesMain(id, frame2))
+    return log(`standing_ended for seat ${id || "unnamed"}, not one this bridge knows — ignored`);
   if (releasedAsOwn("standing_ended")) return;
   stopAgent(key2, "standing_ended", reason);
+}
+function namesMain(id, to) {
+  const main = H2.door?.standingId;
+  if (!id || main) return !!id && main === id;
+  if (extraPlaces().length > 0) return false;
+  const toId = typeof to.to_standing_id === "string" ? to.to_standing_id : "";
+  const name2 = typeof to.to_standing === "string" ? to.to_standing.replace(/^.*:/, "") : "";
+  return toId === id && (!name2 || name2 === (state.standing?.name ?? ""));
 }
 whenStopped(
   (key2, code, reason, ended) => ended ? seatEnded(key2, ended) : stopAgent(key2, `close ${code}`, reason)
@@ -11336,7 +11356,9 @@ function orderOf(frame2) {
     reason_code: str3(frame2.reason_code),
     by: str3(frame2.by),
     issued_at: str3(frame2.issued_at),
-    ...typeof span === "number" ? { ack_window_seconds: span } : {}
+    ...typeof span === "number" ? { ack_window_seconds: span } : {},
+    ...str3(frame2.to_standing_id) ? { to_standing_id: str3(frame2.to_standing_id) } : {},
+    ...str3(frame2.to_standing) ? { to_standing: str3(frame2.to_standing) } : {}
   };
 }
 function journalRefused(id, outcome) {
@@ -11349,7 +11371,7 @@ async function stopOf(o, entry) {
   const confirms = confirmsHalts();
   let seat2;
   try {
-    seat2 = stopSeatByOrder(o.standing_id, o.by ?? "", o.id);
+    seat2 = stopSeatByOrder(o.standing_id, o.by ?? "", o.id, o);
   } catch (e) {
     log(`stop order ${o.id}: the stop failed — ${e.message}`);
     return { ...entry, state: "failed", reason: "stop_failed" };
@@ -11392,7 +11414,7 @@ async function carry(o, base, f) {
     pid: process.pid,
     until: windowEnd(o, at2)
   };
-  if (!holdsSeat(o.standing_id, true))
+  if (!holdsSeat(o.standing_id, true, o))
     return finish({ ...entry, state: "refused", reason: "seat_not_held" });
   const kept2 = writeOrder(entry);
   if (!kept2) journalRefused(o.id, false);
