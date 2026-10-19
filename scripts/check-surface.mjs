@@ -2,11 +2,14 @@
 // Lint the skills corpus against fixtures/surface.json — the committed snapshot
 // of the live verstak tool surface (refresh: node scripts/export-surface.mjs).
 //
-// Two drift classes are caught offline, before merge:
+// Three drift classes are caught offline, before merge:
 //   1. A tool name written in a skill that the surface does not carry
 //      (rename/drop on the server side — the loud half of skill↔tool sync).
 //   2. An enum value assigned in a skill (genre=..., given_as=..., modes,
 //      arrow_type, node_type) that the surface vocabulary does not contain.
+//   3. An argument name in a one-line call form verstak_TOOL(name=…, …) that
+//      the tool's input schema does not carry (surface.params).
+// Not caught: which action of a tool takes which argument, and value shapes.
 //
 // Pure Node, no deps, offline — CI-safe.
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -19,6 +22,12 @@ const tools = new Set(surface.tools);
 // Tools the delivery itself registers, not the server: the OpenCode plugin's
 // status tool. They never appear in a server snapshot.
 for (const t of ["verstak_bridge"]) tools.add(t);
+// Top-level argument names per tool, as the bridge lists them to a harness:
+// the server's schema plus the bridge's own tool (verstak_stand) and minus the
+// channel fields the bridge narrows away. The plugin's verstak_bridge takes none.
+// The first params were read off the sibling delivery's tool catalog, not a
+// live export (graph @nks/nks-dev, node #2761); the next `make surface` replaces them.
+const params = { verstak_bridge: [], ...surface.params };
 
 // verstak_-prefixed tokens that are NOT tool names (credential/hook prefixes shown
 // in examples). Extend deliberately; every entry is a claim that the token is
@@ -39,6 +48,46 @@ const mdFiles = [];
     else if (e.endsWith(".md")) mdFiles.push(p);
   }
 })(join(root, "skills/verstak"));
+// home/ ships the same methods to the conversation home, pointers rewritten.
+(function walk(dir) {
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) walk(p);
+    else if (e.endsWith(".md")) mdFiles.push(p);
+  }
+})(join(root, "home"));
+
+// The argument names of a call whose parentheses close on the same line:
+// `name=` at the head of a top-level argument, outside quotes, `<placeholders>`
+// and nested brackets. A call that does not close on its line (prose, an
+// unbalanced quote, a call spread over a code block) yields nothing — a missed
+// check costs less than a false alarm on every build.
+function argNames(line, open) {
+  const names = [];
+  let depth = 0, quote = null, head = "";
+  for (let i = open; i < line.length; i++) {
+    const c = line[i];
+    if (quote) { if (c === "\\") i++; else if (c === quote) quote = null; continue; }
+    if (c === '"' || c === "'" || c === "`") { quote = c; head = null; continue; }
+    if (c === "<") { quote = ">"; head = null; continue; }
+    if ("([{".includes(c)) { depth++; if (depth === 1) head = ""; else head = null; continue; }
+    if (")]}".includes(c)) {
+      depth--;
+      if (depth === 0) return names;
+      continue;
+    }
+    if (depth !== 1 || head === null) { if (depth === 1 && c === ",") head = ""; continue; }
+    if (c === ",") { head = ""; continue; }
+    if (c === "=") {
+      const m = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/.exec(head);
+      if (m) names.push(m[1]);
+      head = null;
+      continue;
+    }
+    head += c;
+  }
+  return null;
+}
 
 for (const file of mdFiles) {
   const rel = file.slice(root.length + 1);
@@ -68,6 +117,19 @@ for (const file of mdFiles) {
       }
     }
   }
+
+  // 3. Argument names in one-line call forms.
+  text.split("\n").forEach((line, n) => {
+    for (const m of line.matchAll(/\b(verstak_[a-z_]+)\(/g)) {
+      const known = params[m[1]];
+      if (!known) continue;
+      for (const name of argNames(line, m.index + m[0].length - 1) || []) {
+        if (!known.includes(name)) {
+          errors.push(`${rel}:${n + 1}: ${m[1]}(${name}=…) — "${name}" is not an argument of ${m[1]} in the surface snapshot`);
+        }
+      }
+    }
+  });
 }
 
 if (errors.length) {
@@ -75,4 +137,4 @@ if (errors.length) {
   for (const e of errors) console.error(`  ✗ ${e}`);
   process.exit(1);
 }
-console.log(`✓ corpus consistent with the surface snapshot (${tools.size} tools, ${Object.keys(surface.enums).length} vocabularies)`);
+console.log(`✓ corpus consistent with the surface snapshot (${tools.size} tools, ${Object.keys(surface.enums).length} vocabularies, ${Object.keys(params).length} argument lists)`);

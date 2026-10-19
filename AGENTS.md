@@ -103,7 +103,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 | Full gate | `make check` = `validate` + `check-bundles` + `check-surface` + `check-core` + `lint` + `format-check` + `typecheck` + `check-js` + `test` |
 | Frontmatter, inventories, links, banned text | `make validate` |
 | Bundle ↔ source | `make check-bundles` |
-| Corpus ↔ surface snapshot (offline) | `make check-surface` |
+| Corpus ↔ surface snapshot (offline): tool names, enum values, argument names in one-line `verstak_TOOL(…)` calls — not which action takes which argument, nor value shapes | `make check-surface` |
 | Core boundary and pin | `make check-core` (no delivery name in the core; the core equals `js/core.lock`) |
 | Sync the core from the sibling | `scripts/sync-core.sh SIBLING_REPO_DIR REF` |
 | Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
@@ -151,7 +151,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `AGENTS.md` — repo conventions, structure or the method set change; the inventory lines are linted against the tree.
 - `REALITY.md` — a carrier appears, changes or turns out unreachable; dated measurements go to the graph.
 - `js/core.lock` and the core — when the sibling delivery's core moves: `scripts/sync-core.sh`, then `make check`; a new or reshaped export in its `delivery/index.ts` lands in ours in the same commit.
-- `fixtures/surface.json` — the tool surface renames, drops or adds a name or enum: `make surface`, review the diff, commit.
+- `fixtures/surface.json` — the tool surface renames, drops or adds a name, parameter or enum: `make surface`, review the diff, commit.
 - `README.md` — the skill and method tables, whenever the set changes.
 - `DERIVATION.md` — walk it after any methodology-canon change; extend it when a new canon landmark is projected into a skill.
 - `methods/align.md` + `templates/agents-template.md` — improving the bootstrap for all future repos; a change that makes generated files wrong raises the contract.
