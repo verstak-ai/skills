@@ -150,7 +150,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.12.0";
+var VERSION = "3.12.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -181,7 +181,8 @@ var FRAME_TEXT = {
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
-    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`
+    lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
+    lifeCheckSeat: (name) => `Seat warned: ${name || "the platform did not name the seat"}.`
   }
 };
 var CASE_LINE = {
@@ -1212,9 +1213,10 @@ function frameToText(frame, raw) {
   }
   const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
   if (text2) lines.push(text2);
-  if (isLifeCheck(frame)) lines.push(T().lifeCheckReply());
+  if (isLifeCheck(frame)) lines.push(T().lifeCheckSeat(warnedSeat(frame)), T().lifeCheckReply());
   return lines.join("\n");
 }
+var warnedSeat = (frame) => typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
 var BATCH_TEXT = 160;
 function batchLine(frame, run, withZachin = true) {
   const f = frame;
@@ -1944,22 +1946,24 @@ var stops = () => globalThis[`${GLOBAL_PREFIX}Halts`] ??= /* @__PURE__ */ new Se
 var lifted = () => globalThis[`${GLOBAL_PREFIX}LiftedAt`] ??= /* @__PURE__ */ new Map();
 var ids = () => globalThis[`${GLOBAL_PREFIX}StopIds`] ??= /* @__PURE__ */ new Map();
 var words2 = () => globalThis[`${GLOBAL_PREFIX}StopWords`] ??= /* @__PURE__ */ new Map();
+var alones = () => globalThis[`${GLOBAL_PREFIX}StopAlone`] ??= /* @__PURE__ */ new Set();
 var code = (e) => e.code;
 function recorded(file, since) {
   try {
     const r = JSON.parse(readFileSync5(file, "utf8"));
     if (r.lifted || since !== void 0 && Date.parse(r.at ?? "") <= since) return null;
-    return { id: r.id ?? r.at ?? "?", word: r.word };
+    return { id: r.id ?? r.at ?? "?", word: r.word, alone: r.alone === true };
   } catch (e) {
     return code(e) === "ENOENT" ? null : { id: "?" };
   }
 }
 function createHalts(parentOf2, dir, unwritten, unlifted) {
-  const marked = (s) => stops().has(s) ? { id: ids().get(s) ?? "?", word: words2().get(s) } : recorded(fileOf(dir(), s), lifted().get(s));
+  const marked = (s) => stops().has(s) ? { id: ids().get(s) ?? "?", word: words2().get(s), alone: alones().has(s) } : recorded(fileOf(dir(), s), lifted().get(s));
   const drop2 = (s) => {
     stops().delete(s);
     ids().delete(s);
     words2().delete(s);
+    alones().delete(s);
     lifted().set(s, Date.now());
     const file = fileOf(dir(), s);
     try {
@@ -1981,21 +1985,24 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
     const seen = /* @__PURE__ */ new Set();
     for (let s = session; s && !seen.has(s); s = parentOf2(s)) {
       const m = marked(s);
-      if (m) found.push(m.id);
+      if (m && (s === session || !m.alone)) found.push(m.id);
       seen.add(s);
     }
     return found.length ? found.join(" ") : null;
   }
   return {
-    stop(session, word2) {
+    stop(session, word2, alone = false) {
       const id = randomUUID();
       stops().add(session);
       ids().set(session, id);
       words2().set(session, word2);
+      if (alone) alones().add(session);
+      else alones().delete(session);
       lifted().delete(session);
       try {
         mkdirSync2(dir(), { recursive: true, mode: 448 });
-        const record = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString(), id, word: word2 });
+        const at = (/* @__PURE__ */ new Date()).toISOString();
+        const record = JSON.stringify({ session, at, id, word: word2, ...alone ? { alone } : {} });
         writeFileSync2(fileOf(dir(), session), record, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
@@ -2271,14 +2278,20 @@ function createLifeChecks(parents) {
       const W4 = words(OPENCODE);
       const id = frame.id != null ? W4.frameId(String(frame.id)) : W4.frameNoId();
       const what = `${W4.lifeCheck()}, ${id}`;
+      const p = child && session ? places.get(session) : void 0;
+      const name = warnedSeat(frame) || (p?.name ?? "");
       if (!child || !session) {
+        const T3 = words(FRAME_TEXT);
         const body = typeof frame.body === "string" ? frame.body : JSON.stringify(frame.body ?? "");
-        return { session, text: `${body}
+        return {
+          session,
+          text: `${body}
 
-${words(FRAME_TEXT).lifeCheckReply()}`, what };
+${T3.lifeCheckSeat(name)}
+${T3.lifeCheckReply()}`,
+          what
+        };
       }
-      const p = places.get(session);
-      const name = p?.name ?? str2(frame.to_standing).replace(/^.*:/, "");
       const text2 = W4.lifeCheckChild(
         name,
         p?.karta ?? str2(frame.karta_seq),
@@ -4877,15 +4890,19 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     refused: (id, why, last) => say(W4.notDelivered(W4.frame(), id, why), last ? "error" : "warning")
   });
   const cut = cuts.cut;
-  function stopped(session2, text2, child) {
+  function stopped(session2, text2, child, alone) {
     say(text2, "error");
     dropPile(`${child ? "child" : "root"}:${session2 ?? ""}`);
     if (!session2) return;
-    halts.stop(session2, child ? null : text2);
+    halts.stop(session2, child ? null : text2, alone);
     cut(session2);
-    for (const d of descendantsOf(session2, parents)) cut(d);
+    cutBelow(session2);
     onStop(session2);
   }
+  const covered = (of) => [...of].filter((d) => halts.halted(d));
+  const cutBelow = (session2) => {
+    for (const d of covered(descendantsOf(session2, parents))) cut(d);
+  };
   return {
     status(session2, on) {
       if (on) tacts.busy(session2);
@@ -4903,13 +4920,13 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       return cuts.outcome(() => {
         if (!session2) return [];
         this.halt(session2);
-        return [session2, ...processDescendants(session2)];
+        return [session2, ...covered(processDescendants(session2))];
       }, signal);
     },
     halt(session2) {
       if (!halts.halted(session2)) return false;
       cut(session2);
-      for (const d of descendantsOf(session2, parents)) cut(d);
+      cutBelow(session2);
       return true;
     },
     taken(session2, inbox) {
@@ -4974,7 +4991,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           loud(session2, P.dead(String(ev.code)), child);
           return;
         case "stopped":
-          stopped(session2, P.stopped(ev.text ?? ""), child);
+          stopped(session2, P.stopped(ev.text ?? ""), child, ev.reason === "revoked:silent");
           return;
         case "stale":
           return batch(session2, child, ev, W4.staleBatch());

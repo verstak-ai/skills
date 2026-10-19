@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.1](https://github.com/verstak-ai/skills/compare/v3.12.0...v3.12.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* **verstak:** a stop reaches only the seat it names — core synced to cd23015e ([#206](https://github.com/verstak-ai/skills/issues/206)) ([7152659](https://github.com/verstak-ai/skills/commit/715265992a69e52f1eb2b972dde0a41e730c1085))
+
 ## [3.12.0](https://github.com/verstak-ai/skills/compare/v3.11.1...v3.12.0) (2026-10-18)
 
 
