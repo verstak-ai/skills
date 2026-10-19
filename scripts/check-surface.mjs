@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Lint the skills corpus against fixtures/surface.json — the committed snapshot
-// of the live verstak tool surface (refresh: node scripts/export-surface.mjs).
+// of the verstak tool surface at a named server version (refresh: make surface-asset
+// V=X.Y.Z from the tagged nks-mcp asset; make surface from the live server).
 //
 // Three drift classes are caught offline, before merge:
 //   1. A tool name written in a skill that the surface does not carry
@@ -24,9 +25,8 @@ const tools = new Set(surface.tools);
 for (const t of ["verstak_bridge"]) tools.add(t);
 // Top-level argument names per tool, as the bridge lists them to a harness:
 // the server's schema plus the bridge's own tool (verstak_stand) and minus the
-// channel fields the bridge narrows away. The plugin's verstak_bridge takes none.
-// The first params were read off the sibling delivery's tool catalog, not a
-// live export (graph @nks/nks-dev, node #2761); the next `make surface` replaces them.
+// channel fields the bridge narrows away (the export applies the bridge's own layer).
+// The plugin's verstak_bridge takes none.
 const params = { verstak_bridge: [], ...surface.params };
 
 // verstak_-prefixed tokens that are NOT tool names (credential/hook prefixes shown

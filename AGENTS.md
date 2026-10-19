@@ -109,7 +109,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 | Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
 | Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the release mark and embedded versions against `js/delivery/version.ts`) |
 | Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs`) |
-| Refresh the surface snapshot (network + authorized grant, through the bundled bridge) | `make surface` |
+| Refresh the surface snapshot: from the asset nks-mcp tags on each release (versioned, via `fj`); fallback — the live server (network + authorized grant, through the bundled bridge) | `make surface-asset V=X.Y.Z`; fallback `make surface` |
 
 `make validate` also bans Cyrillic and the retired delivery name in every tracked text file except `CHANGELOG.md`.
 
@@ -151,7 +151,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `AGENTS.md` — repo conventions, structure or the method set change; the inventory lines are linted against the tree.
 - `REALITY.md` — a carrier appears, changes or turns out unreachable; dated measurements go to the graph.
 - `js/core.lock` and the core — when the sibling delivery's core moves: `scripts/sync-core.sh`, then `make check`; a new or reshaped export in its `delivery/index.ts` lands in ours in the same commit.
-- `fixtures/surface.json` — the tool surface renames, drops or adds a name, parameter or enum: `make surface`, review the diff, commit.
+- `fixtures/surface.json` — the tool surface renames, drops or adds a name, parameter or enum: `make surface-asset V=X.Y.Z` from the nks-mcp release tag (live `make surface` as fallback), review the diff, commit.
 - `README.md` — the skill and method tables, whenever the set changes.
 - `DERIVATION.md` — walk it after any methodology-canon change; extend it when a new canon landmark is projected into a skill.
 - `methods/align.md` + `templates/agents-template.md` — improving the bootstrap for all future repos; a change that makes generated files wrong raises the contract.
