@@ -338,16 +338,22 @@ export function setupChannel(
    * reaches them afterwards until it stands again by an explicit call (halts.ts). The
    * descendants' seats go down in their own instances (onStop).
    */
-  function stopped(session: string | null, text: string, child: boolean): void {
+  function stopped(session: string | null, text: string, child: boolean, alone: boolean): void {
     say(text, "error");
     dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
     if (!session) return;
     // A child's end goes to its parent (leads.ts): no word is laid into the child.
-    halts.stop(session, child ? null : text);
+    halts.stop(session, child ? null : text, alone);
     cut(session);
-    for (const d of descendantsOf(session, parents)) cut(d);
+    cutBelow(session);
     onStop(session);
   }
+
+  /** Of these descendants, the ones a stop covers: a stop alone (case #1046) covers none. */
+  const covered = (of: Iterable<string>): string[] => [...of].filter((d) => halts.halted(d));
+  const cutBelow = (session: string): void => {
+    for (const d of covered(descendantsOf(session, parents))) cut(d);
+  };
 
   return {
     status(session, on) {
@@ -366,13 +372,13 @@ export function setupChannel(
       return cuts.outcome(() => {
         if (!session) return [];
         this.halt(session);
-        return [session, ...processDescendants(session)];
+        return [session, ...covered(processDescendants(session))];
       }, signal);
     },
     halt(session) {
       if (!halts.halted(session)) return false;
       cut(session);
-      for (const d of descendantsOf(session, parents)) cut(d);
+      cutBelow(session);
       return true;
     },
     taken(session, inbox) {
@@ -441,7 +447,8 @@ export function setupChannel(
           loud(session, P.dead(String(ev.code)), child);
           return;
         case "stopped":
-          stopped(session, P.stopped(ev.text ?? ""), child);
+          // A seat put out for silence ends alone: a live descendant answers for itself (#1046).
+          stopped(session, P.stopped(ev.text ?? ""), child, ev.reason === "revoked:silent");
           return;
         case "stale":
           return batch(session, child, ev, W.staleBatch());

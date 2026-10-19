@@ -24,6 +24,9 @@ export interface Order {
   by?: string;
   issued_at?: string;
   ack_window_seconds?: number;
+  /** the stop frame's addressee — the read of open orders names none (stophold.ts namesMain) */
+  to_standing_id?: string;
+  to_standing?: string;
 }
 
 /** The end of the order's answer window: issued_at + ack_window, each defaulted. */

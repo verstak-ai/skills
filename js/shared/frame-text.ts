@@ -124,9 +124,13 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
   // names the way to answer (case #1046): a seat silent past it is put out.
   const lines = [`${whoOf(frame, true) || "?"}${tail(frame, true)}`];
   if (text) lines.push(text);
-  if (isLifeCheck(frame)) lines.push(T().lifeCheckReply());
+  if (isLifeCheck(frame)) lines.push(T().lifeCheckSeat(warnedSeat(frame)), T().lifeCheckReply());
   return lines.join("\n");
 }
+
+/** The seat a life check warned — the name of its to_standing (the bridge fills it by id); "" — none. */
+export const warnedSeat = (frame: Frame): string =>
+  typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
 
 /** Start of the frame text in a batch line — how many characters. */
 const BATCH_TEXT = 160;

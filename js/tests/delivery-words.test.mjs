@@ -114,6 +114,8 @@ test("the life check names the way to answer, a child seat's release, and the st
     FRAME_TEXT.en.lifeCheckReply(),
     "Answer with an action: update your status — verstak_stand(realm, status=<what you are doing>) — or say a word in the case.",
   );
+  assert.equal(FRAME_TEXT.en.lifeCheckSeat("s.sub-1"), "Seat warned: s.sub-1.");
+  assert.equal(FRAME_TEXT.en.lifeCheckSeat(""), "Seat warned: the platform did not name the seat.");
   const child = OPENCODE.en.lifeCheckChild("s.sub-1", "931", "@x/dev");
   assert.match(child, /^Verstak: .*s\.sub-1/);
   assert.ok(

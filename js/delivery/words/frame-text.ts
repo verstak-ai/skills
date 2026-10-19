@@ -14,6 +14,8 @@ export interface FrameTextWords {
   caseHistory: (args: string, since: number) => string;
   /** Below the text of a life check: how to answer it. */
   lifeCheckReply: () => string;
+  /** The seat a life check warned; empty — the platform named none. */
+  lifeCheckSeat: (name: string) => string;
 }
 
 export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
@@ -28,6 +30,7 @@ export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
     lifeCheckReply: () =>
       `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
+    lifeCheckSeat: (name) => `Seat warned: ${name || "the platform did not name the seat"}.`,
   },
 };
 

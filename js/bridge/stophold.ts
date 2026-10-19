@@ -63,11 +63,17 @@ function stopBeside(beside: Place, reason: string): void {
 /**
  * A stop order for seat `id` (stoporder.ts, graph @nks/nks-dev, node #7519): the same stop as
  * the owner taking that seat off — the main seat stops the agent, a seat beside goes alone.
- * null — no seat of this session has that id. An id unknown to a lone main seat is its own.
+ * null — no seat of this session has that id. An id unknown to a lone main seat is its own only
+ * when the order is addressed to that very seat (namesMain, case #1046).
  */
-export function stopSeatByOrder(id: string, by: string, order: string): "main" | "beside" | null {
+export function stopSeatByOrder(
+  id: string,
+  by: string,
+  order: string,
+  to: Addressed = {},
+): "main" | "beside" | null {
   const reason = by ? `revoked:${by}` : "";
-  const seat = seatOf(id);
+  const seat = seatOf(id, to);
   if (seat === "main" && H.currentKey)
     stopAgent(H.currentKey, `stop order ${order}`, reason, order);
   else if (seat && seat !== "main") stopBeside(seat, reason);
@@ -75,18 +81,16 @@ export function stopSeatByOrder(id: string, by: string, order: string): "main" |
 }
 
 /** The session's seat with this id: the main one, one beside, or none. */
-function seatOf(id: string): Place | "main" | null {
+function seatOf(id: string, to: Addressed): Place | "main" | null {
   const beside = extraPlaces().find((p) => p.door.standingId === id);
   if (beside) return beside;
-  const main = H.door?.standingId;
-  if (!H.door || !H.currentKey || (main ? main !== id : extraPlaces().length > 0)) return null;
-  return "main";
+  return H.door && H.currentKey && namesMain(id, to) ? "main" : null;
 }
 
 /** Whether the order is this session's: by its seat's known id, or — `framed`, on this channel's socket — as seatOf. */
-export const holdsSeat = (id: string, framed: boolean): boolean =>
+export const holdsSeat = (id: string, framed: boolean, to: Addressed = {}): boolean =>
   framed
-    ? seatOf(id) !== null
+    ? seatOf(id, to) !== null
     : H.door?.standingId === id || extraPlaces().some((p) => p.door.standingId === id);
 
 /** One seat of a live channel taken off (api: standing_ended {standing_id, by | reason}). */
@@ -114,12 +118,31 @@ function seatEnded(key: string, frame: Frame): void {
     }
     return stopBeside(beside, reason);
   }
-  const main = H.door?.standingId;
-  // An id that names neither seat: with seats beside it may be one whose id the bridge never learnt.
-  if (id && (main ? main !== id : extraPlaces().length > 0))
-    return log(`standing_ended for seat ${id}, not one this bridge knows — ignored`);
+  if (!namesMain(id, frame))
+    return log(`standing_ended for seat ${id || "unnamed"}, not one this bridge knows — ignored`);
   if (releasedAsOwn("standing_ended")) return; // the frame outran the answer of the session's own revoke or close
   stopAgent(key, "standing_ended", reason);
+}
+
+/** Whom a frame or an order is addressed to (api: to_standing_id, to_standing). */
+export interface Addressed {
+  to_standing_id?: unknown;
+  to_standing?: unknown;
+}
+
+/**
+ * Whether a standing_ended frame or a stop order names the main seat (case #1046): by its known
+ * id; the id not learnt and no seat beside — addressed to the very seat it ends (to_standing_id,
+ * and the main seat's name if it names one). One naming no seat, or a seat the bridge cannot
+ * tell for its own, stops nobody: the owner's 4001 on the seat's socket still does.
+ */
+function namesMain(id: string, to: Addressed): boolean {
+  const main = H.door?.standingId;
+  if (!id || main) return !!id && main === id;
+  if (extraPlaces().length > 0) return false;
+  const toId = typeof to.to_standing_id === "string" ? to.to_standing_id : "";
+  const name = typeof to.to_standing === "string" ? to.to_standing.replace(/^.*:/, "") : "";
+  return toId === id && (!name || name === (state.standing?.name ?? ""));
 }
 
 whenStopped((key, code, reason, ended) =>

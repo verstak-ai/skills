@@ -1,11 +1,12 @@
 // The life check in an OpenCode session (case #1046; the frame — shared/seen.ts isLifeCheck).
 // Its own prompt into the root session, queued (channel.ts): an idle session wakes, a running
 // turn is not cut; neither the case pile, its counts nor a tact. The platform's text as is,
-// the way to answer below it — the word the bridge prints under the frame everywhere
-// (shared/frame-text.ts). A child session's seat wakes no child: its root gets a line about it,
+// the warned seat and the way to answer below it — the words the bridge prints under the frame
+// everywhere (shared/frame-text.ts). A child session's seat wakes no child: its root gets a line about it,
 // how to release it if the child ended — the root's own status saves no child's seat.
 import { FRAME_TEXT, OPENCODE } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
+import { warnedSeat } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { type Place } from "./satellite.ts";
 
@@ -37,13 +38,19 @@ export function createLifeChecks(parents: ReadonlyMap<string, string>): LifeChec
       const W = words(OPENCODE);
       const id = frame.id != null ? W.frameId(String(frame.id)) : W.frameNoId();
       const what = `${W.lifeCheck()}, ${id}`;
+      const p = child && session ? places.get(session) : undefined;
+      // The seat the frame is addressed to (@handle:name, its id named by the bridge), else as
+      // the child's bridge named its seat.
+      const name = warnedSeat(frame) || (p?.name ?? "");
       if (!child || !session) {
+        const T = words(FRAME_TEXT);
         const body = typeof frame.body === "string" ? frame.body : JSON.stringify(frame.body ?? "");
-        return { session, text: `${body}\n\n${words(FRAME_TEXT).lifeCheckReply()}`, what };
+        return {
+          session,
+          text: `${body}\n\n${T.lifeCheckSeat(name)}\n${T.lifeCheckReply()}`,
+          what,
+        };
       }
-      // The seat as its bridge named it, else as the frame is addressed (@handle:name).
-      const p = places.get(session);
-      const name = p?.name ?? str(frame.to_standing).replace(/^.*:/, "");
       const text = W.lifeCheckChild(
         name,
         p?.karta ?? str(frame.karta_seq),
