@@ -71,14 +71,23 @@ const walk = (schema, name) => {
 };
 for (const t of tools) walk(t.inputSchema, null);
 
+// Each tool's top-level argument names, as the bridge lists it: the server's
+// schema plus whatever the bridge adds (verstak_stand, channel moves).
+const params = Object.fromEntries(
+  tools
+    .map((t) => [t.name, Object.keys(t.inputSchema?.properties || {}).sort()])
+    .sort(([a], [b]) => a.localeCompare(b)),
+);
+
 const surface = {
   server: init.result?.serverInfo ?? null,
   protocolVersion: init.result?.protocolVersion ?? null,
   resource: args[0].replace(/\/$/, ""),
   tools: tools.map((t) => t.name).sort(),
   enums,
+  params,
 };
 const out = join(root, "fixtures/surface.json");
 writeFileSync(out, JSON.stringify(surface, null, 2) + "\n");
-console.log(`wrote ${out}: ${surface.tools.length} tools, ${Object.keys(enums).length} enum vocabularies`);
+console.log(`wrote ${out}: ${surface.tools.length} tools, ${Object.keys(enums).length} enum vocabularies, ${Object.keys(params).length} parameter lists`);
 child.stdin.end();

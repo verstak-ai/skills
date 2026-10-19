@@ -4,7 +4,7 @@ A claim is settled by its canonical carrier — what the work becomes when it ru
 | Claim class | Canonical carrier | How to observe | Who can |
 |---|---|---|---|
 | Format — frontmatter parses, bundle matches source, inventories match the tree | the committed `verstak.skill` zip + `skills/verstak/` | `make check` | agent |
-| Surface sync (loud half) — every tool name and enum value the corpus writes exists on the surface | `fixtures/surface.json` (snapshot; refreshed via `make surface`) | `make check-surface`; the silent half — behavioural claims — stays with human review | agent |
+| Surface sync (loud half) — every tool name, enum value and argument name (in a one-line call) the corpus writes exists on the surface | `fixtures/surface.json` (snapshot; refreshed via `make surface`) | `make check-surface`; not covered: which action of a tool takes which argument, value shapes, calls spread over several lines; the silent half — behavioural claims — stays with human review | agent |
 | Delivery — the method actually reaches an agent | the installed plugin in the harness cache | `cat ~/.claude/plugins/cache/*/*/*/.claude-plugin/plugin.json` against `gh release view --repo verstak-ai/skills --json tagName` | agent |
 | Substance — a skill's instruction matches the tool surface | the live tool surface (until the verstak bridge ships, the sibling deployment's — AGENTS.md, Local overrides) | attempt the call the skill prescribes and read the refusal or the result | agent |
 | Graph correspondence — the model matches the shipped method | `r5` | `verstak_orient(realm="r5", lens="tensions", focus="844")` before and after | agent |
