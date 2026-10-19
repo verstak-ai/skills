@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "verstak",
-    "version": "0.113.3"
+    "version": "0.121.0"
   },
   "protocolVersion": "2025-06-18",
   "resource": "https://mcp.verstak.ai",

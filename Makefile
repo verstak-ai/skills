@@ -1,4 +1,4 @@
-.PHONY: build validate check-bundles check-surface surface check test hooks deps check-core lint format format-check typecheck build-js build-release check-js check-frozen
+.PHONY: build validate check-bundles check-surface surface surface-asset check test hooks deps check-core lint format format-check typecheck build-js build-release check-js check-frozen
 
 # Run the full CI gate locally: frontmatter contract + bundle sync + surface lint
 # + the JS ladder (core boundary → lint → format → types → shipped outputs are a
@@ -76,7 +76,16 @@ BASE ?= origin/main
 check-frozen:
 	@bash scripts/check-outputs-frozen.sh $(BASE)
 
-# Refresh fixtures/surface.json from the live server (network + authorized grant).
+# Refresh fixtures/surface.json from the asset nks-mcp tags on each release
+# (verstak-v$(V) on the forge, read with fj): `make surface-asset V=0.121.0`.
+FORGE ?= fj.lab.mirari.ru
+surface-asset:
+	@test -n "$(V)" || { echo "usage: make surface-asset V=<nks-mcp version>"; exit 2; }
+	@d=$$(mktemp -d) && trap 'rm -rf "$$d"' EXIT && \
+	  (cd "$$d" && fj -H $(FORGE) release asset download -r nks/nks-mcp verstak-v$(V) surface-verstak-en.json >/dev/null) && \
+	  node scripts/export-surface.mjs --asset "$$d/surface-verstak-en.json"
+
+# Fallback: refresh it from the live server (network + authorized grant).
 surface:
 	@node scripts/export-surface.mjs
 
