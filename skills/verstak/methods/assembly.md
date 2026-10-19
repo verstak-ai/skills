@@ -65,4 +65,54 @@ Then build the map:
 
 The navigator — whoever reads the map to pick where to put effort now — takes the bianhua not blocked by `anantara` (`lens="bianhua"` sorts ready / blocked / done): that *is* the impulse.
 
-Read progress truthfully: parts accepted as is are unanswered — a transformation of only those stands still. `upeksha` on the transformation itself is a kind error — release it or restore its will. "It has arrived" is a behavioural claim: check it on the canonical carrier before proposing to end it (`methods/reality-audit.md`), not by the map agreeing with itself. Next moment: the user accepted a telos → `methods/integrity.md`.
+Read progress truthfully: parts accepted as is are unanswered — a transformation of only those stands still. `upeksha` on the transformation itself is a kind error — release it or restore its will. "It has arrived" is a behavioural claim: check it on the canonical carrier before proposing to end it (`methods/reality-audit.md`), not by the map agreeing with itself. Next moment: the user accepted a telos → `methods/integrity.md`; a transformation may have reached its telos → `Telos check and re-assembly`.
+
+## Telos check and re-assembly
+
+Ordinary leading and integration bring you here, not the user's word (the door, `Agent moments`). Parts keep arriving after the promised quality is already there, so a tally of unfinished parts never says whether a transformation is done. **Judge the telos, not the count.**
+
+**Two scales of one move:**
+- **Light telos check** — one transformation, after a substantial result lands on it, after its child transitions (sub-transformations, carrier kriyas) are accepted, or after its intent changed: `verstak_orient(realm, lens="bianhua", focus=<bianhua>)`.
+- **Bounded field review** — the field of transformations overloads: batches of 3–5 related transformations, each batch brought to its outcomes before the next.
+
+### 1. Restore the promise and today's grounds
+
+Say in one line what quality the telos promised, and what stands today on what ground (the door, `Say what a claim stands on`). Sort every open part: a **substantial gap** in that quality; **maintenance** that keeps it up (continues as active kriyas); a **defect** (its own vimarsha's fate, `methods/inquiry.md`); a **new wish** (not this telos). Only a substantial gap keeps the transformation going. The number of parts, its age and an "unfinished" warning call you to look; they don't decide the outcome. Reached is a behavioural claim (Protocol, step 6). **Sign:** you can name the promised quality, its present ground and each open part's class.
+
+### 2. Facts to the steward, the decision to the owner
+
+A missing fact about a holon's state goes to its steward (`methods/architect.md`, step 2). Need, acceptance of the quality and limits are the owner's: an `ask` card in the transformation's case (none → open one on it, the door, `One-off task`), form `choice`, each option's cost in its `context`, a recommendation with its ground (`methods/collaborate.md`, `Asking the user`). The options:
+
+| Outcome | The graph after `ack` |
+|---|---|
+| reached | the transformation `atita`, then 4–5 below |
+| absorbed by a named successor | live parts move by `anga` to the successor; this one `visarjana`, the successor named in `reasoning` — `supersedes` joins only vimarshas |
+| no longer needed | `visarjana`, the owner's reason in `reasoning` |
+| continues to an end sign | stays under way; the end sign is the answer condition of a driving vimarsha |
+| deferred with a return condition | modes unchanged (not `upeksha`, above); the condition in its seed (`methods/writing.md`, Decision 5) |
+
+The answer counts once you `ack` it and the graph changes (the door, `Waiting on an answer`); unanswered, the transformation stays as it was. Narrowing the telos until "reached" fits is a rename only the owner makes (`methods/writing.md`, Decision 4); a risk is never accepted on their behalf (`methods/inquiry.md`, §5).
+
+### 3. Volume to a bounded reader
+
+Reading parts and seeds in bulk, then weaving the decision into them, goes to a subagent on its own satellite bridge and case (the door, `Work goes to subagents`); you hold the decision and the acceptance, and take back short fates, versions and grounds — not bodies.
+
+**Type and genre before a body.** Before reading an unfamiliar number, establish its type and genre from a list without bodies — `verstak_search(realm, q="", anga_of=<bianhua>, include_description=false)`; an unknown type is no licence to read. A `hint` goes to the reading subagent. Compose single and batch reads from metadata you already hold, never from numbers in someone's report: every number's type and genre checked before the batch runs. A title such as "contract", "spec" or "door" doesn't tell the genre; the guard written in a brief doesn't show it was kept.
+
+**Seeds.** A served seed is released with its historical links kept (`methods/inquiry.md`, §3, `hint`); a fragment is not saved as a new vimarsha each. A substantial remainder is kept after a duplicate search (`methods/writing.md`); an idea explicitly deferred is not a served seed to throw away.
+
+### 4. Weave — not optional
+
+The decision is a work event: landed, moved, released (`methods/weaving.md`, `Ways into weaving`), plus:
+- **The whole sample**, paged by `offset` until a short page — not the first screen.
+- **Each remainder's fate by meaning** (`methods/inquiry.md`, §2). A question that stays open leaves the finished transformation's `anga`, keeping its subject (`vimarsha_of`) and addressee (`posed_to`).
+- **Neighbours' false expectations removed** — nodes and seeds still waiting on what is now settled; **dependencies checked** — each transformation waiting on this one by `anantara`: free to start now, or re-pointed when this one was released.
+- **Reached becomes the meaning of its kriyas:** their descriptions and their `anga` with `sense` show which quality became active, why they arose and which transformation they served — not merely work off the agenda. Active kriyas continue; reaching fixes no defect and raises no carrier's mode — each moves on its own evidence (`methods/weaving.md`, `Carrier transitions are acts, not tensions`).
+- **Three acts, kept apart:** witnessing reached (`atita`), releasing the will (`visarjana`), closing the case. "Close" stands in for none.
+- **Remainders spawn no transformation by themselves** (Protocol, step 5).
+
+### 5. Re-read against the owner's decision
+
+Read back states, links and semantic edits — yours and the subagent's — against the acked answer: the reached quality reads as the meaning of the kriyas that carry it, not only as the parent's terminal mode. Graph acceptance doesn't replace observing the system's behaviour (`methods/reality-audit.md`). Then end your share in the case (the door, `Case laws`); another notification is not the next substantive move.
+
+**Counter-cases:** a substantial promised quality unconfirmed → don't propose "reached" for tidiness; a large coherent transformation is not split for the count (Protocol, step 3, "name the middle level"); an unanswered card decides nothing; a standalone risk isn't fixed by closing its parent.

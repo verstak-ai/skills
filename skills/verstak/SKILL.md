@@ -221,6 +221,7 @@ They apply unasked.
 | about to write (`verstak_add_*`, `verstak_batch`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
+| a substantial result lands on a transformation, its child transitions are accepted, or its intent changed; the field of transformations overloads | a telos check, unasked: restore the promised quality and today's grounds; parts count, age and an "unfinished" warning call you to look, they don't decide; the outcome is the owner's card — **assembly**, `Telos check and re-assembly` |
 | the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
 | before a `git push` that opens or updates a PR | **code-work**, `Self-review`; `Cold review` once the branch is finished, the full one only on the tag candidate |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
