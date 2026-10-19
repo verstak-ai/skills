@@ -81,7 +81,7 @@ Say in one line what quality the telos promised, and what stands today on what g
 
 ### 2. Facts to the steward, the decision to the owner
 
-A missing fact about a holon's state goes to its steward (`methods/architect.md`, step 2). Need, acceptance of the quality and limits are the owner's: an `ask` card in the transformation's case, form `choice`, each option's cost in its `context`, a recommendation with its ground (`methods/collaborate.md`, `Asking the user`). The options:
+A missing fact about a holon's state goes to its steward (`methods/architect.md`, step 2). Need, acceptance of the quality and limits are the owner's: an `ask` card in the transformation's case (none → open one on it, the door, `One-off task`), form `choice`, each option's cost in its `context`, a recommendation with its ground (`methods/collaborate.md`, `Asking the user`). The options:
 
 | Outcome | The graph after `ack` |
 |---|---|
@@ -89,7 +89,7 @@ A missing fact about a holon's state goes to its steward (`methods/architect.md`
 | absorbed by a named successor | live parts move by `anga` to the successor; this one `visarjana`, the successor named in `reasoning` — `supersedes` joins only vimarshas |
 | no longer needed | `visarjana`, the owner's reason in `reasoning` |
 | continues to an end sign | stays under way; the end sign is the answer condition of a driving vimarsha |
-| deferred with a return condition | modes unchanged (`upeksha` on a transformation is a kind error); the condition in its seed (`methods/writing.md`, Decision 5) |
+| deferred with a return condition | modes unchanged (not `upeksha`, above); the condition in its seed (`methods/writing.md`, Decision 5) |
 
 The answer counts once you `ack` it and the graph changes (the door, `Waiting on an answer`); unanswered, the transformation stays as it was. Narrowing the telos until "reached" fits is a rename only the owner makes (`methods/writing.md`, Decision 4); a risk is never accepted on their behalf (`methods/inquiry.md`, §5).
 
