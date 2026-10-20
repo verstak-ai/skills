@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 4 — run /verstak align unprompted if a repo's stamp is below 4, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, show the cases, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 5 — run /verstak align unprompted if a repo's stamp is below 5, a date, or missing."
 slash: true
 ---
 
@@ -38,8 +38,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `4`** (the description's number; **align**, `Contract`).
-   - **Stamp below `4`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `5`** (the description's number; **align**, `Contract`).
+   - **Stamp below `5`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -114,7 +114,7 @@ Free, and first: the three signs of alignment at the git root (the nearest direc
 | in a git repository, none of the three signs | **onboarding**, its harness branch — in any harness, whether a start hook spoke or not; tools absent → **establish-mcp** first |
 | a sign present, but some of what align writes for your harness missing | **align** (`Start`, `Alignment`), not onboarding |
 | tools absent or silent | **establish-mcp**, then the request |
-| no project graph: `verstak_realm(action="list")` empty, others' only, or the user's own (`verstak_me(action="whoami")`) only `@handle/mind` | no mind → create it unasked (**minding**). Work never goes into mind: **onboarding** — the person names the area, a graph they were invited to is continued, a new one created only on their word; never a graph created unasked. No `AGENTS.md` → **align** after it |
+| no project graph: readiness and `verstak_realm(action="list")` establish no working graph of the user's own (personal mind excluded) | establish personal memory through **minding**'s ownership entry, without asking for a handle or treating a failed read as absence. Work never goes into mind: **onboarding** — the person names the area, a graph they were invited to is continued, a new one created only on their word; never a graph created unasked. No `AGENTS.md` → **align** after it |
 | `AGENTS.md` missing, or stamp below the contract | **align** (`Start`, `Alignment`) |
 | the move will write or speak in a case | the seat you hold (`Start`, step 2); none → first `verstak_stand(realm=…, karta=<role from AGENTS.md>)`, never a bare `register`; no role, or the role is unclear → **collaborate**, not a guessed one. The user: the owner role's seq from `AGENTS.md` (`me` refuses when they hold several) |
 | a write authorless **again** after naming yourself | **establish-mcp** |

@@ -75,7 +75,7 @@ An agent never launched looks like a busy one keeping quiet; only the board with
 
 ## How to talk to the user
 
-The user's mind graph `@handle/mind` (`methods/minding.md`) is not a post — no seat, no work: **read it before asking, write what lasts** there (what is noise to them, what always and never to bring, which window they read).
+The user's personal mind graph (ownership established through `methods/minding.md`) is not a post — no seat, no work: **read it before asking, write what lasts** there (what is noise to them, what always and never to bring, which window they read).
 
 Plain words, no method vocabulary: what's happening → what's needed from them → what delay costs → options with their cost → recommendation and why. One request per batch, answerable without opening anything; numbers at the end. Repeat only on a new delta; a refusal to decide is a recorded open question. Translate a frame from below, don't forward it.
 

@@ -23,7 +23,7 @@
 'Reality — source': 'derived'
 'Layout': 'code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844'
 'Layout — source': 'derived'
-'Cross-project memory': 'personal graph @handle/mind — never a global instructions file or the memory directory'
+'Cross-project memory': 'personal mind via the minding method — no stored address, global instructions file or memory directory'
 'Cross-project memory — source': 'derived: template default'
 'Feedback reflection': 'yes — default'
 'Feedback reflection — source': 'derived: template default'
