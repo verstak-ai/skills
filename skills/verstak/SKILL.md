@@ -180,7 +180,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **writing** ↔ **design** | nothing to argue vs. an open choice |
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
-| **autonomous** ↔ **foreman** | its own work to merge vs. only distributing |
+| **autonomous** ↔ **foreman** | its own work to merge vs. carrying the human's word to the units, deciding within its mandate and keeping its own part of the graph |
 | **onboarding** ↔ **align** | the person has no working graph or role yet, or the repository bears no sign of alignment, vs. the repo's contract on a graph that exists |
 
 Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.

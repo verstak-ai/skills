@@ -21,7 +21,7 @@ test("the delivery's cover form: AGENTS.md, Graph, Agent role, straight double q
   assert.deepEqual(COVER, {
     file: "AGENTS.md",
     graph: "Graph",
-    graphJoins: ["or", "and"],
+    graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
     role: "Agent role",
     roleQuotes: ['"', '"'],
   });
@@ -37,7 +37,14 @@ test("the graph slot: prose after the working graph is no candidate, an equal gr
     "'`@nks/nks-dev` (`r5`); methodology — `@alari/methodology` (`r4`)'",
   ])
     assert.deepEqual(en(role, graph), { realm: "@nks/nks-dev", karta: "931" }, graph);
-  for (const graph of ["'@a/x or @b/y'", "'@a/x and @b/y'", "'r5 or @a/x'", "'@a/x, @b/y'"])
+  for (const graph of [
+    "'@a/x or @b/y'",
+    "'@a/x and @b/y'",
+    "'@a/x OR @b/y'",
+    "'@a/x And @b/y'",
+    "'r5 or @a/x'",
+    "'@a/x, @b/y'",
+  ])
     assert.ok("why" in en(role, graph), graph);
 });
 
