@@ -1,0 +1,61 @@
+[
+  {
+    "name": "targeted",
+    "node": "v26.12.0",
+    "args": [
+      "js/tests/personal-entry.test.mjs",
+      "js/tests/minding-contract.test.mjs",
+      "js/tests/memory-paths.test.mjs"
+    ],
+    "env": {},
+    "status": 0,
+    "expected": 0,
+    "failures": 0
+  },
+  {
+    "name": "old-checker-disabled",
+    "node": "v26.12.0",
+    "args": [
+      "/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/old-disabled.test.mjs"
+    ],
+    "env": {},
+    "status": 0,
+    "expected": 0,
+    "failures": 0
+  },
+  {
+    "name": "checker-disabled",
+    "node": "v26.12.0",
+    "args": [
+      "/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs"
+    ],
+    "env": {},
+    "status": 1,
+    "expected": 1,
+    "failures": 14
+  },
+  {
+    "name": "recipe-checker-disabled",
+    "node": "v26.12.0",
+    "args": [
+      "/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/recipe-disabled.test.mjs"
+    ],
+    "env": {},
+    "status": 1,
+    "expected": 1,
+    "failures": 1
+  },
+  {
+    "name": "base-negative",
+    "node": "v26.12.0",
+    "args": [
+      "js/tests/personal-entry.test.mjs"
+    ],
+    "env": {
+      "VERSTAK_MINDING_ROOT": "/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/base"
+    },
+    "status": 1,
+    "expected": 1,
+    "failures": 30
+  }
+]

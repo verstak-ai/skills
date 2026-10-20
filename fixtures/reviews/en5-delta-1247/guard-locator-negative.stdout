@@ -1,0 +1,800 @@
+TAP version 13
+# Subtest: source: file_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+not ok 1 - source: file_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+  ---
+  duration_ms: 33.209084
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: source: file_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+not ok 2 - source: file_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+  ---
+  duration_ms: 31.203541
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: source: file_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+not ok 3 - source: file_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+  ---
+  duration_ms: 29.447333
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: file_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+not ok 4 - source: file_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+  ---
+  duration_ms: 28.79225
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: file_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+not ok 5 - source: file_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+  ---
+  duration_ms: 30.398625
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: file_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+not ok 6 - source: file_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+  ---
+  duration_ms: 42.219792
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: file_path C:\\work\\repo\\docs\\ordinary.md exits 0
+ok 7 - source: file_path C:\\work\\repo\\docs\\ordinary.md exits 0
+  ---
+  duration_ms: 41.676958
+  type: 'test'
+  ...
+# Subtest: source: file_path C:\\work\\repo\\memory\\ordinary.md exits 0
+ok 8 - source: file_path C:\\work\\repo\\memory\\ordinary.md exits 0
+  ---
+  duration_ms: 28.908791
+  type: 'test'
+  ...
+# Subtest: source: file_path docs/ordinary.md exits 0
+ok 9 - source: file_path docs/ordinary.md exits 0
+  ---
+  duration_ms: 38.517917
+  type: 'test'
+  ...
+# Subtest: source: notebook_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+not ok 10 - source: notebook_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+  ---
+  duration_ms: 33.675958
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+not ok 11 - source: notebook_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+  ---
+  duration_ms: 29.122625
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+not ok 12 - source: notebook_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+  ---
+  duration_ms: 30.090958
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+not ok 13 - source: notebook_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+  ---
+  duration_ms: 33.418125
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+not ok 14 - source: notebook_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+  ---
+  duration_ms: 34.40875
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+not ok 15 - source: notebook_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+  ---
+  duration_ms: 32.5215
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph <@owner/slug>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: source: notebook_path C:\\work\\repo\\docs\\ordinary.md exits 0
+ok 16 - source: notebook_path C:\\work\\repo\\docs\\ordinary.md exits 0
+  ---
+  duration_ms: 42.154542
+  type: 'test'
+  ...
+# Subtest: source: notebook_path C:\\work\\repo\\memory\\ordinary.md exits 0
+ok 17 - source: notebook_path C:\\work\\repo\\memory\\ordinary.md exits 0
+  ---
+  duration_ms: 40.3405
+  type: 'test'
+  ...
+# Subtest: source: notebook_path docs/ordinary.md exits 0
+ok 18 - source: notebook_path docs/ordinary.md exits 0
+  ---
+  duration_ms: 36.489917
+  type: 'test'
+  ...
+# Subtest: repository: file_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+not ok 19 - repository: file_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+  ---
+  duration_ms: 21.589667
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+not ok 20 - repository: file_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+  ---
+  duration_ms: 25.996333
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+not ok 21 - repository: file_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+  ---
+  duration_ms: 24.383292
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+not ok 22 - repository: file_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+  ---
+  duration_ms: 27.010459
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+not ok 23 - repository: file_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+  ---
+  duration_ms: 29.45825
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+not ok 24 - repository: file_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+  ---
+  duration_ms: 24.924334
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: file_path C:\\work\\repo\\docs\\ordinary.md exits 0
+ok 25 - repository: file_path C:\\work\\repo\\docs\\ordinary.md exits 0
+  ---
+  duration_ms: 32.469375
+  type: 'test'
+  ...
+# Subtest: repository: file_path C:\\work\\repo\\memory\\ordinary.md exits 0
+ok 26 - repository: file_path C:\\work\\repo\\memory\\ordinary.md exits 0
+  ---
+  duration_ms: 29.18025
+  type: 'test'
+  ...
+# Subtest: repository: file_path docs/ordinary.md exits 0
+ok 27 - repository: file_path docs/ordinary.md exits 0
+  ---
+  duration_ms: 30.194209
+  type: 'test'
+  ...
+# Subtest: repository: notebook_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+not ok 28 - repository: notebook_path C:\\Users\\review\\.claude\\projects\\review\\memory\\MEMORY.md exits 2
+  ---
+  duration_ms: 30.851791
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+not ok 29 - repository: notebook_path C:\\Users\\review\\.CLAUDE\\Projects\\review\\MeMoRy\\note.md exits 2
+  ---
+  duration_ms: 38.324375
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+not ok 30 - repository: notebook_path \\\\server\\users\\review\\.claude\\projects\\review\\memory\\note.md exits 2
+  ---
+  duration_ms: 23.02925
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+not ok 31 - repository: notebook_path C:\\Users\\review\\.claude\\projects\\review\\other\\..\\memory\\note.md exits 2
+  ---
+  duration_ms: 35.00125
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+not ok 32 - repository: notebook_path C:/Users/review/.claude/projects/review/memory/MEMORY.md exits 2
+  ---
+  duration_ms: 31.842334
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+not ok 33 - repository: notebook_path /nonexistent/.claude/projects/review/memory/note.md exits 2
+  ---
+  duration_ms: 30.12725
+  type: 'test'
+  location: '/Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:34:7'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /@[^\s"'`]*\/mind\b/. Input:
+    
+    "BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.\n" +
+      '@handle/mind\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.
+    @handle/mind
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/dmitry/code/verstak-ai/skills-mind-1226/js/tests/memory-paths.test.mjs:43:18)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: repository: notebook_path C:\\work\\repo\\docs\\ordinary.md exits 0
+ok 34 - repository: notebook_path C:\\work\\repo\\docs\\ordinary.md exits 0
+  ---
+  duration_ms: 43.093875
+  type: 'test'
+  ...
+# Subtest: repository: notebook_path C:\\work\\repo\\memory\\ordinary.md exits 0
+ok 35 - repository: notebook_path C:\\work\\repo\\memory\\ordinary.md exits 0
+  ---
+  duration_ms: 29.250875
+  type: 'test'
+  ...
+# Subtest: repository: notebook_path docs/ordinary.md exits 0
+ok 36 - repository: notebook_path docs/ordinary.md exits 0
+  ---
+  duration_ms: 24.960209
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 12
+# fail 24
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1303.228208

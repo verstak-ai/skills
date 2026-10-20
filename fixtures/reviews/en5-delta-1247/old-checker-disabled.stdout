@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: personal entry text: owned mind uses the API link
+ok 1 - personal entry text: owned mind uses the API link
+  ---
+  duration_ms: 0.9435
+  type: 'test'
+  ...
+# Subtest: negative control: deleting owned mind uses the API link is detected
+ok 2 - negative control: deleting owned mind uses the API link is detected
+  ---
+  duration_ms: 0.123417
+  type: 'test'
+  ...
+# Subtest: personal entry text: foreign mind is no fallback
+ok 3 - personal entry text: foreign mind is no fallback
+  ---
+  duration_ms: 0.0485
+  type: 'test'
+  ...
+# Subtest: negative control: deleting foreign mind is no fallback is detected
+ok 4 - negative control: deleting foreign mind is no fallback is detected
+  ---
+  duration_ms: 0.044708
+  type: 'test'
+  ...
+# Subtest: personal entry text: refusal is not absence
+ok 5 - personal entry text: refusal is not absence
+  ---
+  duration_ms: 0.039709
+  type: 'test'
+  ...
+# Subtest: negative control: deleting refusal is not absence is detected
+ok 6 - negative control: deleting refusal is not absence is detected
+  ---
+  duration_ms: 0.0385
+  type: 'test'
+  ...
+# Subtest: personal entry text: missing role is not missing realm
+ok 7 - personal entry text: missing role is not missing realm
+  ---
+  duration_ms: 0.038334
+  type: 'test'
+  ...
+# Subtest: negative control: deleting missing role is not missing realm is detected
+ok 8 - negative control: deleting missing role is not missing realm is detected
+  ---
+  duration_ms: 0.046292
+  type: 'test'
+  ...
+# Subtest: personal entry text: repeat create rereads after conflict
+ok 9 - personal entry text: repeat create rereads after conflict
+  ---
+  duration_ms: 0.042417
+  type: 'test'
+  ...
+# Subtest: negative control: deleting repeat create rereads after conflict is detected
+ok 10 - negative control: deleting repeat create rereads after conflict is detected
+  ---
+  duration_ms: 0.405542
+  type: 'test'
+  ...
+# Subtest: personal entry text: repeat role provisioning reuses
+ok 11 - personal entry text: repeat role provisioning reuses
+  ---
+  duration_ms: 0.056833
+  type: 'test'
+  ...
+# Subtest: negative control: deleting repeat role provisioning reuses is detected
+ok 12 - negative control: deleting repeat role provisioning reuses is detected
+  ---
+  duration_ms: 0.04475
+  type: 'test'
+  ...
+# Subtest: personal entry text: no persistent locator
+ok 13 - personal entry text: no persistent locator
+  ---
+  duration_ms: 0.020792
+  type: 'test'
+  ...
+# Subtest: negative control: deleting no persistent locator is detected
+ok 14 - negative control: deleting no persistent locator is detected
+  ---
+  duration_ms: 0.040542
+  type: 'test'
+  ...
+# Subtest: personal entry text: no progress marker
+ok 15 - personal entry text: no progress marker
+  ---
+  duration_ms: 0.019125
+  type: 'test'
+  ...
+# Subtest: negative control: deleting no progress marker is detected
+ok 16 - negative control: deleting no progress marker is detected
+  ---
+  duration_ms: 0.02325
+  type: 'test'
+  ...
+# Subtest: personal entry text: structural facts need no receipt
+ok 17 - personal entry text: structural facts need no receipt
+  ---
+  duration_ms: 0.02
+  type: 'test'
+  ...
+# Subtest: negative control: deleting structural facts need no receipt is detected
+ok 18 - negative control: deleting structural facts need no receipt is detected
+  ---
+  duration_ms: 0.02225
+  type: 'test'
+  ...
+# Subtest: personal entry text: another member cannot confer progress
+ok 19 - personal entry text: another member cannot confer progress
+  ---
+  duration_ms: 0.014083
+  type: 'test'
+  ...
+# Subtest: negative control: deleting another member cannot confer progress is detected
+ok 20 - negative control: deleting another member cannot confer progress is detected
+  ---
+  duration_ms: 0.033167
+  type: 'test'
+  ...
+# Subtest: personal entry text: persona is not a progress predicate
+ok 21 - personal entry text: persona is not a progress predicate
+  ---
+  duration_ms: 0.013833
+  type: 'test'
+  ...
+# Subtest: negative control: deleting persona is not a progress predicate is detected
+ok 22 - negative control: deleting persona is not a progress predicate is detected
+  ---
+  duration_ms: 0.048625
+  type: 'test'
+  ...
+# Subtest: personal entry text: operational persona is preserved
+ok 23 - personal entry text: operational persona is preserved
+  ---
+  duration_ms: 0.013167
+  type: 'test'
+  ...
+# Subtest: negative control: deleting operational persona is preserved is detected
+ok 24 - negative control: deleting operational persona is preserved is detected
+  ---
+  duration_ms: 0.023042
+  type: 'test'
+  ...
+# Subtest: personal entry text: cleanup requires provenance
+ok 25 - personal entry text: cleanup requires provenance
+  ---
+  duration_ms: 0.013334
+  type: 'test'
+  ...
+# Subtest: negative control: deleting cleanup requires provenance is detected
+ok 26 - negative control: deleting cleanup requires provenance is detected
+  ---
+  duration_ms: 0.01875
+  type: 'test'
+  ...
+# Subtest: personal entry text: home carries the ownership fork
+ok 27 - personal entry text: home carries the ownership fork
+  ---
+  duration_ms: 0.01225
+  type: 'test'
+  ...
+# Subtest: negative control: deleting home carries the ownership fork is detected
+ok 28 - negative control: deleting home carries the ownership fork is detected
+  ---
+  duration_ms: 0.13725
+  type: 'test'
+  ...
+# Subtest: sources and home carry no constructed address, redirect recipe or assumed envelope
+ok 29 - sources and home carry no constructed address, redirect recipe or assumed envelope
+  ---
+  duration_ms: 0.315417
+  type: 'test'
+  ...
+# Subtest: negative controls reject the old address and redirect recipe
+ok 30 - negative controls reject the old address and redirect recipe
+  ---
+  duration_ms: 0.073375
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 126.395583

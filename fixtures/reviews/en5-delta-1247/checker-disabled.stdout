@@ -1,0 +1,428 @@
+TAP version 13
+# Subtest: personal entry text: owned mind uses the API link
+ok 1 - personal entry text: owned mind uses the API link
+  ---
+  duration_ms: 0.513292
+  type: 'test'
+  ...
+# Subtest: negative control: deleting owned mind uses the API link is detected
+not ok 2 - negative control: deleting owned mind uses the API link is detected
+  ---
+  duration_ms: 0.827375
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: "skills/verstak/methods/minding.md: Take the `personal_mind` item's `artifact.ref` verbatim"
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: personal entry text: foreign mind is no fallback
+ok 3 - personal entry text: foreign mind is no fallback
+  ---
+  duration_ms: 0.065666
+  type: 'test'
+  ...
+# Subtest: negative control: deleting foreign mind is no fallback is detected
+not ok 4 - negative control: deleting foreign mind is no fallback is detected
+  ---
+  duration_ms: 0.07125
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: "skills/verstak/methods/minding.md: Someone else's accessible `mind` never substitutes"
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: refusal is not absence
+ok 5 - personal entry text: refusal is not absence
+  ---
+  duration_ms: 0.0405
+  type: 'test'
+  ...
+# Subtest: negative control: deleting refusal is not absence is detected
+not ok 6 - negative control: deleting refusal is not absence is detected
+  ---
+  duration_ms: 0.04925
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/methods/minding.md: An access or transport failure proves no absence'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: missing role is not missing realm
+ok 7 - personal entry text: missing role is not missing realm
+  ---
+  duration_ms: 0.036583
+  type: 'test'
+  ...
+# Subtest: negative control: deleting missing role is not missing realm is detected
+not ok 8 - negative control: deleting missing role is not missing realm is detected
+  ---
+  duration_ms: 0.049417
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/references/minding-personal-realm.md: missing roles alone mean the graph exists'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: repeat create rereads after conflict
+ok 9 - personal entry text: repeat create rereads after conflict
+  ---
+  duration_ms: 0.042291
+  type: 'test'
+  ...
+# Subtest: negative control: deleting repeat create rereads after conflict is detected
+not ok 10 - negative control: deleting repeat create rereads after conflict is detected
+  ---
+  duration_ms: 0.15625
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/references/minding-personal-realm.md: On a conflict (409), timeout or uncertain outcome, reread readiness before retrying'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: repeat role provisioning reuses
+ok 11 - personal entry text: repeat role provisioning reuses
+  ---
+  duration_ms: 0.063292
+  type: 'test'
+  ...
+# Subtest: negative control: deleting repeat role provisioning reuses is detected
+not ok 12 - negative control: deleting repeat role provisioning reuses is detected
+  ---
+  duration_ms: 0.057875
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/references/minding-personal-realm.md: reuse one that fits, never create a second'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: no persistent locator
+ok 13 - personal entry text: no persistent locator
+  ---
+  duration_ms: 0.028875
+  type: 'test'
+  ...
+# Subtest: negative control: deleting no persistent locator is detected
+not ok 14 - negative control: deleting no persistent locator is detected
+  ---
+  duration_ms: 0.052167
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/methods/minding.md: never read or write special properties/attrs on profiles, graphs or nodes, config, agent memory or a redirect stub to find mind'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: no progress marker
+ok 15 - personal entry text: no progress marker
+  ---
+  duration_ms: 0.036167
+  type: 'test'
+  ...
+# Subtest: negative control: deleting no progress marker is detected
+not ok 16 - negative control: deleting no progress marker is detected
+  ---
+  duration_ms: 0.061292
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/methods/onboarding.md: Never read or write profile, graph or node markers to assert progress'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: structural facts need no receipt
+ok 17 - personal entry text: structural facts need no receipt
+  ---
+  duration_ms: 0.030792
+  type: 'test'
+  ...
+# Subtest: negative control: deleting structural facts need no receipt is detected
+not ok 18 - negative control: deleting structural facts need no receipt is detected
+  ---
+  duration_ms: 0.046583
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/methods/onboarding.md: Structural signs need existence and the appropriate ownership or user binding, not an additional receipt'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: another member cannot confer progress
+ok 19 - personal entry text: another member cannot confer progress
+  ---
+  duration_ms: 0.02825
+  type: 'test'
+  ...
+# Subtest: negative control: deleting another member cannot confer progress is detected
+not ok 20 - negative control: deleting another member cannot confer progress is detected
+  ---
+  duration_ms: 0.054625
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: "skills/verstak/methods/onboarding.md: another person's role or receipt does not count for the current person"
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: persona is not a progress predicate
+ok 21 - personal entry text: persona is not a progress predicate
+  ---
+  duration_ms: 0.022625
+  type: 'test'
+  ...
+# Subtest: negative control: deleting persona is not a progress predicate is detected
+not ok 22 - negative control: deleting persona is not a progress predicate is detected
+  ---
+  duration_ms: 0.039042
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: "skills/verstak/methods/onboarding.md: The companion's runtime `persona` is not an onboarding predicate"
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: operational persona is preserved
+ok 23 - personal entry text: operational persona is preserved
+  ---
+  duration_ms: 0.030375
+  type: 'test'
+  ...
+# Subtest: negative control: deleting operational persona is preserved is detected
+not ok 24 - negative control: deleting operational persona is preserved is detected
+  ---
+  duration_ms: 0.04425
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/references/minding-personal-realm.md: This attribute distinguishes the operational companion role for assistant receive/loop'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: cleanup requires provenance
+ok 25 - personal entry text: cleanup requires provenance
+  ---
+  duration_ms: 0.013875
+  type: 'test'
+  ...
+# Subtest: negative control: deleting cleanup requires provenance is detected
+not ok 26 - negative control: deleting cleanup requires provenance is detected
+  ---
+  duration_ms: 0.038
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: 'skills/verstak/references/minding-personal-realm.md: Only a record demonstrated by its creation history to be a locator or progress marker is a cleanup candidate'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: personal entry text: home carries the ownership fork
+ok 27 - personal entry text: home carries the ownership fork
+  ---
+  duration_ms: 0.012834
+  type: 'test'
+  ...
+# Subtest: negative control: deleting home carries the ownership fork is detected
+not ok 28 - negative control: deleting home carries the ownership fork is detected
+  ---
+  duration_ms: 0.0295
+  type: 'test'
+  location: '/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:81:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'ERR_ASSERTION'
+    message: "home/minding/SKILL.md: Someone else's accessible `mind` never substitutes"
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/en5-delta-59SKzy/disabled.test.mjs:83:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: sources and home carry no constructed address, redirect recipe or assumed envelope
+ok 29 - sources and home carry no constructed address, redirect recipe or assumed envelope
+  ---
+  duration_ms: 0.252
+  type: 'test'
+  ...
+# Subtest: negative controls reject the old address and redirect recipe
+ok 30 - negative controls reject the old address and redirect recipe
+  ---
+  duration_ms: 0.295334
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 16
+# fail 14
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 129.905916
