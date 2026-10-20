@@ -8,6 +8,11 @@ export const COVER = {
   file: "AGENTS.md",
   /** The graph slot: the value starts with @owner/slug or rN. */
   graph: "Graph",
+  /**
+   * The words that list equal working graphs in the graph slot ("@a/x or @b/y" is ambiguous); a
+   * graph after prose (a pointer to the methodology, "not used") is not a working one.
+   */
+  graphJoins: ["or", "and"] as const,
   /** The agent-role slot: the value starts with exactly one reference '#N "name"'. */
   role: "Agent role",
   /** The quotes around the name in the role reference: opening and closing (here the same character). */

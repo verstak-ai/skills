@@ -109,6 +109,16 @@ test("left-out and lost frames point at the seat's cases, never the channel log 
   }
 });
 
+// A question to this seat closed or re-asked by another seat's record (graph @nks/nks-dev,
+// node #6867): who answered or whom it moved to, never the record's text.
+test("a question to you closed or re-asked elsewhere names who, never the text", () => {
+  assert.equal(
+    FRAME_TEXT.en.askAnswered("3", "s.dev"),
+    "; your question [3] is closed: answered by s.dev",
+  );
+  assert.equal(FRAME_TEXT.en.askMoved("3", "s.lead"), "; your question [3] is re-asked of s.lead");
+});
+
 // The life check (graph @nks/nks-dev, case #1046): the way to answer under the platform's text,
 // the root's line about a warned child seat, and the stop for silence after it (#8121).
 test("the life check names the way to answer, a child seat's release, and the stop for silence", () => {

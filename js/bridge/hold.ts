@@ -361,7 +361,7 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
           d.broadcast(ev);
           notify("info", keyed(d, ev));
         });
-  const text = full === frame && !full?.addressed ? raw : JSON.stringify(full);
+  const text = full === frame && full?.addressed === undefined ? raw : JSON.stringify(full);
   // hello goes into every door's ring: a watchdog attaching later must see the proof of holding.
   const hello = full?.type === "hello";
   for (const x of hello ? doors() : [d]) x.push(text, full);

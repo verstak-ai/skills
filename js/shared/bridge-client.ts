@@ -78,6 +78,8 @@ export class Bridge {
       env: { ...rt.env, ...env },
     });
     this.proc = proc;
+    // A write into a bridge going away fails with EPIPE; its death is told by exit, not here.
+    proc.stdin?.on("error", () => {});
     proc.stdout?.setEncoding("utf8");
     proc.stdout?.on("data", (chunk: string) => this.feed(chunk));
     proc.stderr?.setEncoding("utf8");

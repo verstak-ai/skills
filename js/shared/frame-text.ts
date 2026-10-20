@@ -1,9 +1,9 @@
 import { FRAME_MARK, FRAME_TEXT, ROOM } from "../delivery/index.ts";
-import { addressedToMine } from "./addressed.ts";
+import { addressedToMine, closedQuestion } from "./addressed.ts";
 import { classifyOrigin, type Frame } from "./channel.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
-import { need, opt } from "./room-fields.ts";
+import { addresseeOf, need, opt } from "./room-fields.ts";
 import { roomKind } from "./room-kinds.ts";
 import { isLifeCheck } from "./seen.ts";
 
@@ -192,6 +192,20 @@ export function batchLines(frames: Frame[]): string[] {
 }
 
 /**
+ * Another's record that closed my question (closes_mine, set by addressedToMine): who
+ * answered or whom it is re-asked of — its text stays in history (#6867, #6574).
+ */
+function closingOf(frame: Frame): string {
+  const n = closedQuestion(frame); // decided here: independent of the count's order
+  if (!n) return "";
+  const rk = roomKind(frame);
+  const to = rec(rec(rec(rec(frame).line).fields).to);
+  if (rk?.kind !== "ask") return T().askAnswered(n, need(rk?.author));
+  const seat = addresseeOf(to.standing)?.label || idOf(rec(to.karta).name);
+  return T().askMoved(n, need(seat));
+}
+
+/**
  * Case count line — rule #6574: how many records came, how many to the seat, where to
  * read in full. frames are records of one case; superseded key lines are counted
  * apart (keyfold.ts, #6718).
@@ -207,6 +221,7 @@ export function caseCountLine(frames: Frame[]): string {
   return (
     T().count(head, n, mineN) +
     (gone ? T().supersededLines(gone) : "") +
+    frames.map(closingOf).join("") +
     yours +
     batchPointer(frames) +
     "."

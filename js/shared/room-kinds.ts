@@ -8,6 +8,7 @@ import { words } from "./lang.ts";
 import {
   addresseeOf,
   after,
+  inviteMine,
   mineOf,
   myRole,
   need,
@@ -15,10 +16,19 @@ import {
   opt,
   pick,
   type Rec,
+  seatIs,
   str,
 } from "./room-fields.ts";
 
-export { addresseeOf, after, mineOf, myRole, obj, str };
+export { addresseeOf, after, inviteMine, mineOf, myRole, obj, seatIs, str };
+
+/** Seats a word names: its line's fields.to, the word line's (a body), the envelope's addressee. */
+export const wordSeats = (f: Rec): unknown[] => [
+  obj(obj(f.line).fields).to,
+  obj(obj(obj(f.word).line).fields).to,
+  f.addressee,
+  obj(f.word).addressee,
+];
 
 /** Where a frame goes: interrupt the running turn or join the batch. */
 export type Stack = "interrupt" | "batch";
@@ -162,7 +172,6 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
   const line = obj(f.line);
   const fields = obj(line.fields);
   const key = str(line.key);
-  const mine = mineOf(f);
   const node = obj(fields.node);
   const cause = kind === "invite" ? str(fields.cause) : "";
   // A body line's author is the body record's; the word's author is in_reply_to_from (graph @nks/nks-dev, node #5893).
@@ -223,16 +232,14 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
   // the body carries its word's addressee and joins the same pair.
   const word = kind === "said" || kind === "body";
   const withheld = word && f.body_withheld === true;
+  // The word's addressee: fields.to of the said line (the body's word line), the envelope's
+  // addressee on both phases (#5893 §4.6, case №1249 [19]); compared by id (seatIs). The
+  // addressee having left the case widens nothing: still not to me (#6574).
+  const named = word ? wordSeats(f) : [];
   const to = word
-    ? (addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null))
+    ? (named.map(addresseeOf).find(Boolean) ?? (withheld ? { addr: ["?"], label: "?" } : null))
     : null;
-  // The addressee left the case: the word goes to everyone, printed as any word.
-  const addresseeLeft = f.addressee_left === true || fields.addressee_left === true;
-  if (
-    to &&
-    !addresseeLeft &&
-    (withheld || (mine.length && !to.addr.some((a) => mine.includes(a))))
-  ) {
+  if (to && (withheld || seatIs(f, ...named) === false)) {
     const counts = kind === "said";
     const pair = JSON.stringify([roomOf(f.room), author, to.addr[0]]);
     const id = need(counts ? values.entry_id : values.refers_to);
@@ -266,7 +273,7 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
         ? "batch"
         : "interrupt"
       : rule === "mine"
-        ? mine.includes(str(values.target)) || myRole(f, fields)
+        ? inviteMine(f, kind)
           ? "interrupt"
           : "batch"
         : rule === "addressed"
