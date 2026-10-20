@@ -65,7 +65,7 @@ const PRESENT = {
     "Age alone ends no preference.",
     "release without inventing a lesson",
     // creation unasked, filling on request
-    "Every user gets `@handle/mind` with their own role and the assistant's in it without being asked",
+    "Every user gets personal memory without being asked",
     "Filling (§3) and reconciling (§2) happen on request.",
   ],
   reference: [

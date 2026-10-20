@@ -2,32 +2,33 @@
 
 **Use when:** a durable fact about the user surfaces mid-task and serves no single project (their machines, expiries, people, their own way of working even on a development topic, lessons) → write it; a task needs such a fact (a deploy target, a machine trait, someone's rhythm, a deadline) → recall it. Or the user asks: "do you remember", "what do you know about me", "what do I have", "what's on my plate", "where is it deployed"; "remember this" (→ write); "set up my memory" (→ bootstrap). Never route these facts into the harness's own memory. What mind holds is never retold outside it.
 
-`@handle/mind` is the user's personal graph: the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, opinions, standing working preferences, ideas with no project yet, methods of their own, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session**: an aligned repository settles only which graph the session works in.
+The current user's personal mind graph holds the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, opinions, standing working preferences, ideas with no project yet, methods of their own, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session**: an aligned repository settles only which graph the session works in.
 
 ## Two reflexes
 
 | Reflex | Fires when | Move |
 |---|---|---|
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
-| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into `@handle/mind` under its area's holon; a person as a guest role in a group; never harness-local memory |
+| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into their verified personal mind under its area's holon; a person as a guest role in a group; never harness-local memory |
 
-Every user gets `@handle/mind` with their own role and the assistant's in it without being asked (`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph, by `methods/onboarding.md` at its step 0, by `methods/align.md` when aligning, by this method on `Realm not found`. Filling (§3) and reconciling (§2) happen on request.
+Every user gets personal memory without being asked: the door, onboarding, align and this method use the single entry below, then `references/minding-personal-realm.md` §1–2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
-## The address
+## Personal ownership before reading or writing
 
-```
-verstak_me(action="whoami")            → handle (once per session)
-verstak_orient(realm="@handle/mind")   → the map of holons
-```
+Read `verstak_me(action="readiness")` for the current identity. Take the `personal_mind` item's `artifact.ref` verbatim as `<personal graph>` for this move. It is a computed API answer, not an attribute pointer. Reread after creation, an identity change or a refusal. Never ask for a handle, construct an address from one, or cache an address for future access.
 
-- The address is **a convention**, not something to discover: don't scan `verstak_realm(action="list")` for a personal graph.
-- `Realm not found: "@handle/mind"` **is an answer**: create the graph and both roles (reference §1–2) without asking; filling waits for a request. Don't fall back to listing graphs.
-- A personal graph under **another slug** is settled once, at bootstrap: move it to `mind`, or leave a **stub at `@handle/mind`** — one `key:true` landmark carrying the real address.
+- **Personal graph present:** the link may be present even when the sign is `missing` because a role is missing. Read that graph and establish the current person's bound role; complete only that structural gap. A missing runtime assistant role is not a missing onboarding sign. A graph's name, admin access or a thread in it does not prove personal ownership.
+- **Personal graph absent:** only `state=missing` with `artifact.lacks` including `mind_realm` permits creation (reference §1). Missing roles alone are not that evidence. Someone else's accessible `mind` never substitutes for personal memory.
+- **Not established:** `unknown`, an absent field, a refusal or an ambiguous response means memory is unavailable for this move. An access or transport failure proves no absence: say it is unreachable, create no duplicate, and continue independent project work.
+
+The general bare-slug resolver can return someone else's graph when no personal one exists; a successful read of `mind` is therefore no ownership check. Use the personal sign's verified link. If the surface cannot establish ownership or provision personal memory, name the missing operation rather than trying guessed addresses.
+
+**No persistent mind locator:** never read or write special properties/attrs on profiles, graphs or nodes, config, agent memory or a redirect stub to find mind. Normal realm fields and transient API answers are allowed. A personal archive under another slug remains user content; no automatic rename or redirect.
 
 ## §1 Recall
 
-1. **Map level** — which graph owns this, what do I have: one `verstak_orient(realm="@handle/mind")`, no lens. Root holons are the areas; `attrs.key=true` landmarks are the live-graph cards and routing rules; `ACTIVE BIANHUA` shows the user's own transformations. Answer from the map, or name the graph and hand over to `methods/entry.md`. Ceiling: 2 calls.
-2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm="@handle/mind", q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 calls, then answer with what you have.
+1. **Map level** — which graph owns this, what do I have: one `verstak_orient(realm=<personal graph>)`, no lens. Root holons are the areas; `attrs.key=true` landmarks are the working-graph cards and routing rules; `ACTIVE BIANHUA` shows the user's own transformations. Answer from the map, or name the graph and hand over to `methods/entry.md`. Ceiling: 2 reading calls.
+2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm=<personal graph>, q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 reading calls, then answer with what you have. Ownership is a precondition of either depth, never skipped to meet a ceiling.
 
 **Name the outcome** — each leads somewhere else:
 - **found** — read each hit with its scope, conditions, modes and objections; a record and the newer one that replaced it are one fact at two moments, not two options;
@@ -72,7 +73,7 @@ The user's own + useful later + serves no single project → here. Shapes: `refe
 - **Unknown outcome** (a timeout, a dropped transport) → read before you retry; a version conflict → reread, then decide.
 
 **Where in mind — by reflex, not on request:**
-- **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm="@handle/mind", q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
+- **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm=<personal graph>, q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
 - **A person gets a guest role** — `manifested_as="agantuka"` 客 (outside the user's boundary, answering on their own time), with the motivation they have *in the user's life*, not a dossier (reference §2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `posed_to` their role.
 
 ## §2 Reconcile
@@ -123,7 +124,7 @@ verstak_search(realm=R, q="", posed_to=seq,
 - Drop while reading: rows the search marks as ended on their carrying axis (a cell word after the modes), and `virodha` rows of a doubt, counter-thesis or hint (declined); a risk in `virodha` is guarded and a counterexample, grounding defect or drift in `virodha` still present — both live.
 - `upeksha` rows are a separate pile — accepted as is, woken by a change at their anchor, not by a read (`methods/inquiry.md`); list them apart and leave them.
 - **Read the "N of M" header** and page until N = M: a cut agenda looks complete.
-- **Sweep `@handle/mind` too** — duties posed to the user's own owner role live only there.
+- **Sweep the verified personal mind too** — duties posed to the user's own owner role live only there.
 
 The user appears in each graph through one **owner role** (`svatantra` 主) bound via `user` — their cross-graph identity; unbound roles don't show (hence §2 step 3). Agent roles they run stay unbound. Read the role queue with `verstak_orient(focus=<role>)` on entry and whenever something prompts it. Cost scales with live areas. **Never store the agenda**: it would state yesterday's obligations with today's confidence.
 
@@ -164,7 +165,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ## Acceptance
 
-- Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read; `Realm not found` read as routing.
+- Personal ownership established before recall or write; another user's accessible mind is never a fallback. Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read.
 - A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
 - Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it.

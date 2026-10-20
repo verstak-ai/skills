@@ -23,7 +23,7 @@
 'Reality — source': '<derived / agreed: who / not agreed — case #N>'
 'Layout': '<code map: component READMEs, or a section where a README beside outputs is forbidden>; <traps: the graph or GOTCHAS.md>'
 'Layout — source': '<derived / agreed: who / not agreed — case #N>'
-'Cross-project memory': 'personal graph @<handle>/mind — never a global instructions file or the memory directory'
+'Cross-project memory': 'personal mind via the minding method — no stored address, global instructions file or memory directory'
 'Cross-project memory — source': '<derived: template default / agreed: who>'
 'Feedback reflection': '<yes — default / no>'
 'Feedback reflection — source': '<derived: template default / agreed: who>'

@@ -45,10 +45,10 @@ const SKILLS = {
   },
   minding: {
     description:
-      "The user's memory in the graph — the personal graph @handle/mind, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, opinions, their own way of working (on a development topic too), methods of their own; never harness-local memory. A project's servers, pipeline, dated duties and rules belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact — then weigh what it changes now: apply, adapt, don't apply, or ask one deciding question. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools.",
+      "The user's memory in the graph — personal mind found through current identity, without a handle or stored pointer, recalled and written by reflex, not ritual. WRITE when a durable fact about the user surfaces and serves no single project: their own machines, expiries, people, opinions, their own way of working (on a development topic too), methods of their own; never harness-local memory. A project's servers, pipeline, dated duties and rules belong to that project's graph. RECALL when the user's own field is in play: 'do you remember', 'what do you know about me', 'what do I have', 'what's on my plate', 'where is it deployed', or a task needs such a fact — then weigh what it changes now: apply, adapt, don't apply, or ask one deciding question. 'remember this' → write; 'set up my memory' → bootstrap. Needs the verstak_* tools.",
     rewrites: [
-      ["(`references/minding-personal-realm.md` §1–2): created by the door when the user has no graph,", "(Appendix, A1–A2): created at session start when the user has no graph,"],
-      ["create the graph and both roles (reference §1–2)", "create the graph and both roles (A1–A2)"],
+      ["the door, onboarding, align and this method use the single entry below, then `references/minding-personal-realm.md` §1–2", "onboarding and this method use the single entry below, then Appendix A1–A2"],
+      ["permits creation (reference §1)", "permits creation (A1)"],
       ["or name the graph and hand over to `methods/entry.md`.", `or name the graph and read it there: ${READ_THE_GRAPH}.`],
       ["Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).", "Shapes, in the Appendix: machines (A7), people (A2b), dated facts (A7), lessons (A8)."],
       ["not a dossier (reference §2b)", "not a dossier (A2b)"],
@@ -56,13 +56,12 @@ const SKILLS = {
       [" (the door's `Survey` table, \"no project graph\")", ""],
     ],
     // The personal-graph skeleton the home loop needs to bootstrap and write
-    // @handle/mind, inlined from its reference: the loop reads no other file.
+    // personal mind, inlined from its reference: the loop reads no other file.
     appendix: {
       file: "minding-personal-realm.md",
-      heading: "## Appendix — the `@handle/mind` skeleton\n\nThe set of nodes §3 builds and §2 keeps true, so that one `verstak_orient(realm=\"@handle/mind\")` prints a routing answer with no lens: root holons, `attrs.key=true` landmarks, `ACTIVE BIANHUA`.",
+      heading: "## Appendix — the personal mind skeleton\n\nThe set of nodes §3 builds and §2 keeps true, so that one `verstak_orient(realm=<personal graph>)` prints a routing answer with no lens: root holons, `attrs.key=true` landmarks, `ACTIVE BIANHUA`. Establish ownership through the entry above before reading here.",
       sections: ["1", "2", "2b", "3", "4", "5", "6", "7", "8", "10"],
       rewrites: [
-        ["Created without asking (by the door, or by minding on `Realm not found`)", "Created without asking (at session start, or by this method on `Realm not found`)"],
         ["a disposable-class graph (§5)", "a disposable-class graph (A5)"],
         ["it is what keeps §1 cheap", "it is what keeps recall (§1) cheap"],
         ["Dated `sachverhalt` nodes (§7)", "Dated `sachverhalt` nodes (A7)"],

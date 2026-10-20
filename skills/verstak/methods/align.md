@@ -8,7 +8,9 @@ You produce `AGENTS.md` (read every session), `REALITY.md` (carriers, read befor
 
 Templates: `templates/agents-template.md` and `templates/reality-template.md`. Fill the `<…>` slots, drop optional rows that don't apply, strip every `<!-- … -->` note and angle bracket. The template carries **repository facts only**; its first paragraph loads the `verstak` skill, so even a harness without a start hook reaches the door. Generic code work (before code, reviews, after merge, working principles) is `methods/code-work.md`, read through the door: never project it into `AGENTS.md`.
 
-**Contract: `4`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+**Contract: `5`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+
+From contract 4: re-project memory routing and guard messages through minding, with no constructed or stored personal address; refresh the ritual and delegation projections against their current references too. A changed counter calls an existing repository back; it does not prove that repository was re-aligned.
 
 **Check the installed delivery first** — every run, and before concluding a method's instruction is wrong:
 
@@ -79,7 +81,7 @@ Write each answer at once; slots don't wait for each other.
 Also settle:
 - **Shared mutable build/test state** (database, fixed port, dev server, global cache, cloud sandbox) → per-lane isolation as gotchas: agents run branches concurrently in separate worktrees.
 - **Reality** → `REALITY.md`. Push each claim class to its *canonical carrier*: the built artifact, not the sources; the live endpoint, not the handler; a clean install, not a warm cache. Recorded in the graph or a named answer → write it; new → propose it in the alignment case and write the row with `(proposed — case #N)` after its class until the owner confirms. No reachable observation → *Ceiling* with the reason. `AGENTS.md` gets a "Reality" pointer naming the first row.
-- **Cross-project memory** — template default, `derived: template default`, no question; missing `@handle/mind` → `methods/minding.md`. Never create or ask about a global instructions file.
+- **Cross-project memory** — template default, `derived: template default`, no question; establish personal memory through `methods/minding.md`'s ownership entry. Never construct or persist its address, create or ask about a global instructions file.
 - **Feedback reflection** (`methods/feedback.md`) — default **yes**, `derived: template default`, no question; **no** only on a recorded answer. The slot is all you write: `methods/code-work.md`, `After merge`, reads it.
 - **Workflow suite** — only when a coercive one is found (its skills or plugin-cache directory; today superpowers): **full interop** (recommended: `references/align-superpowers-interop.md` plus the spec-write hook), **prose only**, or **skip** — its design sessions won't reach the graph.
 
