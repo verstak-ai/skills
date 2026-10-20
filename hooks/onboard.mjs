@@ -101,6 +101,11 @@ var COVER = {
   file: "AGENTS.md",
   /** The graph slot: the value starts with @owner/slug or rN. */
   graph: "Graph",
+  /**
+   * The words that list equal working graphs in the graph slot ("@a/x or @b/y" is ambiguous); a
+   * graph after prose (a pointer to the methodology, "not used") is not a working one.
+   */
+  graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
   /** The agent-role slot: the value starts with exactly one reference '#N "name"'. */
   role: "Agent role",
   /** The quotes around the name in the role reference: opening and closing (here the same character). */
@@ -246,6 +251,14 @@ var words = (dict) => dict[lang()];
 import { readFileSync as readFileSync3, statSync } from "node:fs";
 import { dirname, join as join4, resolve as resolve3 } from "node:path";
 
+// js/shared/graphslot.ts
+var SLUG = String.raw`@[\w.-]+\/[\w.-]*\w`;
+var ADDRESS = String.raw`(?:${SLUG}(?=[.-]*(?:$|[\s)\x60'",;.:]))|r\d+(?=$|[\s)\x60'",;.:]))`;
+var FRAME = String.raw`[\s\x60'"]*`;
+var HEAD = new RegExp(String.raw`^(${ADDRESS})(?:${FRAME}\(${FRAME}(${ADDRESS})${FRAME}\))?`);
+var ANY = new RegExp(String.raw`${SLUG}|(?<![\w/])r\d+(?!\w)`, "gu");
+var PROSE = new RegExp("^[—–\\-:.(]*\\s*(?!r\\d)\\p{L}", "u");
+
 // js/shared/cover.ts
 var unquote = (v) => {
   const t = v.trim();
@@ -265,12 +278,16 @@ function frontMatter(text2) {
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
   if (end < 0) return null;
-  const pairs = /* @__PURE__ */ new Map();
+  const raw = /* @__PURE__ */ new Map();
+  let last = null;
   for (const line of lines.slice(1, end)) {
     const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line);
-    if (kv) pairs.set(unquote(kv[1]), unquote(kv[2] ?? ""));
+    if (kv) raw.set(last = unquote(kv[1]), kv[2] ?? "");
+    else if (last !== null && /^\s+[^\s#]/.test(line))
+      raw.set(last, `${raw.get(last)}
+${line.trim()}`);
   }
-  return pairs;
+  return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
 
 // js/shared/reposigns.ts
