@@ -12,12 +12,14 @@ import { LANGS } from "../delivery/lang.ts";
 import { BACKLOG } from "../delivery/words/backlog.ts";
 import { CALL } from "../delivery/words/call.ts";
 import { CHANNEL } from "../delivery/words/channel.ts";
+import { COMPACTION } from "../delivery/words/compaction.ts";
 import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
 import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
 import { PLUGIN } from "../delivery/words/plugin.ts";
 import { RESUME } from "../delivery/words/resume.ts";
+import { ROOT_SEAT } from "../delivery/words/rootseat.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
 import { STALE } from "../delivery/words/stalebatch.ts";
 import { STATUS } from "../delivery/words/status.ts";
@@ -132,6 +134,42 @@ test("the life check names the way to answer, a child seat's release, and the st
   assert.match(
     STOP.en.stopped("proba", "silent"),
     /taken off \(by the platform: no action of yours after the liveness wake-up\)/,
+  );
+});
+
+// The role after compaction and a root without a cover that aligns in the same session (the
+// core's opencode/compaction.ts, rootseat-again.ts): the words name this delivery's door and
+// its align method, never the sibling's skill names.
+test("a compacted session is told its role and the door; a root without a cover is told to align", () => {
+  const keep = COMPACTION.en.keep("931", "s.dev", "@x/dev");
+  assert.match(
+    keep,
+    /^Verstak: the summary of this compaction must keep .*role #931 in graph @x\/dev, its seat s\.dev/,
+  );
+  assert.match(keep, /the live cases — by number and what each waits for/);
+  assert.match(keep, /reload the verstak skill and the role's methods as the first move/);
+  const back = COMPACTION.en.back("#931", "s.dev", "@x/dev");
+  assert.match(
+    back,
+    /^Verstak: the context was compacted\. You are role #931 in graph @x\/dev; the bridge holds seat s\.dev\./,
+  );
+  assert.match(
+    back,
+    /load the verstak skill and the methods its door names for the role — only those/,
+  );
+  assert.match(COMPACTION.en.back("undefined", "s", "r5"), /You are role <role> in graph r5/);
+  assert.match(COMPACTION.en.returned("ses_1"), /^Verstak: .*session ses_1$/);
+  assert.equal(ROOT_SEAT.en.noFile("AGENTS.md"), "there is no AGENTS.md");
+  const realign = ROOT_SEAT.en.realign("there is no AGENTS.md", "AGENTS.md");
+  assert.match(realign, /^Verstak: the session is not seated — there is no AGENTS\.md\. /);
+  assert.match(realign, /Align the repository by the verstak skill's align method/);
+  assert.match(realign, /do not guess the graph or the role/);
+  assert.match(realign, /Seating repeats by itself once the cover AGENTS\.md is unambiguous\.$/);
+  assert.doesNotMatch(realign, FOREIGN);
+  assert.doesNotMatch(realign, /verstak_stand/, "an unaligned root is aligned, not seated by hand");
+  assert.match(
+    OPENCODE.en.realignDown("boom"),
+    /^Verstak: .*seating after alignment waits for a prompt — boom$/,
   );
 });
 

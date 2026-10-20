@@ -1,11 +1,13 @@
 // The root autoseat's words by the project cover (the core's opencode/rootseat.ts,
 // shared/cover.ts): one line to the model before the first request — seated, or why not. No
-// cover file — no word at all: the project is not aligned.
+// cover file outside a repository — no word at all.
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
 
 export interface RootSeatWords {
   // Why the cover named no seat; file and key are the names from patterns/cover.ts.
+  /** No cover file in the session's directory inside a repository. */
+  noFile: (file: string) => string;
   noFrontmatter: (file: string) => string;
   noKey: (file: string, key: string) => string;
   /** The slot's value starts with neither @owner/slug nor rN. */
@@ -28,6 +30,8 @@ export interface RootSeatWords {
   unproven: () => string;
   /** Not seated: why — the reason as a ready line. */
   notSeated: (why: string) => string;
+  /** Not seated for a defect of the cover file: align, the seating repeats by itself. */
+  realign: (why: string, file: string) => string;
   /** The bridge or the server refused the seating — the reason in its words. */
   refused: (text: string) => string;
   /** The session holds a seat of another role or graph than the cover's. */
@@ -46,6 +50,7 @@ export interface RootSeatWords {
 
 export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
   en: {
+    noFile: (file) => `there is no ${file}`,
     noFrontmatter: (file) => `${file} carries no YAML front matter`,
     noKey: (file, key) => `the front matter of ${file} has no '${key}' slot`,
     noGraph: (file, key) => `'${key}' in ${file} does not start with @owner/slug or rN`,
@@ -64,6 +69,8 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
       "the bridge did not prove this attempt took a provisional seat; revoke is not authorized",
     notSeated: (why) =>
       `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
+    realign: (why, file) =>
+      `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method from its real sources; do not guess the graph or the role — what cannot be determined, ask as the align method says. Seating repeats by itself once the cover ${file} is unambiguous.`,
     refused: (text) => `seating failed: ${text}`,
     ownOther: (place, karta, realm) =>
       `Verstak: the session holds seat ${place} — role #${karta} in ${realm}; its role or graph differs from the cover. To change seats, use ${tool("stand")} with take or explicitly revoke the held seat.`,

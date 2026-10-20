@@ -57,6 +57,7 @@ export { BRIDGE_CLIENT, type BridgeClientWords } from "./words/bridge-client.ts"
 export { CALL, type CallWords } from "./words/call.ts";
 export { CHANNEL, type ChannelWords } from "./words/channel.ts";
 export { CLI, type CliWords } from "./words/cli.ts";
+export { COMPACTION, type CompactionWords } from "./words/compaction.ts";
 export { DEAF, type DeafWords } from "./words/deaf.ts";
 export { DOCTOR, type DoctorWords } from "./words/doctor.ts";
 export { HARNESS, type HarnessWords } from "./words/doctorharness.ts";
