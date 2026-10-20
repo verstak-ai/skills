@@ -66,7 +66,7 @@ No `HANDOVER.md`.
 - **Skill ↔ tool sync is the recurring driver:** a tool renamed or dropped on the surface (the #833 waves) → the matching skill edits land here in the same unit of time.
 
 ## Reality
-Before saying "works", switching a mode or ending a question, read your claim class's row in `REALITY.md`; it goes whole into a `verifier` or `reviewer` brief. First row: Format — `make check` against the committed `verstak.skill` and `skills/verstak/`. Its Ceiling (whether a reader of a skill then acts differently) is never closed as verified.
+Before saying "works", or switching a mode or ending a question on a claim about execution, read your claim class's row in `REALITY.md` (other changes name their own grounds and the rightful act); it goes whole into a `verifier` or `reviewer` brief. First row: Format — `make check` against the committed `verstak.skill` and `skills/verstak/`. Its Ceiling (whether a reader of a skill then acts differently) is never closed as verified.
 
 ## Shared surfaces
 Touching one obliges checking the others. Found by graph traversal, not by grep — a rule with several consumers looks like one ordinary node.
@@ -131,7 +131,8 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `js/tests/` — `node:test` suites: `bridge.test.mjs` drives the built bridge over stdio (full bridge and machine daemon), `fake-server.mjs` stands in for an OAuth-protected MCP server and answers the consent the test gives on the human's behalf; `core-gate`, `delivery-words`, `delivery`, `coexist` test the core boundary and pin, the dictionaries' shape, the version and names, and a second product built from the same core; `cover` reads this repo's own `AGENTS.md` front matter as the root autoseat does. Black box: they run `dist/dev`, or any copy named by `VERSTAK_BRIDGE_PATH`.
 - `DERIVATION.md` — the skills ← canon re-projection map and the four-layer language contract. `SETUP.md` — the per-harness install reference (read, not fetched to execute). `README.md` — short, for people.
 - `REALITY.md` — claim carriers. `CLAUDE.md` — a **symlink** to this file: one file answers every harness; keep it a symlink.
-- `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — delegation roles; their `description` routes them, so it stays trigger-shaped.
+- `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — the six delegation roles, each with its own satellite entry; their `description` routes them, so it stays trigger-shaped.
+- `.opencode/agents/` — the same six roles for OpenCode, models pinned from the user's setup. Each role's repository lines sit under its `## This repo` tail.
 - `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules` (a directory or a worktree's symlink). Scratch is **not** ignored: keep working files out of the tree.
 
 ## Code conventions
@@ -171,10 +172,10 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
 
 ## Local overrides
-- **Graph access, until the verstak bridge ships:** `r5` lives on the sibling deployment and is reached through that deployment's bridge and door; its tools carry that deployment's prefix instead of `verstak_`. Read the prefix off your own tool list: the tool whose name ends in `_orient` (and `_case`, `_stand`, `_look`…) — whatever stands before that suffix replaces `verstak_` in every call the door and methods name. No such tool listed → the bridge isn't connected: `methods/establish-mcp.md`. Names written into `skills/` stay `verstak_*`.
-- **Role files**: `.claude/agents/` still holds the contract-1 `reader`, `worker`, `verifier`; the six roles with their satellite entries are projected with the bridge PR. Until then brief a missing role as a generic subagent with its body from `references/align-delegation.md`.
+- **Graph access:** `r5` lives on the sibling deployment and is reached through that deployment's bridge and door; its tools carry that deployment's prefix instead of `verstak_`. Read the prefix off your own tool list: the tool whose name ends in `_orient` (and `_case`, `_stand`, `_look`…) — whatever stands before that suffix replaces `verstak_` in every call the door and methods name. No such tool listed → the bridge isn't connected: `methods/establish-mcp.md`. Names written into `skills/` stay `verstak_*`.
+- **OpenCode rituals are not wired**: no `.opencode/plugins/verstak-rituals.js` yet, so an OpenCode session here gets no start message, memory guard or push and merge reminders. `js/tests/reposigns.test.mjs` pins this repository as OpenCode-partial; wiring the plugin flips that assertion in the same commit.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `4`, stamped `2026-10-12` — re-run when the installed
+*(verstak align: contract `5`, stamped `2026-10-20` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*
