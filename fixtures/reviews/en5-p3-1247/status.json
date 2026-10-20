@@ -1,0 +1,20 @@
+{
+  "head": "9f248ceae2383e1ccea4b0d728e4fe2e30d96692",
+  "runs": [
+    {
+      "command": [
+        "node",
+        "/private/var/folders/hm/186b3lk15fxb215c3ypxgmv00000gn/T/opencode/en-evidence-1236/fixtures/reviews/en5-p3-1247/guard-plugin-probe.mjs",
+        "."
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "make",
+        "check"
+      ],
+      "exit": 0
+    }
+  ]
+}

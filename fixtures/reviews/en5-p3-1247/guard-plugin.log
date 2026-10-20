@@ -1,0 +1,1 @@
+PASS: template before-hook rejects memory, resolves repository path; refusal routes to minding without locator. No write tool or live harness called.
