@@ -146,6 +146,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 - **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (`methods/architect.md`, `Leading a case`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
 - An answered vimarsha: `addressed_by`, then release by its answer condition and kind (`methods/inquiry.md`); what changed the next judgment, if anything, goes where §6 there says.
 - **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (`methods/reality-audit.md`) and a body matching what was built; diverged → the artifact wins and the node says so.
+- **Shipped something substantial → check its transformation's telos** (`methods/assembly.md`, `Telos check and re-assembly`): by the telos, not the parts count; the outcome goes to the owner as a card — you don't close it yourself.
 - **Weave the follow-through** (`methods/weaving.md`): `verstak_orient(lens="tensions", focus=<touched holon>)` — close the cycles the change opened, `sense` on new arrows; address-class lines go to the agenda.
 - The push → graph ritual per AGENTS.md; arm the next wake-up before sleeping, then §1.
 
