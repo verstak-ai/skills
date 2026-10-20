@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.14.0](https://github.com/verstak-ai/skills/compare/v3.13.0...v3.14.0) (2026-10-20)
+
+
+### Features
+
+* **verstak:** sync the bridge core to f6efd85c — the role after compaction, a root without a cover seats in the same session ([#212](https://github.com/verstak-ai/skills/issues/212)) ([e7cb8c6](https://github.com/verstak-ai/skills/commit/e7cb8c6bf86c5c0ea8c1ccd0c9a563f2b4765552))
+
 ## [3.13.0](https://github.com/verstak-ai/skills/compare/v3.12.1...v3.13.0) (2026-10-19)
 
 
