@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.15.0](https://github.com/verstak-ai/skills/compare/v3.14.0...v3.15.0) (2026-10-20)
+
+
+### Features
+
+* resolve personal memory by identity and advance align contract ([#214](https://github.com/verstak-ai/skills/issues/214)) ([74728de](https://github.com/verstak-ai/skills/commit/74728deaf995905b9ca7b2f6351b7caff2882d87))
+
 ## [3.14.0](https://github.com/verstak-ai/skills/compare/v3.13.0...v3.14.0) (2026-10-20)
 
 
