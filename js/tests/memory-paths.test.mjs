@@ -38,8 +38,10 @@ for (const [carrier, command] of Object.entries(commands)) {
           encoding: "utf8",
         });
         assert.equal(run.status, expected, run.stderr);
-        if (expected === 2) assert.match(run.stderr, /minding/);
-        else assert.equal(run.stderr, "");
+        if (expected === 2) {
+          assert.match(run.stderr, /minding/);
+          assert.doesNotMatch(run.stderr, /@[^\s"'`]*\/mind\b/);
+        } else assert.equal(run.stderr, "");
       });
     }
   }

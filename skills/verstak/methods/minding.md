@@ -15,10 +15,10 @@ Every user gets personal memory without being asked: the door, onboarding, align
 
 ## Personal ownership before reading or writing
 
-Read `verstak_me(action="readiness")` for the current identity. Take the `personal_mind` item's `artifact.ref` verbatim as `<personal graph>` for this move. It is a computed API answer, not an attribute pointer. Reread after creation, an identity change or a refusal. Never ask for a handle, construct an address from one, or cache an address for future access.
+Read `verstak_me(action="readiness")` for the current identity. Take the `personal_mind` item's `artifact.ref` verbatim as `<personal graph>` for this move. MCP prints signs as text: this names the printed artifact link, not an assumed JSON path or envelope; use its key, state, link and `lacks` as returned. It is a computed API answer, not an attribute pointer. Reread after creation, an identity change or a refusal. Never ask for a handle, construct an address from one, or cache an address for future access.
 
 - **Personal graph present:** the link may be present even when the sign is `missing` because a role is missing. Read that graph and establish the current person's bound role; complete only that structural gap. A missing runtime assistant role is not a missing onboarding sign. A graph's name, admin access or a thread in it does not prove personal ownership.
-- **Personal graph absent:** only `state=missing` with `artifact.lacks` including `mind_realm` permits creation (reference §1). Missing roles alone are not that evidence. Someone else's accessible `mind` never substitutes for personal memory.
+- **Personal graph absent:** only `state=missing` with the printed `lacks` including `mind_realm` permits creation (reference §1). Missing roles alone are not that evidence. Someone else's accessible `mind` never substitutes for personal memory.
 - **Not established:** `unknown`, an absent field, a refusal or an ambiguous response means memory is unavailable for this move. An access or transport failure proves no absence: say it is unreachable, create no duplicate, and continue independent project work.
 
 The general bare-slug resolver can return someone else's graph when no personal one exists; a successful read of `mind` is therefore no ownership check. Use the personal sign's verified link. If the surface cannot establish ownership or provision personal memory, name the missing operation rather than trying guessed addresses.

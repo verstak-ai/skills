@@ -70,21 +70,36 @@ const cases = [
   ["home carries the ownership fork", "home", "Someone else's accessible `mind` never substitutes"],
 ];
 
+function checkClause(text, key, clause) {
+  assert.ok(text.includes(clause), `${files[key]}: ${clause}`);
+}
+
 for (const [name, key, clause] of cases) {
   test(`personal entry text: ${name}`, () => {
-    assert.ok(texts[key].includes(clause), `${files[key]}: ${clause}`);
+    checkClause(texts[key], key, clause);
   });
   test(`negative control: deleting ${name} is detected`, () => {
-    assert.ok(texts[key].includes(clause), "control needs the original clause");
-    assert.equal(texts[key].replaceAll(clause, "").includes(clause), false);
+    checkClause(texts[key], key, clause);
+    assert.throws(() => checkClause(texts[key].replaceAll(clause, ""), key, clause), {
+      code: "ERR_ASSERTION",
+      message: `${files[key]}: ${clause}`,
+    });
   });
 }
 
 const stale = /@<?handle>?\/mind|\*\*stub at|\b(?:features\.)?items\[key=personal_mind\]/;
+function checkRecipes(text, key) {
+  assert.doesNotMatch(text, stale, key);
+}
 test("sources and home carry no constructed address, redirect recipe or assumed envelope", () => {
-  for (const [key, text] of Object.entries(texts)) assert.doesNotMatch(text, stale, key);
+  for (const [key, text] of Object.entries(texts)) checkRecipes(text, key);
 });
 test("negative controls reject the old address and redirect recipe", () => {
-  for (const recipe of ['realm="@handle/mind"', "leave a **stub at the personal address"])
-    assert.match(texts.mind + recipe, stale);
+  checkRecipes(texts.mind, "mind");
+  for (const recipe of [
+    'realm="@handle/mind"',
+    "leave a **stub at the personal address",
+    "features.items[key=personal_mind]",
+  ])
+    assert.throws(() => checkRecipes(texts.mind + recipe, "mind"), { code: "ERR_ASSERTION" });
 });
