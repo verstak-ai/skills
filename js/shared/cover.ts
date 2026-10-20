@@ -2,23 +2,27 @@
 // front matter of the cover file in the session's directory. The file and the keys of the
 // graph and the agent role are the delivery's (COVER); the reasons are its words.
 //
-// The graph is the value's first token, @owner/slug or rN; one more distinct graph of the
-// same form in the value is ambiguity. The role is exactly one reference "#N <open>name<close>"
-// at the value's start, the quotes the delivery's (COVER.roleQuotes; the same character may open
-// and close — the name runs to the first closing one); bare numbers elsewhere in the value (a
-// contour, a neighbouring repo) are prose, not roles. No cover file at all — null: the project
-// is not aligned, and nothing is said. The keys are a parameter (COVER by default): another
+// The graph is the value's working graph by the rule of shared/graphslot.ts (#8066): one head at
+// its start, prose after it is no candidate, equal heads or doubt are ambiguity; the joining
+// words are the form's (graphJoins). The role is exactly one reference "#N <open>name<close>" at the value's
+// start, the quotes the delivery's (COVER.roleQuotes; the same character may open and close —
+// the name runs to the first closing one); bare numbers elsewhere in the value (a contour, a
+// neighbouring repo) are prose, not roles. No cover file at all — null: the project is not
+// aligned, and nothing is said. The keys are a parameter (COVER by default): another
 // delivery's cover form is read by the same rule.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { COVER, ROOT_SEAT } from "../delivery/index.ts";
+import { graphOfSlot } from "./graphslot.ts";
 import { words } from "./lang.ts";
 
 /** A cover form: the file, the slots of the graph and the agent role, the role reference's quotes. */
 export interface CoverKeys {
   readonly file: string;
   readonly graph: string;
+  /** Words listing equal graphs in the graph slot; none — only separators list them. */
+  readonly graphJoins?: readonly string[];
   readonly role: string;
   readonly roleQuotes: readonly [string, string];
 }
@@ -40,24 +44,30 @@ const unquote = (v: string): string => {
   return t;
 };
 
-/** Flat front matter: key → value; no opening and closing "---" — null. */
+/**
+ * Flat front matter: key → value; no opening and closing "---" — null. An indented line that is
+ * no pair continues the value above it, kept after a newline: a slot reads its continuation apart.
+ * Comment lines ("#" first after the indent) and blank lines continue nothing.
+ */
 export function frontMatter(text: string): Map<string, string> | null {
   const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
   if (end < 0) return null;
-  const pairs = new Map<string, string>();
+  const raw = new Map<string, string>();
+  let last: string | null = null;
   for (const line of lines.slice(1, end)) {
     const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line);
-    if (kv) pairs.set(unquote(kv[1]), unquote(kv[2] ?? ""));
+    if (kv) raw.set((last = unquote(kv[1])), kv[2] ?? "");
+    else if (last !== null && /^\s+[^\s#]/.test(line))
+      raw.set(last, `${raw.get(last)}\n${line.trim()}`);
   }
-  return pairs;
+  return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
 
 const LEAD = /^[\s`'"<]*/;
-const SLUG = /(?:^|[\s(`'",;])(@[\w.-]+\/[\w.-]+)/g;
-const SHORT = /(?:^|[\s(`'",;])(r\d+)(?=$|[\s)`'",;.:])/g;
 const esc = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /** The role reference in a form's quotes: "#N", spaces, the opening quote, the name up to the first closing one. */
 const roleRef = (q: readonly [string, string], flags = ""): RegExp =>
   new RegExp(
@@ -80,13 +90,9 @@ export function seatOfPairs(
   const role = pairs.get(keys.role)?.trim();
   if (!role) return { why: W.noKey(keys.file, keys.role) };
 
-  const g = graph.replace(LEAD, "");
-  if (!/^(?:@[\w.-]+\/[\w.-]+|r\d+)(?=$|[\s)`'",;.:])/.test(g))
-    return { why: W.noGraph(keys.file, keys.graph) };
-  const slugs = distinct(SLUG, ` ${g}`);
-  const shorts = distinct(SHORT, ` ${g}`);
-  if (slugs.length > 1 || shorts.length > 1)
-    return { why: W.manyGraphs(keys.file, keys.graph, [...slugs, ...shorts].join(", ")) };
+  const g = graphOfSlot(graph.replace(LEAD, ""), keys.graphJoins ?? []);
+  if (!g) return { why: W.noGraph(keys.file, keys.graph) };
+  if ("many" in g) return { why: W.manyGraphs(keys.file, keys.graph, g.many.join(", ")) };
 
   const r = role.replace(LEAD, "");
   const roles = distinct(roleRef(keys.roleQuotes, "g"), r);
@@ -98,7 +104,7 @@ export function seatOfPairs(
       why: W.noRoleRef(keys.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`),
     };
 
-  return { realm: slugs[0] ?? (shorts[0] as string), karta: first[1] as string };
+  return { realm: g.realm, karta: first[1] as string };
 }
 
 /** The cover of a directory. */

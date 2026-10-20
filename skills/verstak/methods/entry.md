@@ -65,6 +65,7 @@ A **vimarsha** is an open question hung on a node and addressed to someone: hit 
 | "I'll decide later" — recorded nothing | it vanishes with the session | hang a vimarsha |
 | a nicely named phenomenon linked to nothing | an orphan | name the kriya that breaks without it |
 | modes set without thinking | the epistemic axis lies | where did you really get this? |
+| the card answered, yet you reach for its version history or a case log its `reasoning` names | provenance taken for a task | answer from the node; audit only on a named doubt |
 | explaining context to a neighbour in prose | retelling, not structure | write it into the graph, link it |
 
 # Part II. Entry
@@ -106,18 +107,22 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 ## Answering a question from what is recorded
 
 1. **Search both ways.** `verstak_search(realm=<graph>, q=<term>)` catches only the author's words; `verstak_semantic_search(realm=<graph>, q=<one thought as a phrase>)` catches the concept named differently — on conceptual questions it goes first. One query, one concept.
-2. **Results are hooks, not reading.** Open a candidate with `verstak_look(realm=<graph>, node_id=<seq>)`, then go from card to evidence (`Lenses`); joints → `integrity`. A conclusion from result names alone is a guess.
+2. **Results are hooks, not reading.** Open a candidate with `verstak_look(realm=<graph>, node_id=<seq>)`, then go from card to evidence along the arrows (`Lenses`); joints → `integrity`. A conclusion from result names alone is a guess. Evidence is nodes, not version history or a case log: those only by an audit on a doubt (`Re-entering during work`).
 3. **Answer by synthesis**, not by retelling one node: cite the nodes by number, name the graph and anything you changed. Not enough recorded → say so ("#N covers X, not this") and offer a doubt or working it through in chat.
 
 **No hit** → name the instruments you used; never "there is none".
 
 ## Re-entering during work
 
-- **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more. Unchecked advice is a guess — call it one.
+- **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more — no new trace, no version history, no case log. Unchecked advice is a guess — call it one.
 - **Before editing a queue item** → `verstak_look` it; a moved version means someone else is on it.
 - **Before prose about meaning** (a rationale comment, an `AGENTS.md` paragraph, a task carrying a decision) → semantic search; link the node, or write it (`writing`) and link.
 - **Before "no" or "not found"** → a second instrument: semantic after lexical, a lens after a partial result, a filter after a round number.
 - **Before "verified"** → name the level: against the graph or against the world on its carrier (`reality-audit`).
+
+**The main path is current nodes and links; history is not on it.** What is recorded is understood through `verstak_look`, `verstak_orient`, lenses and search. A node's version history (`verstak_history`) and a case's log (`verstak_case` `history`, or `read` with `full=true`) are **not opened** on this path — not after a card that answered, not for its `reasoning`, not on a pointer there ("said in case #N", "full text in the case"): that is provenance, where the record came from, not a task to read on. The first extra step is already a `verstak_history` behind a card that answered, not only the jump from `reasoning` into the case log. The body and arrows that answer the question end the reading. The summary of the case you work in (`verstak_case(action="read")` without `full`) is the ordinary way in, not history.
+
+**Either history is a separate, rare audit with direct grounds**: a **justified doubt that the node is adequate**, named before the audit as a concrete doubt and a checkable subject — nodes contradict each other or what was observed; the body doesn't answer the question its name and place undertake to carry; the body points at content it lacks ("as agreed" without the agreement); modes argue with the content (`pratyakshita` without evidence, `vartamana` on what the carrier doesn't show). A pointer to a source, a wish to read on or general diligence are no grounds. The gap named, read narrowly — the version you need, the case key (`verstak_case(action="history", key=<key>)`), not the whole case. What substantial you recover goes into the node by `writing` (no right → a vimarsha to the steward), not only into the answer: the next reader won't repeat the audit.
 
 ## Repair tree
 
@@ -131,7 +136,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 ## Reading hygiene
 
-- **Save on output, not on reading.** Enter the boundary, filter by motivation; cut wide outputs and needless writes, never the reading of nodes you act on. Wandering guard: ~five calls of aimless navigation per reply, or seven without a synthesis → answer with what you have and flag the gap. Entry steps and nodes at the place of change don't count.
+- **Save on output, not on reading.** Enter the boundary, filter by motivation; cut wide outputs and needless writes, never the reading of nodes you act on. Wandering guard: ~five calls of aimless navigation per reply, or seven without a synthesis → answer with what you have and flag the gap. Entry steps and nodes at the place of change don't count; version history and a case log are no entry step but an audit on a named doubt (the summary of the case you work in is ordinary entry).
 - **Navigate by tension** — the most tense neighbour is the most informative. `lens="tensions"` groups by move: weave → `weaving`; address → `inquiry` or `assembly`; reverify — background; "know your neighbour" on a holon is a link; the accepted as is — read, not repaired (`weaving`). The overview and `has_tension` cover only part of the lens.
 - **Partial output.** The overview shows root holons and only the roles carrying a signal now (the quiet part as a number), and truncates kriya lists: find addressees and confirm absence with `verstak_search(q="", node_type=…)`. Page a role's queue by the `offset` the output names.
 - **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`). Time matters to evidence, not to questions: an observation of a surface that has since moved may no longer ground the claim.

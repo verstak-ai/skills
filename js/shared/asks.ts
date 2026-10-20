@@ -4,7 +4,7 @@
 import { ASK, CASE_LINE } from "../delivery/index.ts";
 import { classifyOrigin, type Frame } from "./channel.ts";
 import { words } from "./lang.ts";
-import { addresseeOf, mineOf, myRole, need, obj, opt, pick, type Rec, str } from "./room-fields.ts";
+import { addresseeOf, mineOf, need, obj, opt, pick, type Rec, seatIs, str } from "./room-fields.ts";
 
 export const ASK_KINDS = new Set(["ask", "answer", "ack"]);
 
@@ -35,30 +35,21 @@ export const askFromPerson = (frame: Rec): boolean => {
   return asking && classifyOrigin(frame as Frame) === "human";
 };
 
-const handleOf = (address: string): string => /^@([^:]+):/.exec(address)?.[1] ?? "";
-
 /**
- * Asked to me: to.standing is my seat; otherwise to.karta is my role and a named
- * seat, if any, belongs to my account (#6867).
+ * Asked to me: to.standing is my seat — named by the asker, or for a question to a role
+ * alone chosen by the api, which writes it there and in the envelope's addressee (#6867,
+ * case №1249 [19]). By id first (seatIs). My role or my account alone is no address:
+ * the bridge never infers it from to.karta.
  */
 export function askedMine(frame: Rec, fields: Rec): boolean {
-  const mine = mineOf(frame);
   if (byMe(frame)) return false;
-  const to = toOf(fields);
-  const place = addresseeOf(to.standing);
-  if (place?.addr.some((a) => mine.includes(a))) return true;
-  if (!myRole(frame, { karta: to.karta })) return false;
-  if (!place) return true;
-  const theirs = handleOf(str(obj(to.standing).standing) || str(to.standing));
-  return !!theirs && theirs === handleOf(str(frame.to_standing));
+  return seatIs(frame, toOf(fields).standing, frame.addressee) === true;
 }
 
-/** Answer or acceptance to me: the addressee (addressee, else fields.to) is my seat and has not left. */
+/** Answer or acceptance to me: fields.to (else the envelope's addressee) is my seat, by id first, and has not left. */
 export function addressedMine(frame: Rec): boolean {
   if (frame.addressee_left === true) return false;
-  const to = addresseeOf(frame.addressee) ?? addresseeOf(toOf(obj(obj(frame.line).fields)));
-  const mine = mineOf(frame);
-  return !!to && to.addr.some((a) => mine.includes(a));
+  return seatIs(frame, toOf(obj(obj(frame.line).fields)), frame.addressee) === true;
 }
 
 const quote = (s: string): string => (s ? words(CASE_LINE).quote(s) : "");

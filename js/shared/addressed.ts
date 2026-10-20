@@ -4,7 +4,8 @@ import { closesMine, noteAsk, processAsks } from "./askmemory.ts";
 import { ASK_KINDS, askedMine, askFromPerson } from "./asks.ts";
 import { classifyOrigin, type Frame } from "./channel.ts";
 import { numberedKey } from "./numbering.ts";
-import { addresseeOf, after, byKind, mineOf, myRole, obj, roomKind, str } from "./room-kinds.ts";
+import { byKind, inviteMine, mineOf, obj, roomKind, seatIs, str } from "./room-kinds.ts";
+import { seatOf } from "./seats.ts";
 
 type Rec = Record<string, unknown>;
 
@@ -29,6 +30,8 @@ export function wordKeyOf(frame: Frame): string {
     `${mineOf(f)[0] ?? ""}|${str(obj(f.room).id) || str(obj(f.room).seq)}|${entry}`,
   );
 }
+/** Memory key of a word in flight to another seat: its body is not mine. */
+export const asideKeyOf = (frame: Frame): string => `aside:${wordKeyOf(frame)}`;
 function rememberWord(key: string): void {
   addressedWords.add(key);
   for (const old of addressedWords) {
@@ -43,10 +46,10 @@ const ASK_CLOSERS = new Set(["ask", "answer", "ack", "progress"]);
  * The question memory decides once per frame: addressing is asked many times
  * (batch, count, folding), while the frame itself changes the memory.
  */
-const askDecided = new Map<string, boolean>();
-function askMemory(f: Rec): boolean {
+const askDecided = new Map<string, string>();
+function askMemory(f: Rec): string {
   // Decided by the bridge (bridge/addressmark.ts, seat memory on disk): its addressed is the answer.
-  if (f.asks_decided === true) return false;
+  if (f.asks_decided === true) return "";
   const id = str(f.id) || wordKeyOf(f as Frame);
   const was = askDecided.get(id);
   if (was !== undefined) return was;
@@ -78,51 +81,64 @@ export function addressedToMine(frame: Frame | null | undefined): boolean {
   const line = obj(f.line);
   const fields = obj(line.fields);
   const rk = roomKind(frame);
-  if (rk?.aside) return false; // a word not to me (#6081): a fact without a body
+  if (rk?.aside) {
+    // A word not to me (#6081): a fact without a body; in flight, its body is not mine either.
+    if (f.body_pending === true) rememberWord(asideKeyOf(frame));
+    return false;
+  }
   // Question memory before any decision: an accepted answer to me closes the key even if addressed above.
-  const closesAsk = !!rk && ASK_CLOSERS.has(rk.kind) && askMemory(f);
-  const mine = mineOf(f);
-  const hit = (v: unknown): boolean => {
-    const a = addresseeOf(v);
-    return !!a && mine.length > 0 && a.addr.some((x) => mine.includes(x));
-  };
+  const closed = rk && ASK_CLOSERS.has(rk.kind) ? askMemory(f) : "";
+  // The named seat, by id first (seatIs): mine, another's, or none named. Another's wins
+  // over importance and a reply (#6574); my own question to my seat is an echo.
+  const seat = rk ? seatOf(frame, rk.kind) : null;
   if (rk?.kind === "body") {
     // A body's in_reply_to_from is the author of the word itself (#5893 §4.6) and the
     // word's kind is in word.line: the body is addressed when its word was, as
     // remembered at the said phase; the bridge, seeing both phases, marks addressed
-    // (bridge/addressmark.ts) for a watchdog that gets the body in a new process.
+    // (bridge/addressmark.ts) for a watchdog that gets the body in a new process —
+    // false when its word went to another seat.
     const word = obj(f.word);
+    if (f.addressed === false || addressedWords.has(asideKeyOf(frame))) return false;
     if (
       f.addressed === true ||
-      hit(f.addressee) ||
-      str(obj(obj(word.line).fields).kind) === "important" ||
+      seat === true ||
+      (seat === null && str(obj(obj(word.line).fields).kind) === "important") ||
       addressedWords.has(wordKeyOf(frame))
     )
       return true;
   } else if (
     // A word to me, a reply to my record (#5954), marked important; a word in flight
     // is remembered, since its body comes as a second phase without these marks.
-    hit(f.addressee) ||
-    hit(f.in_reply_to_from) ||
-    str(f.said) === "important" ||
-    str(fields.kind) === "important"
+    seat === true ||
+    (seat === null &&
+      (seatIs(f, f.in_reply_to_from) === true ||
+        str(f.said) === "important" ||
+        str(fields.kind) === "important"))
   ) {
     if (rk?.phase === "pending") rememberWord(wordKeyOf(frame));
     return true;
   }
-  // A question to my role or seat (#6867), or what closes a question to me (withdrawal,
-  // another seat's answer, a re-ask to another); answer and accept go by addressee above.
+  // A question to my seat (#6867); the withdrawal of a question to me is mine in words.
+  // Another's record that closes it (an answer by another seat, a re-ask to another) is
+  // not: a closing line in the count, without its text (frame-text.ts, #6574).
   if (rk?.kind === "ask" && askedMine(f, fields)) return true;
-  if (closesAsk || (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true)) return true;
-  // An invite to me or its withdrawal: key invite:<my seat>; a role invite — to my role.
-  if (rk?.kind === "invite" || rk?.kind === "withdraw") {
-    if (mine.includes(after(str(line.key), "invite:"))) return true;
-    if (rk.kind === "invite" && myRole(f, fields)) return true;
-  }
+  if (closed && rk?.kind === "progress") return true;
+  if (closed) f.closes_mine = closed;
+  if (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true) return true;
+  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f, rk.kind);
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
   // Question kinds have an addressee (#6867): a person's answer to someone else is not a word to me.
   // A retract names the answer it takes back (#8074): like the answer, it is the asker's word, not everyone's.
   if ((rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract")) || askFromPerson(f)) return false;
   // The bridge marks origin on a person's body (roomstack.ts, #5953): its provenance does not carry it.
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || undefined)) === "human";
+}
+
+/**
+ * The number of my question another's record closes, "" — none (#6867). The decision is
+ * made here, not read off the frame: closes_mine is set by the addressing decision itself
+ * (this process's question memory) or by the bridge, so a reader in any order gets it.
+ */
+export function closedQuestion(frame: Frame): string {
+  return addressedToMine(frame) ? "" : (frame.closes_mine ?? "");
 }

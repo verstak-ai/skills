@@ -10,6 +10,10 @@ export interface FrameTextWords {
   noneYours: () => string;
   count: (head: string, n: number, mine: number) => string;
   supersededLines: (gone: number) => string;
+  /** Another seat's record closed the question to me [n]: who answered — without its text. */
+  askAnswered: (n: string, by: string) => string;
+  /** The question to me [n] re-asked on its key of another addressee. */
+  askMoved: (n: string, to: string) => string;
   inFull: (cases: string) => string;
   caseHistory: (args: string, since: number) => string;
   /** Below the text of a life check: how to answer it. */
@@ -26,6 +30,8 @@ export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
     noneYours: () => ` — none of them yours; `,
     count: (head, n, mine) => `${head}: ${n} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
+    askAnswered: (n, by) => `; your question [${n}] is closed: answered by ${by}`,
+    askMoved: (n, to) => `; your question [${n}] is re-asked of ${to}`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
     lifeCheckReply: () =>

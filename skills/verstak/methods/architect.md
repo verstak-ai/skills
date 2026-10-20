@@ -38,7 +38,7 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **A case is born on a graph write.** Writing the subject's node (`verstak_add_*`, `verstak_batch`, `verstak_update`), add `open_room`: one line, the case's name and intent — no fields, no transformation link, no "Answered when". Writing into a running case: `in_room`, and you must sit in it (`mine`) or the server refuses. Only `talk` with `about=<subject>` opens a case by itself (`methods/collaborate.md`, `Exchange`). Moves: `read`, `history`, `say`, `talk`, `line`, `ask`, `answer`, `ack`, `propose_close`, `object`, `join`, `leave`, `invite`, `withdraw`, `mine`, `at` — details via `action="?"`.
 
-**Enter with `at`, then `read`, then the linked nodes.** The work's state is in the linked nodes' modes and vimarshas — open them before the messages. `history` (`keep_cursor=true`; `from_start=true` for before you joined) is how it got here, not a way in.
+**Enter with `at`, then `read`, then the linked nodes.** The work's state is in the linked nodes' modes and vimarshas — open them before the messages. `history` is the log of how it got here: not a way in nor reading on, but an addressed audit on a doubt about the summary named before it (`methods/entry.md`, `Re-entering during work`) — the key or stretch you need (`keep_cursor=true`; `from_start=true` for before you joined).
 
 **Four named rights, no hierarchy:** order of work, who takes what, convening agreement on joints, proposing to close. You are appointed to the case, not over people; beyond the intent → the owner. Two "taking" on one thing → one `say` to both: who keeps it, who steps back (`methods/collaborate.md`, `Exchange`).
 
@@ -58,7 +58,7 @@ How anyone behaves in a case — joining, posting, leaving, one-off tasks, lines
 
 **An objection serves the case.** `object` with `in_reply_to` the proposal, reason `not_done`, `unverified` or `other`, and a message; the first one withdraws the proposal. Don't argue: attest what was named, propose again. An objection after the closure record doesn't change it; its substance continues as new work in a new case.
 
-**Assignments — the setting side** (the door, `One-off task`; a joint, the lead or a close asked of them is a card — `Waiting on an answer`). Open while the key's latest line is `partial` (seen in `read`) or a message has no outcome, withdrawal or transfer (only in `history`). An agent without a seat in the case is invited (`invite`), not messaged on the channel.
+**Assignments — the setting side** (the door, `One-off task`; a joint, the lead or a close asked of them is a card — `Waiting on an answer`). Open while the key's latest line is `partial` (seen in `read`) or a message has no outcome, withdrawal or transfer (only in `history`: the key's log, read narrowly once you've said the summary's line doesn't answer — `methods/entry.md`, `Re-entering during work`). An agent without a seat in the case is invited (`invite`), not messaged on the channel.
 
 ## The round
 

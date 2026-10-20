@@ -21,9 +21,31 @@ test("the delivery's cover form: AGENTS.md, Graph, Agent role, straight double q
   assert.deepEqual(COVER, {
     file: "AGENTS.md",
     graph: "Graph",
+    graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
     role: "Agent role",
     roleQuotes: ['"', '"'],
   });
+});
+
+// The working graph is the slot's first address; prose after it names no candidate, and only
+// a second equal graph joined by a separator or a joining word is ambiguity (graph @nks/nks-dev,
+// node #8066).
+test("the graph slot: prose after the working graph is no candidate, an equal graph is", () => {
+  const role = `'#931 "dev"'`;
+  for (const graph of [
+    "'@nks/nks-dev (r5) — methodology @alari/methodology (r4), @nks/feedback not used'",
+    "'`@nks/nks-dev` (`r5`); methodology — `@alari/methodology` (`r4`)'",
+  ])
+    assert.deepEqual(en(role, graph), { realm: "@nks/nks-dev", karta: "931" }, graph);
+  for (const graph of [
+    "'@a/x or @b/y'",
+    "'@a/x and @b/y'",
+    "'@a/x OR @b/y'",
+    "'@a/x And @b/y'",
+    "'r5 or @a/x'",
+    "'@a/x, @b/y'",
+  ])
+    assert.ok("why" in en(role, graph), graph);
 });
 
 test("this repository's AGENTS.md seats role #931 in @nks/nks-dev, not #1506 from the same line", () => {
