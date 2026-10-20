@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.15.0";
+var VERSION = "3.16.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -140,6 +140,8 @@ var FRAME_TEXT = {
     noneYours: () => ` — none of them yours; `,
     count: (head, n2, mine) => `${head}: ${n2} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
+    askAnswered: (n2, by) => `; your question [${n2}] is closed: answered by ${by}`,
+    askMoved: (n2, to) => `; your question [${n2}] is re-asked of ${to}`,
     inFull: (cases) => `in full — ${cases || FRAME_TEXT.en.myCases()}`,
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
     lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
@@ -411,6 +413,25 @@ function myRole(frame, fields) {
   const mine = str(frame.realm) || str(obj(frame.room).realm);
   return !theirs || !mine || theirs === mine;
 }
+function inviteMine(frame, kind) {
+  const fields = obj(obj(frame.line).fields);
+  const target = after(str(obj(frame.line).key), "invite:");
+  if (target && mineOf(frame).includes(target)) return true;
+  if (kind !== "invite") return false;
+  const seat = Object.keys(obj(fields.standing)).length > 0 || !!str(fields.standing);
+  const roleId = str(obj(fields.karta).id) || (seat ? "" : target);
+  return (!target || target === roleId) && myRole(frame, fields);
+}
+function seatIs(frame, ...named) {
+  const myId = str(frame.to_standing_id);
+  const myAddr = str(frame.to_standing);
+  if (!myId && !myAddr) return null;
+  const id = named.map((v) => str(obj(v).id)).find(Boolean);
+  if (id && myId) return id === myId;
+  const addr = named.map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0]).find(Boolean);
+  if (addr) return addr === myAddr;
+  return id ? false : null;
+}
 function addresseeOf(v) {
   if (typeof v === "string") return v ? { addr: [v], label: v } : null;
   const o = obj(v);
@@ -441,23 +462,13 @@ var askFromPerson = (frame) => {
   const asking = ASK_KINDS.has(kind) || kind === "progress" && !!str(obj(line.fields).withdraws);
   return asking && classifyOrigin(frame) === "human";
 };
-var handleOf = (address) => /^@([^:]+):/.exec(address)?.[1] ?? "";
 function askedMine(frame, fields) {
-  const mine = mineOf(frame);
   if (byMe(frame)) return false;
-  const to = toOf(fields);
-  const place = addresseeOf(to.standing);
-  if (place?.addr.some((a) => mine.includes(a))) return true;
-  if (!myRole(frame, { karta: to.karta })) return false;
-  if (!place) return true;
-  const theirs = handleOf(str(obj(to.standing).standing) || str(to.standing));
-  return !!theirs && theirs === handleOf(str(frame.to_standing));
+  return seatIs(frame, toOf(fields).standing, frame.addressee) === true;
 }
 function addressedMine(frame) {
   if (frame.addressee_left === true) return false;
-  const to = addresseeOf(frame.addressee) ?? addresseeOf(toOf(obj(obj(frame.line).fields)));
-  const mine = mineOf(frame);
-  return !!to && to.addr.some((a) => mine.includes(a));
+  return seatIs(frame, toOf(obj(obj(frame.line).fields)), frame.addressee) === true;
 }
 var quote = (s) => s ? words(CASE_LINE).quote(s) : "";
 function formOf(fields) {
@@ -545,10 +556,14 @@ var isOpen = (store, frame, n2) => {
   return !!n2 && store.has(k) && !store.has(`off:${k}`);
 };
 function closesMine(store, frame) {
-  if (byMe(frame) || !str(lineOf(frame).key)) return false;
+  if (byMe(frame) || !str(lineOf(frame).key)) return "";
   const kind = kindOf(frame);
-  if (kind === "progress" || kind === "answer") return isOpen(store, frame, namedOf(frame));
-  return kind === "ask" && !askedMine(frame, obj(lineOf(frame).fields)) && openOn(store, frame).length > 0;
+  if (kind === "progress" || kind === "answer") {
+    const n2 = namedOf(frame);
+    return isOpen(store, frame, n2) ? n2 : "";
+  }
+  if (kind !== "ask" || askedMine(frame, obj(lineOf(frame).fields))) return "";
+  return openOn(store, frame).at(-1) ?? "";
 }
 function noteAsk(store, frame) {
   if (!str(lineOf(frame).key)) return;
@@ -583,6 +598,12 @@ var processAsks = {
 };
 
 // js/shared/room-kinds.ts
+var wordSeats = (f) => [
+  obj(obj(f.line).fields).to,
+  obj(obj(obj(f.word).line).fields).to,
+  f.addressee,
+  obj(f.word).addressee
+];
 var NODE_OPS = {
   updated: "nodeUpdated",
   deleted: "nodeDeleted",
@@ -688,7 +709,6 @@ function roomKind(frame) {
   const line = obj(f.line);
   const fields = obj(line.fields);
   const key = str(line.key);
-  const mine = mineOf(f);
   const node = obj(fields.node);
   const cause = kind === "invite" ? str(fields.cause) : "";
   const byWhom = authorOf(
@@ -741,9 +761,9 @@ function roomKind(frame) {
     };
   const word2 = kind === "said" || kind === "body";
   const withheld = word2 && f.body_withheld === true;
-  const to = word2 ? addresseeOf(f.addressee) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
-  const addresseeLeft = f.addressee_left === true || fields.addressee_left === true;
-  if (to && !addresseeLeft && (withheld || mine.length && !to.addr.some((a) => mine.includes(a)))) {
+  const named = word2 ? wordSeats(f) : [];
+  const to = word2 ? named.map(addresseeOf).find(Boolean) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
+  if (to && (withheld || seatIs(f, ...named) === false)) {
     const counts = kind === "said";
     const pair = JSON.stringify([roomOf(f.room), author, to.addr[0]]);
     const id = need(counts ? values.entry_id : values.refers_to);
@@ -763,12 +783,27 @@ function roomKind(frame) {
     const mayI = !!myId && may.includes(myId);
     text += "; " + (mayI ? W3.closingMay(need(values.entry_id)) : W3.closingNot());
   }
-  const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? mine.includes(str(values.target)) || myRole(f, fields) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
+  const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? inviteMine(f, kind) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
   const phase = pending ? "pending" : aborted ? "aborted" : null;
   return { kind, rule: phase ? "batch" : stack, words: text, author, phase, known: true };
 }
 var byKind = (frame) => roomKind(frame) !== null;
 var stackOf = (frame) => roomKind(frame)?.rule ?? (frame?.stack === "defer" ? "batch" : "interrupt");
+
+// js/shared/seats.ts
+function seatsOf(f, kind) {
+  const to = obj(obj(obj(f.line).fields).to);
+  if (kind === "said" || kind === "body") return wordSeats(f);
+  return [
+    kind === "ask" ? to.standing : ASK_KINDS.has(kind) || kind === "retract" ? to : null,
+    f.addressee
+  ];
+}
+function seatOf(frame, kind) {
+  const f = frame;
+  if (kind === "ask" && byMe(f)) return false;
+  return seatIs(f, ...seatsOf(f, kind));
+}
 
 // js/shared/addressed.ts
 var LOUD_KINDS = /* @__PURE__ */ new Set(["closing", "closed", "objection", "late_objection"]);
@@ -783,6 +818,7 @@ function wordKeyOf(frame) {
     `${mineOf(f)[0] ?? ""}|${str(obj(f.room).id) || str(obj(f.room).seq)}|${entry}`
   );
 }
+var asideKeyOf = (frame) => `aside:${wordKeyOf(frame)}`;
 function rememberWord(key) {
   addressedWords.add(key);
   for (const old of addressedWords) {
@@ -793,7 +829,7 @@ function rememberWord(key) {
 var ASK_CLOSERS = /* @__PURE__ */ new Set(["ask", "answer", "ack", "progress"]);
 var askDecided = /* @__PURE__ */ new Map();
 function askMemory(f) {
-  if (f.asks_decided === true) return false;
+  if (f.asks_decided === true) return "";
   const id = str(f.id) || wordKeyOf(f);
   const was = askDecided.get(id);
   if (was !== void 0) return was;
@@ -815,34 +851,36 @@ function addressedToMine(frame) {
   const line = obj(f.line);
   const fields = obj(line.fields);
   const rk = roomKind(frame);
-  if (rk?.aside) return false;
-  const closesAsk = !!rk && ASK_CLOSERS.has(rk.kind) && askMemory(f);
-  const mine = mineOf(f);
-  const hit = (v) => {
-    const a = addresseeOf(v);
-    return !!a && mine.length > 0 && a.addr.some((x) => mine.includes(x));
-  };
+  if (rk?.aside) {
+    if (f.body_pending === true) rememberWord(asideKeyOf(frame));
+    return false;
+  }
+  const closed = rk && ASK_CLOSERS.has(rk.kind) ? askMemory(f) : "";
+  const seat = rk ? seatOf(frame, rk.kind) : null;
   if (rk?.kind === "body") {
     const word2 = obj(f.word);
-    if (f.addressed === true || hit(f.addressee) || str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
+    if (f.addressed === false || addressedWords.has(asideKeyOf(frame))) return false;
+    if (f.addressed === true || seat === true || seat === null && str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
       return true;
   } else if (
     // A word to me, a reply to my record (#5954), marked important; a word in flight
     // is remembered, since its body comes as a second phase without these marks.
-    hit(f.addressee) || hit(f.in_reply_to_from) || str(f.said) === "important" || str(fields.kind) === "important"
+    seat === true || seat === null && (seatIs(f, f.in_reply_to_from) === true || str(f.said) === "important" || str(fields.kind) === "important")
   ) {
     if (rk?.phase === "pending") rememberWord(wordKeyOf(frame));
     return true;
   }
   if (rk?.kind === "ask" && askedMine(f, fields)) return true;
-  if (closesAsk || rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true) return true;
-  if (rk?.kind === "invite" || rk?.kind === "withdraw") {
-    if (mine.includes(after(str(line.key), "invite:"))) return true;
-    if (rk.kind === "invite" && myRole(f, fields)) return true;
-  }
+  if (closed && rk?.kind === "progress") return true;
+  if (closed) f.closes_mine = closed;
+  if (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true) return true;
+  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f, rk.kind);
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
   if (rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract") || askFromPerson(f)) return false;
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || void 0)) === "human";
+}
+function closedQuestion(frame) {
+  return addressedToMine(frame) ? "" : frame.closes_mine ?? "";
 }
 
 // js/shared/seen.ts
@@ -1143,6 +1181,15 @@ function batchLines(frames) {
     return [batchLine(f, void 0, first)];
   });
 }
+function closingOf(frame) {
+  const n2 = closedQuestion(frame);
+  if (!n2) return "";
+  const rk = roomKind(frame);
+  const to = rec2(rec2(rec2(rec2(frame).line).fields).to);
+  if (rk?.kind !== "ask") return T2().askAnswered(n2, need(rk?.author));
+  const seat = addresseeOf(to.standing)?.label || idOf2(rec2(to.karta).name);
+  return T2().askMoved(n2, need(seat));
+}
 function caseCountLine(frames) {
   const c = frames.length ? caseOf(frames[0]) : null;
   if (!c) return "";
@@ -1151,7 +1198,7 @@ function caseCountLine(frames) {
   const head = caseHead(frames[0], true);
   const yours = mineN ? T2().yoursBelow() : T2().noneYours();
   const n2 = frames.length - gone;
-  return T2().count(head, n2, mineN) + (gone ? T2().supersededLines(gone) : "") + yours + batchPointer(frames) + ".";
+  return T2().count(head, n2, mineN) + (gone ? T2().supersededLines(gone) : "") + frames.map(closingOf).join("") + yours + batchPointer(frames) + ".";
 }
 function caseCountLines(frames) {
   return casesOf(frames).map(caseCountLine).filter(Boolean);
@@ -1472,6 +1519,8 @@ var Bridge = class {
       env: { ...rt.env, ...env }
     });
     this.proc = proc;
+    proc.stdin?.on("error", () => {
+    });
     proc.stdout?.setEncoding("utf8");
     proc.stdout?.on("data", (chunk) => this.feed(chunk));
     proc.stderr?.setEncoding("utf8");
