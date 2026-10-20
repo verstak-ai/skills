@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.16.0](https://github.com/verstak-ai/skills/compare/v3.15.0...v3.16.0) (2026-10-20)
+
+
+### Features
+
+* **verstak:** sync the bridge core to 4eede146; entry reads current nodes, onboarding counts the person's own move ([#218](https://github.com/verstak-ai/skills/issues/218)) ([f9d74cf](https://github.com/verstak-ai/skills/commit/f9d74cf10d38ec875b8d68b310f28d926f9932d6))
+
 ## [3.15.0](https://github.com/verstak-ai/skills/compare/v3.14.0...v3.15.0) (2026-10-20)
 
 
