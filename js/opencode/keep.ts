@@ -48,6 +48,8 @@ export interface KeptSlot {
   noted?: boolean;
   /** The child's last text — the "ended" outcome survives a reload. */
   last?: string;
+  /** A leave accepted before the stop, waiting for its turn's end — the end must still come (№1317 [19]). */
+  leaving?: string;
   /** Seats the bridge's return did not take as of an earlier era (case №954): the child's end names them to the parent. */
   refused?: string[];
 }

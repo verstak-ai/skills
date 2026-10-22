@@ -137,12 +137,23 @@ export function createLeads(d: LeadDoors): Leads {
   }
 
   return {
+    dispatched(child, name, args) {
+      const l = leads.get(child);
+      if (!l) return;
+      // The call itself is the turn's live evidence: its execution.started may never reach
+      // this instance (#1237). Without the mark a leave answered mid-turn ends the errand on
+      // a stale intermediate word; with it the end waits for the turn's end and final text.
+      l.running = true;
+      const room = name === tool("case") ? roomNo(args.room) : null;
+      // Counted at the call's start, not at its answer: an entry begun before the question
+      // and finished after it is already visible to the platform's word (#8203).
+      if (room !== null && (args.action === "join" || args.action === "leave")) l.moves++;
+    },
     called(child, name, args, place) {
       if (gone.has(child)) return;
       const l = standsBy(name, args) ? stood(child) : leads.get(child);
       if (!touch(l, place)) return;
       const room = name === tool("case") ? roomNo(args.room) : null;
-      if (room !== null && (args.action === "join" || args.action === "leave")) l.moves++;
       if (args.action !== "leave") return;
       if (name === tool("channel")) leave(child, l, W().leftSeat());
       else if (room === "") leave(child, l, W().leftCases());
@@ -188,30 +199,40 @@ export function createLeads(d: LeadDoors): Leads {
         return true;
       }
       if (gone.has(child)) return true;
+      // Ended by any end — no channel words to it, and a late "held" of its bridge raises no
+      // lead past the seal (#1237): only the session's own new explicit stand lifts it.
+      if (over.has(child)) return true;
       if (kind === "held") {
         touch(stood(child), place); // stood again — a lead again
         return false;
       }
-      if (over.has(child)) return true; // ended by any end — no channel words to it
       if (kind === "frame") touch(leads.get(child), place);
       return false;
     },
     back(child, was) {
+      // Ended while the plugin was down — the seal stays, the marker raises no lead (#1237):
+      // the seat returns by its bridge, the errand's end has already spoken.
+      if (over.has(child)) return;
       const l = stood(child, false);
       if (was.noted) l.noted = true; // the turn was told to the parent by the previous instance
       if (was.last) l.last ??= was.last; // the outcome at the end — after a reload too
       if (was.name && was.of) l.place ??= { ...was.of, name: was.name }; // revoke by name before "held"
+      // A leave the previous instance had already accepted is not lost to the reload: the
+      // turn's end it waited for may never reach this instance — its end still comes, with
+      // the freshest text the marker carried (the regression of №1317 [19]; a terminal event
+      // that never arrives anywhere stays an open risk, not this path).
+      if (was.leaving && !l.running) void finish(child, was.leaving);
     },
     fail: async (child, why) => void (await finish(child, why, true, false, "lost")),
     away: async (child) => void (await finish(child, "", true, false, "away")),
     snapshot: (child) => {
       const l = leads.get(child);
-      return { noted: !!l?.noted, last: l?.last };
+      return { noted: !!l?.noted, last: l?.last, leaving: l?.leaving };
     },
     handoff(child) {
       const l = leads.get(child);
       leads.delete(child); // neither "ended" nor over: the lead lives in the new folder's instance
-      return { noted: !!l?.noted, last: l?.last };
+      return { noted: !!l?.noted, last: l?.last, leaving: l?.leaving };
     },
     nameOf: (child) => leads.get(child)?.place?.name ?? (leads.has(child) ? child : null),
     upOf: (child) => leads.get(child)?.up ?? null,

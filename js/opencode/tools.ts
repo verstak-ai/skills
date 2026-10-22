@@ -374,6 +374,11 @@ export async function setupTools(
     }
     seats.guard(sessionID, service);
     const epoch = seats.epoch(sessionID);
+    // The dispatched call is live-turn evidence even when its execution.started never reached
+    // this instance (#1237): the leave said in it waits for the turn's end. A service move
+    // (the launch line) is not the agent's work (#6510) — no mark.
+    if (!service && slot.child && slot.satelliteOf && slot.session === sessionID)
+      leads.dispatched(sessionID, name, args);
     const result = await slot.bridge.request("tools/call", { name, arguments: args }, { service });
     const out = seats.answer(
       slot,

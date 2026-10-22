@@ -43,14 +43,14 @@ export function myRole(frame: Rec, fields: Rec): boolean {
 /**
  * An invite (or its withdrawal) to me (#6870, #6574): key invite:<my seat id>; a role
  * invite — key invite:<role node id> (confirmed by the api, case №1249 [19]; the key is the
- * role's id when fields.karta carries none) of my role. An invite of another seat names
- * its role too: not mine. One decision for the stack and for addressing.
+ * role's id when fields.karta carries none) of my role; its withdrawal the same — the api
+ * hands it to one live seat of the role (#6974, case №1249). An invite of another seat
+ * names its role too: not mine. One decision for the stack and for addressing.
  */
-export function inviteMine(frame: Rec, kind: string): boolean {
+export function inviteMine(frame: Rec): boolean {
   const fields = obj(obj(frame.line).fields);
   const target = after(str(obj(frame.line).key), "invite:");
   if (target && mineOf(frame).includes(target)) return true;
-  if (kind !== "invite") return false;
   const seat = Object.keys(obj(fields.standing)).length > 0 || !!str(fields.standing);
   const roleId = str(obj(fields.karta).id) || (seat ? "" : target);
   return (!target || target === roleId) && myRole(frame, fields);

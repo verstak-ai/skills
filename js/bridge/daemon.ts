@@ -21,6 +21,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { BRIDGE_NAME, envName } from "../delivery/index.ts";
+import { apiBase } from "../shared/channel.ts";
 import { homeBridgePath } from "../shared/home.ts";
 import { escapeRe } from "../shared/regex.ts";
 import { runIn, type Scope } from "../shared/scope.ts";
@@ -42,14 +43,19 @@ import { installCrashWords, startEngine } from "./engine.ts";
 import { errorMessage } from "./errors.ts";
 import { pruneFallbacks } from "./fallback.ts";
 import { handoffsSettled } from "./handoff.ts";
-import { beginHandover, beginSessionHandover } from "./holdstate.ts";
+import { eraOf, HOLD_RECORD_MAX_AGE_MS, holdRecordsWhere } from "./holdrecord.ts";
+import { beginHandover, beginSessionHandover, H } from "./holdstate.ts";
+import { orchestraServe } from "./orchestra.ts";
+import { listenOrchestraDoor } from "./orchestra-door.ts";
 import { pauseForHandover } from "./pauserecord.ts";
+import { extraPlaces } from "./places.ts";
 import { endUnreturnedPause } from "./runend.ts";
 import { type BridgeSession, openSession } from "./session.ts";
 import { sessionSnapshot } from "./snapshot.ts";
 import { rotateJournal } from "./store.ts";
 import { log, setProcessLog } from "./streams.ts";
 import { localSuspend, pauseSettled } from "./suspend.ts";
+import { bearer, state } from "./transport.ts";
 import {
   pendNotice,
   startFreshnessWatch,
@@ -348,6 +354,65 @@ export async function daemonMain(argv: string[]): Promise<void> {
     }
   }
   log(`listening ${seamSocketPath(authDir)}${successor ? " (successor)" : ""}`);
+  // The orchestrator's local door (bridge/orchestra-door.ts): on, off, status and the step
+  // tact of the flag the daemon owns; refused aloud when there is no daemon to ask — so it
+  // listens with the seam. The tact reads the api BESIDE THE CHANNEL with the daemon's own
+  // key (transport's bearer): a live session's channel names it, else the freshest hold
+  // record on disk; neither — "" and the tact refuses aloud, never guessing from the mcp
+  // server url (live probe 2026-10-20: the api beside the channel answers, the mcp origin
+  // does not).
+  let door: Server | null = null;
+  try {
+    door = await listenOrchestraDoor(
+      authDir,
+      orchestraServe(authDir, {
+        base: (): string => {
+          for (const e of engines.values()) {
+            const url = e.scope ? runIn(e.scope, (): string | null => H.currentUrl) : H.currentUrl;
+            if (url) return apiBase(url);
+          }
+          const records = holdRecordsWhere(() => true);
+          const freshest = records.reduce<(typeof records)[number] | null>(
+            (best, r) => (!best || eraOf(r) > eraOf(best) ? r : best),
+            null,
+          );
+          return freshest?.url ? apiBase(freshest.url) : "";
+        },
+        token: bearer,
+        // The discovered half of the boundary (#8202, word [27] of №1260): realms of the
+        // places the machine's live sessions stand on, plus whatever hold records on disk
+        // are still live by age or departure. The record's spelling is kept as written —
+        // a short rN resolves downstream by the realm list the same api serves, and a dead
+        // record leaves by liveness, never by the form of its name.
+        realms: (): string[] => {
+          const found = new Set<string>();
+          const ofSession = (): string[] => {
+            const own = new Set<string>();
+            if (state.standing?.realm) own.add(state.standing.realm);
+            for (const x of extraPlaces()) if (x.standing?.realm) own.add(x.standing.realm);
+            return [...own];
+          };
+          for (const e of engines.values()) {
+            for (const r of e.scope ? runIn(e.scope, ofSession) : ofSession()) if (r) found.add(r);
+          }
+          // Liveness follows the record's own heartbeat — r.at, as readHoldRecord reads it
+          // (stoodAt names the standing act, which outlives its record's freshness); a
+          // record with no heartbeat at all is not live.
+          for (const r of holdRecordsWhere(() => true))
+            if (
+              r.realm &&
+              r.at !== undefined &&
+              r.left !== true &&
+              Date.now() - r.at < HOLD_RECORD_MAX_AGE_MS
+            )
+              found.add(r.realm);
+          return [...found];
+        },
+      }),
+    );
+  } catch (e) {
+    log(`the orchestration door does not open: ${errorMessage(e)}`);
+  }
   // Marks of sessions run past the daemon and killed without exit (doctor, fallback.ts).
   pruneFallbacks(authDir);
 
@@ -373,6 +438,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
     draining = true;
     log(`${sig} — ending ${sessions.size} session(s)`);
     server?.close();
+    door?.close();
     // A session whose bridge is alive is a holder change, not a leave; a dead
     // bridge's seat is released (graph @nks/nks-dev, node #6485). A live bridge (attached or
     // in the reattach window) raises a new daemon and returns the seat by its hold record.

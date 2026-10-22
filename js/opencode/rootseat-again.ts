@@ -18,7 +18,8 @@ import { words } from "../shared/lang.ts";
 import { repoRoot } from "../shared/reposigns.ts";
 
 /** The cover of a session's directory; a reason says whether it leads to the alignment. */
-export type Found = Exclude<Cover, { why: string }> | { why: string; align: boolean };
+export type Found =
+  Exclude<Cover, { why: string } | { foreign: true }> | { why: string; align: boolean };
 
 /** The directory is a repository's root, under any spelling (a symlink, /var → /private/var). */
 function atRepoRoot(where: string): boolean {
@@ -36,6 +37,7 @@ export function coverIn(where: string): Found {
   const align = atRepoRoot(where);
   const cover = readCover(where);
   if (cover === null) return align ? { why: words(ROOT_SEAT).noFile(COVER.file), align } : null;
+  if ("foreign" in cover) return null;
   return "why" in cover ? { why: cover.why, align } : cover;
 }
 

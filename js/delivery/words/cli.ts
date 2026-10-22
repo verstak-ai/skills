@@ -36,6 +36,7 @@ export const CLI: Readonly<Record<Lang, CliWords>> = {
   node verstak-bridge.mjs doctor [server-url] [--auth-dir <dir>]
   node verstak-bridge.mjs status [--json] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs stop <seat|session id> [--realm <graph>] [--auth-dir <dir>] [--lang en]   (a stop order to the seat; an older api — a revoke)
+  node verstak-bridge.mjs orchestra <on|off|status|step> [--realm <graph>]… [--auth-dir <dir>] [--lang en]   (the bridge's orchestrator — the daemon's flag; on needs the machine's consent; step — one tact of reading the queues from the cursor)
   node verstak-bridge.mjs update [--auth-dir <dir>]
   node verstak-bridge.mjs use <en|url> [--auth-dir <dir>]   (en — mcp.verstak.ai)
   ${rituals}

@@ -89,6 +89,7 @@ export {
 export { ONBOARD_START, type OnboardStartWords } from "./words/onboardstart.ts";
 export { OPENCODE, type OpencodeWords } from "./words/opencode.ts";
 export { OPENCODE_KEEP, type OpencodeKeepWords } from "./words/opencode-keep.ts";
+export { ORCHESTRA, type OrchestraWords } from "./words/orchestra.ts";
 export { OWNER, type OwnerWords } from "./words/owner.ts";
 export { PI, type PiWords } from "./words/pi.ts";
 export { PLACES, type PlacesWords } from "./words/places.ts";
