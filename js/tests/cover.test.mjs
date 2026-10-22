@@ -1,8 +1,8 @@
 // The root autoseat's cover in this delivery's form (the core's shared/cover.ts with our
 // COVER): the keys 'Graph' and 'Agent role', the role name in straight double quotes,
 // the same character opening and closing. This repository's own AGENTS.md is the live
-// cover: it must seat the session as role #931 in @nks/nks-dev (graph @nks/nks-dev,
-// node #931).
+// cover: it must seat the session as role #8498 in @nks/nks-dev (graph @nks/nks-dev,
+// node #8498).
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -16,6 +16,7 @@ const seat = (yaml) => seatOfPairs(frontMatter(`---\n${yaml}\n---\n# x\n`));
 const en = (role, graph = "'@nks/nks-dev (r5)'") =>
   seat(`'Graph': ${graph}\n'Agent role': ${role}`);
 const NKS_931 = { realm: "@nks/nks-dev", karta: "931" };
+const NKS_8498 = { realm: "@nks/nks-dev", karta: "8498" };
 
 test("the delivery's cover form: AGENTS.md, Graph, Agent role, straight double quotes", () => {
   assert.deepEqual(COVER, {
@@ -48,8 +49,8 @@ test("the graph slot: prose after the working graph is no candidate, an equal gr
     assert.ok("why" in en(role, graph), graph);
 });
 
-test("this repository's AGENTS.md seats role #931 in @nks/nks-dev, not #1506 from the same line", () => {
-  assert.deepEqual(readCover(REPO), NKS_931);
+test("this repository's AGENTS.md seats role #8498 in @nks/nks-dev, not #1506 or #931 from the same line", () => {
+  assert.deepEqual(readCover(REPO), NKS_8498);
 });
 
 test("same quotes: the name runs to the first closing one, the rest is prose", () => {
