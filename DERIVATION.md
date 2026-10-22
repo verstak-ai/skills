@@ -127,8 +127,8 @@ reference texts, a single witnessed case, or development decisions as canon.
   the handle and `action="kartas"` returns cross-graph roles as `#seq · realm-slug`;
   `user="me"` exists on `verstak_add_karta` and `verstak_update` (minding §2 step
   3); `verstak_realm(action="list")` and `verstak_org(action="list")` keep their
-  shape; `@owner/slug` resolves, and an unknown address fails with a readable
-  `Realm not found` naming it; the orient overview still prints `attrs.key=true`
+  shape; a full address from that listing resolves, and an unknown one fails
+  with a readable `Realm not found` naming it; the orient overview still prints `attrs.key=true`
   landmarks (minding-personal-realm §4, §5) — if not, the routing table needs
   another home.
 - **Human bridge → collaborate**: the address-line contract is duplicated across

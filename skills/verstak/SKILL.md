@@ -88,7 +88,7 @@ A one-off task or question is a message in a case, ending there with its outcome
 
 ### Waiting on an answer
 
-**Whoever answers, the wait is a card.** A question, a choice or a consent you need from another agent — agreeing a joint, taking over the lead, a request to close — is an `ask` card in the subject's case, as with the user; a message and a line beside it show the board nothing. To an agent: `verstak_case(action="ask", room=<case #N>, key=<subject>, karta=<their role>, standing=<their seat in the case>, text=<question>, payload={form, options, recommendation})`; leave out `standing` only when you don't know the seat, and any seat of the role may answer. Their seat replies with `answer` `in_reply_to` the card; you accept with `ack` `in_reply_to` that answer — what you accepted and what you'll do now — then do it. A clarification asked for → a new card on the same key `in_reply_to` the old one. Forms, fields and the user's side: **collaborate**, `Asking the user`.
+**Whoever answers, the wait is a card.** A question, a choice or a consent you need from another agent — agreeing a joint, taking over the lead, a request to close — is an `ask` card in the subject's case, as with the user; a message and a line beside it show the board nothing. To an agent: `verstak_case(action="ask", room=<case #N>, key=<subject>, karta=<their role>, standing=<their seat in the case>, text=<question>, payload={form, options, recommendation})`; leave out `standing` only when you don't know the seat, and any seat of the role may answer. Their seat replies with `answer` `in_reply_to` the card; you accept with `ack` `in_reply_to` that answer — what you accepted and what you'll do now — then do it. A clarification asked for → a new card on the same key `in_reply_to` the old one. A question to the user goes in conversation only while they answer right now; one that outlives the turn is a card in the case, taken first if none runs. Forms, fields and the user's side: **collaborate**, `Asking the user`.
 
 ### Ledger
 
@@ -200,7 +200,7 @@ Read the method file in full, follow it to the result; wrong route → say so, r
 
 ## Step 6 · Answer
 
-- **What exists, in their words** — without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (`@owner/slug` only when asked).
+- **What exists, in their words** — without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (its full address, with the owner's real handle, only when asked).
 - **Where it is** — node numbers, paths, branch, PR.
 - **What was missing** — open, assumed, silent. One instrument silent → "I don't see it", not "there is none".
 

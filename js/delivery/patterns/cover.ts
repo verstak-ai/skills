@@ -11,7 +11,7 @@ export const COVER = {
   /** The cover's forms by the repository's language: the one whose keys stand in the front matter is read. */
   forms: {
     en: {
-      /** The graph slot: the value starts with @owner/slug or rN. */
+      /** The graph slot: the value starts with a full graph address (the owner's handle/slug) or rN. */
       graph: "Graph",
       /**
        * The words that list equal working graphs in the graph slot ("@a/x or @b/y" is ambiguous); a

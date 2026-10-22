@@ -28,7 +28,8 @@ export const STAND_TOOL: Readonly<Record<Lang, StandToolWords>> = {
       "with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) " +
       `only sets the busyness line — no board, connect, register or knock; an empty status clears; the former ${tool("channel")}(action="status") is kept for compatibility. ` +
       "The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.",
-    realm: () => "Graph address: @owner/slug or rN.",
+    realm: () =>
+      `Graph address: slug, the full address from ${tool("realm")}(action="list"), or rN.`,
     karta: () =>
       "The agent's role (#N from AGENTS.md or the launch line). Needed to take a seat; for busyness on a held seat it may be omitted.",
     name: () =>

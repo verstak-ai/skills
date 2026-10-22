@@ -122,6 +122,25 @@ test("orchestra: on with consent — the flag lies next to the grant, the bounda
   }
 });
 
+// A short rN does not ride the api's REST doors; the refusal names the full address by the
+// owner's real handle, never the @owner placeholder (graph @nks/nks-dev, node #8521).
+test("orchestra: a short rN boundary is refused naming the full address, never @owner", async (t) => {
+  const dir = authDir(t);
+  const stop = raiseDaemon(dir, CONSENT);
+  try {
+    await untilDoor(dir);
+    const on = await cli(["on", "--realm", "r5", "--auth-dir", dir]);
+    assert.equal(on.code, 1, on.out);
+    assert.match(on.err, /r5/, on.err);
+    assert.match(on.err, /full address — the owner's handle\/slug from the list of graphs/, on.err);
+    assert.doesNotMatch(on.err, /@owner/, on.err);
+    const st = await cli(["status", "--auth-dir", dir]);
+    assert.doesNotMatch(st.out, /r5/, st.out);
+  } finally {
+    await stop();
+  }
+});
+
 test("orchestra: the flag outlives the daemon — a new daemon reads what lies", async (t) => {
   const dir = authDir(t);
   const first = raiseDaemon(dir, CONSENT);

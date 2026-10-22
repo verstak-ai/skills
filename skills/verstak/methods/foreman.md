@@ -4,7 +4,7 @@
 
 **Grounding:** owner acts are not delegated (`methods/writing.md`, Decision 3); `manifested_as` decides who answers and who decides. Staff work makes shared understanding explicit, without hierarchy. The coordinating role is this delivery's product rule (the door, `Communication`), not an owner mandate.
 
-The agent on watch carries out the changes outside the graph (`methods/autonomous.md`). This tier doesn't: it holds **what reaches the user** and **whether assignees are working**. A case digest is `methods/assistant.md`.
+The agent on watch carries out the changes outside the graph (`methods/autonomous.md`). This tier doesn't: it holds **what reaches the user** and **whether assignees are working**. **Its measure is the work's progress toward acceptance**, not the number of units. A case digest is `methods/assistant.md`.
 
 - **Execution outside the graph goes to the units**: code, artifacts, rollout, changes to others' surfaces go down. Answering from the graph, summarising, carrying a decision, keeping the roster and writing its own part of the graph are its own: the decision within its mandate, weaving, ending by axis, consolidation and acceptance stay with it; volume in that writing goes to a subagent on its own satellite bridge, checked by the launcher (the door, `Work goes to subagents`).
 - **It is neither owner nor boss**: what is above its mandate goes to the user and returns as a decision the tier *carries*, never one it made because asking seemed slow.
@@ -31,14 +31,14 @@ The user in the chat and the user as a frame through their bridge carry **the sa
 ## Down: what the user said becomes a record
 
 1. **Split by tier**: product questions (what, in what order) from architectural ones (how, what breaks); whole, they stick in two queues.
-2. **Record what the task changes, not the task** (the door, `One-off task`): the decision at once, in modes of intent (`methods/writing.md`), on the node it changes — search first.
+2. **Record what the task changes, not the task** (the door, `One-off task`): the decision at once, in modes of intent (`methods/writing.md`), on the node it changes — search first. The user's questions about one area go first to the standing transformation (`lens="bianhua"`), telling independent intents apart (`methods/architect.md`, `The round`, assembly in silence); none → propose a name and telos (`methods/writing.md`, Decision 1).
 3. **Set it in a case**: `verstak_case(action="talk", realm, with=<their seat; the role while none stands>, about=<subject>, text=<references, definition of done, deadline, why now>)` — one subject, one case; in a shared case, `say` `to` their seat. Receipt and outcome go as the door's `One-off task` says, each line one movement, not a crew summary (`Ledger`); a question for them is a card (`Waiting on an answer`).
 
 The assignment derives from the node, not from the user's wish in your words. **Don't stamp your own urgency** — ranking is the queue owner's act; say what delay costs.
 
 ## When the work splits into units
 
-- **One agent per unit, one seat per agent**, isolated working copies on a shared machine: under contention a timeout is a verdict on the machine, not the test; spread expensive checks.
+- **One agent per unit, one seat per agent**, isolated working copies. A unit is a bounded share of the work — input, output, write boundary, check, addressee — usually a component behind a contract; contracts you require of the architect (`methods/architect.md`), not design: two units need one place with no contract between them → ask the architect: a contract or a sequence. A collision is a reason to find its cause (a shared file or resource, a broken contract, a stale sample, a legitimate order), not a verdict. Isolated copies are not isolated resources: on a shared machine under contention a timeout is a verdict on the machine, not the test; spread expensive checks.
 - **Boundaries in the first instruction**: what must not happen (rewriting shared history, merging, closing, others' units) and the escalation path.
 - **A unit's case goes under the parent when opened** — `open_room` (`methods/architect.md`) with `parent_room` = the live case you sit in; it can't be attached later. `verstak_case(action="invite")` by seat, or by role with `karta` and `holon`; launch line: the door, `Work goes to subagents`. You lead the child case and close it with `propose_close` and evidence.
 - **The unit reports; you check and weave** (`methods/autonomous.md`, §3, work by reference): finding and updating touched nodes may be delegated (the door, `Work goes to subagents`); you check them against their neighbourhood, hold integration, end by axis, reconcile with code and close the seed.

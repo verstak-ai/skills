@@ -1,7 +1,7 @@
 ---
 'Nature': '<production / research / sandbox / one-off / library; if not production — what is relaxed and why>'
 'Nature — source': '<derived / agreed: who / not agreed — case #N>'
-'Graph': '<@owner/slug (rN)>'
+'Graph': '<full address from verstak_realm(action="list"), the owner''s real handle (rN)>'
 'Graph — source': '<derived / agreed: who / not agreed — case #N>'
 'Focus holon': '<#seq "name">'
 'Focus holon — source': '<derived / agreed: who / not agreed — case #N>'
