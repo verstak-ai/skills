@@ -7,7 +7,7 @@
 'Focus holon — source': 'derived'
 'Repository': 'github.com/verstak-ai/skills — the holon''s repository attr, from origin'
 'Repository — source': 'derived'
-'Agent role': '#931 "👨‍💻 Agent skill-repository developer" — adhikarin, steward of the holon (also of the sibling delivery holon #1506); inbox verstak_orient(focus="931")'
+'Agent role': '#8498 "👨‍💻 Verstak Skills Dev" — adhikarin, the holon''s only steward; the sibling delivery holon #1506 and the bridge core are role #931''s; inbox verstak_orient(focus="8498")'
 'Agent role — source': 'derived'
 'Owner role': '#1226 "👑 Product owner" — svatantra, the posed_to address for out-of-mandate questions'
 'Owner role — source': 'derived'
@@ -37,7 +37,7 @@ The `verstak` skill — one door and its methods, `align` among them, which boot
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
-Owned there, not restated here: start and the #931 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
+Owned there, not restated here: start and the #8498 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
 
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
@@ -176,6 +176,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **OpenCode rituals are not wired**: no `.opencode/plugins/verstak-rituals.js` yet, so an OpenCode session here gets no start message, memory guard or push and merge reminders. `js/tests/reposigns.test.mjs` pins this repository as OpenCode-partial; wiring the plugin flips that assertion in the same commit.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `5`, stamped `2026-10-20` — re-run when the installed
+*(verstak align: contract `5`, stamped `2026-10-22` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*
