@@ -19,6 +19,8 @@ export interface LostEntry {
   /** The child's seat name and last text — the outcome at the end after a reload. */
   name?: string;
   last?: string;
+  /** A leave accepted before the stop, waiting for its turn's end — the end must still come (№1317 [19]). */
+  leaving?: string;
   /** When the session stood on the seat (its hold record's stoodAt): the era two markers are judged by (case №954). */
   stoodAt?: number;
 }
@@ -40,6 +42,7 @@ export const entryOf = (e: LostEntry): LostEntry => ({
         ...(e.noted ? { noted: true } : {}),
         ...(e.name ? { name: e.name } : {}),
         ...(e.last ? { last: e.last } : {}),
+        ...(e.leaving ? { leaving: e.leaving } : {}),
       }
     : {}),
 });

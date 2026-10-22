@@ -15,6 +15,12 @@ import { ownPlace, type Place, type SatelliteSlot } from "./satellite.ts";
 import type { Say } from "./tools.ts";
 
 export interface Leads {
+  /**
+   * A child's call went to its bridge: the turn that carries it is live even when this
+   * instance missed its execution.started (#1237 — the deciding instance sits in another
+   * folder) — a leave answered inside it waits for the turn's end and its final text.
+   */
+  dispatched(child: string, name: string, args: Record<string, unknown>): void;
   /** A child's successful call through its bridge: stood — a lead; cases entered — its errand; leaving the last — the end. */
   called(child: string, name: string, args: Record<string, unknown>, place?: Place | null): void;
   /**
@@ -69,6 +75,8 @@ export interface RunEnd {
 export interface Snapshot {
   noted: boolean;
   last?: string;
+  /** A leave accepted and waiting for its turn's end — it must survive a reload (№1317 [19]). */
+  leaving?: string;
 }
 
 export interface LeadDoors {

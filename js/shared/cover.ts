@@ -2,10 +2,18 @@
 // front matter of the cover file in the session's directory. The file and the keys of the
 // graph and the agent role are the delivery's (COVER); the reasons are its words.
 //
+// The keys come as forms by the repository's language (graph @nks/nks-dev, node #8497): the
+// form whose keys stand in the front matter is the one read, and its language is the
+// repository's; keys of two forms at once are an ambiguity. Deliveries may share a form's
+// keys, so the stamp tells whose cover it is: the delivery's own stamp, or none — the keys
+// decide; only another delivery's stamp (the delivery's stampShape, which leaves out the
+// delivery's own older stamps, and none of its current ones) — a foreign cover, and nothing is
+// said. Another delivery's keys are named nowhere.
+//
 // The graph is the value's working graph by the rule of shared/graphslot.ts (#8066): one head at
 // its start, prose after it is no candidate, equal heads or doubt are ambiguity; the joining
 // words are the form's (graphJoins). The role is exactly one reference "#N <open>name<close>" at the value's
-// start, the quotes the delivery's (COVER.roleQuotes; the same character may open and close —
+// start, the quotes the form's (roleQuotes; the same character may open and close —
 // the name runs to the first closing one); bare numbers elsewhere in the value (a contour, a
 // neighbouring repo) are prose, not roles. No cover file at all — null: the project is not
 // aligned, and nothing is said. The keys are a parameter (COVER by default): another
@@ -17,18 +25,26 @@ import { COVER, ROOT_SEAT } from "../delivery/index.ts";
 import { graphOfSlot } from "./graphslot.ts";
 import { words } from "./lang.ts";
 
-/** A cover form: the file, the slots of the graph and the agent role, the role reference's quotes. */
-export interface CoverKeys {
-  readonly file: string;
+/** One language's form: the slots of the graph and the agent role, the role reference's quotes, the stamp. */
+export interface CoverForm {
   readonly graph: string;
   /** Words listing equal graphs in the graph slot; none — only separators list them. */
   readonly graphJoins?: readonly string[];
   readonly role: string;
   readonly roleQuotes: readonly [string, string];
+  /** The delivery's current alignment stamp in this language. */
+  readonly stamp: RegExp;
 }
 
-/** The seat the cover names, the reason it names none, or null — no cover file. */
-export type Cover = { realm: string; karta: string } | { why: string } | null;
+/** A delivery's cover: the file, its forms by language, the shape of another delivery's stamp. */
+export interface CoverKeys {
+  readonly file: string;
+  readonly forms: Readonly<Record<string, CoverForm>>;
+  readonly stampShape: RegExp;
+}
+
+/** The seat the cover names, the reason it names none, a foreign delivery's cover, or null — no cover file. */
+export type Cover = { realm: string; karta: string } | { why: string } | { foreign: true } | null;
 
 const unquote = (v: string): string => {
   const t = v.trim();
@@ -65,6 +81,34 @@ export function frontMatter(text: string): Map<string, string> | null {
   return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
 
+/** The forms whose graph or role key stands in the front matter. */
+const formsIn = (pairs: Map<string, string>, cover: CoverKeys): [string, CoverForm][] =>
+  Object.entries(cover.forms).filter(([, f]) => pairs.has(f.graph) || pairs.has(f.role));
+
+/** Whose stamp the cover file carries: the delivery's own, another delivery's, or none. */
+export function stampOf(text: string, cover: CoverKeys = COVER): "own" | "foreign" | null {
+  if (Object.values(cover.forms).some((f) => f.stamp.test(text))) return "own";
+  return cover.stampShape.test(text) ? "foreign" : null;
+}
+
+/** Whether the front matter carries one of the delivery's forms. */
+export const hasForm = (pairs: Map<string, string>, cover: CoverKeys = COVER): boolean =>
+  formsIn(pairs, cover).length > 0;
+
+/** The form the front matter is written in, with its language, or the reason there is none. */
+export function formOf(
+  pairs: Map<string, string>,
+  cover: CoverKeys = COVER,
+): { lang: string; form: CoverForm } | { why: string } {
+  const W = words(ROOT_SEAT);
+  const listed = (forms: CoverForm[]): string => forms.map((f) => `'${f.graph}'`).join(", ");
+  const found = formsIn(pairs, cover);
+  if (found.length > 1) return { why: W.manyForms(cover.file, listed(found.map(([, f]) => f))) };
+  const [lang, form] = found[0] ?? [];
+  if (!lang || !form) return { why: W.noForm(cover.file, listed(Object.values(cover.forms))) };
+  return { lang, form };
+}
+
 const LEAD = /^[\s`'"<]*/;
 const esc = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -82,40 +126,44 @@ const distinct = (re: RegExp, v: string): string[] => [
 /** The graph and the role of a cover's slots, or the reason there is no seat. */
 export function seatOfPairs(
   pairs: Map<string, string>,
-  keys: CoverKeys = COVER,
+  cover: CoverKeys = COVER,
 ): { realm: string; karta: string } | { why: string } {
   const W = words(ROOT_SEAT);
+  const of = formOf(pairs, cover);
+  if ("why" in of) return of;
+  const keys = of.form;
   const graph = pairs.get(keys.graph)?.trim();
-  if (!graph) return { why: W.noKey(keys.file, keys.graph) };
+  if (!graph) return { why: W.noKey(cover.file, keys.graph) };
   const role = pairs.get(keys.role)?.trim();
-  if (!role) return { why: W.noKey(keys.file, keys.role) };
+  if (!role) return { why: W.noKey(cover.file, keys.role) };
 
   const g = graphOfSlot(graph.replace(LEAD, ""), keys.graphJoins ?? []);
-  if (!g) return { why: W.noGraph(keys.file, keys.graph) };
-  if ("many" in g) return { why: W.manyGraphs(keys.file, keys.graph, g.many.join(", ")) };
+  if (!g) return { why: W.noGraph(cover.file, keys.graph) };
+  if ("many" in g) return { why: W.manyGraphs(cover.file, keys.graph, g.many.join(", ")) };
 
   const r = role.replace(LEAD, "");
   const roles = distinct(roleRef(keys.roleQuotes, "g"), r);
   if (roles.length > 1)
-    return { why: W.manyRoles(keys.file, keys.role, roles.map((n) => `#${n}`).join(", ")) };
+    return { why: W.manyRoles(cover.file, keys.role, roles.map((n) => `#${n}`).join(", ")) };
   const first = roleRef(keys.roleQuotes).exec(r);
   if (!first)
     return {
-      why: W.noRoleRef(keys.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`),
+      why: W.noRoleRef(cover.file, keys.role, `#N ${keys.roleQuotes[0]}…${keys.roleQuotes[1]}`),
     };
 
   return { realm: g.realm, karta: first[1] as string };
 }
 
 /** The cover of a directory. */
-export function readCover(dir: string, keys: CoverKeys = COVER): Cover {
+export function readCover(dir: string, cover: CoverKeys = COVER): Cover {
   let text: string;
   try {
-    text = readFileSync(join(dir, keys.file), "utf8");
+    text = readFileSync(join(dir, cover.file), "utf8");
   } catch {
     return null;
   }
+  if (stampOf(text, cover) === "foreign") return { foreign: true };
   const pairs = frontMatter(text);
-  if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(keys.file) };
-  return seatOfPairs(pairs, keys);
+  if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(cover.file) };
+  return seatOfPairs(pairs, cover);
 }

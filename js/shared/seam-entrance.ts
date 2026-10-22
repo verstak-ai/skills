@@ -65,6 +65,20 @@ export function seamSocketPath(authDir: string, create = true): string {
 }
 
 /**
+ * Local entrance of the daemon's orchestration door (bridge/orchestra-door.ts): the same private
+ * directories as the seam, its own socket file; create=false reads the pipe name only. The
+ * door lives and dies with the daemon — a dead daemon's socket is removed by the next one.
+ */
+export function orchestraDoorPath(authDir: string, create = true): string {
+  const key = seamKey(authDir);
+  if (process.platform === "win32")
+    return `\\\\.\\pipe\\${RUNTIME_PREFIX}-orchestra-${key}-${pipeNonce(authDir, create)}`;
+  const inRun = join(seamRunDir(authDir), "orchestra.sock");
+  if (Buffer.byteLength(inRun) <= SUN_PATH_MAX) return inRun;
+  return join(shortSocketDir(), `orchestra-${key}.sock`);
+}
+
+/**
  * Whether the entrance is fit: the seam and socket directories belong to this user
  * with no group or other rights (created 0700). Otherwise why not: the thin bridge
  * runs full, the daemon does not listen. Not checked on Windows (a limit).

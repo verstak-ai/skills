@@ -7,14 +7,16 @@
 // "outside", and nothing is said. No sign at all — "invite". Otherwise "aligned" when
 // everything the bootstrap writes for the calling harness is there, "partial" when some of
 // it is missing — which the door's alignment leads, not an invitation. A harness the
-// bootstrap writes no start hook for (null) needs none.
+// bootstrap writes no start hook for (null) needs none. The cover and the stamp count in any
+// of the delivery's languages (shared/cover.ts); a cover file stamped by another delivery and
+// no start hook of this one — "foreign", and nothing is said (graph @nks/nks-dev, node #8089).
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 import { COVER, REPO_SIGNS } from "../delivery/index.ts";
-import { type CoverKeys, frontMatter } from "./cover.ts";
+import { type CoverKeys, frontMatter, hasForm, stampOf } from "./cover.ts";
 
-export type RepoVerdict = "invite" | "aligned" | "partial" | "outside";
+export type RepoVerdict = "invite" | "aligned" | "partial" | "outside" | "foreign";
 
 /** The harness asking: the ones the bootstrap writes a start hook for, or null — any other. */
 export type HookHarness = "claude-code" | "opencode" | null;
@@ -31,7 +33,6 @@ export interface SignKeys {
   readonly settings: string;
   readonly startMark: RegExp;
   readonly rituals: string;
-  readonly stamp: RegExp;
 }
 
 const exists = (path: string): boolean => {
@@ -94,16 +95,25 @@ export function repoSigns(
   if (root === null) return { root, cover: false, stamp: false, hooks, verdict: "outside" };
   const agents = text(join(root, cover.file));
   const pairs = agents === null ? null : frontMatter(agents);
+  const stamped = agents === null ? null : stampOf(agents, cover);
   const signs = {
-    cover: !!pairs && (pairs.has(cover.graph) || pairs.has(cover.role)),
-    stamp: agents !== null && keys.stamp.test(agents),
+    cover: !!pairs && stamped !== "foreign" && hasForm(pairs, cover),
+    stamp: stamped === "own",
     hooks: {
       "claude-code": startHook(text(join(root, keys.settings)), keys.startMark),
       opencode: exists(join(root, keys.rituals)),
     },
   };
-  const any = signs.cover || signs.stamp || signs.hooks["claude-code"] || signs.hooks.opencode;
+  const hooked = signs.hooks["claude-code"] || signs.hooks.opencode;
+  const any = signs.cover || signs.stamp || hooked;
   const complete = signs.cover && signs.stamp && (harness === null || signs.hooks[harness]);
-  const verdict = !any ? "invite" : complete ? "aligned" : "partial";
+  const verdict =
+    stamped === "foreign" && !hooked
+      ? "foreign"
+      : !any
+        ? "invite"
+        : complete
+          ? "aligned"
+          : "partial";
   return { root, ...signs, verdict };
 }

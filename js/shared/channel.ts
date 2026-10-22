@@ -104,6 +104,8 @@ export type FrameOrigin = "platform" | "human" | "sibling" | "peer";
  * own role or as themselves; a sibling is another standing of the reader's role; the
  * rest is a doer of another role. myKarta — the reader's role. The stable platform
  * sign is the ABSENCE OF AN AUTHOR; an auth literal (none, platform) is the second.
+ * A person's first sign is from_person, set by the api with the case's own predicate
+ * (graph @nks/nks-dev, node #8281); as_person and user_karta_seq are the fallbacks.
  */
 export function classifyOrigin(frame: Frame, myKarta?: string | number | null): FrameOrigin {
   const p = frame.provenance ?? {};
@@ -112,7 +114,7 @@ export function classifyOrigin(frame: Frame, myKarta?: string | number | null): 
   const noAuthor = p.via === "room" && p.from_karta_seq == null && !p.from_standing;
   if (p.via === "platform" || p.auth === "none" || p.auth === "platform" || noAuthor)
     return "platform";
-  if (p.as_person === true) return "human";
+  if (p.from_person === true || p.as_person === true) return "human";
   if (p.from_karta_seq != null && p.user_karta_seq != null && p.from_karta_seq === p.user_karta_seq)
     return "human";
   if (myKarta != null && p.from_karta_seq != null && String(p.from_karta_seq) === String(myKarta))
@@ -177,6 +179,8 @@ export interface Frame {
     user_karta_seq?: number;
     in_reply_to?: string;
     as_person?: boolean;
+    /** The author's seat is a person's (api, #8281); absent on other words. */
+    from_person?: boolean;
     [k: string]: unknown;
   };
   [k: string]: unknown;

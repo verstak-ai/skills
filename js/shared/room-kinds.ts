@@ -273,7 +273,7 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
         ? "batch"
         : "interrupt"
       : rule === "mine"
-        ? inviteMine(f, kind)
+        ? inviteMine(f)
           ? "interrupt"
           : "batch"
         : rule === "addressed"

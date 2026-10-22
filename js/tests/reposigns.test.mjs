@@ -23,6 +23,15 @@ import { BUILT_ONBOARD_HOOK, REPO } from "./built.mjs";
 const COVER = "---\n'Graph': '@tester/work (r1)'\n'Agent role': '#7 \"agent\"'\n---\n";
 const STAMP = "*(verstak align: contract `4`, stamped `2026-10-12` — re-run when …)*\n";
 const OLD_STAMP = "*(verstakify: contract `2026-05-01` — re-run when …)*\n";
+// The sibling delivery's cover and stamps (graph @nks/nks-dev, nodes #8089, #8497, #8508): its
+// English form shares our keys, its Russian one has its own; its name is built in two halves and
+// its Russian words come as escapes — neither stands in this repository's text.
+const SIBLING = "is" + "kronify";
+const SIBLING_STAMP = `*(${SIBLING}: contract \`29\`, stamp \`2026-10-22\` — …)*\n`;
+const SIBLING_STAMP_RU = `*(${SIBLING}: \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442 \`29\`, \u0448\u0442\u0430\u043c\u043f \`2026-10-22\` — …)*\n`;
+const SIBLING_COVER_RU =
+  "---\n'\u0413\u0440\u0430\u0444': '@tester/work (r1)'\n'\u0420\u043e\u043b\u044c \u0430\u0433\u0435\u043d\u0442\u0430': '#7 «a»'\n---\n";
+const SIBLING_PROSE = `The neighbour's file ends with (${SIBLING}: contract 29, stamp 2026-10-22).\n`;
 const session = (command) =>
   JSON.stringify({ hooks: { SessionStart: [{ hooks: [{ type: "command", command }] }] } });
 // Start hooks as align writes them (references/align-hooks.md): the full and the initial form.
@@ -90,6 +99,37 @@ const CASES = [
     verdicts: { "claude-code": "partial", opencode: "partial", other: "aligned" },
   },
   { name: "cover only", spec: { git: "dir", agents: COVER }, verdicts: all("partial") },
+  {
+    // Our English form without any stamp: partial alignment, which the door's alignment leads.
+    name: "English keys without a stamp are our form, not an invitation",
+    spec: { git: "dir", agents: `${COVER}# agents\n` },
+    verdicts: all("partial"),
+  },
+  {
+    name: "the sibling's stamp under the shared English keys",
+    spec: { git: "dir", agents: COVER + SIBLING_STAMP },
+    verdicts: all("foreign"),
+  },
+  {
+    name: "the sibling's Russian cover and stamp",
+    spec: { git: "dir", agents: SIBLING_COVER_RU + SIBLING_STAMP_RU },
+    verdicts: all("foreign"),
+  },
+  {
+    name: "the sibling's stamp without a cover",
+    spec: { git: "dir", agents: `# x\n${SIBLING_STAMP}` },
+    verdicts: all("foreign"),
+  },
+  {
+    name: "the sibling's stamp beside our start hook",
+    spec: { git: "dir", agents: COVER + SIBLING_STAMP, settings: START },
+    verdicts: all("partial"),
+  },
+  {
+    name: "the sibling's stamp inside a prose line is no stamp",
+    spec: { git: "dir", agents: COVER + SIBLING_PROSE },
+    verdicts: all("partial"),
+  },
   { name: "stamp only", spec: { git: "dir", agents: `# x\n${STAMP}` }, verdicts: all("partial") },
   { name: "start hook only", spec: { git: "dir", settings: START }, verdicts: all("partial") },
   { name: "rituals only", spec: { git: "dir", rituals: true }, verdicts: all("partial") },

@@ -5,7 +5,7 @@ import { ASK_KINDS, askedMine, askFromPerson } from "./asks.ts";
 import { classifyOrigin, type Frame } from "./channel.ts";
 import { numberedKey } from "./numbering.ts";
 import { byKind, inviteMine, mineOf, obj, roomKind, seatIs, str } from "./room-kinds.ts";
-import { seatOf } from "./seats.ts";
+import { namesAddress, seatOf } from "./seats.ts";
 
 type Rec = Record<string, unknown>;
 
@@ -65,8 +65,8 @@ function askMemory(f: Rec): string {
 
 /**
  * Whether the frame is addressed to the reader's seat — rule #6574: a word to it
- * (addressee), a reply to its record (in_reply_to_from, #5954), an invite or its
- * withdrawal to me, or something important: an important word (#4939), closing and
+ * (addressee), a reply to its record (in_reply_to_from, #5954) — only a reply without an
+ * address of its own (namesAddress) — an invite or its withdrawal to me, or something important: an important word (#4939), closing and
  * objection kinds, a person's word; a two-phase body counts as its word (#5953).
  * An addressed word not to me (#6081) and other case records are counted
  * (frame-text.ts). A frame not from a case goes as text; an old-form case frame
@@ -107,11 +107,12 @@ export function addressedToMine(frame: Frame | null | undefined): boolean {
     )
       return true;
   } else if (
-    // A word to me, a reply to my record (#5954), marked important; a word in flight
-    // is remembered, since its body comes as a second phase without these marks.
+    // A word to me, a reply to my record without an address of its own (#5954, #6574),
+    // marked important; a word in flight is remembered, since its body comes as a second
+    // phase without these marks.
     seat === true ||
     (seat === null &&
-      (seatIs(f, f.in_reply_to_from) === true ||
+      ((seatIs(f, f.in_reply_to_from) === true && !namesAddress(f, rk?.kind ?? "")) ||
         str(f.said) === "important" ||
         str(fields.kind) === "important"))
   ) {
@@ -125,7 +126,7 @@ export function addressedToMine(frame: Frame | null | undefined): boolean {
   if (closed && rk?.kind === "progress") return true;
   if (closed) f.closes_mine = closed;
   if (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true) return true;
-  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f, rk.kind);
+  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f);
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
   // Question kinds have an addressee (#6867): a person's answer to someone else is not a word to me.
   // A retract names the answer it takes back (#8074): like the answer, it is the asker's word, not everyone's.

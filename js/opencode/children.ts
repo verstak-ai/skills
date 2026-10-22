@@ -101,6 +101,8 @@ export function createChildren(d: ChildDoors) {
     for (const s of held) {
       const was = d.leads.snapshot(s.session as string);
       [s.noted, s.last] = [was.noted, was.last];
+      // An accepted pending leave survives the stop: the next instance's back() ends it (№1317 [19]).
+      if (was.leaving) s.leaving = was.leaving;
     }
     await Promise.all(
       held.map((s) =>
