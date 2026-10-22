@@ -64,7 +64,9 @@ DO:
      (without a home holon it's invisible to holon-scoped orienting)
   2. Per kriya: exactly one actor (two → split; unknown → a vimarsha posed_to
      the holon's steward "who does X?", no actor until answered); sense on every arrow;
-     ahara/utpatti on the right phenomena (after a distinction: reconnect)
+     ahara/utpatti on the right phenomena (after a distinction: reconnect);
+     like another agent's kriya? a real shared transition → an umbrella
+     (Contract, below): verstak_semantic_search(node_type="kriya", q=<before/after>)
   3. verstak_orient(lens="trace", focus=<phenomenon>) on the key ones → connected?
   4. verstak_orient(lens="tensions") → anything new?
 OUT: cycles closed → Phase 3
@@ -74,7 +76,7 @@ Operations: `methods/weaving.md`.
 
 ### Phase 3: risks and mitigation
 
-**3a. Analysis.** For each kriya on the path, seven provocations: (1) another actor — what if unavailable? (2) another context? (3) a corrupted `upadhi` precondition? (4) scale — parallelism, concurrency? (5) an adversary — network down, disk full, a hung process? (6) the public boundary — exports, config/schema shape, protocol, serialization, compatibility exact? (7) state and history — isolation, retries, accumulated state, a rerun? Each threat → `verstak_add_vimarsha(genre="risk", vimarsha_of=<kriya>)`.
+**3a. Analysis.** For each kriya on the path, seven provocations: (1) another actor — what if unavailable? (2) another context? (3) a corrupted `upadhi` precondition? (4) scale — parallelism, concurrency? (5) an adversary — network down, disk full, a hung process? (6) the public boundary — exports, config/schema shape, protocol, serialization, compatibility exact? Can the kriya change and be checked without touching its neighbours — through which contract do they see it (`Contract`)? None → a risk. (7) state and history — isolation, retries, accumulated state, a rerun? Each threat → `verstak_add_vimarsha(genre="risk", vimarsha_of=<kriya>)`.
 
 **3b. Mitigation — one risk at a time.** Read the context (`verstak_look` around the kriya) and the environment. Start from the kriya where the threatened decision is taken: update it, its carrier and the other touched nodes (`methods/writing.md`, Decision 1) — the same holds for a human's correction. Only what that repair cannot cover calls for:
 - **a.** a compensating kriya or phenomenon that prevents or handles the failure;
@@ -123,6 +125,10 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 | `unreachable` (upadhi not reachable by happens-before) | is the producer happens-before the consumer? |
 | a fan (many arrows of one kind) | not "split" — name the middle level with its own coarse link (`methods/writing.md`, Decision 5; by kind: `methods/assembly.md`, step 3) |
 
-**Endpoints become kriyas, not text:** a root `sinn` container ("API URL") holds endpoint phenomena (`sachverhalt`, attrs `method`, `path`); a kriya "Serving GET /path" takes the endpoint (`ahara`), produces the response (`utpatti`), actor the API client; `next`: caller → endpoint kriya → renderer.
+## Contract — how to interact with it
 
-**Vimarshas missing from orient**: `verstak_orient(focus=<holon>)` can show 0 for vimarshas on kriyas passing through → `verstak_search(node_type="vimarsha", vimarsha_of=<kriya seq>)`.
+A contract is usually a **kriya**: input (`ahara`), output (`utpatti`), context (`upadhi`), actor. Its output is more often an effect than a thing — the state of affairs after (`sachverhalt`) that the neighbour takes and a probe observes; other phenomena take `given_as` from the subject domain. Like implementations with a real shared transition make an umbrella kriya: its phenomena are the supertypes, the implementations its `contains` children with their own before/after, their phenomena `specifies` the supertypes — a fan in steps (`methods/writing.md`, Decision 5). No shared transition, no umbrella: one kriya over different implementations hides their own failures and limits. The contract carries what the sides would dispute — absent versus empty, order, fallback, compatibility; a sample with negative cases goes to both sides before work, its probe tells incompatibility apart rather than matching field names, and it replaces no live end-to-end acceptance. Observed or only declared is its kriya's epistemic mode; a divergence is a vimarsha. Modes and cases suffice — no new kinds of node.
+
+**An endpoint is a special case** — a kriya, not text: a root `sinn` container ("API URL") holds endpoint phenomena (`sachverhalt`, attrs `method`, `path`); a kriya "Serving GET /path" takes the endpoint (`ahara`), produces the response (`utpatti`), actor the API client; `next`: caller → endpoint kriya → renderer.
+
+**Reading a contract.** *A kriya:* `verstak_look` — its before/after, the relays across its edge with the neighbours' stewards, its flow (input, output, context, actor, what comes before and after) and its steps; `verstak_orient(focus=<kriya>)` — the same neighbourhood shorter, with tensions; `lens="trace"` on a kriya looks only backwards (are its preconditions available), never forwards; `lens="topology"` — raw `contains`/`context`, on an umbrella its branches. *A holon:* `verstak_orient(focus=<holon>)` — purpose and steward, its top-level deeds (what each takes and gives), neighbours with input and output, where it breaks: that is the holon's contract; `lens="tensions"`, `verbose=true` — pairs with each neighbour and its steward; `lens="vimarshas"` or `lens="bianhua"` focused on it — questions and transformations in its scope (0 or odd counts → vimarshas on kriyas passing through: `verstak_search(node_type="vimarsha", vimarsha_of=<kriya>)`); `lens="topology"` there is the raw net, not the contract. Between deeds of different holons: `lens="path"`. Similar deeds: `verstak_semantic_search(node_type="kriya", q=<before/after>)`. No lens reads a component's contract: model a component as a holon only when it is a boundary by nature — its own rhythm of change, its own agent.

@@ -62,7 +62,7 @@ A graph has an address outside itself, so it is a `ding` (a thing you can point 
 ```
 verstak_add_phenomenon(realm=…, name="🗂 graph name", given_as="ding",
   description=WHAT it is for and when to route a question here,
-  attrs={"key": true, "address": "@owner/slug", "state": "live|dormant"},
+  attrs={"key": true, "address": "full address from the listing", "state": "live|dormant"},
   arrows=[{arrow_type:"context", target:area, volitive_mode:…}],
   epistemic_mode="pratyakshita", ontic_mode="vartamana", volitive_mode="upeksha")
 ```

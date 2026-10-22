@@ -6,7 +6,7 @@
 
 A widget is a fenced block labelled `verstak` whose body is one line: the widget name, then space-separated `key=value` parameters. The window draws live data in its place; any other label stays code.
 
-- **Always name the graph:** `realm=rN` (the short id); `realm=@owner/slug` only if you've seen no other form. No graph established → no block, say it in words.
+- **Always name the graph:** `realm=rN` (the short id); the full address from `verstak_realm(action="list")` only if you've seen no other form. No graph established → no block, say it in words.
 - **The widget reads its data itself**: don't retell the list beside it. Why a case is stuck goes in words.
 - **Forms:** a case is `case N` (bare number), a node is `node=#N`. An unknown name or parameter gives a quiet notice; a graph closed to the reader shows "closed".
 

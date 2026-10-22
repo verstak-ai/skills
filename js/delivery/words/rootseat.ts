@@ -14,7 +14,7 @@ export interface RootSeatWords {
   noForm: (file: string, keys: string) => string;
   /** The keys of several language forms at once; keys — the graph slots of the forms found. */
   manyForms: (file: string, keys: string) => string;
-  /** The slot's value starts with neither @owner/slug nor rN. */
+  /** The slot's value starts with neither a full graph address (the owner's handle/slug) nor rN. */
   noGraph: (file: string, key: string) => string;
   /** The graph slot's value names several distinct graphs. */
   manyGraphs: (file: string, key: string, list: string) => string;
@@ -59,7 +59,7 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     noKey: (file, key) => `the front matter of ${file} has no '${key}' slot`,
     noForm: (file, keys) => `the front matter of ${file} has none of the slots ${keys}`,
     manyForms: (file, keys) => `the cover of ${file} mixes languages: ${keys} at once`,
-    noGraph: (file, key) => `'${key}' in ${file} does not start with @owner/slug or rN`,
+    noGraph: (file, key) => `'${key}' in ${file} does not start with a full graph address or rN`,
     manyGraphs: (file, key, list) => `'${key}' in ${file} names several graphs: ${list}`,
     noRoleRef: (file, key, ref) => `'${key}' in ${file} does not start with a ${ref} reference`,
     manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,

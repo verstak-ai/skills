@@ -17,11 +17,14 @@ import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
 import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
+import { ORCHESTRA } from "../delivery/words/orchestra.ts";
 import { PLUGIN } from "../delivery/words/plugin.ts";
+import { REALMS } from "../delivery/words/realms.ts";
 import { RESUME } from "../delivery/words/resume.ts";
 import { ROOT_SEAT } from "../delivery/words/rootseat.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
 import { STALE } from "../delivery/words/stalebatch.ts";
+import { STAND_TOOL } from "../delivery/words/standtool.ts";
 import { STATUS } from "../delivery/words/status.ts";
 import { STOP } from "../delivery/words/stop.ts";
 import { REPO } from "./built.mjs";
@@ -217,6 +220,39 @@ for (const file of FILES) {
     }
   });
 }
+
+// A graph address has three forms — the bare slug, the full address with the owner's real
+// handle, rN — and the placeholder "owner" taken for a handle mints handles like owner-3
+// (graph @nks/nks-dev, nodes #8521, #8540): no word teaches @owner/slug as the address.
+test("the graph-address words name the full address from the listing, never the @owner placeholder", () => {
+  const realm = STAND_TOOL.en.realm();
+  assert.match(realm, /\bslug\b/, realm);
+  assert.match(realm, /the full address from verstak_realm\(action="list"\)/, realm);
+  assert.match(realm, /\brN\b/, realm);
+  const unresolved = REALMS.en.unresolved("dev", "@x/dev");
+  assert.match(unresolved, /did not resolve the graph "dev" to a full address/, unresolved);
+  assert.match(unresolved, /or not once/, unresolved);
+  assert.match(unresolved, /full graph address from verstak_realm\(action="list"\)\.$/, unresolved);
+  const short = ORCHESTRA.en.onShortRealm("r5");
+  assert.match(short, /full address — the owner's handle\/slug from the list of graphs/, short);
+  const noGraph = ROOT_SEAT.en.noGraph("AGENTS.md", "Graph");
+  assert.equal(noGraph, "'Graph' in AGENTS.md does not start with a full graph address or rN");
+});
+
+test("no delivery word teaches the @owner placeholder as a graph address", async () => {
+  const hits = [];
+  for (const file of FILES) {
+    const mod = await import(pathToFileURL(join(DIR, file)).href);
+    for (const [name, dict] of Object.entries(mod))
+      for (const l of LANGS)
+        for (const [k, fn] of Object.entries(dict[l] ?? {})) {
+          if (typeof fn !== "function") continue;
+          const out = String(fn(...Array.from({ length: fn.length }, (_, i) => `x${i}`)));
+          if (/@owner\b/.test(out)) hits.push(`${file} ${name}.${l}.${k}: ${out}`);
+        }
+  }
+  assert.deepEqual(hits, []);
+});
 
 // The server drops the channel log (graph @nks/nks-dev, node #7636): no word of the
 // bridge or its plugins points there — the seat's cases carry what was lost or left out.

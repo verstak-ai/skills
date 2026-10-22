@@ -129,7 +129,7 @@ export default {
       const base = (await dirOf(input.sessionID)) || own;
       if (!paths.some((p) => isLocalMemoryPath(p, base))) return;
       if (!(await mine(input.sessionID))) return;
-      throw new Error("BLOCKED: local agent memory is forbidden entirely (AGENTS.md, Persistence). Route the fact: repo conventions and code facts -> AGENTS.md; project state, servers, dated duties -> the project graph <@owner/slug>; a user-scoped fact no project owns -> personal mind through the minding method of the verstak skill.");
+      throw new Error("BLOCKED: local agent memory is forbidden entirely (AGENTS.md, Persistence). Route the fact: repo conventions and code facts -> AGENTS.md; project state, servers, dated duties -> the project graph <Graph>; a user-scoped fact no project owns -> personal mind through the minding method of the verstak skill.");
     });
     // Push and merge: after a shell call, append one line to the result. Fire on the outcome, not the form:
     // help and --auto never fire; the exit code speaks for a command only when it is last in the chain or
@@ -184,7 +184,7 @@ export default {
     // root session (no parentID); child sessions (subagents, service sessions) are skipped. A failed prompt
     // for one session is caught in place; a loop failure goes to the service's stderr.
     // Same message as Claude Code's SessionStart hook, addresses from this repo's AGENTS.md frontmatter;
-    // the align run fills <Graph> (@owner/slug) and the three seqs (digits only); no angle brackets or quotes remain.
+    // the align run fills <Graph> (the Graph slot's full address) and the three seqs (digits only); no angle brackets or quotes remain.
     const START =
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
       "Addresses from AGENTS.md: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +

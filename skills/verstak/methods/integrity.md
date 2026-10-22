@@ -10,7 +10,7 @@ The law of the wave: every changed node has sources (the requirements on it) and
 
 An integration hands something across a boundary while closing a lifecycle: born in one holon, consumed in another. So it starts with a specification taken from the graph — and **the specification is a graph cluster, not a document**.
 
-1. **Scout the lifecycles.** `verstak_orient(lens="trace")` on the thing handed over, from each side: where it is born, who must consume it, where the relay breaks. Then the wavefront (Mode 2 below).
+1. **Scout the contracts and lifecycles.** First each side's contract: `verstak_orient(focus=<holon>)` on both, `verstak_look` on the joint's kriya (`methods/design.md`, `Contract`). Then `verstak_orient(lens="trace")` on the thing handed over, from each side: where it is born, who must consume it, where the relay breaks. Then the wavefront (Mode 2 below).
 2. **Write in what is missing.** Phenomena and kriyas that don't exist yet go in with the design triad (`methods/writing.md`, Decision 3). The phenomenon handed across is the heart of the spec: its birth and consumption *are* the integration.
 3. **Ask and weave as you go.** Questions to the neighbour go into the integration case (below). Implied links → `methods/weaving.md`. Decisions and changed situations go into the graph at once (→ door, `Cross-cutting norms`).
 4. **Then the work, by the spec.** On the watch (`methods/autonomous.md`) its marked intent (§2c) is this spec. Refine it as you go; never drift from it unrecorded.
