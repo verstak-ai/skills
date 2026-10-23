@@ -97,6 +97,9 @@ const PRESENT = {
     "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
     // the start slice: a root session only, one read, below the project's rules
     "**The personal slice — only a root session talking to the user**",
+    // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
+    "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
+    "no read and no create, say so in a line",
     'verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)',
     // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
     "the `personal_mind` sign must be present for this account",
