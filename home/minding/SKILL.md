@@ -20,7 +20,7 @@ Every user gets personal memory without being asked: onboarding and this method 
 
 ## Personal memory before reading or writing
 
-**The personal graph's address is always `mind`**: the platform resolves it to the current account's personal graph. Write `realm="mind"` in every call; never ask for a handle, build a full address or store one. Whether the graph and the person's role in it exist — the `personal_mind` sign of `verstak_me(action="readiness")`; MCP prints signs as text: use its key, state and `lacks` as printed, not an assumed JSON path or envelope. Reread after creation, an identity change or a refusal.
+**The personal graph's address is always `mind`**: write `realm="mind"` in every call; never ask for a handle, build a full address or store one. **Read or write it only once the `personal_mind` sign of `verstak_me(action="readiness")` shows this account's own graph present**: an account with none of its own can have a bare `mind` resolve to another's accessible graph. The sign also says whether the person's role in it exists; MCP prints signs as text: use its key, state and `lacks` as printed, not an assumed JSON path or envelope. Reread after creation, an identity change or a refusal.
 
 - **Personal graph present** (even when the sign is `missing` because a role is missing): establish the current person's bound role; complete only that structural gap. A missing runtime assistant role is not a missing onboarding sign.
 - **Personal graph absent:** only `state=missing` with the printed `lacks` including `mind_realm` permits creation (A1). Missing roles alone are not that evidence.
@@ -183,7 +183,7 @@ The set of nodes §3 builds and §2 keeps true, so that one `verstak_orient(real
 
 ### A1 · The graph
 
-The address is always `mind`: it resolves to the current account's personal graph. Whether the graph exists — the `personal_mind` sign of `verstak_me(action="readiness")`; MCP renders signs as text: use the printed key, state and `lacks`, not an assumed JSON envelope. `unknown` with reason `realm_unreadable` and no artifact is no absence. A missing graph is established only when `state=missing` and `lacks` includes `mind_realm`; missing roles alone mean the graph exists.
+The address is always `mind`, used only once the `personal_mind` sign shows this account's own graph present: without one of its own, a bare `mind` can resolve to another's. Whether the graph exists — the `personal_mind` sign of `verstak_me(action="readiness")`; MCP renders signs as text: use the printed key, state and `lacks`, not an assumed JSON envelope. `unknown` with reason `realm_unreadable` and no artifact is no absence. A missing graph is established only when `state=missing` and `lacks` includes `mind_realm`; missing roles alone mean the graph exists.
 
 Only that established absence permits `verstak_realm(action="create", slug="mind", name="Personal memory")`, from the personal identity, with no organization owner. Prefer the user's chosen name when available; no handle is required. The platform provisions the user-bound owner role. A successful identity read alone proves neither graph creation nor settlement. On a conflict (409), timeout or uncertain outcome, reread readiness before retrying; a repeat create is not an idempotent ensure, and a name conflict need not mean mind exists. If still absent, resolve the naming conflict before a new create; a permissions refusal stays a refusal. After success reread readiness. Owned by the user personally, never transferred to an organization (no team variant).
 
