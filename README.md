@@ -35,7 +35,6 @@ The door selects methods for reading, writing, designing and weaving through the
 | `reality-audit` | Exercise acceptance falsifiers against the canonical deliverable. |
 | `reconcile` | Compare code and graph in both directions. |
 | `weaving` | Complete an existing graph's semantics. |
-| `widgets` | Render live graph views where the harness supports them. |
 | `writing` | Write typed nodes, modes and meaningful edges. |
 
 ## Install
@@ -111,7 +110,7 @@ connector does not work and is not supported.
 - `skills/verstak/references/*.md` and `templates/*.md` — supporting material, without frontmatter.
 - `skills/verstak/scripts/verstak-bridge.mjs`, `opencode-plugin.js` — the stdio-to-HTTP OAuth bridge and the OpenCode plugin, built from `js/` (the shared core plus the English delivery layer); `extensions/verstak.js` — the pi extension. Never edited by hand.
 - `verstak.skill` — the only committed derived bundle; contains the complete `verstak/` tree.
-- `home/` — the verstak.ai conversation home's flat catalogue: `assistant`, `minding`, `onboarding` and `widgets` as standalone `SKILL.md` files, generated from their methods; not part of the plugin.
+- `home/` — the verstak.ai conversation home's flat catalogue: `assistant`, `minding` and `onboarding` as standalone `SKILL.md` files, generated from their methods; not part of the plugin.
 - `.claude-plugin/` — Claude Code plugin and marketplace metadata.
 - `.codex-plugin/`, `.agents/plugins/` — Codex plugin manifest and marketplace.
 

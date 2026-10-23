@@ -110,11 +110,6 @@ Still unresolved → ask the user in one line, naming both readings and what you
 **Gets:** one summary across their cases and one point through which their words reach the right case. "what's on my plate?" · "any questions?" · "what's happening with case #12?"
 **Elsewhere:** "who should I raise" → foreman · "lead / close this case" → architect · "what's recorded about X" → entry.
 
-## widgets — "show me the cases"
-
-**Gets:** a live case list, card or agent board in the Verstak window. "which cases are open?" · "who's working right now?"
-**Elsewhere:** "how are things" → assistant · outside the Verstak window → answer in words.
-
 ## feedback — "the tool let me down"
 
 **Gets:** a concrete instance, recorded where whoever fixes it acts. "this skill is broken, log it" · "I lost an hour because this isn't written anywhere"

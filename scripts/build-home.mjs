@@ -89,13 +89,6 @@ const SKILLS = {
       ["`methods/align.md`, round 1 from step 2: the repository's holon", "The repository's holon"],
     ],
   },
-  widgets: {
-    description:
-      "Live widgets in the Verstak window instead of a retold list — only where the answer is drawn by that window. Triggers: 'show the graph's cases', 'which cases are open', 'cases on this node', 'the card for case #N', 'where does this case stand', 'who is working in the graph now', 'what are the agents busy with', 'what's in progress'. Places one of the widgets cases, case, agents as a fenced block labelled verstak with a realm parameter. Not in Claude Code, Telegram or any surface that shows the block as code.",
-    rewrites: [
-      ["not a widget: `methods/entry.md`.", `not a widget: ${READ_THE_GRAPH}.`],
-    ],
-  },
 };
 
 // Pointers the home loop cannot follow; none may survive the rewrites.

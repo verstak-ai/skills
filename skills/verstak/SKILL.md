@@ -167,7 +167,6 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "I can't be heard", "writes have no author", "ask the other agent", "escalate" → **collaborate**
 - "what's on my plate", "how are things", "what's up with case #N", "pass this on" → **assistant**
 - "give an agent a task" (one assignment), "what's in work" → **assistant**
-- "show the cases", "which agents are active" in the Verstak window → **widgets**
 - "spread this across the agents", "whom to raise", "who's stuck" → **foreman**, a post the user assigns: address its holder; none → ask whether to raise one
 
 ## Step 3 · Forks where agents go wrong

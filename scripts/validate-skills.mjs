@@ -175,7 +175,7 @@ for (const name of skillNames.sort()) validateSkill(name);
 //     into its own prompt under a fixed budget. A missing skill, a second Map
 //     heading or an overgrown Map fails silently there. home/ is generated from
 //     skills/verstak/methods/ by scripts/build-home.mjs; check-bundles holds the sync.
-const HOME_SKILLS = ["assistant", "minding", "onboarding", "widgets"];
+const HOME_SKILLS = ["assistant", "minding", "onboarding"];
 const MAP_BUDGET = 1500;
 const homeDir = join(root, "home");
 const homeNames = existsSync(homeDir)
