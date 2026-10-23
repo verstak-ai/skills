@@ -60,7 +60,7 @@ Already present → reused, shown with its current value, never created again. T
 
 ## 0 · Personal memory — in every branch
 
-First, in the harness and the home branch alike, load `methods/minding.md` and follow its **Personal ownership before reading or writing** entry, then its personal-graph provision for the established gaps. This is the single path: reuse what exists; a failed read is not absence. The personal graph's address is always `mind`; never ask for a handle, build a full address or save a memory pointer.
+First, in the harness and the home branch alike, load `methods/minding.md` and follow its **Personal memory before reading or writing** entry, then its personal-graph provision for the established gaps. This is the single path: reuse what exists; a failed read is not absence. The personal graph's address is always `mind`; never ask for a handle, build a full address or save a memory pointer.
 
 Then read readiness again. Tell the person exactly what exists and what remains unestablished: personal memory lets the assistant remember and recall what is theirs across projects — their machines, people, habits, their own environment. Work never goes there: a project's deployment, infrastructure and decisions go to that project's graph. A refused API operation or a missing server capability is named directly, never repaired with a progress attribute.
 

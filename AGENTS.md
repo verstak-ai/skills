@@ -23,8 +23,6 @@
 'Reality — source': 'derived'
 'Layout': 'code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844'
 'Layout — source': 'derived'
-'Cross-project memory': 'personal mind via the minding method — no stored address, global instructions file or memory directory'
-'Cross-project memory — source': 'derived: template default'
 'Feedback reflection': 'yes — default'
 'Feedback reflection — source': 'derived: template default'
 'Workflow-suite interop': 'none'
@@ -176,6 +174,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **OpenCode rituals are not wired**: no `.opencode/plugins/verstak-rituals.js` yet, so an OpenCode session here gets no start message, memory guard or push and merge reminders. `js/tests/reposigns.test.mjs` pins this repository as OpenCode-partial; wiring the plugin flips that assertion in the same commit.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `5`, stamped `2026-10-22` — re-run when the installed
+*(verstak align: contract `6`, stamped `2026-10-23` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*

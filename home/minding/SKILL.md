@@ -18,7 +18,7 @@ The current user's personal mind graph holds the areas of their life and work, t
 
 Every user gets personal memory without being asked: onboarding and this method use the single entry below, then Appendix A1–A2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
-## Personal ownership before reading or writing
+## Personal memory before reading or writing
 
 **The personal graph's address is always `mind`**: the platform resolves it to the current account's personal graph. Write `realm="mind"` in every call; never ask for a handle, build a full address or store one. Whether the graph and the person's role in it exist — the `personal_mind` sign of `verstak_me(action="readiness")`; MCP prints signs as text: use its key, state and `lacks` as printed, not an assumed JSON path or envelope. Reread after creation, an identity change or a refusal.
 
