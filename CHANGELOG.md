@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.17.0](https://github.com/verstak-ai/skills/compare/v3.16.0...v3.17.0) (2026-10-23)
+
+
+### Features
+
+* bridge core 09d31f55 — cover forms by language, verstak en form ([#221](https://github.com/verstak-ai/skills/issues/221)) ([63b7e28](https://github.com/verstak-ai/skills/commit/63b7e28b051d70ce11607131199795704ff8eda6))
+* lead is its own method; roles and the steward seam; personal memory leaves AGENTS.md ([#227](https://github.com/verstak-ai/skills/issues/227)) ([bd7f390](https://github.com/verstak-ai/skills/commit/bd7f390c551d4d1374d9529e979f192203ecaaf7))
+* leads hold contracts and effects; human questions as cards; graph address without a placeholder ([#223](https://github.com/verstak-ai/skills/issues/223)) ([1e6fe43](https://github.com/verstak-ai/skills/commit/1e6fe433eed43c623a7f24cfb525ba6b6c810c5f))
+
+
+### Bug Fixes
+
+* architecture's output is contracts; a contract yields an effect, a thing, or both ([#224](https://github.com/verstak-ai/skills/issues/224)) ([1808e6a](https://github.com/verstak-ai/skills/commit/1808e6a3b6908bbb9f9b6aaa7da6fe4eb22d6a12))
+* read mind only once readiness shows this account's own graph ([#228](https://github.com/verstak-ai/skills/issues/228)) ([3e2edfb](https://github.com/verstak-ai/skills/commit/3e2edfb0aff8f263f3d5be21eced3599a8c4f4b3))
+* the architect's goal is the architecture; reuse of the graph's fabric is the lead's to look for ([#225](https://github.com/verstak-ai/skills/issues/225)) ([553154f](https://github.com/verstak-ai/skills/commit/553154f63f7dae4d575cd251bde7d995017612bf))
+* the start slice reads mind only on personal_mind state exactly present ([#229](https://github.com/verstak-ai/skills/issues/229)) ([3d73ddb](https://github.com/verstak-ai/skills/commit/3d73ddb43df07a6d803f07fd632de7e554bf8004))
+* widgets leaves the delivery — the verstak.ai home carries its own ([#226](https://github.com/verstak-ai/skills/issues/226)) ([7f22d9a](https://github.com/verstak-ai/skills/commit/7f22d9a99cf4d4ab70d5cf889cf94ba5b648a99d))
+
 ## [3.16.0](https://github.com/verstak-ai/skills/compare/v3.15.0...v3.16.0) (2026-10-20)
 
 
