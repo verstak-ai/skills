@@ -186,7 +186,6 @@ What the methods assume that no canon node carries. Re-project each when a canon
 
 - **architect:** automatic platform projection of the lead; exact spoken-handover pair and its relation to platform rights; API-specific proposal/objection eligibility; wave-case splitting triggers and child-case mechanics; the one-proposal-per-two-hours silence cadence. The underlying lead rights, recorded handover, joint sample and closure are covered above.
 - **assistant:** the secretary's exact verbatim/provenance format, permission for every outward change, and no unrequested or timed sweeps. r4 #615 names secretary/editor roles but does not define this protocol. Owner acts and case-journal authorship ground it; they do not supply every operating rule.
-- **widgets:** live views in the application window.
 - **establish-mcp:** bridge, grant and sign-in implementation. Standing and attested authorship are canonical; OAuth, installation and harness wiring are product mechanics.
 - **autonomous:** webhook/sleep-poll/interactive implementations, fallback wake-up mechanisms and cadence. Signal-only task selection is the method's working rule grounded in the r4 #616 hint; the watch cycle itself is present.
 - **collaborate / autonomous:** satellite seats, one seat-taking run per agent file, reader without a seat, stepping away versus removal and `revoke` semantics. r4 #538's actor/standing rule does not define these mechanisms.

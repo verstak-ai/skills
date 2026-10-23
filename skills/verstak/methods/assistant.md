@@ -71,7 +71,7 @@ Questions of substance to the user's role stand in the graph: `verstak_orient(re
 
 Mark your judgment apart: "case #12 has a `partial` line on the reviewer, third day" is read; "looks like the reviewer doesn't know" is yours. Nothing found → say so.
 
-**Presentation.** In the Verstak window, live widgets instead of retold lists (`methods/widgets.md`, or the host's widget contract); why a case is stuck goes in words beside them. Elsewhere the block shows as code: short lines, case number and graph on each that needs an answer. Vocabulary: the door's `Answer` step — "case", "seat", "question", "role"; no method terms.
+**Presentation.** In the Verstak window, live widgets instead of retold lists (the window's own `widgets` skill, or the host's widget contract); why a case is stuck goes in words beside them. Elsewhere the block shows as code: short lines, case number and graph on each that needs an answer. Vocabulary: the door's `Answer` step — "case", "seat", "question", "role"; no method terms.
 
 ## Abandoned work — check, call the role, or close the line
 
@@ -121,7 +121,7 @@ A channel send never carries the task: it only calls the seat to the case ("case
 
 - First the board of the seat that placed them: `verstak_orient(realm=<graph>, lens="board", standing=<seat>)` — this one, an earlier session's, or the user's own. `verstak_case(action="mine")` lists this session's cases only.
 - `read` each: the latest line on its "assignment: …" key — a receipt or not, `partial` on whom and since when, `ok` or `bad`. Finished assignments sit in closed cases: the same board with `include_closed=true`, back as far as its `since` (the board's help, `verstak_orient(realm=<graph>, action="?")`).
-- To the user, per assignment: to whom, what, where it stands (waiting for the receipt · taken · done · unmoved for N hours), case number and graph; in the Verstak window, the widgets (`methods/widgets.md`).
+- To the user, per assignment: to whom, what, where it stands (waiting for the receipt · taken · done · unmoved for N hours), case number and graph; in the Verstak window, its widgets (the window's own `widgets` skill).
 
 ## Join and invite — then and only then
 
