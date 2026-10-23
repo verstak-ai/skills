@@ -42,9 +42,12 @@ Goal → path → risks → thesis; given_as flows `sachverhalt` → `bildung` �
 ```
 TRIGGER: a goal exists, a path does not
 DO:
-  1. Name the goal as a sachverhalt (anagata+chanda); the target state is the
-     owner's — name it in dialogue, the user accepts it
-  2. verstak_search + verstak_semantic_search: already in the graph?
+  1. Name the goal as the phenomenon it is — a state of affairs, a thing, or
+     both (anagata+chanda); the goal is the owner's — name it in dialogue, the
+     user accepts it
+  2. verstak_search + verstak_semantic_search: already in the graph? Like problems
+     solved, like components, contracts that recombined and minimally finished
+     make this one? Integration over a new build
   3. Who takes the goal? A hand-off kriya — ahara on the goal, no utpatti, actor an
      owner (svatantra) or guest (agantuka). The right edge stands before you recurse
   4. From the goal: "what produces this?" → a kriya + its ahara phenomenon
@@ -127,7 +130,7 @@ Out: an agent entering through the case or orient's `ACTIVE BIANHUA` knows what 
 
 ## Contract — how to interact with it
 
-A contract is usually a **kriya**: input (`ahara`), output (`utpatti`), context (`upadhi`), actor. Its output is more often an effect than a thing, or both — the state of affairs after (`sachverhalt`) that the neighbour takes and a probe observes, beside the thing made when there is one; other phenomena take `given_as` from the subject domain. Like implementations with a real shared transition make an umbrella kriya: its phenomena are the supertypes, the implementations its `contains` children with their own before/after, their phenomena `specifies` the supertypes — a fan in steps (`methods/writing.md`, Decision 5). No shared transition, no umbrella: one kriya over different implementations hides their own failures and limits. The contract carries what the sides would dispute — absent versus empty, order, fallback, compatibility; a sample with negative cases goes to both sides before work, its probe tells incompatibility apart rather than matching field names, and it replaces no live end-to-end acceptance. Observed or only declared is its kriya's epistemic mode; a divergence is a vimarsha. Modes and cases suffice — no new kinds of node.
+A contract is usually a **kriya**: input (`ahara`), output (`utpatti`), context (`upadhi`), actor. It produces, consumes and uses not only things: an effect — a change in the system's state — is a phenomenon too (`sachverhalt`), the state after that the neighbour takes and a probe observes, beside the thing made when there is one; more often an effect than a thing, or both; other phenomena take `given_as` from the subject domain. Like implementations with a real shared transition make an umbrella kriya: its phenomena are the supertypes, the implementations its `contains` children with their own before/after, their phenomena `specifies` the supertypes — a fan in steps (`methods/writing.md`, Decision 5). No shared transition, no umbrella: one kriya over different implementations hides their own failures and limits. The contract carries what the sides would dispute — absent versus empty, order, fallback, compatibility; a sample with negative cases goes to both sides before work, its probe tells incompatibility apart rather than matching field names, and it replaces no live end-to-end acceptance. Observed or only declared is its kriya's epistemic mode; a divergence is a vimarsha. Modes and cases suffice — no new kinds of node.
 
 **An endpoint is a special case** — a kriya, not text: a root `sinn` container ("API URL") holds endpoint phenomena (`sachverhalt`, attrs `method`, `path`); a kriya "Serving GET /path" takes the endpoint (`ahara`), produces the response (`utpatti`), actor the API client; `next`: caller → endpoint kriya → renderer.
 
