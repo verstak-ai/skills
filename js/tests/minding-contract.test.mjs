@@ -67,6 +67,13 @@ const PRESENT = {
     // creation unasked, filling on request
     "Every user gets personal memory without being asked",
     "Filling (§3) and reconciling (§2) happen on request.",
+    // the one slice read at a root session's start, and the label that puts a card in it
+    // (graph @nks/nks-dev, node #8589)
+    "except one slice: **working with agents**",
+    "so a root session reads them at its start",
+    'give it `attrs` `{"slice":"agents"}`',
+    "an older such card without the label gets it in the same move",
+    "Nothing personal goes into `AGENTS.md` or other project files.",
   ],
   reference: [
     "the user's own working preference, a development one too, is theirs and does go in",
@@ -78,13 +85,18 @@ const PRESENT = {
     "a binding principle (`grundsatz`) only by the user's act",
     "no new lesson is owed",
     "A finished area is the other occasion.",
+    'carries `attrs` `{"slice":"agents"}`',
   ],
   door: [
     "before writing it, **whose fact?**",
     "before asking the user, search their mind",
     "An aligned repo doesn't switch mind off",
-    // a purely project request runs without mind
-    "purely technical work that needs nothing of the user doesn't read it",
+    // a purely project request runs without mind beyond the start slice
+    "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
+    // the start slice: a root session only, one read, below the project's rules
+    "**The personal slice — only a root session talking to the user**",
+    'verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)',
+    "below this project's rules",
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
     "this repo's rule, from its rule-holder) → `AGENTS.md`",
@@ -99,8 +111,11 @@ const PRESENT = {
   ],
   align: [
     "the user's own facts and working preferences → `methods/minding.md`; the project's rules and process → Step 1",
+    // AGENTS.md says nothing of personal memory (graph @nks/nks-dev, node #8589)
+    "**No personal memory in `AGENTS.md`** — no slot, no rule",
   ],
   home: [
+    'so a root session reads them at its start: one `verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)`',
     "apply, adapt, don't apply, or ask one deciding question",
     "## §1a Relate — what the hit changes now",
     "it is retired by its carrying axis, as for any replaced node",
@@ -132,6 +147,11 @@ const RETIRED = [
   "a new record `supersedes` the old",
   "A lesson is a `grundsatz` (a principle that now binds) or a `bildung` (a pattern taking shape)",
   "else a `grundsatz` (principle) or `bildung` (a pattern taking shape)",
+  // personal memory as an AGENTS.md slot, and recall keyed to need with no start slice
+  // (main 7f22d9a)
+  "- **Cross-project memory** — template default",
+  "(`methods/align.md`, Step 1, Cross-project memory)",
+  "Both key to the **question, not the session**: an aligned repository",
 ];
 
 function read(root) {

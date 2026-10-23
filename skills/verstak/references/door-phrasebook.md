@@ -17,6 +17,7 @@ Dividing signs: the door, Step 3 (the two channel pairs carry theirs below). Her
 | **entry** ↔ **integrity** | entry reads what's recorded about a place; integrity walks what a change touches: "what breaks", "who should I warn" |
 | **design** ↔ **code-work** | "just do it, we've decided" → code-work |
 | hearing ↔ addressing (**collaborate**) | hearing — arrived, silence, no author: "you can't hear me", "writes have no author". addressing — to whom, what (`Exchange`): "ask the other one", "who owns this" |
+| **lead** ↔ **architect** | lead: "this case", "close it", "hand over the lead". architect: "the system", "across holons", "the contract" |
 | **autonomous** ↔ **foreman** | foreman: "spread this across the agents", "who's stuck". autonomous: "work on your own", "take it to merge" |
 | **establish-mcp** ↔ **collaborate** | establish-mcp, transport to the graph: "I don't see the tools", "oauth". collaborate, the channel's socket: "you can't hear me", "the frame didn't arrive" |
 | **feedback** ↔ a complaint about the work | feedback: "the skill is wrong", "the description says one thing, it does another" |
@@ -95,20 +96,25 @@ Still unresolved → ask the user in one line, naming both readings and what you
 **Gets:** the question at the right addressee — a case message, or a vimarsha if substantive — the addressee woken, the answer recorded. "ask the other agent" · "pass it to whoever handles it" · "tell the other one not to build the same thing" · "escalate to me" · "who owns this?"
 **Elsewhere:** "split the work" → foreman · "write down what we agreed" → by substance, not a "we talked" record. Needs a named seat, not hearing: a seat you hold is enough to speak (the door, `Start`, step 2).
 
-## architect — "hold integrity", "lead the case"
+## architect — "hold integrity"
 
-**Gets:** one agent holding intent and integrity, or one shared case: decisions prepared with options and cost, agents tasked from the woven graph with a check, acceptance by running it. "hold the architecture" · "prep a decision, I'll choose" · "check what we built against what we designed"
-**Elsewhere:** a feature inside one holon → design · "check it works" with no tasking → reality-audit · "spread across the agents" → foreman · "do it yourself" → code-work.
+**Gets:** a system architect — one agent holding the system's form across holons: contracts, schemes, lifecycles in the graph, reuse of what exists, integrity between holons; decisions prepared with options and cost, disputed questions of structure settled, no drift into code. "hold the architecture" · "design it across holons, not per holon" · "prep a decision, I'll choose" · "check what we built against what we designed" · "who owns this, where's the boundary" · "we need an architectural review"
+**Elsewhere:** a feature inside one holon → design · "check it works" with no tasking → reality-audit · "spread across the agents", "task the agents", "accept the work" → foreman · "lead / close this case", "hand over the lead" → lead: the case's opener leads it while a participant · "do it yourself" → code-work.
+
+## lead — "you lead this case"
+
+**Gets:** the case moved to its outcome: work set by references with a check, accepted by running it, the lead handed over by agreement, the case closed with evidence. "lead the case" · "close the case" · "hand over the lead"
+**Elsewhere:** the system's form, a contract across holons → architect · many agents, waves → foreman · "what's in my cases" → assistant.
 
 ## foreman — "spread this across the agents"
 
-**Gets:** one dispatcher that hands out work, notices who's stuck, brings up only what needs their word. "take the post" · "who's stuck?"
+**Gets:** one dispatcher that hands out work, notices who's stuck, brings up only what needs their word. "take the post" · "who's stuck?" · "task the agents by the graph, not by text" · "accept the work" · "plan the transformation in waves"
 **Elsewhere:** a one-time handoff → collaborate · "just do this small thing" → code-work · "an agenda" → assembly. Launched without the user's word → ask whether you coordinate.
 
 ## assistant — "how are things"
 
 **Gets:** one summary across their cases and one point through which their words reach the right case. "what's on my plate?" · "any questions?" · "what's happening with case #12?"
-**Elsewhere:** "who should I raise" → foreman · "lead / close this case" → architect · "what's recorded about X" → entry.
+**Elsewhere:** "who should I raise" → foreman · "lead / close this case" → lead · "what's recorded about X" → entry.
 
 ## feedback — "the tool let me down"
 

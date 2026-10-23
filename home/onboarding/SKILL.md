@@ -27,7 +27,7 @@ Only a separate knowledge step needing confirmation uses `verstak_me(action="und
 
 | Sign | Read | Missing → step |
 |---|---|---|
-| personal memory | `personal_mind` in readiness; its transient `artifact.ref` and established gaps, through minding's ownership check | **0 · Personal memory**, unasked |
+| personal memory | `personal_mind` in readiness and its established gaps, through minding's entry; the graph is always `realm="mind"` | **0 · Personal memory**, unasked |
 | a working graph | readiness for current ownership; `verstak_realm(action="list")` for accessible graphs; personal mind excluded | **1 · Area and graph** |
 | the repository's hooks (Claude Code, OpenCode; none elsewhere) | `.claude/settings.json` `SessionStart`, the OpenCode plugin naming the graph | **2 · Hooks** |
 | the person's role in this graph | `verstak_me(action="kartas")` lists a role bound to them in **this** graph, of whatever kind it is; unbound agent and assistant roles are not theirs | **3 · The person's role** |
@@ -65,7 +65,7 @@ Already present → reused, shown with its current value, never created again. T
 
 ## 0 · Personal memory — in every branch
 
-First, in the harness and the home branch alike, load **minding** and follow its **Personal ownership before reading or writing** entry, then its personal-graph provision for the established gaps. This is the single path: reuse what exists; a failed read is not absence. The `personal_mind` item's `artifact.ref` is the current API answer about personal memory. An accessible foreign `mind`, a graph's name or a thread in it proves no ownership. Never ask for a handle, construct an address from one, or save a memory pointer.
+First, in the harness and the home branch alike, load **minding** and follow its **Personal ownership before reading or writing** entry, then its personal-graph provision for the established gaps. This is the single path: reuse what exists; a failed read is not absence. The personal graph's address is always `mind`; never ask for a handle, build a full address or save a memory pointer.
 
 Then read readiness again. Tell the person exactly what exists and what remains unestablished: personal memory lets the assistant remember and recall what is theirs across projects — their machines, people, habits, their own environment. Work never goes there: a project's deployment, infrastructure and decisions go to that project's graph. A refused API operation or a missing server capability is named directly, never repaired with a progress attribute.
 

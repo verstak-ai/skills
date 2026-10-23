@@ -28,7 +28,7 @@ A stage you add names what it leaves outside. Every exit (waiting, failure, cont
 
 Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in its assignment's case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (the door, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
 
-**The transformation's seed is a pointer, not a log** (`methods/writing.md`, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). Whoever organises the transformation's acceptance closes the seed.
+**The transformation's seed is a pointer, not a log** (`methods/writing.md`, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). The seed is closed at the transformation's acceptance: the foreman and architect pair planning it prepares that (`methods/foreman.md`, `The transformation's plan in waves`), the user accepts; no pair → whoever organises the acceptance.
 
 ## 0 · Going on watch — announce, look around, get on the channel
 
@@ -93,7 +93,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 **Read the task by its references, not the brief's text**: the reference standard, "Answered when", touched phenomena and kriyas, the transformation and its telos. Strike the text — do you still know what to build, how to check it, whom it touches? No → ask which nodes should stand. Text and nodes disagree → nodes win. **The tasking names how reality checks it** — carrier and probe, a negative one included; if not, ask.
 
-A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: `methods/architect.md`, `Leading a case`).
+A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: `methods/lead.md`, `Closing`).
 
 Read the item in context (`verstak_orient(focus=<node>)`, then its arrows) and hold five things before taking it: **where it integrates** and who else is on that surface; **what changes**, before and after (can't say it → not grasped); **where the risk is** and how loudly it breaks; **anything irreversible** (§3's sanction gate); **which transformation it moves** (`verstak_orient(lens="bianhua", focus=<N>)`). Ask for what's missing, don't infer it (`methods/collaborate.md`, `Exchange`); a well-specified item may still belong to another mandate.
 
@@ -121,9 +121,9 @@ Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 
-**Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split.
+**Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split. **The architect asks you to check its model of your holon** → answer each claim "implemented / diverges / not observed" with its carrier; a divergence you fix in your own part of the graph in the same move (reconciling your area); your code is not handed over.
 
-**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting. **Up**: an answer you wait on is a card, your own unfinished state a line on your key (the door, `Waiting on an answer`, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them. **A case overloading the context** → answer with a move in the same round, no separate wake-up (the door, `Case laws`; leading it — `methods/architect.md`).
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting. **Up**: an answer you wait on is a card, your own unfinished state a line on your key (the door, `Waiting on an answer`, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them. **A case overloading the context** → answer with a move in the same round, no separate wake-up (the door, `Case laws`; leading it — `methods/lead.md`).
 
 A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
 
@@ -143,7 +143,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 ## 4 · Closing the work round
 
-- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (`methods/architect.md`, `Leading a case`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
+- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (`methods/lead.md`, `Closing`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
 - An answered vimarsha: `addressed_by`, then release by its answer condition and kind (`methods/inquiry.md`); what changed the next judgment, if anything, goes where §6 there says.
 - **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (`methods/reality-audit.md`) and a body matching what was built; diverged → the artifact wins and the node says so.
 - **Shipped something substantial → check its transformation's telos** (`methods/assembly.md`, `Telos check and re-assembly`): by the telos, not the parts count; the outcome goes to the owner as a card — you don't close it yourself.
@@ -154,7 +154,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 
 1. **Reconcile** (`methods/reconcile.md`): true modes, remaining debts as vimarshas.
 2. **Hand over** in the seed and in the case: what was taken, promised to whom, open — and where the next one finds why: the decisions' grounds, the case against, what was outside your mandate (node numbers, not retelling).
-3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead by a card and its `ack` (`methods/architect.md`, `Leading a case`) or stays lead on a deaf seat.
+3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead by a card and its `ack` (`methods/lead.md`, `Handing over the lead`) or stays lead on a deaf seat.
 4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`).
 
 Without the user's word there is no handover; a session's end is an absence.
@@ -177,4 +177,4 @@ Before a long stretch, mark (§2c) and leave pointers in the case (vimarsha, bra
 
 A duty round succeeded when it cost almost nothing and the next wake-up is armed. A work round succeeded when the graph, the code or a check moved: integrated, or held at a named gate with the wait recorded *before* sleeping; relayed, escalated, or left with a reason on the node. A second agent reading the graph first, then the cases, can tell what this one shipped, waits for and asks.
 
-**The round's end is a changed situation — name it:** merged → §4 in the same move; the case's subject answered → propose closing it (`methods/architect.md`, `Leading a case`); a structural choice opened → `methods/design.md`; the change spans surfaces → `methods/integrity.md`; about to say "verified" → `methods/reality-audit.md`; code and graph diverged → `methods/reconcile.md`; nothing waits → duty round.
+**The round's end is a changed situation — name it:** merged → §4 in the same move; the case's subject answered → propose closing it (`methods/lead.md`, `Closing`); a structural choice opened → `methods/design.md`; the change spans surfaces → `methods/integrity.md`; about to say "verified" → `methods/reality-audit.md`; code and graph diverged → `methods/reconcile.md`; nothing waits → duty round.

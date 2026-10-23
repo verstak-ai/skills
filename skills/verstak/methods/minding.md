@@ -2,7 +2,7 @@
 
 **Use when:** a durable fact about the user surfaces mid-task and serves no single project (their machines, expiries, people, their own way of working even on a development topic, lessons) → write it; a task needs such a fact (a deploy target, a machine trait, someone's rhythm, a deadline) → recall it. Or the user asks: "do you remember", "what do you know about me", "what do I have", "what's on my plate", "where is it deployed"; "remember this" (→ write); "set up my memory" (→ bootstrap). Never route these facts into the harness's own memory. What mind holds is never retold outside it.
 
-The current user's personal mind graph holds the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, opinions, standing working preferences, ideas with no project yet, methods of their own, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session**: an aligned repository settles only which graph the session works in.
+The current user's personal mind graph holds the areas of their life and work, their live graphs and what each is for, machines, people, dated facts, opinions, standing working preferences, ideas with no project yet, methods of their own, lessons. Recall and write **by reflex, not by ritual** — memory is holding and bringing back, both acts, not a store. Both key to the **question, not the session** — except one slice: **working with agents**. The user's preferences about how agents work with them (how to report, ask and plan; what to bring and what not) are prompted by no need, since the agent doesn't know they exist, so a root session reads them at its start (the door, `Start`). Writing such a preference, give it `attrs` `{"slice":"agents"}`: unlabelled, the slice never finds it. Nothing personal goes into `AGENTS.md` or other project files. An aligned repository settles only which graph the session works in.
 
 ## Two reflexes
 
@@ -15,20 +15,20 @@ Every user gets personal memory without being asked: the door, onboarding, align
 
 ## Personal ownership before reading or writing
 
-Read `verstak_me(action="readiness")` for the current identity. Take the `personal_mind` item's `artifact.ref` verbatim as `<personal graph>` for this move. MCP prints signs as text: this names the printed artifact link, not an assumed JSON path or envelope; use its key, state, link and `lacks` as returned. It is a computed API answer, not an attribute pointer. Reread after creation, an identity change or a refusal. Never ask for a handle, construct an address from one, or cache an address for future access.
+**The personal graph's address is always `mind`**: the platform resolves it to the current account's personal graph. Write `realm="mind"` in every call; never ask for a handle, build a full address or store one. Whether the graph and the person's role in it exist — the `personal_mind` sign of `verstak_me(action="readiness")`; MCP prints signs as text: use its key, state and `lacks` as printed, not an assumed JSON path or envelope. Reread after creation, an identity change or a refusal.
 
-- **Personal graph present:** the link may be present even when the sign is `missing` because a role is missing. Read that graph and establish the current person's bound role; complete only that structural gap. A missing runtime assistant role is not a missing onboarding sign. A graph's name, admin access or a thread in it does not prove personal ownership.
-- **Personal graph absent:** only `state=missing` with the printed `lacks` including `mind_realm` permits creation (reference §1). Missing roles alone are not that evidence. Someone else's accessible `mind` never substitutes for personal memory.
+- **Personal graph present** (even when the sign is `missing` because a role is missing): establish the current person's bound role; complete only that structural gap. A missing runtime assistant role is not a missing onboarding sign.
+- **Personal graph absent:** only `state=missing` with the printed `lacks` including `mind_realm` permits creation (reference §1). Missing roles alone are not that evidence.
 - **Not established:** `unknown`, an absent field, a refusal or an ambiguous response means memory is unavailable for this move. An access or transport failure proves no absence: say it is unreachable, create no duplicate, and continue independent project work.
 
-The general bare-slug resolver can return someone else's graph when no personal one exists; a successful read of `mind` is therefore no ownership check. Use the personal sign's verified link. If the surface cannot establish ownership or provision personal memory, name the missing operation rather than trying guessed addresses.
+If the surface cannot provision personal memory, name the missing operation.
 
-**No persistent mind locator:** never read or write special properties/attrs on profiles, graphs or nodes, config, agent memory or a redirect stub to find mind. Normal realm fields and transient API answers are allowed. A personal archive under another slug remains user content; no automatic rename or redirect.
+**No persistent mind locator:** never read or write special properties/attrs on profiles, graphs or nodes, config, agent memory or a redirect stub to find mind (the slice label `slice` names a card's content, not mind's address, and is no locator). Normal realm fields and transient API answers are allowed. A personal archive under another slug remains user content; no automatic rename or redirect.
 
 ## §1 Recall
 
-1. **Map level** — which graph owns this, what do I have: one `verstak_orient(realm=<personal graph>)`, no lens. Root holons are the areas; `attrs.key=true` landmarks are the working-graph cards and routing rules; `ACTIVE BIANHUA` shows the user's own transformations. Answer from the map, or name the graph and hand over to `methods/entry.md`. Ceiling: 2 reading calls.
-2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm=<personal graph>, q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 reading calls, then answer with what you have. Ownership is a precondition of either depth, never skipped to meet a ceiling.
+1. **Map level** — which graph owns this, what do I have: one `verstak_orient(realm="mind")`, no lens. Root holons are the areas; `attrs.key=true` landmarks are the working-graph cards and routing rules; `ACTIVE BIANHUA` shows the user's own transformations. Answer from the map, or name the graph and hand over to `methods/entry.md`. Ceiling: 2 reading calls.
+2. **Fact level** — a specific fact (a path on a machine, a rhythm, an expiry): **search first, skip the orient** — `verstak_search(realm="mind", q=term)`, plus `verstak_semantic_search` when the wording may differ. Lexical `q` is AND-matched and stem-sensitive: one or two short terms in the graph's own wording. Read the mode badge before trusting a hit: `atita` is a former fact, `anagata` a planned one. Ceiling: 3 reading calls, then answer with what you have. The entry above is a precondition of either depth, never skipped to meet a ceiling.
 
 **Name the outcome** — each leads somewhere else:
 - **found** — read each hit with its scope, conditions, modes and objections; a record and the newer one that replaced it are one fact at two moments, not two options;
@@ -58,7 +58,7 @@ A recalled fact is a ground, not a sanction. Set it against the case at hand —
 
 The user's own + useful later + serves no single project → here. Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).
 
-**Whose fact is it?** — where agents misroute most. Infrastructure that exists for **this project** (servers, pipeline, dated duties) is the project graph's, however long it outlives the repo; here goes only the user's **own**. A card carries only its subject's traits: a project's deploy procedure is not a trait of the machine. **Subject and ownership pick the home, not the topic**: the user's own working preference ("show me the plan first", "I review diffs in the terminal") stays theirs when it is about development; a project's rule belongs to the project, set by whoever holds its rules, and is never carried into mind. Route in order:
+**Whose fact is it?** — where agents misroute most. Infrastructure that exists for **this project** (servers, pipeline, dated duties) is the project graph's, however long it outlives the repo; here goes only the user's **own**. A card carries only its subject's traits: a project's deploy procedure is not a trait of the machine. **Subject and ownership pick the home, not the topic**: the user's own working preference ("show me the plan first", "I review diffs in the terminal") stays theirs when it is about development, and one about how agents work with them goes into the slice — `attrs` `{"slice":"agents"}`; an older such card without the label gets it in the same move; a project's rule belongs to the project, set by whoever holds its rules, and is never carried into mind. Route in order:
 
 1. **This** project's fact or rule → its graph, or AGENTS.md.
 2. **Another** area → that area's graph, `posed_to` its steward (anchor where the addressee orients — `methods/inquiry.md`).
@@ -73,7 +73,7 @@ The user's own + useful later + serves no single project → here. Shapes: `refe
 - **Unknown outcome** (a timeout, a dropped transport) → read before you retry; a version conflict → reread, then decide.
 
 **Where in mind — by reflex, not on request:**
-- **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm=<personal graph>, q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
+- **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm="mind", q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
 - **A person gets a guest role** — `manifested_as="agantuka"` 客 (outside the user's boundary, answering on their own time), with the motivation they have *in the user's life*, not a dossier (reference §2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `posed_to` their role.
 
 ## §2 Reconcile
@@ -107,7 +107,7 @@ Audit each concern against its source: **absent / stale / correct** (as in `meth
 | what each live graph is for; areas; what is dead | authored | ask the user |
 | machines, deployments, checkouts | authored | ask the user |
 | routing rules, disposable classes | authored | propose; the user confirms |
-| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into files outside the worktree (`methods/align.md`, Step 1, Cross-project memory) |
+| standing preferences | authored | the user's own, development ones included, go here; a project's rule to its holder (§1b); never into `AGENTS.md`, other project files or files outside the worktree |
 
 Fill the skeleton from the reference, then run §2 once. Mind is memory, not a workplace: project work goes to a project graph (the door's `Survey` table, "no project graph").
 
@@ -165,7 +165,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ## Acceptance
 
-- Personal ownership established before recall or write; another user's accessible mind is never a fallback. Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read.
+- Personal memory addressed as `realm="mind"` and its presence established before recall or write; preferences about working with agents labelled into the slice. Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read.
 - A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
 - Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it.

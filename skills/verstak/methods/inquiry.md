@@ -40,7 +40,7 @@ Two non-terminal moves:
 |---|---|---|
 | `samshaya` (doubt) | removing the uncertainty — a decision, a found node, a check with its level named (graph or world) | will: `visarjana` or `virodha` (refusal); `addressed_by` doesn't end it; `upeksha` = accepted as is |
 | `prati-paksha` (counter-thesis) | an evaluative decision: accepted, transformed or declined | will: as `samshaya` |
-| `hint` (a transformation's seed) | edited in place to what stands now, each agent clearing what it finished; ended by the coordinator at acceptance | will: as `samshaya` |
+| `hint` (a transformation's seed) | edited in place to what stands now, each agent clearing what it finished; ended at the transformation's acceptance — prepared by the foreman and architect pair, accepted by the user; no pair, by whoever organises the acceptance | will: as `samshaya` |
 | `risk` | first repair the touched deed or add a mitigating kriya; a `grundsatz` invariant only per `methods/design.md`, 3b; acceptance is the owner's act or their authority given beforehand (prepare, address, record what they said). `addressed_by` / `realized_as` are informational: a risk that happened (`realized_as` → the state of affairs) is not ended, and is worse than an open one | will: live in `virodha`; only `visarjana` ends it; `upeksha` = accepted, alive as a record |
 | `vyabhichara` (counterexample) | a repair that removes the defect, or a refined rule | ontic: present while `vartamana`; ended by `atita` (fixed), `vikalpa` (never was — only with `badhita`), `nashta` (gone with its carrier) or `visarjana`; `upeksha` at `vartamana` = accepted (owner's decision) |
 | `hetu-dosha` (grounding defect) | correcting or withdrawing the argument | ontic: as `vyabhichara` |

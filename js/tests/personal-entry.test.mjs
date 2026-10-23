@@ -18,12 +18,18 @@ const texts = Object.fromEntries(
   Object.entries(files).map(([key, path]) => [key, readFileSync(join(root, path), "utf8")]),
 );
 const cases = [
+  ["the address is always mind", "mind", "**The personal graph's address is always `mind`**"],
   [
-    "owned mind uses the API link",
+    "no handle, no built or stored address",
     "mind",
-    "Take the `personal_mind` item's `artifact.ref` verbatim",
+    "never ask for a handle, build a full address or store one",
   ],
-  ["foreign mind is no fallback", "mind", "Someone else's accessible `mind` never substitutes"],
+  ["the reference addresses mind the same way", "reference", "The address is always `mind`"],
+  [
+    "onboarding addresses mind the same way",
+    "onboarding",
+    "The personal graph's address is always `mind`",
+  ],
   ["refusal is not absence", "mind", "An access or transport failure proves no absence"],
   ["missing role is not missing realm", "reference", "missing roles alone mean the graph exists"],
   [
@@ -67,7 +73,7 @@ const cases = [
     "reference",
     "Only a record demonstrated by its creation history to be a locator or progress marker is a cleanup candidate",
   ],
-  ["home carries the ownership fork", "home", "Someone else's accessible `mind` never substitutes"],
+  ["home carries the address rule", "home", "**The personal graph's address is always `mind`**"],
 ];
 
 function checkClause(text, key, clause) {
@@ -87,7 +93,10 @@ for (const [name, key, clause] of cases) {
   });
 }
 
-const stale = /@<?handle>?\/mind|\*\*stub at|\b(?:features\.)?items\[key=personal_mind\]/;
+// The personal graph is addressed as `mind` itself (graph @nks/nks-dev, node #2109): no
+// placeholder standing for a looked-up link, no link recipe, no "someone else's mind" fork.
+const stale =
+  /@<?handle>?\/mind|\*\*stub at|\b(?:features\.)?items\[key=personal_mind\]|<personal graph>|artifact\.ref|foreign `?mind|Someone else's accessible `mind`/;
 function checkRecipes(text, key) {
   assert.doesNotMatch(text, stale, key);
 }
@@ -100,6 +109,10 @@ test("negative controls reject the old address and redirect recipe", () => {
     'realm="@handle/mind"',
     "leave a **stub at the personal address",
     "features.items[key=personal_mind]",
+    "verstak_orient(realm=<personal graph>)",
+    "Take the `personal_mind` item's `artifact.ref` verbatim",
+    "Never fall back to a foreign mind.",
+    "Someone else's accessible `mind` never substitutes",
   ])
     assert.throws(() => checkRecipes(texts.mind + recipe, "mind"), { code: "ERR_ASSERTION" });
 });
