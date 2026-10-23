@@ -221,14 +221,16 @@ for (const file of FILES) {
   });
 }
 
-// A graph address has three forms — the bare slug, the full address with the owner's real
-// handle, rN — and the placeholder "owner" taken for a handle mints handles like owner-3
-// (graph @nks/nks-dev, nodes #8521, #8540): no word teaches @owner/slug as the address.
+// A graph address is the full address with the owner's real handle or rN; a bare name resolves
+// only to the caller's own graph (graph @nks/nks-dev, nodes #8200, #8677). The placeholder
+// "owner" taken for a handle mints handles like owner-3 (nodes #8521, #8540): no word teaches
+// @owner/slug as the address.
 test("the graph-address words name the full address from the listing, never the @owner placeholder", () => {
   const realm = STAND_TOOL.en.realm();
-  assert.match(realm, /\bslug\b/, realm);
+  assert.doesNotMatch(realm, /^Graph address: slug,/, realm);
   assert.match(realm, /the full address from verstak_realm\(action="list"\)/, realm);
   assert.match(realm, /\brN\b/, realm);
+  assert.match(realm, /a bare name only for a graph of your own/, realm);
   const unresolved = REALMS.en.unresolved("dev", "@x/dev");
   assert.match(unresolved, /did not resolve the graph "dev" to a full address/, unresolved);
   assert.match(unresolved, /or not once/, unresolved);

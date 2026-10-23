@@ -29,7 +29,7 @@ export const STAND_TOOL: Readonly<Record<Lang, StandToolWords>> = {
       `only sets the busyness line — no board, connect, register or knock; an empty status clears; the former ${tool("channel")}(action="status") is kept for compatibility. ` +
       "The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.",
     realm: () =>
-      `Graph address: slug, the full address from ${tool("realm")}(action="list"), or rN.`,
+      `Graph address: the full address from ${tool("realm")}(action="list") or rN; a bare name only for a graph of your own.`,
     karta: () =>
       "The agent's role (#N from AGENTS.md or the launch line). Needed to take a seat; for busyness on a held seat it may be omitted.",
     name: () =>
