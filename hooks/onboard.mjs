@@ -99,17 +99,35 @@ var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 var COVER = {
   /** The cover file in the session's directory. */
   file: "AGENTS.md",
-  /** The graph slot: the value starts with @owner/slug or rN. */
-  graph: "Graph",
+  /** The cover's forms by the repository's language: the one whose keys stand in the front matter is read. */
+  forms: {
+    en: {
+      /** The graph slot: the value starts with a full graph address (the owner's handle/slug) or rN. */
+      graph: "Graph",
+      /**
+       * The words that list equal working graphs in the graph slot ("@a/x or @b/y" is ambiguous); a
+       * graph after prose (a pointer to the methodology, "not used") is not a working one.
+       */
+      graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
+      /** The agent-role slot: the value starts with exactly one reference '#N "name"'. */
+      role: "Agent role",
+      /** The quotes around the name in the role reference: opening and closing (here the same character). */
+      roleQuotes: ['"', '"'],
+      /**
+       * Align's stamp in the cover file: "(verstak align: contract N, stamped …"; before the
+       * contract counter it read "(verstakify: contract DATE".
+       */
+      stamp: /\((?:verstak align:\s*contract\s*`?\d+`?\s*,\s*stamped|verstakify:\s*contract\b)/
+    }
+  },
   /**
-   * The words that list equal working graphs in the graph slot ("@a/x or @b/y" is ambiguous); a
-   * graph after prose (a pointer to the methodology, "not used") is not a working one.
+   * Another delivery's alignment stamp: a line starting "(<who>: contract N" — or the Russian
+   * word for contract, escaped below, for no Cyrillic stands in this repository — where who is
+   * not verstak's own ("verstak align:", the older "verstakify:"). Such a stamp without our
+   * own is another delivery's cover, even under the shared English keys; the same bracket inside
+   * a prose line is no stamp.
    */
-  graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
-  /** The agent-role slot: the value starts with exactly one reference '#N "name"'. */
-  role: "Agent role",
-  /** The quotes around the name in the role reference: opening and closing (here the same character). */
-  roleQuotes: ['"', '"']
+  stampShape: /^[\s*_]*\((?!verstak align:|verstakify:)[^()\n]*?:\s*(?:contract|\u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442)\s*`?\d+/m
 };
 
 // js/delivery/patterns/launch.ts
@@ -132,12 +150,7 @@ var REPO_SIGNS = {
    */
   startMark: /\bverstak skill\b[^.]*\bStart section\b/,
   /** The OpenCode rituals plugin align writes. */
-  rituals: ".opencode/plugins/verstak-rituals.js",
-  /**
-   * Align's stamp in the cover file: "(verstak align: contract N, stamped …"; before the
-   * contract counter it read "(verstakify: contract DATE".
-   */
-  stamp: /\((?:verstak align:\s*contract\s*`?\d+`?\s*,\s*stamped|verstakify:\s*contract\b)/
+  rituals: ".opencode/plugins/verstak-rituals.js"
 };
 
 // js/delivery/protocol.ts
@@ -289,6 +302,12 @@ ${line.trim()}`);
   }
   return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
+var formsIn = (pairs, cover) => Object.entries(cover.forms).filter(([, f]) => pairs.has(f.graph) || pairs.has(f.role));
+function stampOf(text2, cover = COVER) {
+  if (Object.values(cover.forms).some((f) => f.stamp.test(text2))) return "own";
+  return cover.stampShape.test(text2) ? "foreign" : null;
+}
+var hasForm = (pairs, cover = COVER) => formsIn(pairs, cover).length > 0;
 
 // js/shared/reposigns.ts
 var exists = (path) => {
@@ -336,17 +355,19 @@ function repoSigns(dir, harness, keys = REPO_SIGNS, cover = COVER) {
   if (root === null) return { root, cover: false, stamp: false, hooks, verdict: "outside" };
   const agents = text(join4(root, cover.file));
   const pairs = agents === null ? null : frontMatter(agents);
+  const stamped = agents === null ? null : stampOf(agents, cover);
   const signs = {
-    cover: !!pairs && (pairs.has(cover.graph) || pairs.has(cover.role)),
-    stamp: agents !== null && keys.stamp.test(agents),
+    cover: !!pairs && stamped !== "foreign" && hasForm(pairs, cover),
+    stamp: stamped === "own",
     hooks: {
       "claude-code": startHook(text(join4(root, keys.settings)), keys.startMark),
       opencode: exists(join4(root, keys.rituals))
     }
   };
-  const any = signs.cover || signs.stamp || signs.hooks["claude-code"] || signs.hooks.opencode;
+  const hooked = signs.hooks["claude-code"] || signs.hooks.opencode;
+  const any = signs.cover || signs.stamp || hooked;
   const complete = signs.cover && signs.stamp && (harness === null || signs.hooks[harness]);
-  const verdict = !any ? "invite" : complete ? "aligned" : "partial";
+  const verdict = stamped === "foreign" && !hooked ? "foreign" : !any ? "invite" : complete ? "aligned" : "partial";
   return { root, ...signs, verdict };
 }
 
