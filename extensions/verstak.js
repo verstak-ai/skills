@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.16.0";
+var VERSION = "3.17.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -386,7 +386,7 @@ function classifyOrigin(frame, myKarta) {
   const noAuthor = p.via === "room" && p.from_karta_seq == null && !p.from_standing;
   if (p.via === "platform" || p.auth === "none" || p.auth === "platform" || noAuthor)
     return "platform";
-  if (p.as_person === true) return "human";
+  if (p.from_person === true || p.as_person === true) return "human";
   if (p.from_karta_seq != null && p.user_karta_seq != null && p.from_karta_seq === p.user_karta_seq)
     return "human";
   if (myKarta != null && p.from_karta_seq != null && String(p.from_karta_seq) === String(myKarta))
@@ -413,22 +413,21 @@ function myRole(frame, fields) {
   const mine = str(frame.realm) || str(obj(frame.room).realm);
   return !theirs || !mine || theirs === mine;
 }
-function inviteMine(frame, kind) {
+function inviteMine(frame) {
   const fields = obj(obj(frame.line).fields);
   const target = after(str(obj(frame.line).key), "invite:");
   if (target && mineOf(frame).includes(target)) return true;
-  if (kind !== "invite") return false;
   const seat = Object.keys(obj(fields.standing)).length > 0 || !!str(fields.standing);
   const roleId = str(obj(fields.karta).id) || (seat ? "" : target);
   return (!target || target === roleId) && myRole(frame, fields);
 }
-function seatIs(frame, ...named) {
+function seatIs(frame, ...named2) {
   const myId = str(frame.to_standing_id);
   const myAddr = str(frame.to_standing);
   if (!myId && !myAddr) return null;
-  const id = named.map((v) => str(obj(v).id)).find(Boolean);
+  const id = named2.map((v) => str(obj(v).id)).find(Boolean);
   if (id && myId) return id === myId;
-  const addr = named.map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0]).find(Boolean);
+  const addr = named2.map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0]).find(Boolean);
   if (addr) return addr === myAddr;
   return id ? false : null;
 }
@@ -761,9 +760,9 @@ function roomKind(frame) {
     };
   const word2 = kind === "said" || kind === "body";
   const withheld = word2 && f.body_withheld === true;
-  const named = word2 ? wordSeats(f) : [];
-  const to = word2 ? named.map(addresseeOf).find(Boolean) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
-  if (to && (withheld || seatIs(f, ...named) === false)) {
+  const named2 = word2 ? wordSeats(f) : [];
+  const to = word2 ? named2.map(addresseeOf).find(Boolean) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
+  if (to && (withheld || seatIs(f, ...named2) === false)) {
     const counts = kind === "said";
     const pair = JSON.stringify([roomOf(f.room), author, to.addr[0]]);
     const id = need(counts ? values.entry_id : values.refers_to);
@@ -783,7 +782,7 @@ function roomKind(frame) {
     const mayI = !!myId && may.includes(myId);
     text += "; " + (mayI ? W3.closingMay(need(values.entry_id)) : W3.closingNot());
   }
-  const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? inviteMine(f, kind) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
+  const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? inviteMine(f) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
   const phase = pending ? "pending" : aborted ? "aborted" : null;
   return { kind, rule: phase ? "batch" : stack, words: text, author, phase, known: true };
 }
@@ -803,6 +802,13 @@ function seatOf(frame, kind) {
   const f = frame;
   if (kind === "ask" && byMe(f)) return false;
   return seatIs(f, ...seatsOf(f, kind));
+}
+var named = (v) => typeof v === "string" ? !!v : Object.keys(obj(v)).length > 0;
+function namesAddress(f, kind) {
+  const fields = obj(obj(f.line).fields);
+  const to = kind === "ask" ? obj(fields.to).standing : fields.to;
+  if (named(to) || named(f.addressee)) return true;
+  return (kind === "invite" || kind === "withdraw") && (named(fields.standing) || named(fields.karta));
 }
 
 // js/shared/addressed.ts
@@ -863,9 +869,10 @@ function addressedToMine(frame) {
     if (f.addressed === true || seat === true || seat === null && str(obj(obj(word2.line).fields).kind) === "important" || addressedWords.has(wordKeyOf(frame)))
       return true;
   } else if (
-    // A word to me, a reply to my record (#5954), marked important; a word in flight
-    // is remembered, since its body comes as a second phase without these marks.
-    seat === true || seat === null && (seatIs(f, f.in_reply_to_from) === true || str(f.said) === "important" || str(fields.kind) === "important")
+    // A word to me, a reply to my record without an address of its own (#5954, #6574),
+    // marked important; a word in flight is remembered, since its body comes as a second
+    // phase without these marks.
+    seat === true || seat === null && (seatIs(f, f.in_reply_to_from) === true && !namesAddress(f, rk?.kind ?? "") || str(f.said) === "important" || str(fields.kind) === "important")
   ) {
     if (rk?.phase === "pending") rememberWord(wordKeyOf(frame));
     return true;
@@ -874,7 +881,7 @@ function addressedToMine(frame) {
   if (closed && rk?.kind === "progress") return true;
   if (closed) f.closes_mine = closed;
   if (rk && ASK_CLOSERS.has(rk.kind) && f.addressed === true) return true;
-  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f, rk.kind);
+  if (rk?.kind === "invite" || rk?.kind === "withdraw") return inviteMine(f);
   if (rk && LOUD_KINDS.has(rk.kind)) return true;
   if (rk && (ASK_KINDS.has(rk.kind) || rk.kind === "retract") || askFromPerson(f)) return false;
   return (frame.origin ?? classifyOrigin(frame, str(f.karta_seq) || void 0)) === "human";
@@ -894,11 +901,11 @@ function eventKeyOf(frame) {
   return evOf(body.event_id);
 }
 var asText = (frame) => addressedToMine(frame);
-function deliveryKeys(frame, named = false) {
+function deliveryKeys(frame, named2 = false) {
   const id = typeof frame?.id === "string" ? frame.id : "";
   const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
   const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
-  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
+  return [id, mark && (named2 ? `c${mark}` : mark)].filter(Boolean);
 }
 function eventIn(frame, has) {
   const ev = frame ? eventKeyOf(frame) : "";
@@ -1851,8 +1858,8 @@ function findBridge() {
     if (!p) return;
     tried.push(p);
   };
-  const named = process.env[BRIDGE_PATH_ENV]?.trim();
-  push(named ? resolve3(named) : null);
+  const named2 = process.env[BRIDGE_PATH_ENV]?.trim();
+  push(named2 ? resolve3(named2) : null);
   try {
     push(packagedBridgePath());
   } catch {
