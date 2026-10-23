@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.1](https://github.com/verstak-ai/skills/compare/v3.17.0...v3.17.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* a bare graph name only for a graph of your own; full address or rN otherwise ([#230](https://github.com/verstak-ai/skills/issues/230)) ([4ca670f](https://github.com/verstak-ai/skills/commit/4ca670f21e74db8735e0273a015724146afb6712))
+
 ## [3.17.0](https://github.com/verstak-ai/skills/compare/v3.16.0...v3.17.0) (2026-10-23)
 
 
