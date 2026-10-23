@@ -100,6 +100,8 @@ const PRESENT = {
     'verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)',
     // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
     "the `personal_mind` sign must be present for this account",
+    "its `state` exactly `present` → one read",
+    "`unknown` means the session's credential can't reach your own",
     "below this project's rules",
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
