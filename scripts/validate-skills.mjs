@@ -150,9 +150,9 @@ function validateSkill(name, base = "skills") {
       // refusal takes down the whole plugin install, not just the one skill.
       // Its exact matcher is unknown (behaviour over prose), and no
       // description needs angle brackets, so ban them outright: write
-      // placeholders as @handle/mind, not @<handle>/mind.
+      // placeholders as @handle/slug, not @<handle>/slug.
       if (/[<>]/.test(rendered)) {
-        fail(where, "`description` contains `<` or `>` — the claude.ai plugin loader rejects XML-tag-shaped descriptions and the whole plugin install fails with it; write placeholders without angle brackets (@handle/mind, not @<handle>/mind)");
+        fail(where, "`description` contains `<` or `>` — the claude.ai plugin loader rejects XML-tag-shaped descriptions and the whole plugin install fails with it; write placeholders without angle brackets (@handle/slug, not @<handle>/slug)");
       }
     }
   }

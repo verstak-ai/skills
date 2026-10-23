@@ -95,7 +95,7 @@ Only for graphs designing external systems (not a methodology or customer journe
 1. **Put the work on a transformation** (above): `anga` to an existing one first; else a new one at `chanda`, proposed to the owner.
 2. **Stage the flow**: staged delivery (test → staging → full) is ONE delivery transformation whose stages are sub-transformations (`anga`) ordered by `anantara`, each gathering its kriyas — the owner reads it as the release plan.
 3. **Work runs in a case**: `verstak_case(action="at", node=<transformation>)`; none → `open_room` on the transformation's (or stage's) write.
-4. **Set the work by reference** (`methods/architect.md`, step 5) — addressed to the `adhikarin` stewarding the holon (`steward` arrow) or the owner at strategic scale, never a `pratibimba`. Order comes from `anantara` and happens-before, not a list.
+4. **Set the work by reference** (`methods/lead.md`, `The assignment contract`; the specification kriya — `methods/architect.md`, step 5) — addressed to the `adhikarin` stewarding the holon (`steward` arrow) or the owner at strategic scale, never a `pratibimba`. Order comes from `anantara` and happens-before, not a list.
 5. **Vimarshas only for what outlives the work** — a risk, a question of substance, an obligation to future actors — `posed_to` and anchored where the addressee orients (`methods/inquiry.md`, §1); one whose resolution moves the transformation is also its `anga`. A one-off task → door, `One-off task`.
 6. **The transformation's seed** (`methods/writing.md`, Decision 5).
 7. Check vimarshas still calling and the holon's cases (`verstak_case(action="at", node=<holon>)`).

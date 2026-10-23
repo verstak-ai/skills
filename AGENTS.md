@@ -23,8 +23,6 @@
 'Reality — source': 'derived'
 'Layout': 'code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844'
 'Layout — source': 'derived'
-'Cross-project memory': 'personal mind via the minding method — no stored address, global instructions file or memory directory'
-'Cross-project memory — source': 'derived: template default'
 'Feedback reflection': 'yes — default'
 'Feedback reflection — source': 'derived: template default'
 'Workflow-suite interop': 'none'
@@ -115,7 +113,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 
 ## Project structure
 - `skills/verstak/SKILL.md` — **source of truth**, one skill (`verstak`); the door selects plain Markdown methods.
-- `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `minding`, `onboarding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `writing`).
+- `skills/verstak/methods/*.md` — methods list (`align`, `architect`, `assembly`, `assistant`, `autonomous`, `code-work`, `collaborate`, `design`, `entry`, `establish-mcp`, `feedback`, `foreman`, `inquiry`, `intake`, `integrity`, `lead`, `minding`, `onboarding`, `product-roadmap`, `reality-audit`, `reconcile`, `weaving`, `writing`).
 - `skills/verstak/references/*.md`, `skills/verstak/templates/*` — supporting material without frontmatter. `templates/agents-template.md` + `methods/align.md` bootstrap other repos; this file is this repo's own config — don't confuse them.
 - `skills/verstak/scripts/verstak-bridge.mjs` — the stdio↔https OAuth bridge with its daemon, watchdogs and doctor; `skills/verstak/scripts/opencode-plugin.js` — the OpenCode plugin. Both derived from `js/`, never edited by hand.
 - `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (product names and the skill layout, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs`, the dev toolchain (`package.json`, lockfile, `tsconfig.json`, eslint, prettier).
@@ -176,6 +174,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **OpenCode rituals are not wired**: no `.opencode/plugins/verstak-rituals.js` yet, so an OpenCode session here gets no start message, memory guard or push and merge reminders. `js/tests/reposigns.test.mjs` pins this repository as OpenCode-partial; wiring the plugin flips that assertion in the same commit.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `5`, stamped `2026-10-22` — re-run when the installed
+*(verstak align: contract `6`, stamped `2026-10-23` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*

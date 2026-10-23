@@ -15,7 +15,7 @@ The door selects methods for reading, writing, designing and weaving through the
 | Method | What it does |
 |---|---|
 | `align` | Bootstrap or refresh a repo's agent contract. |
-| `architect` | Hold cross-cutting design and acceptance together. |
+| `architect` | Hold the system's form across holons: contracts, integrity, decisions for the owner. |
 | `assembly` | Discern transformations and assemble the map. |
 | `assistant` | Bring the person's agenda and decisions together. |
 | `autonomous` | Work on a live channel through integration. |
@@ -25,10 +25,11 @@ The door selects methods for reading, writing, designing and weaving through the
 | `entry` | Orient, search and deepen in a realm. |
 | `establish-mcp` | Reach the graph through the shipped stdio-to-HTTP OAuth bridge. |
 | `feedback` | Record reproducible experience about the method and tools. |
-| `foreman` | Coordinate a crew of doers. |
+| `foreman` | Coordinate a crew of doers: waves, tasking, acceptance control. |
 | `inquiry` | Anchor, resolve, park or close an open question. |
 | `intake` | Bring external word into the graph. |
 | `integrity` | Trace a transformation's impact and dependencies. |
+| `lead` | Lead a case: set work by references, accept by a run, hand over, close with evidence. |
 | `minding` | Recall and record user facts in their personal graph. |
 | `onboarding` | Lead a person with no working graph to working on their own, one step at a time. |
 | `product-roadmap` | Derive product directions from verified ground and GitHub issues. |
