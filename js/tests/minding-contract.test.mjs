@@ -25,6 +25,7 @@ const FILES = {
 // Each distinction, by a short phrase at its file.
 const PRESENT = {
   minding: [
+    '**Read or write it only once the `personal_mind` sign of `verstak_me(action="readiness")` shows this account\'s own graph present**',
     // personal vs project on the same topic
     "a working preference stays theirs even when its topic is development",
     "Subject and ownership pick the home, not the topic",
@@ -86,6 +87,7 @@ const PRESENT = {
     "no new lesson is owed",
     "A finished area is the other occasion.",
     'carries `attrs` `{"slice":"agents"}`',
+    "used only once the `personal_mind` sign shows this account's own graph present",
   ],
   door: [
     "before writing it, **whose fact?**",
@@ -96,6 +98,8 @@ const PRESENT = {
     // the start slice: a root session only, one read, below the project's rules
     "**The personal slice — only a root session talking to the user**",
     'verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)',
+    // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
+    "the `personal_mind` sign must be present for this account",
     "below this project's rules",
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
@@ -152,6 +156,9 @@ const RETIRED = [
   "- **Cross-project memory** — template default",
   "(`methods/align.md`, Step 1, Cross-project memory)",
   "Both key to the **question, not the session**: an aligned repository",
+  // a bare `mind` taken as always the account's own, with no readiness gate (main bd7f390)
+  "the platform resolves it to the current account's personal graph",
+  "it resolves to the current account's personal graph",
 ];
 
 function read(root) {
