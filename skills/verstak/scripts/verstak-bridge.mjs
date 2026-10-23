@@ -161,7 +161,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.17.0";
+var VERSION = "3.17.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -958,7 +958,7 @@ var STAND_MOVES = {
 var STAND_TOOL = {
   en: {
     description: () => `[bridge] Take a standing in one call: the bridge reads the board, derives the name (machine.repo.model), takes the seat (connect and register; only register if this bridge already holds the socket), with room knocks a join frame into the user's seat by the full address from the wire (a repeat — only repeat_knock=true, once, no sooner than 2 minutes) and returns the name, the watchdog command, the number of waiting frames and the knock receipt. Read the role queue with ${tool("orient")}(focus=role) on entry and when occasion calls; frames go to the addressee and case participants. A seat in another graph stands beside on the same channel (register): the session hears all its graphs, and a write in each is signed by that graph's seat. Then — start the watchdog with the command from the reply and wait. It is also the busyness move: on a seat this bridge already holds, a call with realm and status (karta and name — the same or omitted; with model, room or take it is a seat-taking and a check) only sets the busyness line — no board, connect, register or knock; an empty status clears; the former ${tool("channel")}(action="status") is kept for compatibility. The bridge executes the tool; if it is not in the session, the tools go past the bridge or the bridge is an old build (doctor will say), stand by the verstak skill's collaborate method.`,
-    realm: () => `Graph address: slug, the full address from ${tool("realm")}(action="list"), or rN.`,
+    realm: () => `Graph address: the full address from ${tool("realm")}(action="list") or rN; a bare name only for a graph of your own.`,
     karta: () => "The agent's role (#N from AGENTS.md or the launch line). Needed to take a seat; for busyness on a held seat it may be omitted.",
     name: () => "Your own half of the standing's name; without it machine.repo.model is derived — the model from the model parameter.",
     room: () => "The user's seat address @handle:name (the user's window gives it); the bridge knocks a join there to stand beside the user.",
