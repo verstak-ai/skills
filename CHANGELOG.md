@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.2](https://github.com/verstak-ai/skills/compare/v3.17.1...v3.17.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* a root session that finds personal memory missing provides it before reading the slice ([#232](https://github.com/verstak-ai/skills/issues/232)) ([f3a2faf](https://github.com/verstak-ai/skills/commit/f3a2faf40c39a9ce8dc7222473bac007fedea7ac))
+
 ## [3.17.1](https://github.com/verstak-ai/skills/compare/v3.17.0...v3.17.1) (2026-10-23)
 
 
