@@ -50,6 +50,18 @@ export interface HoldRecord {
    * its latest (case №954); `at` only says the record is alive.
    */
   stoodAt?: number;
+  /**
+   * Keys of earlier builds' records of this seat, whose graph was written as rN or a bare slug
+   * (holdcanon.ts); one key as a string, several as a list.
+   */
+  formerKey?: string | string[];
+}
+
+/** A record's earlier keys, its own key aside. */
+export function formerKeysIn(rec: HoldRecord | null | undefined, key = ""): string[] {
+  const f = rec?.formerKey;
+  const all = Array.isArray(f) ? f : f ? [f] : [];
+  return [...new Set(all.filter((k) => typeof k === "string" && k && k !== key))];
 }
 
 /** Record lifetime: the idle time the platform grants a socketless place. */
@@ -149,6 +161,7 @@ export function writeHoldRecord(
           (was?.url === rec.url && was.session === session ? was.provisional : undefined),
         base: B.get(key) ?? rec.base ?? was?.base ?? baseOnDisk(key) ?? undefined,
         stoodAt: S.get(key) ?? rec.stoodAt ?? was?.stoodAt,
+        formerKey: rec.formerKey ?? was?.formerKey,
         at,
       }) + "\n",
     );
@@ -189,6 +202,14 @@ export function readHoldRecord(key: string, anyAge = false): HoldRecord | null {
     return null;
   }
 }
+/**
+ * The key an earlier build gave this seat, its graph written as rN or a slug (holdcanon.ts):
+ * that build's watchdog and thin bridge still know the seat by it.
+ */
+export function formerKeysOf(key: string): string[] {
+  return formerKeysIn(readHoldRecord(key, true), key);
+}
+
 /** Hold records under this name for any role; the caller judges the graph. */
 export const holdRecordsNamed = (name: string): HoldRecord[] =>
   holdRecordsWhere((r) => r.name === name);

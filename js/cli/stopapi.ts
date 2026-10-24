@@ -5,6 +5,8 @@ import { randomUUID } from "node:crypto";
 import { ensureAuth } from "../bridge/auth.ts";
 import { CFG } from "../bridge/config.ts";
 import { errorMessage } from "../bridge/errors.ts";
+import { canonIn, realmIndexOf } from "../bridge/realmindex.ts";
+import { apiRealm, OWN_REALM } from "../bridge/realms.ts";
 import { loadStore } from "../bridge/store.ts";
 import { STOP_CLI, type StopCliWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
@@ -61,12 +63,38 @@ async function ask(
   return { status: res.status, text: (await res.text().catch(() => "")).slice(0, 300) };
 }
 
+/**
+ * The seat's graph as the api reads it (case №1571 [82]–[89]): no rN, and a bare slug reaches
+ * only the caller's own graph — so both go as @owner/slug from the api's graph list; one the
+ * list does not resolve, or a list that does not answer, leaves rN as its number; such a slug —
+ * null: the api would read it as the caller's own graph, so nothing is sent.
+ */
+async function realmForApi(base: string, token: string, realm: string): Promise<string | null> {
+  const t = realm.trim();
+  if (!t || t.startsWith("@") || t === OWN_REALM) return t;
+  try {
+    const res = await fetch(`${base}/realms?limit=200`, {
+      headers: { authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    const body = res.ok ? ((await res.json()) as { items?: unknown }) : null;
+    const listed = Array.isArray(body) ? body : body?.items;
+    const canon = Array.isArray(listed) ? canonIn(realmIndexOf(listed), t) : null;
+    if (canon) return canon;
+  } catch {
+    /* the list did not answer: the number below */
+  }
+  return /^r\d+$/i.test(t) ? apiRealm(t) : null;
+}
+
 /** The order (or the revoke) and its outcome in words; true — the seat goes. */
 export async function stopSeat(p: PlaceSnapshot, id: string, base: string, token: string) {
   const seat = `${p.name} (${p.realm})`;
   const at = `${base}/standings/${encodeURIComponent(id)}`;
   try {
-    const order = await ask(`${at}/stop`, "POST", p.realm, token, {
+    const realm = await realmForApi(base, token, p.realm);
+    if (realm === null) return { ok: false, said: sw().unnamedGraph(seat, p.realm) };
+    const order = await ask(`${at}/stop`, "POST", realm, token, {
       reason_code: "person_request",
       client_id: `stop-${randomUUID()}`,
     });
@@ -85,7 +113,7 @@ export async function stopSeat(p: PlaceSnapshot, id: string, base: string, token
       return { ok: false, said: sw().signIn(CFG.serverUrl, `401 ${order.text}`) };
     if (order.status !== 404)
       return { ok: false, said: sw().refused(seat, "stop", order.status, order.text) };
-    const revoke = await ask(at, "DELETE", p.realm, token);
+    const revoke = await ask(at, "DELETE", realm, token);
     if (revoke.status >= 200 && revoke.status < 300) return { ok: true, said: sw().revoked(seat) };
     if (revoke.status === 410) return { ok: true, said: sw().gone(seat) };
     return { ok: false, said: sw().refused(seat, "revoke", revoke.status, revoke.text) };

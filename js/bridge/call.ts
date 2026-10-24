@@ -42,14 +42,17 @@ export function leadsOtherPlace(realm: unknown, karta: unknown, name: unknown): 
   return sameKarta && n === (s.name ?? "") ? null : (beside ?? led);
 }
 
+/** The graph list's text (the realm tool's action="list"); a refusal — null. */
+export async function realmList(): Promise<string | null> {
+  const r = await callTool(tool("realm"), { action: "list" });
+  return r.isError ? null : r.text;
+}
+
 /** Resolves the call's and the led seats' realms to @owner/slug with one realm list. */
 export async function resolveAgainstLed(realm: unknown): Promise<void> {
   const prim = state.standing;
   if (!prim || !ledKey() || String(realm ?? "").trim() === prim.realm) return;
-  await resolveRealms([realm, prim.realm, ...state.places.map((p) => p.realm)], async () => {
-    const r = await callTool(tool("realm"), { action: "list" });
-    return r.isError ? null : r.text;
-  });
+  await resolveRealms([realm, prim.realm, ...state.places.map((p) => p.realm)], realmList);
 }
 
 /** Realms of the led seats, canonical where known. */

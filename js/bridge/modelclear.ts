@@ -8,7 +8,7 @@ import { standingIdIn } from "./hold.ts";
 import { H } from "./holdstate.ts";
 import { headers, TIMEOUT_MS } from "./orderack.ts";
 import { satelliteWithoutModel } from "./placefields.ts";
-import { canonRealm } from "./realms.ts";
+import { apiRealm } from "./realms.ts";
 import { log } from "./streams.ts";
 
 /** A register that clears a model it is not given; kept() — the clearing refused, said aloud. */
@@ -38,7 +38,7 @@ export async function clearSeatModel(realm: string): Promise<string | null> {
   try {
     const res = await fetch(`${apiBase(url)}/standings/${encodeURIComponent(id)}`, {
       method: "PATCH",
-      headers: { ...headers(), "x-nks-realm": canonRealm(realm) },
+      headers: { ...headers(), "x-nks-realm": apiRealm(realm) },
       body: JSON.stringify({ model: null }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

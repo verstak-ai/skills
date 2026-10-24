@@ -9,7 +9,13 @@ import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { harnessName } from "./client.ts";
 import { type ChannelEvent, Door, type DoorHooks } from "./door.ts";
-import { dropHoldRecord, keyOf, readHoldRecord, writeHoldRecord } from "./holdrecord.ts";
+import {
+  dropHoldRecord,
+  formerKeysOf,
+  keyOf,
+  readHoldRecord,
+  writeHoldRecord,
+} from "./holdrecord.ts";
 import { handoverReason } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
 import { canonRealm, learnRealm, sameRealm } from "./realms.ts";
@@ -101,11 +107,9 @@ export function addExtra(
   extras.set(key, place);
   writeRecord(place, ch);
   standingLog(`held ${key} beside the channel`);
-  besideWord({
-    kind: "beside",
-    key,
-    place: { realm: s.realm, karta: String(s.karta), name: s.name ?? "" },
-  });
+  const seat = { realm: s.realm, karta: String(s.karta), name: s.name ?? "" };
+  // A thin bridge of an earlier build knows the seat by its earlier key: its loss is lifted by it.
+  for (const k of [key, ...formerKeysOf(key)]) besideWord({ kind: "beside", key: k, place: seat });
   return key;
 }
 
@@ -143,6 +147,7 @@ export function dropExtra(
   const p = extras.get(key);
   if (!p) return;
   extras.delete(key);
+  const former = formerKeysOf(key); // read before the record may go
   // Handed to the successor with the main seat (#7602): its record stays, its watchdog waits.
   const handover = !forget && !as ? handoverReason() : null;
   if (handover) {
@@ -162,7 +167,8 @@ export function dropExtra(
   }
   standingLog(`released ${key}: ${reason}${forget ? " (record dropped)" : ""}`);
   // A daemon change drops seats not by the agent's word: the thin bridge must remember them.
-  if (!handoverReason()) besideWord({ kind: "beside-gone", key, text: reason });
+  if (!handoverReason())
+    for (const k of [key, ...former]) besideWord({ kind: "beside-gone", key: k, text: reason });
 }
 
 export function dropAllExtras(reason: string, forget: boolean, own = false): void {
