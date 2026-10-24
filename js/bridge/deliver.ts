@@ -305,9 +305,14 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         return;
       }
       heldReply = null;
-      // One standing per bridge (graph @nks/nks-dev, node #5154); realms compared in one form (node #5838).
-      if (hasId && msg.method === "tools/call" && msg.params?.name === tool("channel"))
-        await resolveAgainstLed(msg.params.arguments?.realm);
+      const ch = msg.params?.arguments ?? {};
+      const onChannel =
+        hasId && msg.method === "tools/call" && msg.params?.name === tool("channel");
+      const takes = onChannel && ["connect", "mint", "register"].includes(String(ch.action));
+      // One standing per bridge (graph @nks/nks-dev, node #5154); realms compared in one form
+      // (node #5838); a seat-taking move goes as @owner/slug before any check (#8677, hearing.ts).
+      if (takes && ch.realm != null) ch.realm = await seatRealm(ch.realm);
+      else if (onChannel) await resolveAgainstLed(ch.realm);
       // A satellite bridge moves only its own .sub-N seat.
       const satWord =
         hasId && msg.method === "tools/call" && msg.params?.name === tool("channel")
@@ -326,16 +331,8 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         emit(cross);
         return;
       }
-      // Taking an owner-role seat by a raw channel move needs the human's word (owner.ts).
-      const ch = msg.params?.arguments ?? {};
-      const takes =
-        hasId &&
-        msg.method === "tools/call" &&
-        msg.params?.name === tool("channel") &&
-        ["connect", "mint", "register"].includes(String(ch.action));
-      // Own seat's realm in its own spelling; a seat another session hears is not taken
-      // raw (graph @nks/nks-dev, node #6706).
-      if (takes && ch.realm != null) ch.realm = await seatRealm(ch.realm, ch.name);
+      // Taking an owner-role seat by a raw channel move needs the human's word (owner.ts); a
+      // seat another session hears is not taken raw (graph @nks/nks-dev, node #6706).
       const notOwner = takes
         ? ((await ownerRefusal(ch.realm, ch.karta)) ?? (await rawSeatRefusal(msg)))
         : null;

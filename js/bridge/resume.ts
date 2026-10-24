@@ -25,6 +25,7 @@ import {
   rememberStatus,
   resumeStanding,
 } from "./hold.ts";
+import { canonHoldRecords } from "./holdcanon.ts";
 import { signHeldRecord } from "./holdkeep.ts";
 import {
   type HoldRecord,
@@ -223,6 +224,7 @@ export async function resumeBy(
   register = true,
   takeOwn = false,
 ): Promise<ResumeOutcome> {
+  await canonHoldRecords(); // an earlier build's record of rN or a bare slug returns as @owner/slug (#8677)
   const { own: recs, sameDir, legacy: legacyRecs, left, neighbour, stale } = recordsFor(sel);
   // A keyed seat older than the session's other record: a journal line and the outcome (refused),
   // no word into the session — a child's return is silent, its end is said to the parent (#6628).

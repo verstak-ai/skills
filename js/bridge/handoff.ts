@@ -8,6 +8,7 @@ import { words } from "../shared/lang.ts";
 import { socketPathOf, spoolFilePathOf } from "../shared/standings.ts";
 import { CFG } from "./config.ts";
 import { type ChannelEvent } from "./door.ts";
+import { formerKeysOf } from "./holdrecord.ts";
 import { E, liveWhenFree } from "./holdstate.ts";
 import { type Place, strayOf } from "./places.ts";
 import { closeSpool, drainSpool, HANDOFF_MS, openSpool, spoolFrame } from "./spool.ts";
@@ -93,10 +94,12 @@ export function takeSpool(
   primary: () => Place | null,
   feed: (raw: string, frame: Frame | null) => void,
 ): void {
-  drainSpool(spoolFilePathOf(CFG.authDir, key), (raw, frame) => {
-    const p = primary();
-    if (!p || !sayStray(raw, frame, p)) feed(raw, frame);
-  });
+  // A leaving daemon of an earlier build spooled under the record's earlier key (holdcanon.ts).
+  for (const k of [...formerKeysOf(key), key])
+    drainSpool(spoolFilePathOf(CFG.authDir, k), (raw, frame) => {
+      const p = primary();
+      if (!p || !sayStray(raw, frame, p)) feed(raw, frame);
+    });
 }
 
 /** A frame of a seat the bridge does not hold becomes a note to the doer; false — a held seat's. */

@@ -151,6 +151,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
       return done(true);
     }
   }
+  realm = await seatRealm(realm); // @owner/slug before any server call (#5838, #8677; hearing.ts)
   // The owner's role — only on the human's word (owner.ts, #6550 p.2).
   const notOwner = await ownerRefusal(realm, karta);
   if (notOwner) return (lines.push(notOwner), done(true));
@@ -167,7 +168,6 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const derived = asked || sat ? "" : (fitted?.name ?? "");
   let name = asked || sat?.name || (auto ? provisional.name(derived) : derived);
   const base = sat ? "" : name; // base of a seat beside: the derived or explicit name (#6706)
-  realm = await seatRealm(realm, name); // one graph form (#5838); own seat keeps its spelling (hearing.ts)
   karta = seatKarta(realm, karta, name); // "agent" — the own seat's role, before any check (hearing.ts)
   // The bridge already stands on a separate seat of this name — go there (#5407); take=true calls the name itself.
   const led0 = state.standing && !otherRealm(state.standing.realm, realm) ? state.standing : null;

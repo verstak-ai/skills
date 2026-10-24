@@ -11,10 +11,11 @@ import { words } from "../shared/lang.ts";
 import { sessionCwd } from "../shared/scope.ts";
 import { standingsDirOf } from "../shared/standings.ts";
 import { type Board, type BoardEntry, listens, nameOf, readBoard } from "./board.ts";
-import { type AskedHearing, callTool as call, resolveAgainstLed } from "./call.ts";
+import { type AskedHearing, callTool as call, realmList, resolveAgainstLed } from "./call.ts";
 import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
 import { doors, holdsStanding, isParked, ledKey, localSocketPathOf, wasEvicted } from "./hold.ts";
+import { canonHoldRecords } from "./holdcanon.ts";
 import {
   type HoldRecord,
   holdRecordsNamed,
@@ -24,7 +25,7 @@ import {
 } from "./holdrecord.ts";
 import { H } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
-import { resolveRealms, sameRealm } from "./realms.ts";
+import { canonicalRealm, sameRealm } from "./realms.ts";
 import { localSocketAlive } from "./sweep.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -53,21 +54,17 @@ export function seatKarta(realm: unknown, karta: unknown, name = ""): string {
 export const unresolvedAgent = (karta: string, what: string): string | null =>
   karta !== "agent" ? null : words(HEARING).unresolvedAgent(what);
 
-/** The seat's graph in the spelling of led seats or hold records of this name, so a seat keeps one key. */
-export async function seatRealm(given: unknown, asked: unknown): Promise<string> {
+/**
+ * The seat's graph as @owner/slug before any connect or register (graph @nks/nks-dev,
+ * decision #8200, inquiry #8677): a bare name reaches only the caller's own graph, so the
+ * seat keeps one key in one form. "mind" and a name the graph list does not resolve go as given.
+ */
+export async function seatRealm(given: unknown): Promise<string> {
   const realm = typeof given === "string" ? given.trim() : "";
-  const name = normName(asked);
-  const known = [
-    ...[state.standing, ...state.places].flatMap((p) => (p ? [p.realm] : [])),
-    ...(name ? holdRecordsNamed(name).flatMap((r) => (r.realm ? [r.realm] : [])) : []),
-  ];
+  if (!realm) return realm;
+  await canonHoldRecords(); // an earlier build's record of rN or a bare slug — to @owner/slug first
   await resolveAgainstLed(realm); // graphs compare in one @owner/slug form (graph @nks/nks-dev, node #5838)
-  if (!realm || !known.length || known.includes(realm)) return realm;
-  await resolveRealms([realm, ...known], async () => {
-    const r = await call(tool("realm"), { action: "list" });
-    return r.isError ? null : r.text;
-  });
-  return known.find((r) => sameRealm(r, realm)) ?? realm;
+  return canonicalRealm(realm, realmList);
 }
 
 /** A board row is this seat: same name and role (a sentinel matches any role). */

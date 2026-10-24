@@ -22,6 +22,7 @@ import { Backlog } from "./backlog.ts";
 import { CFG } from "./config.ts";
 import { closeServerKeeping, stampOf, unlinkOwned, writeOwned } from "./doorfiles.ts";
 import { marksOf } from "./fanout.ts";
+import { formerKeysOf } from "./holdrecord.ts";
 import { countOnly, emitBatch, RoomBatch } from "./roomstack.ts";
 import { StaleBurst } from "./stale.ts";
 import { log } from "./streams.ts";
@@ -126,9 +127,17 @@ export class Door {
   // Captured from the opening session's scope: the door may be closed from another scope (daemon exit).
   private readonly authDir: string;
   private readonly serverUrl: string;
+  /**
+   * The seat's earlier keys (holdcanon.ts): an earlier build's watchdog, alive across the
+   * daemon change, attaches by such a key's socket path. No .key file: a watchdog without
+   * a key would read two seats.
+   */
+  private readonly aliases: string[];
+  private aliasServers: { path: string; srv: Server; stamp: string | null }[] = [];
 
   constructor(key: string, hooks: DoorHooks) {
     this.key = key;
+    this.aliases = key === ENV_KEY ? [] : formerKeysOf(key);
     this.hooks = {
       onAttach: bindScope(hooks.onAttach),
       lateEvent: bindScope(hooks.lateEvent),
@@ -197,52 +206,49 @@ export class Door {
       this.clients.delete(sock);
       if (this.clients.size === 0) this.idleAt = Date.now();
     };
-    const srv = createServer(
-      bindScope((sock: Socket) => {
-        this.clients.add(sock);
-        this.idleAt = null;
-        sock.on("close", () => gone(sock));
-        sock.on("error", () => gone(sock));
-        this.hooks.onAttach();
-        // Replay only ring frames no local client has delivered yet (the delivering client
-        // marks them; the file is reread), so a re-armed watchdog never hands the same ring
-        // twice; frames held in a room batch come with it; a tact superseded later in
-        // the ring is folded and marked by the bridge (#6569).
-        const folded = foldedTacts(this.ring.map((r) => r.frame));
-        for (const f of folded) if (f.id) noteSeen(this.seenPath, String(f.id), this.seen);
-        const waiting = this.ring.filter(
-          ({ frame }) =>
-            frame?.type !== "message" ||
-            (!folded.has(frame) &&
-              !this.marks(String(frame.id ?? "")) &&
-              !this.roomBatch.holds(frame)),
-        );
-        const msgs = waiting.flatMap(({ frame }) => (frame?.type === "message" ? [frame] : []));
-        const kept = new Set<Frame | null>(splitBatch(msgs, Infinity, this.marks).kept);
-        const backlog = waiting.filter(({ frame }) => frame?.type !== "message" || kept.has(frame));
-        sock.write(
-          JSON.stringify({
-            kind: "attached",
-            key,
-            buffered: backlog.length,
-            seen: this.seenPath,
-          } satisfies ChannelEvent) + "\n",
-        );
-        // Case entries not addressed to the seat go first as one counted batch (#6574):
-        // one by one the watchdog would take them for a wake.
-        const counts = backlog.filter((h): h is { raw: string; frame: Frame } =>
-          countOnly(h.frame),
-        );
-        const put = (ev: ChannelEvent): void => void sock.write(JSON.stringify(ev) + "\n");
-        if (counts.length) emitBatch(counts, put);
-        for (const { raw, frame } of backlog) {
-          if (!countOnly(frame)) put({ kind: "frame", raw, frame });
-        }
-        // Seat taken and the watchdog re-armed: silence would read as hearing.
-        const late = this.hooks.lateEvent();
-        if (late) sock.write(JSON.stringify(late) + "\n");
-      }),
-    );
+    const onClient = bindScope((sock: Socket) => {
+      this.clients.add(sock);
+      this.idleAt = null;
+      sock.on("close", () => gone(sock));
+      sock.on("error", () => gone(sock));
+      this.hooks.onAttach();
+      // Replay only ring frames no local client has delivered yet (the delivering client
+      // marks them; the file is reread), so a re-armed watchdog never hands the same ring
+      // twice; frames held in a room batch come with it; a tact superseded later in
+      // the ring is folded and marked by the bridge (#6569).
+      const folded = foldedTacts(this.ring.map((r) => r.frame));
+      for (const f of folded) if (f.id) noteSeen(this.seenPath, String(f.id), this.seen);
+      const waiting = this.ring.filter(
+        ({ frame }) =>
+          frame?.type !== "message" ||
+          (!folded.has(frame) &&
+            !this.marks(String(frame.id ?? "")) &&
+            !this.roomBatch.holds(frame)),
+      );
+      const msgs = waiting.flatMap(({ frame }) => (frame?.type === "message" ? [frame] : []));
+      const kept = new Set<Frame | null>(splitBatch(msgs, Infinity, this.marks).kept);
+      const backlog = waiting.filter(({ frame }) => frame?.type !== "message" || kept.has(frame));
+      sock.write(
+        JSON.stringify({
+          kind: "attached",
+          key,
+          buffered: backlog.length,
+          seen: this.seenPath,
+        } satisfies ChannelEvent) + "\n",
+      );
+      // Case entries not addressed to the seat go first as one counted batch (#6574):
+      // one by one the watchdog would take them for a wake.
+      const counts = backlog.filter((h): h is { raw: string; frame: Frame } => countOnly(h.frame));
+      const put = (ev: ChannelEvent): void => void sock.write(JSON.stringify(ev) + "\n");
+      if (counts.length) emitBatch(counts, put);
+      for (const { raw, frame } of backlog) {
+        if (!countOnly(frame)) put({ kind: "frame", raw, frame });
+      }
+      // Seat taken and the watchdog re-armed: silence would read as hearing.
+      const late = this.hooks.lateEvent();
+      if (late) sock.write(JSON.stringify(late) + "\n");
+    });
+    const srv = createServer(onClient);
     srv.on("error", (e) => {
       this.listenError = e.message;
       this.hooks.onError(words(DOOR).listenFailed(e.message));
@@ -273,6 +279,31 @@ export class Door {
       }),
     );
     this.server = srv;
+    for (const alias of this.aliases) this.listenAlias(socketPathOf(authDir, alias), onClient);
+  }
+
+  /** One more path to the same door: an earlier key's socket, clients and ring shared. */
+  private listenAlias(path: string, onClient: (sock: Socket) => void): void {
+    if (process.platform !== "win32") {
+      if (dirname(path) === shortSocketDir() && privateDirProblem(dirname(path))) return;
+      try {
+        unlinkSync(path);
+      } catch {}
+    }
+    const a = { path, srv: createServer(onClient), stamp: null as string | null };
+    a.srv.on("error", (e) => log(`earlier key's door ${path} not up: ${e.message}`));
+    a.srv.listen(
+      path,
+      bindScope(() => {
+        if (process.platform !== "win32") {
+          try {
+            chmodSync(path, 0o600);
+          } catch {}
+        }
+        a.stamp = stampOf(path);
+      }),
+    );
+    this.aliasServers.push(a);
   }
 
   flushBatches(): void {
@@ -312,6 +343,15 @@ export class Door {
     // A socket not up yet (no stamp) is closed as is.
     if (process.platform === "win32" || !this.stamps.sock) shut();
     else closeServerKeeping(this.socketPath, this.stamps.sock, shut);
+    for (const a of this.aliasServers.splice(0)) {
+      const end = (): void => {
+        try {
+          a.srv.close();
+        } catch {}
+      };
+      if (process.platform === "win32" || !a.stamp) end();
+      else closeServerKeeping(a.path, a.stamp, end);
+    }
     unlinkOwned(keyFilePathOf(this.authDir, this.key), this.stamps.key);
     this.stamps = { key: null, sock: null };
     if (!this.persistent) {

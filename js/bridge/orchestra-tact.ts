@@ -18,6 +18,7 @@ import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
+import { realmIndexOf } from "./realmindex.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
 /** The raised door's own cap (#6010): ?limit ≤ 200. */
@@ -80,16 +81,7 @@ async function resolveRealms(
   if (!token) return { unresolved: short[0], why: "no key to the server" };
   const listed = itemsOf(await getJson(base, token, `/realms?limit=${LIMIT}`));
   if (!listed) return { unresolved: short[0], why: "realm list is not a list" };
-  const canonById = new Map<number, string>();
-  for (const it of listed) {
-    const x = it as { short_id?: unknown; slug?: unknown; owner_handle?: unknown };
-    if (
-      typeof x.short_id === "number" &&
-      typeof x.slug === "string" &&
-      typeof x.owner_handle === "string"
-    )
-      canonById.set(x.short_id, `@${x.owner_handle}/${x.slug}`);
-  }
+  const canonById = realmIndexOf(listed).byShort;
   const out: string[] = [];
   for (const r of realms) {
     if (!isShort(r)) {
