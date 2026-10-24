@@ -168,7 +168,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.17.2";
+var VERSION = "3.17.3";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1952,14 +1952,14 @@ var reinit = scoped(() => ({ inFlight: null }));
 // js/bridge/backlog.ts
 var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 
-// js/bridge/roomstack.ts
-var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
-
 // js/bridge/holdrecord.ts
 var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 var S2 = scoped(() => /* @__PURE__ */ new Map());
 var H = scoped(() => ({ session: null }));
 var B = scoped(() => /* @__PURE__ */ new Map());
+
+// js/bridge/roomstack.ts
+var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 
 // js/bridge/sweep.ts
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
