@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.3](https://github.com/verstak-ai/skills/compare/v3.17.2...v3.17.3) (2026-10-24)
+
+
+### Bug Fixes
+
+* **bridge:** sync core 9f3ec06d — seat graph canonical before register ([#234](https://github.com/verstak-ai/skills/issues/234)) ([a097fd6](https://github.com/verstak-ai/skills/commit/a097fd685c264494999703118a9393d166a93817))
+
 ## [3.17.2](https://github.com/verstak-ai/skills/compare/v3.17.1...v3.17.2) (2026-10-23)
 
 
