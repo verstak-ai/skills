@@ -23,6 +23,20 @@ for (const [index, { event, command }] of commands.entries()) {
   });
 }
 
+test("source push envelope: shell quoting preserves the published JSON", () => {
+  const source = readFileSync(join(root, "skills/verstak/references/align-hooks.md"), "utf8");
+  const block = source.split("## Push reminder envelope")[1]?.match(/```json\n([\s\S]*?)\n```/);
+  assert.ok(block, "the source must provide its shell-safe push envelope");
+  const envelope = JSON.parse(block[1]);
+  const run = spawnSync("/bin/sh", ["-c", `echo '${JSON.stringify(envelope)}'`], {
+    encoding: "utf8",
+  });
+  assert.equal(run.status, 0, run.stderr);
+  assert.deepEqual(JSON.parse(run.stdout), envelope);
+  assert.equal(envelope.hookSpecificOutput.hookEventName, "PostToolUse");
+  assert.match(envelope.hookSpecificOutput.additionalContext, /review tier/);
+});
+
 const push = commands.find(({ command }) => command.includes("A push shipped nothing"));
 
 for (const [command, stdout, expected] of [

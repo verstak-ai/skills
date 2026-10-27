@@ -67,7 +67,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 ## Code conventions
 - Graph references in code: `(graph <graph name>, node #N)`. `<where they don't belong: readers without graph access>`
 - `<naming / imports / banned patterns + why — only what the linter doesn't enforce>`
-- **Test discipline**: `<unit | +integration | +e2e; coverage threshold for production>`; `<affected modules/direct compositions and content-based result reuse — or "not yet", with the batch closing it or the grounded exception in Local overrides>` (`methods/code-work.md`, `Tests and CI`).
+- **Test discipline**: `<unit | +integration | +e2e; coverage threshold for production>`; `<affected modules/direct compositions and content-based result reuse — or "not yet", with the batch closing it or the principal-granted exception and scope in Local overrides>` (`methods/code-work.md`, `Tests and CI`).
 - `<tracked secrets: skip-worktree; never git add -A>`
 
 ## What to update when
