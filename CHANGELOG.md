@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.18.0](https://github.com/verstak-ai/skills/compare/v3.17.3...v3.18.0) (2026-10-27)
+
+
+### Features
+
+* adopt batch review and CI discipline in align contract 7 ([#236](https://github.com/verstak-ai/skills/issues/236)) ([4ddd521](https://github.com/verstak-ai/skills/commit/4ddd52152aa5aa990fd3ad374ec5fa0f63757236))
+* **home:** full verstak catalogue in home/ — every skill but product-roadmap ([#238](https://github.com/verstak-ai/skills/issues/238)) ([32dfd87](https://github.com/verstak-ai/skills/commit/32dfd876367817b2f4616f8e5d534459ab56ebb5))
+
+
+### Bug Fixes
+
+* **home:** door contract line, home preface, verbatim fences, live pointers in onboarding ([#239](https://github.com/verstak-ai/skills/issues/239)) ([45567aa](https://github.com/verstak-ai/skills/commit/45567aa59ad9586dccfae4b2851ccd2f82bde59e))
+
 ## [3.17.3](https://github.com/verstak-ai/skills/compare/v3.17.2...v3.17.3) (2026-10-24)
 
 
