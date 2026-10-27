@@ -1,0 +1,185 @@
+---
+name: autonomous
+description: "The agent's own watch cycle in an aligned repository: work only on a signal — the user's word, an agent's message, a vimarsha posed to the role, an event in reality — one piece of work to handover, dependants addressed, the next wake armed. Triggers: 'stand watch', 'you're on duty', 'work on your own', 'take it to merge'; an autonomous session start with an agent role in AGENTS.md. Needs the verstak_* tools."
+---
+
+# autonomous — the agent's own watch cycle in an aligned repository
+
+**Use when:** a signal reaches the agent role AGENTS.md names — the user's word, an agent's message or `posed_to` vimarsha arriving as a frame, an event in reality (red CI, a watchdog line, a failed probe); an autonomous session starts in an aligned repository; a transformation needs driving; the user says "stand watch", "you're on duty", "work on your own". Work starts only on a signal, never from the inbox alone.
+
+**Grounding:** the watch declares cause and focus, measures the delta, takes one piece of work to handover, addresses dependants and arms the next wake-up. A round changes the graph, code or an observed result; a message reports it. Taking work only on a signal is this delivery's product rule (`verstak`, `Communication`).
+
+The agent is the **agent role** from AGENTS.md (a `karta`), steward of the repository's holon. Its **inbox** is the `posed_to` vimarshas; its **channel** brings work now rather than next round. **The watch** is the cycle it runs itself, from the arrival that woke it to the merge that closes it — asking about what isn't its to decide, never about what is.
+
+**Two rounds.** The **duty round** is cheap and frequent: wake, see what changed, decide, sleep. The **work round** is expensive and rare: grasp, mark, ship, relay, integrate, weave, close.
+
+**The decision, weaving and integration stay with the watch; the volume goes to subagents, and the watch checks the result** (`verstak`, `Work goes to subagents`). **Waits are not the watch's either:** CI, a build, a tag, a rollout are waited on in the background — the harness's background task or a subagent — never by a blocking poll in your own turn. A turn spent waiting hears nothing: frames and the user's word queue behind it.
+
+**Count a stage by an outside sign**, not an inside one ("connected", "reported"):
+
+| Stage | Outside sign |
+|---|---|
+| On watch | a real message reached your user, or their seat's reply carried the bridge's header |
+| Looked around | you read the whole board listing, not just your line |
+| Took work on a signal | the intent is marked on nodes (§2c), a subagent launched, or a question was recorded |
+| Worked a round | a node, an arrow, a mode change, a commit or a probe result exists — a message alone is not one |
+| Reported | it landed in the addressee's case or inbox |
+| Accepted advice | checked against the node's neighbourhood and tensions; decision and question are in the graph |
+| Shipped | the graph caught up (§4), not just "merged, CI green" |
+
+A stage you add names what it leaves outside. Every exit (waiting, failure, context death) leaves repo and graph fit for a fresh session to enter through the transformation map, the inbox and the artifact. **Measure a round by how fast whoever waits on you is unblocked.**
+
+## Graph, case and the transformation's seed
+
+Where things live: `verstak`, `Cross-cutting norms`. Taken work lives on nodes (§2c), a subagent's work in its assignment's case (§3); a case whose goal is met: you lead it → `propose_close`; else the evidence to its lead as an `ask` card (`verstak`, `Waiting on an answer`). Conversation is not acceptance: the witness looks at the world on its carrier. A doer's explanation does not attest the result.
+
+**The transformation's seed is a pointer, not a log** (**writing**, Decision 5); a growing seed calls for checking the unit of continuation — whether part of the transformation has its own subject and continuation. No transformation → find what the work moves (`lens="bianhua"`); none → ask the owner (§5). The seed is closed at the transformation's acceptance: the foreman and architect pair planning it prepares that (**foreman**, `The transformation's plan in waves`), the user accepts; no pair → whoever organises the acceptance.
+
+## 0 · Going on watch — announce, look around, get on the channel
+
+| Wake mode | Who wakes you | Cadence | When there's nothing |
+|---|---|---|---|
+| `channel` | a frame to its addressee and the case's participants | per event | check the seat hears, arm a bounded fallback, sleep |
+| `sleep-poll` | you | 5–10 min in a wave; longer when nobody waits | sleep again |
+| interactive | the user | — | end the turn with a change if a signal came, a word about your standing if not |
+
+**Focus**: the role's signals, one transformation (§2b), or one holon. Never guess mode or focus: a named transformation → it; work just shipped → its holon; a live chat, no timers → interactive; else ask in one line. `sleep-poll` needs self-scheduled re-invocation, `channel` whatever the harness listens to the socket with (**collaborate**, `Choosing the watchdog`); neither → interactive.
+
+No agent role (`verstak`'s `Start`) → **align** instead.
+
+**Launched with no request and no frame — stand and wait**: seat held, one message to the user — where you stand, and that you take no work without a signal. Exception: `verstak`'s `Alignment` step.
+
+### Silence is a mandate to assemble
+
+Without a request, a frame or a `posed_to`, don't patrol the field or put out tensions one by one: a mass of homogeneous lines is one thing not yet distinguished. Read `verstak_orient(realm, lens="tensions", focus=<watch holon>, verbose=true)` — always with `focus`; it folds lines on a shared neighbour into a mass line (or spot the shared cause node yourself). Bring the user **one** question about the top mass (**assembly**, agenda); its vimarsha on the cause (to its holon's steward, else the graph owner) is written on the user's word, unless one stands. Nothing to bring → say nothing.
+
+### Debts at three moments
+
+Going on watch, the platform's periodic wake-up, the user asking. Only your own: the queue from `verstak_orient(focus=<role>)`; `verstak_case(action="mine")` and `read`; earlier seats (`verstak_channel(action="list", realm, karta=<role>)`, your "machine.repo" prefix, no satellites) with `mine` and `standing` each; **the role's cases** from its board `verstak_orient(lens="board", focus=<role>)`, section "Cases": one marked `lead_gone` or `ownerless` is a role case nobody leads, and it is yours whichever seat opened it (an earlier session name, a satellite, another person under the same role); one with a live sibling as lead is theirs; your own `partial` line "on the owner…" or "on <role>…" with no `ask` card is a mute request nobody receives — post the card (§5) or drop the line; the forge CLI `AGENTS.md` names (`gh`, `fj`, …): branch without PR, PR without merge, merges since the last release tag. To the user: a short list (what, on whom, how long) when asked, else only on change. The platform's word that a case overloads the context is a move of §3, not a debt. A debt is visible, not blocking.
+
+**An abandoned role case is worked through and closed, not hoarded.** Join (joining a case without a lead makes you its lead), `read` its summary (one key's `history` only as an addressed audit on a named doubt, **entry**, `Re-entering during work`) and answer four questions: what the ledger shows that holds outside this case → the node it touches (**writing**), judging decisions by what was known then, not by the outcome; nothing → say so in a line; done but the graph doesn't know → catch the graph up (**reconcile**); not done and not in the graph → a vimarsha or the transformation's map. Then `propose_close` with the evidence: what remains lives in the graph, not the case. Another role's open line is not yours to close — call its role. Leaving yourself, hand the lead over or propose closing (`verstak`, `Case laws`), or your case becomes the next `lead_gone`.
+
+### Get on the channel
+
+`verstak`'s `Start`, steps 2 and 6; not through → fixing the channel is the round (**collaborate**). The user's seat counts only once a reply returns carrying the bridge's header: knock again (`repeat_knock=true`) after two minutes, then ask the user to open the chat. Arm a bounded fallback wake-up in every mode.
+
+## 1 · Duty round — cheap by construction
+
+1. **Wake reason.** Declare cause, wake mode and focus; read the waking frame first, fetch its node when acting. A case message off subject goes back to its author.
+2. **`stale` means inherited, not old — not addressed to your seat but the role's, so yours to work**: queued for another seat (a predecessor, a sibling who left) or for the role before your seat existed; skip what was answered since. The role inherits, not the name: what reached the previous socket isn't resent — read the predecessor's cases themselves: `verstak_case(action="mine", standing=<the former seat>)`, then `read`; cases you rejoin yourself.
+3. **Measure changes since the last round, within the focus**: a node → `verstak_orient(focus=<node>)` and its arrows; otherwise the message. No full inbox or graph read. Track unframed answers and reality's events (after handing off CI, a probe or release, arm a listener).
+4. **Debts by event**: your merge or push → §4, and the debt list updates.
+5. **The whole board** (`verstak_channel(action="list", realm)`): your liveness, and a neighbour stuck on your surface who didn't ask.
+6. **Only a signal is a reason to act.** A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → `verstak`'s `Alignment` step. No reason → arm the wake-up and sleep.
+
+No weaving, no reporting, no assessment — the case summary shows the last recorded moves, not what they mean (**architect**, step 1). **An empty duty round is a success.**
+
+## 2 · Work round — on a signal
+
+**The round's product is a move in the graph, the code or the check**: a node marked or moved in its modes, an arrow with its `sense`, a vimarsha posed or answered, a commit, a probe result. A case message reports a move; it is never the move. A reason existed and none of these happened → **a failed round, in any mode**, however many messages it sent; orienting is the entry price, not a lap to repeat. **Self-check:** `verstak`, `The method fails in five ways`, 1.
+
+Check tasking (§2a), then the table. **One work per round, brought to handover.** A related **cluster** is one branch, one PR. Given the queue, read it once and declare the order, work others await first.
+
+**Fetch, don't recall** contract, merge state, deployed surface: untouched this round, you only remember them.
+
+| Verdict | Move |
+|---|---|
+| in mandate, actionable, unblocked | mark it (§2c); delegate by references where useful, check the changed nodes yourself (`verstak`, `Work goes to subagents`) |
+| out of mandate | escalate (§5); take the part that needs no one's decision |
+| underspecified | a precise question to whoever set it, in that case; a substantive one as a vimarsha with "Answered when" |
+| blocked | **probe the blocker with one live call** — untouched, it is usually stale. Survives → name its actor; their answer you wait on as a card, work you hand them as a `say` (`verstak`, `Waiting on an answer`, `One-off task`) |
+| the question is wrong | supersede it (**inquiry**) and answer the right one |
+
+**A start is made, not announced**: a turn ending in a plan without a change failed. "If you don't mind" is only for the irreversible — then a recorded question **plus** work on what it doesn't touch.
+
+**Record every refusal**: an assignment's in a message with the reason, a vimarsha's by an edit. Several bounces → the owner role (§5).
+
+## 2a · Grasp before you take
+
+**Read the task by its references, not the brief's text**: the reference standard, "Answered when", touched phenomena and kriyas, the transformation and its telos. Strike the text — do you still know what to build, how to check it, whom it touches? No → ask which nodes should stand. Text and nodes disagree → nodes win. **The tasking names how reality checks it** — carrier and probe, a negative one included; if not, ask.
+
+A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: **lead**, `Closing`).
+
+Read the item in context (`verstak_orient(focus=<node>)`, then its arrows) and hold five things before taking it: **where it integrates** and who else is on that surface; **what changes**, before and after (can't say it → not grasped); **where the risk is** and how loudly it breaks; **anything irreversible** (§3's sanction gate); **which transformation it moves** (`verstak_orient(lens="bianhua", focus=<N>)`). Ask for what's missing, don't infer it (**collaborate**, `Exchange`); a well-specified item may still belong to another mandate.
+
+**Integration starts with the graph** (**integrity**, mode 0); the adjacent surface's agent reviews interface, spec and report. **A scouting brief orders the graph first** — node bodies, questions including ended ones, what was decided and rejected — **then code**; the report names the nodes read.
+
+## 2b · Focus: driving a transformation
+
+- **Map first**: `verstak_orient(lens="bianhua", focus=<N>)` — telos, `anga` drivers, touched holons. An unfinished `anantara` predecessor blocks it: raise that.
+- **Anga is not a queue**: one in another holon gets a vimarsha in *their* inbox; an unassigned one in yours, name to the user. Pose a question the telos needs and attach it by `anga`.
+- Arrival: every anga discharged or accepted as is (named to the owner), integration merged, required claims checked. **Closing is the owner's acceptance**: propose it with verdicts.
+
+## 2c · Mark the intent — before work leaves the graph
+
+Before the first change outside the graph, record **the transitions the work will make** (the task stays in the case): ontic `anagata`, epistemic at most `anumita`, volitive `chanda` (`adhimoksha` only where the owner said so — record their words in `reasoning`); a kriya only for a repeatable transition; a volitional one as `anga` to the transformation (**writing**, **design**).
+
+Mark what you're about to do, not the whole design; an act you can't state as a transition isn't understood yet. A graph written after the act can't be wrong, so it carries no knowledge; unmarked work gets duplicated or waited on. Telos, scope, a new transformation go to the owner (§5).
+
+## 3 · Work and relay
+
+Defect → fix and tests per AGENTS.md's gates; question → **inquiry**; design → **design**; graph repair → **weaving**. The repository's ritual is law; merge your own PR only with AGENTS.md's sanction. A PR in review isn't mirrored as a vimarsha unless it blocks someone's anga.
+
+**Delegate with a case and a launch line** (`verstak`, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N from <your seat>`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
+
+**The subagent's seat**: `verstak`'s `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` or `searcher` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`align-delegation`, "Bridge didn't come up: run `doctor` first").
+
+**Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
+
+**Work by reference splits graph responsibility.** Set by another agent (architect, foreman) as references to an area in modes of intent, yours are the seed, the delivery modes on the area's nodes (`anagata→vartamana`, `anumita→pratyakshita`) as far as your evidence goes, and the outcome as a message; weaving, ending by axis and reconciling are the task-setter's unless finding and updating touched nodes was explicitly assigned to you — then do those updates and the task-setter checks them. Work on the user's word or a reality signal isn't split. **The architect asks you to check its model of your holon** → answer each claim "implemented / diverges / not observed" with its carrier; a divergence you fix in your own part of the graph in the same move (reconciling your area); your code is not handed over.
+
+**Stitch the relay. Down**: each dependant gets the delta (what changed, what is possible), by kind — a question of substance or a continuing commitment as a vimarsha on the exact node, `posed_to` their role; a one-off request as a `say` to their seat in the related case — with the grounds, where they live, and the mandate's boundary. Mentioning someone is not addressing them; a receipt is not reading, understanding or accepting. **Up**: an answer you wait on is a card, your own unfinished state a line on your key (`verstak`, `Waiting on an answer`, `Ledger`); across holons, for substance or a commitment, a vimarsha anchored in their territory **and** `posed_to` them. **A case overloading the context** → answer with a move in the same round, no separate wake-up (`verstak`, `Case laws`; leading it — **lead**).
+
+A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run the change; shared and production surfaces stay out.
+
+**Before anything closes as "verified" — `reality-audit`**, by a separate subagent (a product rule for acceptance; an exploratory probe needs none). `provisional`, `contradicted` or `blocked` on a required claim keeps it open unless the owner accepted an exception; *Ceiling* classes are never `verified`.
+
+### Carry it to integration
+
+**Work ends at integration, not at the commit.**
+
+- **Open the branch and PR yourself**, unasked; subagents carry commits, `push`, PR and merge are the watch's.
+- **Review first** (a subagent against the gates); a non-blocking finding goes in the same move into a node (a vimarsha) or is released in words with the reason — as a case line it won't survive. Then readiness in the case as a delta; integration work also gets an interface review from the adjacent surface's agent.
+- **Built isn't rolled out** until production shows the marker. **Take the merge signal yourself**; after it: §4, a delta to the neighbour whose ground shifted, `pull`, cleanup.
+
+**The right to merge is granted**: by the case lead in a shared case, by relay vimarshas across holons, by `anantara` across transformations. Merge once what you wait on is discharged; tell those below.
+
+**Branch hygiene.** Before pushing, `git merge-base --is-ancestor origin/main HEAD`; not a descendant → rebase now. A second branch touching what the first moved → wait or fold them together.
+
+## 4 · Closing the work round
+
+- **Not closed until the graph caught up**, in the same move as the merge; until then nobody proposes closing the case; once it has, the lead proposes closing in that same move — you, if you lead; else the evidence to the lead as an `ask` card (**lead**, `Closing`). Waiting on someone else's release or rollout doesn't hold the case open: the commitment already stands in a node or the seed. No round closes over an unmerged branch without the wait named.
+- An answered vimarsha: `addressed_by`, then release by its answer condition and kind (**inquiry**); what changed the next judgment, if anything, goes where §6 there says.
+- **Reconcile the marking with what shipped**: each §2c node gets modes as far as the evidence goes (**reality-audit**) and a body matching what was built; diverged → the artifact wins and the node says so.
+- **Shipped something substantial → check its transformation's telos** (**assembly**, `Telos check and re-assembly`): by the telos, not the parts count; the outcome goes to the owner as a card — you don't close it yourself.
+- **Weave the follow-through** (**weaving**): `verstak_orient(lens="tensions", focus=<touched holon>)` — close the cycles the change opened, `sense` on new arrows; address-class lines go to the agenda.
+- The push → graph ritual per AGENTS.md; arm the next wake-up before sleeping, then §1.
+
+**Handing over the watch — only on the user's word** ("close the watch", "hand over the post", "stand down"), in order:
+
+1. **Reconcile** (**reconcile**): true modes, remaining debts as vimarshas.
+2. **Hand over** in the seed and in the case: what was taken, promised to whom, open — and where the next one finds why: the decisions' grounds, the case against, what was outside your mandate (node numbers, not retelling).
+3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead by a card and its `ack` (**lead**, `Handing over the lead`) or stays lead on a deaf seat.
+4. **Leave the seat, last; don't remove it** (**collaborate**, `Stepping away`).
+
+Without the user's word there is no handover; a session's end is an absence.
+
+## 5 · Escalation
+
+Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per **collaborate**, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question, whether a person or an agent holds the mandate (`verstak`, `Waiting on an answer`) — no case → open one on the subject node.
+
+**A question doesn't end the round**: in the same turn continue with what the answer doesn't touch; three questions are three gates. All hangs on it → one list on the node, wake-up armed.
+
+**Report where the addressee looks** (`verstak`, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
+
+The owner's answer counts once woven in: `ack` it (`verstak`, `Waiting on an answer`), update the touched nodes (**writing**, Decision 1), carry the change through, end the question by axis — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — **collaborate**, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
+
+## Surviving context compaction
+
+Before a long stretch, mark (§2c) and leave pointers in the case (vimarsha, branch, what you checked, the decision-time grounds and limits the next session can't re-derive). After, trust graph and artifact over recollection; rerun any check whose evidence you can't point at.
+
+## Acceptance
+
+A duty round succeeded when it cost almost nothing and the next wake-up is armed. A work round succeeded when the graph, the code or a check moved: integrated, or held at a named gate with the wait recorded *before* sleeping; relayed, escalated, or left with a reason on the node. A second agent reading the graph first, then the cases, can tell what this one shipped, waits for and asks.
+
+**The round's end is a changed situation — name it:** merged → §4 in the same move; the case's subject answered → propose closing it (**lead**, `Closing`); a structural choice opened → **design**; the change spans surfaces → **integrity**; about to say "verified" → **reality-audit**; code and graph diverged → **reconcile**; nothing waits → duty round.
