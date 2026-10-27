@@ -87,14 +87,8 @@ const SKILLS = {
     rewrites: [
       ["from the door's Survey or from `methods/align.md`, without a separate call", "at session start or from the window's or bot's onboarding button, without a separate call"],
       ["help on the material that exists (`methods/entry.md`, then the method the task needs).", `help on the material that exists: ${READ_THE_GRAPH}.`],
-      [" (`references/align-harness-surfaces.md`)", ""],
-      [" (`methods/writing.md`, `methods/design.md`)", ""],
       ["restore access (`methods/establish-mcp.md`) and read again", "say the read failed and read again"],
-      ["Wire the ritual hooks of `methods/align.md`, Step 4, now", "Wire the repository's ritual hooks now"],
-      [" — byte for byte from `references/align-hooks.md`, `Initial form`", ""],
-      [", modes per `methods/writing.md`", ""],
       ["; from then on the door's seat rule holds.", "."],
-      ["`methods/align.md`, round 1 from step 2: the repository's holon", "The repository's holon"],
     ],
   },
   verstak: {
@@ -104,6 +98,7 @@ const SKILLS = {
     rewrites: [
       ["→ **product-roadmap**", "→ product-roadmap, a plugin-only method this catalogue does not carry"],
       ["and read the file it names in full.", "and load the skill it names, in full."],
+      ["# Verstak — the door\n", `# Verstak — the door\n\n> **In the conversation home.** The runtime gives you your seat: where a skill takes one (\`verstak_stand\`, \`register\`, a satellite), there is nothing to take — speak from the seat you have. Here there is no repository, shell or file access: align, code-work, establish-mcp's install and update, onboarding's harness branch and the Survey's repository checks describe what the user's own harness does — say so and offer the step there; never claim to run it.\n`],
       ["A **bold method name** is `methods/<name>.md` — read it, don't recall it.", "A **bold method name** is a skill of this catalogue — load it, don't recall it."],
     ],
   },
@@ -130,7 +125,7 @@ const SKILLS = {
   },
   collaborate: {
     description:
-      "Hold your role's seat, listen and talk in cases: a seat that stops hearing or speaking, authorless writes, a cut frame, leaving a seat; work beyond your mandate, another agent's answer, the user's choice, two agents about to build one thing. Triggers: 'I can't be heard', 'writes have no author', 'ask the other agent', 'this isn't my area', 'escalate to the owner', 'who owns this', 'don't both build it'. Needs the verstak_* tools.",
+      "Hold your role's seat, listen and talk in cases: a seat that stops hearing or speaking, authorless writes, a cut frame, leaving a seat; work beyond your mandate, another agent's answer, the user's choice, two agents about to build one thing. Triggers: 'I can't be heard', 'writes have no author', 'ask the other agent', 'this isn't my area', 'escalate to the owner', 'don't both build it'. Needs the verstak_* tools.",
   },
   design: {
     description:
@@ -247,6 +242,15 @@ const SKILLS = {
   },
 };
 
+// The door's contract sentence, which align, entry and the door read off the
+// description, carried into the home description from the plugin's own.
+const CONTRACT = (() => {
+  const m = /AGENTS\.md CONTRACT: \d+[^"]*/.exec(readFileSync(join(root, "skills", "verstak", "SKILL.md"), "utf8"));
+  if (!m) throw new Error("skills/verstak/SKILL.md: the description names no AGENTS.md CONTRACT");
+  return m[0].trim();
+})();
+SKILLS.verstak.description += " " + CONTRACT;
+
 const SOURCE_DIR = {
   door: join(root, "skills", "verstak"),
   methods: methodsDir,
@@ -296,6 +300,24 @@ const STEMS = new Set(
   ),
 );
 
+// Applies fn to the text outside fenced blocks: a fence is a verbatim artifact
+// (a hook, a role body align installs) and keeps its bytes.
+function outsideFences(text, fn) {
+  const parts = text.split(/^(?=[ \t]*(?:```|~~~))/m);
+  let fenced = false;
+  return parts
+    .map((part) => {
+      const opens = /^[ \t]*(?:```|~~~)/.test(part);
+      if (!opens) return fenced ? part : fn(part);
+      const [fenceLine, ...rest] = part.split("\n");
+      const wasFenced = fenced;
+      fenced = !fenced;
+      if (wasFenced) return fenceLine + "\n" + fn(rest.join("\n")); // a closing fence; the rest is outside
+      return part; // an opening fence and the fenced text up to the next fence line
+    })
+    .join("");
+}
+
 function render(name, spec) {
   const source = spec.source ?? "methods";
   const where = `${source === "door" ? "" : `${source}/`}${sourceFile(name, spec)}`;
@@ -313,12 +335,14 @@ function render(name, spec) {
   // A file named by path becomes the name load_skill opens: a method its bold
   // name, as the door writes it (in code inside bold text, which bold can't
   // nest); a reference or a template its name in code. The door is `verstak`.
-  body = body.replace(/`methods\/([a-z-]+)\.md`/g, (m, x, at) => {
-    const before = body.slice(body.lastIndexOf("\n", at) + 1, at);
-    return (before.split("**").length - 1) % 2 ? `\`${x}\`` : `**${x}**`;
+  body = outsideFences(body, (part) => {
+    part = part.replace(/`methods\/([a-z-]+)\.md`/g, (m, x, at) => {
+      const before = part.slice(part.lastIndexOf("\n", at) + 1, at);
+      return (before.split("**").length - 1) % 2 ? `\`${x}\`` : `**${x}**`;
+    });
+    part = part.replace(/`(?:references|templates)\/([a-z-]+)\.md`/g, "`$1`");
+    return source === "door" ? part : part.replace(/\b[Tt]he door\b/g, "`verstak`");
   });
-  body = body.replace(/`(?:references|templates)\/([a-z-]+)\.md`/g, "`$1`");
-  if (source !== "door") body = body.replace(/\b[Tt]he door\b/g, "`verstak`");
   let fenced = false;
   body.split("\n").forEach((line, i) => {
     // A fenced block is a verbatim artifact (a hook, a file); its text is not a pointer.
