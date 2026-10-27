@@ -10,7 +10,16 @@ Each hook's `command` echoes an envelope; mind the nesting `event → array → 
 ```
 The run fills the four slots from the AGENTS.md frontmatter — the `Graph` slot's full address, each node slot its seq's digits only; no angle brackets or quotes remain. The first sentence asks for the skill by name so the door loads every session. No apostrophes (single-quoted `echo`).
 
+Every envelope is JSON nested in a shell string: a valid JSON string can still break the shell. For every hook using single-quoted `echo`, avoid apostrophes in message text or shell-escape them. Parse the assembled command with `/bin/sh -n` before installing it, then exercise its event fixtures and parse the emitted JSON: shell syntax alone can pass while quoting changes the output.
+
 **Initial form** (onboarding, before the role, holon and gate exist): the same envelope, with the `additionalContext` byte for byte `Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph <Graph>; no holon or roles yet. Continue the onboarding method from the first missing sign.` — one slot, the graph's full address. With it, the push and merge hooks below as they stand (they carry no slots) and the memory guard with its project graph filled; its personal branch goes through minding without a handle or a stored address. Spec-write waits. Align replaces this `SessionStart` entry with the full one above; a repeat of the initial form never overwrites a full entry.
+
+## Push reminder envelope
+
+Copy this envelope into the push command below. Repository-specific additions must preserve its shell quoting and pass the same parse and fixture checks.
+```json
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review)."}}
+```
 
 ## Push and merge: fire on the outcome, not the form
 `PostToolUse` entries with `"matcher": "Bash"`; gate: `jq -e '<filter>' >/dev/null && echo '<envelope>' || true`.

@@ -167,7 +167,7 @@ export default {
       }
       const tagsOnly = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new tag\])))/; // a release tag is not a branch for review
       const note = (ran(push, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/) && !tagsOnly.test(out)) || quiet
-        ? "[verstak] A push ships nothing: self-review the diff, run the vocabulary pass over the PR text, a finished branch gets its one light cold review."
+        ? "[verstak] A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review)."
         : ran("gh pr merge", "-h|--help|--auto|--disable-auto", /(Merged|Squashed and merged|Rebased and merged) pull request/) ||
             ran("fj pr merge", "-h|--help|--auto|--disable-auto", /Merged PR #/) || ((exit ?? 0) === 0 && pull.test(cmd))
           ? "[verstak] Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes."

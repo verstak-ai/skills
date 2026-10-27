@@ -36,7 +36,7 @@ No hand-written list of "shared surfaces" is needed: the repository's standing a
 ### 1. Name the input
 
 - **Before code:** the work's case and its opening (or the leading vimarsha), plus the kriyas, phenomena or rules the change embodies. Behaviour not in the graph → `methods/design.md` first: a scope can't be derived from a retelling of intent.
-- **In review:** the diff the review step names — a finished branch against trunk, or the tag candidate against the previous release — plus references to **every** graph node whose embodiment it changes. The diff doesn't replace the graph's connectivity; the author's retelling is not a reference.
+- **In review:** the tier and range named by `methods/code-work.md`, `Cold review` — a finished batch against its accepted base before merge; a small merged batch against its pre-merge base, not the current trunk; or the tag candidate against the previous accepted release. Skill-body reading takes the final candidate's bodies as well as that release diff. Include references to **every** graph node whose embodiment changes. The diff doesn't replace the graph's connectivity; the author's retelling is not a reference.
 - **Always:** the focus holon and its steward from `AGENTS.md` — the boundary, and the first address for whatever leads outward.
 
 ### 2. Derive the closure

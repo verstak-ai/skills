@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 6 — run /verstak align unprompted if a repo's stamp is below 6, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 7 — run /verstak align unprompted if a repo's stamp is below 7, a date, or missing."
 slash: true
 ---
 
@@ -39,8 +39,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `6`** (the description's number; **align**, `Contract`).
-   - **Stamp below `6`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `7`** (the description's number; **align**, `Contract`).
+   - **Stamp below `7`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
@@ -221,12 +221,12 @@ They apply unasked.
 |---|---|
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
-| about to write (`verstak_add_*`, `verstak_batch`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
+| about to write (`verstak_add_*`, `verstak_batch`, a `verstak_update` that rewrites or extends a body); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | a substantial result lands on a transformation, its child transitions are accepted, or its intent changed; the field of transformations overloads | a telos check, unasked: restore the promised quality and today's grounds; parts count, age and an "unfinished" warning call you to look, they don't decide; the outcome is the owner's card — **assembly**, `Telos check and re-assembly` |
-| the user corrects you or states a decision | update the touched deed and nodes, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
-| before a `git push` that opens or updates a PR | **code-work**, `Self-review`; `Cold review` once the branch is finished, the full one only on the tag candidate |
+| the user corrects you or states a decision | update the touched deed and nodes in the holon where the work runs, one thesis per node with arrows, not a new rule per word — **writing**, Decision 1; delegation: `Work goes to subagents` |
+| before a `git push` that opens or updates a PR | **code-work**, `Self-review`; choose the finished batch's tier in `Cold review` |
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | you opened a case by a write (`open_room`) or `talk`; you lead one — setting work, accepting, handing over the lead, closing | **lead** |
 | the case's subject is answered | close it — **lead**, `Closing` |

@@ -1,6 +1,6 @@
 # writing — how a node is written into the graph
 
-**Use when:** you are about to write a node (search first); a decision, a question of substance, a transition or knowledge surfaced in a case or chat; always before any `verstak_add_*` or a `verstak_batch` that creates nodes; the node type, `given_as` or modes are unclear. A single write counts. Phrases: "record this", "write this down", "add a node", "create a kriya", "put it in the graph". Out of failures 1 and 3 (the door, `The method fails in five ways`). Paths from goals: `design` (`methods/design.md`); repairing existing structure: `weaving` (`methods/weaving.md`).
+**Use when:** you are about to write a node (search first); a decision, a question of substance, a transition or knowledge surfaced in a case or chat; always before any `verstak_add_*`, a `verstak_batch` that creates nodes, or a `verstak_update` that rewrites or extends a body; the node type, `given_as` or modes are unclear. A single write counts. Phrases: "record this", "write this down", "add a node", "create a kriya", "put it in the graph". Out of failures 1 and 3 (the door, `The method fails in five ways`). Paths from goals: `design` (`methods/design.md`); repairing existing structure: `weaving` (`methods/weaving.md`).
 
 Future agents navigate by what you write. Five decisions, in order.
 
@@ -19,7 +19,7 @@ The gate never blocks a method's applying kriya with its phases as `contains` ch
 
 ## Decision 1: what changes — then which node type?
 
-**A correction or decision changes the deed, not the rulebook.** Find the existing nodes it touches: the kriya where the decision is taken, its carriers, phenomena and open vimarshas. Update their bodies, arrows and modes (will, ontic, epistemic) as the change in the world requires; several new nodes may be needed together — a kriya, its phenomenon, a vimarsha — but not one principle per word. A ban said in a case changes nothing: nobody meets it at the moment of acting. Delegating the update of many touched nodes: the door, `Work goes to subagents`. New nodes still pass the novelty gate.
+**A correction or decision changes the deed, not the rulebook.** Find the existing nodes it touches: the kriya where the decision is taken, its carriers, phenomena and open vimarshas. Update their bodies, arrows and modes (will, ontic, epistemic) as the change in the world requires; several new nodes may be needed together — a kriya, its phenomenon, a vimarsha — but not one principle per word. **Place**: the holon where the touched work runs — a search hit is a lead, not the place, and a shared canon is not edited by one repository's decision. **One thesis per node**: a thesis written into a body that has its own puller (a reader who would come for it alone) is its own node, linked by an arrow with `sense`. A ban said in a case changes nothing: nobody meets it at the moment of acting. Delegating the update of many touched nodes: the door, `Work goes to subagents`. New nodes still pass the novelty gate.
 
 | If it… | Type | Tool |
 |---|---|---|
