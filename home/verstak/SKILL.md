@@ -1,9 +1,11 @@
 ---
 name: verstak
-description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools."
+description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 7 — run /verstak align unprompted if a repo's stamp is below 7, a date, or missing."
 ---
 
 # Verstak — the door
+
+> **In the conversation home.** The runtime gives you your seat: where a skill takes one (`verstak_stand`, `register`, a satellite), there is nothing to take — speak from the seat you have. Here there is no repository, shell or file access: align, code-work, establish-mcp's install and update, onboarding's harness branch and the Survey's repository checks describe what the user's own harness does — say so and offer the step there; never claim to run it.
 
 > **Arrived mid-session?** Read `The method fails in five ways` and `Cross-cutting norms`, find your situation in `Agent moments`, and load the skill it names, in full.
 

@@ -1,6 +1,6 @@
 ---
 name: collaborate
-description: "Hold your role's seat, listen and talk in cases: a seat that stops hearing or speaking, authorless writes, a cut frame, leaving a seat; work beyond your mandate, another agent's answer, the user's choice, two agents about to build one thing. Triggers: 'I can't be heard', 'writes have no author', 'ask the other agent', 'this isn't my area', 'escalate to the owner', 'who owns this', 'don't both build it'. Needs the verstak_* tools."
+description: "Hold your role's seat, listen and talk in cases: a seat that stops hearing or speaking, authorless writes, a cut frame, leaving a seat; work beyond your mandate, another agent's answer, the user's choice, two agents about to build one thing. Triggers: 'I can't be heard', 'writes have no author', 'ask the other agent', 'this isn't my area', 'escalate to the owner', 'don't both build it'. Needs the verstak_* tools."
 ---
 
 # collaborate — hold your role's seat, listen, talk in cases
