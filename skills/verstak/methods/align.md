@@ -8,7 +8,9 @@ You produce `AGENTS.md` (read every session), `REALITY.md` (carriers, read befor
 
 Templates: `templates/agents-template.md` and `templates/reality-template.md`. Fill the `<…>` slots, drop optional rows that don't apply, strip every `<!-- … -->` note and angle bracket. The template carries **repository facts only**; its first paragraph loads the `verstak` skill, so even a harness without a start hook reaches the door. Generic code work (before code, reviews, after merge, working principles) is `methods/code-work.md`, read through the door: never project it into `AGENTS.md`.
 
-**Contract: `6`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+**Contract: `7`.** Step 7 stamps it into every `AGENTS.md`. Raise it by one only when a change here or in the templates makes an already generated file *wrong* (a section or file added, renamed or removed; a ritual changed; a tool name gone) — never for wording. The door's description carries the same number; a mismatch is a delivery defect (`methods/feedback.md`). A date, no stamp or a `verstakify: contract N` stamp ranks as the door's `Alignment` step says.
+
+From contract 6: the git and test rituals changed — one branch and PR per batch, review by the batch's tier, CI on the batch's PR and trunk, tests by the affected. Re-project `Git workflow` and `Test discipline` from the template; a line promising CI on every push, a light review on every finished branch, or a branch per item goes; a full gate kept where the method asks for selection stays only as a `Local overrides` line naming its measurement or the owner's word. Re-project the push hook's text (Step 4) and the `reviewer` role body (`references/align-delegation.md`) above `## This repo`.
 
 From contract 5: drop the cover's `Cross-project memory` slot and its source line — personal memory has no place in `AGENTS.md`.
 
@@ -98,8 +100,8 @@ Also settle:
 Per item: the strictest option for the stack, the trade-off in one line, the source per Step 1. A relaxation needs an accepted constraint calibrated by cost of breakage, recorded per tool; no grounds → a question of principle. **Tightening** a relaxed gate: measure first (run at the proposed strictness, count failures); it may go as a separate branch.
 - **Linter**, strictest (`@typescript-eslint/strict`; Ruff `E,F,B,I,N,UP,RUF`; broad `golangci-lint`; `clippy -- -D clippy::pedantic`).
 - **Formatter**, auto-fix (Prettier, `ruff format`, `gofumpt`, `rustfmt`); **type checker** strict (`tsc --strict`, `mypy --strict` / `pyright --strict`); all three in a pre-commit hook on staged files.
-- **Tests** (unit for libraries; + integration for services; + e2e for UI; coverage threshold for production) → "Code conventions".
-- **CI**: lint + type check + tests on every push, failing on warnings; mandatory for `production`.
+- **Tests** (unit for libraries; + integration for services; + e2e for UI; coverage threshold for production) → "Code conventions". Name how the gate runs only the affected modules and their direct compositions and reuses results by content (`methods/code-work.md`, `Tests and CI`); missing → say so in the slot, and a full run kept instead is a `Local overrides` line grounded in a measured CI cost or the owner's word, never assumed.
+- **CI**: lint + type check + tests on the batch's PR and on trunk, not on every branch push, failing on warnings; mandatory for `production`. Read the triggers from the CI yaml; don't write the slot from the rule.
 - **The gate is one call** (`npm run gate`, `make check`, `just check`); `AGENTS.md` names it, CI calls the same. A hand-assembled gate drops a step and still ends green; if unavoidable, record why and what checks its completeness.
 - **CI parity**: every check that can fail gates the PR (codegen, schema/doc generation, image build, migrations); an irreducible gap is a gotcha.
 
@@ -110,7 +112,7 @@ Per item: the strictest option for the stack, the trade-off in one line, the sou
 
 Claude Code: `.claude/settings.json`, committed. **Merge, never overwrite** — other suites' entries stay. Envelope, escaping and filters: **byte for byte from `references/align-hooks.md`**, tested on its samples — an undoubled backslash mutes a filter forever behind `|| true`. A harness flagging the write as self-modification: write anyway, name it, read back that it landed. The hooks:
 - **`SessionStart`** → load the `verstak` skill first, every session, before any action, and do the door's `Start` with the repo's addresses (graph, focus holon, agent and owner role seqs). Don't retell the start protocol.
-- **`PostToolUse`/Bash — push** (`git push` succeeded, by outcome) → a push shipped nothing: self-review with the vocabulary pass, then, on a finished branch, its one light cold review (`methods/code-work.md`).
+- **`PostToolUse`/Bash — push** (`git push` succeeded, by outcome) → a push shipped nothing: self-review with the vocabulary pass; choose the finished batch's review tier (`methods/code-work.md`, `Cold review`).
 - **`PostToolUse`/Bash — merge** (a forge merge merged the PR, or `git checkout main && git pull`) → the after-merge acts (`methods/code-work.md`, `After merge`); the message names its exception too (work tasked by another agent: seed and delivery modes only).
 - **`PreToolUse` `Write|Edit|MultiEdit|NotebookEdit` — memory guard**: a path in the project-memory directory → **block** (exit 2, routing message on stderr). Both harnesses' refusals name the project graph and this `AGENTS.md`'s persistence section, and route personal content through minding's entry without a personal address; a bare ban or a constructed mind locator is a projection defect.
 - **`PostToolUse` `Write|Edit` — spec-write** (full interop only): a design/spec-looking path → design is recorded in the graph.

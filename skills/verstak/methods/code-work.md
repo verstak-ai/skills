@@ -1,6 +1,6 @@
 # code-work — changing code in a repository aligned to a graph
 
-**Use when:** you are about to change code where `AGENTS.md` names a graph ("fix this", "implement", "refactor", "we've decided, do it") — before the first edit; a stage is done (gate green, a PR opened or updated); you are about to push; a PR merged ("merged", "shipped", "tidy after the merge"), or the session ends without one.
+**Use when:** you are about to change code where `AGENTS.md` names a graph ("fix this", "implement", "refactor", "we've decided, do it") — before the first edit; you write or run tests, or touch CI; a stage is done (gate green, a PR opened or updated); you are about to push; a PR merged ("merged", "shipped", "tidy after the merge"), or the session ends without one.
 
 ## Before code
 
@@ -14,7 +14,7 @@ Graph → integration scope → design → code. Task by references and a check;
 
 ## Branch and worktree
 
-- One branch until its merge, follow-ups included, in **its own worktree**, from a fresh trunk: `git fetch origin && git worktree add <dir> -b <branch> origin/main`. A `checkout` in the shared checkout wipes others' work.
+- **One branch and one PR per batch of changes** until its merge, follow-ups included, in **its own worktree**, from a fresh trunk: `git fetch origin && git worktree add <dir> -b <branch> origin/main`. Subagents' work and the batch's items merge into it locally; no branch or PR per item. A `checkout` in the shared checkout wipes others' work.
 - Pushed → the PR in the same move (draft if unfinished); watch the checks and the merge signal in the background, never by a blocking poll in your own turn; fix red in the branch.
 - After merge: `git worktree remove` yours, `git branch -d` merged branches, remove your temp files, `git pull` in the main checkout; confirm cleanup before the next task. Leave others' worktrees alone.
 
@@ -24,15 +24,28 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 
 ## Cold review
 
-- Self-review doesn't replace it: both, in this order.
-- Two steps, never per commit. An unfinished feature or an intermediate PR → self-review and the gate, no cold review and no review pair. A finished branch → **one light review**: one `reviewer` reads the branch's diff against the accepted base with the surroundings it needs, against what the change closes (its vimarsha or principle) — not an audit of the project, graph or skill corpus. The **full review** runs once, on the frozen tag candidate before publication: the assembled release against the previous accepted release, built artifacts and touched shared contracts included, by two or three `reviewer`s from different model families (the pinned role plus generic subagents briefed with its body on another family's top tier). A review after publication is not this one.
-- Each `reviewer` runs in a separate worktree: the spawner's isolation where it offers one (Claude Code: `isolation`); where it doesn't (OpenCode), lay a detached tree yourself (`git worktree add --detach <dir> <head>`), the brief says "work only there", the edit ban is the second line, the report says "isolation manual"; neither → say there was no cold review. The hook fires only on push: a finished branch never pushed gets no reminder — run its light review yourself.
-- After a fix: check the changed delta and the findings it touches. A new SHA, a version bump or a rebase with no content change is no reason for another round; the same step runs again whole only on a changed shared contract or a new substantial counterexample.
-- The record in the case names head and base, model, scope checked, verdict, usage where available, and which step it was: light branch review or full tag-candidate review.
+- Where cold review is required, self-review comes first and doesn't replace it.
+- The unit is the batch — its branch, its PR, its diff against trunk; never per commit. An unfinished feature or an intermediate PR → self-review and the gate only.
+- **Before merge** a finished batch gets **one light review** only when it carries a refactor or a large new feature: one `reviewer` reads the diff against the accepted base with the surroundings it needs, against what the change closes (its vimarsha or principle) — not an audit of the project, graph or skill corpus. Anything else is small: the author says so as a line in the case; a reviewer or whoever merges may contest it, and then it is reviewed before merge. A small batch merges on the gate; its review, if wanted, is a `reviewer` after the merge that blocks nothing, its findings fixed in the next batch.
+- The **full review** runs once, on the frozen tag candidate before publication: the assembled release against the previous accepted release, built artifacts and touched shared contracts included. A batch that is itself the release candidate gets only this one, on its last head — no light review before it. A review after publication is not this one.
+- **Model families.** On code a second family is the user's choice: you may offer a pair, nothing obliges one, and the user names the models. Where the repository ships agent skills, their bodies are read once on the final candidate by reviewers of different model families — mandatory: skills are executed by different models and an error is costly. They look for bloat, contradictions between texts (one norm, one home) and drift from the canon and the tool surface, and number each finding by the repository's skill-body criteria. The user chooses the models; don't record their personal model settings in project files.
+- Each `reviewer` runs in a separate worktree: the spawner's isolation where it offers one (Claude Code: `isolation`); where it doesn't (OpenCode), lay a detached tree yourself (`git worktree add --detach <dir> <head>`), the brief says "work only there", the edit ban is the second line, the report says "isolation manual"; neither → say there was no cold review. The hook fires only on push: a finished batch never pushed gets no reminder — decide its review tier yourself.
+- After a fix: check the changed delta and the findings it touches. A new SHA, a version bump, a micro-branch, pulling trunk or a rebase with no content change is no reason for another round; the same step runs again whole only on a changed shared contract or a new substantial counterexample.
+- The record in the case names head and base, model, scope checked, verdict, usage where available, and which step it was: light pre-merge, post-merge, full tag-candidate or skill-body reading.
 - Brief with references, not your retelling: diff, repository, focus holon and steward, the nodes the diff embodies. It runs `methods/integrity.md` Mode 1 read-only and returns findings plus an integration report: what is touched, relays, open questions, neighbours' readiness, whom to wake (`methods/collaborate.md`); unknown → `unknown`.
 - `NEEDS_CONTEXT` is a graph defect: finish design, weave, pose vimarshas, review again. Reject a finding by recording why.
-- A behavioural claim closes on a cold `verifier` briefed with claim, carrier and falsifier from `REALITY.md`; wait for its verdict (`methods/reality-audit.md`). No such role → observe the carrier yourself, never the source. CI, tests, this acceptance and an immediate targeted check of a security or data-loss threat stay at every step; the two-step rule spares only review.
+- A behavioural claim closes on a cold `verifier` briefed with claim, carrier and falsifier from `REALITY.md`; wait for its verdict (`methods/reality-audit.md`). No such role → observe the carrier yourself, never the source. CI, tests, this acceptance and an immediate targeted check of a security or data-loss threat stay at every step; the review tiers spare only review.
 - Launch line: `verstak <graph> <role> case #N` of the case its assignment goes into (the door, `Work goes to subagents`). A graph review canon in `AGENTS.md` wins where it speaks.
+
+## Tests and CI
+
+A change is checked in what it touched, once.
+
+- **One responsibility, one home**: each has its place and one source of change, and is tested on its own — code, tests, skill texts and graph nodes alike. A component carries its own entry point (router, module) and its own tests; a change to it wakes only those.
+- **Composition by injection**: dependencies arrive from outside through the language's or framework's abstractions, so each component can be exercised in isolation. A composition test checks the wiring, not each component's behaviour again; a one-call gate orchestrating independent suites is not a monolithic test.
+- **Run the affected**: a change wakes the tests of the touched modules (crates, packages, subprojects) and their direct compositions, with the stack's fastest runner; the untouched don't run. The same test on the same content runs once: results are reused by content, and the local gate and CI don't repeat each other.
+- **CI runs on the batch's PR and on trunk**, not on every branch push.
+- Missing a content cache, path selection or a per-module layout is a defect to close in the same branch, unless `AGENTS.md` records an exception grounded in a measured CI cost or the owner's word — never assumed. Write tests that make refactoring easy.
 
 ## After merge
 
