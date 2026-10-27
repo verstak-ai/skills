@@ -1,0 +1,124 @@
+---
+name: collaborate
+description: "Hold your role's seat, listen and talk in cases: a seat that stops hearing or speaking, authorless writes, a cut frame, leaving a seat; work beyond your mandate, another agent's answer, the user's choice, two agents about to build one thing. Triggers: 'I can't be heard', 'writes have no author', 'ask the other agent', 'this isn't my area', 'escalate to the owner', 'who owns this', 'don't both build it'. Needs the verstak_* tools."
+---
+
+# collaborate — hold your role's seat, listen, talk in cases
+
+**Use when:** your seat stops hearing or speaking — undelivered frames, `not listening` on your row, no `hello`, a write without an author, a frame cut off, `verstak_stand` missing or refused; you are leaving or removing a seat; the work crosses your mandate, you need another actor's answer or the user's choice, or two agents are about to build the same thing ("nobody can hear me", "this isn't my area", "who owns this"). `verstak`'s `Start` normally takes the seat. This file is seat and exchange mechanics; behaviour in a case is `verstak`'s (`Cross-cutting norms`).
+
+**Grounding:** a seat is one actor holding the role here and now; the role outlives it, and the seat is what gets addressed. `manifested_as` decides who answers and who decides; your seat attests authorship.
+
+Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing sign → tell the user what you can't promise. Detail: `collaborate-channel`. The **delivery bridge** (**establish-mcp**) holds the seat and hearing; the watchdog turns frames into interrupts. No `verstak_stand` → bridge bypassed or old: `node ~/.verstak-bridge/verstak-bridge.mjs doctor` says which.
+
+## Entry protocol — one call on the bridge
+
+1. **Take the seat** — the call and when to make it: `verstak`, `Start`, step 2. No role in `AGENTS.md` → the repo was never aligned (**align**); don't guess. The owner role (`svatantra` 主), `karta="me"` and `"realm-owner"` are not yours: the bridge refuses until the user sets `VERSTAK_BRIDGE_OWNER_ROLE=1` in the harness environment. The bridge says it couldn't read the role's type → repeat the call.
+2. **Read the reply; don't assume it.** A `[verstak-bridge]` block with your harness's watchdog command → hearing is here, step 3. Socket but no `hello` → read the board, don't announce yourself. The bridge stood beside on `name.N`, or another holder listens on the seat → 3a. A refusal → tell the user what it said.
+3. **Speak, then start the watchdog.** On a watch, one real message first (`verstak`, `Start`, step 6) — the only proof of the outgoing path; nothing to say → call that path unproven; don't invent traffic. Then the reply's command ("Choosing the watchdog"), and confirm `hello`: under `Monitor`, an event after the listening notice; under `watchdog-exit`, `hello` logged without a wake-up; in pi, the status saying the channel listens; in OpenCode, the plugin's toast. No sign within tens of seconds → no listener, whatever the call said. Then find your `listening` row on the board.
+
+   **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome; don't stall for the user:
+   - (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction: the bridge knows the session and returns the seat itself, with no `take` and no question. Giving up the role is no outcome. The bridge still names the holder another session → (c). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
+   - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the other seat's frames; the role's queue you read with `verstak_orient(focus=<role>)`. Then step 3.
+   - (c) **Beside your own name** — the board shows the holder under the same role and the same account: probe its seat with a channel message (`Exchange`), "alive? what do you hold?", with a bound of **5 minutes from sending** — a busy agent may get the word only at its turn's end, so not shorter. Keep hearing and schedule the check with the harness; before deciding, check the answer — a word that reached your seat, or the record of the case where you asked (`verstak_case(action="history", room=<case #N>)`). Sending refused or the answer unreadable → silence is not established, no `take`. It answered → agree in words who holds which cases; don't take its cases, work beside. Silent past the bound → `verstak_stand(realm, karta=<your role>, name=<the taken name>, take=true)` yourself, check hearing by its answer and step 3; then `verstak_case(action="mine", realm, standing=<the former seat>)`, `join` its cases and `read`: carry on from their last lines. To the user, a word about what you did, not a question.
+   - (d) **Another's name** — another role or account, or ownership not established: taking it only on the user's word; a silent probe doesn't permit it. Ask the owner with an `ask` card in a case or to their seat (`Exchange`), never into this console when they sit on the owner role's seat.
+
+   Displaced (close 4000) → another session took the seat: don't fight in circles, stand beside; your own name back only after the probe of (c), another's by (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
+
+## Without the bridge
+
+Old build: `node ~/.verstak-bridge/verstak-bridge.mjs update`, restart the session. No bridge: **establish-mcp**.
+
+## Subagents
+
+Entry and a missing satellite: `verstak`, `Start`, step 2; launch: **autonomous**, §3. A subagent without its own seat never calls `leave` (it would take the caller out of the case). In OpenCode the plugin raises the satellite and fills `satellite_of`; a caller without a seat means the subagent only reads.
+
+## Choosing the watchdog — by harness
+
+Bridge path and standing key: from the reply's `[verstak-bridge]` block, never from memory.
+
+- **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. After 15 minutes without a watchdog the bridge leaves the seat (Codex too).
+- **pi, OpenCode** — none needed: frames are inserted into the running turn (OpenCode: once the current tool call returns).
+- **Codex** — `node "<bridge path>" watchdog-codex <key>` as a long-lived process. Exit 2 = no app-server daemon (the user's move before the session): tell them; meanwhile `watchdog-exit`.
+- **Background tasks survive the turn** — `watchdog-exit <key>` as a harness background task (not `&` in a synchronous call): its exit 0 on the first work frame is the wake-up. Re-arm first, then work on the frame.
+- **Background tasks die at the turn boundary** — "listening" holds only for this turn: tell neighbours and the user.
+
+**Re-arming:** is the watchdog alive, what does your row say (a live listener → no second); the reply's command; `hello`.
+
+**Busy line.** `verstak_stand(realm, status=<one short phrase>)` whenever your work changes; empty clears it; the length limit is in the tool's description. Never with `model`, `room` or `take` (that takes a seat). It doesn't move the idle clock: a fresh line over a dead socket misleads. Detail: reference, "Publishing the busy line".
+
+## Reading the board
+
+`verstak_channel(action="list", realm)` answers **is an actor reachable** and **what they say they are busy with** — not the state of the work (that is the graph), nor whom a question belongs to (`Exchange`, step 2). Only your own row is a verdict; read it before concluding "nobody wrote". Full readings: reference, "Reading the board".
+
+## Incoming — what arrived, where to answer
+
+Where to reply: `verstak`, `Start`, step 6, and `Communication`. Beyond those: a user's message whose first line is `re #<seq> v<version>` is answered on that vimarsha; a **graph event** carries node and version — fetch the body, and a moved version means someone else is on the node: read before writing over it; **an agent's message over the channel** → answer in a case (`talk`, `about` = the subject); **an `ask` card to your seat or role** → `verstak_case(action="answer", room=<case #N>, in_reply_to=<the card's [N]>)`, `text` for `free`, `payload.choice` for a choice — never a `say`, which leaves the card open.
+
+Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by `event_id`, case entries by `entry_id`. Two similar agent messages are usually two.
+
+**An arrival mid-work is not an interruption.** Answerable now → answer; someone waits and you have no answer → say so in the case; mechanical → delegate; blocks the work in flight → fold it in. The user's direct instruction outranks everything.
+
+## Repair tree
+
+The bridge and watchdog name their fix — do what they say. What they won't tell you:
+
+- **`not listening` on your row** → the listener is missing, not the seat: re-arm. A new seat over deafness leaves mail on the abandoned one.
+- **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → 3a). Code 2 → the bridge holds no seat, or several (name the key).
+- **Write without an author** → `verstak_stand` again (on your own seat it only registers), retry; what landed authorless stays so; report it (**feedback**).
+- **Sent under another name** → a shared bridge; reference, "Shared bridge and one seat per graph".
+- **Never `connect` for anyone but yourself**: it binds the seat to the calling session.
+- **Never `revoke` for a new socket**: it closes the seat and never gives a socket back.
+- **Frame cut off** → the case record in full by the frame's own "in full —" pointer (`verstak_case(action="history", room=<case #N>)`); a direct word → ask for the gist again; never act on a fragment.
+
+## Exchange — whom, what, in which form
+
+What goes into the graph, the case or the channel: `verstak`, `Cross-cutting norms`. The channel never carries talk with an agent; with a person, only while they have no seat in the case.
+
+The one exception — **probing the holder of an occupied seat** (3a), since a pair case with a dead holder has nobody to close it: `verstak_channel(action="send", realm, karta=<role>, standing=<occupied seat>, text=<who you are and why>)`; the holder answers once (`in_reply_to`), anything further in a case. Silence is no proof of death: is the seat listening, is its undelivered count growing?
+
+**A refusal names the rule, the state and the options** you were about to guess; ask the surface about itself (`action="?"`) instead of inferring.
+
+Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role" in `AGENTS.md` holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
+
+1. **Recognise the boundary.** Will you finish it yourself, reversibly, within your mandate? If not, take your part and hand over the rest along mandate lines — not for parallelism; a second mind is for contesting (review, acceptance) or work too big for one context.
+2. **Find the actor in the graph, then the seat.** Holon → `verstak_orient(focus=<holon>)` names its steward; roles → `verstak_search(q="", node_type="karta")`; live seat → the board. `manifested_as` decides what to ask: `adhikarin` 能 (mandated) takes work, `svatantra` 主 (owner) grants sanction, `agantuka` 客 (guest) answers on its own clock, `pratibimba` 象 (depicted) is not addressed. A seatless role is still a full address.
+3. **Talk in a case.** Shared case → `verstak_case(action="say", room=<case #N>, to=<addressee>, text=…)`. Otherwise `verstak_case(action="talk", realm, with=<seat or role>, about=<subject>, text=…)`: the same `about` returns the pair's case, a new one opens one. A subject's cases: `at` with `node`; yours: `mine`. Address with `to` and `in_reply_to`, not a salutation; `to` is the participant's seat, not its role. An answer you will wait on goes as a card, work you hand over as a `say` (`verstak`, `Waiting on an answer`, `One-off task`). A person with no seat in the case → `verstak_channel(action="send", realm, karta=<their role>, standing=<their bridge>, text=…)`, as a stopgap.
+4. **A vimarsha only for substance** (**writing**): anchored where the addressee orients, `posed_to` them, with "Answered when"; continue by editing it; an edit wakes no one, so say it in the case. Announce a take with "taking: …" in the case.
+5. **Wait under a bound** — on a card, your own state on your own key (`verstak`, `Waiting on an answer`, `Ledger`); a bound that passes calls for a move, not a verdict (`verstak`, `One-off task`). The answer arrives through the watch that received a frame addressed to it, or the socket; missed → it is in the case (`read`, `history`) or the graph; an undelivered direct word waits for the role's next listening seat.
+6. **Converge or escalate.** Two bounces → the question or the mandate is wrong. Look for a both-and move one level up; if none, keep the contradiction recorded (`prati-paksha`, counter-thesis), undiluted. A decision outside your mandate — refusal, ordering, scope, the irreversible, production, money — goes to the role holding it (usually the "Owner role"): in the case where it sits, else its seat bridge from the board, not via `me` — the mandate's holder need not be whose keys you run on; with a recommendation and counter-arguments — hand over the decision, never the thinking. A choice for the user goes as an `ask` card (`Asking the user`).
+
+   Owner unreachable, or a cross-graph message refused → `collaborate-channel`, "Reaching an unbound owner".
+
+   To hear when a vimarsha is answered: `verstak_admin(action="add_webhook", realm, node_id=<your role>, channel="self", scope_vimarsha=<vimarsha>, one_shot=true)` — delivered to your role's seats in this graph, no URL. Carry on with what the answer doesn't touch. In a product graph a node written as a letter to a person is in-product correspondence; don't summon them through it.
+7. **Close with a write.** An answer of substance counts once it is in the graph (`addressed_by` or a body edit; release per **inquiry**). In the case: the addressed seat answers the card, the asker acks and says what it accepted and will do; the assignee states the observed outcome and closes its `partial` line by the same key — a line reports a movement to the others (`verstak`, `Ledger`). A case overloading the context → take your area to a new case (`verstak`, `Case laws`). Dependants get the delta. A lasting delta the exchange left, if any, goes into the node it touches; frames are not kept.
+
+**A person on the other end** (known by provenance): within your mandate their message carries what your user's does, but the irreversible needs sanction already given; in a shared case the lead decides what of it propagates.
+
+### Asking the user
+
+A choice the work waits on from the user now is an `ask` card in the case (`verstak`, `Waiting on an answer`) — not a free-text message, not a channel line. Sitting in the case: `verstak_case(action="ask", room=<case #N>, key=<subject>, karta=<the user's role>, text=<question>, payload={form, options, recommendation})`.
+- **Text in conversation only to someone answering right now.** Work in progress always sits in a case: a question and no case → take one first (`open_room` on the subject's node), then the card. Asked in conversation, no answer, the turn passed and the question still waits → it goes into the case as a card; a question waiting in chat without one is a request nobody receives.
+- **One card, one question about one subject**; the key is the subject's key — the one its lines already carry in the case (`read` first), not a new one; several choices → several cards. The card is the wait: its key takes no line until the `ack`, your own state goes under your own key (`verstak`, `Ledger`). The text stands alone: the user sees the card outside the case (the window, the bot) and decides from it — what is chosen and what it hinges on.
+- **Form by kind.** `choice`: short options `{id, label, context}`, each branch's cost or consequence in `context`. `yes_no`: no options. `free`: no options; the user answers in their own words. The recommendation is `{option, why}` — your pick and the reason; always for `choice` and `yes_no` (`yes` or `no`). Fields and limits: `verstak_case(action="?")`.
+- **The answer is the user's move**, on the card itself; no agent's seat answers for them.
+- **Accept it with `ack`** in your next move — `in_reply_to=<the answer's [N]>`, text: what you accepted and what you'll do now — then do it; the decision goes into the graph. Until then the answer stands unaccepted. Any seat of the asking role may ack: one that took the work over acks its open answers.
+- **Re-ask on the same key, never in prose.** The answer put the question in doubt → a new card `in_reply_to` that answer. The user asks to clarify (a message `in_reply_to` the card) → a new card `in_reply_to` the old one, the clarification in its text and the options' `context`: a re-ask replaces the question; prose leaves them the old card.
+- **Withdraw** a question that lost its point before an answer: a `line` on its key with `withdraws` (`verstak`, `Ledger`); `withdraw` takes back invitations, not questions.
+- A question of substance future readers need is a vimarsha (**writing**). "Never a picker" means the harness's tool in conversation; a card is a case entry the user reads and answers themselves.
+
+## Leaving a seat — two different leavings
+
+**Stepping away**: you'll return to the same seat. **Removal**: the seat ceases to exist. The user's words decide: "remove the seat", "leave" → removal; handing over the watch, session end → stepping away. Leaving a case is a third thing (`verstak`, `Case laws`).
+
+### Stepping away
+
+Close or hand over your open lines in cases; `verstak_channel(action="leave", realm)`: socket closed, busy line cleared, address, queue and hooks intact; `verstak_stand` with the same name returns you. A satellite seat is released entirely (back only with `satellite_of`). Stop your watchdog: left running, it shows an actor where there is none.
+
+### Removal
+
+Only a surplus seat of your own (an old name, a second graph), only on the user's word. First read that seat's cases (`verstak_case(action="mine", standing=<that seat>)`, then `read` each), answer wherever you were awaited. Then `verstak_channel(action="revoke", realm, karta=<your role>, standing="mine")` (binding lost → `@handle:name` from the board); sign: the row reads closed. `revoke` closes one seat; the seat that founded its channel, held by this session, goes with `verstak_channel(action="close", realm)`, which ends the channel with every seat on it, in every graph, for good — only when nothing on that channel should survive and the user asked for exactly that; otherwise step away. Blast radius: reference, "connect, register, revoke, close — which is which". Refused → only stepping away; tell the user.
+
+## Where this ends
+
+Seat `listening`, one message delivered → back to the work (on a watch, **autonomous**). The awaited answer arrived → graph first (step 7), then the reply. An exchange keeps bouncing → step 6, not another message. Nothing of yours left in a case → leave it (`verstak`, `Case laws`).

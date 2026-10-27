@@ -174,8 +174,17 @@ for (const name of skillNames.sort()) validateSkill(name);
 //     description as a single line, and lifts the assistant's `## Map` section
 //     into its own prompt under a fixed budget. A missing skill, a second Map
 //     heading or an overgrown Map fails silently there. home/ is generated from
-//     skills/verstak/methods/ by scripts/build-home.mjs; check-bundles holds the sync.
-const HOME_SKILLS = ["assistant", "minding", "onboarding"];
+//     skills/verstak/ by scripts/build-home.mjs — the door, every method but
+//     product-roadmap, and the references and templates they point to;
+//     check-bundles holds the sync.
+const HOME_SKILLS = [
+  "agents-template", "align", "align-delegation", "align-harness-surfaces", "align-hooks",
+  "align-superpowers-interop", "architect", "assembly", "assistant", "autonomous", "code-work",
+  "collaborate", "collaborate-channel", "design", "door-menu", "door-phrasebook", "entry",
+  "establish-mcp", "feedback", "foreman", "inquiry", "intake", "integrity", "lead", "minding",
+  "onboarding", "reality-audit", "reality-template", "reconcile", "verstak", "weaving", "writing",
+  "writing-batch", "writing-given-as", "writing-modes",
+];
 const MAP_BUDGET = 1500;
 const homeDir = join(root, "home");
 const homeNames = existsSync(homeDir)
