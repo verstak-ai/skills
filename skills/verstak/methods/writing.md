@@ -73,7 +73,7 @@ Required on a role: how this actor is present as the origin of action. Gate firs
 | The actor… | manifested_as | Example |
 |---|---|---|
 | answers and **decides for itself** whether to act | `svatantra` 主 (owner) | product owner; steward of root holons |
-| answers, **takes its impulse from another**, acts itself | `adhikarin` 能 (capable one) | holon developer, an agent on a holon |
+| answers, **takes its impulse from another**, acts itself | `adhikarin` 能 (capable one) | an agent on a holon; steward of a particular holon — a person working with the graph is always 主 |
 | **won't answer** — its path is modelled, not lived | `pratibimba` 象 (depicted figure) | a customer-journey persona |
 | answers **on its own clock**, from beyond the boundary | `agantuka` 客 (guest) | regulator, counterparty, vendor |
 
