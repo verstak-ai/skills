@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.18.1](https://github.com/verstak-ai/skills/compare/v3.18.0...v3.18.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **onboarding:** readiness by complete and items; a person's role always svatantra ([#240](https://github.com/verstak-ai/skills/issues/240)) ([d0f1cc5](https://github.com/verstak-ai/skills/commit/d0f1cc5fa507b1efc585dfb965b989d66465b487))
+* **skills:** a person working in the graph is svatantra — scope it and name it at the call ([#243](https://github.com/verstak-ai/skills/issues/243)) ([86472e6](https://github.com/verstak-ai/skills/commit/86472e67d19f4cca1b680cb2e4684a3d0c93279f))
+
 ## [3.18.0](https://github.com/verstak-ai/skills/compare/v3.17.3...v3.18.0) (2026-10-27)
 
 
