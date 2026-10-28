@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.18.2](https://github.com/verstak-ai/skills/compare/v3.18.1...v3.18.2) (2026-10-28)
+
+
+### Bug Fixes
+
+* **onboarding:** name readiness by the labels the answer prints ([#246](https://github.com/verstak-ai/skills/issues/246)) ([e20d908](https://github.com/verstak-ai/skills/commit/e20d9083e9ae50941c9c88e653f5b90f019969e5))
+* **onboarding:** never say the progress count as the person's progress ([#244](https://github.com/verstak-ai/skills/issues/244)) ([68939f6](https://github.com/verstak-ai/skills/commit/68939f6659dc4d7d9efb11f12d887fae365504bc))
+
 ## [3.18.1](https://github.com/verstak-ai/skills/compare/v3.18.0...v3.18.1) (2026-10-28)
 
 
