@@ -53,7 +53,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 - **Scope:** a map the maintainer recognises as "my product", not a reverse-engineering.
 - **Actors — role test first (`methods/writing.md`, Decision 2b).** Two layers, never collapsed:
   - **Runtime operators** — who acts on or is served by the live system, from the **ground** (they rarely write issues): external consumer → `agantuka` 客; internal operator (admin, moderator, staff) → `adhikarin` 能, an *active* actor, not a "served" party. Workers / CI / cron are a ⚙️ phenomenon (`upadhi`), not a role — never promoted to silence `no-actor`.
-  - **Development drivers** — who authors the backlog (the only layer the harvest shows): the maintainer → `svatantra` 主 (a delegated dev scope → `adhikarin`); a drive-by contributor → `agantuka`.
+  - **Development drivers** — who authors the backlog (the only layer the harvest shows): the maintainer → `svatantra` 主 (a delegated dev scope → `adhikarin`, unless that person works in this graph themselves — then `svatantra`, like every person working in a graph); a drive-by contributor → `agantuka`.
 
   The narrower the contributor circle (solo = one 主), the more the actor signal hides in the runtime layer. A zero-arrow role is theatre: wire or drop it; every role carries `manifested_as`.
 - **Key flows as a relay:** each key-flow kriya `ahara`s what it reads and uses up, `utpatti`s what it writes, in a `next` sequence — the spine that makes structural risks computable. **Multi-repo:** a kriya in repo A produces a *hinge phenomenon* (shared table, API contract, published artifact) a kriya in repo B consumes; hinges prove one product.
