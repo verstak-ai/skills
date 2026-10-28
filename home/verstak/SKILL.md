@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 7 — run /verstak align unprompted if a repo's stamp is below 7, a date, or missing."
+description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 7."
 ---
 
 # Verstak — the door

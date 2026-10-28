@@ -242,14 +242,15 @@ const SKILLS = {
   },
 };
 
-// The door's contract sentence, which align, entry and the door read off the
-// description, carried into the home description from the plugin's own.
+// The door's contract number, which align, entry and the door read off the
+// description, carried into the home description from the plugin's own; its
+// align command is the plugin's, so it stays behind.
 const CONTRACT = (() => {
-  const m = /AGENTS\.md CONTRACT: \d+[^"]*/.exec(readFileSync(join(root, "skills", "verstak", "SKILL.md"), "utf8"));
+  const m = /AGENTS\.md CONTRACT: \d+/.exec(readFileSync(join(root, "skills", "verstak", "SKILL.md"), "utf8"));
   if (!m) throw new Error("skills/verstak/SKILL.md: the description names no AGENTS.md CONTRACT");
-  return m[0].trim();
+  return m[0];
 })();
-SKILLS.verstak.description += " " + CONTRACT;
+SKILLS.verstak.description += ` ${CONTRACT}.`;
 
 const SOURCE_DIR = {
   door: join(root, "skills", "verstak"),
