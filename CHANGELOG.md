@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.21.1](https://github.com/verstak-ai/skills/compare/v3.21.0...v3.21.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* ask the user only after the ladder, a past decision is recorded; mid-code grounds from the graph ([#265](https://github.com/verstak-ai/skills/issues/265)) ([c965155](https://github.com/verstak-ai/skills/commit/c96515506a109e6a4a4dad1265194a0510e7fed6))
+
 ## [3.21.0](https://github.com/verstak-ai/skills/compare/v3.20.0...v3.21.0) (2026-10-29)
 
 
