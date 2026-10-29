@@ -88,7 +88,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 - Conventional commits (`feat:`, `fix:`, `chore:`…); branches and PR titles likewise.
 - PR body: one or two lines and the case number. No co-author trailer unless asked.
 - One branch and one PR per batch of changes; review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`).
-- The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`. Pre-commit runs `<linter + formatter + type check>` on staged files.
+- The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`; with results reused by content, a test already run on the same content isn't run again (Test discipline). Pre-commit runs `<linter + formatter + type check>` on staged files.
 - Forge CLI `<gh / fj / glab>`. **Done**: `<merge flow; how you learn it merged>`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
 
