@@ -146,7 +146,7 @@ The knowledge you need is not in your context. Your own memory — training, ear
 
 - **The graph header names the wrong graph** → `verstak_realm(action="list")`, copy verbatim, no writes before.
 - **The `vimarshas` lens on a bianhua shows no questions** → not "no seed": seeds come via `anga` (the bianhua map or an `anga_of` query).
-- **Search is silent** → semantic search; silent too → "lexical and semantic search found nothing; answering from general knowledge — open a doubt?".
+- **Search is silent** → semantic search; silent too → the rest of the ladder (`Recalling — a ladder`): links, where it should lie, the holon's steward, the user. General knowledge is no answer about what is recorded — offered at all, it is named as such.
 - **The result looks complete** (a round row count, a truncated tail, several holders of a name) → it's a page: narrow with `verstak_search(q="", node_type=…)`.
 - **A node you stand on says something you no longer see** → your own: confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false, even someone else's → refute with grounds by "was it ever so?" (**writing**, modes); releasing someone else's is its holder's — a word to them.
 - **A write has no author, or returns 409** → **collaborate**, `Repair tree`.
