@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.1](https://github.com/verstak-ai/skills/compare/v3.19.0...v3.19.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **bridge:** the reply line under a person word is a full send, or names what is missing ([#251](https://github.com/verstak-ai/skills/issues/251)) ([6547fbe](https://github.com/verstak-ai/skills/commit/6547fbe4770d7782e181709f09a28ef546da0c6e))
+
 ## [3.19.0](https://github.com/verstak-ai/skills/compare/v3.18.2...v3.19.0) (2026-10-29)
 
 
