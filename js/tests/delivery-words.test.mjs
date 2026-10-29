@@ -273,3 +273,13 @@ test("no delivery word points at the channel log the server drops", async () => 
   }
   assert.deepEqual(hits, []);
 });
+
+// The reply line under a person's direct word (graph @nks/nks-dev, node #9128): the
+// sibling core prints it from this word, so it must name our channel tool and carry
+// the person's seat and the word's id.
+test("a person's direct word gets a reply line in our words", () => {
+  assert.equal(
+    FRAME_TEXT.en.humanWordReply("@person:window", "word-9"),
+    'reply: verstak_channel(action="send", standing=@person:window, in_reply_to=word-9, text=…)',
+  );
+});

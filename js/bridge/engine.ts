@@ -5,6 +5,7 @@ import { startTokenKeepalive } from "./auth.ts";
 import { BUILD } from "./build.ts";
 import { CFG, setConfig } from "./config.ts";
 import { releaseStanding } from "./hold.ts";
+import { leavingLine, released } from "./muxhold.ts";
 import { installAuthLockExitHook } from "./oauth/authlock.ts";
 import { installRefreshLockExitHook } from "./oauth/refreshlock.ts";
 import { tokenRequestsInFlight } from "./oauth/tokenrequest.ts";
@@ -60,11 +61,18 @@ export function fullBridgeSigint(leave?: (why: string) => Promise<void>): () => 
       return;
     }
     const addr = statusAddress();
+    // On the dispatcher the cleared line goes in the tact before the unsubscribe (#8620 v11).
+    const line = addr && !interrupted ? leavingLine(addr.url) : "none";
     releaseStanding("SIGINT"); // else .key outlives the bridge and leads the watchdog to a dead socket
     if (interrupted) process.exit(0);
     interrupted = true;
     // Clear the busy status too, briefly.
-    const clearing = addr ? publishStatusTo(addr.url, "", 2000).catch(() => {}) : null;
+    const clearing =
+      addr && line === "post"
+        ? publishStatusTo(addr.url, "", 2000).catch(() => {})
+        : line === "tick"
+          ? released(1000)
+          : null;
     if (!clearing && tokenRequestsInFlight.size === 0) process.exit(0);
     Promise.allSettled([...tokenRequestsInFlight, ...(clearing ? [clearing] : [])]).then(() =>
       process.exit(0),

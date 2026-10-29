@@ -3,22 +3,38 @@
 // or session.status busy, the end on session.execution.succeeded, failed and interrupted or
 // session.status idle; turn_at — when a turn ended; read_at — when a frame the channel laid into the
 // session entered a turn as text: on session.inbox.delivered of its inbox item, a steer too — it
-// waits for the running tool to return (#5048). Each change goes to the session's bridge by
-// method("pulse"); the bridge paces the socket. The last word is kept: a seat taken or returned
-// gets it at once (seated), so a turn heard before the seat is not lost; a word the bridge
-// refused stays unsent and goes again.
+// waits for the running tool to return (#5048); act_at — the session's own tool, output, reasoning,
+// shell and step events, deltas included (ACTS), never state, inbox or another session's events.
+// Each change goes to the session's bridge by its word line (shared/pulseword.ts); the bridge
+// paces the socket. The last word is kept: a seat taken or returned gets it at once (seated), so
+// a turn heard before the seat is not lost; a word the bridge refused goes again.
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { method } from "../delivery/index.ts";
 import { type Bridge } from "../shared/bridge-client.ts";
+import { type TurnWord, type WordLine, wordLine } from "../shared/pulseword.ts";
 import { createInboxBook } from "./inbox.ts";
 
 type State = "idle" | "busy" | "interrupted" | "failed";
 
-interface Word {
-  state?: State;
-  turn_at?: string;
-  read_at?: string;
-}
+/** Movement of the session's own turn (@opencode/schema event-manifest, plugin 2.0.4, #5048). */
+const ACTS = new Set<unknown>([
+  "session.tool.input.started",
+  "session.tool.input.delta",
+  "session.tool.input.ended",
+  "session.tool.called",
+  "session.tool.progress",
+  "session.tool.success",
+  "session.tool.failed",
+  "session.text.started",
+  "session.text.delta",
+  "session.text.ended",
+  "session.reasoning.started",
+  "session.reasoning.delta",
+  "session.reasoning.ended",
+  "session.shell.started",
+  "session.shell.ended",
+  "session.step.ended",
+  "session.step.failed",
+]);
 
 export interface PulseFeed {
   onEvent: (ev: any) => void;
@@ -36,55 +52,28 @@ const ENDS = new Map<unknown, State>([
   ["session.execution.interrupted", "interrupted"],
 ]);
 
-/** A word the bridge refused is told again this much later, unless an event tells it first. */
-const RETRY_MS = 2_000;
-
 export function createPulseFeed(opts: {
   /** The bridge holding the session's own seat; null — no seat, nowhere to send. */
   bridgeOf: (session: string) => Bridge | null;
   /** The session holds more inbox items laid by the channel and not taken than the book awaits (inbox.ts). */
   overflow?: (session: string, waiting: number) => void;
 }): PulseFeed {
-  const words = new Map<string, Word>();
+  const lines = new Map<string, WordLine>();
   const inboxes = createInboxBook(opts.overflow);
-  const unsent = new Set<string>();
-  const retries = new Map<string, ReturnType<typeof setTimeout>>();
   let stopped = false;
 
-  const tell = (session: string, change: Word): void => {
+  const tell = (session: string, change: TurnWord): void => {
     if (stopped) return;
-    const was = words.get(session) ?? {};
-    const now = { ...was, ...change };
-    if (JSON.stringify(now) === JSON.stringify(was) && !unsent.has(session)) return;
-    words.set(session, now);
-    const bridge = opts.bridgeOf(session);
-    // No seat yet: the word goes with the next event once a bridge holds one.
-    if (!bridge) return void unsent.add(session);
-    unsent.delete(session);
-    void bridge.request(method("pulse"), now, { timeoutMs: 5_000 }).catch(() => {
-      // Refused and still the last word: unsent, it goes with the next event or the retry.
-      if (stopped || words.get(session) !== now) return;
-      unsent.add(session);
-      if (retries.has(session)) return;
-      const t = setTimeout(() => {
-        retries.delete(session);
-        if (unsent.has(session)) tell(session, {});
-      }, RETRY_MS);
-      (t as { unref?: () => void }).unref?.();
-      retries.set(session, t);
-    });
+    let line = lines.get(session);
+    if (!line) lines.set(session, (line = wordLine(() => opts.bridgeOf(session))));
+    line.tell(change);
   };
   const at = (): string => new Date().toISOString();
   /** A turn's end: the busy turn becomes `to`; an end already told keeps its state; idle with no turn seen — no turn_at. */
   const ended = (session: string, to: State): void => {
-    const was = words.get(session)?.state;
+    const was = lines.get(session)?.word().state;
     if (to !== "idle" || was === "busy") return tell(session, { state: to, turn_at: at() });
-    if (was === undefined) tell(session, { state: "idle" });
-    else if (unsent.has(session)) tell(session, {});
-  };
-  const unretry = (session: string): void => {
-    clearTimeout(retries.get(session));
-    retries.delete(session);
+    tell(session, was === undefined ? { state: "idle" } : {});
   };
 
   return {
@@ -92,6 +81,7 @@ export function createPulseFeed(opts: {
       const session: unknown = ev?.data?.sessionID;
       if (typeof session !== "string") return;
       const type: unknown = ev?.type;
+      if (ACTS.has(type)) return tell(session, { act_at: at() });
       const end = ENDS.get(type);
       if (end) return ended(session, end);
       switch (type) {
@@ -123,20 +113,17 @@ export function createPulseFeed(opts: {
       if (inbox && inboxes.prompted(session, inbox)) tell(session, { read_at: at() });
     },
     seated(session): void {
-      if (!words.has(session)) return;
-      unsent.add(session);
-      tell(session, {});
+      lines.get(session)?.again();
     },
     forget(session): void {
-      words.delete(session);
-      unsent.delete(session);
-      unretry(session);
+      lines.get(session)?.drop();
+      lines.delete(session);
       inboxes.forget(session);
     },
     stop(): void {
       stopped = true;
-      for (const session of [...retries.keys()]) unretry(session);
-      words.clear();
+      for (const line of lines.values()) line.drop();
+      lines.clear();
       inboxes.clear();
     },
   };

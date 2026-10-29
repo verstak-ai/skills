@@ -28,6 +28,8 @@ const SILENT_INTERVALS = 3;
  */
 const SILENT_FLOOR_MS = Number(process.env[envName("CHANNEL_SILENT_FLOOR_MS")]) || 60_000;
 
+export { PING_CHANNEL, SILENT_FLOOR_MS, SILENT_INTERVALS };
+
 /** Closes after which the same token never reopens. */
 export const DEAD_TOKEN_CODES = [4002];
 /**
@@ -52,7 +54,9 @@ const ERROR_GUESS_DELAY_MS = 500;
  * Reopen pauses while the service is up and the socket is cut: grow to the ceiling,
  * reset by a socket living past a fast drop (graph @nks/nks-dev, node #4664).
  */
-const FLAP_PAUSES_MS = (process.env[envName("CHANNEL_FLAP_MS")] || "5000,10000,20000,40000,60000")
+export const FLAP_PAUSES_MS = (
+  process.env[envName("CHANNEL_FLAP_MS")] || "5000,10000,20000,40000,60000"
+)
   .split(",")
   .map(Number)
   .filter((n) => Number.isFinite(n) && n > 0);
@@ -215,8 +219,8 @@ export interface Holder {
    * no reopen. No socket — onGone at once.
    */
   handOff(onFrame: (raw: string) => void, onGone: (code: number) => void): void;
-  /** A frame to the service on the open socket; false — not open now, nothing sent. */
-  send(text: string): boolean;
+  /** Accepted for sending; false — not accepted. `sent` runs only after socket send succeeds. */
+  send(text: string, sent?: (at: number) => void): boolean;
   /** Whether the socket is alive (open or opening). */
   readonly alive: boolean;
   /** Last sign of the service (ping or frame), epoch ms; 0 — none. An open attempt is not a sign. */
@@ -417,14 +421,16 @@ export function holdSocket(o: HoldOptions): Holder {
       stopWatch();
       handing = { onFrame, onGone };
     },
-    send(text) {
+    send(text, sent) {
       if (stopped || handing || !ws || ws.readyState !== 1) return false;
       try {
         ws.send(text);
-        return true;
       } catch {
         return false;
       }
+      // The receipt runs after the wire: a throwing callback must not undo the send.
+      sent?.(Date.now());
+      return true;
     },
     get alive() {
       return !stopped && !!ws && (ws.readyState === 0 || ws.readyState === 1);

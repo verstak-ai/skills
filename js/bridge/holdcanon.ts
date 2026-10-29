@@ -24,8 +24,11 @@ import { localSocketAlive } from "./sweep.ts";
  * read; a refused or silent list leaves no name here.
  */
 const unsaid = scoped(() => new Set<string>());
-/** One move at a time per session: a stand and a return reading at once wait for it. */
-const R = scoped(() => ({ run: null as Promise<void> | null }));
+/**
+ * One move at a time per process, not per session: the records are the directory's, so the
+ * daemon's sessions reading at once wait for the one move.
+ */
+let run: Promise<void> | null = null;
 
 const MEMORY = /\.(seen|asks|base)$/;
 
@@ -81,13 +84,20 @@ function move(dir: string, file: string, rec: HoldRecord, canon: string): boolea
     return all.length === 1 ? all[0] : all;
   };
   try {
+    // Gone already — another bridge of this directory moved it: the canonical one is not touched.
+    if (!existsSync(file)) return true;
     // A record under the canonical key is the seat's newer word: the old one goes, its key stays.
     const there = existsSync(dest) ? (JSON.parse(readFileSync(dest, "utf8")) as HoldRecord) : null;
     const next = there
       ? { ...there, formerKey: formerKey(there) }
       : { ...rec, realm: canon, key: to, formerKey: formerKey(null) };
     writeOwned(dest, JSON.stringify(next) + "\n");
-    unlinkSync(file);
+    try {
+      unlinkSync(file);
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+      return true; // unlinked by another bridge between the check and here: moved, said by it
+    }
     moveMemory(dir, from, to);
     log(`hold record ${from}: the graph ${rec.realm} is ${canon} — moved to ${to}`);
     return true;
@@ -99,14 +109,15 @@ function move(dir: string, file: string, rec: HoldRecord, canon: string): boolea
 
 /** Move this bridge's directory's hold records of rN or bare-slug graphs to @owner/slug. */
 export function canonHoldRecords(): Promise<void> {
-  R.run ??= moveAll().finally(() => {
-    R.run = null;
+  // A satellite's seat is not returned from disk (satellite.ts): no move of its own, none joined.
+  if (CFG.satellite) return Promise.resolve();
+  run ??= moveAll().finally(() => {
+    run = null;
   });
-  return R.run;
+  return run;
 }
 
 async function moveAll(): Promise<void> {
-  if (CFG.satellite) return; // a satellite's seat is not returned from disk (satellite.ts)
   const dir = standingsDirOf(CFG.authDir);
   if (!existsSync(dir)) return;
   const all = readAll(dir);

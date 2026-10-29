@@ -25,6 +25,7 @@ import {
 } from "./hold.ts";
 import { type HoldRecord, keyOf } from "./holdrecord.ts";
 import { unheardListenBlock } from "./listen.ts";
+import { EVERY } from "./muxhold.ts";
 import { normKarta, normName } from "./names.ts";
 import { extraIn } from "./places.ts";
 import { sameRealm } from "./realms.ts";
@@ -197,7 +198,7 @@ export async function publishStatus(
   // With one seat a line without id lands on it, as before.
   if (!everyPlace && !addr.standingId && heldPlaces().length > 1)
     return { ok: false, body: words(STATUS).noSeatId(addr.key) };
-  const st = await publishStatusTo(addr.url, text, 5000, everyPlace ? null : addr.standingId);
+  const st = await publishStatusTo(addr.url, text, 5000, everyPlace ? EVERY : addr.standingId);
   if (st.ok) {
     // Keep the line as it landed: a server-trimmed one comes back trimmed after a restart.
     const kept = st.doing ?? text;

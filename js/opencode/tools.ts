@@ -18,16 +18,13 @@ import {
   authDir,
   buildsLine,
   findBridge,
-  listTools,
   readCache,
   refreshToolList,
-  retryPause,
-  sleep,
   slotReady,
-  writeCache,
 } from "./bridge-io.ts";
 import { createChildren } from "./children.ts";
 import { answerHalt } from "./cuts.ts";
+import { listInBackground, waitListed } from "./firstlist.ts";
 import { idleHalf, type ToolsHalf } from "./half.ts";
 import { createHandoff } from "./handoff.ts";
 import { hostEnvOf } from "./host.ts";
@@ -395,42 +392,20 @@ export async function setupTools(
       leads.called(sessionID, name, args, slot.place);
     return out;
   }
-  if (state.listed.length) say(W.cached(state.listed.length), "info");
+  const cold = !state.listed.length;
+  if (!cold) say(W.cached(state.listed.length), "info");
 
-  // The first bridge is for the tool list, in the background with no ceiling: a new handshake or bridge while the plugin lives.
-  spare = spawn();
-  let first = spare;
-  let [misses, deaths] = [0, 0]; // deaths in a row: the replacement pause grows, no spawn storm
-  void (async () => {
-    for (;;) {
-      if (stopped) return;
-      try {
-        await first.ready;
-        const list = await listTools(first.bridge);
-        state.serverSeen = true;
-        const same = JSON.stringify(list) === JSON.stringify(state.listed);
-        state.listed = list;
-        state.source = W.fromServer();
-        writeCache(list);
-        if (!same) await ctx.tool.reload();
-        say(W.raised(list.length), "info");
-        return;
-      } catch (e) {
-        if (stopped) return;
-        if (first.bridge.failure) {
-          // The list's bridge died, or was handed to a session and released by it (then silently).
-          if (first.session === null) say(W.died((e as Error).message), "warning");
-          if (spare === first) spare = null;
-          first = spare ?? spawn();
-          spare = first;
-          await sleep(retryPause(deaths++));
-        } else {
-          await sleep(retryPause(misses++)); // a pause before the retry
-          shake(first);
-        }
-      }
-    }
-  })();
+  let missed = false;
+  const firstListed = listInBackground({
+    spawn,
+    shake,
+    spare: { get: () => spare, set: (s) => (spare = s) },
+    stopped: () => stopped,
+    state,
+    reload: () => ctx.tool.reload(),
+    say,
+    missed: () => (missed = true),
+  });
 
   if (lost) void keeper.resumeLost(lost.entries, lost.wordFor); // each one — about its own seats
 
@@ -452,6 +427,9 @@ export async function setupTools(
     keeper.forget(session);
     seats.forget(session);
   }
+
+  // No cached list: the first prompt would get no graph tools without the server's (firstlist.ts).
+  if (cold) await waitListed(firstListed, () => login.pending || missed);
 
   return {
     launch: launcher.launch,
