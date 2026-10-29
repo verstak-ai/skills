@@ -5,7 +5,7 @@ description: "Let external text into the graph as a claim, never as a fact: an i
 
 # intake — letting external text into the graph
 
-**Use when:** text from outside arrives — an issue, docs, a README, a post, a news item, someone else's analysis, a transcript — and must go into the graph, a case or another agent; decide which before writing (out of failure 3, `verstak`'s `The method fails in five ways`). Phrases: "ingest this", "seed the graph from these issues / docs", "add this issue", "record this post", "distribute this review across the cases", "intake". Not `writing` (a distinction you already hold), `assistant` (relaying the user's words verbatim), `feedback` (experience with the method), `align` (derived config); the plugin's product-roadmap method, not in this catalogue, composes this method with a GitHub adapter.
+**Use when:** text from outside arrives — an issue, docs, a README, a post, a news item, someone else's analysis, a transcript — and must go into the graph, a case or another agent; so does a story, scenario or dictation with many doers (`A story with many doers`); decide which before writing (out of failure 3, `verstak`'s `The method fails in five ways`). Phrases: "ingest this", "seed the graph from these issues / docs", "add this issue", "record this post", "distribute this review across the cases", "intake". Not `writing` (a distinction you already hold), `assistant` (relaying the user's words verbatim), `feedback` (experience with the method), `align` (derived config); the plugin's product-roadmap method, not in this catalogue, composes this method with a GitHub adapter.
 
 External text is *shabda*: testimony, words whose existence lies outside the graph. It enters **as a claim, never as a fact** — mapped to the right node type, marked with provenance, deduplicated, anchored — and then checked. Text headed for a case or another agent is checked against the graph before the hand-over too (step 3). The line: **shabda → check → thesis**; `given_as` is chosen by what the claim is about, not by its having arrived as a document. Text dumped in bulk as facts floods the graph with authoritative-looking noise and false tensions; systems grow, they aren't poured in.
 
@@ -80,6 +80,10 @@ Then grade: **matches the graph** → agreement with the record; it raises nothi
 ## 6. Selectivity is a guard, not a convenience
 
 Never the whole tracker, never "all the docs". Declare the slice (open / labelled, a date cutoff, a high-signal subset), cap the volume, and **say what was left out** — an unannounced slice reads as "let everything in". Selectivity, modes by the claim's grounds, dedupe and anchoring hold together; remove one and the guard falls.
+
+## A story with many doers
+
+A story, scenario or document with many doers and acts — dictated steps included — is not written as one kriya: that is transcription, keeping the word instead of the meaning. Whoever decides writes a **sketch** — the intent as large transitions — and hands the **whole text** to a subagent (`verstak`, `Work goes to subagents`) with the setting: intake by this method, then **weaving**, then a report. **Accept by reading the written nodes** against the sketch and the neighbourhood, not by the report: each step has its own doer and before/after, hand-overs are phenomena, subsystems are told apart. Steps cut along the story's sentences rather than at a change of doer, subsystem, tool or before/after are a careless decomposition — back to weaving, or fixed. The sketch is no standard: where the intake diverges from it, first ask whether the intake is more precise. Not distributed this way: a short word with one doer, and the owner's word that decides — a decision is an act, recorded as one (**writing**, Decision 1), not admitted as testimony.
 
 ## After writing
 

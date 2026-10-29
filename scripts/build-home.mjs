@@ -147,6 +147,10 @@ const SKILLS = {
     description:
       "The tier between the user and their agents, on the user's appointment: the user's word into cases, decisions into the graph, work split across units and accepted back, stalled and empty posts found, escalations filtered and choices put to the user. Triggers: 'take the post', 'split this across the agents', 'run a crew', 'who's stuck', 'who else should we bring up', 'task the agents', 'accept the work', 'plan in waves'. Needs the verstak_* tools.",
   },
+  forgetting: {
+    description:
+      "Take a word of rejection and let go by kind: the word's force read, its subject outlined, each part's ground told apart (will, thesis, time, form, schema, harm), the meaning kept and dependants rebound before anything is released, then each part released, refuted and kept, rewritten or replaced; someone else's record without firm knowledge goes to a forgetting case with the holders. Triggers: 'this whole direction is nonsense', 'forget it', 'drop this', 'we're not doing that', 'this looks outdated'. Needs the verstak_* tools.",
+  },
   inquiry: {
     description:
       "The life of a vimarsha and the field of inquiry: anchor, resolve, end by axis, accept as is, supersede, crystallize, attach to a transformation. Triggers: 'go through the vimarshas', 'what's open', 'close this question', 'keep this question', 'park this question', 'resolve the question', 'triage the questions'; an answer, merge or decision lands on a question; many hanging vimarshas; a session ends. Not posing a question (writing). Needs the verstak_* tools.",

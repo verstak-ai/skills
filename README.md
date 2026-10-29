@@ -26,6 +26,7 @@ The door selects methods for reading, writing, designing and weaving through the
 | `establish-mcp` | Reach the graph through the shipped stdio-to-HTTP OAuth bridge. |
 | `feedback` | Record reproducible experience about the method and tools. |
 | `foreman` | Coordinate a crew of doers: waves, tasking, acceptance control. |
+| `forgetting` | Take a word of rejection or a sign of the outdated and let each part go by its kind. |
 | `inquiry` | Anchor, resolve, park or close an open question. |
 | `intake` | Bring external word into the graph. |
 | `integrity` | Trace a transformation's impact and dependencies. |
