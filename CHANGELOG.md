@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.20.0](https://github.com/verstak-ai/skills/compare/v3.19.2...v3.20.0) (2026-10-29)
+
+
+### Features
+
+* abandoned cases, the refutation canon and role files on the machine (align contract 8) ([#257](https://github.com/verstak-ai/skills/issues/257)) ([35b1c33](https://github.com/verstak-ai/skills/commit/35b1c33dd5adc44946136ced185454ef3bffb147))
+
+
+### Bug Fixes
+
+* review findings of candidate 3.20.0 — surface snapshot, answered cards, pins, receiving clones ([#259](https://github.com/verstak-ai/skills/issues/259)) ([2417c56](https://github.com/verstak-ai/skills/commit/2417c56103627932cb476669d1bb7724845bc5a6))
+* second-round review of candidate 3.20.0 — gate tools exclude .worktrees, ack versus ok, placeholders ([#260](https://github.com/verstak-ai/skills/issues/260)) ([9c0b910](https://github.com/verstak-ai/skills/commit/9c0b910dc541438f939e454412976b0d9926953b))
+
 ## [3.19.2](https://github.com/verstak-ai/skills/compare/v3.19.1...v3.19.2) (2026-10-29)
 
 
