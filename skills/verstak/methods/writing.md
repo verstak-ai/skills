@@ -119,7 +119,7 @@ On a doubt, counter-thesis or hint, `upeksha` is **accepted as is**: out of the 
 | karta | a role's name | 👤 Designer | "Alex" |
 | vimarsha | an inquiry, not necessarily a question | 🕮 CXDB — holon or phenomenon? | "Problem" |
 
-A name starts with an emoji by meaning, not by type (🔥 marks incidents), or with a mark glyph — 法, 行, 名, 形, 变; without one the node is not written or renamed.
+A name starts with an emoji by meaning, not by type (🔥 marks incidents), or with a mark glyph — 法, 行, 名, 形, 变; without one the node is not written or renamed. A name too long to take one is shortened to its thesis.
 
 **The body** goes under the type's own field: `telos` (bianhua), `essence` (kriya), `motivation` (karta), `description` (the rest) — one, not both. A kriya: its before/after (pariṇāma), "Before: X. After: Y." (a task list → rewrite); a phenomenon: what it IS and which kriyas take it; a vimarsha: the question and **what counts as an answer**; a holon: the boundary's principle, the factory's four questions; a role: what drives it; a bianhua: "the system becomes …".
 
