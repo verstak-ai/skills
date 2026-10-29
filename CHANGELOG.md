@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.19.0](https://github.com/verstak-ai/skills/compare/v3.18.2...v3.19.0) (2026-10-29)
+
+
+### Features
+
+* **bridge:** one dispatcher connection per daemon for every channel, the per-seat socket kept as the fallback (core 6f36bba0) ([ddccfe2](https://github.com/verstak-ai/skills/commit/ddccfe2166a264c2a45cf4fd60a8c130d606c95f))
+* **bridge:** the reply line under a person's direct word from the window ([ddccfe2](https://github.com/verstak-ai/skills/commit/ddccfe2166a264c2a45cf4fd60a8c130d606c95f))
+
+
+### Bug Fixes
+
+* **bridge:** act_at in the seat's pulse; a usage snapshot over the tact limit is not sent ([ddccfe2](https://github.com/verstak-ai/skills/commit/ddccfe2166a264c2a45cf4fd60a8c130d606c95f))
+* **opencode:** a first request with no cached tool list waits for the server's list ([ddccfe2](https://github.com/verstak-ai/skills/commit/ddccfe2166a264c2a45cf4fd60a8c130d606c95f))
+* **writing:** a name too long for its emoji is shortened to its thesis ([ddccfe2](https://github.com/verstak-ai/skills/commit/ddccfe2166a264c2a45cf4fd60a8c130d606c95f))
+* **writing:** a node's name starts with an emoji or a mark glyph ([#248](https://github.com/verstak-ai/skills/issues/248)) ([ae66f6d](https://github.com/verstak-ai/skills/commit/ae66f6db9d88e6d3804a2ad617b3025cf48b058f))
+* **writing:** the leading emoji is the writer's duty; a long name loses words, not the emoji ([#250](https://github.com/verstak-ai/skills/issues/250)) ([2b2e035](https://github.com/verstak-ai/skills/commit/2b2e035b7f1cf7781c9f30809997cf0665fa18b0))
+
 ## [3.18.2](https://github.com/verstak-ai/skills/compare/v3.18.1...v3.18.2) (2026-10-28)
 
 
