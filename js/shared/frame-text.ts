@@ -1,6 +1,6 @@
 import { FRAME_MARK, FRAME_TEXT, ROOM } from "../delivery/index.ts";
 import { addressedToMine, closedQuestion } from "./addressed.ts";
-import { classifyOrigin, type Frame } from "./channel.ts";
+import { classifyOrigin, type Frame, type FrameOrigin } from "./channel.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
 import { addresseeOf, need, opt } from "./room-fields.ts";
@@ -88,12 +88,28 @@ function tail(frame: Frame, withReply: boolean): string {
 export const markFrame = (text: string): string => `${FRAME_MARK} ${text}`;
 
 /**
+ * The reply line under a person's direct word (#9128): the api gives the word an id and
+ * the person's own seat in provenance, and the answer reaches the window under the word
+ * only as a reply to it. The seat is from_standing, or from_standing_id when the platform
+ * sent the id alone. A doer's word, a word with no seat to answer at and one with no id
+ * carry no line: there is no way to build the call.
+ */
+function humanWordReply(frame: Frame, origin: FrameOrigin): string {
+  if (origin !== "human") return "";
+  const p = rec(frame.provenance);
+  const standing = idOf(p.from_standing) || idOf(p.from_standing_id);
+  const id = idOf(frame.id);
+  return standing && id ? T().humanWordReply(standing, id) : "";
+}
+
+/**
  * A standing frame, short, into the agent's turn — the same in pi, OpenCode and the
  * watchdogs (graph @nks/nks-dev, node #6081): the first line is case, record, kind and
  * who; then the text once. Rule #6574: a case record not addressed to the seat goes
  * as a count (caseCountLine). The bridge has already checked the frame; provenance and
  * envelope are never printed raw (case history reads the whole record), and
- * delivery never tells the agent to answer — but for the life check.
+ * delivery never tells the agent to answer — but for the life check and a person's
+ * word from the window (#9128).
  */
 export function frameToText(frame: Frame | null | undefined, raw: string): string {
   if (!frame) return raw;
@@ -120,10 +136,13 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
     if (text && !words.includes(text.trim())) lines.push(text);
     return lines.join("\n");
   }
-  // Direct word, wake-up, graph event — no instruction to answer (#6574); the life check alone
-  // names the way to answer (case #1046): a seat silent past it is put out.
+  // Direct word, wake-up, graph event — no instruction to answer (#6574); two name the way
+  // to answer: the life check (case #1046) — a seat silent past it is put out — and a
+  // person's word from the window (#9128): without an address its reply is lost.
   const lines = [`${whoOf(frame, true) || "?"}${tail(frame, true)}`];
   if (text) lines.push(text);
+  const reply = humanWordReply(frame, origin);
+  if (reply) lines.push(reply);
   if (isLifeCheck(frame)) lines.push(T().lifeCheckSeat(warnedSeat(frame)), T().lifeCheckReply());
   return lines.join("\n");
 }

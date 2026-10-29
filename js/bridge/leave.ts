@@ -28,9 +28,11 @@ import {
 } from "./hold.ts";
 import { markLeft } from "./holdrecord.ts";
 import { H } from "./holdstate.ts";
+import { liveOnDispatcher, onDispatcher } from "./muxhold.ts";
 import { otherRealm } from "./realms.ts";
 import { releaseSatelliteClaims } from "./satellite.ts";
 import { publishedStatus, publishStatus } from "./status.ts";
+import { statusAddress } from "./statusaddr.ts";
 import { emit, log } from "./streams.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
@@ -65,16 +67,26 @@ export async function leaveStanding(reason: string, byWord = false): Promise<str
   // Seats of the channel share the socket: leaving closes it for all (#5838).
   const leaving = heldPlaces().map((p) => p.key);
   if (leaving.length) await flushUsage(usagePlace()); // last usage snapshot while the seat is held (#6401)
+  const status = publishedStatus();
+  // On the dispatcher the cleared line goes in the tact before the unsubscribe (#8620 v11);
+  // a socket per seat is cleared after it closes, as before.
+  // A dispatcher subscription broken and not back: the line stays on the board till the pulse
+  // runs out, as on any break (#8620 v11) — no POST, and no refusal to the agent.
+  const url = statusAddress()?.url ?? null;
+  const live = !!url && liveOnDispatcher(url);
+  const kept = !live && !!url && onDispatcher(url);
+  const early = live ? await publishStatus("", undefined, true) : null;
   const parked = parkStanding(reason);
   if (!parked) return W.notHolding();
   K.beside = beside;
-  K.status = publishedStatus();
-  const st = await publishStatus("", undefined, true); // cleared on all seats of the channel
+  K.status = status;
+  // cleared on all seats of the channel
+  const st = early ?? (kept ? null : await publishStatus("", undefined, true));
   // Kept in the hold record; restored only when the same session returns (#6017).
-  if (st.ok && K.status) rememberStatus(K.status);
+  if ((st?.ok ?? true) && K.status) rememberStatus(K.status);
   // A leave by word holds: only a stand by name raises the seat again (#6017).
   if (byWord) for (const k of leaving) markLeft(k, true);
-  const line = clearedLine(st);
+  const line = st ? clearedLine(st) : W.keptOnBoard();
   log(`left the standing: ${reason}; ${line}`);
   const which = leaving.length > 1 ? W.seats(leaving.join(", ")) : W.seat(parked);
   return byWord ? W.leftByWord(which, line) : W.left(which, line);
@@ -90,10 +102,14 @@ async function leaveSatellite(reason: string): Promise<string> {
   const place = heldPlaces()[0]?.key;
   if (!place) return W.notHolding();
   await flushUsage(usagePlace());
-  const st = await publishStatus("", undefined, true);
+  // A broken dispatcher subscription: the line would wait for a hello the release never lets
+  // come — it stays on the board till the pulse runs out, and the agent is told so (#8620 v11).
+  const url = statusAddress()?.url ?? null;
+  const kept = !!url && onDispatcher(url) && !liveOnDispatcher(url);
+  const st = kept ? null : await publishStatus("", undefined, true);
   releaseStanding(`${reason}: ${W.satelliteReleased()}`, true, false, true);
   releaseSatelliteClaims(); // the name is free for the next run
-  const line = clearedLine(st);
+  const line = st ? clearedLine(st) : W.keptOnBoard();
   log(`left the satellite place: ${reason}; ${line}`);
   return W.leftSatellite(place, line);
 }

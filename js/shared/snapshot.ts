@@ -77,7 +77,7 @@ export function safePulse(v: unknown): Record<string, string | number> | undefin
   if (typeof raw.state !== "string") return undefined;
   const out: Record<string, string | number> = { state: raw.state };
   if (typeof raw.pending === "number" && Number.isFinite(raw.pending)) out.pending = raw.pending;
-  for (const k of ["turn_at", "read_at", "cycle_at", "sent_at"])
+  for (const k of ["turn_at", "read_at", "act_at", "cycle_at", "sent_at"])
     if (typeof raw[k] === "string") out[k] = raw[k];
   return out;
 }

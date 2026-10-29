@@ -7,6 +7,8 @@ export interface LeaveWords {
   notHolding: () => string;
   cleared: () => string;
   notCleared: (body: string) => string;
+  /** The dispatcher subscription is broken: the line stays on the board till the pulse runs out, no refusal. */
+  keptOnBoard: () => string;
   seats: (keys: string) => string;
   seat: (key: string) => string;
   leftByWord: (which: string, line: string) => string;
@@ -29,6 +31,8 @@ export const LEAVE: Readonly<Record<Lang, LeaveWords>> = {
     notHolding: () => "the bridge holds no seat — nothing to leave",
     cleared: () => "busyness cleared",
     notCleared: (body) => `busyness not cleared (${body})`,
+    keptOnBoard: () =>
+      "the busy line stays on the board till the pulse runs out — the dispatcher connection is broken now; it comes back with the return",
     seats: (keys) => `the seats ${keys} (they share the channel socket)`,
     seat: (key) => `the seat ${key}`,
     leftByWord: (which, line) =>

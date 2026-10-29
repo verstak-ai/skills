@@ -20,6 +20,11 @@ export interface FrameTextWords {
   lifeCheckReply: () => string;
   /** The seat a life check warned; empty — the platform named none. */
   lifeCheckSeat: (name: string) => string;
+  /**
+   * The reply line under a human's direct word from the window: how to answer it so the
+   * answer stands under it. standing — the human's seat (provenance), id — the word's.
+   */
+  humanWordReply: (standing: string, id: string) => string;
 }
 
 export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
@@ -37,6 +42,8 @@ export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
     lifeCheckReply: () =>
       `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
     lifeCheckSeat: (name) => `Seat warned: ${name || "the platform did not name the seat"}.`,
+    humanWordReply: (standing, id) =>
+      `reply: ${tool("channel")}(action="send", standing=${standing}, in_reply_to=${id}, text=…)`,
   },
 };
 

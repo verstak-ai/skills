@@ -11,6 +11,7 @@ import { CFG } from "./config.ts";
 import { localSocketPathOf, releaseStanding } from "./hold.ts";
 import { keepHoldRecord } from "./holdkeep.ts";
 import { dropHoldRecord, readHoldRecord } from "./holdrecord.ts";
+import { leavingLine, released } from "./muxhold.ts";
 import { handoverPauseKey, suspended } from "./pauserecord.ts";
 import { publishStatusTo } from "./status.ts";
 import { statusAddress } from "./statusaddr.ts";
@@ -53,6 +54,8 @@ export function closeRun(why: string, handover: boolean): Promise<RunEnd> {
     const spent = closing || paused ? usagePlace() : null;
     // A satellite keeps no hold record; others keep it with the term counted from now (graph @nks/nks-dev, node #6649).
     if (!CFG.satellite) keepHoldRecord();
+    // On the dispatcher the cleared busy line goes in the tact before the unsubscribe (#8620 v11).
+    const line = addr && closing ? leavingLine(addr.url) : "none";
     // A paused seat keeps its busyness even if nobody takes the handover socket.
     releaseStanding(why, CFG.satellite && !paused, false, false, paused);
     if (paused) R.held = { places, addr };
@@ -63,7 +66,8 @@ export function closeRun(why: string, handover: boolean): Promise<RunEnd> {
     const end = paused ? { failed: [], revoked: [] } : await revokeSatellitePlaces(places);
     // Busyness ends with the session, else the board shows a doer where nobody is; a satellite's
     // goes even on handover (it has no return from disk).
-    if (addr && closing) await publishStatusTo(addr.url, "", 3000).catch(() => {});
+    if (addr && line === "post") await publishStatusTo(addr.url, "", 3000).catch(() => {});
+    if (line === "tick") await released(1000);
     return end;
   })());
 }
