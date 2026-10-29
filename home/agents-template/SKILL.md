@@ -87,7 +87,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 ## Git workflow
 - Conventional commits (`feat:`, `fix:`, `chore:`…); branches and PR titles likewise.
 - PR body: one or two lines and the case number. No co-author trailer unless asked.
-- One branch and one PR per batch of changes, each in its own worktree inside the repo (`.worktrees/<branch>`, ignored); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — its branch in `main` or deleted on the forge, its copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder.
+- One branch and one PR per batch of changes, each in its own worktree inside the repo (`.worktrees/<branch>`, ignored by git and by every gate tool that walks the disk); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — its branch in `main` or deleted on the forge, its copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder.
 - The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`; with results reused by content, a test already run on the same content isn't run again (Test discipline). Pre-commit runs `<linter + formatter + type check>` on staged files.
 - Forge CLI `<gh / fj / glab>`. **Done**: `<merge flow; how you learn it merged>`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
