@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 8 — run /verstak align unprompted if a repo's stamp is below 8, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, forget this, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 8 — run /verstak align unprompted if a repo's stamp is below 8, a date, or missing."
 slash: true
 ---
 
@@ -69,6 +69,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 **Write as you learn.** Search before writing; a thesis name per node, a `sense` per arrow — hooks for the next reader.
 
+**Across a holon's boundary — by firmness of knowledge.** Firm knowledge is written at once: the rightful one's direct word (the user rejected it, the holder confirmed it) or your own observation on the carrier — a small edit past your holon's edge included (a link, the sense on an arrow, carrying out what the user surely rejected). Without it, don't cross: another holder may have the facts that defeat your guess — the check goes to its steward, by a case or a request. The edge doesn't forbid touching another's; it asks for grounds.
+
 ### Work goes to subagents
 
 **The decision, weaving and integration stay with whoever decides** (**integrity**). Subagents take the volume — code, the gate, review, verification; when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge, briefed by references to the decision and neighbourhood. The launcher reads the updated nodes and checks them against their neighbourhood and tensions; a mismatch is redone. Advice is accepted only by that check; owner acts are not delegated.
@@ -103,7 +105,7 @@ A case is read first by its summary (`read`): the latest record per key. **A lin
 
 **A rule's source, genre, force and scope don't fix one another.** Canon, the owner's act and a product rule are different sources. A product rule binds within its mandate without being canon — obey it, don't call it universal; this delivery's own (routing's five graph calls, the silence rhythm, the 5-minute seat probe, a separate subagent before acceptance as verified) and a repo's `AGENTS.md` rules are such. An explanation of canon doesn't command every case; departing from a binding rule needs discretion granted by whoever may grant it. Understanding, consent and mandate are separate: a matching restatement shows understanding, not consent or a mandate.
 
-**Say what a claim stands on.** A finding, doubt, report or acceptance names its ground: seen yourself, inferred, heard from someone, assumed — another's report is heard, not seen. Name the kind of unclarity, since each asks for a different move: unsure (a doubt, wants an answer), "here it breaks" (a counterexample, wants a fix), right conclusion on a wrong ground (a grounding defect), "may break" (a risk, wants a guard), "could be otherwise" (a counter-thesis). A question says what counts as its answer; a recommendation, what it rests on.
+**Say what a claim stands on.** A finding, doubt, report or acceptance names its ground: seen yourself, inferred, heard from someone, assumed — another's report is heard, not seen; remembered (training, earlier context, a summary after compaction, a subagent's retelling) only says where to look, never answers about what is recorded (**entry**, `Recalling`). Name the kind of unclarity, since each asks for a different move: unsure (a doubt, wants an answer), "here it breaks" (a counterexample, wants a fix), right conclusion on a wrong ground (a grounding defect), "may break" (a risk, wants a guard), "could be otherwise" (a counter-thesis). A question says what counts as its answer; a recommendation, what it rests on.
 
 ## Step 1 · Survey, before parsing the request
 
@@ -140,7 +142,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference (gotchas: `Layout` may keep them in `GOTCHAS.md`)
 - a lasting fact about the user beyond one project, or their own way of working, development included → **minding** (a project's infrastructure and a project's rules are project facts)
 - "learn how this works here" → **entry**, then write by this fork
-- someone else's text → **intake**
+- someone else's text, or a story or dictated steps with several doers → **intake**
 
 **Decide**
 - "design this", "what are the risks" → **design**
@@ -164,6 +166,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Tidy**
 - "tidy after the merge", "the graph lies about the code" → **reconcile**
 - "links aren't drawn", "where does this come from" → **weaving**
+- "this whole direction is nonsense", "forget it", "drop this", "this looks outdated" → **forgetting**
 - "what's hanging in my cases" → **assistant**; "tidy up abandoned cases", "move the remainders" → **foreman** while its post stands on the board, else **assistant** within its mandate; "what's open" (questions), "close / park this question" → **inquiry**
 
 **Reach someone**
@@ -187,6 +190,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **lead** ↔ **architect** | the case you lead — order, acceptance, closing — vs. the system's form across holons; leading gives no role's rights |
 | **autonomous** ↔ **foreman** | its own work to merge vs. carrying the human's word to the units, deciding within its mandate and keeping its own part of the graph |
 | **onboarding** ↔ **align** | the person has no working graph or role yet, or the repository bears no sign of alignment, vs. the repo's contract on a graph that exists |
+| **forgetting** ↔ **weaving** | a word or sign that something should stop standing vs. completing what stands |
 
 Channel pairs, a standing preference (a fork by whom it binds: this repo's rule or the user's own), marker phrases: `references/door-phrasebook.md`. Unresolved → ask in one line.
 
@@ -223,6 +227,9 @@ They apply unasked.
 |---|---|
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
+| about to answer from what you remember (training, earlier context, a summary after compaction), or a search came back empty | climb the ladder — **entry**, `Recalling` |
+| the user's word may drop a direction, an artifact or a thesis; a record, branch or document looks outdated | **forgetting** |
+| a story, scenario or dictation with several doers | **intake**, `A story with many doers` |
 | about to write (`verstak_add_*`, `verstak_batch`, any `verstak_update`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |

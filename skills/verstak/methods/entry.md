@@ -112,6 +112,19 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 **No hit** → name the instruments you used; never "there is none".
 
+## Recalling — a ladder
+
+The knowledge you need is not in your context. Your own memory — training, earlier context, a summary after compaction, a subagent's retelling — is a reason to look, never the answer about what is recorded: answer from reading, naming what you read and its modes; what a record says about the world is its author's testimony, with that author's reach. Climb; each rung costs more than the last:
+1. **Search by the task's meaning**, several passes (above).
+2. **Walk the links** from what you found (`From a card to evidence`).
+3. **Orient on where it should lie** — the holon the subject belongs to (`verstak_orient(focus=<holon>)`).
+4. **Ask that holon's steward to recall** (`methods/collaborate.md`, `Exchange`, "Asking to recall").
+5. **Ask the user**, naming the search behind the question (`methods/collaborate.md`, `Asking the user`).
+
+"None" on any rung only after a search that would have found it; otherwise "I don't see it", and the next rung.
+
+**A hard recall ends in a trodden path**: it shows the thing should have been recorded so as to be found. Lay a link from where you looked to what you found, a name it will be found by, the sense on the arrow; write a holder's or the user's answer where it will be looked for (`methods/writing.md`). Tread it when the question recurs by kind, the miss was in the record's place or name, and what you found is alive. Don't tread a one-off question of a case (its place is the journal), a difficulty a broken tool made, your own odd phrasing, a doubtful or stale find, or something personal (its place is personal memory, `methods/minding.md`). Across a holon's boundary — by firmness (the door, `Cross-cutting norms`).
+
 ## Re-entering during work
 
 - **Before advice, or retelling someone else's** (a subagent's report, a neighbour's message, a tool's help) → `verstak_orient(focus=<subject>)`; advice about dependencies or closure also reads `lens="tensions"` on the holon holding it; walk to decisions, incidents, questions; name what you read. A direct content question already answered by what you read needs no more — no new trace, no version history, no case log. Unchecked advice is a guess — call it one.
