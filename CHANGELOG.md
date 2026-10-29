@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.19.2](https://github.com/verstak-ai/skills/compare/v3.19.1...v3.19.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* **skills:** reconcile cited by pass; waking names every genre's open will ([#256](https://github.com/verstak-ai/skills/issues/256)) ([6eca1f1](https://github.com/verstak-ai/skills/commit/6eca1f1a0fc0290e2e4a5d6f2746ba77bc378a32))
+* **skills:** review findings of 3.19.0 — six inherited prose defects ([#253](https://github.com/verstak-ai/skills/issues/253)) ([9988b3b](https://github.com/verstak-ai/skills/commit/9988b3bec28c075601afdf15e83ff886b028c767))
+* **skills:** review nits of 3.18.x — person's kind, unknown readiness signs, CI reuse ([#255](https://github.com/verstak-ai/skills/issues/255)) ([b6b5ab8](https://github.com/verstak-ai/skills/commit/b6b5ab898f00935686a081e5b394ff1cf7267350))
+
 ## [3.19.1](https://github.com/verstak-ai/skills/compare/v3.19.0...v3.19.1) (2026-10-29)
 
 
