@@ -130,8 +130,8 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - `DERIVATION.md` — the skills ← canon re-projection map and the four-layer language contract. `SETUP.md` — the per-harness install reference (read, not fetched to execute). `README.md` — short, for people.
 - `REALITY.md` — claim carriers. `CLAUDE.md` — a **symlink** to this file: one file answers every harness; keep it a symlink.
 - `.claude/settings.json` — committed rituals; `settings.local.json` is ignored. `.claude/agents/` — the six delegation roles, each with its own satellite entry; their `description` routes them, so it stays trigger-shaped.
-- `.opencode/agents/` — the same six roles for OpenCode, models pinned from the user's setup. Each role's repository lines sit under its `## This repo` tail.
-- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `dist/` (the dev build), `node_modules` (a directory or a worktree's symlink). Scratch is **not** ignored: keep working files out of the tree.
+- `.opencode/agents/` — the same six roles for OpenCode, each pinned to the model the user chose (their preferences in personal memory). Both sets are a projection on the machine, out of git (`.gitignore`); each role's repository lines live in `Role file tails` and are projected under its `## This repo`.
+- `.gitignore` — `.DS_Store`, `.impeccable/`, `.claude/settings.local.json`, `.worktrees/` (branch worktrees), the twelve role files by name, `dist/` (the dev build), `node_modules` (a directory or a worktree's symlink). Scratch is **not** ignored: keep working files out of the tree.
 
 ## Code conventions
 - Graph references: `(graph @nks/nks-dev, node #N)` in scripts, tests and this file. **Never under `skills/`**: skills ship to users without access to this graph or `methodology`, and seqs are instance-specific — name concepts by name; keep only syntax placeholders (`#42`, `#N`, GitHub `#123`). The built outputs under `skills/verstak/scripts/` and `extensions/` keep the core's code comments as they are: the sibling's source, not our prose.
@@ -163,12 +163,26 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **The PR title is the only commit that reaches `main`**: merges are squashes, so release-please reads the title alone. Give it the **highest** type the branch carries (any `feat:` → a `feat:` PR) and write it as the changelog line. (why: witnessed — four `feat:` commits shipped as a patch under a `fix:` title.)
 - PR body: one or two lines in English and the case number. No co-author trailer.
 - The gate is one call: `make check`; CI runs the same targets on every PR and on pushes to `main` (`.github/workflows/ci.yml`). Pre-commit rebuilds and stages `verstak.skill`; the prose has no linter, formatter or type check — review the `SKILL.md` diff by eye.
-- **Branch from a freshly fetched `origin/main`**, naming the remote every time: `git fetch origin && git worktree add DIR -b BRANCH origin/main`. Squash merges mean a branch off a merged branch replays work already on `main` and the PR conflicts with itself — sharpest right after a merge. In a worktree `git checkout main` fails (the primary clone holds it); branch deletion belongs to that clone.
+- **Branch from a freshly fetched `origin/main`**, naming the remote every time: `git fetch origin && git worktree add .worktrees/BRANCH -b BRANCH origin/main`. Squash merges mean a branch off a merged branch replays work already on `main` and the PR conflicts with itself — sharpest right after a merge. In a worktree `git checkout main` fails (the primary clone holds it); branch deletion belongs to that clone.
 - Self-review here reads prose: does a line instruct into a refusal the surface makes; does a rule scold where it should name the checkable sign; is a step's obligation stated or only implied; did a fix to one node's wording leave the same wording on a sibling.
 - **Never push to `main`.** Push your branch and open its PR yourself (`gh pr create`), without asking or offering it as a choice; follow-ups go into the open PR.
 - Forge CLI `gh`. Follow the PR in the background (a background shell or a subagent runs `gh pr checks N --watch`; your own turn never blocks on it), fix red in the branch, keep your channel's socket open while you wait. **Done**: merged to `main` on `github.com/verstak-ai/skills` via its PR — `gh pr view N --json state` or the merge hook tells you. **The agent merges its own PRs** (the owner's word, 2026-10-09): on green CI and after review by the batch's tier (`methods/code-work.md`, `Cold review`). **Releases go in waves**: several changes into one release PR, not one per change; before it merges, its frozen candidate gets one full review against the previous release, the committed release build and touched shared surfaces included. Skill bodies must be read by different model families in that round, each finding numbered by a skill-body criterion (below); a second family on code is optional, the user's choice. A batch that is itself the release candidate gets no extra light review. The release PR is the agent's to merge too. Never `--admin`, never past a red check.
 - **Skill-body criteria** (graph @nks/nks-dev, node #8077, adapted): 1 faithful to the canon (a rule traces to a methodology or delivery node; `DERIVATION.md`); 2 faithful to the tool surface; 3 channels kept apart — the call contract in the tool's description, the method's when and why in the skill, no transcribed surface; 4 one norm, one home, no repeating layer; 5 each step's obligation stated; 6 no dead weight — no ban without a signal, the retired removed whole; 7 the corpus doesn't teach two things about one (door, methods, tool descriptions); 8 routing and triggers reach the right method; 9 every file within the client output limit (Shared surfaces); 10 testable by behaviour where a key method has a probe; 11 English per the language contract (`DERIVATION.md`); 12 complete inventory — methods on disk, the door, `README.md` and this file agree. 3, 7, 8 and 12 are judged over the whole corpus.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
+
+## Role file tails
+#### designer, worker
+- Skill prose is edited in `skills/verstak/`; run `make check` before reporting. Never hand-edit `verstak.skill`, `home/` or the built JS outputs: `make build` regenerates the bundle and `home/`, the pre-commit hook stages them, and the release job writes the JS outputs.
+- Prose here is the product: no wholesale rewrite for one fix; match the register and terminology of the file you edit.
+
+#### reader
+- The source of truth is `skills/verstak/`. Never read `verstak.skill`, `home/`, `~/.claude/skills/` or the plugin cache and report it as the method: all are derived, and an installed copy is routinely releases behind.
+
+#### reviewer
+- Prose is the product: read the diff with the self-review questions of `AGENTS.md`, Git workflow, and check every row of `AGENTS.md`, Shared surfaces, the diff touches.
+
+#### verifier
+- Format: `make check` against the committed `verstak.skill` and `skills/verstak/`; a green source tree with a stale bundle is a fail.
 
 ## Local overrides
 - **Graph access:** `r5` lives on the sibling deployment and is reached through that deployment's bridge and door; its tools carry that deployment's prefix instead of `verstak_`. Read the prefix off your own tool list: the tool whose name ends in `_orient` (and `_case`, `_stand`, `_look`…) — whatever stands before that suffix replaces `verstak_` in every call the door and methods name. No such tool listed → the bridge isn't connected: `methods/establish-mcp.md`. Names written into `skills/` stay `verstak_*`.
@@ -176,6 +190,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **Full-gate exception — this repository only**: by the owner's grant (graph @nks/nks-dev, node #864), retain the full `make check` locally and for PR/main CI, without affected-module selection or a result cache; repeating checks across local/CI is allowed. Revisit when a measurement shows a substantial CI-cost increase. This grants no exception to other repositories.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `7`, stamped `2026-10-27` — re-run when the installed
+*(verstak align: contract `8`, stamped `2026-10-29` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*

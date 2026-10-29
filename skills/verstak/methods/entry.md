@@ -130,7 +130,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 - **The `vimarshas` lens on a bianhua shows no questions** → not "no seed": seeds come via `anga` (the bianhua map or an `anga_of` query).
 - **Search is silent** → semantic search; silent too → "lexical and semantic search found nothing; answering from general knowledge — open a doubt?".
 - **The result looks complete** (a round row count, a truncated tail, several holders of a name) → it's a page: narrow with `verstak_search(q="", node_type=…)`.
-- **Your node says something you no longer see** → confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false → "was it ever so?" (`atita` / `vikalpa`).
+- **A node you stand on says something you no longer see** → your own: confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false, even someone else's → refute with grounds by "was it ever so?" (`methods/writing.md`, modes); releasing someone else's is its holder's — a word to them.
 - **A write has no author, or returns 409** → `methods/collaborate.md`, `Repair tree`.
 - **The door's description doesn't match a method's body** → the delivery is behind: `methods/establish-mcp.md`, `Updating`.
 
@@ -142,7 +142,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 - **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`). Time matters to evidence, not to questions: an observation of a surface that has since moved may no longer ground the claim.
 - **Read the call from the printed mark**, not the volitive mode: `virodha` on a risk stands while the defect lives. Orient's active sections pre-filter; raw search doesn't.
 - **Emoji are the author's voice.**
-- **Light writes while reading.** An obvious small fix (a missing arrow, a stale wording, a resolved vimarsha) → do it (`verstak_update`, `verstak_arrow(action="link")`), say so, `verstak_look` again, show `CHECKS:`. New phenomena and kriyas, substantive vimarshas, deletes, renames, re-links — only with agreement.
+- **Light writes while reading.** An obvious small fix (a missing arrow, a stale wording) → do it by `methods/writing.md` (`verstak_update`, `verstak_arrow(action="link")`); ending a vimarsha by `methods/inquiry.md`; say so, `verstak_look` again, show `CHECKS:`. New phenomena and kriyas, substantive vimarshas, deletes, renames, re-links — only with agreement.
 
 ## When not to enter
 

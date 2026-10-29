@@ -105,7 +105,7 @@ For each approved cluster:
 ```
 verstak_add_vimarsha(genre="samshaya",
   name="<emoji> Is <X> affected by the transformation \"<bianhua>\"?",
-  vimarsha_of=<first anchor>, posed_by=<short address: role, standing or name>,   # not prose
+  vimarsha_of=<first anchor>,   # who asked and why — in reasoning
   description=<what the telos means for these nodes; what counts as an answer>,
   epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")
 → extra anchors: verstak_arrow(action="link", arrow_type="vimarsha_of", ...)

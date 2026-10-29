@@ -3,3 +3,16 @@
 .claude/settings.local.json
 dist/
 node_modules
+.worktrees/
+.claude/agents/designer.md
+.claude/agents/reader.md
+.claude/agents/reviewer.md
+.claude/agents/searcher.md
+.claude/agents/verifier.md
+.claude/agents/worker.md
+.opencode/agents/designer.md
+.opencode/agents/reader.md
+.opencode/agents/reviewer.md
+.opencode/agents/searcher.md
+.opencode/agents/verifier.md
+.opencode/agents/worker.md

@@ -74,11 +74,11 @@ Calls for action: **seeking an answer**, **guarding**, **present** on a defect, 
 
 ## Polarity of virodha and ending
 
-Canon of kinds; the surface catches up in waves — read refusals and warnings from its response. `verstak_look` glosses the carrying axis on every node.
+Canon of kinds; a divergence from the surface — as in `Forbidden triads`. `verstak_look` glosses the carrying axis on every node.
 
 The table by kind lives in **writing**, Decision 3. Beyond it: the epistemic axis ends only seed and concept, by `badhita`; `visarjana` always ends, shown apart from a carrying-axis ending.
 
-**Refutation: was it ever so?** The surface rejects `badhita` on `vartamana`. Was and no longer is → `atita`; never was → `vikalpa`. `atita` → `vikalpa` rewrites history: grounds in `reasoning`.
+**Refutation: was it ever so?** `badhita` is an epistemic act: any doer with refuting grounds on the carrier sets it, naming them in `reasoning`; the will moves on someone else's record (release, accept, refuse) are its holder's or the rightful principal's — to another, a word to the holder. The surface rejects `badhita` on `vartamana`; the answer moves the ontic: was and no longer is → `atita`; never was → `vikalpa` (into `vikalpa` only with `badhita`). `atita` → `vikalpa` rewrites history: its ground is evidence that the being never was, not the absence of a trace. The refutation itself proved false → out of `vikalpa`: epistemic to `anumita`, the ontic again by "was it ever so?". Doubt without refutation → epistemic to An/Kl, the ontic stands. These moves are legitimate as a **reverify event** — a mode touch with new grounds in `reasoning`. On ontically carried kinds what closes is not the refutation itself but the ontic move it forces.
 
 **Three answers to the unwanted:** `virodha` rejects (work); `upeksha` accepts (a fact, out of open work, counted on its own "accepted" surface); `visarjana` releases. Done differs from accepted ontically: done moved to `atita`/`vikalpa` by an action; accepted still stands. An incident is accepted through its owning risk or defect vimarsha; the state of affairs follows. On a doubt, counter-thesis or hint, `upeksha` = accepted as is: out of the queue, woken by a change at its anchor (not a date), not counted as resolved.
 
@@ -95,7 +95,7 @@ Forward along the carrier and rising confidence (Kl → An → Pt → Pm) are le
 3. **Risk → incident:** Kl/Ag/Vi → Pt/At/Vi, by modes or `realized_as` → `sachverhalt`. The risk isn't ended: `visarjana` ends it, `upeksha` accepts it.
 4. **Incident → released:** Pt/At/Vi → Pt/At/Vs. The answer arrow releases nothing — the holder does.
 5. **Observation → attested:** Pt → Pm only with new evidence at a declared level; for behaviour, on the canonical carrier, not the graph.
-6. **Attested → refuted:** Pm/Va → Ba/At (was) or Ba/Vk (never was). Doubt without refutation: epistemic back to An/Kl, ontic unchanged.
+6. **Attested → refuted:** Pm/Va → Ba/At or Ba/Vk — by "was it ever so?" (above).
 7. **Phased out → retired:** Pt/Va/Vi → Pt/At/Vs.
 8. **Unwanted → accepted:** Vi → Up, ontic untouched — the owner's act. A kriya consuming the defect moves it to At instead.
 9. **Vimarsha → accepted as is:** Ch/Ad → Up; back to Ch when its anchor changes.
@@ -103,14 +103,14 @@ Forward along the carrier and rising confidence (Kl → An → Pt → Pm) are le
 11. **Stub → intent:** Up → Ch or Ad.
 12. **Loss:** Va → Na, At → Na — ontically carried kinds only.
 
-**Suspicious** (flagged; fix by the mode, not by restructuring): resurrection (`atita` → `vartamana`, `nashta` → anything) without grounds; Pm → An/Kl without a reverify event; `anagata` → `atita`/`nashta` skipping `vartamana` (for a risk, Ag → At is realisation). Moves into `vikalpa` only with `badhita`. `visarjana` → `chanda` is a legitimate, logged reopening.
+**Suspicious** (flagged; fix by the mode, not by restructuring): resurrection (`atita` → `vartamana`, `nashta` → anything) without grounds; Pm → An/Kl without a reverify event; `anagata` → `atita`/`nashta` skipping `vartamana` (for a risk, Ag → At is realisation); `atita` → `vikalpa` and out of `vikalpa` — always shown, legitimate with grounds ("was it ever so?" above). `visarjana` → `chanda` is a legitimate, logged reopening.
 
 ## Three fates of a record no longer held
 
-Probe: *will a future reader learn from this node standing refuted?* Yes → **refute and keep** (`badhita`, `vikalpa` if being is refuted). It carried no distinction (empty concept, duplicate, stray) → **delete**, reason in `reasoning`. True but no longer held → **release** (`visarjana`). Rejected because "we never do it this way" → crystallize the rule with `arose_from` to the rejected question.
+Probe: *will a future reader learn from this node standing refuted?* Yes — the record carried a false thesis → **refute and keep** (`badhita`, `vikalpa` if being is refuted): it teaches how not to think. Nothing to learn — there was no distinction (empty concept, question about nothing, duplicate, stray) → **delete**, reason in `reasoning`; history keeps the deleted node, restorable, its arrows each on its own. A duplicate by two doers: whoever posed first leads and checks the outcome by reading; the second names what must move over from its node, reads it in the live one and only then closes its own — mutual yielding erases both records. True but no longer held → **release** (`visarjana`), by the holder. Rejected because "we never do it this way" → crystallize the rule with `arose_from` to the rejected question.
 
 ## Forbidden triads
 
 422: `badhita + vartamana` (ask "was it ever so?" → `atita`/`vikalpa`, or epistemic back to `anumita`/`kalpita`); `vikalpa + chanda` (move to `anagata`, or will to `upeksha`/`adhimoksha`); `nashta + chanda` (`anagata` anew, or `visarjana`). `badhita + anagata` is allowed, but a refuted plan that never started is `anagata` + `visarjana`.
 
-Warnings: `kalpita + pramanita`. Kind-dependent: Pm + Ag is suspicious for `ding`/`sachverhalt`, fine for `grundsatz`; `nashta` on an ideal kind and `upeksha` on a bianhua are kind errors. Whether the surface or only the canon refuses — read its response.
+Warnings: `kalpita + pramanita`. Kind-dependent: Pm + Ag is suspicious for `ding`/`sachverhalt`, fine for `grundsatz`. `nashta` belongs to ontically carried kinds, defect vimarshas (counterexample, grounding defect, drift) among them — gone with their carrier; on a concept, seed, principle, bianhua and will-carried vimarshas `nashta` is a kind error, as is `upeksha` on a bianhua. The surface carries the canon only in part: where it diverges here or in the moves, carry out its refusal or warning as given; where it is silent, hold the canon; report the divergence as feedback (**feedback**) — never choose silently.

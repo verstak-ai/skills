@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 7 — run /verstak align unprompted if a repo's stamp is below 7, a date, or missing."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 8 — run /verstak align unprompted if a repo's stamp is below 8, a date, or missing."
 slash: true
 ---
 
@@ -39,14 +39,15 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `7`** (the description's number; **align**, `Contract`).
-   - **Stamp below `7`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `8`** (the description's number; **align**, `Contract`).
+   - **Stamp below `8`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+   - **Stamp current, but your role files are missing on this machine** (a fresh clone; a pull took them out of the index) → only **align**, Step 6: they are a projection on the machine, not part of the repo.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
    - **An `AGENTS.md` line contradicts the method → say so.** Stamp below → the method is right; equal → template defect, **feedback**.
 
 6. **Speak, then listen — watch only.** One real message (where you stand, what you hold, what you'll ask) proves you're reachable: to a frame from the user's seat, `send` with `in_reply_to`; to a case frame (first line `case #N`), `say` in that case; no seat address → `send` to `karta="me"`, the human whose keys you run on (refused → their seat row on the board, `verstak_channel(action="list")`, by handle); an agent only in a case. `me` names an addressee, never a seat to take: no `verstak_stand`, `register` or `connect` with it — an agent does not stand in the owner's role (the bridge's refusal: **collaborate**, step 1). Delivered → the reply's watchdog, then `hello`; else **collaborate**.
 
-7. **Stop.** The user's word or a frame decides: watch → **autonomous**; what's recorded → **entry**; else the routes.
+7. **Stop.** The user's word or a frame decides — picking up your own name's cases (step 2) and, on watch, your role's abandoned ones waits for neither: watch → **autonomous**; what's recorded → **entry**; else the routes.
 
 ## Cross-cutting norms
 
@@ -79,8 +80,8 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Join by share** — invited, or you have a share. To look inside, `read` without joining.
 - **Post by intent** — when the addressee will have something to read.
 - **Delivery doesn't oblige a reply.**
-- **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes — by name, never by a machine-wide prune. Then `mine`: where nothing of yours is awaited, close your lines with their outcome (lead: `propose_close`), `leave` (**code-work**, `Cleanup`). An `ask` of yours still open refuses `leave`: `ack` its answer, or withdraw it (`Ledger`) after telling the case's lead in a `say` which question it was.
-- **A case overloading the context is split by a case, not a word.** The platform says so itself: in the warnings on a case write, an `overload` field when reading the case, the tail of an attention round; recognise it by meaning ("the case overloads the context, open a new one for your area"), not by the string. Answer with a move, not a message in the old case: take your area to a new case (`open_room` on the subject node), invite only its participants, close your lines in the old one with an `ok` line "moved to case #N" (an open `partial` keeps the key open), `leave`. The lead splits the case by areas and closes it or proposes closing (**lead**).
+- **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes, your trees' development caches — by name, never by a machine-wide prune. Then `mine`: where nothing of yours is awaited, close your lines with their outcome — one left open by a seat that left shows as `ownerless` (lead: `propose_close`), `leave` (**code-work**, `Cleanup`). An `ask` of yours still open refuses `leave`: `ack` its answer, or withdraw it (`Ledger`) after telling the case's lead in a `say` which question it was.
+- **A case overloading the context is split by a case, not a word.** The platform says so itself: in the warnings on a case write, an `overload` field when reading the case, the tail of an attention round; recognise it by meaning ("the case overloads the context, open a new one for your area"), not by the string. Answer with a move, not a message in the old case: take your area to a new case (`open_room` on the subject node), invite only its participants, move your open lines by **lead**, `An abandoned case`, steps 4–6 — a move is not acceptance, no `ok` for it — then `leave`. The lead splits the case by areas and closes it or proposes closing (**lead**).
 - **You opened a case by a write (`open_room`) or `talk` — you lead it**: setting work, accepting, handing over the lead and closing are **lead**; a participant needs none of it.
 
 ### One-off task
@@ -162,7 +163,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Tidy**
 - "tidy after the merge", "the graph lies about the code" → **reconcile**
 - "links aren't drawn", "where does this come from" → **weaving**
-- "what's hanging in my cases", "tidy up abandoned cases" → **assistant**; "what's open" (questions), "close / park this question" → **inquiry**
+- "what's hanging in my cases" → **assistant**; "tidy up abandoned cases", "move the remainders" → **foreman** while its post stands on the board, else **assistant** within its mandate; "what's open" (questions), "close / park this question" → **inquiry**
 
 **Reach someone**
 - a seat address from the window, "stand beside me", "verstak graph role case #N" → `Start`
@@ -221,7 +222,7 @@ They apply unasked.
 |---|---|
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
-| about to write (`verstak_add_*`, `verstak_batch`, a `verstak_update` that rewrites or extends a body); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
+| about to write (`verstak_add_*`, `verstak_batch`, any `verstak_update`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
 | a "kriya" with no input or output; a task as a node; a `sinn` standing in for something that acts | **entry**, then **writing** |
 | a stage of work done or decided | the graph catches up in the same move: modes by evidence, questions answered or ended — **weaving**, **inquiry** |
 | a substantial result lands on a transformation, its child transitions are accepted, or its intent changed; the field of transformations overloads | a telos check, unasked: restore the promised quality and today's grounds; parts count, age and an "unfinished" warning call you to look, they don't decide; the outcome is the owner's card — **assembly**, `Telos check and re-assembly` |
