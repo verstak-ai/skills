@@ -108,7 +108,7 @@ Read the item in context (`verstak_orient(focus=<node>)`, then its arrows) and h
 
 - **Map first**: `verstak_orient(lens="bianhua", focus=<N>)` — telos, `anga` drivers, touched holons. An unfinished `anantara` predecessor blocks it: raise that.
 - **Anga is not a queue**: one in another holon gets a vimarsha in *their* inbox; an unassigned one in yours, name to the user. Pose a question the telos needs and attach it by `anga`.
-- Arrival: every anga discharged or accepted as is (named to the owner), integration merged, required claims checked. **Closing is the owner's acceptance**: propose it with verdicts.
+- Arrival is the telos, not a count of parts: run **assembly**, `Telos check and re-assembly` — a part accepted as is is unanswered, a discharged set can miss the telos; integration merged, required claims checked. **Closing is the owner's acceptance**: propose it with verdicts.
 
 ## 2c · Mark the intent — before work leaves the graph
 

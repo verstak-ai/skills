@@ -36,7 +36,7 @@ One door, `verstak_orient`: **`focus` is where you stand, `lens` is where you lo
 
 | When the question is… | Call |
 |---|---|
-| where does what I touch go, what breaks downstream | `lens="trace"`, `focus` = the node |
+| where does what I touch go, what breaks downstream | `lens="trace"`, `focus` = the node; on a kriya add `direction="forward"` — a kriya's natural trace runs backward |
 | what had to happen before this | `lens="trace"`, `direction="backward"` |
 | how does this reach that | `lens="path"`, `focus` and `to` |
 | is this flow closed, what if an input never arrives, what breaks | `lens="tensions"`, `focus` = the holon holding the flow, `verbose=true` |
