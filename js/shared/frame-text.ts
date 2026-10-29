@@ -88,18 +88,27 @@ function tail(frame: Frame, withReply: boolean): string {
 export const markFrame = (text: string): string => `${FRAME_MARK} ${text}`;
 
 /**
- * The reply line under a person's direct word (#9128): the api gives the word an id and
- * the person's own seat in provenance, and the answer reaches the window under the word
- * only as a reply to it. The seat is from_standing, or from_standing_id when the platform
- * sent the id alone. A doer's word, a word with no seat to answer at and one with no id
- * carry no line: there is no way to build the call.
+ * The reply line under a person's direct word (#9128): the answer reaches the window
+ * under the word only as send with in_reply_to, and send is executable only in full —
+ * the frame's graph, the person's role (from_karta_seq, else user_karta_seq) and the
+ * NAME of their seat (from_standing; an id does not name a seat for send). A part
+ * missing is said aloud instead of silence, so the doer does not hunt for an address;
+ * a doer's word carries no line at all.
  */
 function humanWordReply(frame: Frame, origin: FrameOrigin): string {
   if (origin !== "human") return "";
+  const f = frame as Rec;
   const p = rec(frame.provenance);
-  const standing = idOf(p.from_standing) || idOf(p.from_standing_id);
-  const id = idOf(frame.id);
-  return standing && id ? T().humanWordReply(standing, id) : "";
+  const karta = idOf(p.from_karta_seq) || idOf(p.user_karta_seq);
+  const missing = {
+    realm: !idOf(f.realm),
+    karta: !karta,
+    standing: !idOf(p.from_standing),
+    id: !idOf(frame.id),
+  };
+  return Object.values(missing).every((x) => !x)
+    ? T().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame.id))
+    : T().noReplyAddress(missing);
 }
 
 /**
