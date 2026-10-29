@@ -168,7 +168,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.19.0";
+var VERSION = "3.19.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -203,7 +203,13 @@ var FRAME_TEXT = {
     caseHistory: (args, since) => `${tool("case")}(${args}, since=${since})`,
     lifeCheckReply: () => `Answer with an action: update your status — ${tool("stand")}(realm, status=<what you are doing>) — or say a word in the case.`,
     lifeCheckSeat: (name) => `Seat warned: ${name || "the platform did not name the seat"}.`,
-    humanWordReply: (standing, id) => `reply: ${tool("channel")}(action="send", standing=${standing}, in_reply_to=${id}, text=…)`
+    humanWordReply: (realm, karta, standing, id) => `reply: ${tool("channel")}(action="send", realm=${realm}, karta=${karta}, standing=${standing}, in_reply_to=${id}, text=…)`,
+    noReplyAddress: (m) => `no address to reply: missing ${[
+      m.realm && "the graph",
+      m.karta && "the person's role",
+      m.standing && "the person's seat",
+      m.id && "the word's id"
+    ].filter(Boolean).join(", ")}`
   }
 };
 var CASE_LINE = {
@@ -1288,10 +1294,16 @@ function tail(frame, withReply) {
 var markFrame = (text2) => `${FRAME_MARK} ${text2}`;
 function humanWordReply(frame, origin2) {
   if (origin2 !== "human") return "";
+  const f = frame;
   const p = rec2(frame.provenance);
-  const standing = idOf2(p.from_standing) || idOf2(p.from_standing_id);
-  const id = idOf2(frame.id);
-  return standing && id ? T().humanWordReply(standing, id) : "";
+  const karta = idOf2(p.from_karta_seq) || idOf2(p.user_karta_seq);
+  const missing = {
+    realm: !idOf2(f.realm),
+    karta: !karta,
+    standing: !idOf2(p.from_standing),
+    id: !idOf2(frame.id)
+  };
+  return Object.values(missing).every((x) => !x) ? T().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame.id)) : T().noReplyAddress(missing);
 }
 function frameToText(frame, raw) {
   if (!frame) return raw;
