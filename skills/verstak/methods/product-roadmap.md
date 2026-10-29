@@ -90,7 +90,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 | Source item | Node |
 |---|---|
-| a merged contributor PR | what it changed: the phenomenon it produced or changed, the modes of the kriya it moved; a new **kriya** only for a repeatable transition (the door's test, `One-off task`) — never one per PR (`methods/reconcile.md`, step 2) |
+| a merged contributor PR | what it changed: the phenomenon it produced or changed, the modes of the kriya it moved; a new **kriya** only for a repeatable transition (the door's test, `One-off task`) — never one per PR (`methods/reconcile.md`, pass 2) |
 | an open contributor PR | the change it proposes, on the node it changes, `anagata`; a new kriya by the same test |
 | a low-weight drive-by PR | skip it — or a low-priority phenomenon, marked |
 
