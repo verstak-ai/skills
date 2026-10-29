@@ -229,6 +229,8 @@ They apply unasked.
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
 | about to answer from what you remember (training, earlier context, a summary after compaction), or a search came back empty | climb the ladder — **entry**, `Recalling` |
+| about to ask the user something that may already be recorded ("what did we agree?", "why is it so?") | the ladder first; the user is its last rung — **entry**, `Recalling` |
+| mid-code, a choice needs its ground (why is it so, may I change it) | the code's graph reference, else the ladder from the holon — never the ground read off the code alone — **entry**, `Re-entering during work` |
 | the user's word may drop a direction, an artifact or a thesis; a record, branch or document looks outdated | **forgetting** |
 | a story, scenario or dictation with several doers | **intake**, `A story with many doers` |
 | about to write (`verstak_add_*`, `verstak_batch`, any `verstak_update`); `CHECKS` lines in a reply | search first; each `CHECKS` line is work or a reasoned decline — graph integrity, not evidence that anything runs; the node's reader, type, modes, name, arrows and body — **writing**, read before the call |
