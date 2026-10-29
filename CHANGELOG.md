@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.21.0](https://github.com/verstak-ai/skills/compare/v3.20.0...v3.21.0) (2026-10-29)
+
+
+### Features
+
+* the memory canon — a recall ladder, the forgetting method, a story with many doers ([#263](https://github.com/verstak-ai/skills/issues/263)) ([f4df471](https://github.com/verstak-ai/skills/commit/f4df471121b97f3e4519ce3ab24d22cc6fe9171b))
+
+
+### Bug Fixes
+
+* a repository with another delivery's stamp is not aligned unasked ([#261](https://github.com/verstak-ai/skills/issues/261)) ([b9cd044](https://github.com/verstak-ai/skills/commit/b9cd044dbcee6c4bc3be52342fb5eaf555b5855b))
+* an empty search climbs the recall ladder; a story with many doers is woven by a subagent ([#264](https://github.com/verstak-ai/skills/issues/264)) ([2f05f8d](https://github.com/verstak-ai/skills/commit/2f05f8d64705f922e75b03b6231dea2a97246838))
+
 ## [3.20.0](https://github.com/verstak-ai/skills/compare/v3.19.2...v3.20.0) (2026-10-29)
 
 
