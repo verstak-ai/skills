@@ -76,7 +76,7 @@ You write under the companion's own seat, which the runtime gives it; the method
 
 ## The harness branch — no working graph
 
-It also runs in a repository with none of the three signs of alignment, in any harness; the Claude Code plugin's start hook and the OpenCode plugin's first prompt say so in one line, but the signs decide, not the line. A sign present with the rest missing is align's, not this branch's.
+It also runs in a repository with none of the three signs of alignment, in any harness; the Claude Code plugin's start hook and the OpenCode plugin's first prompt say so in one line, but the signs decide, not the line. A sign present with the rest missing is align's, not this branch's. A cover with another delivery's stamp and none of ours is a sign too: a sibling delivery aligned that repository, the start hook stays silent there, and neither this branch nor align runs unasked (the door, `Alignment`).
 
 The order is fixed: personal memory (step 0) → graph → initial hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
 
