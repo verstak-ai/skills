@@ -9,11 +9,11 @@ Split work by **role**, not by size. Six roles, two model tiers: the top tier ca
 | Role | Tier | Good for | Returns to the orchestrator (main session) |
 |---|---|---|---|
 | `reader` | mid (Sonnet class) | breadth-first recon: locate, shortlist candidates, digest with error tolerance | leads + pointers (`file:line`), ≤12 lines |
-| `worker` | top (pinned) | mechanical execution of a self-contained brief: transforms, inventories, structured writes in files; no graph writes | status + artifact paths |
-| `verifier` | top (pinned) | cold acceptance of a behavioural claim: rebuild the canonical carrier, run the named falsifier, report what happened | one verdict per claim + evidence, ≤10 lines |
-| `reviewer` | top (pinned) | cold review by tier — a finished batch before merge (light: refactor or large feature) or after it (small), the tag candidate (full), skill bodies on the final candidate: the diff, surrounding code, focus holon + steward, the change's nodes | `file:line` findings + an integration report: holons, roles, relays, vimarshas, readiness, whom to wake; ≤16 lines |
+| `worker` | top | mechanical execution of a self-contained brief: transforms, inventories, structured writes in files; no graph writes | status + artifact paths |
+| `verifier` | top | cold acceptance of a behavioural claim: rebuild the canonical carrier, run the named falsifier, report what happened | one verdict per claim + evidence, ≤10 lines |
+| `reviewer` | top | cold review by tier — a finished batch before merge (light: refactor or large feature) or after it (small), the tag candidate (full), skill bodies on the final candidate: the diff, surrounding code, focus holon + steward, the change's nodes | `file:line` findings + an integration report: holons, roles, relays, vimarshas, readiness, whom to wake; ≤16 lines |
 | `searcher` | mid (Sonnet class) | "what does the graph know about X": candidate search under several phrasings → node cards → links; read-only, findings are leads | an answer, each claim on a node `#N`, + nodes walked, things seen for repair as questions; ≤12 lines |
-| `designer` | top (pinned) | volume work with judgment on a decision already made: projecting align files, checking slots against code; finding and updating touched nodes when there are many (rule 6), not deciding or weaving | result + nodes `#N` + open items as questions; ≤16 lines |
+| `designer` | top | volume work with judgment on a decision already made: projecting align files, checking slots against code; finding and updating touched nodes when there are many (rule 6), not deciding or weaving | result + nodes `#N` + open items as questions; ≤16 lines |
 
 The orchestrator keeps the dialogue with the user, orchestration, edits that need the conversation, and what rule 6 leaves it. `designer` asks the user nothing, even in a run started on the user's word: its question goes into the case and the return, and the orchestrator asks it.
 
@@ -34,11 +34,11 @@ Rules:
 
 Role files per platform in use: Claude Code always; OpenCode when the repo shows it (`opencode.json` or `.opencode/`) or the user says so. A harness's built-in subagent without a role file takes only graph-free work.
 
-The fenced blocks are deployable; the prose is guidance. A role file's repository lines (gate command, review canon, edit bans) go in a tail under a final `## This repo` heading; re-projection rewrites only what stands above it. Keep each `description` trigger-shaped (it is the routing surface), under ~500 characters, double-quoted, inner `"` escaped: unquoted, a `: ` breaks the YAML.
+The fenced blocks are deployable; the prose is guidance. **The repository tail — lines of the repo in a role file; their home is `AGENTS.md`.** A role file is a projection on the machine, not in git; its body comes from the block below, and the lines the role needs only in this repo (gate command, review canon, edit bans) stand in the `AGENTS.md` section `Role file tails`, by role. The projection puts them at the end of the body under a final `## This repo` heading, and the frontmatter keys beyond the block (tool rights, harness edit bans) beside the block's keys. The tail doesn't override the body: a tail line contradicting it is named in the report, never fixed silently. A tail line in a machine file or an earlier committed projection that `AGENTS.md` lacks → move it into the section before re-projecting. No tail → neither the section nor the heading. Keep each `description` trigger-shaped (it is the routing surface), under ~500 characters, double-quoted, inner `"` escaped: unquoted, a `: ` breaks the YAML.
 
 ### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
-Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no role (rule 1). Bare role names may collide with user-level agents (the project file wins); rename per repo if it bites.
+`model` is the person's choice from their preferences (`methods/align.md`, Step 6): a platform alias or an id, as they named it; `haiku` for no role (rule 1). Bare role names may collide with user-level agents (the project file wins); rename per repo if it bites.
 
 **Every subagent has its own satellite bridge, declared in its agent file.** On the caller's bridge it cannot hear the case, speaks from someone else's seat and cannot talk to the user, so that launch is not allowed.
 
@@ -49,7 +49,7 @@ Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no rol
 - **The entry needs a home bridge that knows `--satellite`**: an older one exits on the flag, leaving no graph tools. Update first (`node ~/.verstak-bridge/verstak-bridge.mjs update`). A flag, not an environment variable, so an old bridge fails loudly instead of silently taking the session's seat.
 - **Entry didn't come up = launch didn't happen**: the subagent says so first and writes nothing; the launching agent writes to the graph and the case and runs `doctor` (below). Same if the bridge answers `satellite_of` that it is a session bridge: no `verstak_stand`, `join` or `leave`.
 
-**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all six except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so the file is committed as is. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
+**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all six except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so one form serves every machine. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
 
 **Tool set per role.** Claude Code sends every tool schema whole on every request (a full server list costs tens of thousands of tokens). `--tools a,b,c`, last in `args` after `--satellite`, names the whole set, `verstak_stand` always included; a tool outside it is refused out loud, so add a needed tool rather than drop the flag. Every bridge hides `verstak_channel`'s `mint`, `connect`, `sessions`; `register` and `revoke` stay. **Use `--tools` only with a bridge that knows it**: an older one exits on it (`doctor`: "home bridge older than the --tools flag"). `doctor` keeps a `--tools` tail in the block it prints.
 
@@ -59,7 +59,7 @@ Use model aliases (`sonnet`, `opus`), not dated ids; `haiku` is pinned to no rol
 ---
 name: reader
 description: "Breadth-first recon: find files and usages, shortlist candidates, digest docs and logs. Returns leads with pointers, not verified facts; the caller re-checks anything load-bearing. Not for exact counts, field extraction, or facts acted on without checking."
-model: sonnet
+model: <middle tier — the person's choice>
 mcpServers:
   - verstak-sub-reader:
       type: stdio
@@ -79,7 +79,7 @@ Recon agent. Your final message is your only output.
 ---
 name: worker
 description: "Mechanical execution of a self-contained brief: apply a known transform, build an inventory, make structured writes in files. Needs an explicit brief with a return contract; returns status + artifact paths, not contents. Not for graph writes, judgment, design, review or open-ended exploration."
-model: opus
+model: <top tier — the person's choice>
 mcpServers:
   - verstak-sub-worker:
       type: stdio
@@ -102,7 +102,7 @@ Brief-execution agent. Your final message is your only output.
 ---
 name: verifier
 description: "Cold acceptance of a behavioural claim: rebuilds the canonical artifact, runs the named falsifier, reports what actually happened. Give it the claim, the carrier and the falsifier; it has no conversation history by design. Returns one verdict per claim (verified, provisional, contradicted, blocked) with evidence. Not for writing fixes, reviewing design, or judging whether the claim was worth making."
-model: opus
+model: <top tier — the person's choice>
 mcpServers:
   - verstak-sub-verifier:
       type: stdio
@@ -126,7 +126,7 @@ Acceptance agent. You didn't make this change and have nothing to defend. Your f
 ---
 name: reviewer
 description: "Cold review of a finished batch (before or after merge), a release tag candidate or its skill bodies: reads the diff, surrounding code, the focus holon with its steward role, and the graph nodes the change touches. Returns findings and an integration report: affected holons and roles, relays, vimarshas, neighbours' readiness, whom to wake. No conversation history by design. Not for fixes or behavioural acceptance (that is verifier)."
-model: opus
+model: <top tier — the person's choice>
 mcpServers:
   - verstak-sub-reviewer:
       type: stdio
@@ -156,7 +156,7 @@ Cold review agent. You didn't write this change and have nothing to defend. Your
 ---
 name: searcher
 description: "Graph search: what does the graph know about X. A search hit is a lead, the knowledge is in the links: semantic search under several phrasings, candidate node cards, their links. Returns an answer with the nodes walked. A short run: answer and leave. Read-only: findings are leads, things to repair go into the report as questions. Not for file search (that is reader), graph writes, design or decisions."
-model: sonnet
+model: <middle tier — the person's choice>
 mcpServers:
   - verstak-sub-searcher:
       type: stdio
@@ -182,7 +182,7 @@ Graph search agent. One task: answer what the graph knows about the brief's ques
 ---
 name: designer
 description: "Volume work with judgment on a decision already made: project align files, check slots against code, find and update touched graph nodes when there are many. Needs its own satellite bridge and a brief naming the decision, neighbourhood and check; the launcher checks updated nodes. Returns result, nodes and open questions. Not for decisions, weaving, integration, candidate search, mechanical execution, review or acceptance."
-model: opus
+model: <top tier — the person's choice>
 mcpServers:
   - verstak-sub-designer:
       type: stdio
@@ -203,13 +203,13 @@ Volume-judgment agent working from a brief. Your final message is your only outp
 
 ### OpenCode: `.opencode/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
-The same bodies verbatim; only the frontmatter differs. **The model pin is the point**: an unpinned OpenCode subagent inherits the caller's model, with no per-call override. Resolve each tier's `provider/model-id` at projection time (ask the user or read the providers in `opencode.json` / the global config); never copy ids from here.
+The same bodies verbatim; only the frontmatter differs. **The pin is needed, but it lives on the machine**: an unpinned OpenCode subagent inherits the caller's model, so each file carries a pin, and the file is a local projection out of git (`methods/align.md`, Step 6); the launcher may pass a model at the call where the harness's call tool allows it. Each tier's `provider/model-id` and the norm of the choice: Step 6; the named model missing from the machine's providers → set no pin below: a question to the person through the launcher.
 
 ```markdown
 ---
 description: <same as for Claude Code>
 mode: subagent
-model: <provider/tier-id — resolve at projection time>
+model: <provider/tier-id — the person's choice>
 ---
 <same body>
 ```

@@ -53,7 +53,7 @@ The body, in order:
 4. **The mechanism** — why, not what: a step without its own confirmation is skipped by construction; a fix that removed the symptom teaches itself. Name the shape.
 5. **What would close it** — a criterion, not a solution.
 
-Who and from where (holon, harness, date) go in `reasoning`; `posed_by` is the asker's short address. **Epistemic mode by how you know**: `pratyakshita` for what you saw, `anumita` for what you inferred from code or prose — the maintainer then knows whether to reproduce or argue.
+Who and from where (holon, harness, date, who asked) go in the write's `reasoning` and stay in the node's history — not in its body or `attrs`. **Epistemic mode by how you know**: `pratyakshita` for what you saw, `anumita` for what you inferred from code or prose — the maintainer then knows whether to reproduce or argue.
 
 ## Put it where the tool is maintained — addressed
 

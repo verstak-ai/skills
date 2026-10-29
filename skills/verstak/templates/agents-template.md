@@ -36,7 +36,7 @@
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
 ## Persistence
-- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
+- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, your trees' development caches and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
 - The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2). Where a fact goes: the door, `Routes`, Keep.
 - Rituals (start, push, merge, memory guard`<, spec-write>`) are wired in `<harness paths>`; add beside other suites' entries.
 
@@ -81,10 +81,13 @@ Before saying "works", or switching a mode or ending a question on a claim about
 ## Git workflow
 - Conventional commits (`feat:`, `fix:`, `chore:`…); branches and PR titles likewise.
 - PR body: one or two lines and the case number. No co-author trailer unless asked.
-- One branch and one PR per batch of changes; review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`).
+- One branch and one PR per batch of changes, each in its own worktree inside the repo (`.worktrees/<branch>`, ignored); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — its branch in `main` or deleted on the forge, its copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder.
 - The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`; with results reused by content, a test already run on the same content isn't run again (Test discipline). Pre-commit runs `<linter + formatter + type check>` on staged files.
 - Forge CLI `<gh / fj / glab>`. **Done**: `<merge flow; how you learn it merged>`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
+
+## Role file tails
+`<Role files are a projection on the machine, not in git; here are the lines a role needs only in this repo: a `#### <role>` subheading, under it the lines the projection puts under `## This repo` in its file, and frontmatter keys beyond the block. No tails → delete the section.>`
 
 ## Local overrides
 `<deviations from the method with reasons (a toolchain pin); graph canon blocks byte for byte. None → delete.>`
