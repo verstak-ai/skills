@@ -203,7 +203,7 @@ Volume-judgment agent working from a brief. Your final message is your only outp
 
 ### OpenCode: `.opencode/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `searcher.md`, `designer.md`
 
-The same bodies verbatim; only the frontmatter differs. **The pin is needed, but it lives on the machine**: an unpinned OpenCode subagent inherits the caller's model, so each file carries a pin, and the file is a local projection out of git (`methods/align.md`, Step 6); the launcher may pass a model at the call where the harness's call tool allows it. Each tier's `provider/model-id` and the norm of the choice: Step 6; the named model missing from the machine's providers → set no pin below: a question to the person through the launcher.
+The same bodies verbatim; only the frontmatter differs. **The pin is needed, but it lives on the machine**: an unpinned OpenCode subagent inherits the caller's model, so each file carries a pin, and the file is a local projection out of git (`methods/align.md`, Step 6); the launcher may pass a model at the call where the harness's call tool allows it. Each tier's `provider/model-id` and the norm of the choice: Step 6; the named model missing from the machine's providers → set no pin below: a question to the person through the launcher; meanwhile the unpinned role runs only where the call passes a top-tier model (Step 6).
 
 ```markdown
 ---

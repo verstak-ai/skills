@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "verstak",
-    "version": "0.122.0"
+    "version": "0.129.0"
   },
   "protocolVersion": "2025-06-18",
   "resource": "https://mcp.verstak.ai",
@@ -330,6 +330,7 @@
       "keep_cursor",
       "key",
       "limit",
+      "moved_to",
       "node",
       "note",
       "offset",
@@ -469,6 +470,7 @@
       "parent_contains",
       "posed_to",
       "q",
+      "query",
       "realm",
       "sort",
       "steward_of",
@@ -486,6 +488,7 @@
       "node_type",
       "ontic_mode",
       "q",
+      "query",
       "realm",
       "volitive_mode"
     ],
