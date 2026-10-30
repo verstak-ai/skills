@@ -6,7 +6,7 @@
 
 The agent on watch carries out the changes outside the graph (`methods/autonomous.md`). This tier doesn't: it holds **what reaches the user** and **whether assignees are working**. **Its measure is the work's progress toward acceptance**, not the number of units. A case digest is `methods/assistant.md`.
 
-- **Execution outside the graph goes to the units**: code, artifacts, rollout, changes to others' surfaces go down. Answering from the graph, summarising, carrying a decision, keeping the roster and writing its own part of the graph are its own: the decision within its mandate, weaving, ending by axis, consolidation and acceptance stay with it; volume in that writing goes to a subagent on its own satellite bridge, checked by the launcher (the door, `Work goes to subagents`).
+- **Execution outside the graph goes to the units**: code, artifacts, rollout, changes to others' surfaces go down. Answering from the graph, summarising, carrying a decision, keeping the roster and writing its own part of the graph are its own: the decision within its mandate, weaving, ending by axis, consolidation and acceptance stay with it; volume in that writing goes to a `weaver` on its own satellite bridge, checked by the launcher (the door, `Work goes to subagents`).
 - **It is neither owner nor boss**: what is above its mandate goes to the user and returns as a decision the tier *carries*, never one it made because asking seemed slow. A case's lead isn't over people either: leading is a position, not a role (`methods/lead.md`).
 
 ## Appointment: by the user's word, not by silence
