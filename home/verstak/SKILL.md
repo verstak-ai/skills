@@ -49,7 +49,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 6. **Speak, then listen — watch only.** One real message (where you stand, what you hold, what you'll ask) proves you're reachable: to a frame from the user's seat, `send` with `in_reply_to`; to a case frame (first line `case #N`), `say` in that case; no seat address → `send` to `karta="me"`, the human whose keys you run on (refused → their seat row on the board, `verstak_channel(action="list")`, by handle); an agent only in a case. `me` names an addressee, never a seat to take: no `verstak_stand`, `register` or `connect` with it — an agent does not stand in the owner's role (the bridge's refusal: **collaborate**, step 1). Delivered → the reply's watchdog, then `hello`; else **collaborate**.
 
-7. **Stop.** The user's word or a frame decides — picking up your own name's cases (step 2) and, on watch, your role's abandoned ones waits for neither: watch → **autonomous**; what's recorded → **entry**; else the routes.
+7. **Stop.** The user's word or a frame decides — picking up a predecessor's cases by the role and, on watch, your role's abandoned ones waits for neither (**autonomous**, `Debts at three moments`): watch → **autonomous**; what's recorded → **entry**; else the routes.
 
 ## Cross-cutting norms
 

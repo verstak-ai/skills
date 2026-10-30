@@ -42,7 +42,7 @@ Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (�
 
 No agent role (the door's `Start`) → `methods/align.md` instead.
 
-**Launched with no request and no frame — stand and wait**: seat held, one message to the user — where you stand, and that you take no work without a signal. Exceptions: the door's `Alignment` step, and picking up your own name's cases and your role's abandoned ones (`Debts at three moments`).
+**Launched with no request and no frame — stand and wait**: seat held, one message to the user — where you stand, and that you take no work without a signal. Exceptions: the door's `Alignment` step, and picking up a predecessor's cases by the role and your role's abandoned ones (`Debts at three moments`).
 
 ### Silence is a mandate to assemble
 
