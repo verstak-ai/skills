@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.22.0](https://github.com/verstak-ai/skills/compare/v3.21.1...v3.22.0) (2026-10-30)
+
+
+### Features
+
+* bridge core v7.26.0 — a dead agent's seat closes with it, eviction only on the user's word ([#267](https://github.com/verstak-ai/skills/issues/267)) ([679bd31](https://github.com/verstak-ai/skills/commit/679bd31aaa61b93d7c589b2b68d97d2d58f09dcf))
+
+
+### Bug Fixes
+
+* a stop is not a dead token — the seat again only on the user's word ([#269](https://github.com/verstak-ai/skills/issues/269)) ([6e12691](https://github.com/verstak-ai/skills/commit/6e126913af853dafc8a5b80c7d4daed87e7d2253))
+
 ## [3.21.1](https://github.com/verstak-ai/skills/compare/v3.21.0...v3.21.1) (2026-10-29)
 
 
