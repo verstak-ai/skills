@@ -105,7 +105,7 @@ A choice the work waits on from the user now is an `ask` card in the case (the d
 
 ## Leaving a seat — two different leavings
 
-**Stepping away**: you'll return to the same seat. **Removal**: the seat ceases to exist. The user's words decide: "remove the seat", "leave" → removal; handing over the watch, session end → stepping away. Leaving a case is a third thing (the door, `Case laws`).
+**Stepping away**: you'll return to the same seat while your session lives. **Removal**: the seat ceases to exist. The user's words decide: "remove the seat", "leave" → removal; handing over the watch → stepping away. A session's end is neither: the agent and its seat live one life, so an end without a planned restart the harness marks (a plugin reload, a move to another folder) closes the seat after a short window — what the next one needs is in the seed and the cases by then. Leaving a case is a third thing (the door, `Case laws`).
 
 ### Stepping away
 
