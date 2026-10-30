@@ -168,7 +168,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.21.1";
+var VERSION = "3.22.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -236,7 +236,7 @@ var BRIDGE_CLIENT = {
 // js/delivery/words/take.ts
 var TAKE = {
   en: {
-    rule: () => `your own name (the same role, the same account) — by yourself when the holder stays silent 5 minutes to a probe by word (${tool("channel")} send); another's (another role or account) — only on the user's word`
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
@@ -248,7 +248,7 @@ var role = (karta, none) => {
 var COMPACTION = {
   en: {
     keep: (karta, name, realm) => `Verstak: the summary of this compaction must keep the agent's role ${role(karta, "<role>")} in graph ${realm}, its seat ${name} (the bridge holds it), the live cases — by number and what each waits for — and the instruction to reload the verstak skill and the role's methods as the first move after the compaction.`,
-    back: (karta, name, realm) => `Verstak: the context was compacted. You are role ${role(karta, "<role>")} in graph ${realm}; the bridge holds seat ${name}. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones.`,
+    back: (karta, name, realm) => `Verstak: the context was compacted. You are role ${role(karta, "<role>")} in graph ${realm}; the bridge holds seat ${name}. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones. The summary is a pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again (the door's entry method, "Recalling").`,
     returned: (sessionID) => `Verstak: the role word after the compaction went into the first request of session ${sessionID}`
   }
 };
@@ -287,8 +287,8 @@ ${said || "(it left no text — see its case)"}`,
     notice: (child, place) => `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> is the end of a TURN of subagent ${place}, not of the errand: it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) => `Verstak: subagent ${who} is released — its bridge is down, it is out of its cases, its seat is revoked on the platform; the outcome landed here as a synthetic message.`,
     unreleased: (who, why) => `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. It hangs on the board: repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
-    away: (who, last) => `Verstak: subagent ${who} was taken down by the parent's move to another folder — the errand here ended not by its outcome, there will be no "ENDED": its bridge goes down: it leaves its cases, its seat is revoked; its session stayed in the previous folder. Its last word:
-${last || "(it left no text — see its case)"}`,
+    failed: (who, why) => `Verstak: the turn of subagent ${who} failed — ${why}. It has not ended: it holds its seat and cases, frames of its case wake it, but while its turns fail it cannot carry out the errand. A model provider's error (sign-in, limit) — tell the user; to release it and do otherwise — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
+    noError: () => "OpenCode named no error",
     lost: (who, why) => `Verstak: subagent ${who} is taken down — ${why}. The seat without a bridge goes with the channel's term, its cases with the seat's term; there is no outcome, its turn is in its session.`,
     tellDone: (sessionID) => `Verstak: the word about the subagent was delivered into session ${sessionID}`,
     tellFailed: (sessionID, message) => `Verstak: the word about the subagent was not delivered into ${sessionID}: ${message}`,
@@ -389,7 +389,9 @@ var OPENCODE = {
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
     notDelivered: (frame, id, message) => `Verstak: ${frame} was not delivered into session ${id}: ${message}`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
-    released: (key, text2) => `Verstak: the bridge released the standing ${key} — ${text2}`
+    released: (key, text2) => `Verstak: the bridge released the standing ${key} — ${text2}`,
+    endUnrevoked: (seats) => `Verstak: the session is deleted but its seat is not revoked (${seats}) — the hold record is kept; the machine's bridge repeats the revoke after the window, else the seat goes by the platform's term`,
+    endUnconfirmed: (seats) => `Verstak: the session is deleted, its seat's revoke is not confirmed (${seats}) — the reply reads as gone but carries no data; the hold record is kept, the machine's bridge checks after the window`
   }
 };
 
@@ -427,7 +429,7 @@ var OPENCODE_KEEP = {
     seatLost: (key, dir, why) => `Verstak: the seat ${key} was released — the plugin instance of directory ${dir} was unloaded and did not come up (${why}). Return the seat: ${tool("stand")}.`,
     movedAway: (session, dir) => `Verstak: session ${session} was moved to ${dir} — releasing its seat to that folder's instance`,
     takenFromNew: (session) => `Verstak: the seat of session ${session} was taken from its new folder — it was moved`,
-    parentMoved: () => "Refused (plugin): this session's parent was moved to another folder — its errand ended with the move, the parent's bridge is not raised here, and it has no seat of its own; this session's work goes on without the graph, or by a word to the launcher.",
+    parentMoved: () => "Refused (plugin): this session's parent was moved to another folder — the parent's bridge is not raised here, and it has no seat of its own; this session's work goes on without the graph, or by a word to the launcher.",
     farRefusal: () => "Refused (plugin): this child session was moved to a different directory than its parent, and the parent's seat is held by no plugin instance of this OpenCode process — the parent is in another process or holds no seat. No standing as a satellite from here; reading works as is, writing — by a word to the launcher.",
     elsewhereDevice: (device) => `from another device (a phone will do) — ${device}; or a personal token in ~/.verstak-bridge/token`,
     elsewhereTunnel: (why) => (why ? `${why}; ` : "") + "from another machine — ssh -L <port>:127.0.0.1:<port>, or a personal token in ~/.verstak-bridge/token",
@@ -1947,6 +1949,10 @@ var SAFE_ACTIONS = {
   [tool("realm")]: /* @__PURE__ */ new Set(["list"])
 };
 
+// js/bridge/sessionclose.ts
+var CLOSE_MS = Number(process.env[envName("BRIDGE_SESSION_CLOSE_MS")]) || 3e3;
+var flying = scoped(() => /* @__PURE__ */ new Set());
+
 // js/bridge/toolsync.ts
 var T2 = scoped(() => ({
   served: null,
@@ -2014,7 +2020,9 @@ var state = scoped(() => ({
   // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
   // server that opens a fresh session on it silently runs the call unattributed
   // before we learn the new id. So a changed token means: re-open first.
-  sessionToken: null
+  sessionToken: null,
+  // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
+  goneSession: null
 }));
 var reinit = scoped(() => ({ inFlight: null }));
 
@@ -2771,7 +2779,6 @@ var W3 = () => words(LEAD);
 var shown = (last) => last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}${W3().cut(SUMMARY_MAX, last.length)}` : last;
 var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept(who, kept2) : W3().endPlain(), shown(last));
 var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
-var awayWord = (who, last) => W3().away(who, shown(last));
 
 // js/shared/canon.ts
 import { realpathSync } from "node:fs";
@@ -3723,16 +3730,25 @@ function createLeads(d) {
       else d.say(W3().noParent(text2), "warning");
     };
     await tell(
-      kind === "lost" ? W3().lost(who(l, child), why) : kind === "away" ? awayWord(who(l, child), last) : endWord(who(l, child), why, last, kept2),
+      kind === "lost" ? W3().lost(who(l, child), why) : endWord(who(l, child), why, last, kept2),
       wake2
     );
     if (!ended2 || kept2) return null;
     const run = await d.close(child).catch(() => null);
     await d.end(child).catch((e) => d.say(W3().notDown(who(l, child), e.message), "warning"));
-    const failed = run?.failed ?? null;
-    if (kind !== "lost" && !own && (failed === null || failed.length))
-      await tell(unrevokedWord(who(l, child), failed), false);
+    const failed2 = run?.failed ?? null;
+    if (kind !== "lost" && !own && (failed2 === null || failed2.length))
+      await tell(unrevokedWord(who(l, child), failed2), false);
     return run;
+  }
+  async function failed(child, l, error) {
+    if (l.failing) return;
+    l.failing = true;
+    l.noted = true;
+    const e = error;
+    const why = String(e?.message ?? e?.type ?? "").trim().slice(0, 400) || W3().noError();
+    const p = await l.parent;
+    if (p && leads.get(child) === l) await d.tell(p, W3().failed(who(l, child), why), true);
   }
   function leave(child, l, why) {
     l.leaving = why;
@@ -3834,7 +3850,6 @@ function createLeads(d) {
       if (was.leaving && !l.running) void finish(child, was.leaving);
     },
     fail: async (child, why) => void await finish(child, why, true, false, "lost"),
-    away: async (child) => void await finish(child, "", true, false, "away"),
     snapshot: (child) => {
       const l = leads.get(child);
       return { noted: !!l?.noted, last: l?.last, leaving: l?.leaving };
@@ -3872,6 +3887,8 @@ function createLeads(d) {
         case "session.execution.failed":
           l.running = false;
           if (l.leaving) return void finish(child, l.leaving);
+          if (ev.type === "session.execution.failed") return void failed(child, l, ev.data?.error);
+          l.failing = false;
           if (l.noted) return;
           l.noted = true;
           void l.parent.then(async (p) => {
@@ -4055,14 +4072,10 @@ function createMoves(ctx) {
     if (to.directory !== home.directory) {
       const root = d.slots.get(s);
       if (!root) return;
-      const of = root.place?.name;
-      const kids = [...d.slots.values()].filter((k) => k.child && of && k.satelliteOf?.name === of);
-      const away = [{ ...root, dir: to.directory }, ...kids].map((x) => ({ ...x, moved: true }));
-      writeLostMarker(authDir(), away, to);
+      writeLostMarker(authDir(), [{ ...root, dir: to.directory, moved: true }], to);
       d.say(W5.movedAway(s, to.directory), "info");
       left.add(s);
-      for (const k of kids) if (k.session) void d.away(k.session);
-      return d.forget(s);
+      return d.forget(s, "away");
     }
     left.delete(s);
     void d.rootOf(s).then((root) => root === s ? d.slotFor(s, false) : null);
@@ -4086,6 +4099,28 @@ function createMoves(ctx) {
   }
   const farRefusal = async (root) => root && await farRoot(root) === "foreign" ? W5.farRefusal() : null;
   return { home, directoryOf, exists: exists2, ours, moved, relay, guard, farRoot, farRefusal };
+}
+
+// js/opencode/putdown.ts
+var SAY_MS = { end: 8e3, away: 1e3 };
+function unrevoked(got) {
+  if (got?.ended && !got.failed?.length) return null;
+  return got?.failed?.length ? got.failed.join(", ") : got?.word ?? "—";
+}
+var unconfirmed = (got) => got?.ended && got.probably?.length ? got.probably.join(", ") : null;
+async function putDown(slot, word2) {
+  if (word2 && !slot.child) {
+    const seated = slot.holding || !!slot.key;
+    const got = await slot.bridge.request(method(word2), {}, { timeoutMs: SAY_MS[word2], service: true }).catch((e) => seated ? { ended: false, word: e.message } : null);
+    const left = word2 === "end" && got ? unrevoked(got) : null;
+    const maybe = word2 === "end" ? unconfirmed(got) : null;
+    if (left) process.stderr.write(`[${PRODUCT}/warning] ${words(OPENCODE).endUnrevoked(left)}
+`);
+    if (maybe)
+      process.stderr.write(`[${PRODUCT}/warning] ${words(OPENCODE).endUnconfirmed(maybe)}
+`);
+  }
+  slot.bridge.stop();
 }
 
 // js/bridge/fields.ts
@@ -4222,6 +4257,7 @@ function createSeatLife(d) {
   const deleted = /* @__PURE__ */ new Set();
   const attempts = /* @__PURE__ */ new Map();
   const epochs = /* @__PURE__ */ new Map();
+  let awaying = Promise.resolve();
   const cancelled = (s) => d.stopped() || deleted.has(s) || attempts.get(s)?.cancelledHere === true || attempts.get(s)?.cancelled() === true;
   const recorded3 = (slot, session) => {
     if (!slot.key) return null;
@@ -4316,7 +4352,7 @@ function createSeatLife(d) {
       return kind === "held" && data?.automatic === true;
     },
     cancel,
-    forget(s) {
+    forget(s, word2 = null) {
       const slot = d.slots.get(s);
       if (!slot) return;
       const a = attempts.get(s);
@@ -4325,7 +4361,7 @@ function createSeatLife(d) {
         return;
       }
       slot.ownStop = true;
-      slot.bridge.stop();
+      void putDown(slot, word2);
       drop2(s, slot);
     },
     stopSlots(home, spare) {
@@ -4335,14 +4371,15 @@ function createSeatLife(d) {
         spare.ownStop = true;
         spare.bridge.stop();
       }
-      for (const slot of slots) {
-        if (slot.session && attempts.get(slot.session)?.onWire) continue;
-        slot.ownStop = true;
-        slot.bridge.stop();
-      }
+      const going = slots.filter((slot) => !(slot.session && attempts.get(slot.session)?.onWire));
+      for (const slot of going) slot.ownStop = true;
       d.slots.clear();
+      awaying = Promise.all(going.map((slot) => putDown(slot, "away"))).then(() => {
+      });
       return left;
     },
+    /** The `away` words of the last stopSlots, answered or timed out. */
+    awayed: () => awaying,
     half: {
       async seatRoot(s, realm, karta, isCancelled) {
         if (cancelled(s) || isCancelled()) return { cancelled: true };
@@ -4695,7 +4732,6 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   async function slotFor(sessionID, touch = true) {
     seats.guard(sessionID);
     const root = await rootOf(sessionID);
-    mv.guard(root, sessionID);
     if (root !== sessionID && !slots.has(sessionID)) {
       adopt.now();
       await children.settled(sessionID);
@@ -4707,6 +4743,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       if (touch) live.lastCall = Date.now();
       return live;
     }
+    mv.guard(root, sessionID);
     const far = root !== sessionID && !slots.get(root)?.place ? await mv.farRoot(root) : null;
     seats.guard(sessionID);
     if (far && far !== "foreign") return far;
@@ -4869,11 +4906,11 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     },
     call: (slot, name, args, sessionID) => inSlot(slot, async () => (await callThrough(slot, name, args, sessionID, true)).content)
   });
-  function forget2(session) {
+  function forget2(session, word2 = null) {
     runEnds.clear(session);
     launcher.forget(session);
     keeper.forget(session);
-    seats.forget(session);
+    seats.forget(session, word2);
   }
   if (cold) await waitListed(firstListed, () => login.pending || missed);
   return {
@@ -4882,7 +4919,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       seats.cancel(s);
-      forget2(s);
+      forget2(s, "end");
       runEnds.clear(s, true);
     },
     onEvent: (ev) => [models, leads].forEach((x) => x.onEvent(ev)),
@@ -4894,7 +4931,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     held: (r) => [slots.get(r)].find((x) => x?.holding && x.place && !x.bridge.failure) ?? null,
     adopt: adoptNow,
     // A satellite child moved alone goes as its own satellite to the new folder (handoff.ts, #6695).
-    moved: (s, to) => handoff(s, to, home) || mv.moved({ say, slots, rootOf, forget: forget2, slotFor, adopt: adoptNow, away: leads.away }, s, to),
+    moved: (s, to) => handoff(s, to, home) || mv.moved({ say, slots, rootOf, forget: forget2, slotFor, adopt: adoptNow }, s, to),
     children: () => [...slots.values()].flatMap((x) => x.child && x.holding && x.session ? [x.session] : []),
     halt(child) {
       const slot = slots.get(child);
@@ -4910,6 +4947,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       await children.pause();
       const left = seats.stopSlots(home, spare);
       spare = null;
+      await seats.awayed();
       return left;
     }
   };
@@ -5665,20 +5703,20 @@ var RETRY_MS = 2e3;
 function wordLine(bridge) {
   let word2 = {};
   let owed = false;
-  let flying = false;
+  let flying2 = false;
   let dropped = false;
   let retry;
   const flush = () => {
-    if (dropped || flying || !owed) return;
+    if (dropped || flying2 || !owed) return;
     const b = bridge();
     if (!b) return;
     clearTimeout(retry);
     retry = void 0;
     owed = false;
-    flying = true;
+    flying2 = true;
     const done = (taken) => {
       if (dropped) return;
-      flying = false;
+      flying2 = false;
       if (taken || owed) return flush();
       owed = true;
       retry = setTimeout(() => {
