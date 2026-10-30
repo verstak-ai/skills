@@ -123,6 +123,8 @@ The knowledge you need is not in your context. Your own memory — training, ear
 
 "None" on any rung only after a search that would have found it; otherwise "I don't see it", and the next rung.
 
+Rungs 1–3 may go to a `recaller` subagent by a setting: what is sought, what counts as an answer, where you already searched (the door, `Work goes to subagents`). Its find is reported, not established: open the node yourself before leaning on it; rungs 4–5 and the answer in the case stay yours.
+
 **A hard recall ends in a trodden path**: it shows the thing should have been recorded so as to be found. Lay a link from where you looked to what you found, a name it will be found by, the sense on the arrow; write a holder's or the user's answer where it will be looked for (`methods/writing.md`). Tread it when the question recurs by kind, the miss was in the record's place or name, and what you found is alive. Don't tread a one-off question of a case (its place is the journal), a difficulty a broken tool made, your own odd phrasing, a doubtful or stale find, or something personal (its place is personal memory, `methods/minding.md`). Across a holon's boundary — by firmness (the door, `Cross-cutting norms`).
 
 ## Re-entering during work
