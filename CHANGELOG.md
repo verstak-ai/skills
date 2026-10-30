@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.23.0](https://github.com/verstak-ai/skills/compare/v3.22.0...v3.23.0) (2026-10-30)
+
+
+### Features
+
+* eight delegation roles — weaver, recaller, ingester; searcher removed; align contract 9 ([#272](https://github.com/verstak-ai/skills/issues/272)) ([aeb829f](https://github.com/verstak-ai/skills/commit/aeb829fc8b3778d57f7d2603087eeab53e1f0b29))
+
+
+### Bug Fixes
+
+* a subagent tries its satellite before concluding it has no bridge ([#270](https://github.com/verstak-ai/skills/issues/270)) ([5882963](https://github.com/verstak-ai/skills/commit/5882963f90333d397834d862a9c55c4cb16928da))
+* ingester on the middle tier; reader and recaller carry no launch line ([#273](https://github.com/verstak-ai/skills/issues/273)) ([dbbca0d](https://github.com/verstak-ai/skills/commit/dbbca0d57a0862ee5f51f8fcf9b3770532e10123))
+
 ## [3.22.0](https://github.com/verstak-ai/skills/compare/v3.21.1...v3.22.0) (2026-10-30)
 
 
