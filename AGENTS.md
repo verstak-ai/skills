@@ -190,6 +190,6 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **Full-gate exception — this repository only**: by the owner's grant (graph @nks/nks-dev, node #864), retain the full `make check` locally and for PR/main CI, without affected-module selection or a result cache; repeating checks across local/CI is allowed. Revisit when a measurement shows a substantial CI-cost increase. This grants no exception to other repositories.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
 
-*(verstak align: contract `8`, stamped `2026-10-29` — re-run when the installed
+*(verstak align: contract `9`, stamped `2026-10-30` — re-run when the installed
 verstak skill names a higher contract, or when the sources this file derives from
 have moved since that date.)*
