@@ -122,7 +122,7 @@ Defect → fix and tests per AGENTS.md's gates; question → **inquiry**; design
 
 **Delegate with a case and a launch line** (`verstak`, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N from <your seat>`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
 
-**The subagent's seat**: `verstak`'s `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` or `searcher` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`align-delegation`, "Bridge didn't come up: run `doctor` first").
+**The subagent's seat**: `verstak`'s `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` or `recaller` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`align-delegation`, "Bridge didn't come up: run `doctor` first").
 
 **Destructive work needs a granted sanction.** Can I roll it back myself, with the same tool, asking no one? Branch, commit, node — yes. Data reset, migration, `--force`, release, anything leaving the repo — no.
 

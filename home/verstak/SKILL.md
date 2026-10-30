@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 8."
+description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 9."
 ---
 
 # Verstak — the door
@@ -40,8 +40,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
-5. **Alignment — contract `8`** (the description's number; **align**, `Contract`).
-   - **Stamp below `8`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+5. **Alignment — contract `9`** (the description's number; **align**, `Contract`).
+   - **Stamp below `9`** → **align**, full arc; no file → its first round, and in a repository with none of the three signs of alignment (Survey) **onboarding**'s harness branch first. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **Another delivery's stamp** — the last line names another skill's alignment (`<name>: contract N`, not `verstak align` or `verstakify`) and none of ours → a sibling delivery aligned this repository: the stamp is what tells the two covers apart, their English keys are shared. Work by its `AGENTS.md`; don't align it or rewrite its cover unasked — only on the user's word, which replaces the stamp deliberately.
    - **Stamp current, but your role files are missing on this machine** (a fresh clone; a pull took them out of the index) → only **align**, Step 6: they are a projection on the machine, not part of the repo.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
@@ -74,9 +74,9 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 
 ### Work goes to subagents
 
-**The decision, weaving and integration stay with whoever decides** (**integrity**). Subagents take the volume — code, the gate, review, verification, and the intake and weaving of a story with many doers, where the decider keeps the sketch and accepts by reading the nodes (**intake**); when a correction or decision touches many nodes, finding and updating them may go to a `designer` on its own satellite bridge, briefed by references to the decision and neighbourhood. The launcher reads the updated nodes and checks them against their neighbourhood and tensions; a mismatch is redone. Advice is accepted only by that check; owner acts are not delegated.
+**The decision, weaving and integration stay with whoever decides** (**integrity**). Subagents take the volume — code, the gate, review, verification; when a correction or decision touches many nodes, finding and updating them may go to a `weaver` on its own satellite bridge, briefed by references to the decision and neighbourhood; the search and link walk of the recall ladder to a `recaller` by a setting — what is sought, what counts as an answer, where already searched — its find reported, the node opened by you (**entry**, `Recalling — a ladder`); the intake and weaving of a story with many doers to an `ingester`, where the decider keeps the sketch and accepts by reading the nodes (**intake**). The launcher reads the updated nodes and checks them against their neighbourhood and tensions; a mismatch is redone. Advice is accepted only by that check; owner acts are not delegated.
 
-**Each subagent assignment goes into a case chosen by its subject** before launch: your own case, a child case on the subject node (`open_room` with `parent_room`), or the case of that particular work — a child case when the subject is its own or its moves would clutter the case it would land in. Launch line `verstak <graph> <role> case #N from <your seat>`; its result stays in that case — `reader` and `searcher` excepted: no seat, no case, leads in the return. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
+**Each subagent assignment goes into a case chosen by its subject** before launch: your own case, a child case on the subject node (`open_room` with `parent_room`), or the case of that particular work — a child case when the subject is its own or its moves would clutter the case it would land in. Launch line `verstak <graph> <role> case #N from <your seat>`; its result stays in that case — `reader` and `recaller` excepted: no seat, no case, leads in the return. An empty, cut-off or off-brief answer is a `partial` line "not verified: <reason>" (a checkable one: a limit, a surface refusal), never a negative verdict or "clean".
 
 ### Case laws
 
