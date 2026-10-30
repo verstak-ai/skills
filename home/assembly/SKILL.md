@@ -100,7 +100,7 @@ The answer counts once you `ack` it and the graph changes (`verstak`, `Waiting o
 
 ### 3. Volume to a bounded reader
 
-Reading parts and seeds in bulk, then weaving the decision into them, goes to a subagent on its own satellite bridge and case (`verstak`, `Work goes to subagents`); you hold the decision and the acceptance, and take back short fates, versions and grounds — not bodies.
+Weaving a decision into many parts and seeds goes to a `weaver` on its own satellite bridge and case (`verstak`, `Work goes to subagents`); reading them for the decision, the decision and the acceptance stay yours — take back short fates, versions and grounds, not bodies.
 
 **Type and genre before a body.** Before reading an unfamiliar number, establish its type and genre from a list without bodies — `verstak_search(realm, q="", anga_of=<bianhua>, include_description=false)`; an unknown type is no licence to read. A `hint` goes to the reading subagent. Compose single and batch reads from metadata you already hold, never from numbers in someone's report: every number's type and genre checked before the batch runs. A title such as "contract", "spec" or "door" doesn't tell the genre; the guard written in a brief doesn't show it was kept.
 
