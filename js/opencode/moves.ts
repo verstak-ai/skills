@@ -3,8 +3,8 @@
 // instance. A session moved away (session.moved, data.location) — the previous instance lays a
 // marker tagged with the NEW location (marker.ts) and puts the root's bridge down, the holding
 // record intact. The new folder's instance takes the marker at setup, a live one on the event
-// after the previous lays it. The seat returns patiently (keep.ts); satellite children travel by
-// marker, and their writes in the new folder are refused (adopt.ts). A child moved alone
+// after the previous lays it. The seat returns patiently (keep.ts); satellite children stay with
+// their own bridges in the old folder (#8991), a child without one only reads there. A child moved alone
 // (#6695): a satellite goes as itself (handoff.ts); one not standing — the new folder's instance
 // finds the root in the parent's folder instance (farRoot) and stands a satellite of its seat.
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK answers without a schema */
@@ -26,14 +26,12 @@ export interface MoveDoors {
   say: Say;
   slots: Map<string, Slot>;
   rootOf(session: string): Promise<string>;
-  /** The session's bridge goes down with its socket's standing; the root's holding record stays. */
-  forget(session: string): void;
+  /** The session's bridge goes down with its socket's standing; `away` keeps the root's holding record (#7493). */
+  forget(session: string, word: "away"): void;
   /** The root's slot: a new one returns the seat itself (keep.ts). */
   slotFor(session: string, touch: boolean): Promise<Slot>;
   /** This location's marker — take it and return its seats (adopt.ts). */
   adopt(): void;
-  /** A moved root's child ends here (leads.ts). */
-  away(child: string): Promise<void>;
 }
 
 export function createMoves(ctx: Context) {
@@ -61,15 +59,13 @@ export function createMoves(ctx: Context) {
     if (to.directory !== home.directory) {
       const root = d.slots.get(s);
       if (!root) return;
-      const of = root.place?.name;
-      const kids = [...d.slots.values()].filter((k) => k.child && of && k.satelliteOf?.name === of);
-      const away = [{ ...root, dir: to.directory }, ...kids].map((x) => ({ ...x, moved: true }));
-      writeLostMarker(authDir(), away, to);
+      writeLostMarker(authDir(), [{ ...root, dir: to.directory, moved: true }], to);
       d.say(W.movedAway(s, to.directory), "info");
-      // Children do not move with the parent (OpenCode, observed): the move ends their errand here.
+      // Children do not move with the parent (OpenCode, observed): a satellite child keeps its own
+      // bridge, seat and errand here, in its own folder's instance (#8991); only the root's goes.
       left.add(s);
-      for (const k of kids) if (k.session) void d.away(k.session);
-      return d.forget(s);
+      // The root's seat waits for its session in the new folder: an announced absence, not a death (#7493).
+      return d.forget(s, "away");
     }
     left.delete(s);
     void d.rootOf(s).then((root) => (root === s ? d.slotFor(s, false) : null));
@@ -85,7 +81,10 @@ export function createMoves(ctx: Context) {
       void ours(s).then((mine) => (mine ? on(s, params, child) : say(W.takenFromNew(s), "info")));
     };
   }
-  /** A child's call whose root moved away: the root's bridge is not raised here (#6626), a refusal aloud. */
+  /**
+   * A child's call without its own bridge whose root moved away: the root's bridge is not raised
+   * here (#6626), a refusal aloud. A child with its own satellite bridge goes by it (tools.ts).
+   */
   function guard(root: string, session: string): void {
     if (root === session || !left.has(root)) return;
     throw new Error(W.parentMoved());

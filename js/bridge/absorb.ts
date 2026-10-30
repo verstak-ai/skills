@@ -4,6 +4,7 @@
 import { ABSORB, tool } from "../delivery/index.ts";
 import { statusUrl as deriveStatusUrl } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
+import { seatField, structuredOf } from "./fields.ts";
 import {
   besideKeyIn,
   holdStanding,
@@ -19,6 +20,7 @@ import { listenBlock } from "./listen.ts";
 import { normKarta } from "./names.ts";
 import { dropExtra, extraIn, extraPlaces } from "./places.ts";
 import { otherRealm } from "./realms.ts";
+import { lateSeat } from "./runend.ts";
 import { rememberedPlace, replyText } from "./standing.ts";
 import { log } from "./streams.ts";
 import { type Standing, state } from "./transport.ts";
@@ -59,17 +61,29 @@ export function absorbChannelReply(msg: JsonRpcMessage, reply: JsonRpcMessage): 
     // even if the bridge held another before: the label must not lie.
     state.standing = rememberedPlace(a.realm, a.karta, a.name); // normalized, as register does
   }
-  // A connect onto another place than the held one is a stand on it: its era is now (case №954).
-  // The same place again (a pause's re-arm, a repeat) keeps its era; a return does not come here.
-  const s = state.standing;
-  if (s && keyOf(s.realm, s.karta, s.name ?? "") !== H.currentKey)
-    noteStoodAt(keyOf(s.realm, s.karta, s.name ?? ""), Date.now());
-  holdStanding(trim(socket), status ? trim(status) : deriveStatusUrl(trim(socket)));
-  const block = listenBlock() ?? "";
+  const url = trim(socket);
+  const statusUrl = status ? trim(status) : deriveStatusUrl(url);
+  // Answered after the run's end: nobody is left to listen, no socket opens (runend.ts).
+  const late =
+    !!state.standing &&
+    lateSeat(
+      state.standing,
+      url,
+      statusUrl,
+      seatField(structuredOf(reply), a.action)?.seat_id ?? null,
+    );
+  if (!late) {
+    // A connect onto another place than the held one is a stand on it: its era is now (case №954).
+    // The same place again (a pause's re-arm, a repeat) keeps its era; a return does not come here.
+    const s = state.standing;
+    if (s && keyOf(s.realm, s.karta, s.name ?? "") !== H.currentKey)
+      noteStoodAt(keyOf(s.realm, s.karta, s.name ?? ""), Date.now());
+    holdStanding(url, statusUrl);
+  }
   const content = reply.result?.content;
   if (Array.isArray(content)) {
     for (const c of content) if (typeof c?.text === "string") c.text = hideAddresses(c.text);
-    content.push({ type: "text", text: block.trim() });
+    if (!late) content.push({ type: "text", text: (listenBlock() ?? "").trim() });
   }
   return reply;
 }

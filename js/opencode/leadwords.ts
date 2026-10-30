@@ -22,5 +22,3 @@ export const unrevokedWord = (who: string, failed: string[] | null): string =>
   failed === null
     ? W().unrevokedUnknown(who)
     : W().unrevoked(who, failed.join(", "), String(failed[0]));
-
-export const awayWord = (who: string, last: string): string => W().away(who, shown(last));

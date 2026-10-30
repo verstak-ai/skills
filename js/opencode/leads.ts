@@ -14,7 +14,7 @@ import { sameSeat } from "../shared/seat.ts";
 import { createCascade } from "./cascade.ts";
 import type { LeadDoors, Leads, RunEnd } from "./leaddoors.ts";
 import type { Up } from "./leadframes.ts";
-import { awayWord, endWord, unrevokedWord, W } from "./leadwords.ts";
+import { endWord, unrevokedWord, W } from "./leadwords.ts";
 import { type Place, standsBy } from "./satellite.ts";
 
 interface Lead {
@@ -24,6 +24,7 @@ interface Lead {
   moves: number; // its case joins and leaves: the platform's answer to an earlier leave is stale
   running?: boolean;
   noted?: boolean;
+  failing?: boolean; // its last turn failed — the parent was told (#9046)
   leaving?: string; // leaving said mid-turn — the end waits for the turn's end and its text
   last?: string;
 }
@@ -46,7 +47,7 @@ export function createLeads(d: LeadDoors): Leads {
    * The end: the outcome to the parent, then the bridge ends its run and goes down (ended).
    * The outcome wakes and goes steer: OpenCode's own synthetic on the child's quiet wakes the
    * parent first, and a queued word would land only after its turn. A seat taken down by the
-   * platform, an unreturned seat (lost) and the parent's move (away — no "ended") do not wake.
+   * platform and an unreturned seat (lost) do not wake.
    * own — the launcher's revoke follows by its own bridge: no correction word here. A parent
    * ended or stopped itself gets nothing: the word goes up to a live ancestor unwoken (teller).
    * The answer — the child's bridge's run end (what it revoked itself); not ended by it — null.
@@ -56,7 +57,7 @@ export function createLeads(d: LeadDoors): Leads {
     why: string,
     ended = true,
     wake = true,
-    kind: "end" | "lost" | "away" = "end",
+    kind: "end" | "lost" = "end",
     own = false,
   ): Promise<RunEnd | null> {
     const l = leads.get(child);
@@ -75,11 +76,7 @@ export function createLeads(d: LeadDoors): Leads {
       else d.say(W().noParent(text), "warning");
     };
     await tell(
-      kind === "lost"
-        ? W().lost(who(l, child), why)
-        : kind === "away"
-          ? awayWord(who(l, child), last)
-          : endWord(who(l, child), why, last, kept),
+      kind === "lost" ? W().lost(who(l, child), why) : endWord(who(l, child), why, last, kept),
       wake,
     );
     if (!ended || kept) return null;
@@ -91,6 +88,21 @@ export function createLeads(d: LeadDoors): Leads {
     if (kind !== "lost" && !own && (failed === null || failed.length))
       await tell(unrevokedWord(who(l, child), failed), false);
     return run;
+  }
+
+  /** A lead's turn failed: the first of a run is a word to the parent, the rest of it are silent. */
+  async function failed(child: string, l: Lead, error: unknown): Promise<void> {
+    if (l.failing) return;
+    l.failing = true;
+    l.noted = true; // the failure word says the turn: no "turn handed in" after it
+    const e = error as { message?: unknown; type?: unknown } | undefined;
+    const why =
+      String(e?.message ?? e?.type ?? "")
+        .trim()
+        .slice(0, 400) || W().noError();
+    const p = await l.parent;
+    // It wakes: an idle parent must take over the errand now, not on its next turn (#9046).
+    if (p && leads.get(child) === l) await d.tell(p, W().failed(who(l, child), why), true);
   }
 
   function leave(child: string, l: Lead, why: string): void {
@@ -224,7 +236,6 @@ export function createLeads(d: LeadDoors): Leads {
       if (was.leaving && !l.running) void finish(child, was.leaving);
     },
     fail: async (child, why) => void (await finish(child, why, true, false, "lost")),
-    away: async (child) => void (await finish(child, "", true, false, "away")),
     snapshot: (child) => {
       const l = leads.get(child);
       return { noted: !!l?.noted, last: l?.last, leaving: l?.leaving };
@@ -267,6 +278,10 @@ export function createLeads(d: LeadDoors): Leads {
         case "session.execution.failed":
           l.running = false;
           if (l.leaving) return void finish(child, l.leaving);
+          // A failed turn (the model's provider refused: sign-in, limit) is not silence (#9046):
+          // the parent is told once per run of failures, without a wake — the errand lives.
+          if (ev.type === "session.execution.failed") return void failed(child, l, ev.data?.error);
+          l.failing = false;
           if (l.noted) return;
           l.noted = true; // the first turn handed in: to the parent — a turn, not the outcome
           void l.parent.then(async (p) => {

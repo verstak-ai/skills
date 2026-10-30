@@ -15,6 +15,7 @@ import { CHANNEL } from "../delivery/words/channel.ts";
 import { COMPACTION } from "../delivery/words/compaction.ts";
 import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
+import { LEAD } from "../delivery/words/leads.ts";
 import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
 import { ORCHESTRA } from "../delivery/words/orchestra.ts";
@@ -33,7 +34,7 @@ const DIR = join(REPO, "js", "delivery", "words");
 const FILES = readdirSync(DIR).filter((f) => f.endsWith(".ts"));
 const FOREIGN = new RegExp("\\p{Script=Cyrillic}|is" + "kron", "iu");
 
-test("occupied-seat guidance distinguishes own-name recovery from foreign-seat takeover", () => {
+test("occupied-seat guidance evicts a holder only on the user's word, own name too", () => {
   const messages = [
     CALL.en.heardAdvice(true, "asked", "led"),
     HOLD.en.evicted(4000),
@@ -48,11 +49,31 @@ test("occupied-seat guidance distinguishes own-name recovery from foreign-seat t
     STATUS.en.notHeldList("seat"),
   ];
   for (const text of messages) {
-    assert.match(text, /your own name \(the same role, the same account\)/);
-    assert.match(text, /silent 5 minutes.*verstak_channel send/);
-    assert.match(text, /another's \(another role or account\) — only on the user's word/);
+    assert.match(
+      text,
+      /only on the user's word; a seat on the board is no evidence its holder is alive/,
+    );
+    assert.match(text, /machine bridge with a daemon, otherwise by the platform's term/);
+    assert.doesNotMatch(text, /silent 5 minutes|by yourself when/);
     assert.doesNotMatch(text, /human/);
   }
+});
+
+test("a lead's failed turn is not its end, and a deleted session's unrevoked seat is said", () => {
+  const failed = LEAD.en.failed("s.sub-1", LEAD.en.noError());
+  assert.match(
+    failed,
+    /^Verstak: the turn of subagent s\.sub-1 failed — OpenCode named no error\. /,
+  );
+  assert.match(failed, /It has not ended: it holds its seat and cases/);
+  assert.match(failed, /verstak_channel\(action="revoke", standing="s\.sub-1"\)/);
+  assert.match(failed, /tell the user;/);
+  assert.match(
+    OPENCODE.en.endUnrevoked("a, b"),
+    /^Verstak: the session is deleted but its seat is not revoked \(a, b\)/,
+  );
+  assert.match(OPENCODE.en.endUnconfirmed("a"), /its seat's revoke is not confirmed \(a\)/);
+  assert.doesNotMatch(OPENCODE_KEEP.en.parentMoved(), /errand ended/);
 });
 
 test("proven own-seat recovery needs no foreign-seat warning", () => {
@@ -169,6 +190,10 @@ test("a compacted session is told its role and the door; a root without a cover 
   assert.match(
     back,
     /load the verstak skill and the methods its door names for the role — only those/,
+  );
+  assert.match(
+    back,
+    /The summary is a pointer, not the record: .* read it in the graph again \(the door's entry method, "Recalling"\)\.$/,
   );
   assert.match(COMPACTION.en.back("undefined", "s", "r5"), /You are role <role> in graph r5/);
   assert.match(COMPACTION.en.returned("ses_1"), /^Verstak: .*session ses_1$/);

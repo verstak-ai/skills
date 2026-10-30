@@ -65,6 +65,10 @@ export interface OpencodeWords {
   notDelivered: (frame: string, id: string, message: string) => string;
   held: (key: string) => string;
   released: (key: string, text: string) => string;
+  /** seats — not revoked by the deleted session's bridge, or its word when it did not answer. */
+  endUnrevoked: (seats: string) => string;
+  /** seats — gone only by the revoke reply's prose: not confirmed, their hold records kept. */
+  endUnconfirmed: (seats: string) => string;
 }
 
 export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
@@ -151,5 +155,9 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       `Verstak: ${frame} was not delivered into session ${id}: ${message}`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
     released: (key, text) => `Verstak: the bridge released the standing ${key} — ${text}`,
+    endUnrevoked: (seats) =>
+      `Verstak: the session is deleted but its seat is not revoked (${seats}) — the hold record is kept; the machine's bridge repeats the revoke after the window, else the seat goes by the platform's term`,
+    endUnconfirmed: (seats) =>
+      `Verstak: the session is deleted, its seat's revoke is not confirmed (${seats}) — the reply reads as gone but carries no data; the hold record is kept, the machine's bridge checks after the window`,
   },
 };

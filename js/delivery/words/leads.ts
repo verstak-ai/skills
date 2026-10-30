@@ -23,7 +23,9 @@ export interface LeadWords {
   release: (who: string) => string;
   /** why — the platform's answer to the launcher's revoke. */
   unreleased: (who: string, why: string) => string;
-  away: (who: string, last: string) => string;
+  /** The lead's turn failed; why — the turn's error. */
+  failed: (who: string, why: string) => string;
+  noError: () => string;
   lost: (who: string, why: string) => string;
   tellDone: (sessionID: string) => string;
   tellFailed: (sessionID: string, message: string) => string;
@@ -101,9 +103,11 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     unreleased: (who, why) =>
       `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. ` +
       `It hangs on the board: repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
-    away: (who, last) =>
-      `Verstak: subagent ${who} was taken down by the parent's move to another folder — the errand here ended not by its outcome, there will be no "ENDED": ` +
-      `its bridge goes down: it leaves its cases, its seat is revoked; its session stayed in the previous folder. Its last word:\n${last || "(it left no text — see its case)"}`,
+    failed: (who, why) =>
+      `Verstak: the turn of subagent ${who} failed — ${why}. It has not ended: it holds its seat and cases, frames of its case wake it, ` +
+      "but while its turns fail it cannot carry out the errand. A model provider's error (sign-in, limit) — tell the user; " +
+      `to release it and do otherwise — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
+    noError: () => "OpenCode named no error",
     lost: (who, why) =>
       `Verstak: subagent ${who} is taken down — ${why}. The seat without a bridge goes with the channel's term, its cases with the seat's term; there is no outcome, its turn is in its session.`,
     tellDone: (sessionID) =>

@@ -25,7 +25,7 @@ import {
   TOOL_PREFIX,
 } from "../delivery/protocol.ts";
 import { casesLeft } from "../opencode/casesleft.ts";
-import { awayWord, endWord } from "../opencode/leadwords.ts";
+import { endWord } from "../opencode/leadwords.ts";
 import { versionIn } from "../shared/version.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -187,10 +187,6 @@ test("a lead child's end names its last word testimony and says how much of a lo
     /\n\[report truncated: 4000 of 4100 characters shown — incomplete here, whole in its case\]$/,
   );
   assert.equal(long.match(/a{4000,}/)[0].length, 4000, "the shown part is 4000 characters");
-  assert.match(
-    awayWord("child", "a".repeat(4100)),
-    /\[report truncated: 4000 of 4100 characters shown/,
-  );
   const short = endWord("child", "it left its seat", "a".repeat(4000));
   assert.doesNotMatch(short, /report truncated/, "an outcome at the limit is shown whole");
   assert.match(short, /a{4000}$/);

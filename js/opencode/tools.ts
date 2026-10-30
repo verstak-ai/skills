@@ -39,6 +39,7 @@ import { takeLostMarker } from "./marker.ts";
 import { createModels } from "./models.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
+import { type PutDown } from "./putdown.ts";
 import { revokeAsLauncher } from "./release.ts";
 import type { HeldSeat } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
@@ -206,7 +207,6 @@ export async function setupTools(
   async function slotFor(sessionID: string, touch = true): Promise<Slot> {
     seats.guard(sessionID);
     const root = await rootOf(sessionID);
-    mv.guard(root, sessionID); // the root moved away — a child does not raise its bridge here
     // A child that stood as its own satellite goes by its own bridge (#5154); the root's is read-only to it (#6550 item 2).
     if (root !== sessionID && !slots.has(sessionID)) {
       adopt.now(); // a previous instance's marker laid after our load (adopt.ts)
@@ -220,6 +220,8 @@ export async function setupTools(
       if (touch) live.lastCall = Date.now();
       return live;
     }
+    // The root moved away — a child without its own bridge does not raise the root's here (#8991).
+    mv.guard(root, sessionID);
     // A child moved to another directory (#6695): decided on every call, not by slot.
     const far = root !== sessionID && !slots.get(root)?.place ? await mv.farRoot(root) : null;
     seats.guard(sessionID);
@@ -421,11 +423,11 @@ export async function setupTools(
       inSlot(slot, async () => (await callThrough(slot, name, args, sessionID, true)).content),
   });
 
-  function forget(session: string): void {
+  function forget(session: string, word: PutDown | null = null): void {
     runEnds.clear(session); // a deleted session takes its run-end mark along
     launcher.forget(session);
     keeper.forget(session);
-    seats.forget(session);
+    seats.forget(session, word);
   }
 
   // No cached list: the first prompt would get no graph tools without the server's (firstlist.ts).
@@ -437,7 +439,7 @@ export async function setupTools(
     bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
     forget(s) {
       seats.cancel(s);
-      forget(s);
+      forget(s, "end"); // a deleted session is the agent's end: its seat closes (#7493)
       runEnds.clear(s, true); // no session — no final mark either
     },
     onEvent: (ev) => [models, leads].forEach((x) => x.onEvent(ev)),
@@ -451,7 +453,7 @@ export async function setupTools(
     // A satellite child moved alone goes as its own satellite to the new folder (handoff.ts, #6695).
     moved: (s, to) =>
       handoff(s, to, home) ||
-      mv.moved({ say, slots, rootOf, forget, slotFor, adopt: adoptNow, away: leads.away }, s, to),
+      mv.moved({ say, slots, rootOf, forget, slotFor, adopt: adoptNow }, s, to),
     children: () =>
       [...slots.values()].flatMap((x) => (x.child && x.holding && x.session ? [x.session] : [])),
     halt(child) {
@@ -469,6 +471,7 @@ export async function setupTools(
       await children.pause(); // a reload is not a child's end (#6625): its seat and cases wait
       const left = seats.stopSlots(home, spare);
       spare = null;
+      await seats.awayed();
       return left; // to the directory's twin — wake this spelling's instance (twins.ts)
     },
   };

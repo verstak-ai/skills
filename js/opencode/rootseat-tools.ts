@@ -6,6 +6,7 @@ import { words } from "../shared/lang.ts";
 import { holdFilePathOf } from "../shared/standings.ts";
 import { textOf } from "./bridge-io.ts";
 import { writeLostMarker } from "./marker.ts";
+import { type PutDown, putDown } from "./putdown.ts";
 import type { Home } from "./records.ts";
 import { seatBy, type SeatDoors } from "./rootseat-by.ts";
 import { asSatellite, heldPlace, type Place, standsBy } from "./satellite.ts";
@@ -44,6 +45,7 @@ export function createSeatLife(d: Doors) {
     }
   >();
   const epochs = new Map<string, number>();
+  let awaying: Promise<void> = Promise.resolve();
   const cancelled = (s: string) =>
     d.stopped() ||
     deleted.has(s) ||
@@ -174,7 +176,7 @@ export function createSeatLife(d: Doors) {
       return kind === "held" && data?.automatic === true;
     },
     cancel,
-    forget(s: string) {
+    forget(s: string, word: PutDown | null = null) {
       const slot = d.slots.get(s);
       if (!slot) return;
       const a = attempts.get(s);
@@ -183,7 +185,7 @@ export function createSeatLife(d: Doors) {
         return;
       }
       slot.ownStop = true;
-      slot.bridge.stop();
+      void putDown(slot, word); // the bridge's shutdown releases the standing: key, socket, busy line
       drop(s, slot);
     },
     stopSlots(home: Home | null, spare: Slot | null) {
@@ -193,14 +195,15 @@ export function createSeatLife(d: Doors) {
         spare.ownStop = true;
         spare.bridge.stop();
       }
-      for (const slot of slots) {
-        if (slot.session && attempts.get(slot.session)?.onWire) continue;
-        slot.ownStop = true;
-        slot.bridge.stop();
-      }
+      const going = slots.filter((slot) => !(slot.session && attempts.get(slot.session)?.onWire));
+      for (const slot of going) slot.ownStop = true;
       d.slots.clear();
+      // A reload is an announced absence: the seats wait for the next instance (#7493).
+      awaying = Promise.all(going.map((slot) => putDown(slot, "away"))).then(() => {});
       return left;
     },
+    /** The `away` words of the last stopSlots, answered or timed out. */
+    awayed: () => awaying,
     half: {
       async seatRoot(s: string, realm: string, karta: string, isCancelled: () => boolean) {
         if (cancelled(s) || isCancelled()) return { cancelled: true } as const;
