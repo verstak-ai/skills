@@ -64,7 +64,7 @@ Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by 
 The bridge and watchdog name their fix — do what they say. What they won't tell you:
 
 - **`not listening` on your row** → the listener is missing, not the seat: re-arm. A new seat over deafness leaves mail on the abandoned one.
-- **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → 3a). Code 2 → the bridge holds no seat, or several (name the key).
+- **Watchdog exited non-zero** → read its last lines. Token dead → `verstak_stand` with the same name (close 4000 → 3a). The bridge says you are stopped (the seat was taken off) → end the work; the seat again only on the user's word. Code 2 → the bridge holds no seat, or several (name the key).
 - **Write without an author** → `verstak_stand` again (on your own seat it only registers), retry; what landed authorless stays so; report it (**feedback**).
 - **Sent under another name** → a shared bridge; reference, "Shared bridge and one seat per graph".
 - **Never `connect` for anyone but yourself**: it binds the seat to the calling session.
