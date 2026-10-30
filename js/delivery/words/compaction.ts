@@ -25,7 +25,9 @@ export const COMPACTION: Readonly<Record<Lang, CompactionWords>> = {
     back: (karta, name, realm) =>
       `Verstak: the context was compacted. You are role ${role(karta, "<role>")} in graph ${realm}; ` +
       `the bridge holds seat ${name}. Before the first substantive move, load the verstak skill and ` +
-      `the methods its door names for the role — only those, not all the earlier ones.`,
+      `the methods its door names for the role — only those, not all the earlier ones. The summary is a ` +
+      `pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again ` +
+      `(the door's entry method, "Recalling").`,
     returned: (sessionID) =>
       `Verstak: the role word after the compaction went into the first request of session ${sessionID}`,
   },

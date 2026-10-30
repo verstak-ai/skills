@@ -68,8 +68,8 @@ The service closes with named reasons — today 4000–4003; the list is open, a
 
 | Close | What happened | Bridge — and you |
 |---|---|---|
-| *4000 superseded* | someone took the seat | yields at once and wakes you saying the seat was taken. Don't fight in circles: for hearing, stand beside (`verstak_stand` without `name`); your own name of the same role and account back only after the probe of the method's step 3a, another's only on the user's word |
-| *4001 revoked* | channel destroyed for good | wakes you with a dead token; `verstak_stand` reopens it |
+| *4000 superseded* | someone took the seat | yields at once and wakes you saying the seat was taken. Don't fight in circles: for hearing, stand beside (`verstak_stand` without `name`); evicting the holder (`take=true`), your own name too, only on the user's word (the method's step 3a) |
+| *4001 revoked* | the seat was taken off | your own revoke or close → nothing more. Not yours → you are stopped: the bridge releases the seat, says so on every door and takes it by no path; end the work. The name stays free, and standing on it again is an explicit `verstak_stand` on the user's word |
 | *4002 expired* | nobody listened longer than the idle window | wakes you with a dead token; `verstak_stand` raises the seat |
 | *4003 leaving* | almost always a rolling restart; token, channel and queue intact | reopens with **the same token** after a **short breath** — not exponential backoff, which turns a second's pause into minutes of deafness. You are not woken |
 | *client-side (1006 and kin)* | network or library | reopens with the same token; you are not woken |

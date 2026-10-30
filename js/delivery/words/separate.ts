@@ -1,7 +1,6 @@
 // Choosing a seat (SEPARATE): this session's former bridge's own seat, a seat beside,
 // 'board unread' and 'everything beside is taken' refusals.
 import type { Lang } from "../lang.ts";
-import { tool } from "../protocol.ts";
 import { TAKE } from "./take.ts";
 
 /**
@@ -12,13 +11,13 @@ import { TAKE } from "./take.ts";
  */
 export type Kin = "live" | "record" | "board" | null;
 
-const probe = (base: string): string =>
-  `ask it by word — ${tool("channel")}(action="send", standing=${base}, text="alive? what do you hold?") — and wait up to 5 minutes for the answer: it answered — agree, do not take its cases; it is silent — ${tool("stand")}(name=${base}, take=true) and enter its cases (${tool("case")}(action="mine", standing=${base})); do not ask the user`;
+const beside = (): string =>
+  `work here, do not take its cases and do not wait for it; evicting that session (take=true): ${TAKE.en.rule()}`;
 
 const HOLDER: Record<NonNullable<Kin>, string> = {
   live: "another live session of your own name (the same role, the same account)",
   record:
-    "another session of your own name (the same role, the same account; its bridge does not answer here — the probe tells whether it is alive)",
+    "another session of your own name (the same role, the same account; its bridge does not answer here — the board does not tell whether it is alive; a dead agent's seat is closed by a machine bridge with a daemon, otherwise by the platform's term)",
   board: "another session of the same role",
 };
 
@@ -35,11 +34,7 @@ export const SEPARATE: Readonly<Record<Lang, SeparateWords>> = {
       `the seat ${base} was held by a former bridge of this same harness session (a restart or a compaction) — this session's own seat, the bridge took it back itself`,
     beside: (base, name, own, kin) =>
       `${kin ? HOLDER[kin] : "another session"} holds the seat ${base} — leaving its seat alone and not signing with it; standing beside as ${name} with hearing${own ? " (a former bridge of this same session held it — taken back)" : ""}: it is this session's own seat, its frames come here; ` +
-      (kin === "board"
-        ? `check the holder's account on the board against your own seat's address: the same — ${probe(base)}; another — evicting that session (take=true) only on the user's word`
-        : kin
-          ? probe(base)
-          : `evicting that session (take=true): ${TAKE.en.rule()}`),
+      beside(),
     unknown: (name) =>
       `Refused (bridge): the board was not read in full — the bridge does not know whether another session listens on the seat ${name}; not standing blind and not advising take=true. Repeat when the board reads, or pass another name.`,
     noFree: (base) =>

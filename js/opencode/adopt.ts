@@ -1,7 +1,8 @@
 // This location's marker records (marker.ts) — what the plugin instance does with them: roots
 // get return hints (keep.ts); a satellite child returns by key (children.ts); a child on a plain
-// bridge has ended its run. A child of a root moved to another folder (moves.ts) is ended by the
-// move: the previous instance put its bridge down and revoked its seat. Its write here is a loud
+// bridge has ended its run. A moved root's child in a marker of an earlier build (since #8991 the
+// child stays with its bridge in its folder, moves.ts) was ended by that move: the previous
+// instance put its bridge down and revoked its seat. Its write here is a loud
 // refusal, not the root's slot (graph @nks/nks-dev: #6550, rules 1-2; #6361); no revoke is sent.
 import { OPENCODE_KEEP, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";

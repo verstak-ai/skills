@@ -42,8 +42,6 @@ export interface Leads {
   back(child: string, was: Partial<Snapshot> & { name?: string; of?: Place | null }): void;
   /** The seat could not be returned — the bridge goes down, the parent gets a word without a wake-up. */
   fail(child: string, why: string): Promise<void>;
-  /** The parent moved to another folder: the child ends here without the "ended" word. */
-  away(child: string): Promise<void>;
   /** What of the lead survives a reload — into the loss marker. */
   snapshot(child: string): Snapshot;
   /** The child moved to another folder (graph @nks/nks-dev, node #6695): the lead leaves without an end. */

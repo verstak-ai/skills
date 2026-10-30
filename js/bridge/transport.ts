@@ -7,6 +7,7 @@ import { CFG } from "./config.ts";
 import { closedUnder, errorCode, errorMessage, UpstreamError } from "./errors.ts";
 import { loginPublished } from "./oauth/flow.ts";
 import { repeatable } from "./repeat.ts";
+import { closeSession } from "./sessionclose.ts";
 import { loadStore, saveServerCache } from "./store.ts";
 import { debug, emit, log } from "./streams.ts";
 import { heardListChanged, isListChanged } from "./toolsync.ts";
@@ -53,7 +54,21 @@ export const state = scoped(() => ({
   // server that opens a fresh session on it silently runs the call unattributed
   // before we learn the new id. So a changed token means: re-open first.
   sessionToken: null as string | null,
+  // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
+  goneSession: null as string | null,
 }));
+
+/**
+ * Let go of the held session: forget it here and close it upstream (sessionclose.ts,
+ * graph @nks/nks-dev, node #9174) — unless the server already said it is gone.
+ */
+export function letGo(why: string): Promise<void> {
+  const id = state.sessionId;
+  state.sessionId = null;
+  state.sessionToken = null;
+  if (!id || id === state.goneSession) return Promise.resolve();
+  return closeSession({ id, token: bearer(), protocolVersion: state.protocolVersion }, why);
+}
 
 // The three-token form the surface binds a session with at initialize
 // ("realm karta name"): a session opened this way is attributed before its
@@ -141,8 +156,7 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
     // unknown_session — observed for an hour at a time from a harness that
     // re-handshakes a live bridge. Forget it; the next call re-binds the standing.
     log(`initialize under a held session id (${state.sessionId}) — sent without it`);
-    state.sessionId = null;
-    state.sessionToken = null;
+    void letGo("the harness re-initialized");
   }
   // The session this request is sent under, kept apart from state: a sibling
   // call may be re-initializing while this one is in flight, and a 404 that
@@ -229,6 +243,7 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
   }
   if (res.status === 404 && sentSession) {
     res.body?.cancel?.();
+    state.goneSession = sentSession;
     throw new UpstreamError("session expired upstream", "session", null, UpstreamError.NOT_SENT);
   }
   const sid = res.headers.get("mcp-session-id");
@@ -308,8 +323,7 @@ export async function reinitialize(): Promise<void> {
     try {
       if (!state.initParams) throw new UpstreamError("session lost before initialize", "session");
       log("upstream session lost — re-initializing transparently");
-      state.sessionId = null;
-      state.sessionToken = null;
+      void letGo("re-initialize");
       const id = `${ID_PREFIX}bridge-reinit-${++state.reinitCounter}`;
       let result: JsonRpcMessage | null = null;
       await post({ jsonrpc: "2.0", id, method: "initialize", params: state.initParams }, (m) => {

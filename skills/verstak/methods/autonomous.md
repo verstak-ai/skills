@@ -157,7 +157,7 @@ A local integration surface in AGENTS.md or `REALITY.md` → rebuild it and run 
 3. **Cases**: your share in a case nobody will hold goes to its lead; a lead who won't be listening proposes closing if the remainder already stands in nodes, else hands over the lead by a card and its `ack` (`methods/lead.md`, `Handing over the lead`) or stays lead on a deaf seat.
 4. **Leave the seat, last; don't remove it** (`methods/collaborate.md`, `Stepping away`).
 
-Without the user's word there is no handover; a session's end is an absence.
+Without the user's word there is no handover; a session's end closes the seat with the agent (`methods/collaborate.md`, `Leaving a seat`).
 
 ## 5 · Escalation
 

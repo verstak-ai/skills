@@ -111,7 +111,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     takenFromNew: (session) =>
       `Verstak: the seat of session ${session} was taken from its new folder — it was moved`,
     parentMoved: () =>
-      "Refused (plugin): this session's parent was moved to another folder — its errand ended with the move, " +
+      "Refused (plugin): this session's parent was moved to another folder — " +
       "the parent's bridge is not raised here, and it has no seat of its own; this session's work goes on without the graph, or by a word to the launcher.",
     farRefusal: () =>
       "Refused (plugin): this child session was moved to a different directory than its parent, and the parent's seat " +

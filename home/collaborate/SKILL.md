@@ -20,10 +20,10 @@ Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing s
    **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome; don't stall for the user:
    - (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction: the bridge knows the session and returns the seat itself, with no `take` and no question. Giving up the role is no outcome. The bridge still names the holder another session → (c). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
    - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the other seat's frames; the role's queue you read with `verstak_orient(focus=<role>)`. Then step 3.
-   - (c) **Beside your own name** — the board shows the holder under the same role and the same account: probe its seat with a channel message (`Exchange`), "alive? what do you hold?", with a bound of **5 minutes from sending** — a busy agent may get the word only at its turn's end, so not shorter. Keep hearing and schedule the check with the harness; before deciding, check the answer — a word that reached your seat, or the record of the case where you asked (`verstak_case(action="history", room=<case #N>)`). Sending refused or the answer unreadable → silence is not established, no `take`. It answered → agree in words who holds which cases; don't take its cases, work beside. Silent past the bound → `verstak_stand(realm, karta=<your role>, name=<the taken name>, take=true)` yourself, check hearing by its answer and step 3; then `verstak_case(action="mine", realm, standing=<the former seat>)`, `join` its cases and `read`: carry on from their last lines. To the user, a word about what you did, not a question.
-   - (d) **Another's name** — another role or account, or ownership not established: taking it only on the user's word; a silent probe doesn't permit it. Ask the owner with an `ask` card in a case or to their seat (`Exchange`), never into this console when they sit on the owner role's seat.
+   - (c) **Beside your own name** — the board shows the holder under the same role and the same account: work on your `name.N`; don't take its cases and don't wait for it. A seat on the board is no evidence its holder is alive, and you need none: the agent and its seat live one life — a dead agent's seat closes in about a minute when a machine bridge with a daemon held it, otherwise by the platform's term. A predecessor's cases come by the role, not by its name (**autonomous**, `Debts at three moments`).
+   - (d) **Evicting a holder** (`take=true`) — of any name, your own too, only on the user's word. Ask the owner with an `ask` card in a case or to their seat (`Exchange`), never into this console when they sit on the owner role's seat.
 
-   Displaced (close 4000) → another session took the seat: don't fight in circles, stand beside; your own name back only after the probe of (c), another's by (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
+   Displaced (close 4000) → another session took the seat: don't fight in circles, stand beside (c); the name back only by (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
 
 ## Without the bridge
 
@@ -75,8 +75,6 @@ The bridge and watchdog name their fix — do what they say. What they won't tel
 
 What goes into the graph, the case or the channel: `verstak`, `Cross-cutting norms`. The channel never carries talk with an agent; with a person, only while they have no seat in the case.
 
-The one exception — **probing the holder of an occupied seat** (3a), since a pair case with a dead holder has nobody to close it: `verstak_channel(action="send", realm, karta=<role>, standing=<occupied seat>, text=<who you are and why>)`; the holder answers once (`in_reply_to`), anything further in a case. Silence is no proof of death: is the seat listening, is its undelivered count growing?
-
 **A refusal names the rule, the state and the options** you were about to guess; ask the surface about itself (`action="?"`) instead of inferring.
 
 Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role" in `AGENTS.md` holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
@@ -112,7 +110,7 @@ A choice the work waits on from the user now is an `ask` card in the case (`vers
 
 ## Leaving a seat — two different leavings
 
-**Stepping away**: you'll return to the same seat. **Removal**: the seat ceases to exist. The user's words decide: "remove the seat", "leave" → removal; handing over the watch, session end → stepping away. Leaving a case is a third thing (`verstak`, `Case laws`).
+**Stepping away**: you'll return to the same seat while your session lives. **Removal**: the seat ceases to exist. The user's words decide: "remove the seat", "leave" → removal; handing over the watch → stepping away. A session's end is neither: the agent and its seat live one life, so an end without a planned restart the harness marks (a plugin reload, a move to another folder) closes the seat after a short window — what the next one needs is in the seed and the cases by then. Leaving a case is a third thing (`verstak`, `Case laws`).
 
 ### Stepping away
 
