@@ -164,7 +164,7 @@ var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 // js/delivery/words/take.ts
 var TAKE = {
   en: {
-    rule: () => `your own name (the same role, the same account) — by yourself when the holder stays silent 5 minutes to a probe by word (${tool("channel")} send); another's (another role or account) — only on the user's word`
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
