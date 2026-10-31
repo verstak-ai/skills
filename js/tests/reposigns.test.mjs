@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { test } from "node:test";
 
-import { envName, ONBOARD_START } from "../delivery/index.ts";
+import { COMPACTION, envName, ONBOARD_START } from "../delivery/index.ts";
 import { repoRoot, repoSigns } from "../shared/reposigns.ts";
 import { BUILT_ONBOARD_HOOK, REPO } from "./built.mjs";
 
@@ -318,11 +318,32 @@ test("claude code hook: unreadable files and a missing directory do not fail the
   assert.equal(gone.stdout, "", "a path inside an aligned repository: its root's signs");
 });
 
-test("claude code hook: declared on startup only", () => {
+test("claude code hook: declared on startup and after a compaction, one command", () => {
   const hooks = JSON.parse(readFileSync(join(REPO, "hooks", "hooks.json"), "utf8"));
   assert.deepEqual(
     hooks.hooks.SessionStart.map((e) => e.matcher),
-    ["startup"],
+    ["startup", "compact"],
   );
-  assert.equal(hooks.hooks.SessionStart[0].hooks.length, 1);
+  for (const e of hooks.hooks.SessionStart) {
+    assert.equal(e.hooks.length, 1);
+    assert.equal(e.hooks[0].command, COMMAND);
+  }
+});
+
+const compactInput = (cwd) => ({ ...startInput(cwd), source: "compact" });
+
+test("claude code hook: after a compaction in an aligned repository without its seat — the bare way back", (t) => {
+  const dir = lay(t, { git: "dir", agents: COVER + STAMP, settings: START });
+  const r = hook(t, compactInput(dir));
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stdout, `${COMPACTION.en.bare()}\n`);
+  assert.match(r.stdout, /^Verstak: the context was compacted\. .*verstak skill/);
+});
+
+test("claude code hook: after a compaction outside an aligned repository — silence", (t) => {
+  for (const spec of [{ git: "dir" }, {}]) {
+    const r = hook(t, compactInput(lay(t, spec)));
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(r.stdout, "", "no graph work to return to, no invitation either");
+  }
 });

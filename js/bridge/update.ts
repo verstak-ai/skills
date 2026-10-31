@@ -142,6 +142,7 @@ export function reexec(path: string, argv: string[]): void {
   const root = skillsRoot();
   const child = spawn(process.execPath, [path, ...argv], {
     stdio: "inherit",
+    windowsHide: true,
     env: {
       ...process.env,
       [envName("BRIDGE_REEXEC")]: "1",

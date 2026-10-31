@@ -64,7 +64,12 @@ export async function probeSatellite(
   };
   delete env[envName("CHANNEL_SOCKET")]; // the probe holds no foreign socket
   delete env[envName("CHANNEL_STATUS")];
-  const child = spawn(e.command, e.args, { cwd, env, stdio: ["pipe", "pipe", "pipe"] });
+  const child = spawn(e.command, e.args, {
+    cwd,
+    env,
+    stdio: ["pipe", "pipe", "pipe"],
+    windowsHide: true,
+  });
   child.stdin.on("error", () => {}); // the bridge left before the write: its outcome, not a doctor crash
   let stderr = "";
   child.stderr.on("data", (c: Buffer) => (stderr = (stderr + c.toString()).slice(-4000)));

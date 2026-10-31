@@ -76,6 +76,7 @@ export class Bridge {
     const proc = spawn(rt.bin, [this.bin, ...this.args], {
       stdio: ["pipe", "pipe", "pipe"],
       env: { ...rt.env, ...env },
+      windowsHide: true,
     });
     this.proc = proc;
     // A write into a bridge going away fails with EPIPE; its death is told by exit, not here.

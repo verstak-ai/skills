@@ -9,14 +9,14 @@ import { awayAnnounced } from "./away.ts";
 import {
   leaveJoinedCases,
   ownPlaces,
-  revokeOwnPlaces,
   type Revokes,
   revokeSatellitePlaces,
   satellitePlaces,
 } from "./caseexit.ts";
 import { CFG } from "./config.ts";
-import { dropConfirmed, heldSince, recordAt, seatKeyOf } from "./deadseat.ts";
+import { heldSince, recordAt, seatKeyOf } from "./deadseat.ts";
 import { closeDeadSeats } from "./deadstop.ts";
+import { endOnWord } from "./endword.ts";
 import { localSocketPathOf, releaseStanding, standingIdIn } from "./hold.ts";
 import { keepHoldRecord } from "./holdkeep.ts";
 import { dropHoldRecord, readHoldRecord } from "./holdrecord.ts";
@@ -88,7 +88,7 @@ export function closeRun(why: string, handover: boolean, now = false): Promise<R
     const own = dying ? ownPlaces() : [];
     // Platform ids before the release forgets the doors: the stop's ended[] names seats by them.
     const ids = new Map(own.map((s) => [seatKeyOf(s), standingIdIn(s.realm)]));
-    // The main seat's socket — its token ends the seat after the window (deadstop.ts).
+    // The main seat's socket — its token ends the seat on the word or after the window (deadstop.ts).
     const socket = own[0] && own[0] === state.standing ? H.currentUrl : null;
     const ended = dying && now;
     // A satellite keeps no hold record; others keep it with the term counted from now (graph
@@ -108,12 +108,12 @@ export function closeRun(why: string, handover: boolean, now = false): Promise<R
       ? { failed: [], revoked: [], probably: [] }
       : await revokeSatellitePlaces(places);
     const status = addr?.url ?? null;
-    // The end awaited its exits: a seat another bridge of this home took meanwhile is not revoked
-    // by name and its record not touched — the death window's guard (notHeldAgain).
+    // The end awaited its exits: a seat another bridge of this home took meanwhile is not ended
+    // and its record not touched — the death window's guard (notHeldAgain); one of another
+    // machine is kept by the stop by this socket's token (endword.ts, #9232).
     const free = ended ? await notHeldAgain(own, eras) : own;
-    if (ended) end = await revokeOwnPlaces(free);
-    // Seats not confirmed revoked wait for the death window, which repeats the revoke.
-    const left = ended ? dropConfirmed(free, end.revoked) : own;
+    let left = own;
+    if (ended) ({ end, left } = await endOnWord(free, free[0] === own[0] ? socket : null, ids));
     if (dying && left.length) {
       const mine = { places: left, ids, eras, status, socket: left[0] === own[0] ? socket : null };
       R.dead = R.dead ? withLate(mine, R.dead) : mine;

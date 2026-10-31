@@ -23,6 +23,13 @@ export interface HeldSession {
 // Closes still on the wire, per bridge session: the leave waits for them (bounded by CLOSE_MS).
 const flying = scoped(() => new Set<Promise<void>>());
 
+/** A session id the server issued, said as its close is: open and close pair up by the log (#9174). */
+export function noteOpened(id: string): void {
+  const line = `opened upstream session ${id}`;
+  log(line);
+  grantLog(line);
+}
+
 /** Close a session upstream; the leave awaits it through closesSettled. */
 export function closeSession(s: HeldSession, why: string): Promise<void> {
   const p = send(s, why);

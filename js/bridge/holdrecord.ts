@@ -6,7 +6,7 @@ import { mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 
 import { dirname, join } from "node:path";
 
 import { scoped } from "../shared/scope.ts";
-import { baseFilePathOf, holdFilePathOf } from "../shared/standings.ts";
+import { baseFilePathOf, HOLD_RECORD_MAX_AGE_MS, holdFilePathOf } from "../shared/standings.ts";
 import { CFG } from "./config.ts";
 import { writeOwned } from "./doorfiles.ts";
 import { log } from "./streams.ts";
@@ -64,8 +64,7 @@ export function formerKeysIn(rec: HoldRecord | null | undefined, key = ""): stri
   return [...new Set(all.filter((k) => typeof k === "string" && k && k !== key))];
 }
 
-/** Record lifetime: the idle time the platform grants a socketless place. */
-export const HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+export { HOLD_RECORD_MAX_AGE_MS };
 
 /** The era of a record: when the session stood on the place; an older build's record — its `at`. */
 export const eraOf = (r: Pick<HoldRecord, "stoodAt" | "at">): number => r.stoodAt ?? r.at ?? 0;
