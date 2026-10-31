@@ -14,9 +14,13 @@ import type { LostEntry } from "./records.ts";
 import type { Slot } from "./tools.ts";
 import { handedOver } from "./twins.ts";
 
-/** A child's seat return waits for the previous bridge's socket to go (its bye) up to BACK_MS; tries are for other failures. */
-const BACK_MS = Number(process.env[envName("CHILD_BACK_MS")]) || 15_000;
-const BACK_TRIES = 4;
+/**
+ * A child's return deadline (#9241): a transient `none` — the daemon mid-handover, a slow
+ * return — outlives any count of tries. A satellite's own death has no window (runend.ts);
+ * the term covers the daemon's waits: its death window of mortal seats is 60 s, a handover
+ * up to ~50 s more.
+ */
+const BACK_MS = Number(process.env[envName("CHILD_BACK_MS")]) || 75_000;
 const BACK_PAUSE_MS = Number(process.env[envName("CHILD_BACK_PAUSE_MS")]) || 1_000;
 /** A child bridge's pause before the plugin stops — no longer than this. */
 export const PAUSE_MS = 1_500;
@@ -27,6 +31,7 @@ export interface ChildDoors {
   keeper: Keeper<Slot>;
   leads: Leads;
   exists(session: string): Promise<boolean>;
+  stopped(): boolean;
   /** A child's run is over: usage to the bridge, the bridge goes down (live), a write by the root's bridge is a refusal (#6361). */
   endRun(session: string, live?: boolean): void;
 }
@@ -64,6 +69,7 @@ export function createChildren(d: ChildDoors) {
   async function back(e: LostEntry): Promise<void> {
     // Not a satellite — not a lead (#6550 item 4): its run ended with the previous instance.
     if (!e.of) return d.endRun(e.session, false);
+    const until = Date.now() + BACK_MS;
     d.leads.back(e.session, e);
     // A child's call that came before its slot waits for it (coming), not for the root's bridge.
     const ready = (async () => {
@@ -76,14 +82,17 @@ export function createChildren(d: ChildDoors) {
     coming.set(e.session, ready);
     const own = await ready.finally(() => coming.delete(e.session));
     if (!own) return;
-    for (let i = 0; i < BACK_TRIES && !own.holding; i++) {
-      if (i) {
-        await sleep(BACK_PAUSE_MS);
-        own.resume = d.keeper
-          .resume(own, e.session, true, BACK_MS)
-          .finally(() => (own.resume = null));
-      }
-      if ((await own.resume) === "elsewhere") break; // the previous bridge's socket did not go within the term
+    const cancelled = () =>
+      d.stopped() || d.leads.ended(e.session) || d.slots.get(e.session) !== own;
+    while (!own.holding) {
+      await own.resume;
+      if (cancelled()) return;
+      if (own.holding || own.refused?.length || Date.now() >= until) break;
+      await sleep(Math.min(BACK_PAUSE_MS, until - Date.now()));
+      if (cancelled()) return;
+      own.resume = d.keeper
+        .resume(own, e.session, true, Math.max(0, until - Date.now()))
+        .finally(() => (own.resume = null));
     }
     // An earlier era's seat refused by the bridge (case №954): the parent hears why, the child nothing.
     if (!own.holding)

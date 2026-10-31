@@ -66,6 +66,8 @@ export interface CutDeps {
   dropped: (id: string) => void;
   /** An interrupt refused; `last` — no more tries. */
   refused: (id: string, why: string, last: boolean) => void;
+  /** The session archived in the harness (`on`) or taken out of the archive (#9256). */
+  archive: (id: string, on: boolean) => Promise<void>;
 }
 
 export function createCuts(d: CutDeps) {
@@ -74,6 +76,7 @@ export function createCuts(d: CutDeps) {
   const cutFails = new Map<string, [string, number]>(); // refused interrupts of those stops
   const retries = new Set<ReturnType<typeof setTimeout>>();
   const waits = new Set<AbortController>(); // the confirmations waiting for outcomes
+  const archived = new Set<string>(); // the sessions this instance archived on their stop
 
   /**
    * A stopped session's running turn is interrupted, its piles and waiting tact are dropped — once
@@ -101,6 +104,11 @@ export function createCuts(d: CutDeps) {
           if (d.stopOf(id) !== gen) return;
           settle(null);
           cutFails.delete(id);
+          // A stopped agent's session closes in the harness, not only its turn (#9256).
+          if (!archived.has(id)) {
+            archived.add(id);
+            void d.archive(id, true);
+          }
         },
         (e: Error) => {
           if (d.stopOf(id) !== gen) return;
@@ -154,10 +162,14 @@ export function createCuts(d: CutDeps) {
         signal?.removeEventListener("abort", off);
       }
     },
-    /** The session is gone or stands again: its marks go, whoever waits reads it anew. */
-    forget(id: string): void {
+    /**
+     * The session is gone or stands again (`stands`): its marks go, whoever waits reads it anew;
+     * standing again, it leaves the archive its stop made.
+     */
+    forget(id: string, stands = false): void {
       cutDone.delete(id);
       cutFails.delete(id);
+      if (archived.delete(id) && stands) void d.archive(id, false);
       unsettle(id);
     },
     stop(): void {

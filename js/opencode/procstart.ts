@@ -22,6 +22,7 @@ function psStart(pid: number): number | null {
     encoding: "utf8",
     env: { ...process.env, LC_ALL: "C" },
     stdio: ["ignore", "pipe", "ignore"],
+    windowsHide: true,
     timeout: 2000,
   }).trim();
   const at = Date.parse(out);

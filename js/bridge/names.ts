@@ -84,6 +84,7 @@ export const git = (args: string[], cwd: string = sessionCwd()): string => {
       cwd,
       timeout: 2000,
       stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true,
     })
       .toString()
       .trim();

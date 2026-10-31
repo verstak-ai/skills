@@ -28,6 +28,7 @@ import { authDir } from "./bridge-io.ts";
 import { createCuts } from "./cuts.ts";
 import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
+import { archiver } from "./host.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
 import type { Context } from "./plugin.ts";
@@ -326,6 +327,7 @@ export function setupChannel(
       tacts.gone(id);
     },
     refused: (id, why, last) => say(W.notDelivered(W.frame(), id, why), last ? "error" : "warning"),
+    archive: archiver(ctx, (text) => say(text, "warning")),
   });
   const cut = cuts.cut;
 
@@ -471,9 +473,8 @@ export function setupChannel(
           if (params?.data?.automatic === false) {
             // only an attributed explicit transition lifts the stop
             halts.held(session);
-            for (const s of session ? [session, ...descendantsOf(session, parents)] : []) {
-              cuts.forget(s);
-            }
+            for (const s of session ? [session, ...descendantsOf(session, parents)] : [])
+              cuts.forget(s, true);
           }
           say(W.held(ev.key ?? ""), "info");
           return;

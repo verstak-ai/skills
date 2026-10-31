@@ -16,7 +16,7 @@ import { type Standing } from "./transport.ts";
 /** The 404 rule of a token that is not current: reissued, the channel or the seat ended. */
 const NOT_CURRENT = "ws_token_not_current";
 
-type Stop = "stopped" | "moved" | "absent" | "unknown";
+export type Stop = "stopped" | "moved" | "absent" | "unknown";
 
 /** errors[0].rule of a ProblemDetail body; null — no rule (or no JSON). */
 function ruleOf(body: string): string | null {
@@ -41,7 +41,7 @@ function endedOf(body: string): string[] {
 }
 
 /** The stop by the dead socket's token, read as stopped, moved (not ours), absent (old api) or unknown. */
-async function stopBySocket(
+export async function stopBySocket(
   socketUrl: string,
 ): Promise<{ how: Stop; why: string; ended: string[] }> {
   const token = new URL(socketUrl).pathname.split("/channel/ws/")[1];
@@ -74,6 +74,49 @@ async function closeByBoard(places: Standing[], status: string | null, say: () =
 }
 
 /**
+ * A 200 of the stop, seat by seat: the answer — the seats its ended[] names, their hold records
+ * dropped while still this channel's. A seat whose id no reply named (a connect's prose carries
+ * none) is the one an ended id no known seat claims — when it is the only such seat.
+ */
+export function settleStopped(
+  places: Standing[],
+  socket: string,
+  ids: Map<string, string | null>,
+  ended: string[],
+  why: string,
+): Standing[] {
+  const idOf = (s: Standing): string | null => ids.get(seatKeyOf(s)) ?? null;
+  const unclaimed = ended.filter((id) => !places.some((s) => idOf(s) === id));
+  const unnamed = places.filter((s) => !idOf(s));
+  const done: Standing[] = [];
+  for (const s of places) {
+    const key = seatKeyOf(s);
+    const id = idOf(s);
+    if (id ? ended.includes(id) : unnamed.length === 1 && unclaimed.length > 0) {
+      log(`${key} ended by its dead socket's token (${why})`);
+      dropOwnHoldRecord(key, socket);
+      done.push(s);
+    } else if (id || unclaimed.length === 0)
+      log(
+        `${key}: not among the stop's ended seats — another live channel holds it; its hold record untouched`,
+      );
+    else
+      log(
+        `${key}: its seat id is not known — whether the stop ended it is not known; its hold record kept`,
+      );
+  }
+  return done;
+}
+
+/** A 404 ws_token_not_current: another holder took the name or it ended — nothing closed. */
+export function settleMoved(places: Standing[], main: Standing, socket: string): void {
+  log(
+    `${seatKeyOf(main)}: its dead socket's token is not current — another holder took it or it ended, not closed; only the channel's own hold records dropped`,
+  );
+  for (const s of places) dropOwnHoldRecord(seatKeyOf(s), socket);
+}
+
+/**
  * Closes the dead seats no live bridge of this machine holds again. `main` — the channel's main
  * seat among them with its dead socket's address, or null; `ids` — the platform ids of the seats
  * by key, as far as register, hello or connect named them. With `main` one stop by its token
@@ -93,35 +136,10 @@ export async function closeDeadSeats(
   const { how, why, ended } = await stopBySocket(main.socket);
   if (how === "stopped") {
     say();
-    // A seat whose id no reply named (a connect's prose carries none) is the one an ended id no
-    // known seat claims — when it is the only such seat.
-    const idOf = (s: Standing): string | null => ids.get(seatKeyOf(s)) ?? null;
-    const unclaimed = ended.filter((id) => !places.some((s) => idOf(s) === id));
-    const unnamed = places.filter((s) => !idOf(s));
-    for (const s of places) {
-      const key = seatKeyOf(s);
-      const id = idOf(s);
-      if (id ? ended.includes(id) : unnamed.length === 1 && unclaimed.length > 0) {
-        log(`${key} ended by its dead socket's token (${why})`);
-        dropOwnHoldRecord(key, main.socket);
-      } else if (id || unclaimed.length === 0)
-        log(
-          `${key}: not among the stop's ended seats — another live channel holds it; its hold record untouched`,
-        );
-      else
-        log(
-          `${key}: its seat id is not known — whether the stop ended it is not known; its hold record kept`,
-        );
-    }
+    settleStopped(places, main.socket, ids, ended, why);
     return;
   }
-  if (how === "moved") {
-    log(
-      `${seatKeyOf(main.seat)}: its dead socket's token is not current — another holder took it or it ended, not closed; only the channel's own hold records dropped`,
-    );
-    for (const s of places) dropOwnHoldRecord(seatKeyOf(s), main.socket);
-    return;
-  }
+  if (how === "moved") return settleMoved(places, main.seat, main.socket);
   if (how === "unknown")
     return log(
       `${seatKeyOf(main.seat)}: the stop by its token did not answer: ${why} — not closed, the seats go by the platform's term`,

@@ -7,7 +7,7 @@ import { CFG } from "./config.ts";
 import { closedUnder, errorCode, errorMessage, UpstreamError } from "./errors.ts";
 import { loginPublished } from "./oauth/flow.ts";
 import { repeatable } from "./repeat.ts";
-import { closeSession } from "./sessionclose.ts";
+import { closeSession, noteOpened } from "./sessionclose.ts";
 import { loadStore, saveServerCache } from "./store.ts";
 import { debug, emit, log } from "./streams.ts";
 import { heardListChanged, isListChanged } from "./toolsync.ts";
@@ -256,6 +256,7 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
         `upstream replaced the session mid-call (${state.sessionId} -> ${sid}) — this call may have gone unattributed`,
       );
     }
+    if (sid !== state.sessionId) noteOpened(sid);
     state.sessionId = sid; // a session id may ride any answer, including an empty one
     state.sessionToken = token;
     // A session opened with the header is bound at the handshake on a surface

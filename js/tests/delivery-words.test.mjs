@@ -74,6 +74,18 @@ test("a lead's failed turn is not its end, and a deleted session's unrevoked sea
   );
   assert.match(OPENCODE.en.endUnconfirmed("a"), /its seat's revoke is not confirmed \(a\)/);
   assert.doesNotMatch(OPENCODE_KEEP.en.parentMoved(), /errand ended/);
+  assert.equal(
+    OPENCODE.en.sessionLeftOpen("ses_1", null),
+    "Verstak: session ses_1 is stopped but its window is left open — the plugin finds no client of this session; close it in OpenCode",
+  );
+  assert.match(
+    OPENCODE.en.sessionLeftOpen("ses_1", "archive refused"),
+    /left open — archive refused; close it/,
+  );
+  assert.equal(
+    OPENCODE.en.clientClosed("ses_1", 42),
+    "Verstak: session ses_1 is stopped, its client closed (pid 42)",
+  );
 });
 
 test("proven own-seat recovery needs no foreign-seat warning", () => {
@@ -196,6 +208,16 @@ test("a compacted session is told its role and the door; a root without a cover 
     /The summary is a pointer, not the record: .* read it in the graph again \(the door's entry method, "Recalling"\)\.$/,
   );
   assert.match(COMPACTION.en.back("undefined", "s", "r5"), /You are role <role> in graph r5/);
+  const bare = COMPACTION.en.bare();
+  assert.match(
+    bare,
+    /^Verstak: the context was compacted\. Before the first substantive move, load the verstak skill/,
+  );
+  assert.match(
+    bare,
+    /The summary is a pointer, not the record: .*\(the door's entry method, "Recalling"\)\.$/,
+  );
+  assert.doesNotMatch(bare, /role #|seat /);
   assert.match(COMPACTION.en.returned("ses_1"), /^Verstak: .*session ses_1$/);
   assert.equal(ROOT_SEAT.en.noFile("AGENTS.md"), "there is no AGENTS.md");
   const realign = ROOT_SEAT.en.realign("there is no AGENTS.md", "AGENTS.md");

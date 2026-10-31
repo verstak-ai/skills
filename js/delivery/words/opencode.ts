@@ -63,6 +63,10 @@ export interface OpencodeWords {
   haltUnlifted: (id: string, message: string, kept: boolean) => string;
   delivered: (frame: string, id: string) => string;
   notDelivered: (frame: string, id: string, message: string) => string;
+  /** A stopped session whose client is not closed: why — the archive's refusal; null — no client found. */
+  sessionLeftOpen: (id: string, why: string | null) => string;
+  /** A stopped session's client closed. */
+  clientClosed: (id: string, pid: number) => string;
   held: (key: string) => string;
   released: (key: string, text: string) => string;
   /** seats — not revoked by the deleted session's bridge, or its word when it did not answer. */
@@ -153,6 +157,9 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
     notDelivered: (frame, id, message) =>
       `Verstak: ${frame} was not delivered into session ${id}: ${message}`,
+    sessionLeftOpen: (id, why) =>
+      `Verstak: session ${id} is stopped but its window is left open — ${why ?? "the plugin finds no client of this session"}; close it in OpenCode`,
+    clientClosed: (id, pid) => `Verstak: session ${id} is stopped, its client closed (pid ${pid})`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
     released: (key, text) => `Verstak: the bridge released the standing ${key} — ${text}`,
     endUnrevoked: (seats) =>

@@ -71,6 +71,9 @@ export function privateDirProblem(dir: string, create = true): string | null {
 export const keyFilePathOf = (authDir: string, key: string): string =>
   join(standingsDirOf(authDir), `${hashOf(key)}.key`);
 
+/** Hold record lifetime: the idle time the platform grants a socketless place. */
+export const HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
 /** Hold record (0600): a restarted bridge returns the seat from disk (graph @nks/nks-dev, node #5061). */
 export const holdFilePathOf = (authDir: string, key: string): string =>
   join(standingsDirOf(authDir), `${hashOf(key)}.hold`);

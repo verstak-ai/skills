@@ -170,7 +170,15 @@ export async function setupTools(
     live
       ? void flushUsage(s).finally(() => runEnds.end(s, null, forget))
       : runEnds.end(s, null, nothing);
-  const children = createChildren({ slots, spawn, keeper, leads, exists, endRun });
+  const children = createChildren({
+    slots,
+    spawn,
+    keeper,
+    leads,
+    exists,
+    endRun,
+    stopped: () => stopped,
+  });
   const handoff = createHandoff({ slots, leads, forget }); // a satellite child moved alone (#6695)
   const adopt = createAdopt({
     keeper,
