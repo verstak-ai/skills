@@ -168,7 +168,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.23.0";
+var VERSION = "3.24.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -249,6 +249,7 @@ var COMPACTION = {
   en: {
     keep: (karta, name, realm) => `Verstak: the summary of this compaction must keep the agent's role ${role(karta, "<role>")} in graph ${realm}, its seat ${name} (the bridge holds it), the live cases — by number and what each waits for — and the instruction to reload the verstak skill and the role's methods as the first move after the compaction.`,
     back: (karta, name, realm) => `Verstak: the context was compacted. You are role ${role(karta, "<role>")} in graph ${realm}; the bridge holds seat ${name}. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones. The summary is a pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again (the door's entry method, "Recalling").`,
+    bare: () => `Verstak: the context was compacted. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones. The summary is a pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again (the door's entry method, "Recalling").`,
     returned: (sessionID) => `Verstak: the role word after the compaction went into the first request of session ${sessionID}`
   }
 };
@@ -388,6 +389,8 @@ var OPENCODE = {
     haltUnlifted: (id, message, kept2) => `Verstak: session ${id} holds a seat again and its ban is lifted, but the stop's record on disk was not removed (${message}) — ` + (kept2 ? "rewriting it as lifted failed too: after a plugin reload the session will count as stopped again" : "it is rewritten as lifted"),
     delivered: (frame, id) => `Verstak: ${frame} delivered into session ${id}`,
     notDelivered: (frame, id, message) => `Verstak: ${frame} was not delivered into session ${id}: ${message}`,
+    sessionLeftOpen: (id, why) => `Verstak: session ${id} is stopped but its window is left open — ${why ?? "the plugin finds no client of this session"}; close it in OpenCode`,
+    clientClosed: (id, pid) => `Verstak: session ${id} is stopped, its client closed (pid ${pid})`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
     released: (key, text2) => `Verstak: the bridge released the standing ${key} — ${text2}`,
     endUnrevoked: (seats) => `Verstak: the session is deleted but its seat is not revoked (${seats}) — the hold record is kept; the machine's bridge repeats the revoke after the window, else the seat goes by the platform's term`,
@@ -633,6 +636,7 @@ var defaultAuthDir = () => join2(homedir2(), HOME_DIR);
 var authDirFromEnv = () => envOf(envName("BRIDGE_AUTH_DIR"))?.trim() || defaultAuthDir();
 var standingsDirOf = (authDir2) => join2(authDir2, "standings");
 var hashOf = (key) => createHash("sha256").update(key).digest("hex").slice(0, 16);
+var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 var holdFilePathOf = (authDir2, key) => join2(standingsDirOf(authDir2), `${hashOf(key)}.hold`);
 
 // js/shared/lang.ts
@@ -1501,7 +1505,8 @@ var Bridge = class {
     const rt = bridgeRuntime();
     const proc = spawn(rt.bin, [this.bin, ...this.args], {
       stdio: ["pipe", "pipe", "pipe"],
-      env: { ...rt.env, ...env }
+      env: { ...rt.env, ...env },
+      windowsHide: true
     });
     this.proc = proc;
     proc.stdin?.on("error", () => {
@@ -2030,7 +2035,6 @@ var reinit = scoped(() => ({ inFlight: null }));
 var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 
 // js/bridge/holdrecord.ts
-var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 var S2 = scoped(() => /* @__PURE__ */ new Map());
 var H = scoped(() => ({ session: null }));
 var B = scoped(() => /* @__PURE__ */ new Map());
@@ -2374,6 +2378,7 @@ function createCuts(d) {
   const cutFails = /* @__PURE__ */ new Map();
   const retries = /* @__PURE__ */ new Set();
   const waits = /* @__PURE__ */ new Set();
+  const archived = /* @__PURE__ */ new Set();
   function cut(id) {
     const gen = d.stopOf(id);
     if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
@@ -2390,6 +2395,10 @@ function createCuts(d) {
         if (d.stopOf(id) !== gen) return;
         settle2(null);
         cutFails.delete(id);
+        if (!archived.has(id)) {
+          archived.add(id);
+          void d.archive(id, true);
+        }
       },
       (e) => {
         if (d.stopOf(id) !== gen) return;
@@ -2441,10 +2450,14 @@ function createCuts(d) {
         signal?.removeEventListener("abort", off);
       }
     },
-    /** The session is gone or stands again: its marks go, whoever waits reads it anew. */
-    forget(id) {
+    /**
+     * The session is gone or stands again (`stands`): its marks go, whoever waits reads it anew;
+     * standing again, it leaves the archive its stop made.
+     */
+    forget(id, stands = false) {
       cutDone.delete(id);
       cutFails.delete(id);
+      if (archived.delete(id) && stands) void d.archive(id, false);
       forget(id);
     },
     stop() {
@@ -2454,6 +2467,316 @@ function createCuts(d) {
       waits.clear();
     }
   };
+}
+
+// js/opencode/client.ts
+import { execFileSync } from "node:child_process";
+function processes() {
+  try {
+    const out2 = execFileSync("ps", ["-axo", "pid=,uid=,command="], {
+      encoding: "utf8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true
+    });
+    return out2.split("\n").map((l) => /^\s*(\d+)\s+(\d+)\s+(.*)$/.exec(l)).filter((m) => m !== null).map((m) => ({ pid: Number(m[1]), uid: Number(m[2]), command: m[3] }));
+  } catch {
+    return [];
+  }
+}
+function standaloneClient() {
+  const seam = Number(process.env[envName("OPENCODE_CLIENT_PID")]);
+  if (seam > 1) return seam;
+  const a = process.argv;
+  return a.includes("serve") && a.includes("--stdio") && process.ppid > 1 ? process.ppid : null;
+}
+function clientOf(sessionID) {
+  const own = standaloneClient();
+  if (own !== null) return own;
+  const uid = process.getuid?.();
+  if (uid === void 0) return null;
+  const id = sessionID.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const opened = new RegExp(
+    `(?:^|[\\s/\\\\])opencode(?:\\.exe)?\\s(?:.*\\s)?(?:--session|-s)(?:=|\\s+)${id}(?:\\s|$)`
+  );
+  const hit = processes().find(
+    (p) => p.uid === uid && p.pid !== process.pid && opened.test(p.command)
+  );
+  return hit?.pid ?? null;
+}
+function closeClient(pid) {
+  try {
+    process.kill(pid, "SIGTERM");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// js/opencode/skillread.ts
+import { existsSync as existsSync2, lstatSync, readdirSync as readdirSync3, realpathSync as realpathSync2 } from "node:fs";
+import { homedir as homedir6 } from "node:os";
+import { basename as basename3, dirname as dirname2, isAbsolute, join as join9, relative, resolve as resolve5 } from "node:path";
+
+// js/shared/skilllock.ts
+import { existsSync, readFileSync as readFileSync6, realpathSync } from "node:fs";
+import { homedir as homedir5 } from "node:os";
+import { basename as basename2, dirname, join as join8, resolve as resolve4 } from "node:path";
+var canon = (p) => {
+  try {
+    return realpathSync(p);
+  } catch {
+    return resolve4(p);
+  }
+};
+function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
+  const places = [];
+  if (stateHome && canon(root) === canon(join8(homedir5(), ".agents", "skills")))
+    places.push(join8(stateHome, "skills", ".skill-lock.json"));
+  places.push(join8(dirname(root), ".skill-lock.json"));
+  if (basename2(root) === "skills" && basename2(dirname(root)) === ".agents")
+    places.push(join8(dirname(dirname(root)), "skills-lock.json"));
+  return places;
+}
+var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
+function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
+  const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
+  if (!place) return null;
+  try {
+    const lock = JSON.parse(readFileSync6(place, "utf8"));
+    return lock.skills ?? {};
+  } catch {
+    return null;
+  }
+}
+
+// js/opencode/skillread.ts
+var READERS = /* @__PURE__ */ new Set(["read", "glob", "grep"]);
+var CALLS = 256;
+var WALK = 4096;
+var canon2 = (p) => {
+  try {
+    return realpathSync2(p);
+  } catch {
+    return null;
+  }
+};
+var absent = (p) => {
+  try {
+    return lstatSync(p, { throwIfNoEntry: false }) === void 0;
+  } catch {
+    return false;
+  }
+};
+function canonReach(p) {
+  const tail2 = [];
+  let at = p;
+  for (; ; ) {
+    const c = canon2(at);
+    if (c) return tail2.length ? join9(c, ...tail2.reverse()) : c;
+    if (!absent(at)) return null;
+    const name = basename3(at);
+    const up = dirname2(at);
+    if (up === at || name === "." || name === "..") return null;
+    tail2.push(name);
+    at = up;
+  }
+}
+function resourceDir(resource) {
+  const dir = resource.replace(/[\\/]\*$/, "");
+  return /[*?[\]{}]/.test(dir) ? null : dir;
+}
+function within(p, root) {
+  const rel = relative(root, p);
+  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
+}
+function bridgeRoot(s) {
+  const path = typeof s?.path === "string" ? s.path : null;
+  if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute(path)) return null;
+  const dir = dirname2(path);
+  if (basename3(dir) !== BRIDGE_SKILL || !existsSync2(join9(dir, "scripts", BRIDGE_FILE))) return null;
+  return dirname2(dir);
+}
+async function skillDirs(ctx) {
+  const res = await ctx.skill.list();
+  const list = Array.isArray(res) ? res : res?.data ?? [];
+  const listed = [];
+  for (const s of list) {
+    const path = typeof s?.path === "string" ? s.path : null;
+    if (!path || !isAbsolute(path)) continue;
+    const dir = canon2(dirname2(path));
+    const id = String(s?.id ?? "");
+    if (dir && basename3(dir) === id) listed.push({ id, dir });
+  }
+  const sets = /* @__PURE__ */ new Map();
+  const lockless = /* @__PURE__ */ new Set();
+  for (const s of list) {
+    const root = bridgeRoot(s);
+    const c = root ? canon2(root) : null;
+    if (!c) continue;
+    sets.set(c, skillLock(c));
+    if (!hasSkillLock(c)) lockless.add(c);
+  }
+  return listed.filter(({ id, dir }) => {
+    const lock = sets.get(dirname2(dir));
+    if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname2(dir));
+    const source = lock[BRIDGE_SKILL]?.source;
+    return typeof source === "string" && lock[id]?.source === source;
+  }).map(({ dir }) => dir);
+}
+function leadsOut(dir) {
+  const stack = [dir];
+  let seen = 0;
+  while (stack.length) {
+    const d = stack.pop();
+    let entries;
+    try {
+      entries = readdirSync3(d, { withFileTypes: true });
+    } catch {
+      return true;
+    }
+    for (const e of entries) {
+      if (++seen > WALK) return true;
+      const p = join9(d, e.name);
+      if (e.isSymbolicLink()) {
+        const c = canon2(p);
+        if (!c || !within(c, dir)) return true;
+      } else if (e.isDirectory()) stack.push(p);
+    }
+  }
+  return false;
+}
+function absolute(p, base) {
+  if (p === "~" || p.startsWith("~/")) return join9(homedir6(), p.slice(1));
+  if (isAbsolute(p)) return p;
+  return base ? resolve5(base, p) : null;
+}
+var dotted = (p) => p.split(/[\\/]/).some((s) => s === "." || s === "..");
+function reached(call, resources, base) {
+  const out2 = [];
+  for (const r of resources) {
+    const dir = resourceDir(String(r));
+    if (!dir || dotted(dir)) return null;
+    out2.push(dir);
+  }
+  const input = call.input ?? {};
+  for (const key of ["path", "filePath"]) {
+    const p = input[key];
+    if (p === void 0) continue;
+    const abs = typeof p === "string" && !(isAbsolute(p) && dotted(p)) ? absolute(p, base) : null;
+    if (!abs) return null;
+    out2.push(abs);
+  }
+  for (const key of ["pattern", "include"]) {
+    if (call.tool === "grep" && key === "pattern") continue;
+    const pat = input[key];
+    if (pat === void 0) continue;
+    if (typeof pat !== "string" || isAbsolute(pat) || pat.startsWith("~") || pat.includes(".."))
+      return null;
+  }
+  return out2.length ? out2 : null;
+}
+async function setupSkillReads(ctx) {
+  const { permission, tool: tool2 } = ctx;
+  if (typeof permission?.hook !== "function" || typeof tool2?.hook !== "function") return false;
+  const calls = /* @__PURE__ */ new Map();
+  await tool2.hook("execute.before", (t) => {
+    if (typeof t?.id !== "string" || typeof t?.tool !== "string") return;
+    const was = calls.get(t.id);
+    const clash = was && (was.tool !== t.tool || was.session !== t.sessionID);
+    const input = READERS.has(t.tool) ? t.input : void 0;
+    calls.set(t.id, { tool: clash ? "" : t.tool, input, session: t.sessionID });
+    while (calls.size > CALLS) calls.delete(calls.keys().next().value);
+  });
+  const loc = ctx.location;
+  const base = typeof loc?.directory === "string" && loc.directory ? loc.directory : null;
+  const lifts = async (e) => {
+    if (e?.action !== "external_directory" || e.effect !== "ask") return false;
+    const id = e.source?.type === "tool" ? e.source.id : null;
+    const call = typeof id === "string" ? calls.get(id) : void 0;
+    if (!call || !READERS.has(call.tool) || typeof e.sessionID !== "string") return false;
+    if (e.sessionID !== call.session) return false;
+    const paths = reached(call, Array.isArray(e.resources) ? e.resources : [], base);
+    if (!paths) return false;
+    const roots = await skillDirs(ctx);
+    const walked = /* @__PURE__ */ new Set();
+    for (const p of paths) {
+      const c = canonReach(p);
+      const root = c ? roots.find((r) => within(c, r)) : void 0;
+      if (!root) return false;
+      walked.add(root);
+    }
+    return call.tool === "read" || ![...walked].some(leadsOut);
+  };
+  await permission.hook("evaluate", async (e) => {
+    try {
+      if (await lifts(e)) e.effect = "allow";
+    } catch {
+    }
+  });
+  return true;
+}
+
+// js/opencode/host.ts
+async function hostEnvOf(ctx) {
+  const env = {};
+  const v = ctx.app?.version;
+  if (typeof v === "string" && v.trim()) env[HARNESS_VERSION_ENV] = v.trim();
+  try {
+    const res = await ctx.skill.list();
+    const list = Array.isArray(res) ? res : res?.data ?? [];
+    const root = list.map(bridgeRoot).find((r) => r !== null);
+    if (root) env[SKILLS_ROOT_ENV] = root;
+  } catch {
+  }
+  return env;
+}
+function archives(ctx) {
+  const v = ctx.app?.version;
+  const m = typeof v === "string" ? /^(\d+)\.(\d+)/.exec(v) : null;
+  return !!m && (Number(m[1]) > 2 || Number(m[1]) === 2 && Number(m[2]) >= 2);
+}
+var CLOSE_AFTER_MS = 1e3;
+function archiver(ctx, tell) {
+  const W5 = words(OPENCODE);
+  const session = ctx.session;
+  const pending = /* @__PURE__ */ new Map();
+  const turns = /* @__PURE__ */ new Map();
+  return async (id, on) => {
+    const turn = (turns.get(id) ?? 0) + 1;
+    turns.set(id, turn);
+    clearTimeout(pending.get(id));
+    pending.delete(id);
+    let why = null;
+    if (archives(ctx) && typeof session.update === "function")
+      await session.update({ sessionID: id, archived: on }).catch((e) => why = e.message);
+    if (!on) return;
+    const root = await Promise.resolve().then(() => session.get({ sessionID: id })).then((s) => !s?.parentID).catch(() => false);
+    if (turns.get(id) !== turn) return;
+    const pid = root ? clientOf(id) : null;
+    if (pid === null) return void ((root || why) && tell(W5.sessionLeftOpen(id, why)));
+    const t = setTimeout(() => {
+      pending.delete(id);
+      tell(closeClient(pid) ? W5.clientClosed(id, pid) : W5.sessionLeftOpen(id, null));
+    }, CLOSE_AFTER_MS);
+    t.unref?.();
+    pending.set(id, t);
+  };
+}
+function homeOf(ctx) {
+  const loc = ctx.location;
+  if (typeof loc?.directory !== "string" || !loc.directory) return null;
+  const workspace = typeof loc.workspaceID === "string" ? loc.workspaceID : null;
+  return { directory: loc.directory, workspace };
+}
+async function sessionDirectory(ctx, sessionID) {
+  try {
+    const res = await ctx.session.get({ sessionID });
+    const dir = res?.location?.directory ?? res?.data?.location?.directory;
+    return typeof dir === "string" && dir.trim() ? dir : null;
+  } catch {
+    return null;
+  }
 }
 
 // js/opencode/leadframes.ts
@@ -2562,25 +2885,26 @@ function rootAbove(session, parents) {
 
 // js/opencode/marker.ts
 import { createHash as createHash4 } from "node:crypto";
-import { mkdirSync as mkdirSync3, readdirSync as readdirSync3, readFileSync as readFileSync7, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join8 } from "node:path";
+import { mkdirSync as mkdirSync3, readdirSync as readdirSync4, readFileSync as readFileSync8, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync3 } from "node:fs";
+import { join as join10 } from "node:path";
 
 // js/opencode/procstart.ts
-import { execFileSync } from "node:child_process";
-import { readFileSync as readFileSync6 } from "node:fs";
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { readFileSync as readFileSync7 } from "node:fs";
 var CLK_TCK = 100;
 function linuxStart(pid) {
-  const stat = readFileSync6(`/proc/${pid}/stat`, "utf8");
+  const stat = readFileSync7(`/proc/${pid}/stat`, "utf8");
   const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
   const ticks = Number(fields[19]);
-  const btime = Number(/^btime (\d+)$/m.exec(readFileSync6("/proc/stat", "utf8"))?.[1]);
+  const btime = Number(/^btime (\d+)$/m.exec(readFileSync7("/proc/stat", "utf8"))?.[1]);
   return Number.isFinite(ticks) && btime ? (btime + ticks / CLK_TCK) * 1e3 : null;
 }
 function psStart(pid) {
-  const out2 = execFileSync("ps", ["-o", "lstart=", "-p", String(pid)], {
+  const out2 = execFileSync2("ps", ["-o", "lstart=", "-p", String(pid)], {
     encoding: "utf8",
     env: { ...process.env, LC_ALL: "C" },
     stdio: ["ignore", "pipe", "ignore"],
+    windowsHide: true,
     timeout: 2e3
   }).trim();
   const at = Date.parse(out2);
@@ -2631,7 +2955,7 @@ var otherLive = (f, path) => {
 };
 function stoodAtOf(authDir2, key) {
   try {
-    const at = JSON.parse(readFileSync7(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
+    const at = JSON.parse(readFileSync8(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
     return typeof at === "number" ? at : void 0;
   } catch {
     return void 0;
@@ -2653,7 +2977,7 @@ function writeLostMarker(authDir2, slots, home) {
     const lost = { at: (/* @__PURE__ */ new Date()).toISOString(), entries };
     const rand = Math.random().toString(36).slice(2, 8);
     const name = `${PREFIX2}.@${tagOf(home)}.${process.pid}.${rand}.json`;
-    writeFileSync3(join8(authDir2, name), JSON.stringify(lost), { mode: 384 });
+    writeFileSync3(join10(authDir2, name), JSON.stringify(lost), { mode: 384 });
     return entries;
   } catch {
     return [];
@@ -2661,8 +2985,8 @@ function writeLostMarker(authDir2, slots, home) {
 }
 function markerWaits(authDir2, home) {
   try {
-    return readdirSync3(authDir2).some(
-      (f) => f.startsWith(`${PREFIX2}.@${tagOf(home)}.`) && !otherLive(f, join8(authDir2, f))
+    return readdirSync4(authDir2).some(
+      (f) => f.startsWith(`${PREFIX2}.@${tagOf(home)}.`) && !otherLive(f, join10(authDir2, f))
     );
   } catch {
     return false;
@@ -2677,7 +3001,7 @@ function readOwn(path, tag, home) {
   };
   let lost = null;
   try {
-    const text2 = readFileSync7(path, "utf8");
+    const text2 = readFileSync8(path, "utf8");
     if (tag !== null) drop2();
     lost = JSON.parse(text2);
   } catch {
@@ -2692,7 +3016,7 @@ function takeLostMarker(authDir2, home) {
   let at = "";
   let files;
   try {
-    files = readdirSync3(authDir2).filter((f) => f.startsWith(PREFIX2) && f.endsWith(".json"));
+    files = readdirSync4(authDir2).filter((f) => f.startsWith(PREFIX2) && f.endsWith(".json"));
   } catch {
     return null;
   }
@@ -2701,8 +3025,8 @@ function takeLostMarker(authDir2, home) {
   for (const f of files) {
     const tag = tagIn(f);
     if (tag !== null && tag !== mine) continue;
-    if (otherLive(f, join8(authDir2, f))) continue;
-    const lost = readOwn(join8(authDir2, f), tag, home);
+    if (otherLive(f, join10(authDir2, f))) continue;
+    const lost = readOwn(join10(authDir2, f), tag, home);
     if (lost) read.push({ tagged: tag !== null, lost });
   }
   const eraOf = (e, lost) => e.stoodAt ?? (Date.parse(lost.at) || 0);
@@ -2781,12 +3105,12 @@ var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept
 var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
 
 // js/shared/canon.ts
-import { realpathSync } from "node:fs";
+import { realpathSync as realpathSync3 } from "node:fs";
 import { sep } from "node:path";
 function canonDir(p) {
   let real = p;
   try {
-    real = realpathSync.native(p);
+    real = realpathSync3.native(p);
   } catch {
   }
   while (real.length > 1 && (real.endsWith("/") || real.endsWith(sep))) real = real.slice(0, -1);
@@ -2878,8 +3202,7 @@ function createTwins(ctx, home, d) {
 }
 
 // js/opencode/children.ts
-var BACK_MS = Number(process.env[envName("CHILD_BACK_MS")]) || 15e3;
-var BACK_TRIES = 4;
+var BACK_MS = Number(process.env[envName("CHILD_BACK_MS")]) || 75e3;
 var BACK_PAUSE_MS = Number(process.env[envName("CHILD_BACK_PAUSE_MS")]) || 1e3;
 var PAUSE_MS2 = 1500;
 function createChildren(d) {
@@ -2902,6 +3225,7 @@ function createChildren(d) {
   }
   async function back(e) {
     if (!e.of) return d.endRun(e.session, false);
+    const until = Date.now() + BACK_MS;
     d.leads.back(e.session, e);
     const ready = (async () => {
       if (!await d.exists(e.session))
@@ -2912,12 +3236,14 @@ function createChildren(d) {
     coming.set(e.session, ready);
     const own = await ready.finally(() => coming.delete(e.session));
     if (!own) return;
-    for (let i = 0; i < BACK_TRIES && !own.holding; i++) {
-      if (i) {
-        await sleep(BACK_PAUSE_MS);
-        own.resume = d.keeper.resume(own, e.session, true, BACK_MS).finally(() => own.resume = null);
-      }
-      if (await own.resume === "elsewhere") break;
+    const cancelled = () => d.stopped() || d.leads.ended(e.session) || d.slots.get(e.session) !== own;
+    while (!own.holding) {
+      await own.resume;
+      if (cancelled()) return;
+      if (own.holding || own.refused?.length || Date.now() >= until) break;
+      await sleep(Math.min(BACK_PAUSE_MS, until - Date.now()));
+      if (cancelled()) return;
+      own.resume = d.keeper.resume(own, e.session, true, Math.max(0, until - Date.now())).finally(() => own.resume = null);
     }
     if (!own.holding)
       await d.leads.fail(
@@ -3207,240 +3533,6 @@ var createHandoff = (d) => (session, to, home) => {
   );
   return true;
 };
-
-// js/opencode/skillread.ts
-import { existsSync as existsSync2, lstatSync, readdirSync as readdirSync4, realpathSync as realpathSync3 } from "node:fs";
-import { homedir as homedir6 } from "node:os";
-import { basename as basename3, dirname as dirname2, isAbsolute, join as join10, relative, resolve as resolve5 } from "node:path";
-
-// js/shared/skilllock.ts
-import { existsSync, readFileSync as readFileSync8, realpathSync as realpathSync2 } from "node:fs";
-import { homedir as homedir5 } from "node:os";
-import { basename as basename2, dirname, join as join9, resolve as resolve4 } from "node:path";
-var canon = (p) => {
-  try {
-    return realpathSync2(p);
-  } catch {
-    return resolve4(p);
-  }
-};
-function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
-  const places = [];
-  if (stateHome && canon(root) === canon(join9(homedir5(), ".agents", "skills")))
-    places.push(join9(stateHome, "skills", ".skill-lock.json"));
-  places.push(join9(dirname(root), ".skill-lock.json"));
-  if (basename2(root) === "skills" && basename2(dirname(root)) === ".agents")
-    places.push(join9(dirname(dirname(root)), "skills-lock.json"));
-  return places;
-}
-var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
-function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
-  const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
-  if (!place) return null;
-  try {
-    const lock = JSON.parse(readFileSync8(place, "utf8"));
-    return lock.skills ?? {};
-  } catch {
-    return null;
-  }
-}
-
-// js/opencode/skillread.ts
-var READERS = /* @__PURE__ */ new Set(["read", "glob", "grep"]);
-var CALLS = 256;
-var WALK = 4096;
-var canon2 = (p) => {
-  try {
-    return realpathSync3(p);
-  } catch {
-    return null;
-  }
-};
-var absent = (p) => {
-  try {
-    return lstatSync(p, { throwIfNoEntry: false }) === void 0;
-  } catch {
-    return false;
-  }
-};
-function canonReach(p) {
-  const tail2 = [];
-  let at = p;
-  for (; ; ) {
-    const c = canon2(at);
-    if (c) return tail2.length ? join10(c, ...tail2.reverse()) : c;
-    if (!absent(at)) return null;
-    const name = basename3(at);
-    const up = dirname2(at);
-    if (up === at || name === "." || name === "..") return null;
-    tail2.push(name);
-    at = up;
-  }
-}
-function resourceDir(resource) {
-  const dir = resource.replace(/[\\/]\*$/, "");
-  return /[*?[\]{}]/.test(dir) ? null : dir;
-}
-function within(p, root) {
-  const rel = relative(root, p);
-  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
-}
-function bridgeRoot(s) {
-  const path = typeof s?.path === "string" ? s.path : null;
-  if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute(path)) return null;
-  const dir = dirname2(path);
-  if (basename3(dir) !== BRIDGE_SKILL || !existsSync2(join10(dir, "scripts", BRIDGE_FILE))) return null;
-  return dirname2(dir);
-}
-async function skillDirs(ctx) {
-  const res = await ctx.skill.list();
-  const list = Array.isArray(res) ? res : res?.data ?? [];
-  const listed = [];
-  for (const s of list) {
-    const path = typeof s?.path === "string" ? s.path : null;
-    if (!path || !isAbsolute(path)) continue;
-    const dir = canon2(dirname2(path));
-    const id = String(s?.id ?? "");
-    if (dir && basename3(dir) === id) listed.push({ id, dir });
-  }
-  const sets = /* @__PURE__ */ new Map();
-  const lockless = /* @__PURE__ */ new Set();
-  for (const s of list) {
-    const root = bridgeRoot(s);
-    const c = root ? canon2(root) : null;
-    if (!c) continue;
-    sets.set(c, skillLock(c));
-    if (!hasSkillLock(c)) lockless.add(c);
-  }
-  return listed.filter(({ id, dir }) => {
-    const lock = sets.get(dirname2(dir));
-    if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname2(dir));
-    const source = lock[BRIDGE_SKILL]?.source;
-    return typeof source === "string" && lock[id]?.source === source;
-  }).map(({ dir }) => dir);
-}
-function leadsOut(dir) {
-  const stack = [dir];
-  let seen = 0;
-  while (stack.length) {
-    const d = stack.pop();
-    let entries;
-    try {
-      entries = readdirSync4(d, { withFileTypes: true });
-    } catch {
-      return true;
-    }
-    for (const e of entries) {
-      if (++seen > WALK) return true;
-      const p = join10(d, e.name);
-      if (e.isSymbolicLink()) {
-        const c = canon2(p);
-        if (!c || !within(c, dir)) return true;
-      } else if (e.isDirectory()) stack.push(p);
-    }
-  }
-  return false;
-}
-function absolute(p, base) {
-  if (p === "~" || p.startsWith("~/")) return join10(homedir6(), p.slice(1));
-  if (isAbsolute(p)) return p;
-  return base ? resolve5(base, p) : null;
-}
-var dotted = (p) => p.split(/[\\/]/).some((s) => s === "." || s === "..");
-function reached(call, resources, base) {
-  const out2 = [];
-  for (const r of resources) {
-    const dir = resourceDir(String(r));
-    if (!dir || dotted(dir)) return null;
-    out2.push(dir);
-  }
-  const input = call.input ?? {};
-  for (const key of ["path", "filePath"]) {
-    const p = input[key];
-    if (p === void 0) continue;
-    const abs = typeof p === "string" && !(isAbsolute(p) && dotted(p)) ? absolute(p, base) : null;
-    if (!abs) return null;
-    out2.push(abs);
-  }
-  for (const key of ["pattern", "include"]) {
-    if (call.tool === "grep" && key === "pattern") continue;
-    const pat = input[key];
-    if (pat === void 0) continue;
-    if (typeof pat !== "string" || isAbsolute(pat) || pat.startsWith("~") || pat.includes(".."))
-      return null;
-  }
-  return out2.length ? out2 : null;
-}
-async function setupSkillReads(ctx) {
-  const { permission, tool: tool2 } = ctx;
-  if (typeof permission?.hook !== "function" || typeof tool2?.hook !== "function") return false;
-  const calls = /* @__PURE__ */ new Map();
-  await tool2.hook("execute.before", (t) => {
-    if (typeof t?.id !== "string" || typeof t?.tool !== "string") return;
-    const was = calls.get(t.id);
-    const clash = was && (was.tool !== t.tool || was.session !== t.sessionID);
-    const input = READERS.has(t.tool) ? t.input : void 0;
-    calls.set(t.id, { tool: clash ? "" : t.tool, input, session: t.sessionID });
-    while (calls.size > CALLS) calls.delete(calls.keys().next().value);
-  });
-  const loc = ctx.location;
-  const base = typeof loc?.directory === "string" && loc.directory ? loc.directory : null;
-  const lifts = async (e) => {
-    if (e?.action !== "external_directory" || e.effect !== "ask") return false;
-    const id = e.source?.type === "tool" ? e.source.id : null;
-    const call = typeof id === "string" ? calls.get(id) : void 0;
-    if (!call || !READERS.has(call.tool) || typeof e.sessionID !== "string") return false;
-    if (e.sessionID !== call.session) return false;
-    const paths = reached(call, Array.isArray(e.resources) ? e.resources : [], base);
-    if (!paths) return false;
-    const roots = await skillDirs(ctx);
-    const walked = /* @__PURE__ */ new Set();
-    for (const p of paths) {
-      const c = canonReach(p);
-      const root = c ? roots.find((r) => within(c, r)) : void 0;
-      if (!root) return false;
-      walked.add(root);
-    }
-    return call.tool === "read" || ![...walked].some(leadsOut);
-  };
-  await permission.hook("evaluate", async (e) => {
-    try {
-      if (await lifts(e)) e.effect = "allow";
-    } catch {
-    }
-  });
-  return true;
-}
-
-// js/opencode/host.ts
-async function hostEnvOf(ctx) {
-  const env = {};
-  const v = ctx.app?.version;
-  if (typeof v === "string" && v.trim()) env[HARNESS_VERSION_ENV] = v.trim();
-  try {
-    const res = await ctx.skill.list();
-    const list = Array.isArray(res) ? res : res?.data ?? [];
-    const root = list.map(bridgeRoot).find((r) => r !== null);
-    if (root) env[SKILLS_ROOT_ENV] = root;
-  } catch {
-  }
-  return env;
-}
-function homeOf(ctx) {
-  const loc = ctx.location;
-  if (typeof loc?.directory !== "string" || !loc.directory) return null;
-  const workspace = typeof loc.workspaceID === "string" ? loc.workspaceID : null;
-  return { directory: loc.directory, workspace };
-}
-async function sessionDirectory(ctx, sessionID) {
-  try {
-    const res = await ctx.session.get({ sessionID });
-    const dir = res?.location?.directory ?? res?.data?.location?.directory;
-    return typeof dir === "string" && dir.trim() ? dir : null;
-  } catch {
-    return null;
-  }
-}
 
 // js/opencode/keepalive.ts
 var EVERY_MS = (() => {
@@ -4703,7 +4795,15 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   const nothing2 = () => {
   };
   const endRun = (s, live = true) => live ? void flushUsage(s).finally(() => runEnds.end(s, null, forget2)) : runEnds.end(s, null, nothing2);
-  const children = createChildren({ slots, spawn: spawn2, keeper, leads, exists: exists2, endRun });
+  const children = createChildren({
+    slots,
+    spawn: spawn2,
+    keeper,
+    leads,
+    exists: exists2,
+    endRun,
+    stopped: () => stopped
+  });
   const handoff = createHandoff({ slots, leads, forget: forget2 });
   const adopt = createAdopt({
     keeper,
@@ -5202,7 +5302,8 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       for (const k of ["child", "root"]) dropPile(`${k}:${id}`);
       tacts.gone(id);
     },
-    refused: (id, why, last) => say(W5.notDelivered(W5.frame(), id, why), last ? "error" : "warning")
+    refused: (id, why, last) => say(W5.notDelivered(W5.frame(), id, why), last ? "error" : "warning"),
+    archive: archiver(ctx, (text2) => say(text2, "warning"))
   });
   const cut = cuts.cut;
   function stopped(session2, text2, child, alone) {
@@ -5325,9 +5426,8 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           if (child && session2) lives.held(session2, ev.place);
           if (params?.data?.automatic === false) {
             halts.held(session2);
-            for (const s of session2 ? [session2, ...descendantsOf(session2, parents)] : []) {
-              cuts.forget(s);
-            }
+            for (const s of session2 ? [session2, ...descendantsOf(session2, parents)] : [])
+              cuts.forget(s, true);
           }
           say(W5.held(ev.key ?? ""), "info");
           return;
