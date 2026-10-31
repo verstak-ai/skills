@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.23.0";
+var VERSION = "3.24.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -376,6 +376,7 @@ import { homedir as homedir2 } from "node:os";
 import { join as join2, resolve } from "node:path";
 var defaultAuthDir = () => join2(homedir2(), HOME_DIR);
 var authDirFromEnv = () => envOf(envName("BRIDGE_AUTH_DIR"))?.trim() || defaultAuthDir();
+var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 
 // js/shared/lang.ts
 var isLang = (v) => LANGS.includes(v ?? "");
@@ -1308,7 +1309,6 @@ function batchPointer(frames) {
 var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 
 // js/bridge/holdrecord.ts
-var HOLD_RECORD_MAX_AGE_MS = 6 * 60 * 60 * 1e3;
 var S2 = scoped(() => /* @__PURE__ */ new Map());
 var H = scoped(() => ({ session: null }));
 var B = scoped(() => /* @__PURE__ */ new Map());
@@ -1678,7 +1678,8 @@ var Bridge = class {
     const rt = bridgeRuntime();
     const proc = spawn(rt.bin, [this.bin, ...this.args], {
       stdio: ["pipe", "pipe", "pipe"],
-      env: { ...rt.env, ...env }
+      env: { ...rt.env, ...env },
+      windowsHide: true
     });
     this.proc = proc;
     proc.stdin?.on("error", () => {

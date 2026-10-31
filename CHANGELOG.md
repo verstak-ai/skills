@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.24.0](https://github.com/verstak-ai/skills/compare/v3.23.0...v3.24.0) (2026-10-31)
+
+
+### Features
+
+* bridge core v7.28.0 — no console windows on Windows, the role back after a Claude Code compaction ([7580584](https://github.com/verstak-ai/skills/commit/7580584284913c12f58bc82b2486ef3825ebfd1f))
+* OpenCode closes a stopped agent's window — the plugin archives its session and ends its client ([7580584](https://github.com/verstak-ai/skills/commit/7580584284913c12f58bc82b2486ef3825ebfd1f))
+
+
+### Bug Fixes
+
+* a child case opens with open_room alone, never with in_room ([7580584](https://github.com/verstak-ai/skills/commit/7580584284913c12f58bc82b2486ef3825ebfd1f))
+
 ## [3.23.0](https://github.com/verstak-ai/skills/compare/v3.22.0...v3.23.0) (2026-10-30)
 
 
