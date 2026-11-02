@@ -295,6 +295,11 @@ test("claude code hook: one English line naming the skill and its method", (t) =
   assert.equal(r.stdout, LINE);
   assert.equal(r.stdout.trimEnd().split("\n").length, 1);
   assert.match(r.stdout, /\bverstak skill\b.*\bonboarding method\b/);
+  assert.match(
+    r.stdout,
+    /offer the person its onboarding method; it does not hold up their request/,
+  );
+  assert.doesNotMatch(r.stdout, /before anything else/, "an offer, not a condition of the request");
 });
 
 test("claude code hook: without input — the project variable, then its own directory", (t) => {
