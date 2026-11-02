@@ -74,7 +74,7 @@ In the Verstak window's or the bot's onboarding thread there is no repository an
 
 **The area's first holon** is not skipped: search for a holon that already covers the area (`verstak_search(realm, q=<the area>, node_type="holon")`) and reuse it, or create one on their word with `verstak_add_holon` — no `repository` attr needed. Say what it is: the boundary of their work in the graph. Offering a repository is a sentence here, not a step: a repository is bound to this holon later by the agent in that repository — the harness branch — which finds the graph, role and holon made here and reuses them.
 
-You write under the companion's own seat, which the runtime gives it; the method takes no seat itself here. In a graph where the person's role is not yet bound, the thread has no seat: it reads and searches, and every write — the binding of their role (step 3) included — waits for the person's confirmation; the seat comes by itself on the turn after the binding. Nodes written on the person's word keep the agent's authorship; the person's authorship is never faked.
+You write under the companion's own seat, which the runtime gives it; the method takes no seat itself here. In a graph where the person's role is not yet bound, the thread has no seat: it reads and searches, and every write — the binding of their role (step 3) included — waits for the person's confirmation. Nodes written on the person's word keep the agent's authorship; the person's authorship is never faked.
 
 ## The harness branch — no working graph
 
@@ -120,4 +120,4 @@ Billing goes in the same word, from this text, never from the person's plan — 
   - a brand-new, empty working graph → step 2's initial hooks land in this session; waiting for a role or holon first is the failure;
   - an existing mind, empty or partial → reused and completed as step 0 says, never doubled, not counted as filled;
   - a second entry — a redo or a later start → the existing graph and the person's bound role are shown and kept; existing runtime roles are kept too, nothing is recreated.
-- **Finishing these steps opens ordinary work**; it does not declare every sign met. The subject-node rows stay offers on the person's next task.
+- **Finishing these steps ends onboarding**, not a lock on ordinary work — that was never closed (`Steps are offers, not conditions`); it does not declare every sign met. The subject-node rows stay offers on the person's next task.
