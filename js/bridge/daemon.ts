@@ -153,8 +153,8 @@ export async function daemonMain(argv: string[]): Promise<void> {
   /** Scopes of sessions handed to the successor: a pause asked during handover is answered there. */
   const handed = new Map<string, Scope>();
   const answering = new Set<Promise<unknown>>();
-  /** Death windows of ended sessions (runend.ts endDeadRun): the daemon stays for them. */
-  const dying = new Set<Promise<void>>();
+  /** Death windows of ended sessions by scope (runend.ts endDeadRun): the daemon stays for them. */
+  const dying = new Map<Promise<void>, Scope>();
   let draining = false;
   let counter = 0;
   let lastNotice: string | null = null;
@@ -203,7 +203,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
     await Promise.allSettled(
       paused.map(([scope, pid]) => runIn(scope, () => endUnreturnedPause(pid, RETURN_WAIT_MS))),
     );
-    await closeKept(handed.values(), `daemon handover: ${why}`);
+    await closeKept([...handed.values(), ...dying.values()], `daemon handover: ${why}`);
     log("handed over — leaving");
     setTimeout(() => process.exit(0), 300);
   };
@@ -331,7 +331,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
                   dying.delete(death);
                   armIdle();
                 });
-              dying.add(death);
+              dying.set(death, opened.scope);
             }
             armIdle();
           });
@@ -471,7 +471,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
         for (const so of sockets) so.destroy();
         return handoffsSettled();
       })
-      .then(() => closeKept(kept, `daemon ${sig}`))
+      .then(() => closeKept([...kept, ...dying.values()], `daemon ${sig}`))
       .then(() => process.exit(0));
   };
   process.on("SIGTERM", () => stop("SIGTERM"));

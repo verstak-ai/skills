@@ -22,6 +22,8 @@ export interface RootSeatWords {
   noRoleRef: (file: string, key: string, ref: string) => string;
   /** The role slot's value holds several role references. */
   manyRoles: (file: string, key: string, list: string) => string;
+  /** A field of the cover block must be a number (agent_role). */
+  notNumber: (file: string, key: string) => string;
   /** Seated on a provisional seat: place — the seat's name, realm and karta — from the cover. */
   seated: (place: string, karta: string, realm: string, file: string) => string;
   /** Seated on the session's own seat returned from disk — not provisional. */
@@ -63,6 +65,7 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     manyGraphs: (file, key, list) => `'${key}' in ${file} names several graphs: ${list}`,
     noRoleRef: (file, key, ref) => `'${key}' in ${file} does not start with a ${ref} reference`,
     manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,
+    notNumber: (file, key) => `'${key}' in ${file} is not a number`,
     seated: (place, karta, realm, file) =>
       `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by this seat. For a watch (room/model) or your own name, call ${tool("stand")} — it replaces a provisional seat without take.`,
     /** Seated on the session's own seat returned from disk — not provisional. */

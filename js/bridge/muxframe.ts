@@ -32,6 +32,10 @@ export function routeFrame(raw: string, r: FrameRoutes): void {
   const channel = typeof f.channel_id === "string" ? f.channel_id : "";
   if (!channel) return log(`dispatcher: a ${String(f.type)} frame without a channel — dropped`);
   if (f.type === "error") return log(`dispatcher: ${channel} refused a frame: ${String(f.code)}`);
+  // The answer to a tact's busy line (#2287) has no author and no body: the bridge's, never the
+  // agent's turn (#9320) — the tool reply already names the trimming (statuspost.ts).
+  if (f.type === "status_trimmed" || f.type === "status_rejected")
+    return log(`dispatcher: ${channel} ${f.type}: ${String(f.code ?? f.reason ?? "")}`);
   const s = r.byChannel.get(channel);
   if (f.type === "channel_closed")
     return s ? r.closed(s, Number(f.code), String(f.reason ?? "")) : undefined;

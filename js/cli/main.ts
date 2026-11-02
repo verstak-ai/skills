@@ -13,6 +13,7 @@ import { runWatchdog } from "../watchdog/watchdog.ts";
 import { runWatchdogExit } from "../watchdog/watchdog-exit.ts";
 import { runDoctor } from "./doctor.ts";
 import { runOrchestra } from "./orchestra.ts";
+import { runPrepare } from "./prepare.ts";
 import { RITUALS_USAGE, runCheckRituals } from "./rituals.ts";
 import { runStatus } from "./status.ts";
 import { runStop } from "./stop.ts";
@@ -39,6 +40,7 @@ const longLived =
       "status",
       "stop",
       "orchestra",
+      "prepare",
       "update",
       "use",
       "check-rituals",
@@ -63,6 +65,9 @@ function dispatch(): void {
       break;
     case "orchestra":
       void runOrchestra(rest);
+      break;
+    case "prepare":
+      runPrepare(rest);
       break;
     case "watchdog":
       runWatchdog(rest);

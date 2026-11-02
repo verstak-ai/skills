@@ -10,7 +10,7 @@ The align method (`methods/align.md`) delivers **rituals**: start, push, merge, 
 
 Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Wire every one present.
 
-**The start ritual everywhere:** one message, word for word the same in every harness, whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the AGENTS.md frontmatter addresses (`Graph`, `Focus holon`, `Agent role`, `Owner role`). Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
+**The start ritual everywhere:** one message, word for word the same in every harness, whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; the owner role stays out of it — the door reads it from the graph. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
 ## Claude Code
 
@@ -183,12 +183,11 @@ export default {
     // message goes only to a session whose directory matches this instance's (ctx.location), and only to a
     // root session (no parentID); child sessions (subagents, service sessions) are skipped. A failed prompt
     // for one session is caught in place; a loop failure goes to the service's stderr.
-    // Same message as Claude Code's SessionStart hook, addresses from this repo's AGENTS.md frontmatter;
-    // the align run fills <Graph> (the Graph slot's full address) and the three seqs (digits only); no angle brackets or quotes remain.
+    // Same message as the SessionStart hook prepare writes (references/align-hooks.md), from the AGENTS.md
+    // cover: the align run fills <Graph> (its rN) and the two seqs (digits only); no angle brackets or quotes remain.
     const START =
       "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
-      "Addresses from AGENTS.md: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, " +
-      "owner role #<Owner role>.";
+      "Addresses from the AGENTS.md cover: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>.";
     const ac = new AbortController();
     (async () => {
       for await (const ev of await ctx.event.subscribe({ signal: ac.signal })) {

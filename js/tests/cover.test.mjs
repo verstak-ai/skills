@@ -152,3 +152,40 @@ test("cover under the shared English keys: no stamp — ours; the sibling's stam
     "the sibling's stamp inside prose",
   );
 });
+
+// The cover from contract 10 (graph @nks/nks-dev, node #9316): a block under our root key,
+// five fields — the graph one address, the role a number; contract and date are the stamp.
+// The flat form above is read in passing; written only by the core's shared/coverblock.ts.
+const block = (root, fields) =>
+  `---\n${root}:\n${Object.entries(fields)
+    .map(([k, v]) => `  ${k}: ${v}`)
+    .join("\n")}\n---\n# agents\n`;
+const FIELDS = { graph: "r5", holon: 844, agent_role: 8498, contract: 10, stamp: "2026-11-02" };
+
+test("the delivery's root key is verstak", () => {
+  assert.equal(COVER.root, "verstak");
+});
+
+test("our block seats by graph and agent_role; contract and stamp are our stamp", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "cover-block-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const at = (text) => (writeFileSync(join(dir, "AGENTS.md"), text), readCover(dir));
+  assert.deepEqual(at(block("verstak", FIELDS)), { realm: "r5", karta: "8498" });
+  assert.equal(stampOf(block("verstak", FIELDS)), "own");
+  const { contract: _contract, ...unstamped } = FIELDS;
+  assert.equal(stampOf(block("verstak", unstamped)), null, "no contract — no stamp");
+  assert.ok("why" in at(block("verstak", { ...FIELDS, agent_role: "'#8498'" })), "a role with #");
+  assert.ok("why" in at(block("verstak", { ...FIELDS, graph: "nks-dev" })), "a bare slug");
+});
+
+test("another delivery's block with a contract is foreign; ours beside it wins", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "cover-block-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const at = (text) => (writeFileSync(join(dir, "AGENTS.md"), text), readCover(dir));
+  const theirs = block("neighbour", FIELDS);
+  assert.equal(stampOf(theirs), "foreign");
+  assert.deepEqual(at(theirs), { foreign: true });
+  const both = `---\nverstak:\n  graph: r5\n  agent_role: 8498\n  contract: 10\n  stamp: 2026-11-02\nneighbour:\n  contract: 38\n---\n`;
+  assert.equal(stampOf(both), "own");
+  assert.deepEqual(at(both), { realm: "r5", karta: "8498" });
+});

@@ -1,14 +1,16 @@
 // The project cover a root session seats itself by and the alignment signs read (the core's
-// shared/cover.ts, shared/reposigns.ts): the file in the session's directory and the keys of its
-// flat YAML front matter, as align writes them (skills/verstak/templates/agents-template.md).
-// The keys come as forms by the repository's language (graph @nks/nks-dev, node #8497); verstak
-// speaks English only, so it has one form. A sibling delivery names its own keys, and they are
-// not listed here.
+// shared/cover.ts, shared/reposigns.ts): the file in the session's directory and the root key of
+// its YAML front matter, under which align writes graph, holon, agent_role, contract and stamp
+// (graph @nks/nks-dev, node #9316; skills/verstak/templates/agents-template.md). The older flat
+// form — keys by the repository's language (#8497), English only here — is read in passing. A
+// sibling delivery names its own keys, and they are not listed here.
 
 export const COVER = {
   /** The cover file in the session's directory. */
   file: "AGENTS.md",
-  /** The cover's forms by the repository's language: the one whose keys stand in the front matter is read. */
+  /** The delivery's root key of the cover in the front matter. */
+  root: "verstak",
+  /** The older flat forms by the repository's language (in passing): the one whose keys stand in the front matter is read. */
   forms: {
     en: {
       /** The graph slot: the value starts with a full graph address (the owner's handle/slug) or rN. */

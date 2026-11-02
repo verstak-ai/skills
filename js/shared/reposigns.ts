@@ -7,14 +7,15 @@
 // "outside", and nothing is said. No sign at all — "invite". Otherwise "aligned" when
 // everything the bootstrap writes for the calling harness is there, "partial" when some of
 // it is missing — which the door's alignment leads, not an invitation. A harness the
-// bootstrap writes no start hook for (null) needs none. The cover and the stamp count in any
-// of the delivery's languages (shared/cover.ts); a cover file stamped by another delivery and
+// bootstrap writes no start hook for (null) needs none. The cover and the stamp count in the
+// delivery's block or, in passing, its older flat form in any language (shared/cover.ts); a
+// cover file stamped by another delivery and
 // no start hook of this one — "foreign", and nothing is said (graph @nks/nks-dev, node #8089).
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 import { COVER, REPO_SIGNS } from "../delivery/index.ts";
-import { type CoverKeys, frontMatter, hasForm, stampOf } from "./cover.ts";
+import { type CoverKeys, hasCover, stampOf } from "./cover.ts";
 
 export type RepoVerdict = "invite" | "aligned" | "partial" | "outside" | "foreign";
 
@@ -94,10 +95,9 @@ export function repoSigns(
   const hooks = { "claude-code": false, opencode: false };
   if (root === null) return { root, cover: false, stamp: false, hooks, verdict: "outside" };
   const agents = text(join(root, cover.file));
-  const pairs = agents === null ? null : frontMatter(agents);
   const stamped = agents === null ? null : stampOf(agents, cover);
   const signs = {
-    cover: !!pairs && stamped !== "foreign" && hasForm(pairs, cover),
+    cover: agents !== null && stamped !== "foreign" && hasCover(agents, cover),
     stamp: stamped === "own",
     hooks: {
       "claude-code": startHook(text(join(root, keys.settings)), keys.startMark),
