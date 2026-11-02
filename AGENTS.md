@@ -1,37 +1,23 @@
 ---
-'Nature': 'library — a reusable skill corpus consumed by agents in other repos; relaxed vs production: the prose has no behavioural tests (gate = format + surface lint, substance by human review of the diff); the bundled verstak-bridge is the exception and carries a behavioural suite (make test)'
-'Nature — source': 'derived'
-'Graph': '@nks/nks-dev (r5)'
-'Graph — source': 'derived'
-'Focus holon': '#844 "📦 verstak-ai/skills (agent skills)"'
-'Focus holon — source': 'derived'
-'Repository': 'github.com/verstak-ai/skills — the holon''s repository attr, from origin'
-'Repository — source': 'derived'
-'Agent role': '#8498 "👨‍💻 Verstak Skills Dev" — adhikarin, the holon''s only steward; the sibling delivery holon #1506 and the bridge core are role #931''s; inbox verstak_orient(focus="8498")'
-'Agent role — source': 'derived'
-'Owner role': '#1226 "👑 Product owner" — svatantra, the posed_to address for out-of-mandate questions'
-'Owner role — source': 'derived'
-'Stack': 'Markdown skill corpus (one door, methods, references, templates) packed into verstak.skill; the bridge in TypeScript under js/ (the sibling core + our delivery layer), built by esbuild into dependency-free files; Node + bash for build and gate; Claude Code plugin marketplace versioned by release-please'
-'Stack — source': 'derived'
-'Gate': 'make check (validate + check-bundles + check-surface + check-core + lint + format-check + typecheck + check-js + test); CI runs the same targets'
-'Gate — source': 'derived'
-'Consumers': 'agents in other repos that load the installed skill every session; they learn of breakage only as method drift, never a crash; the bridge''s failures land on a human whose browser login went nowhere'
-'Consumers — source': 'derived'
-'Cost of breakage': 'a wrong instruction (e.g. a tool the surface dropped) silently degrades every agent that loads the skill; keeping the corpus in sync with the tool surface is the core maintenance obligation'
-'Cost of breakage — source': 'derived'
-'Reality': 'REALITY.md at the root — read when needed (the Reality section below)'
-'Reality — source': 'derived'
-'Layout': 'code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844'
-'Layout — source': 'derived'
-'Feedback reflection': 'yes — default'
-'Feedback reflection — source': 'derived: template default'
-'Workflow-suite interop': 'none'
-'Workflow-suite interop — source': 'derived'
-'Agreement': 'none'
-'Agreement — source': 'derived'
+verstak:
+  graph: r5
+  holon: 844
+  agent_role: 8498
+  contract: 10
+  stamp: 2026-11-02
 ---
 # `verstak-ai/skills`
 The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
+
+## Project
+- **Nature**: library — a reusable skill corpus consumed by agents in other repos; relaxed vs production: the prose has no behavioural tests (gate = format + surface lint, substance by human review of the diff); the bundled verstak-bridge is the exception and carries a behavioural suite (make test)
+- **Cost of breakage**: a wrong instruction (e.g. a tool the surface dropped) silently degrades every agent that loads the skill; keeping the corpus in sync with the tool surface is the core maintenance obligation
+- **Consumers**: agents in other repos that load the installed skill every session; they learn of breakage only as method drift, never a crash; the bridge's failures land on a human whose browser login went nowhere
+- **Stack**: Markdown skill corpus (one door, methods, references, templates) packed into verstak.skill; the bridge in TypeScript under js/ (the sibling core + our delivery layer), built by esbuild into dependency-free files; Node + bash for build and gate; Claude Code plugin marketplace versioned by release-please
+- **Gate**: make check (validate + check-bundles + check-surface + check-core + lint + format-check + typecheck + check-js + test); CI runs the same targets
+- **Layout**: code map: the Project structure section (no component READMEs; anything under skills/verstak/ ships in the bundle); traps: graph nodes on #844
+- **Feedback reflection**: yes — default
+- **Workflow-suite interop**: none
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
@@ -189,7 +175,3 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 - **OpenCode rituals are not wired**: no `.opencode/plugins/verstak-rituals.js` yet, so an OpenCode session here gets no start message, memory guard or push and merge reminders. `js/tests/reposigns.test.mjs` pins this repository as OpenCode-partial; wiring the plugin flips that assertion in the same commit.
 - **Full-gate exception — this repository only**: by the owner's grant (graph @nks/nks-dev, node #864), retain the full `make check` locally and for PR/main CI, without affected-module selection or a result cache; repeating checks across local/CI is allowed. Revisit when a measurement shows a substantial CI-cost increase. This grants no exception to other repositories.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
-
-*(verstak align: contract `9`, stamped `2026-10-30` — re-run when the installed
-verstak skill names a higher contract, or when the sources this file derives from
-have moved since that date.)*

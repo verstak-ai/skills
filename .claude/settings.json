@@ -6,17 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "p=$(jq -r '(.tool_input.file_path // .tool_input.notebook_path // \"\") | split([92] | implode) | join(\"/\")'); [ -n \"$p\" ] || exit 0; case \"$p\" in /*) ;; *) p=\"$PWD/$p\" ;; esac; m=$(cd -P \"$HOME/.claude/projects\" 2>/dev/null && pwd -P | tr '[:upper:]' '[:lower:]'); mem() { k=$(printf '%s' \"$1\" | tr '[:upper:]' '[:lower:]'); case \"$k\" in */.claude/projects/*/memory|*/.claude/projects/*/memory/*) return 0 ;; esac; [ -n \"$m\" ] && case \"$k\" in \"$m\"/*/memory|\"$m\"/*/memory/*) true ;; *) false ;; esac; }; r=; s=$p; n=0; x=0; while [ -n \"$s\" ]; do c=${s%%/*}; s=${s#\"$c\"}; s=${s#/}; case \"$c\" in ''|.) continue ;; ..) r=${r%/*}; continue ;; esac; if [ -L \"$r/$c\" ]; then n=$((n+1)); l=$(readlink \"$r/$c\"); if [ $n -gt 40 ] || [ -z \"$l\" ] || mem \"$r/$c\"; then x=1; break; fi; case \"$l\" in /*) r= ;; esac; s=$l/$s; else r=$r/$c; fi; done; { [ $x = 1 ] || mem \"$p\" || mem \"$r\"; } && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo'\\''s servers and dated duties → the project graph @nks/nks-dev; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from AGENTS.md: graph @nks/nks-dev, focus holon #844, agent role #8498, owner role #1226.\"}}'"
+            "command": "p=$(jq -r '(.tool_input.file_path // .tool_input.notebook_path // \"\") | split([92] | implode) | join(\"/\")'); [ -n \"$p\" ] || exit 0; case \"$p\" in /*) ;; *) p=\"$PWD/$p\" ;; esac; m=$(cd -P \"$HOME/.claude/projects\" 2>/dev/null && pwd -P | tr '[:upper:]' '[:lower:]'); mem() { k=$(printf '%s' \"$1\" | tr '[:upper:]' '[:lower:]'); case \"$k\" in */.claude/projects/*/memory|*/.claude/projects/*/memory/*) return 0 ;; esac; [ -n \"$m\" ] && case \"$k\" in \"$m\"/*/memory|\"$m\"/*/memory/*) true ;; *) false ;; esac; }; r=; s=$p; n=0; x=0; while [ -n \"$s\" ]; do c=${s%%/*}; s=${s#\"$c\"}; s=${s#/}; case \"$c\" in ''|.) continue ;; ..) r=${r%/*}; continue ;; esac; if [ -L \"$r/$c\" ]; then n=$((n+1)); l=$(readlink \"$r/$c\"); if [ $n -gt 40 ] || [ -z \"$l\" ] || mem \"$r/$c\"; then x=1; break; fi; case \"$l\" in /*) r= ;; esac; s=$l/$s; else r=$r/$c; fi; done; { [ $x = 1 ] || mem \"$p\" || mem \"$r\"; } && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo'\\''s servers and dated duties → the project graph r5; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.' >&2; exit 2; } || exit 0"
           }
         ]
       }
@@ -32,6 +22,16 @@
           {
             "type": "command",
             "command": "jq -e 'def a: \"(?:>&|\\\\\\\\.|\\\\x27[^\\\\x27]*\\\\x27|\\\\x22(?:[^\\\\x22\\\\\\\\]|\\\\\\\\.)*\\\\x22|[^;&|)\\n\\\\x27\\\\x22\\\\\\\\])*\"; def at(h; n): \"(?:^|[;&|(\\n] *)\" + h + \"(?=[ ;&|)\\n]|$)(?!\" + a + \" (?:\" + n + \")(?:[ ;&|)\\n]|$))\"; def out: (.tool_response | if type == \"object\" then \"\\(.stdout // \"\")\\n\\(.stderr // \"\")\" else tostring end); def ran(h; n; said): (.tool_input.command // \"\") as $c | out as $o | ($c | test(at(h; n) + a + \"[ \\n]*(?:&&|$)\")) or (($c | test(at(h; n))) and ($o | test(said))); ran(\"gh pr merge\"; \"-h|--help|--auto|--disable-auto\"; \"(?:Merged|Squashed and merged|Rebased and merged) pull request\") or ran(\"fj pr merge\"; \"-h|--help|--auto|--disable-auto\"; \"Merged PR #\") or ((.tool_input.command // \"\") | test(at(\"(?:env +)?(?:[A-Za-z_]+=[^ ]+ +)*git(?: -C [^ ]+)* (?:checkout|switch)\"; \"-h|--help\") + \" (?:main|master)(?=[ ;&|)\\n]|$)(?:\" + a + \"(?:&&|;|\\n))+ *(?:env +)?(?:[A-Za-z_]+=[^ ]+ +)*git(?: -C [^ ]+)* pull(?=[ ;&|)\\n]|$)\"))' >/dev/null && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Merged: do the after-merge acts now, in this move (verstak skill, methods/code-work.md, After merge); work tasked by another agent: only the seed and delivery modes. Here they include both halves of every touched method in r5 under #844 (AGENTS.md, Graph work here) and the #8498 inbox.\"}}' || true"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph r5, focus holon #844, agent role #8498.\"}}'"
           }
         ]
       }

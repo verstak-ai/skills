@@ -19,7 +19,6 @@ const seat = (yaml) => seatOfPairs(frontMatter(`---\n${yaml}\n---\n# x\n`));
 const en = (role, graph = "'@nks/nks-dev (r5)'") =>
   seat(`'Graph': ${graph}\n'Agent role': ${role}`);
 const NKS_931 = { realm: "@nks/nks-dev", karta: "931" };
-const NKS_8498 = { realm: "@nks/nks-dev", karta: "8498" };
 
 test("the delivery's cover form: AGENTS.md, one en form — Graph, Agent role, straight double quotes", () => {
   assert.equal(COVER.file, "AGENTS.md");
@@ -56,8 +55,8 @@ test("the graph slot: prose after the working graph is no candidate, an equal gr
     assert.ok("why" in en(role, graph), graph);
 });
 
-test("this repository's AGENTS.md seats role #8498 in @nks/nks-dev, not #1506 or #931 from the same line", () => {
-  assert.deepEqual(readCover(REPO), NKS_8498);
+test("this repository's AGENTS.md seats role #8498 in r5 from its verstak: block", () => {
+  assert.deepEqual(readCover(REPO), { realm: "r5", karta: "8498" });
 });
 
 test("same quotes: the name runs to the first closing one, the rest is prose", () => {
