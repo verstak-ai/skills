@@ -99,7 +99,9 @@ var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 var COVER = {
   /** The cover file in the session's directory. */
   file: "AGENTS.md",
-  /** The cover's forms by the repository's language: the one whose keys stand in the front matter is read. */
+  /** The delivery's root key of the cover in the front matter. */
+  root: "verstak",
+  /** The older flat forms by the repository's language (in passing): the one whose keys stand in the front matter is read. */
   forms: {
     en: {
       /** The graph slot: the value starts with a full graph address (the owner's handle/slug) or rN. */
@@ -280,15 +282,7 @@ var words = (dict) => dict[lang()];
 import { readFileSync as readFileSync3, statSync } from "node:fs";
 import { dirname, join as join4, resolve as resolve3 } from "node:path";
 
-// js/shared/graphslot.ts
-var SLUG = String.raw`@[\w.-]+\/[\w.-]*\w`;
-var ADDRESS = String.raw`(?:${SLUG}(?=[.-]*(?:$|[\s)\x60'",;.:]))|r\d+(?=$|[\s)\x60'",;.:]))`;
-var FRAME = String.raw`[\s\x60'"]*`;
-var HEAD = new RegExp(String.raw`^(${ADDRESS})(?:${FRAME}\(${FRAME}(${ADDRESS})${FRAME}\))?`);
-var ANY = new RegExp(String.raw`${SLUG}|(?<![\w/])r\d+(?!\w)`, "gu");
-var PROSE = new RegExp("^[—–\\-:.(]*\\s*(?!r\\d)\\p{L}", "u");
-
-// js/shared/cover.ts
+// js/shared/coverblock.ts
 var unquote = (v) => {
   const t = v.trim();
   if (t.length >= 2 && t.startsWith("'") && t.endsWith("'"))
@@ -302,15 +296,24 @@ var unquote = (v) => {
   }
   return t;
 };
-function frontMatter(text2) {
+var KEY = String.raw`('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)`;
+var PAIR = new RegExp(String.raw`^\s*${KEY}\s*:(?:\s+(.*))?$`);
+var TOP = new RegExp(String.raw`^${KEY}\s*:(?:\s+#.*)?\s*$`);
+var CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
+var bare = (v) => unquote(/^['"]/.test(v.trim()) ? v : v.replace(/\s+#.*$/, ""));
+function fences(text2) {
   const lines = text2.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
-  if (end < 0) return null;
+  return end < 0 ? null : { lines, end };
+}
+function frontMatter(text2) {
+  const f = fences(text2);
+  if (!f) return null;
   const raw = /* @__PURE__ */ new Map();
   let last = null;
-  for (const line2 of lines.slice(1, end)) {
-    const kv = /^\s*('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)\s*:(?:\s+(.*))?$/.exec(line2);
+  for (const line2 of f.lines.slice(1, f.end)) {
+    const kv = PAIR.exec(line2);
     if (kv) raw.set(last = unquote(kv[1]), kv[2] ?? "");
     else if (last !== null && /^\s+[^\s#]/.test(line2))
       raw.set(last, `${raw.get(last)}
@@ -318,12 +321,46 @@ ${line2.trim()}`);
   }
   return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
+function coverBlocks(text2) {
+  const blocks = /* @__PURE__ */ new Map();
+  const f = fences(text2);
+  let open = null;
+  for (const line2 of f ? f.lines.slice(1, f.end) : []) {
+    if (/^\s*(#|$)/.test(line2)) continue;
+    const top = TOP.exec(line2);
+    const child = open && CHILD.exec(line2);
+    if (top) blocks.set(unquote(top[1]), open = /* @__PURE__ */ new Map());
+    else if (open && child) open.set(unquote(child[1]), bare(child[2] ?? ""));
+    else open = null;
+  }
+  return blocks;
+}
+var coverBlock = (text2, root) => coverBlocks(text2).get(root) ?? null;
+var stamped = (block) => /^\d+$/.test(block.get("contract") ?? "") && !!block.get("stamp");
+var foreignBlock = (text2, root) => [...coverBlocks(text2)].some(([k, b]) => k !== root && b.has("contract"));
+
+// js/shared/graphslot.ts
+var SLUG = String.raw`@[\w.-]+\/[\w.-]*\w`;
+var ADDRESS = String.raw`(?:${SLUG}(?=[.-]*(?:$|[\s)\x60'",;.:]))|r\d+(?=$|[\s)\x60'",;.:]))`;
+var FRAME = String.raw`[\s\x60'"]*`;
+var HEAD = new RegExp(String.raw`^(${ADDRESS})(?:${FRAME}\(${FRAME}(${ADDRESS})${FRAME}\))?`);
+var ANY = new RegExp(String.raw`${SLUG}|(?<![\w/])r\d+(?!\w)`, "gu");
+var PROSE = new RegExp("^[—–\\-:.(]*\\s*(?!r\\d)\\p{L}", "u");
+
+// js/shared/cover.ts
 var formsIn = (pairs, cover) => Object.entries(cover.forms).filter(([, f]) => pairs.has(f.graph) || pairs.has(f.role));
 function stampOf(text2, cover = COVER) {
-  if (Object.values(cover.forms).some((f) => f.stamp.test(text2))) return "own";
-  return cover.stampShape.test(text2) ? "foreign" : null;
+  const block = coverBlock(text2, cover.root);
+  if (block && stamped(block) || Object.values(cover.forms).some((f) => f.stamp.test(text2)))
+    return "own";
+  if (block) return null;
+  return foreignBlock(text2, cover.root) || cover.stampShape.test(text2) ? "foreign" : null;
 }
-var hasForm = (pairs, cover = COVER) => formsIn(pairs, cover).length > 0;
+function hasCover(text2, cover = COVER) {
+  if (coverBlock(text2, cover.root)) return true;
+  const pairs = frontMatter(text2);
+  return !!pairs && formsIn(pairs, cover).length > 0;
+}
 
 // js/shared/reposigns.ts
 var exists = (path) => {
@@ -370,11 +407,10 @@ function repoSigns(dir2, harness, keys = REPO_SIGNS, cover = COVER) {
   const hooks = { "claude-code": false, opencode: false };
   if (root === null) return { root, cover: false, stamp: false, hooks, verdict: "outside" };
   const agents = text(join4(root, cover.file));
-  const pairs = agents === null ? null : frontMatter(agents);
-  const stamped = agents === null ? null : stampOf(agents, cover);
+  const stamped2 = agents === null ? null : stampOf(agents, cover);
   const signs = {
-    cover: !!pairs && stamped !== "foreign" && hasForm(pairs, cover),
-    stamp: stamped === "own",
+    cover: agents !== null && stamped2 !== "foreign" && hasCover(agents, cover),
+    stamp: stamped2 === "own",
     hooks: {
       "claude-code": startHook(text(join4(root, keys.settings)), keys.startMark),
       opencode: exists(join4(root, keys.rituals))
@@ -383,7 +419,7 @@ function repoSigns(dir2, harness, keys = REPO_SIGNS, cover = COVER) {
   const hooked = signs.hooks["claude-code"] || signs.hooks.opencode;
   const any = signs.cover || signs.stamp || hooked;
   const complete = signs.cover && signs.stamp && (harness === null || signs.hooks[harness]);
-  const verdict = stamped === "foreign" && !hooked ? "foreign" : !any ? "invite" : complete ? "aligned" : "partial";
+  const verdict = stamped2 === "foreign" && !hooked ? "foreign" : !any ? "invite" : complete ? "aligned" : "partial";
   return { root, ...signs, verdict };
 }
 
