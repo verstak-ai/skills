@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.25.0](https://github.com/verstak-ai/skills/compare/v3.24.0...v3.25.0) (2026-11-02)
+
+
+### Features
+
+* onboarding is offered, not required; a role made in advance is found and bound on the person's word ([#278](https://github.com/verstak-ai/skills/issues/278)) ([9c2c8dd](https://github.com/verstak-ai/skills/commit/9c2c8dd0298b79f8c65420840ad509fc45d87206))
+
+
+### Bug Fixes
+
+* a declined onboarding offer doesn't stop alignment in a graph already chosen ([#281](https://github.com/verstak-ai/skills/issues/281)) ([ae56c0e](https://github.com/verstak-ai/skills/commit/ae56c0e4df4507dac1d2641159c99664ae850dfa))
+* align and the door don't gate on onboarding; a declined offer stops only alignment ([#280](https://github.com/verstak-ai/skills/issues/280)) ([6259d80](https://github.com/verstak-ai/skills/commit/6259d800b447316fe5f021306f48eb407fb3ef1e))
+
 ## [3.24.0](https://github.com/verstak-ai/skills/compare/v3.23.0...v3.24.0) (2026-10-31)
 
 
