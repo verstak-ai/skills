@@ -40,9 +40,9 @@ export interface PrepareWords {
   guard: (graph: string) => string;
   /** keys — the cover's keys named twice, for cover.repeat. */
   left: (item: PrepareLeft, keys?: string) => string;
-  /** The label of a text answer's line: done, already there, left to the model. */
   /** A script-form hook prepare could not tell as this kind: none of its own is put beside it. */
   unread: (item: PrepareLeft, hook: string) => string;
+  /** The label of a text answer's line: done, already there, left to the model. */
   head: (kind: "done" | "kept" | "left") => string;
 }
 
