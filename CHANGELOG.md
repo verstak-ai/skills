@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.26.0](https://github.com/verstak-ai/skills/compare/v3.25.1...v3.26.0) (2026-11-02)
+
+
+### Features
+
+* align contract 10 — the verstak: cover block and the bridge's prepare (core v7.29.0) ([#286](https://github.com/verstak-ai/skills/issues/286)) ([dfc55bd](https://github.com/verstak-ai/skills/commit/dfc55bdabb4bb74dc74a356f132b6bff838ee96c))
+
+
+### Bug Fixes
+
+* align finds the owner role by the door's group rule ([#289](https://github.com/verstak-ai/skills/issues/289)) ([3d8df62](https://github.com/verstak-ai/skills/commit/3d8df629b512a478c151af76efc70d0e23175ee0))
+* the owner role is where the agent role's group leads; a scripted hook is not doubled ([#288](https://github.com/verstak-ai/skills/issues/288)) ([0fd1daf](https://github.com/verstak-ai/skills/commit/0fd1daf88ec514458dc00963ef833e17dbeb2ffc))
+
 ## [3.25.1](https://github.com/verstak-ai/skills/compare/v3.25.0...v3.25.1) (2026-11-02)
 
 
