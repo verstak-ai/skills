@@ -185,7 +185,7 @@ var COMPACTION = {
 // js/delivery/words/onboardstart.ts
 var ONBOARD_START = {
   en: {
-    start: () => "Verstak: this repository is not yet aligned for the agent — load the verstak skill and run its onboarding method before anything else; it creates nothing without the person's word."
+    start: () => "Verstak: this repository is not yet aligned for the agent — load the verstak skill and offer the person its onboarding method; it does not hold up their request and creates nothing without their word."
   }
 };
 

@@ -168,7 +168,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.24.0";
+var VERSION = "3.25.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -330,7 +330,7 @@ ${said || "(it left no text — see its case)"}`,
 // js/delivery/words/onboardstart.ts
 var ONBOARD_START = {
   en: {
-    start: () => "Verstak: this repository is not yet aligned for the agent — load the verstak skill and run its onboarding method before anything else; it creates nothing without the person's word."
+    start: () => "Verstak: this repository is not yet aligned for the agent — load the verstak skill and offer the person its onboarding method; it does not hold up their request and creates nothing without their word."
   }
 };
 
