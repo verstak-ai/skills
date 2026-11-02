@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.26.1](https://github.com/verstak-ai/skills/compare/v3.26.0...v3.26.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* bridge core v7.29.1 — prepare puts no second hook beside a script-form one ([#291](https://github.com/verstak-ai/skills/issues/291)) ([9d87073](https://github.com/verstak-ai/skills/commit/9d870735e351c913f58f00a35ad90bcfbf6f2d06))
+* prepare keeps a recognised script hook; the guard counts on a Write and Edit matcher ([#293](https://github.com/verstak-ai/skills/issues/293)) ([f6bd6eb](https://github.com/verstak-ai/skills/commit/f6bd6eb3dc3de99f8d7645059e90107c7b601e2f))
+
 ## [3.26.0](https://github.com/verstak-ai/skills/compare/v3.25.1...v3.26.0) (2026-11-02)
 
 
