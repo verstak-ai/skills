@@ -38,10 +38,15 @@ const BLOCK = (root, stamp = "  contract: 10\n  stamp: 2026-11-02\n") =>
   `---\n${root}:\n  graph: r1\n  holon: 3\n  agent_role: 7\n${stamp}---\n# x\n`;
 const session = (command) =>
   JSON.stringify({ hooks: { SessionStart: [{ hooks: [{ type: "command", command }] }] } });
-// Start hooks as align writes them (references/align-hooks.md): the full and the initial form.
+// Start hooks as align writes them (references/align-hooks.md): the full form prepare writes from
+// the cover, the full form aligned repositories already carry (with the owner role) and the
+// initial form.
 const envelope = (text) =>
   `echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"${text}"}}'`;
 const STARTS = [
+  envelope(
+    "Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph r1, focus holon #3, agent role #7.",
+  ),
   envelope(
     "Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from AGENTS.md: graph @tester/work, focus holon #3, agent role #7, owner role #8.",
   ),

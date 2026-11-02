@@ -66,7 +66,7 @@ Too many for a turn → closing, recently moved and named ones first; give the s
 
 "Long" is by the case's own pace: a silent day where lines came hourly is a blockage; in a weekly case it isn't. Pace is a reason to ask, not a finding.
 
-Questions of substance to the user's role stand in the graph: `verstak_orient(realm=<graph>, focus=<user's role>)`. The role comes from what they said, the repository's start hook or graph (the owner role over its holon), or their personal graph; unknown → ask once.
+Questions of substance to the user's role stand in the graph: `verstak_orient(realm=<graph>, focus=<user's role>)`. The role comes from what they said, the project graph (the owner role: the holon's `svatantra` role), or their personal graph; unknown → ask once.
 
 **4. Compose** one summary from what you read this turn, never from earlier answers. Each line carries the case number and graph. Order:
 1. **Waiting on you** — questions, decisions, close proposals where silence is consent — each with what happens if they stay silent, and what their silence can't decide for them. Asked "what's on my plate", the questions posed to them across their graphs (the **minding** method, §4) join this group.
