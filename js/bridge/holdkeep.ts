@@ -1,4 +1,6 @@
 // Hold record when a session leaves an unreleased seat (graph @nks/nks-dev, nodes #5067, #6649).
+import { envName } from "../delivery/index.ts";
+import { bindScope } from "../shared/scope.ts";
 import { joinedCases } from "./caseexit.ts";
 import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
@@ -11,6 +13,20 @@ import {
 import { H } from "./holdstate.ts";
 import { extraPlaces, rememberExtraStatus } from "./places.ts";
 import { state } from "./transport.ts";
+
+const FRESHEN_MS = Number(process.env[envName("HOLD_FRESHEN_MS")]) || HOLD_RECORD_MAX_AGE_MS / 12;
+
+/**
+ * While a seat is held, its record is freshened by the bridge itself, not only by the plugin's
+ * checks: a harness that never names its session (Claude Code) would age the record past its
+ * term under a live seat, and a reader by age would find no seat (graph @nks/nks-dev, node #9272).
+ * Returns the stop.
+ */
+export function keepHeldRecordFresh(): () => void {
+  const t = setInterval(bindScope(freshenHeldRecords), FRESHEN_MS);
+  t.unref();
+  return () => clearInterval(t);
+}
 
 /**
  * Refreshes `at` of an existing hold record when the session leaves: the record's term
@@ -63,6 +79,19 @@ export function signHeldRecord(): void {
   for (const k of [key, ...extraPlaces().map((p) => p.door.key)]) {
     const rec = readHoldRecord(k); // seats beside in other graphs share the channel and its url
     if (rec && !rec.session && rec.url === H.currentUrl) writeHoldRecord(k, rec);
+  }
+}
+
+/** The held seat's record and those of its seats beside in other graphs, on the same channel. */
+function freshenHeldRecords(): void {
+  refreshHeldRecord();
+  if (!H.holder?.alive || !H.currentUrl) return;
+  const ch = { url: H.currentUrl, statusUrl: H.currentStatusUrl };
+  for (const p of extraPlaces()) {
+    const r = readHoldRecord(p.door.key, true);
+    if (!r || r.left || r.url !== H.currentUrl) continue;
+    if (typeof r.at === "number" && Date.now() - r.at < HOLD_RECORD_MAX_AGE_MS / 2) continue;
+    rememberExtraStatus(p.door.key, { ...ch, cwd: r.cwd }, r.status ?? "");
   }
 }
 

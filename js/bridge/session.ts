@@ -16,6 +16,7 @@ import { isSessionEnvKey, patShaOf } from "../shared/seam.ts";
 import { CFG, readArgs, setConfig } from "./config.ts";
 import { deliver } from "./deliver.ts";
 import { errorMessage } from "./errors.ts";
+import { keepHeldRecordFresh } from "./holdkeep.ts";
 import { handoverUnderway } from "./holdstate.ts";
 import { startDeafnessWatch } from "./leave.ts";
 import { clickPending } from "./oauth/flow.ts";
@@ -176,6 +177,7 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
   let leaving: Promise<void> | null = null;
   let markEnded!: () => void;
   const ended = new Promise<void>((resolve) => (markEnded = resolve));
+  void ended.then(keepHeldRecordFresh());
   const leave = bindScope(
     (why: string): Promise<void> => (leaving ??= windDown(why).finally(markEnded)),
   );
