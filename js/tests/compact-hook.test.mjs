@@ -22,8 +22,14 @@ function temp(t, prefix) {
   return dir;
 }
 
+/** align's cover from contract 10: the verstak: block, its contract and date the stamp. */
+const BLOCK =
+  "---\nverstak:\n  graph: r1\n  holon: 3\n  agent_role: 7\n  contract: 10\n  stamp: 2026-11-02\n---\n# repo\n";
+/** The stamp line before it, read in passing. */
+const OLD_STAMP = "# repo\n\n*(verstak align: contract `9`, stamped `2026-10-30` — …)*\n";
+
 /** A plugin root with the built hook, a grant directory and the session's repository —
- * aligned (an AGENTS.md with align's stamp) unless `aligned` is false. */
+ * aligned (an AGENTS.md with align's cover block, or the given text) unless `aligned` is false. */
 function lay(t, aligned = true) {
   const root = temp(t, "compact-plugin-");
   mkdirSync(join(root, "hooks"));
@@ -32,11 +38,7 @@ function lay(t, aligned = true) {
   mkdirSync(join(auth, "standings"));
   const cwd = temp(t, "compact-repo-");
   mkdirSync(join(cwd, ".git"));
-  if (aligned)
-    writeFileSync(
-      join(cwd, "AGENTS.md"),
-      "# repo\n\n*(verstak align: contract `9`, stamped `2026-10-30` — …)*\n",
-    );
+  if (aligned) writeFileSync(join(cwd, "AGENTS.md"), aligned === true ? BLOCK : aligned);
   return { root, auth, cwd };
 }
 
@@ -109,6 +111,10 @@ for (const [name, recs] of Object.entries(AMBIGUOUS))
     for (const r of recs(s.cwd)) hold(s.auth, r);
     assert.equal(ok(hook(s, "compact")), `${COMPACTION.en.bare()}\n`);
   });
+
+test("compact hook: the older stamp line still counts as aligned — the bare word", (t) => {
+  assert.equal(ok(hook(lay(t, OLD_STAMP), "compact")), `${COMPACTION.en.bare()}\n`);
+});
 
 test("compact hook: no seat in a repository not aligned — silence", (t) => {
   for (const s of [lay(t, false)]) {

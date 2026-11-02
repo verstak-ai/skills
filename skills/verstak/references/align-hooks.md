@@ -8,7 +8,7 @@ Each hook's `command` echoes an envelope; mind the nesting `event → array → 
 { "hooks": { "SessionStart": [ { "hooks": [ { "type": "command",
   "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from AGENTS.md: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>, owner role #<Owner role>.\"}}'" } ] } ] } }
 ```
-The run fills the four slots from the AGENTS.md frontmatter — the `Graph` slot's full address, each node slot its seq's digits only; no angle brackets or quotes remain. The first sentence asks for the skill by name so the door loads every session. No apostrophes (single-quoted `echo`).
+The run fills the four slots: `<Graph>` with the graph's full address verbatim from `verstak_realm(action="list")` (the cover's `graph` is its rN), `<Focus holon>` and `<Agent role>` from the cover's `holon` and `agent_role`, `<Owner role>` with the seq of the owner role read from the graph; each seq its digits only; no angle brackets or quotes remain. The first sentence asks for the skill by name so the door loads every session. No apostrophes (single-quoted `echo`).
 
 Every envelope is JSON nested in a shell string: a valid JSON string can still break the shell. For every hook using single-quoted `echo`, avoid apostrophes in message text or shell-escape them. Parse the assembled command with `/bin/sh -n` before installing it, then exercise its event fixtures and parse the emitted JSON: shell syntax alone can pass while quoting changes the output.
 
@@ -52,7 +52,7 @@ def a: "(?:>&|\\\\.|\\x27[^\\x27]*\\x27|\\x22(?:[^\\x22\\\\]|\\\\.)*\\x22|[^;&|)
 **Branch freshness.** Offer a pre-push hook: `git fetch -q origin main && git merge-base --is-ancestor origin/main HEAD || echo 'branch is behind main: rebase before pushing'`.
 
 ## Memory guard
-Its own `"PreToolUse"` array; blocks with exit 2, the stderr message naming the route to the personal graph; its `<Graph>` is filled with the `Graph` slot's full address. Path: `tool_input.file_path` (Write, Edit, MultiEdit) or `tool_input.notebook_path` (NotebookEdit). Compares paths, not strings:
+Its own `"PreToolUse"` array; blocks with exit 2, the stderr message naming the route to the personal graph; its `<Graph>` is filled as the start hook's. Path: `tool_input.file_path` (Write, Edit, MultiEdit) or `tool_input.notebook_path` (NotebookEdit). Compares paths, not strings:
 - relative → from the session directory;
 - Windows separators → `/` before resolution (`92` is the backslash code point); drive and UNC paths are checked by the same memory-directory rule;
 - resolved component by component like `realpath -m`: a link is replaced by its target and resolution continues, `..` applies to the resolved prefix, a missing tail stays text, empty and `.` components drop;

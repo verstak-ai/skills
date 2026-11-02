@@ -51,11 +51,11 @@ If readiness cannot establish a repository or agent role from an adequate source
 
 Already present → reused, shown with its current value, never created again. The person who still doesn't understand gets the explanation again on what exists, not a second copy of the artifact.
 
-**What exists is not remade.** The names and content of the person's graph, holons and roles are neither renamed nor rewritten without their word (binding the repository: step 4); where they diverge from the area, name the divergence and ask. No umbrella holon over existing ones for the sake of onboarding. The `AGENTS.md` cover's derived slots are align's ordinary update.
+**What exists is not remade.** The names and content of the person's graph, holons and roles are neither renamed nor rewritten without their word (binding the repository: step 4); where they diverge from the area, name the divergence and ask. No umbrella holon over existing ones for the sake of onboarding. The `AGENTS.md` cover's fields and `Project` slots are align's ordinary update.
 
 ## Accompany the chosen step
 
-1. **Do it with the person** — their words for names, their choice where there is one; search before every create.
+1. **Do it with the person** — their words for names, their choice where there is one, asked in words, never through the harness's option picker: it puts an answer in place of the question; search before every create.
 2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; everything the agents learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show. Structural existence is already the structural sign; only a knowledge step needing a receipt uses `understood` after the person shows they understood (`Signs, read from data`).
 3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
@@ -78,7 +78,7 @@ You write under the companion's own seat, which the runtime gives it; the method
 
 ## The harness branch — no working graph
 
-It also runs in a repository with none of the three signs of alignment, in any harness; the Claude Code plugin's start hook and the OpenCode plugin's first prompt say so in one line, but the signs decide, not the line — and they decide an offer: the branch runs on the person's word, and their request doesn't wait for it. A sign present with the rest missing is align's, not this branch's. A cover with another delivery's stamp and none of ours is a sign too: a sibling delivery aligned that repository, the start hook stays silent there, and neither this branch nor align runs unasked (the door, `Alignment`).
+It also runs in a repository with none of the three signs of alignment, in any harness; the Claude Code plugin's start hook and the OpenCode plugin's first prompt say so in one line, but the signs decide, not the line — and they decide an offer: the branch runs on the person's word, and their request doesn't wait for it. A sign present with the rest missing is align's, not this branch's. A cover with another delivery's block or stamp and none of ours is a sign too: a sibling delivery aligned that repository, the start hook stays silent there, and neither this branch nor align runs unasked (the door, `Alignment`).
 
 The order is fixed: personal memory (step 0) → graph → initial hooks → the person's role → the standard align move → the agent's seat → the word about capabilities.
 

@@ -72,7 +72,7 @@ What goes into the graph, the case or the channel: the door, `Cross-cutting norm
 
 **A refusal names the rule, the state and the options** you were about to guess; ask the surface about itself (`action="?"`) instead of inferring.
 
-Three addressees easy to conflate: `realm-owner` owns the graph; the "Owner role" in `AGENTS.md` holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
+Three addressees easy to conflate: `realm-owner` owns the graph; the owner role (the `svatantra` role over the holon, in the graph) holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
 
 1. **Recognise the boundary.** Will you finish it yourself, reversibly, within your mandate? If not, take your part and hand over the rest along mandate lines — not for parallelism; a second mind is for contesting (review, acceptance) or work too big for one context.
 2. **Find the actor in the graph, then the seat.** Holon → `verstak_orient(focus=<holon>)` names its steward; roles → `verstak_search(q="", node_type="karta")`; live seat → the board. `manifested_as` decides what to ask: `adhikarin` 能 (mandated) takes work, `svatantra` 主 (owner) grants sanction, `agantuka` 客 (guest) answers on its own clock, `pratibimba` 象 (depicted) is not addressed. A seatless role is still a full address.

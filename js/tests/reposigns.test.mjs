@@ -32,6 +32,10 @@ const SIBLING_STAMP_RU = `*(${SIBLING}: \u043a\u043e\u043d\u0442\u0440\u0430\u04
 const SIBLING_COVER_RU =
   "---\n'\u0413\u0440\u0430\u0444': '@tester/work (r1)'\n'\u0420\u043e\u043b\u044c \u0430\u0433\u0435\u043d\u0442\u0430': '#7 «a»'\n---\n";
 const SIBLING_PROSE = `The neighbour's file ends with (${SIBLING}: contract 29, stamp 2026-10-22).\n`;
+// The cover as align writes it from contract 10: a block under the delivery's root key, its
+// contract and date the stamp (graph @nks/nks-dev, node #9316).
+const BLOCK = (root, stamp = "  contract: 10\n  stamp: 2026-11-02\n") =>
+  `---\n${root}:\n  graph: r1\n  holon: 3\n  agent_role: 7\n${stamp}---\n# x\n`;
 const session = (command) =>
   JSON.stringify({ hooks: { SessionStart: [{ hooks: [{ type: "command", command }] }] } });
 // Start hooks as align writes them (references/align-hooks.md): the full and the initial form.
@@ -131,6 +135,26 @@ const CASES = [
     verdicts: all("partial"),
   },
   { name: "stamp only", spec: { git: "dir", agents: `# x\n${STAMP}` }, verdicts: all("partial") },
+  {
+    name: "our cover block with contract and stamp, both start hooks",
+    spec: { git: "dir", agents: BLOCK("verstak"), settings: START, rituals: true },
+    verdicts: all("aligned"),
+  },
+  {
+    name: "our cover block without a contract is a cover, not a stamp",
+    spec: { git: "dir", agents: BLOCK("verstak", ""), settings: START, rituals: true },
+    verdicts: all("partial"),
+  },
+  {
+    name: "another delivery's cover block",
+    spec: { git: "dir", agents: BLOCK("neighbour") },
+    verdicts: all("foreign"),
+  },
+  {
+    name: "another delivery's block without a contract is no sign",
+    spec: { git: "dir", agents: BLOCK("neighbour", "") },
+    verdicts: all("invite"),
+  },
   { name: "start hook only", spec: { git: "dir", settings: START }, verdicts: all("partial") },
   { name: "rituals only", spec: { git: "dir", rituals: true }, verdicts: all("partial") },
   {
@@ -190,9 +214,15 @@ test("repo signs: the start mark is the shipped hook text", () => {
   assert.ok(ritual.includes(`// ${RITUALS} — OpenCode 2`), "the rituals plugin's path");
 });
 
-test("repo signs: the stamp is the template's line", () => {
+test("repo signs: the template's cover is the verstak: block with contract and stamp, no stamp line", () => {
   const template = readFileSync(join(REPO, "skills/verstak/templates/agents-template.md"), "utf8");
-  assert.ok(template.includes("*(verstak align: contract `<N>`, stamped `<YYYY-MM-DD>`"));
+  const front = /^---\n([\s\S]*?)\n---\n/.exec(template)?.[1];
+  assert.ok(front, "the template opens with a front matter");
+  assert.deepEqual(
+    front.split("\n").map((l) => /^(\s*)([\w]+):/.exec(l)?.slice(1, 3).join("")),
+    ["verstak", "  graph", "  holon", "  agent_role", "  contract", "  stamp"],
+  );
+  assert.ok(!template.includes("(verstak align: contract"), "no stamp line at the end");
 });
 
 test("repo signs: the root is the nearest .git upward, read from a subdirectory", (t) => {

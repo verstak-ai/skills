@@ -1,37 +1,25 @@
 ---
-'Nature': '<production / research / sandbox / one-off / library; if not production — what is relaxed and why>'
-'Nature — source': '<derived / agreed: who / not agreed — case #N>'
-'Graph': '<full address from verstak_realm(action="list"), the owner''s real handle (rN)>'
-'Graph — source': '<derived / agreed: who / not agreed — case #N>'
-'Focus holon': '<#seq "name">'
-'Focus holon — source': '<derived / agreed: who / not agreed — case #N>'
-'Repository': '<host/org/repo> — the holon''s repository attr, from origin'
-'Repository — source': 'derived'
-'Agent role': '<#seq "name"> — adhikarin, steward of the holon; inbox verstak_orient(focus="<seq>")'
-'Agent role — source': '<derived / agreed: who / not agreed — case #N>'
-'Owner role': '<#seq "name"> — svatantra, the posed_to address for out-of-mandate questions'
-'Owner role — source': '<derived / agreed: who / not agreed — case #N>'
-'Stack': '<language + main frameworks>'
-'Stack — source': 'derived'
-'Gate': '<one call: make check / npm run gate>'
-'Gate — source': '<derived / agreed: who / not agreed — case #N>'
-'Consumers': '<who consumes the artifact and how they learn it broke>'
-'Consumers — source': '<derived / agreed: who / not agreed — case #N>'
-'Cost of breakage': '<what ships, to whom, where; for a sandbox — where the cheapness ends>'
-'Cost of breakage — source': '<derived / agreed: who / not agreed — case #N>'
-'Reality': 'REALITY.md at the root — read when needed (the Reality section below)'
-'Reality — source': '<derived / agreed: who / not agreed — case #N>'
-'Layout': '<code map: component READMEs, or a section where a README beside outputs is forbidden>; <traps: the graph or GOTCHAS.md>'
-'Layout — source': '<derived / agreed: who / not agreed — case #N>'
-'Feedback reflection': '<yes — default / no>'
-'Feedback reflection — source': '<derived: template default / agreed: who>'
-'Workflow-suite interop': '<full / prose-only / none>'
-'Workflow-suite interop — source': '<derived / agreed: who / not agreed — case #N>'
-'Agreement': '<case #N on the holon "Align …"; none when every slot is resolved>'
-'Agreement — source': 'derived'
+verstak:
+  graph: <rN of the graph, from verstak_realm(action="list")>
+  holon: <seq of the focus holon>
+  agent_role: <seq of the agent role, the holon's steward>
+  contract: <N>
+  stamp: <YYYY-MM-DD>
 ---
 # `<project-name>`
 `<one line: what this project is and whom it serves>`
+
+<!-- The cover is the `verstak:` block above: exactly five fields, numbers without `#`, the graph as rN; N is the number after "AGENTS.md CONTRACT:" in the installed verstak skill's description, the date the day of the run. Judgment slots live in `Project`; an unresolved one reads `open`, its question a message in the holon's alignment case. -->
+
+## Project
+- **Nature**: `<production / research / sandbox / one-off / library; if not production — what is relaxed and why>`
+- **Cost of breakage**: `<what ships, to whom, where; for a sandbox — where the cheapness ends>`
+- **Consumers**: `<who consumes the artifact and how they learn it broke>`
+- **Stack**: `<language + main frameworks>`
+- **Gate**: `<one call: make check / npm run gate>`
+- **Layout**: `<code map: component READMEs, or a section where a README beside outputs is forbidden>; <traps: the graph or GOTCHAS.md>`
+- **Feedback reflection**: `<yes — default / no>`
+- **Workflow-suite interop**: `<full / prose-only / none>`
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
@@ -56,7 +44,7 @@ No `HANDOVER.md`.
 Before saying "works", or switching a mode or ending a question on a claim about execution, read your claim class's row in `REALITY.md` (other changes name their own grounds and the rightful act); it goes whole into a `verifier` or `reviewer` brief. First row: `<main claim class and its carrier>`.
 
 ## Stack
-`<versions + critical libraries beyond the frontmatter; drop if none>`
+`<versions + critical libraries beyond the `Stack` line in Project; drop if none>`
 
 ## Commands
 `<table: build / test / lint / dev / format; lint zero-warning where the stack allows>`
@@ -91,7 +79,3 @@ Before saying "works", or switching a mode or ending a question on a claim about
 
 ## Local overrides
 `<deviations from the method with reasons (a toolchain pin); graph canon blocks byte for byte. None → delete.>`
-
-*(verstak align: contract `<N>`, stamped `<YYYY-MM-DD>` — re-run when the installed
-verstak skill names a higher contract, or when the sources this file derives from
-have moved since that date.)*
