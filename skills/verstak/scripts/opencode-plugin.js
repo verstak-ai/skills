@@ -170,7 +170,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.26.0";
+var VERSION = "3.26.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -4303,10 +4303,22 @@ function sameSeat2(seat, realm, karta) {
   if (slug(x) && canonical(y)) return x === y.slice(y.indexOf("/") + 1);
   return slug(x) && slug(y) && x === y;
 }
-function outcome(d, slot, session, realm, karta, provisional) {
+var REALM_MS = 1e4;
+async function canonOf(slot, realm) {
+  try {
+    const opts = { timeoutMs: REALM_MS, service: true };
+    const r = await slot.bridge.request(method("realm"), { realm }, opts);
+    return typeof r?.realm === "string" && canonical(r.realm) ? r.realm : realm;
+  } catch {
+    return realm;
+  }
+}
+async function outcome(d, slot, session, realm, karta, provisional) {
   const own = heldSeat(d, slot, session);
-  if (!own.realm || short(own.realm) !== short(realm)) return { other: own, uncompared: realm };
-  return sameSeat2(own, realm, karta) ? { place: own.name, realm: own.realm, provisional } : { other: own };
+  const mixed = !!own.realm && short(own.realm) !== short(realm);
+  const [x, y] = mixed ? await Promise.all([own.realm, realm].map((r) => short(r) ? canonOf(slot, r) : r)) : [own.realm, realm];
+  if (!x || short(x) !== short(y)) return { other: own, uncompared: realm };
+  return sameSeat2({ ...own, realm: x }, y, karta) ? { place: own.name, realm: own.realm, provisional } : { other: own };
 }
 async function seatBy(d, root, realm, karta) {
   try {
@@ -4319,14 +4331,14 @@ async function seatBy(d, root, realm, karta) {
       if (slot.resume) await slot.resume;
       if (cancelled()) return { cancelled: true };
       const provisional = () => d.provisional?.(slot, root) === true;
-      if (slot.holding) return outcome(d, slot, root, realm, karta, provisional());
+      if (slot.holding) return await outcome(d, slot, root, realm, karta, provisional());
       const model = await d.modelOf(root);
       if (cancelled()) return { cancelled: true };
       const args = { realm, karta, provisional: true, ...model ? { model } : {} };
       const out2 = await d.callThrough(slot, STAND_TOOL2, args, root, true);
       if (cancelled()) return { cancelled: true };
       if (!slot.holding) return { error: out2.content || words(PLUGIN).refusalNoText(STAND_TOOL2) };
-      return outcome(
+      return await outcome(
         d,
         slot,
         root,
