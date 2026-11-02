@@ -4,13 +4,13 @@
 import type { Lang } from "../lang.ts";
 
 export interface OnboardStartWords {
-  /** No sign of alignment: point the model at the onboarding method. */
+  /** No sign of alignment: the onboarding method is offered, never a condition of the request. */
   start: () => string;
 }
 
 export const ONBOARD_START: Readonly<Record<Lang, OnboardStartWords>> = {
   en: {
     start: () =>
-      "Verstak: this repository is not yet aligned for the agent — load the verstak skill and run its onboarding method before anything else; it creates nothing without the person's word.",
+      "Verstak: this repository is not yet aligned for the agent — load the verstak skill and offer the person its onboarding method; it does not hold up their request and creates nothing without their word.",
   },
 };
