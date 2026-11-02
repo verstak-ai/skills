@@ -41,7 +41,8 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 4. **One overview:** `verstak_orient(realm=<graph>)` — sign: you can say in one line what the graph is about.
 
 5. **Alignment — contract `9`** (the description's number; **align**, `Contract`).
-   - **Stamp below `9`** → **align**, full arc; no file → its first round. A repository with none of the three signs of alignment (Survey) gets only the offer of **onboarding**'s harness branch, which runs on the person's word; the items below don't fire there. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+   - **None of the three signs of alignment** (Survey) → only the offer of **onboarding**'s harness branch, which runs on the person's word; the items below don't fire there.
+   - **Stamp below `9`** → **align**, full arc; no file in a repository bearing a sign → its first round. A date, no stamp, a cover (`AGENTS.md`'s YAML frontmatter) still a section or table, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
    - **Another delivery's stamp** — the last line names another skill's alignment (`<name>: contract N`, not `verstak align` or `verstakify`) and none of ours → a sibling delivery aligned this repository: the stamp is what tells the two covers apart, their English keys are shared. Work by its `AGENTS.md`; don't align it or rewrite its cover unasked — only on the user's word, which replaces the stamp deliberately.
    - **Stamp current, but your role files are missing on this machine** (a fresh clone; a pull took them out of the index) → only **align**, Step 6: they are a projection on the machine, not part of the repo.
    - **A hole names a case** (`not agreed — case #N`) → **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
