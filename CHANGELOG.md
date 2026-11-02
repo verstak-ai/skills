@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.25.1](https://github.com/verstak-ai/skills/compare/v3.25.0...v3.25.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* a role made in advance is looked for among svatantra only ([#285](https://github.com/verstak-ai/skills/issues/285)) ([b97e16a](https://github.com/verstak-ai/skills/commit/b97e16aaf88886507c34447b56c6a09a62aee5be))
+* an agent role is no candidate for a person's role; align and onboarding share one rule ([#284](https://github.com/verstak-ai/skills/issues/284)) ([1b58c9a](https://github.com/verstak-ai/skills/commit/1b58c9a7e4079e3bc472a4ac83e81c0746f97956))
+* bridge core v7.28.1 — a held seat's record stays fresh; onboarding only offered where no sign of alignment is ([#282](https://github.com/verstak-ai/skills/issues/282)) ([df2ddd3](https://github.com/verstak-ai/skills/commit/df2ddd3e507ad6c4a0ae392335d9fd7249469f8c))
+
 ## [3.25.0](https://github.com/verstak-ai/skills/compare/v3.24.0...v3.25.0) (2026-11-02)
 
 
