@@ -106,7 +106,10 @@ export function runPrepare(argv: string[]): void {
   checkOpencode(root, out);
 
   const keys = out.repeated?.map((k) => `'${k}'`).join(", ");
-  const left = out.left.map((item: PrepareLeft) => ({ item, why: W.left(item, keys) }));
+  const left = out.left.map((item: PrepareLeft) => {
+    const hook = out.named?.[item];
+    return { item, why: hook ? W.unread(item, hook) : W.left(item, keys) };
+  });
   say(json, left.length ? 3 : 0, {
     repo: root,
     repository: repositoryOf(root),

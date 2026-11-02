@@ -1,13 +1,15 @@
 // The hooks of `prepare` (graph @nks/nks-dev, node #9319): the start reminder and the memory
 // guard merged into the repository's .claude/settings.json beside every other entry. A hook of
-// the same kind written by a model is kept as it stands; one written by a run of prepare for
-// other addresses is rewritten in place; push and merge are only recognized: their filters stay
-// with the bootstrap (references/hooks.md).
+// the same kind in any form — inline or a script (#9331) — is kept as it stands; one written by a
+// run of prepare for other addresses is rewritten in place; a script prepare cannot read as its
+// kind holds its own back and is named to the model; push and merge are only recognized: their
+// filters stay with the bootstrap (references/hooks.md).
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { PREPARE, type PrepareAddr, type PrepareLeft, PRODUCT } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { knownHook, opaque, runsOn } from "./preparescripts.ts";
 
 // The guard of references/hooks.md byte for byte around its message: a probe holds them equal.
 const GUARD_HEAD =
@@ -41,8 +43,9 @@ interface Entry {
 }
 type Settings = { hooks?: Record<string, Entry[]> } & Record<string, unknown>;
 
-const hooksOf = (s: Settings, event: string): Hook[] =>
-  (s.hooks?.[event] ?? []).flatMap((e) => e.hooks ?? []);
+const hooksOf = (s: Settings, event: string, on = (_?: string) => true): Hook[] =>
+  (s.hooks?.[event] ?? []).filter((e) => on(e.matcher)).flatMap((e) => e.hooks ?? []);
+const cmd = (h: Hook): string => h.command ?? "";
 
 /** Whether a command is the one written for some address: each slot of the builder any address. */
 const SLOT = "§";
@@ -55,8 +58,8 @@ const written = (c: string, build: (slot: string) => string): boolean =>
   ).test(c);
 
 /**
- * Each hook kind: its event, how an entry of it is known, which known one prepare wrote, and the
- * entry to add — null while the cover lacks what it names.
+ * Each hook kind: its event, how an entry of it (or its script) is known, which known one prepare
+ * wrote, the entry to add — null while the cover lacks what it names — and the matchers it runs on.
  */
 const KINDS: {
   item: PrepareLeft;
@@ -64,6 +67,7 @@ const KINDS: {
   known: (c: string) => boolean;
   ours?: (c: string) => boolean;
   make?: (a: PrepareAddr) => Entry | null;
+  on?: (matcher?: string) => boolean;
 }[] = [
   {
     item: "hook.start",
@@ -76,12 +80,13 @@ const KINDS: {
   {
     item: "hook.guard",
     event: "PreToolUse",
-    known: (c) => c.includes(".claude/projects") && c.includes("memory"),
+    known: (c) => /\.claude\W{0,4}projects/.test(c) && /memory/i.test(c),
     ours: (c) => written(c, guardCommand),
     make: (a) => ({
       matcher: GUARD_MATCHER,
       hooks: [{ type: "command", command: guardCommand(a.graph) }],
     }),
+    on: (m) => !m || m === "*" || ["Write", "Edit"].every((t) => runsOn(m, t)),
   },
   { item: "hook.push", event: "PostToolUse", known: (c) => c.includes("git(?: -C [^ ]+)* push") },
   { item: "hook.merge", event: "PostToolUse", known: (c) => c.includes("gh pr merge") },
@@ -93,6 +98,8 @@ export interface Outcome {
   left: PrepareLeft[];
   /** The cover's keys named twice, for cover.repeat. */
   repeated?: string[];
+  /** The standing hook prepare could not read as its kind, by the item held back for it. */
+  named?: Partial<Record<PrepareLeft, string>>;
 }
 
 /** The settings file parsed, an empty one when absent; null — it does not parse. */
@@ -116,14 +123,18 @@ export function prepareHooks(root: string, addr: PrepareAddr | null, out: Outcom
   for (const k of KINDS) {
     const entry = addr && k.make?.(addr);
     const command = entry ? entry.hooks?.[0]?.command : undefined;
-    const known = hooksOf(s, k.event).filter((h) => k.known(h.command ?? ""));
-    const stale = known.filter((h) => h.command !== command && k.ours?.(h.command ?? ""));
+    const known = hooksOf(s, k.event, k.on).filter((h) => knownHook(root, cmd(h), k.known));
+    const stale = known.filter((h) => h.command !== command && k.ours?.(cmd(h)));
+    const unread = k.make && hooksOf(s, k.event, k.on).find((h) => opaque(root, cmd(h)));
     if (command && stale.length && !known.some((h) => h.command === command)) {
       for (const h of stale) h.command = command;
       out.done.push(k.item);
       changed = true;
     } else if (known.length) out.kept.push(k.item);
-    else if (!entry) out.left.push(k.item);
+    else if (unread) {
+      out.left.push(k.item);
+      (out.named ??= {})[k.item] = cmd(unread);
+    } else if (!entry) out.left.push(k.item);
     else {
       s.hooks = s.hooks ?? {};
       (s.hooks[k.event] = s.hooks[k.event] ?? []).push(entry);

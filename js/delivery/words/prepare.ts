@@ -41,6 +41,8 @@ export interface PrepareWords {
   /** keys — the cover's keys named twice, for cover.repeat. */
   left: (item: PrepareLeft, keys?: string) => string;
   /** The label of a text answer's line: done, already there, left to the model. */
+  /** A script-form hook prepare could not tell as this kind: none of its own is put beside it. */
+  unread: (item: PrepareLeft, hook: string) => string;
   head: (kind: "done" | "kept" | "left") => string;
 }
 
@@ -82,6 +84,8 @@ export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
         "opencode.rituals":
           "the repository has OpenCode: the rituals plugin by align, Step 4 (references/align-harness-surfaces.md)",
       })[item],
+    unread: (item, hook) =>
+      `"${hook}" stands, and prepare could not tell whether it is ${item === "hook.guard" ? "the memory guard" : "the start hook"} — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)`,
     head: (kind) => ({ done: "done", kept: "already there", left: "for the model" })[kind],
   },
 };

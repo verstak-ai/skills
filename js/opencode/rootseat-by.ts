@@ -1,5 +1,5 @@
 // The root's service stand and the held seat's comparison with the project cover.
-import { PLUGIN } from "../delivery/index.ts";
+import { method, PLUGIN } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { STAND_TOOL } from "./satellite.ts";
 import type { Slot } from "./slot.ts";
@@ -46,7 +46,7 @@ const short = (t: string): boolean => /^r\d+$/.test(t.trim());
 const canonical = (t: string): boolean => /^@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(t);
 const slug = (t: string): boolean => /^[A-Za-z0-9_.-]+$/.test(t) && !short(t);
 
-/** Compare known spellings only: rN against a slug has no proven correspondence. */
+/** Compare known spellings only: rN against a slug is compared after the bridge resolves it. */
 export function sameSeat(seat: HeldSeat, realm: string, karta: string): boolean {
   if (seat.karta.trim().replace(/^#/, "") !== karta.trim().replace(/^#/, "")) return false;
   const [x, y] = [seat.realm.trim(), realm.trim()];
@@ -57,17 +57,35 @@ export function sameSeat(seat: HeldSeat, realm: string, karta: string): boolean 
   return slug(x) && slug(y) && x === y;
 }
 
-function outcome(
+const REALM_MS = 10_000;
+
+/** rN as the serving bridge names it (#8191); an older bridge or an unknown name — as given. */
+async function canonOf(slot: Slot, realm: string): Promise<string> {
+  try {
+    const opts = { timeoutMs: REALM_MS, service: true };
+    const r = (await slot.bridge.request(method("realm"), { realm }, opts)) as { realm?: unknown };
+    return typeof r?.realm === "string" && canonical(r.realm) ? r.realm : realm;
+  } catch {
+    return realm;
+  }
+}
+
+async function outcome(
   d: SeatDoors,
   slot: Slot,
   session: string,
   realm: string,
   karta: string,
   provisional: boolean,
-): Seating {
+): Promise<Seating> {
   const own = heldSeat(d, slot, session);
-  if (!own.realm || short(own.realm) !== short(realm)) return { other: own, uncompared: realm };
-  return sameSeat(own, realm, karta)
+  // One spelling short and the other not: the short one goes by the bridge's realm table.
+  const mixed = !!own.realm && short(own.realm) !== short(realm);
+  const [x, y] = mixed
+    ? await Promise.all([own.realm, realm].map((r) => (short(r) ? canonOf(slot, r) : r)))
+    : [own.realm, realm];
+  if (!x || short(x) !== short(y)) return { other: own, uncompared: realm };
+  return sameSeat({ ...own, realm: x }, y, karta)
     ? { place: own.name, realm: own.realm, provisional }
     : { other: own };
 }
@@ -89,7 +107,7 @@ export async function seatBy(
       if (slot.resume) await slot.resume;
       if (cancelled()) return { cancelled: true };
       const provisional = () => d.provisional?.(slot, root) === true;
-      if (slot.holding) return outcome(d, slot, root, realm, karta, provisional());
+      if (slot.holding) return await outcome(d, slot, root, realm, karta, provisional());
       const model = await d.modelOf(root);
       if (cancelled()) return { cancelled: true };
       const args = { realm, karta, provisional: true, ...(model ? { model } : {}) };
@@ -97,8 +115,9 @@ export async function seatBy(
       if (cancelled()) return { cancelled: true };
       if (!slot.holding) return { error: out.content || words(PLUGIN).refusalNoText(STAND_TOOL) };
       // A fresh successful stand resolved rN itself. Its held reply proves that spelling;
-      // a disk seat, handled above before the call, carries no such proof (#7972).
-      return outcome(
+      // a disk seat, handled above before the call, carries none — its rN goes by the bridge's
+      // realm table (#7972, #8191).
+      return await outcome(
         d,
         slot,
         root,

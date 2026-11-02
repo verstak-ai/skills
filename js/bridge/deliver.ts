@@ -32,6 +32,7 @@ import { localHalted } from "./orderhalt.ts";
 import { ownerRefusal } from "./owner.ts";
 import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
 import { isPulseCall, runPulse } from "./pulse.ts";
+import { localRealm } from "./realmask.ts";
 import { READ_TOOLS } from "./repeat.ts";
 import { isCheckCall, isResumeCall } from "./resume.ts";
 import { localEnd } from "./runend.ts";
@@ -200,7 +201,7 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
   }
 }
 
-const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted];
+const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted, localRealm];
 
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   // Answered by the bridge itself, never sent upstream.

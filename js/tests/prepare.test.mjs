@@ -10,7 +10,7 @@
 // a launch — no files, no JSON answer.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
@@ -146,4 +146,37 @@ test("prepare: the usage line in our words", () => {
   });
   assert.equal(r.stdout, PREPARE.en.usage());
   assert.doesNotMatch(r.stdout, /--lang/);
+});
+
+// A start or guard the repository runs from a script prepare can't read (graph @nks/nks-dev,
+// node #9331): none of its own beside it, and the model is told in our words to read the script.
+test("prepare: an unread script-form hook gets none beside it and a left item in our words", () => {
+  const d = repo();
+  mkdirSync(join(d, ".claude", "hooks"), { recursive: true });
+  writeFileSync(join(d, ".claude", "hooks", "boot.sh"), "#!/bin/sh\n. ./.env.sh\n");
+  const start = "bash .claude/hooks/boot.sh";
+  const guard = "python3 .claude/hooks/missing.py";
+  writeFileSync(
+    join(d, ".claude", "settings.json"),
+    JSON.stringify({
+      hooks: {
+        SessionStart: [{ hooks: [{ type: "command", command: start }] }],
+        PreToolUse: [{ matcher: "Write|Edit", hooks: [{ type: "command", command: guard }] }],
+      },
+    }),
+  );
+  const r = prepare(d, [...ADDR, "--contract", "10"]);
+  assert.equal(r.status, 3, r.stderr);
+  assert.deepEqual(commands(d, "SessionStart"), [start]);
+  assert.deepEqual(commands(d, "PreToolUse"), [guard]);
+  for (const [item, cmd, kind] of [
+    ["hook.start", start, "the start hook"],
+    ["hook.guard", guard, "the memory guard"],
+  ]) {
+    const why = r.out.left.find((x) => x.item === item)?.why ?? "";
+    assert.ok(why.includes(cmd), `${item}: ${JSON.stringify(r.out.left)}`);
+    assert.match(why, new RegExp(`could not tell whether it is ${kind}`));
+    assert.match(why, /align's Step 4 \(references\/align-hooks\.md\)/);
+    assert.doesNotMatch(why, FOREIGN);
+  }
 });
