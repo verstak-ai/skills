@@ -567,10 +567,13 @@ function targets(args) {
   }
   return out.length ? out : ["HEAD"];
 }
-function toTrunk(runs, output, cwd) {
+var isTrunk = (branch) => TRUNK.test(branch);
+var namesTrunk = (runs) => runs.some((args) => (targets(args) ?? []).some((r) => TRUNK.test(r)));
+function toTrunk(runs, output, cwd, quiet2 = false) {
   const printed2 = [...output.matchAll(REF_LINE)].map((m) => m[1] ?? "");
   if (printed2.length) return printed2.some((r) => TRUNK.test(r));
   const branch = () => cwd ? git(cwd, "symbolic-ref", "--short", "-q", "HEAD") : "";
+  if (quiet2) return namesTrunk(runs) ? true : isTrunk(branch()) ? null : false;
   return runs.some(
     (args) => (targets(args) ?? []).some((r) => TRUNK.test(r === "HEAD" ? branch() : r))
   );
@@ -631,19 +634,25 @@ function tagsOnly(c) {
   return kinds.length > 0 && !kinds.includes("no") && (!kinds.includes("bare") || TAGS_OUT.test(`
 ${c.output}`));
 }
-function quietLanded(cwd) {
+function quietLanded(c, cwd) {
   if (!cwd) return false;
   const head2 = git(cwd, "rev-parse", "HEAD");
-  return head2 !== "" && head2 === git(cwd, "rev-parse", "@{push}");
+  const trunk = isTrunk(git(cwd, "rev-parse", "--abbrev-ref", "HEAD"));
+  return head2 !== "" && head2 === git(cwd, "rev-parse", "@{push}") && (!trunk || namesTrunk(pushRuns(c)));
+}
+function exitRefused(c) {
+  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*(?:&&|$)`);
+  return c.exit != null && c.exit !== 0 && last.test(c.command);
 }
 function pushed(c, cwd) {
-  if (REFUSED.test(c.output) || tagsOnly(c)) return false;
+  if (REFUSED.test(c.output) || tagsOnly(c) || exitRefused(c)) return false;
   if (ran(c, PUSH, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/)) return true;
-  return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(cwd);
+  return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(c, cwd);
 }
 function pushedTo(c, cwd) {
   if (!pushed(c, cwd)) return null;
-  return toTrunk(pushRuns(c), c.output, cwd) ? "trunk" : "branch";
+  const to = toTrunk(pushRuns(c), c.output, cwd, QUIET.test(c.command));
+  return to === null ? null : to ? "trunk" : "branch";
 }
 function merged(c) {
   if (HELD.test(c.output)) return false;

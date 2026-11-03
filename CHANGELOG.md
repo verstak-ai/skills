@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.28.0](https://github.com/verstak-ai/skills/compare/v3.27.1...v3.28.0) (2026-11-03)
+
+
+### Features
+
+* bridge core v7.31.0; foreman in a harness or the conversation home, stopping unneeded agents ([#303](https://github.com/verstak-ai/skills/issues/303)) ([383f4a1](https://github.com/verstak-ai/skills/commit/383f4a1153a4d0c295b2be2eb5d3b0cc71254218))
+
+
+### Bug Fixes
+
+* align names the quiet push's outcomes; foreman's home fork keeps the board ([#305](https://github.com/verstak-ai/skills/issues/305)) ([e59e0dd](https://github.com/verstak-ai/skills/commit/e59e0ddb6a54fd739a988eae4bb5bcb7c2a4a6c5))
+
 ## [3.27.1](https://github.com/verstak-ai/skills/compare/v3.27.0...v3.27.1) (2026-11-03)
 
 
