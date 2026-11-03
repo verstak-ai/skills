@@ -124,9 +124,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       parents,
       () => sweepAll(),
       { ended: (s) => half.ended(s), launcherOf: (s) => half.launcherOf(s) },
-      (s, inbox) => {
+      (s, inbox, _delivery, text) => {
         pulse.prompted(s, inbox);
-        turns.laid(s, inbox);
+        turns.laid(s, inbox, text);
       },
     );
     ch = c0;

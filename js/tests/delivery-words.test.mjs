@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
+import { PREPARE, SECTIONS } from "../delivery/index.ts";
 import { LANGS } from "../delivery/lang.ts";
 import { BACKLOG } from "../delivery/words/backlog.ts";
 import { CALL } from "../delivery/words/call.ts";
@@ -333,4 +334,16 @@ test("a person's direct word gets a full reply line in our words, or names what 
     FRAME_TEXT.en.noReplyAddress({ realm: false, karta: true, standing: true, id: false }),
     "no address to reply: missing the person's role, the person's seat",
   );
+});
+
+test("the memory guard cites the repository's own persistence heading, or none", () => {
+  assert.match(PREPARE.en.guard("r5"), /\(AGENTS\.md, Persistence\)\. Route the fact/);
+  assert.match(PREPARE.en.guard("r5", "Persistence rules"), /\(AGENTS\.md, Persistence rules\)\./);
+  assert.match(PREPARE.en.guard("r5", null), /\(AGENTS\.md\)\. Route the fact/);
+});
+
+test("the section kinds read our template's headings", () => {
+  assert.ok(SECTIONS.persist("Persistence"));
+  assert.ok(SECTIONS.trunk("Push to main"));
+  assert.ok(!SECTIONS.persist("Project"));
 });

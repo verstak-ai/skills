@@ -1,7 +1,7 @@
 // The plugin's ritual hooks in Claude Code (hooks/hooks.json; graph @nks/nks-dev, node #9319,
 // section RITUALS): one entry for every event it is wired to. SessionStart — the start word with
 // the cover's addresses, or the early word while it names only the graph (#8018); PostToolUse of Bash — the push and merge words by outcome
-// (shared/ritualjudge.ts); Stop — the turn's end on a watch (shared/turnend.ts, #9342). Switched on by the cover of the session's repository
+// (shared/ritualjudge.ts), a push to the trunk the merge word (#8362); Stop — the turn's end on a watch (shared/turnend.ts, #9342). Switched on by the cover of the session's repository
 // (shared/ritualcover.ts), each kind its rituals field leaves out silent; a kind the repository's own settings hold on this event's source or
 // tool (hookkinds.ts, by matcher) keeps it silent there — no word twice, none lost. The memory guard stays the repository's hook: a plugin hook's blocking
 // exit was not observed on the carrier. After a compaction the onboarding hook speaks, not this.
@@ -10,8 +10,8 @@ import { readFileSync } from "node:fs";
 
 import { RITES, TURN } from "../delivery/index.ts";
 import { wordsIn } from "../shared/lang.ts";
-import { ritualCover, startWord } from "../shared/ritualcover.ts";
-import { merged, pushed } from "../shared/ritualjudge.ts";
+import { mergeHeads, ritualCover, startWord } from "../shared/ritualcover.ts";
+import { merged, pushedTo } from "../shared/ritualjudge.ts";
 import { lostWord, TURN_RITE } from "../shared/turnend.ts";
 import { standingRites } from "./hookkinds.ts";
 import { lastTurn } from "./turnread.ts";
@@ -63,9 +63,10 @@ function riteWords(input: HookInput, dir: string): string[] {
   };
   const said: string[] = [];
   const W = wordsIn(RITES, cover.lang);
-  if (cover.on.has("push") && !own.has("hook.push") && pushed(call, dir)) said.push(W.push());
-  if (cover.on.has("merge") && !own.has("hook.merge") && merged(call))
-    said.push(W.merge(cover.holon));
+  const push = cover.on.has("push") && !own.has("hook.push") ? pushedTo(call, dir) : null;
+  if (push === "branch") said.push(W.push(cover.sections.check));
+  if (push === "trunk" || (cover.on.has("merge") && !own.has("hook.merge") && merged(call)))
+    said.push(W.merge(cover.holon, ...mergeHeads(cover.sections, push === "trunk")));
   return said;
 }
 

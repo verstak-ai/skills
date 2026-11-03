@@ -13,6 +13,7 @@ export { LAUNCH_LINE, LAUNCH_WORD } from "./patterns/launch.ts";
 export { MINE_NONE, MINE_ROW } from "./patterns/mine.ts";
 export { REPO_SIGNS } from "./patterns/reposigns.ts";
 export { SAT_LOGIN_RE, SAT_OLD_FLAG_RE } from "./patterns/satprobe.ts";
+export { SECTIONS } from "./patterns/sections.ts";
 export {
   BRIDGE_FILE,
   BRIDGE_NAME,

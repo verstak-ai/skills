@@ -10,10 +10,10 @@ import { FRAME_MARK } from "../protocol.ts";
 export interface RiteWords {
   /** The heading of the AGENTS.md section the words lean on: it tells the body's language. */
   lifecycle: () => string;
-  /** A push opened or updated a PR. */
-  push: () => string;
+  /** A push opened or updated a PR; check — the repo's self-check heading (our word cites the method instead). */
+  push: (check?: string) => string;
   /** A forge merge merged a PR or the trunk was pulled; the holon is not named (one text). */
-  merge: (holon?: string) => string;
+  merge: (holon?: string, ...heads: (string | undefined)[]) => string;
   /** The start while the cover names only the graph: no holon or role yet, onboarding unfinished. */
   early: (graph: string) => string;
 }

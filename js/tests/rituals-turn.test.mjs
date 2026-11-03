@@ -86,9 +86,19 @@ test("no wake word: the turn spoke, a human spoke, it ended on a call", () => {
 });
 
 test("the cover's rituals: field — without `turn` silent, with it or with no field it speaks", () => {
-  const turn = [...armed, notice("bx1", "a frame"), said("to the console")];
+  const turn = [...armed, notice("bx1", "a frame"), said("to the console — take it?")];
   const field = (rituals) => COVER.replace("  stamp:", `  rituals:${rituals}\n  stamp:`);
   assert.equal(stop(turn, {}, repo({ agents: field(" start push") })), null, "start push");
   assert.equal(stop(turn, {}, repo({ agents: field(" start turn") }))?.decision, "block");
   assert.equal(stop(turn, {}, repo())?.decision, "block", "no field — every ritual");
+});
+
+// A quiet turn's end (#9345, core v7.30.1): a short line with no question is a receipt, not a word
+// owed elsewhere; a long one or a question is woken.
+test("no wake word for a short receipt; a question or a long report is woken", () => {
+  const frame = notice("bx1", "Case #5: word [3]");
+  assert.equal(stop([...armed, frame, said("received, waiting for CI")]), null, "a receipt");
+  assert.equal(stop([...armed, frame, said("take it?")])?.decision, "block", "a question");
+  const long = `Report: ${"done, checked. ".repeat(25)}`;
+  assert.equal(stop([...armed, frame, said(long)])?.decision, "block", "past 280 characters");
 });
