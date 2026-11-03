@@ -2,14 +2,14 @@
 // what a repository's rituals plugin did, carried by the plugin and switched on by the cover of
 // the session's repository (shared/ritualcover.ts). A root's first prompt gets the start word,
 // the early one while the cover names only the graph (#8018); a write into local project memory is refused (shared/memorypath.ts); a shell call that pushed
-// or merged gets one more line (shared/ritualjudge.ts); a kind the cover's rituals field leaves
+// or merged gets one more line (shared/ritualjudge.ts; a push to the trunk — the merge's, #8362); a kind the cover's rituals field leaves
 // out keeps silent. A repository keeping a rituals plugin
 // of its own hears only that one — the delivery keeps silent there until the transition.
 import { PREPARE, RITES } from "../delivery/index.ts";
 import { wordsIn } from "../shared/lang.ts";
 import { inLocalMemory } from "../shared/memorypath.ts";
-import { ownRitualsPlugin, ritualCover, startWord } from "../shared/ritualcover.ts";
-import { merged, pushed } from "../shared/ritualjudge.ts";
+import { mergeHeads, ownRitualsPlugin, ritualCover, startWord } from "../shared/ritualcover.ts";
+import { merged, pushedTo } from "../shared/ritualjudge.ts";
 import { TURN_RITE } from "../shared/turnend.ts";
 import { sessionDirectory } from "./host.ts";
 import type { Context } from "./plugin.ts";
@@ -71,7 +71,9 @@ export function createRites(ctx: Context) {
         if (!paths.some(Boolean)) return;
         const c = await coverOf(String(t.sessionID));
         if (c?.cover.on.has("guard") && paths.some((p) => p && inLocalMemory(p, c.dir)))
-          throw new Error(wordsIn(PREPARE, c.cover.lang).guard(c.cover.graph));
+          throw new Error(
+            wordsIn(PREPARE, c.cover.lang).guard(c.cover.graph, c.cover.sections.persist ?? null),
+          );
       });
       await tool.hook("execute.after", async (t) => {
         if (!["shell", "bash"].includes(t.tool) || t.status !== "completed") return;
@@ -90,10 +92,12 @@ export function createRites(ctx: Context) {
         const c = await coverOf(String(t.sessionID));
         if (!c) return;
         const W = wordsIn(RITES, c.cover.lang);
-        const { on, holon } = c.cover;
+        const { on, holon, sections } = c.cover;
+        const push = on.has("push") ? pushedTo(call, c.dir) : null;
         const note = [
-          on.has("push") && pushed(call, c.dir) && W.push(),
-          on.has("merge") && merged(call) && W.merge(holon),
+          push === "branch" && W.push(sections.check),
+          (push === "trunk" || (on.has("merge") && merged(call))) &&
+            W.merge(holon, ...mergeHeads(sections, push === "trunk")),
         ]
           .filter(Boolean)
           .join("\n\n");

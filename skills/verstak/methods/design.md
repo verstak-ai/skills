@@ -4,7 +4,7 @@
 
 The graph is a stable projection of the spec: a decision or risk outside it won't survive the session; behaviour that lives only in it is unverified — external sources, public boundaries and runtime evidence are what it's checked against.
 
-**The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; all you design is `anagata`+`chanda` (`vartamana` only for what already runs); risks; a vimarsha `posed_to` whoever must answer. Every arrow carries `sense`. A *new* transformation you may create too, but as your assumption, never as accepted (below).
+**A subject spanning several holons, or a transformation as a whole, goes to `methods/architect.md` first** — told by the graph, not by the phrase; this method is then its link. **The telos is the owner's; the design is yours to write now.** On "think it through" or "we want X", the design goes into the graph in the same turn — in prose only, it is failure 5. Search, then weave the new flow into the phenomena already there; all you design is `anagata`+`chanda` (`vartamana` only for what already runs); risks; a vimarsha `posed_to` whoever must answer. Every arrow carries `sense`. A *new* transformation you may create too, but as your assumption, never as accepted (below).
 
 ## Routing boundary
 

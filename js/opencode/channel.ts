@@ -34,6 +34,7 @@ import { createLifeChecks } from "./lifecheck.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
+import type { Laid } from "./turnend.ts";
 
 export interface Channel {
   /** The tools half's door: an event of session `session`'s bridge (null — nobody's yet); `child` — a child's own bridge. */
@@ -110,8 +111,7 @@ export function setupChannel(
   parents: ReadonlyMap<string, string> = new Map(),
   onStop: (session: string) => void = () => {},
   leads: ChildLeads = NO_LEADS,
-  /** A frame was laid into the session (the seat's pulse, pulse.ts). */
-  prompted: (session: string, inbox: string | null, delivery: "steer" | "queue") => void = () => {},
+  prompted: Laid = () => {},
 ): Channel {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -172,7 +172,7 @@ export function setupChannel(
       say(W.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
       const got = { session: id, inbox: typeof inbox === "string" ? inbox : null };
-      prompted(got.session, got.inbox, delivery);
+      prompted(got.session, got.inbox, delivery, text);
       return got;
     } catch (e) {
       say(W.notDelivered(frame, id, (e as Error).message), "error");

@@ -20,7 +20,7 @@ An empty launch is no appointment: ask in one line whether you coordinate, and w
 5. **Take your seat** by the door's `Start`, step 2, with `karta=<your role>` — never `karta="me"`, the user's role. Refused or no tool → `methods/collaborate.md`, `Without the bridge`; then its postcondition.
 6. **Introduce yourself**: a busy line, and one line to the user — on the post, in which graph, whom you hear.
 
-**You serve one person**, in every graph, with their rights only. **Another owner going through you gets relay, not filtering** — verbatim, with provenance; point them to their own door. **One working graph, the board across all**: a task spanning two graphs is two writes and a text reference; a second graph is a **second post**.
+**You serve one person**, in every graph, with their rights only. **Another owner going through you gets relay, not filtering** — verbatim, with provenance; point them to their own door. **One working graph, the board across all**: a task spanning two graphs is two writes and a text reference; a second graph is a **second post**. **"All agents" in the user's word means the working graph's seats**: other graphs' board rows and agents you don't address, offer or take as a reason to stand there, even under the same person.
 
 **Don't announce the tier while nobody stands behind it** (a role in `anagata` without a seat is a queue nobody opens): first a holder and `vartamana`, then tell neighbours to go through the tier **while its seat listens**.
 

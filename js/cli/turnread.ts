@@ -4,11 +4,13 @@
 // result: a Monitor's <event>, or the exit of `watchdog-exit` under a background shell, which
 // carries no event (the frame is in the output file) and whose exit 0 is the frame — or as text
 // under the delivery's mark; a prompt of the human's origin, or of none, is a human's word,
-// another origin (a peer, another task) is neither.
+// another origin (a peer, another task) is neither. Counts with nothing addressed to the seat
+// are no frame (quietframe.ts, #9345); the last human word's timestamp tells a watched console.
 // The turn runs back from the end to the previous end of the assistant's turn.
 import { readFileSync } from "node:fs";
 
 import { LANGS, WATCHDOG } from "../delivery/index.ts";
+import { quiet } from "../shared/quietframe.ts";
 import { marked, speaks, type TurnSeen } from "../shared/turnend.ts";
 
 interface Block {
@@ -26,6 +28,7 @@ interface Entry {
   isSidechain?: boolean;
   isCompactSummary?: boolean;
   isApiErrorMessage?: boolean;
+  timestamp?: unknown;
   origin?: { kind?: unknown };
   message?: { content?: unknown; stop_reason?: unknown };
   toolUseResult?: { taskId?: unknown; backgroundTaskId?: unknown };
@@ -70,10 +73,13 @@ function watchTasks(entries: Entry[]): Map<string, boolean> {
   return tasks;
 }
 
-/** A watch task's notice: an event not the watchdog's own, or the exit-on-frame watchdog's exit 0. */
+/**
+ * A watch task's notice: an event not the watchdog's own nor counts with nothing for the seat,
+ * or the exit-on-frame watchdog's exit 0.
+ */
 function frameNotice(text: string, exits: boolean): boolean {
   const event = /<event>([\s\S]*?)<\/event>/.exec(text)?.[1]?.trim();
-  if (event !== undefined) return !ownEvent(event);
+  if (event !== undefined) return !ownEvent(event) && !quiet(event);
   return exits && /<status>\s*completed\s*<\/status>/.test(text);
 }
 
@@ -89,7 +95,7 @@ function prompt(e: Entry, watch: Map<string, boolean>): "frame" | "human" | "oth
     const id = /<task-id>([^<]+)<\/task-id>/.exec(text)?.[1]?.trim();
     return id && watch.has(id) && frameNotice(text, watch.get(id) === true) ? "frame" : "other";
   }
-  if (marked(text)) return "frame";
+  if (marked(text)) return quiet(text) ? "other" : "frame";
   return origin === undefined ? "human" : "other";
 }
 
@@ -117,11 +123,14 @@ export function lastTurn(path: string): TurnSeen | null {
     return null;
   }
   const watch = watchTasks(entries);
-  const seen: TurnSeen = { framed: false, human: false, spoke: false, text: false };
+  const said = [...entries].reverse().find((e) => prompt(e, watch) === "human")?.timestamp;
+  const heard = typeof said === "string" ? Date.parse(said) : NaN;
+  const seen: TurnSeen = { framed: false, human: false, spoke: false, text: "", heard: null };
+  if (Number.isFinite(heard)) seen.heard = heard;
   const last = [...entries].reverse().find((e) => e.type === "assistant");
   // The harness's own error in the assistant's place (a limit, a hold) is no word of the agent.
   const tail = last && !last.isApiErrorMessage ? blocks(last).at(-1) : undefined;
-  seen.text = tail?.type === "text" && typeof tail.text === "string" && !!tail.text.trim();
+  if (tail?.type === "text" && typeof tail.text === "string") seen.text = tail.text;
   let prompts = 0;
   for (let i = entries.length - 1; i >= 0; i--) {
     const e = entries[i] as Entry;
