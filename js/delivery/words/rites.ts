@@ -2,7 +2,7 @@
 // Claude Code plugin's hooks and the OpenCode plugin's rituals module add to a call's outcome, and
 // the early start word of an unfinished onboarding. Each is the text of its sample in
 // skills/verstak/references/align-hooks.md and align-harness-surfaces.md, held equal by
-// js/tests/rites-words.test.mjs. The start word and the memory guard's refusal are PREPARE's (one
+// js/tests/rituals-hook.test.mjs. The start word and the memory guard's refusal are PREPARE's (one
 // text for the repository's hook and the delivery).
 import type { Lang } from "../lang.ts";
 import { FRAME_MARK } from "../protocol.ts";
