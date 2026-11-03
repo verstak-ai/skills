@@ -3,8 +3,8 @@ verstak:
   graph: r5
   holon: 844
   agent_role: 8498
-  contract: 10
-  stamp: 2026-11-02
+  contract: 11
+  stamp: 2026-11-03
 ---
 # `verstak-ai/skills`
 The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
@@ -172,6 +172,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 
 ## Local overrides
 - **Graph access:** `r5` lives on the sibling deployment and is reached through that deployment's bridge and door; its tools carry that deployment's prefix instead of `verstak_`. Read the prefix off your own tool list: the tool whose name ends in `_orient` (and `_case`, `_stand`, `_look`…) — whatever stands before that suffix replaces `verstak_` in every call the door and methods name. No such tool listed → the bridge isn't connected: `methods/establish-mcp.md`. Names written into `skills/` stay `verstak_*`.
+- **This repository's own start, push and merge hooks stay** in `.claude/settings.json` for the transition (`methods/align.md`, Step 4): the Claude Code delivery installed on the machine that runs here is older than 3.27.0 (no `hooks/rituals.mjs` in its plugin cache); once it updates, take them off and keep the memory guard.
 - **OpenCode rituals come from the delivery**: no `.opencode/plugins/verstak-rituals.js` here; from 3.27.0 the delivered plugin speaks the start, guard, push and merge by the cover, before it an OpenCode session here gets none. `js/tests/reposigns.test.mjs` pins this repository as aligned in both harnesses (the cover names graph, holon and role).
 - **Full-gate exception — this repository only**: by the owner's grant (graph @nks/nks-dev, node #864), retain the full `make check` locally and for PR/main CI, without affected-module selection or a result cache; repeating checks across local/CI is allowed. Revisit when a measurement shows a substantial CI-cost increase. This grants no exception to other repositories.
 - **Shared surfaces** are listed although the method lists none: their consumers sit where a traversal from #844 doesn't reach — another graph's copy of a contract, a separate instance.
