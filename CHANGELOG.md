@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.27.1](https://github.com/verstak-ai/skills/compare/v3.27.0...v3.27.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* align names the trunk push's merge word under the push switch ([#302](https://github.com/verstak-ai/skills/issues/302)) ([168edab](https://github.com/verstak-ai/skills/commit/168edab1d74bc273315d2b59c8fd9eabb5a14747))
+* bridge core v7.30.1 — a quiet turn's end, a trunk push says the merge word ([#299](https://github.com/verstak-ai/skills/issues/299)) ([c037362](https://github.com/verstak-ai/skills/commit/c0373628d14b84d098f54cdb79fb1fd4ded0862b))
+* cross-holon design goes to the architect's post as held; the quieter turn's end named ([#301](https://github.com/verstak-ai/skills/issues/301)) ([6d80911](https://github.com/verstak-ai/skills/commit/6d809117fbca96f50014cad55c0b65b503ca22b1))
+
 ## [3.27.0](https://github.com/verstak-ai/skills/compare/v3.26.1...v3.27.0) (2026-11-03)
 
 
