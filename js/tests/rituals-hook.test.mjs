@@ -6,7 +6,9 @@
 // one text (PREPARE.start, RITES), the same the samples in align-hooks.md and
 // align-harness-surfaces.md print. Temporary repositories only (rites-kit.mjs).
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
@@ -108,4 +110,33 @@ test("claude code: only the rituals the cover's field lists speak; empty — non
   assert.equal(start(none), null);
   assert.equal(bash(none, "git push origin HEAD", PUSHED), null);
   assert.equal(bash(none, "gh pr merge 12 --squash"), null);
+});
+
+/** A repository on main whose HEAD equals its push ref — a quiet push there has landed. */
+function onTrunk() {
+  const dir = mkdtempSync(join(tmpdir(), "rites-trunk-"));
+  const origin = mkdtempSync(join(tmpdir(), "rites-origin-"));
+  process.on("exit", () =>
+    [dir, origin].forEach((d) => rmSync(d, { recursive: true, force: true })),
+  );
+  const g = (...a) => execFileSync("git", ["-C", dir, ...a], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "--bare", origin], { stdio: "ignore" });
+  g("init", "-q", "-b", "main");
+  execFileSync("cp", [join(repo(), "AGENTS.md"), join(dir, "AGENTS.md")]);
+  g("-c", "user.email=p@x", "-c", "user.name=p", "commit", "-q", "--allow-empty", "-m", "a");
+  g("remote", "add", "origin", origin);
+  g("push", "-q", "-u", "origin", "main");
+  return dir;
+}
+
+// Core v7.31.0 (graph @nks/nks-dev, nodes #8362, #6919): a quiet push to the trunk by its refspec
+// says the merge word; a known refusal says nothing; naming no trunk from a folder on main — none.
+test("claude code: a quiet push — to the trunk by refspec the merge word, refused or unnamed none", () => {
+  const said = bash(onTrunk(), "git push -q origin main 2>&1 | tail -1", "")?.additionalContext;
+  assert.equal(said, RITES.en.merge());
+  const dir = onTrunk();
+  for (const cmd of ["git push -q origin main", "git push -q origin feat/x"])
+    assert.equal(bash(dir, cmd, "", 1), null, cmd);
+  for (const cmd of ["git push -q", "git push -q 2>&1 | tail -1"])
+    assert.equal(bash(onTrunk(), cmd, ""), null, cmd);
 });

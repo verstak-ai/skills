@@ -67,10 +67,10 @@ export function claudeRaw(dir, input) {
 export const claude = (dir, input) => claudeRaw(dir, input)?.hookSpecificOutput ?? null;
 export const start = (dir, source = "startup") =>
   claude(dir, { hook_event_name: "SessionStart", source });
-export const bash = (dir, command, stdout = "") =>
+export const bash = (dir, command, stdout = "", exit_code) =>
   claude(dir, {
     hook_event_name: "PostToolUse",
     tool_name: "Bash",
     tool_input: { command },
-    tool_response: { stdout, stderr: "" },
+    tool_response: { stdout, stderr: "", ...(exit_code === undefined ? {} : { exit_code }) },
   });
