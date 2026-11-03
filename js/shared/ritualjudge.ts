@@ -4,7 +4,7 @@
 // wake, the exit status speaks only for the last command of a chain or one before &&, a visible
 // refusal vetoes, a push of tags only is no branch for review; a quiet push is judged by the
 // state of git in the session's directory; a push to the trunk ships (trunkpush.ts, #8362).
-import { git, toTrunk, words } from "./trunkpush.ts";
+import { git, isTrunk, namesTrunk, toTrunk, words } from "./trunkpush.ts";
 
 /** A shell argument run: whole quotes are one word — a flag inside them is text. */
 const ARG = String.raw`(?:>&|\\.|'[^']*'|"(?:[^"\\]|\\.)*"|[^;&|)\n'"\\])*`;
@@ -87,24 +87,37 @@ function tagsOnly(c: ShellCall): boolean {
   );
 }
 
-/** A quiet push lands where HEAD equals its push ref; on the trunk too — pushedTo names it (#8362). */
-function quietLanded(cwd: string | null): boolean {
+/**
+ * A quiet push lands where HEAD equals its push ref. On the trunk only when a refspec names the
+ * trunk: the session's folder may sit on main while the push ran from another work tree (#8362).
+ */
+function quietLanded(c: ShellCall, cwd: string | null): boolean {
   if (!cwd) return false;
   const head = git(cwd, "rev-parse", "HEAD");
-  return head !== "" && head === git(cwd, "rev-parse", "@{push}");
+  const trunk = isTrunk(git(cwd, "rev-parse", "--abbrev-ref", "HEAD"));
+  return (
+    head !== "" && head === git(cwd, "rev-parse", "@{push}") && (!trunk || namesTrunk(pushRuns(c)))
+  );
+}
+
+/** A known non-zero exit of the push that ends the chain or stands before && — it was refused (#6919). */
+function exitRefused(c: ShellCall): boolean {
+  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*(?:&&|$)`);
+  return c.exit != null && c.exit !== 0 && last.test(c.command);
 }
 
 /** Whether the call pushed a branch; cwd — the session's directory for a quiet push. */
 export function pushed(c: ShellCall, cwd: string | null): boolean {
-  if (REFUSED.test(c.output) || tagsOnly(c)) return false;
+  if (REFUSED.test(c.output) || tagsOnly(c) || exitRefused(c)) return false;
   if (ran(c, PUSH, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/)) return true;
-  return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(cwd);
+  return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(c, cwd);
 }
 
 /** What the call pushed: the trunk — it shipped, the merge word speaks (#8362); a branch; nothing. */
 export function pushedTo(c: ShellCall, cwd: string | null): "trunk" | "branch" | null {
   if (!pushed(c, cwd)) return null;
-  return toTrunk(pushRuns(c), c.output, cwd) ? "trunk" : "branch";
+  const to = toTrunk(pushRuns(c), c.output, cwd, QUIET.test(c.command));
+  return to === null ? null : to ? "trunk" : "branch";
 }
 
 /** Whether the call merged: the forge's merge by outcome, or the trunk pulled. */
