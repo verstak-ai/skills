@@ -25,7 +25,7 @@ verstak:
 
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, your trees' development caches and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
-- The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2), unless the cover's `rituals:` leaves out `guard`. Where a fact goes: the door, `Routes`, Keep.
+- The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2). A cover whose `rituals:` leaves out `guard` stops the delivery and `prepare` from writing or speaking it; a guard already in `.claude/settings.json` stays until taken off by hand. Where a fact goes: the door, `Routes`, Keep.
 - The start, push and merge rituals are the delivery's, by the cover; the memory guard — Claude Code: `.claude/settings.json`, OpenCode: the delivery`<; spec-write: .claude/settings.json>`; add beside other suites' entries. <!-- Keep the repository's harnesses; drop the guard of a harness without a hook surface. -->
 
 ## Where things live
