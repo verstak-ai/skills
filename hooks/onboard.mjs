@@ -300,7 +300,9 @@ var KEY = String.raw`('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)`;
 var PAIR = new RegExp(String.raw`^\s*${KEY}\s*:(?:\s+(.*))?$`);
 var TOP = new RegExp(String.raw`^${KEY}\s*:(?:\s+#.*)?\s*$`);
 var CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
-var bare = (v) => unquote(/^['"]/.test(v.trim()) ? v : v.replace(/\s+#.*$/, ""));
+var bare = (v) => unquote(
+  /^['"]/.test(v.trim()) ? v.trim().replace(/^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*")\s+#.*$/, "$1") : v.replace(/\s+#.*$/, "")
+);
 function fences(text2) {
   const lines = text2.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
@@ -418,7 +420,9 @@ function repoSigns(dir2, harness, keys = REPO_SIGNS, cover = COVER) {
   };
   const hooked = signs.hooks["claude-code"] || signs.hooks.opencode;
   const any = signs.cover || signs.stamp || hooked;
-  const complete = signs.cover && signs.stamp && (harness === null || signs.hooks[harness]);
+  const block = agents === null ? null : coverBlock(agents, cover.root);
+  const carried = !!block?.get("graph") && !!block.get("holon") && !!block.get("agent_role");
+  const complete = signs.cover && signs.stamp && (harness === null || carried || signs.hooks[harness]);
   const verdict = stamped2 === "foreign" && !hooked ? "foreign" : !any ? "invite" : complete ? "aligned" : "partial";
   return { root, ...signs, verdict };
 }
