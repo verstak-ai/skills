@@ -1,20 +1,20 @@
 # Harness surfaces: where the rituals actually land
 
-The align method (`methods/align.md`) delivers **rituals**: start, push, merge, memory guard. Wire only the harnesses the repo uses; never write a config format you are guessing at.
+The **rituals** (start, push, merge, memory guard) are carried by the delivery from the repository's cover; the align method (`methods/align.md`) puts the pointer and the guard where the repository holds them (the table). Harness file paths are not interchangeable; never write a config format you are guessing at.
 
 | Harness | Reads | Pointer file needed | Automation surface |
 |---|---|---|---|
-| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | hooks in `.claude/settings.json` |
-| Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align |
-| OpenCode | `AGENTS.md` | no | a plugin in the project's `.opencode/plugins/` |
+| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard — `.claude/settings.json` |
+| Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align; the rituals are `AGENTS.md` prose |
+| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard |
 
-Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Wire every one present.
+Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Take every one present through the table.
 
-**The start ritual everywhere:** one message, word for word the same in every harness, whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; the owner role stays out of it — the door reads it from the graph. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
+**The start ritual everywhere:** one message, word for word the same in every harness (the delivery's start word; a hand-written hook of an older delivery copies it), whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; the owner role stays out of it — the door reads it from the graph. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
 ## Claude Code
 
-Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). Hooks: committed in `.claude/settings.json` (events in Step 4, shapes in `references/align-hooks.md`). Role files: `.claude/agents/` (`references/align-delegation.md`).
+Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`references/align-delegation.md`).
 
 ## Codex CLI
 
@@ -42,7 +42,7 @@ Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). Hooks: committed in 
 
 **Reads `AGENTS.md` natively, no pointer.** Extra rule files go in `instructions` in the project's `opencode.json` (globs allowed: reuse, don't copy); never the global config (Step 1).
 
-Rituals go in a **plugin** in the project's `.opencode/plugins/`; the global `~/.config/opencode/plugins/` holds only the delivered verstak plugin (Step 4). **Shape: OpenCode 2 (`@opencode/plugin` 2.0.4), a default export `{ id, setup(ctx) }`, no imports.** The 2.x loader rejects the 1.x shape (service log `SchemaError(Missing key at ["default"])`) and the rituals silently don't run.
+The rituals and the guard are carried by the delivered verstak plugin in the global `~/.config/opencode/plugins/`; a rituals plugin of the repository's own in `.opencode/plugins/` silences it and the transition takes it off (Step 4). The sample below is only for an installed delivery older than contract 11 — skills that arrived around the delivery while an older bridge stays at home. **Shape: OpenCode 2 (`@opencode/plugin` 2.0.4), a default export `{ id, setup(ctx) }`, no imports.** The 2.x loader rejects the 1.x shape (service log `SchemaError(Missing key at ["default"])`) and the rituals silently don't run.
 
 ```js
 // .opencode/plugins/verstak-rituals.js — OpenCode 2

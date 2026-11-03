@@ -7,7 +7,8 @@
 // "outside", and nothing is said. No sign at all — "invite". Otherwise "aligned" when
 // everything the bootstrap writes for the calling harness is there, "partial" when some of
 // it is missing — which the door's alignment leads, not an invitation. A harness the
-// bootstrap writes no start hook for (null) needs none. The cover and the stamp count in the
+// bootstrap writes no start hook for (null) needs none; nor does a cover whose block names the
+// graph, holon and agent role — the delivery's own hooks carry the start word there. The cover and the stamp count in the
 // delivery's block or, in passing, its older flat form in any language (shared/cover.ts); a
 // cover file stamped by another delivery and
 // no start hook of this one — "foreign", and nothing is said (graph @nks/nks-dev, node #8089).
@@ -16,6 +17,7 @@ import { dirname, join, resolve } from "node:path";
 
 import { COVER, REPO_SIGNS } from "../delivery/index.ts";
 import { type CoverKeys, hasCover, stampOf } from "./cover.ts";
+import { coverBlock } from "./coverblock.ts";
 
 export type RepoVerdict = "invite" | "aligned" | "partial" | "outside" | "foreign";
 
@@ -106,7 +108,11 @@ export function repoSigns(
   };
   const hooked = signs.hooks["claude-code"] || signs.hooks.opencode;
   const any = signs.cover || signs.stamp || hooked;
-  const complete = signs.cover && signs.stamp && (harness === null || signs.hooks[harness]);
+  // The delivery carries the start ritual where the block names the graph, holon and role (#9319).
+  const block = agents === null ? null : coverBlock(agents, cover.root);
+  const carried = !!block?.get("graph") && !!block.get("holon") && !!block.get("agent_role");
+  const complete =
+    signs.cover && signs.stamp && (harness === null || carried || signs.hooks[harness]);
   const verdict =
     stamped === "foreign" && !hooked
       ? "foreign"

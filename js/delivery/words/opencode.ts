@@ -7,6 +7,8 @@ export interface OpencodeWords {
   channelDown: (message: string) => string;
   launchDown: (message: string) => string;
   noticeDown: (message: string) => string;
+  /** The delivery's ritual tool hooks did not come up: guard, push and merge keep silent in OpenCode. */
+  ritesDown: (message: string) => string;
   /** The tool hook did not come up: a root with a defective cover reseats only on a prompt. */
   realignDown: (message: string) => string;
   commandsDown: (message: string) => string;
@@ -80,6 +82,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     channelDown: (message) => `Verstak: the channel did not come up — ${message}`,
     launchDown: (message) => `Verstak: the launch line did not come up — ${message}`,
     noticeDown: (message) => `Verstak: the subagent turn note did not come up — ${message}`,
+    ritesDown: (message) =>
+      `Verstak: the delivery's rituals (memory guard, push, merge) did not come up; AGENTS.md prose holds them — ${message}`,
     realignDown: (message) =>
       `Verstak: watching the cover after tool calls did not come up; seating after alignment waits for a prompt — ${message}`,
     commandsDown: (message) => `Verstak: the skill commands did not come up — ${message}`,

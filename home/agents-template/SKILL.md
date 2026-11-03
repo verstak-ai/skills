@@ -15,7 +15,7 @@ verstak:
 # `<project-name>`
 `<one line: what this project is and whom it serves>`
 
-<!-- The cover is the `verstak:` block above: exactly five fields, numbers without `#`, the graph as rN; N is the number after "AGENTS.md CONTRACT:" in the installed verstak skill's description, the date the day of the run. Judgment slots live in `Project`; an unresolved one reads `open`, its question a message in the holon's alignment case. -->
+<!-- The cover is the `verstak:` block above: five fields (a sixth, `rituals:`, is the person's choice of the delivery's rituals switched on — `start push merge guard turn`; no field means all), numbers without `#`, the graph as rN; N is the number after "AGENTS.md CONTRACT:" in the installed verstak skill's description, the date the day of the run. Judgment slots live in `Project`; an unresolved one reads `open`, its question a message in the holon's alignment case. -->
 
 ## Project
 - **Nature**: `<production / research / sandbox / one-off / library; if not production — what is relaxed and why>`
@@ -31,8 +31,8 @@ verstak:
 
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, your trees' development caches and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
-- The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2). Where a fact goes: the door, `Routes`, Keep.
-- Rituals (start, push, merge, memory guard`<, spec-write>`) are wired in `<harness paths>`; add beside other suites' entries.
+- The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2), unless the cover's `rituals:` leaves out `guard`. Where a fact goes: the door, `Routes`, Keep.
+- The start, push and merge rituals are the delivery's, by the cover; the memory guard — Claude Code: `.claude/settings.json`, OpenCode: the delivery`<; spec-write: .claude/settings.json>`; add beside other suites' entries. <!-- Keep the repository's harnesses; drop the guard of a harness without a hook surface. -->
 
 ## Where things live
 | Concern | Home |

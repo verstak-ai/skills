@@ -124,7 +124,9 @@ reference texts, a single witnessed case, or development decisions as canon.
   AGENTS.md, direct requests)".
 - **Harness surfaces → align** (`references/align-harness-surfaces.md`): on harness
   upgrades re-check Claude Code — settings path, hook events, `CLAUDE.md` import
-  syntax; Codex — hook events and file form, `SessionStart` sources, `AGENTS.md` /
+  syntax, the plugin's own hooks (`hooks/hooks.json`: `SessionStart` sources,
+  `PostToolUse` on Bash, a `Stop` block reaching the model, whether a plugin
+  `PreToolUse` exit 2 blocks — until it does, the memory guard stays in the tree); Codex — hook events and file form, `SessionStart` sources, `AGENTS.md` /
   `AGENTS.override.md` names and merge order; OpenCode — `.opencode/plugins/`,
   `{ id, setup(ctx) }`, `execute.before`/`execute.after` and the throw-block, the
   `session.created` shape, `ctx.location`. A harness gaining or losing a surface:

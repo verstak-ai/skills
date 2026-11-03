@@ -27,10 +27,12 @@ import { teller } from "./leaddoors.ts";
 import { annotate } from "./notice.ts";
 import { createOnboardStart } from "./onboardstart.ts";
 import { createPulseFeed } from "./pulse.ts";
+import { createRites } from "./rites.ts";
 import { createRootSeats } from "./rootseat.ts";
 import { startWords, watchCover } from "./rootseat-start.ts";
 import { setupSkillReads } from "./skillread.ts";
 import { type Say, setupTools } from "./tools.ts";
+import { createTurnEnds } from "./turnend.ts";
 import { createTwins, sweepAll } from "./twins.ts";
 import { createUsageFeed } from "./usage.ts";
 import { createWaits } from "./waits.ts";
@@ -103,6 +105,15 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     bridgeOf: (s) => half.bridgeOf(s),
     overflow: (s, n) => say(W.pulseOverflow(s, n), "warning"),
   });
+  // The session rituals by the repository's cover: start word, memory guard, push and merge (rites.ts).
+  const rites = createRites(ctx);
+  // A frame's turn that left its word in the console is woken once (turnend.ts, #9342) — unless
+  // the cover's rituals field leaves `turn` out.
+  const turns = createTurnEnds(ctx, {
+    skip: (s) => parents.has(s) || (roots.has(s) && roots.get(s) !== s) || closed(s),
+    on: (s) => rites.turnOn(s),
+    say: (text) => say(text, "warning"),
+  });
   try {
     // The owner's stop goes by seats (#7440): every instance of the process takes its children's seats down.
     // Lead subagents — by the tools half, which comes up after the channel (#7505).
@@ -113,7 +124,10 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       parents,
       () => sweepAll(),
       { ended: (s) => half.ended(s), launcherOf: (s) => half.launcherOf(s) },
-      pulse.prompted,
+      (s, inbox) => {
+        pulse.prompted(s, inbox);
+        turns.laid(s, inbox);
+      },
     );
     ch = c0;
     onChannel = (s, p, c) => c0.onEvent(s, p, c);
@@ -177,14 +191,23 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     closed,
   );
   const started = startWords(rootSeats, (s) => onboard.prompt(s), closed);
+  try {
+    await rites.wire();
+    await turns.wire();
+  } catch (e) {
+    say(W.ritesDown((e as Error).message), "error");
+  }
   // The launch line with a case (launch.ts): the prompt hook waits for the standing and the entry.
   // A root's first prompt waits for its seating, bounded (rootseat.ts), before the model's request.
   try {
     await ctx.session.hook("prompt", async (p) => {
       const sid = String(p.sessionID);
+      turns.prompt(sid, p.prompt.text);
       const root = (await rootOf(sid)) === sid;
       const word = await half.launch(sid, p.prompt.text);
       if (word) p.prompt.text = withWord(p.prompt.text, word);
+      const rite = root && !closed(sid) ? await rites.word(sid) : null;
+      if (rite) p.prompt.text = withWord(p.prompt.text, rite);
       for (const w of root ? await started(sid) : []) p.prompt.text = withWord(p.prompt.text, w);
       // Counts of records that woke no turn ride the prompt that starts one (#6574); the root's only into the root.
       const counts = root ? ch?.ride(sid) : null;
@@ -258,13 +281,16 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
         waits.onEvent(ev);
         pulse.onEvent(ev);
         compaction.onEvent(ev);
+        turns.onEvent(ev);
         switch (ev?.type) {
           case "session.deleted":
             if (!id) break;
             pulse.forget(id);
+            turns.forget(id);
             compaction.forget(id);
             rootSeats.forget(id);
             onboard.forget(id);
+            rites.forget(id);
             roots.delete(id);
             seen.delete(id);
             parents.delete(id);
