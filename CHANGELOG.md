@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.27.0](https://github.com/verstak-ai/skills/compare/v3.26.1...v3.27.0) (2026-11-03)
+
+
+### Features
+
+* session rituals carried by the plugin, align contract 11 (core v7.30.0) ([#294](https://github.com/verstak-ai/skills/issues/294)) ([3881995](https://github.com/verstak-ai/skills/commit/38819956869c07b49e03296cfe8440f7ff5f9387))
+
+
+### Bug Fixes
+
+* check-js's fixture carries every released plugin hook ([#296](https://github.com/verstak-ai/skills/issues/296)) ([4e786f6](https://github.com/verstak-ai/skills/commit/4e786f61111418aa8f53a6d690d6701532c9099b))
+* rituals by hand where no delivery carries them; an older delivery told per harness ([#297](https://github.com/verstak-ai/skills/issues/297)) ([dc75e8b](https://github.com/verstak-ai/skills/commit/dc75e8bc8185e120370e7ae7d9e266cf7ddc5288))
+
 ## [3.26.1](https://github.com/verstak-ai/skills/compare/v3.26.0...v3.26.1) (2026-11-02)
 
 
