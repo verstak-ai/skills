@@ -27,8 +27,9 @@ const OUTPUTS = [
   "extensions/verstak.js",
 ];
 const VERSION_LINE = /^var VERSION = "[^"]+";$/m;
-/** The onboarding hook: no embedded VERSION, absent from main until its first release. */
-const HOOK = "hooks/onboard.mjs";
+/** The plugin's hooks: no embedded VERSION, each absent from main until its first release. */
+const HOOKS = ["hooks/onboard.mjs", "hooks/rituals.mjs"];
+const HOOK = HOOKS[0];
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "verstak-build-check-"));
@@ -46,10 +47,11 @@ function fixture(t) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, text.replace(VERSION_LINE, `var VERSION = "${version}";`));
   }
-  if (existsSync(join(REPO, HOOK))) {
-    mkdirSync(join(root, "hooks"), { recursive: true });
-    copyFileSync(join(REPO, HOOK), join(root, HOOK));
-  }
+  for (const hook of HOOKS)
+    if (existsSync(join(REPO, hook))) {
+      mkdirSync(join(root, "hooks"), { recursive: true });
+      copyFileSync(join(REPO, hook), join(root, hook));
+    }
   return root;
 }
 
