@@ -12,7 +12,7 @@ export interface RiteWords {
   lifecycle: () => string;
   /** A push opened or updated a PR; check — the repo's self-check heading (our word cites the method instead). */
   push: (check?: string) => string;
-  /** A forge merge merged a PR or the trunk was pulled; the holon is not named (one text). */
+  /** A forge merge merged a PR, the trunk was pulled, or a push went straight to main or master; the holon is not named (one text). */
   merge: (holon?: string, ...heads: (string | undefined)[]) => string;
   /** The start while the cover names only the graph: no holon or role yet, onboarding unfinished. */
   early: (graph: string) => string;

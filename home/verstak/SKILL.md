@@ -254,7 +254,7 @@ They apply unasked.
 |---|---|
 | the change touches more than one thing, or an integration surface | **integrity** |
 | mid-task, a fact about the user or their setup surfaces (a machine, a path, a person, a date, how they like to work), or the work needs one | before writing it, **whose fact?** — the user's own → **minding**, a project's → `Keep`; before asking the user, search their mind (**minding**, §1). An aligned repo doesn't switch mind off; purely technical work that needs nothing of the user doesn't read it beyond the start slice |
-| a structural choice is open; "think it through", "we want X" | its subject spans several holons or a whole transformation (the graph tells, not the phrase) → **architect**; else **design**: write it into the graph this turn; a new transformation is `chanda` until accepted |
+| a structural choice is open; "think it through", "we want X" | its subject spans several holons or a whole transformation (the graph tells, not the phrase) → **architect** if you hold that post, else to the seat holding it on the board, in a case (none → design your holon's part, name the rest to the user, who raises the post); else **design**: write it into the graph this turn; a new transformation is `chanda` until accepted |
 | about to say "verified", "done", "works" | **reality-audit**: name level and carrier |
 | a task ends, or code and graph diverge | **reconcile** |
 | the method or a tool let you down | **feedback**, without dropping the work: an instance, not an opinion |
