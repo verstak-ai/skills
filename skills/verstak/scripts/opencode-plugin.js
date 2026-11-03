@@ -157,6 +157,20 @@ var REPO_SIGNS = {
   rituals: ".opencode/plugins/verstak-rituals.js"
 };
 
+// js/delivery/patterns/sections.ts
+var SECTIONS = {
+  /** The stage self-check — the push word. */
+  check: (h) => /self-check|self-review/i.test(h),
+  /** The session lifecycle — the merge word, beside the merge section. */
+  lifecycle: (h) => /lifecycle/i.test(h),
+  /** The after-merge acts — the merge word. */
+  merge: (h) => /merge/i.test(h) && /graph/i.test(h) || /every merge/i.test(h),
+  /** A push to the trunk — the merge word on a push to main or master, before the merge heading. */
+  trunk: (h) => /push/i.test(h) && /main|master|trunk/i.test(h),
+  /** The persistence rules — the memory guard's refusal. */
+  persist: (h) => /persistence/i.test(h)
+};
+
 // js/delivery/protocol.ts
 var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
@@ -170,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.27.0";
+var VERSION = "3.27.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -197,7 +211,7 @@ var FRAME_TEXT = {
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
     noneYours: () => ` — none of them yours; `,
-    count: (head, n2, mine) => `${head}: ${n2} records, yours ${mine}`,
+    count: (head2, n2, mine) => `${head2}: ${n2} records, yours ${mine}`,
     supersededLines: (gone) => `, ${gone} superseded lines of a key`,
     askAnswered: (n2, by) => `; your question [${n2}] is closed: answered by ${by}`,
     askMoved: (n2, to) => `; your question [${n2}] is re-asked of ${to}`,
@@ -480,7 +494,7 @@ var PREPARE = {
 Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Until they are, behavioural claims are not accepted.
 `,
     start: ({ graph, holon, role: role2 }) => `Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph ${graph}${holon ? `, focus holon #${holon}` : ""}${role2 ? `, agent role #${role2}` : ""}.`,
-    guard: (graph) => `BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph ${graph}; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.`,
+    guard: (graph, section = "Persistence") => `BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md${section ? `, ${section}` : ""}). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph ${graph}; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen at its prohibition stub.`,
     left: (item, keys) => ({
       "cover.repeat": `the key ${keys} stands twice in the front matter of AGENTS.md; strict YAML refuses it and AGENTS.md is untouched: keep one value and run prepare again`,
       "cover.rituals": `the delivery knows no ritual ${keys} in the cover's rituals: field, so it switches nothing on; its rituals: start push merge guard turn. Fix the name or drop it`,
@@ -606,6 +620,13 @@ var ROOT_SEAT = {
     uncompared: (cover, held) => `graph not compared: ${cover} in the cover, ${held} on the seat`,
     late: (seconds) => `seating did not finish in ${seconds} s, the request goes without a seat`,
     noBridge: () => "no bridge raised"
+  }
+};
+
+// js/delivery/words/stalebatch.ts
+var STALE = {
+  en: {
+    head: (count, shown2) => `Stale frames: ${count}` + (count > shown2 ? `, the first ${shown2} here, ${count - shown2} left out` : "") + ` — taken while the seat was not listening, or the service repeating after a session rebuild; those addressed to the seat as text, the rest by count; in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.`
   }
 };
 
@@ -1122,8 +1143,8 @@ function roomKind(frame) {
     const addressee = need(to.label);
     const run = (n2) => n2 === 0 ? W5.asideBody(by, addressee, id) : n2 > 1 ? W5.asideRun(by, addressee, W5.messages(n2), id) : W5.aside(by, addressee, id);
     const aside = { pair, counts, run };
-    const words3 = run(counts ? 1 : 0);
-    return { kind, rule: "batch", words: words3, author, phase: null, known: true, aside };
+    const words4 = run(counts ? 1 : 0);
+    return { kind, rule: "batch", words: words4, author, phase: null, known: true, aside };
   }
   const pending = kind === "said" && f.body_pending === true && !str(f.body) && !str(line.done);
   const aborted = kind === "body" && fields.aborted === true;
@@ -1380,14 +1401,14 @@ function frameToText(frame, raw) {
     const rk = roomKind(frame);
     const line = rec2(f.line);
     const entry = idOf2(f.entry_id) || idOf2(line.entry_id);
-    const words3 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
-    const author = rk?.author && !words3.includes(rk.author) ? rk.author : "";
+    const words4 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
+    const author = rk?.author && !words4.includes(rk.author) ? rk.author : "";
     const who = origin2 === "platform" ? "" : whoOf2(frame, false);
     const by = [author, who].filter(Boolean).join(", ");
     const withReply = rk?.kind !== "body";
-    const head = `${caseHead(frame, true)}${entry ? ` [${entry}]` : ""} ${words3}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
-    const lines2 = [head];
-    if (text2 && !words3.includes(text2.trim())) lines2.push(text2);
+    const head2 = `${caseHead(frame, true)}${entry ? ` [${entry}]` : ""} ${words4}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
+    const lines2 = [head2];
+    if (text2 && !words4.includes(text2.trim())) lines2.push(text2);
     return lines2.join("\n");
   }
   const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
@@ -1402,18 +1423,18 @@ var BATCH_TEXT = 160;
 function batchLine(frame, run, withZachin = true) {
   const f = frame;
   const rk = roomKind(frame);
-  const head = caseHead(frame, withZachin);
-  const pre = head ? `${head} ` : "";
+  const head2 = caseHead(frame, withZachin);
+  const pre = head2 ? `${head2} ` : "";
   if (rk?.aside) return pre + (run === void 0 ? rk.words : rk.aside.run(run));
   const line = rec2(f.line);
   const e = f.entry_id ?? line.entry_id ?? f.id;
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
-  const words3 = rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?");
-  const author = rk?.author && !words3.includes(rk.author) ? ` — ${rk.author}` : "";
-  const flat = [...textOf(frame).replace(/\s+/g, " ").trim()];
-  const text2 = flat.length > BATCH_TEXT ? flat.slice(0, BATCH_TEXT).join("") + "…" : flat.join("");
-  const dup = !!text2 && words3.includes(text2);
-  return `${pre}[${entry}] ${words3}${author}${tail(frame, rk?.kind !== "body")}${text2 && !dup ? `: ${text2}` : ""}`;
+  const words4 = rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?");
+  const author = rk?.author && !words4.includes(rk.author) ? ` — ${rk.author}` : "";
+  const flat2 = [...textOf(frame).replace(/\s+/g, " ").trim()];
+  const text2 = flat2.length > BATCH_TEXT ? flat2.slice(0, BATCH_TEXT).join("") + "…" : flat2.join("");
+  const dup = !!text2 && words4.includes(text2);
+  return `${pre}[${entry}] ${words4}${author}${tail(frame, rk?.kind !== "body")}${text2 && !dup ? `: ${text2}` : ""}`;
 }
 function batchLines(frames) {
   const seen = /* @__PURE__ */ new Set();
@@ -1439,10 +1460,10 @@ function caseCountLine(frames) {
   if (!c) return "";
   const mineN = frames.filter((f) => addressedToMine(f)).length;
   const gone = superseded(frames).size;
-  const head = caseHead(frames[0], true);
+  const head2 = caseHead(frames[0], true);
   const yours = mineN ? T().yoursBelow() : T().noneYours();
   const n2 = frames.length - gone;
-  return T().count(head, n2, mineN) + (gone ? T().supersededLines(gone) : "") + frames.map(closingOf).join("") + yours + batchPointer(frames) + ".";
+  return T().count(head2, n2, mineN) + (gone ? T().supersededLines(gone) : "") + frames.map(closingOf).join("") + yours + batchPointer(frames) + ".";
 }
 function caseCountLines(frames) {
   return casesOf(frames).map(caseCountLine).filter(Boolean);
@@ -2191,9 +2212,9 @@ var LIMIT = 64;
 var obj2 = (v) => v && typeof v === "object" ? v : {};
 function trimToWord(text2, max) {
   const chars = [...text2];
-  const head = chars.slice(0, max - 1).join("");
-  const cut = chars[max - 1] === " " ? head.length : head.lastIndexOf(" ");
-  return (cut > 0 ? head.slice(0, cut) : head).trimEnd() + "…";
+  const head2 = chars.slice(0, max - 1).join("");
+  const cut = chars[max - 1] === " " ? head2.length : head2.lastIndexOf(" ");
+  return (cut > 0 ? head2.slice(0, cut) : head2).trimEnd() + "…";
 }
 function acceptedIn(body, sent) {
   let parsed = {};
@@ -3366,16 +3387,16 @@ function createKeeper(doors) {
     const key = slot.key ?? (slot.session ? hints.get(slot.session) : void 0);
     return { ...key ? { key } : {}, ...slot.dir ? { cwd: slot.dir } : {}, ...session };
   }
-  async function resume(slot, root, quiet = false, patience = PATIENCE_MS) {
+  async function resume(slot, root, quiet2 = false, patience = PATIENCE_MS) {
     const until = Date.now() + patience;
     for (; ; ) {
       const final = Date.now() + STEP_MS > until;
-      const r = await once2(slot, root, quiet, final);
+      const r = await once2(slot, root, quiet2, final);
       if (r !== "elsewhere" || final || stopped) return r;
       await sleep(STEP_MS);
     }
   }
-  async function once2(slot, root, quiet, final) {
+  async function once2(slot, root, quiet2, final) {
     const mark = slot.child ? void 0 : marked2.get(root);
     try {
       await doors.ready(slot);
@@ -3397,7 +3418,7 @@ function createKeeper(doors) {
       if (!r?.resumed) {
         if (mark) notBack(root, mark, typeof r?.word === "string" ? r.word : W5.noAnswer());
         else if (elsewhere2) {
-          if (!quiet) doors.tell(root, elsewhereWord(elsewhere2), slot.child);
+          if (!quiet2) doors.tell(root, elsewhereWord(elsewhere2), slot.child);
         } else if (Array.isArray(r?.legacy) && r.legacy.length && typeof r.word === "string")
           doors.tell(root, W5.legacy(r.word), slot.child);
         return elsewhere2 ? "elsewhere" : "none";
@@ -3408,7 +3429,7 @@ function createKeeper(doors) {
       if (typeof r.key === "string") slot.key = r.key;
       roots.add(root);
       doors.say(W5.sessionResumed(root, r.word), "info");
-      if (typeof r.key === "string" && !quiet)
+      if (typeof r.key === "string" && !quiet2)
         doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
       return "held";
     } catch (e) {
@@ -5254,7 +5275,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       say(W5.delivered(frame, id), "info");
       const inbox = r?.id ?? r?.data?.id;
       const got = { session: id, inbox: typeof inbox === "string" ? inbox : null };
-      prompted(got.session, got.inbox, delivery);
+      prompted(got.session, got.inbox, delivery, text2);
       return got;
     } catch (e) {
       say(W5.notDelivered(frame, id, e.message), "error");
@@ -5527,8 +5548,8 @@ function slashOf(markdown) {
   if (!markdown.startsWith("---")) return false;
   const end = markdown.indexOf("\n---", 3);
   if (end < 0) return false;
-  const head = markdown.slice(3, end);
-  return /^slash:\s*true\s*$/m.test(head);
+  const head2 = markdown.slice(3, end);
+  return /^slash:\s*true\s*$/m.test(head2);
 }
 function commandText(id, args) {
   return words(OPENCODE).commandHead(id) + args.trim();
@@ -5744,9 +5765,9 @@ function graphOfSlot(value, joins) {
   const list = listing(joins);
   const heads = [];
   let rest = line.replace(new RegExp(`^${FRAME}`), "");
-  for (let head = HEAD.exec(rest); head; head = HEAD.exec(rest)) {
-    heads.push(head.slice(1).filter((x) => !!x));
-    rest = rest.slice(head[0].length);
+  for (let head2 = HEAD.exec(rest); head2; head2 = HEAD.exec(rest)) {
+    heads.push(head2.slice(1).filter((x) => !!x));
+    rest = rest.slice(head2[0].length);
     rest = rest.slice((list.exec(rest)?.[0] ?? "").length);
   }
   if (!heads.length) return null;
@@ -6179,9 +6200,30 @@ function inLocalMemory(path, base) {
 // js/shared/ritualcover.ts
 import { readdirSync as readdirSync5, readFileSync as readFileSync14 } from "node:fs";
 import { join as join15 } from "node:path";
+function headings(text2) {
+  const lines = text2.split("\n");
+  let i = lines[0]?.trim() === "---" ? lines.findIndex((l, n2) => n2 > 0 && l.trim() === "---") + 1 : 0;
+  let fenced = false;
+  const out2 = [];
+  for (; i < lines.length; i++) {
+    const l = lines[i] ?? "";
+    if (/^\s*(?:```|~~~)/.test(l)) fenced = !fenced;
+    else if (!fenced && /^#{1,6}\s/.test(l)) out2.push(l.replace(/^#+\s*|\s+#+\s*$/g, "").trim());
+  }
+  return out2;
+}
 function bodyLang(text2) {
-  const heads = text2.split("\n").filter((l) => /^#{1,6}\s/.test(l)).map((l) => l.replace(/^#+\s*/, "").toLowerCase());
+  const heads = headings(text2).map((h) => h.toLowerCase());
   return LANGS.find((l) => heads.some((h) => h.startsWith(RITES[l].lifecycle().toLowerCase())));
+}
+function sectionsOf(text2) {
+  const heads = headings(text2);
+  const out2 = {};
+  for (const k of Object.keys(SECTIONS)) {
+    const h = heads.find(SECTIONS[k]);
+    if (h) out2[k] = h;
+  }
+  return out2;
 }
 function ritualCover(dir, cover = COVER) {
   const root = repoRoot(dir);
@@ -6200,7 +6242,19 @@ function ritualCover(dir, cover = COVER) {
   const role2 = block.get("agent_role") || void 0;
   const lang2 = bodyLang(text2);
   const { on } = ritualsOf(block);
-  return { root, graph, ...holon ? { holon } : {}, ...role2 ? { role: role2 } : {}, lang: lang2, on };
+  const sections = sectionsOf(text2);
+  return {
+    root,
+    graph,
+    ...holon ? { holon } : {},
+    ...role2 ? { role: role2 } : {},
+    lang: lang2,
+    on,
+    sections
+  };
+}
+function mergeHeads(s, trunk) {
+  return trunk && s.trunk ? [s.trunk] : [s.lifecycle, s.merge];
 }
 function startWord(c) {
   const { graph, holon, role: role2, lang: lang2 } = c;
@@ -6214,12 +6268,54 @@ function ownRitualsPlugin(root) {
   }
 }
 
-// js/shared/ritualjudge.ts
+// js/shared/trunkpush.ts
 import { execFileSync as execFileSync3 } from "node:child_process";
+var TRUNK = /^(?:refs\/heads\/)?(?:main|master)$/;
+var REF_LINE = /^ [ *+-] \S+(?: \S+)*? +\S+ -> (\S+)/gm;
+var words3 = (args) => args.match(/(?:\\.|'[^']*'|"(?:[^"\\]|\\.)*"|[^ '"\\])+/g) ?? [];
+function git(cwd, ...a) {
+  try {
+    const stdio = ["ignore", "pipe", "ignore"];
+    return execFileSync3("git", a, { cwd, encoding: "utf8", stdio, windowsHide: true }).trim();
+  } catch {
+    return "";
+  }
+}
+function targets(args) {
+  const pos = [];
+  let skip = false;
+  for (const t of words3(args)) {
+    if (skip) skip = false;
+    else if (/^[0-9]*(?:>>?|<|>&)$/.test(t)) skip = true;
+    else if (/^[0-9]*(?:>>?|<|>&)/.test(t)) continue;
+    else if (/['"\\$`]/.test(t)) return null;
+    else if (/^--(?:all|mirror)$/.test(t)) return null;
+    else if (/^(?:-o|--push-option|--receive-pack|--exec|--repo)$/.test(t)) skip = true;
+    else if (!t.startsWith("-")) pos.push(t);
+  }
+  const out2 = [];
+  let tag = false;
+  for (const r of pos.slice(1)) {
+    if (tag) tag = false;
+    else if (r === "tag") tag = true;
+    else out2.push(r.replace(/^\+/, "").split(":").at(-1) || "HEAD");
+  }
+  return out2.length ? out2 : ["HEAD"];
+}
+function toTrunk(runs, output, cwd) {
+  const printed = [...output.matchAll(REF_LINE)].map((m) => m[1] ?? "");
+  if (printed.length) return printed.some((r) => TRUNK.test(r));
+  const branch = () => cwd ? git(cwd, "symbolic-ref", "--short", "-q", "HEAD") : "";
+  return runs.some(
+    (args) => (targets(args) ?? []).some((r) => TRUNK.test(r === "HEAD" ? branch() : r))
+  );
+}
+
+// js/shared/ritualjudge.ts
 var ARG = String.raw`(?:>&|\\.|'[^']*'|"(?:[^"\\]|\\.)*"|[^;&|)\n'"\\])*`;
 var ENV = String.raw`(?:env +)?(?:[A-Za-z_]+=\S+ +)*`;
 var PUSH = String.raw`${ENV}git(?: -C \S+)* push`;
-var at = (head, noop) => String.raw`(?:^|[;&|(\n] *)${head}(?=[ ;&|)\n]|$)(?!${ARG} (?:${noop})(?:[ ;&|)\n]|$))`;
+var at = (head2, noop) => String.raw`(?:^|[;&|(\n] *)${head2}(?=[ ;&|)\n]|$)(?!${ARG} (?:${noop})(?:[ ;&|)\n]|$))`;
 var PULL = new RegExp(
   at(String.raw`${ENV}git(?: -C \S+)* (?:checkout|switch)`, "-h|--help") + String.raw` (?:main|master)(?=[ ;&|)\n]|$)` + String.raw`(?:${ARG}(?:&&|;|\n))+ *${ENV}git(?: -C \S+)* pull(?=[ ;&|)\n]|$)`
 );
@@ -6229,9 +6325,9 @@ var TAGS_OUT = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new
 var QUIET = new RegExp(
   String.raw`^(?:${ARG}[;&|(\n] *)*` + PUSH + String.raw`(?=[ ;&|)\n]|$)(?!${ARG} (?:-h|--help)(?:[ ;&|)\n]|$))` + ARG + String.raw` (?:-q|--quiet)(?=[ ;&|)\n]|$)`
 );
-function ran(c, head, noop, said2) {
-  if (!new RegExp(at(head, noop)).test(c.command)) return false;
-  const last = new RegExp(at(head, noop) + ARG + String.raw`\s*(?:&&|$)`).test(c.command);
+function ran(c, head2, noop, said2) {
+  if (!new RegExp(at(head2, noop)).test(c.command)) return false;
+  const last = new RegExp(at(head2, noop) + ARG + String.raw`\s*(?:&&|$)`).test(c.command);
   return (c.exit ?? 0) === 0 && last || said2.test(c.output);
 }
 function tagOnly(args) {
@@ -6239,7 +6335,7 @@ function tagOnly(args) {
   let tags = false;
   let broad = false;
   const pos = [];
-  for (const t of args.match(/(?:\\.|'[^']*'|"(?:[^"\\]|\\.)*"|[^ '"\\])+/g) ?? []) {
+  for (const t of words3(args)) {
     if (skip) skip = false;
     else if (/^[0-9]*(?:>>?|<|>&)$/.test(t)) skip = true;
     else if (/^[0-9]*(?:>>?|<|>&)/.test(t)) continue;
@@ -6261,30 +6357,28 @@ function tagOnly(args) {
   if (ok && !name && (refs.length > 0 || tags)) return "tag";
   return refs.length === 1 && !tags && /^(?!refs\/|tag$)[^:+]+$/.test(refs[0] ?? "") ? "bare" : "no";
 }
-function tagsOnly(c) {
+var pushRuns = (c) => {
   const all = new RegExp(String.raw`(?:^|[;&|(\n] *)${PUSH}(?=[ ;&|)\n]|$)(${ARG})`, "g");
-  const kinds2 = [...c.command.matchAll(all)].map((m) => tagOnly(m[1] ?? ""));
+  return [...c.command.matchAll(all)].map((m) => m[1] ?? "");
+};
+function tagsOnly(c) {
+  const kinds2 = pushRuns(c).map(tagOnly);
   return kinds2.length > 0 && !kinds2.includes("no") && (!kinds2.includes("bare") || TAGS_OUT.test(`
 ${c.output}`));
 }
 function quietLanded(cwd) {
   if (!cwd) return false;
-  const git = (...a) => {
-    try {
-      const stdio = ["ignore", "pipe", "ignore"];
-      return execFileSync3("git", a, { cwd, encoding: "utf8", stdio, windowsHide: true }).trim();
-    } catch {
-      return "";
-    }
-  };
-  const head = git("rev-parse", "HEAD");
-  const branch = git("rev-parse", "--abbrev-ref", "HEAD");
-  return head !== "" && head === git("rev-parse", "@{push}") && !["main", "master"].includes(branch);
+  const head2 = git(cwd, "rev-parse", "HEAD");
+  return head2 !== "" && head2 === git(cwd, "rev-parse", "@{push}");
 }
 function pushed(c, cwd) {
   if (REFUSED.test(c.output) || tagsOnly(c)) return false;
   if (ran(c, PUSH, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/)) return true;
   return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(cwd);
+}
+function pushedTo(c, cwd) {
+  if (!pushed(c, cwd)) return null;
+  return toTrunk(pushRuns(c), c.output, cwd) ? "trunk" : "branch";
 }
 function merged(c) {
   if (HELD.test(c.output)) return false;
@@ -6308,7 +6402,10 @@ function speaks(name, input) {
   return false;
 }
 var marked = (text2) => text2.trimStart().startsWith(FRAME_MARK);
-var lostWord = (t) => t.framed && !t.human && !t.spoke && t.text;
+var WATCHED_MS = 30 * 6e4;
+var RECEIPT_MAX = 280;
+var receipt = (text2) => [...text2.trim()].length <= RECEIPT_MAX && !text2.includes("?");
+var lostWord = (t, now2 = Date.now()) => t.framed && !t.human && !t.spoke && !!t.text.trim() && !receipt(t.text) && !(t.heard !== null && now2 - t.heard < WATCHED_MS);
 
 // js/opencode/rites.ts
 var SAID_KEY = "__deliveryRitesSaid";
@@ -6357,7 +6454,9 @@ function createRites(ctx) {
         if (!paths.some(Boolean)) return;
         const c = await coverOf(String(t.sessionID));
         if (c?.cover.on.has("guard") && paths.some((p) => p && inLocalMemory(p, c.dir)))
-          throw new Error(wordsIn(PREPARE, c.cover.lang).guard(c.cover.graph));
+          throw new Error(
+            wordsIn(PREPARE, c.cover.lang).guard(c.cover.graph, c.cover.sections.persist ?? null)
+          );
       });
       await tool2.hook("execute.after", async (t) => {
         if (!["shell", "bash"].includes(t.tool) || t.status !== "completed") return;
@@ -6373,10 +6472,11 @@ function createRites(ctx) {
         const c = await coverOf(String(t.sessionID));
         if (!c) return;
         const W5 = wordsIn(RITES, c.cover.lang);
-        const { on, holon } = c.cover;
+        const { on, holon, sections } = c.cover;
+        const push = on.has("push") ? pushedTo(call, c.dir) : null;
         const note = [
-          on.has("push") && pushed(call, c.dir) && W5.push(),
-          on.has("merge") && merged(call) && W5.merge(holon)
+          push === "branch" && W5.push(sections.check),
+          (push === "trunk" || on.has("merge") && merged(call)) && W5.merge(holon, ...mergeHeads(sections, push === "trunk"))
         ].filter(Boolean).join("\n\n");
         if (!note || !once(t.id)) return;
         const next = {
@@ -6668,23 +6768,52 @@ function startWords(seats, invitation, closed) {
   };
 }
 
+// js/shared/quietframe.ts
+var flat = (s) => s.replace(/\s+/g, "");
+var esc3 = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var HEAD2 = "";
+var ARGS = "";
+var N = 1234567;
+var NUM = new RegExp(String(N), "g");
+function countLine(lang2) {
+  const T3 = FRAME_TEXT[lang2];
+  const call = esc3(flat(T3.caseHistory(ARGS, N))).replace(ARGS, `[^()]*`).replace(NUM, String.raw`-?\d+`);
+  const cases = `(?:${call}(?:;${call})*|${esc3(flat(T3.myCases()))})`;
+  const count = esc3(flat(T3.count(HEAD2, N, 0))).replace(HEAD2, ".+?").replace(NUM, String.raw`\d+`);
+  return `${count}[^()]*?${esc3(flat(T3.noneYours()))}${esc3(flat(T3.inFull(ARGS))).replace(ARGS, cases)}\\.`;
+}
+var head = (lang2) => [STALE[lang2].head(1, 1), STALE[lang2].head(2, 1)].map(
+  (h) => esc3(flat(h)).replace(/\d+/g, String.raw`\d+`)
+);
+var LINE2 = `(?:${LANGS.map(countLine).join("|")})`;
+var QUIET2 = new RegExp(`^(?:${LANGS.flatMap(head).join("|")})?(?:${LINE2})+$`);
+function quiet(text2) {
+  const t = flat(text2);
+  return QUIET2.test(t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t);
+}
+
 // js/opencode/turnend.ts
 var ENDS2 = /* @__PURE__ */ new Set(["session.execution.succeeded", "session.idle"]);
 var CUTS = /* @__PURE__ */ new Set(["session.execution.failed", "session.execution.interrupted"]);
 function createTurnEnds(ctx, opts) {
   const turns = /* @__PURE__ */ new Map();
+  const heard = /* @__PURE__ */ new Map();
   const frames = createInboxBook();
   const wakes = createInboxBook();
   const turn = (s) => {
     let t = turns.get(s);
-    if (!t)
-      turns.set(s, t = { framed: false, human: false, spoke: false, text: false, woken: false });
+    if (!t) {
+      t = { framed: false, human: false, spoke: false, text: "", heard: null, woken: false };
+      turns.set(s, t);
+    }
     return t;
   };
   async function end(s) {
     const t = turns.get(s);
     turns.delete(s);
-    if (!t || t.woken || !lostWord(t) || opts.skip(s) || !await opts.on(s)) return;
+    if (!t || t.woken) return;
+    if (!lostWord({ ...t, heard: heard.get(s) ?? null })) return;
+    if (opts.skip(s) || !await opts.on(s)) return;
     try {
       const r = await ctx.session.prompt({
         sessionID: s,
@@ -6698,18 +6827,21 @@ function createTurnEnds(ctx, opts) {
     }
   }
   return {
-    laid(session, inbox) {
+    laid(session, inbox, text2) {
+      if (quiet(text2)) return;
       if (!inbox || frames.prompted(session, inbox)) turn(session).framed = true;
     },
     prompt(session, text2) {
-      if (!marked(text2)) turn(session).human = true;
+      if (marked(text2)) return;
+      turn(session).human = true;
+      heard.set(session, Date.now());
     },
     async wire() {
       const tool2 = ctx.tool;
       if (typeof tool2?.hook !== "function") return;
       await tool2.hook("execute.after", (c) => {
         const t = turn(String(c.sessionID));
-        t.text = false;
+        t.text = "";
         if (c.status === "completed" && speaks(c.tool, c.input)) t.spoke = true;
       });
     },
@@ -6727,12 +6859,17 @@ function createTurnEnds(ctx, opts) {
         frames.cancelled(s, inbox);
         wakes.cancelled(s, inbox);
       } else if (type === "session.text.ended") {
-        if (typeof ev.data?.text === "string" && ev.data.text.trim()) turn(s).text = true;
+        const said2 = ev.data?.text;
+        if (typeof said2 !== "string" || !said2.trim()) return;
+        const t = turn(s);
+        t.text = t.text ? `${t.text}
+${said2}` : said2;
       } else if (ENDS2.has(type)) void end(s);
       else if (CUTS.has(type)) turns.delete(s);
     },
     forget(session) {
       turns.delete(session);
+      heard.delete(session);
       frames.forget(session);
       wakes.forget(session);
     }
@@ -6987,9 +7124,9 @@ async function setup(ctx) {
       parents,
       () => sweepAll(),
       { ended: (s) => half.ended(s), launcherOf: (s) => half.launcherOf(s) },
-      (s, inbox) => {
+      (s, inbox, _delivery, text2) => {
         pulse.prompted(s, inbox);
-        turns.laid(s, inbox);
+        turns.laid(s, inbox, text2);
       }
     );
     ch = c0;
