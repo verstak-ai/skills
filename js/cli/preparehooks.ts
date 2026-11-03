@@ -1,15 +1,25 @@
-// The hooks of `prepare` (graph @nks/nks-dev, node #9319): the start reminder and the memory
-// guard merged into the repository's .claude/settings.json beside every other entry. A hook of
-// the same kind in any form — inline or a script (#9331) — is kept as it stands; one written by a
-// run of prepare for other addresses is rewritten in place; a script prepare cannot read as its
-// kind holds its own back and is named to the model; push and merge are only recognized: their
-// filters stay with the bootstrap (references/hooks.md).
+// The hooks of `prepare` (graph @nks/nks-dev, node #9319): the memory guard merged into the
+// repository's .claude/settings.json beside every other entry. Start, push and merge are carried
+// by the delivery's own hooks (section RITUALS) and never written here; a repository holding
+// such a hook of its own in any form (hookkinds.ts) has it named to the model — the transition
+// takes it off, until then the delivery keeps silent on that kind. A guard written by a run of
+// prepare for other addresses is rewritten in place; a script prepare cannot read as a guard
+// holds its own back and is named to the model.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { PREPARE, type PrepareAddr, type PrepareLeft, PRODUCT } from "../delivery/index.ts";
+import { PREPARE, type PrepareAddr, type PrepareLeft } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
-import { knownHook, opaque, runsOn } from "./preparescripts.ts";
+import {
+  cmd,
+  type Entry,
+  hooksOf,
+  KNOWN,
+  knownOf,
+  type RiteKind,
+  type Settings,
+} from "./hookkinds.ts";
+import { opaque } from "./preparescripts.ts";
 
 // The guard of references/hooks.md byte for byte around its message: a probe holds them equal.
 const GUARD_HEAD =
@@ -20,32 +30,8 @@ const GUARD_MATCHER = "Write|Edit|MultiEdit|NotebookEdit";
 /** Text inside a single-quoted shell word. */
 const quoted = (t: string): string => `'${t.replace(/'/g, "'\\''")}'`;
 
-const startCommand = (a: PrepareAddr): string =>
-  `echo ${quoted(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: words(PREPARE).start(a),
-      },
-    }),
-  )}`;
-
 const guardCommand = (graph: string): string =>
   `${GUARD_HEAD}echo ${quoted(words(PREPARE).guard(graph))}${GUARD_TAIL}`;
-
-interface Hook {
-  type?: string;
-  command?: string;
-}
-interface Entry {
-  matcher?: string;
-  hooks?: Hook[];
-}
-type Settings = { hooks?: Record<string, Entry[]> } & Record<string, unknown>;
-
-const hooksOf = (s: Settings, event: string, on = (_?: string) => true): Hook[] =>
-  (s.hooks?.[event] ?? []).filter((e) => on(e.matcher)).flatMap((e) => e.hooks ?? []);
-const cmd = (h: Hook): string => h.command ?? "";
 
 /** Whether a command is the one written for some address: each slot of the builder any address. */
 const SLOT = "§";
@@ -57,40 +43,8 @@ const written = (c: string, build: (slot: string) => string): boolean =>
       .join("[\\w./@-]*")}$`,
   ).test(c);
 
-/**
- * Each hook kind: its event, how an entry of it (or its script) is known, which known one prepare
- * wrote, the entry to add — null while the cover lacks what it names — and the matchers it runs on.
- */
-const KINDS: {
-  item: PrepareLeft;
-  event: string;
-  known: (c: string) => boolean;
-  ours?: (c: string) => boolean;
-  make?: (a: PrepareAddr) => Entry | null;
-  on?: (matcher?: string) => boolean;
-}[] = [
-  {
-    item: "hook.start",
-    event: "SessionStart",
-    known: (c) => c.toLowerCase().includes(PRODUCT),
-    ours: (c) => written(c, (s) => startCommand({ graph: s, holon: s, role: s })),
-    make: (a) =>
-      a.holon && a.role ? { hooks: [{ type: "command", command: startCommand(a) }] } : null,
-  },
-  {
-    item: "hook.guard",
-    event: "PreToolUse",
-    known: (c) => /\.claude\W{0,4}projects/.test(c) && /memory/i.test(c),
-    ours: (c) => written(c, guardCommand),
-    make: (a) => ({
-      matcher: GUARD_MATCHER,
-      hooks: [{ type: "command", command: guardCommand(a.graph) }],
-    }),
-    on: (m) => !m || m === "*" || ["Write", "Edit"].every((t) => runsOn(m, t)),
-  },
-  { item: "hook.push", event: "PostToolUse", known: (c) => c.includes("git(?: -C [^ ]+)* push") },
-  { item: "hook.merge", event: "PostToolUse", known: (c) => c.includes("gh pr merge") },
-];
+/** The kinds the delivery carries: a repository's own one is named for the transition. */
+const CARRIED: RiteKind[] = ["hook.start", "hook.push", "hook.merge"];
 
 export interface Outcome {
   done: string[];
@@ -98,6 +52,8 @@ export interface Outcome {
   left: PrepareLeft[];
   /** The cover's keys named twice, for cover.repeat. */
   repeated?: string[];
+  /** The rituals the cover names that the delivery has not, for cover.rituals. */
+  rituals?: string[];
   /** The standing hook prepare could not read as its kind, by the item held back for it. */
   named?: Partial<Record<PrepareLeft, string>>;
 }
@@ -113,34 +69,54 @@ function load(path: string): Settings | null {
   }
 }
 
-/** Merge the hooks; addr null — the cover has no graph, nothing is added. Unparsable — its path. */
-export function prepareHooks(root: string, addr: PrepareAddr | null, out: Outcome): string | null {
+/** The guard where it is missing or stale; addr null — no graph, none is written. */
+function guard(root: string, s: Settings, addr: PrepareAddr | null, out: Outcome): boolean {
+  const k = KNOWN["hook.guard"];
+  const command = addr ? guardCommand(addr.graph) : undefined;
+  const known = knownOf(root, s, "hook.guard");
+  const stale = known.filter((h) => h.command !== command && written(cmd(h), guardCommand));
+  const unread = hooksOf(s, k.event, k.on).find((h) => opaque(root, cmd(h)));
+  if (command && stale.length && !known.some((h) => h.command === command)) {
+    for (const h of stale) h.command = command;
+  } else if (known.length) {
+    out.kept.push("hook.guard");
+    return false;
+  } else if (unread || !command) {
+    out.left.push("hook.guard");
+    if (unread) (out.named ??= {})["hook.guard"] = cmd(unread);
+    return false;
+  } else {
+    const entry: Entry = { matcher: GUARD_MATCHER, hooks: [{ type: "command", command }] };
+    s.hooks = s.hooks ?? {};
+    (s.hooks[k.event] = s.hooks[k.event] ?? []).push(entry);
+  }
+  out.done.push("hook.guard");
+  return true;
+}
+
+/**
+ * Merge the guard, name the repository's own carried hooks. Unparsable — its path. A ritual the
+ * cover switches off is neither written nor named: the delivery keeps silent on it anyway.
+ */
+export function prepareHooks(
+  root: string,
+  addr: PrepareAddr | null,
+  out: Outcome,
+  on: ReadonlySet<string>,
+): string | null {
   const dir = join(root, ".claude");
   const path = join(dir, "settings.json");
   const s = load(path);
   if (!s) return path;
-  let changed = false;
-  for (const k of KINDS) {
-    const entry = addr && k.make?.(addr);
-    const command = entry ? entry.hooks?.[0]?.command : undefined;
-    const known = hooksOf(s, k.event, k.on).filter((h) => knownHook(root, cmd(h), k.known));
-    const stale = known.filter((h) => h.command !== command && k.ours?.(cmd(h)));
-    const unread = k.make && hooksOf(s, k.event, k.on).find((h) => opaque(root, cmd(h)));
-    if (command && stale.length && !known.some((h) => h.command === command)) {
-      for (const h of stale) h.command = command;
-      out.done.push(k.item);
-      changed = true;
-    } else if (known.length) out.kept.push(k.item);
-    else if (unread) {
-      out.left.push(k.item);
-      (out.named ??= {})[k.item] = cmd(unread);
-    } else if (!entry) out.left.push(k.item);
-    else {
-      s.hooks = s.hooks ?? {};
-      (s.hooks[k.event] = s.hooks[k.event] ?? []).push(entry);
-      out.done.push(k.item);
-      changed = true;
-    }
+  const changed = on.has("guard") && guard(root, s, addr, out);
+  const carried = CARRIED.filter((kind) => on.has(kind.slice("hook.".length)));
+  for (const kind of carried) if (knownOf(root, s, kind).length) out.left.push(kind);
+  // A start script prepare cannot read may be the repository's start hook: named for reading.
+  const start = KNOWN["hook.start"];
+  const unread = hooksOf(s, start.event, start.on).find((h) => opaque(root, cmd(h)));
+  if (on.has("start") && !out.left.includes("hook.start") && unread) {
+    out.left.push("hook.start");
+    (out.named ??= {})["hook.start"] = cmd(unread);
   }
   if (changed) {
     mkdirSync(dir, { recursive: true });

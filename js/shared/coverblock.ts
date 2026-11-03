@@ -1,9 +1,9 @@
 // The machine cover of a project (graph @nks/nks-dev, node #9316): one root key of the cover
 // file's YAML front matter — the delivery's (COVER.root) — and under it, one level deep, the
-// fields known before any graph is read: graph (rN), holon, agent_role, contract, stamp. Read
-// and written here without a model and without a YAML library, so the bootstrap and a bridge
-// subcommand write the same bytes (#9319). Another top-level block carrying a contract is
-// another delivery's cover; its key is named nowhere.
+// fields known before any graph is read: graph (rN), holon, agent_role, contract, stamp, and the
+// rituals the person switches. Read here without a model and without a YAML library; written by
+// coverwrite.ts, so the bootstrap and a bridge subcommand write the same bytes (#9319). Another
+// top-level block carrying a contract is another delivery's cover; its key is named nowhere.
 
 /** The cover's fields, in the order they are written. */
 export const FIELDS = ["graph", "holon", "agent_role", "contract", "stamp"] as const;
@@ -28,13 +28,18 @@ export const unquote = (v: string): string => {
 const KEY = String.raw`('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^\s'"#][^:]*?)`;
 const PAIR = new RegExp(String.raw`^\s*${KEY}\s*:(?:\s+(.*))?$`);
 /** A block's root line: the key alone, or with a comment after a space. */
-const TOP = new RegExp(String.raw`^${KEY}\s*:(?:\s+#.*)?\s*$`);
-const CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
+export const TOP = new RegExp(String.raw`^${KEY}\s*:(?:\s+#.*)?\s*$`);
+export const CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
 /** A bare value ends where a comment starts. */
-const bare = (v: string): string => unquote(/^['"]/.test(v.trim()) ? v : v.replace(/\s+#.*$/, ""));
+const bare = (v: string): string =>
+  unquote(
+    /^['"]/.test(v.trim())
+      ? v.trim().replace(/^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*")\s+#.*$/, "$1")
+      : v.replace(/\s+#.*$/, ""),
+  );
 
 /** The lines of the text and the indexes of its front matter's fences; none — null. */
-function fences(text: string): { lines: string[]; end: number } | null {
+export function fences(text: string): { lines: string[]; end: number } | null {
   const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
@@ -107,44 +112,21 @@ export const stamped = (block: Map<string, string>): boolean =>
 export const foreignBlock = (text: string, root: string): boolean =>
   [...coverBlocks(text)].some(([k, b]) => k !== root && b.has("contract"));
 
-const scalar = (v: string | number): string => {
-  const s = String(v);
-  return /^\w[\w/.-]*$/.test(s) ? s : `'${s.replace(/'/g, "''")}'`;
-};
-
-/** The block as written: the root key, then each given field indented by two spaces. */
-export const renderCover = (root: string, data: CoverData): string[] => [
-  `${root}:`,
-  ...FIELDS.filter((k) => data[k] !== undefined && data[k] !== "").map(
-    (k) => `  ${k}: ${scalar(data[k] as string | number)}`,
-  ),
-];
+/** The delivery's rituals a cover switches (#9341): turn — the end of a turn on watch. */
+export const RITUALS = ["start", "push", "merge", "guard", "turn"] as const;
+export type Ritual = (typeof RITUALS)[number];
 
 /**
- * The text with the delivery's cover block set to data: the block's fields replaced in place under
- * its root line as written, else the block put
- * first in the front matter, else a front matter made for it. Every other line stays as it was;
- * writing the same data twice changes nothing.
+ * The rituals the block switches on — its rituals field, names apart by spaces: no block or no
+ * field — every one; the field empty — none. A name outside RITUALS is named back, not guessed.
  */
-export function writeCover(text: string | null, root: string, data: CoverData): string {
-  const eol = text?.includes("\r\n") ? "\r\n" : "\n";
-  const bom = text?.startsWith("\uFEFF") ? "\uFEFF" : "";
-  const block = renderCover(root, data);
-  const f = text ? fences(text) : null;
-  if (!f) return bom + ["---", ...block, "---", ""].join(eol) + (text ?? "").slice(bom.length);
-  const inner = f.lines.slice(1, f.end);
-  const at = inner.findIndex((l) => TOP.test(l) && unquote(TOP.exec(l)?.[1] ?? "") === root);
-  const next =
-    at < 0
-      ? [...block, ...inner]
-      : [...inner.slice(0, at + 1), ...block.slice(1), ...inner.slice(blockEnd(inner, at))];
-  return bom + ["---", ...next, ...f.lines.slice(f.end)].join(eol);
-}
-
-/** Past the block opened at line at: its indented lines, blank lines after it left outside. */
-function blockEnd(inner: string[], at: number): number {
-  let stop = at + 1;
-  while (stop < inner.length && /^(\s+\S|\s*$)/.test(inner[stop] as string)) stop++;
-  while (stop > at + 1 && /^\s*$/.test(inner[stop - 1] as string)) stop--;
-  return stop;
+export function ritualsOf(block: Map<string, string> | null): {
+  on: ReadonlySet<Ritual>;
+  unknown: string[];
+} {
+  const field = block?.get("rituals");
+  if (field === undefined) return { on: new Set(RITUALS), unknown: [] };
+  const names = field.split(/\s+/).filter(Boolean);
+  const known = (n: string): n is Ritual => (RITUALS as readonly string[]).includes(n);
+  return { on: new Set(names.filter(known)), unknown: names.filter((n) => !known(n)) };
 }

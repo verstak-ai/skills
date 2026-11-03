@@ -1,5 +1,5 @@
 {
-  "description": "Onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction",
+  "description": "Onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction; the session rituals — start, push, merge — by the repository's cover; at a turn's end, a frame's turn that left its word in the console is woken once",
   "hooks": {
     "SessionStart": [
       {
@@ -18,6 +18,39 @@
           {
             "type": "command",
             "command": "node -e \"const r=process.env.CLAUDE_PLUGIN_ROOT;if(r)import(require('node:url').pathToFileURL(require('node:path').join(r,'hooks','onboard.mjs')).href).catch(()=>{})\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const r=process.env.CLAUDE_PLUGIN_ROOT;if(r)import(require('node:url').pathToFileURL(require('node:path').join(r,'hooks','rituals.mjs')).href).catch(()=>{})\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const r=process.env.CLAUDE_PLUGIN_ROOT;if(r)import(require('node:url').pathToFileURL(require('node:path').join(r,'hooks','rituals.mjs')).href).catch(()=>{})\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const r=process.env.CLAUDE_PLUGIN_ROOT;if(r)import(require('node:url').pathToFileURL(require('node:path').join(r,'hooks','rituals.mjs')).href).catch(()=>{})\"",
             "timeout": 10
           }
         ]

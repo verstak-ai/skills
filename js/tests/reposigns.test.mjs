@@ -146,6 +146,18 @@ const CASES = [
     verdicts: all("aligned"),
   },
   {
+    // The delivery's own hooks carry the start word by such a block (graph @nks/nks-dev, node
+    // #9341): none in the repository.
+    name: "our cover block with graph, holon, role, contract and stamp, no start hooks",
+    spec: { git: "dir", agents: BLOCK("verstak") },
+    verdicts: all("aligned"),
+  },
+  {
+    name: "our cover block without a holon, no start hooks",
+    spec: { git: "dir", agents: BLOCK("verstak").replace("  holon: 3\n", "") },
+    verdicts: { "claude-code": "partial", opencode: "partial", other: "aligned" },
+  },
+  {
     name: "our cover block without a contract is a cover, not a stamp",
     spec: { git: "dir", agents: BLOCK("verstak", ""), settings: START, rituals: true },
     verdicts: all("partial"),
@@ -250,9 +262,11 @@ test("repo signs: the root is the nearest .git upward, read from a subdirectory"
   );
 });
 
-test("repo signs: this repository is aligned for Claude Code; OpenCode rituals not wired", () => {
+// Its cover block names the graph, holon and role, so the delivery carries the start in both
+// harnesses (graph @nks/nks-dev, node #9341), with or without a plugin of the repository's own.
+test("repo signs: this repository is aligned for Claude Code and OpenCode", () => {
   assert.equal(repoSigns(REPO, "claude-code").verdict, "aligned");
-  assert.equal(repoSigns(REPO, "opencode").verdict, "partial");
+  assert.equal(repoSigns(REPO, "opencode").verdict, "aligned");
 });
 
 /** The plugin's declared command, as Claude Code runs it: through a shell, the plugin root in env. */
@@ -360,11 +374,14 @@ test("claude code hook: unreadable files and a missing directory do not fail the
 
 test("claude code hook: declared on startup and after a compaction, one command", () => {
   const hooks = JSON.parse(readFileSync(join(REPO, "hooks", "hooks.json"), "utf8"));
+  const onboard = hooks.hooks.SessionStart.filter((e) =>
+    e.hooks.some((h) => h.command.includes("'onboard.mjs'")),
+  );
   assert.deepEqual(
-    hooks.hooks.SessionStart.map((e) => e.matcher),
+    onboard.map((e) => e.matcher),
     ["startup", "compact"],
   );
-  for (const e of hooks.hooks.SessionStart) {
+  for (const e of onboard) {
     assert.equal(e.hooks.length, 1);
     assert.equal(e.hooks[0].command, COMMAND);
   }

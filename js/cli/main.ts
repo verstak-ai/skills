@@ -67,7 +67,7 @@ function dispatch(): void {
       void runOrchestra(rest);
       break;
     case "prepare":
-      runPrepare(rest);
+      void runPrepare(rest);
       break;
     case "watchdog":
       runWatchdog(rest);

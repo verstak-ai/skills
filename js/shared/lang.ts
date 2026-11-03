@@ -48,3 +48,6 @@ export const lang = (): Lang => (S.current ??= resolve());
 
 /** The entry of a layer dictionary in the session language. */
 export const words = <T>(dict: Readonly<Record<Lang, T>>): T => dict[lang()];
+
+/** The entry in the given language (a repository's own); none — the session language. */
+export const wordsIn = <T>(dict: Readonly<Record<Lang, T>>, l?: Lang): T => dict[l ?? lang()];

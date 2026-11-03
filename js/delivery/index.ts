@@ -98,6 +98,7 @@ export { PREPARE, type PrepareAddr, type PrepareLeft, type PrepareWords } from "
 export { REALMS, type RealmsWords } from "./words/realms.ts";
 export { RELEASES, type ReleasesWords } from "./words/releases.ts";
 export { RESUME, type ResumeWords } from "./words/resume.ts";
+export { RITES, type RiteWords } from "./words/rites.ts";
 export { RITUALS, type RitualWords } from "./words/rituals.ts";
 export {
   ROOM,
@@ -128,6 +129,7 @@ export { STOP_CLI, type StopCliWords } from "./words/stopcli.ts";
 export { SUBAGENT, type SubagentWords } from "./words/subagents.ts";
 export { SUSPEND, type SuspendWords } from "./words/suspend.ts";
 export { THIN, type ThinWords } from "./words/thin.ts";
+export { TURN, type TurnWords } from "./words/turn.ts";
 export { UNNAMED, type UnnamedWords } from "./words/unnamed.ts";
 export { UPDATE, type UpdateWords } from "./words/update.ts";
 export { USAGE, type UsageWords } from "./words/usage.ts";

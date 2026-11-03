@@ -65,7 +65,7 @@ The door's `Start`, steps 2 and 6; not through → fixing the channel is the rou
 3. **Measure changes since the last round, within the focus**: a node → `verstak_orient(focus=<node>)` and its arrows; otherwise the message. No full inbox or graph read. Track unframed answers and reality's events (after handing off CI, a probe or release, arm a listener).
 4. **Debts by event**: your merge or push → §4, and the debt list updates.
 5. **The whole board** (`verstak_channel(action="list", realm)`): your liveness, and a neighbour stuck on your surface who didn't ask.
-6. **Only a signal is a reason to act.** A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → the door's `Alignment` step. No reason → arm the wake-up and sleep.
+6. **Only a signal is a reason to act.** A turn begun by a frame finds nobody at the console: a question → an `ask` card in the case, a report → into the case or by the channel to the person's seat. A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → the door's `Alignment` step. No reason → arm the wake-up and sleep.
 
 No weaving, no reporting, no assessment — the case summary shows the last recorded moves, not what they mean (`methods/architect.md`, step 1). **An empty duty round is a success.**
 
@@ -165,7 +165,7 @@ Not yours: refusal, the order between questions, scope and telos, production and
 
 **A question doesn't end the round**: in the same turn continue with what the answer doesn't touch; three questions are three gates. All hangs on it → one list on the node, wake-up armed.
 
-**Report where the addressee looks** (the door, `Communication`). Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
+**Report where the addressee looks** (the door, `Communication`): the case or their inbox (a person without a seat in the case — their bridge), never the console; text in a terminal nobody watches is a monologue, and "reported" about it is worse than silence. The delivery wakes a frame's turn that ended in console text once, unless the cover's `rituals:` leaves out `turn`. Your own decision goes into the graph; to the user only a decision that is theirs — the question itself in words, not a pointer.
 
 The owner's answer counts once woven in: `ack` it (the door, `Waiting on an answer`), update the touched nodes (`methods/writing.md`, Decision 1), carry the change through, end the question by axis — or ask again on the same node. In `channel` mode, subscribe once to the escalated vimarsha's answer (`scope_vimarsha`, `one_shot` — `methods/collaborate.md`, `Exchange`, step 6), not to the role's whole inbox. Write vimarshas a cold session can resume from.
 

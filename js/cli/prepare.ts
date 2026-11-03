@@ -1,10 +1,12 @@
-// `prepare`: the repository made ready for the agent in one call, without a model and without the
-// network (graph @nks/nks-dev, node #9319; the cover's form — #9316). The cover, the stubs and the
-// hooks are written where they are missing, never over what stands; a repeat changes nothing.
+// `prepare`: the repository made ready for the agent in one call, without a model (graph
+// @nks/nks-dev, node #9319; the cover's form — #9316). The cover, the stubs and the guard are
+// written where they are missing, never over what stands; a repeat changes nothing. The holon
+// and the role the cover lacks are read from the graph by origin when the bridge has a key
+// (preparegraph.ts, #9325); without one — no network, as before.
 // The answer names what was done, what already stood and what is left to the model; the exit code
 // says the same: 0 — nothing left, 3 — something left, 1 — refused and nothing written, 2 — usage.
-import { PREPARE, type PrepareLeft } from "../delivery/index.ts";
-import { type CoverData } from "../shared/coverblock.ts";
+import { COVER, PREPARE, type PrepareLeft } from "../delivery/index.ts";
+import { coverBlock, type CoverData, ritualsOf } from "../shared/coverblock.ts";
 import { setLang, words } from "../shared/lang.ts";
 import {
   checkOpencode,
@@ -15,6 +17,7 @@ import {
   writeClaude,
   writeReality,
 } from "./preparefiles.ts";
+import { fromGraph } from "./preparegraph.ts";
 import { type Outcome, prepareHooks } from "./preparehooks.ts";
 
 const FORMS: Record<string, RegExp> = {
@@ -63,10 +66,10 @@ function say(json: boolean, code: number, body: Record<string, unknown>): void {
   process.exitCode = code;
 }
 
-export function runPrepare(argv: string[]): void {
+export async function runPrepare(argv: string[]): Promise<void> {
   const lang = argv.indexOf("--lang");
   setLang(lang >= 0 ? argv[lang + 1] : undefined);
-  const W = words(PREPARE);
+  let W = words(PREPARE);
   const json = argv.includes("--json");
   const a = parse(argv);
   if ("bad" in a) {
@@ -86,8 +89,21 @@ export function runPrepare(argv: string[]): void {
     contract: f["--contract"],
     stamp: f["--contract"] ? (f["--stamp"] ?? new Date().toISOString().slice(0, 10)) : f["--stamp"],
   };
-  const cover = coverText(root, given);
+  let cover = coverText(root, given);
   if ("why" in cover) return say(json, 1, { refused: cover.why });
+  // Addresses the cover lacks, from the graph by origin (#9325): none found — the model's way.
+  const repository = repositoryOf(root);
+  const { graph, holon, agent_role } = cover.data;
+  const derived =
+    graph && repository && (!holon || !agent_role) && !cover.repeated.length
+      ? await fromGraph(String(graph), repository, holon ? String(holon) : undefined)
+      : {};
+  setLang(lang >= 0 ? argv[lang + 1] : undefined); // the server's config set its own language
+  W = words(PREPARE);
+  if (derived.holon || derived.agent_role) {
+    cover = coverText(root, { ...given, ...derived, ...(agent_role ? { agent_role } : {}) });
+    if ("why" in cover) return say(json, 1, { refused: cover.why });
+  }
 
   const out: Outcome = { done: [], kept: [], left: [] };
   const d = cover.data;
@@ -98,21 +114,24 @@ export function runPrepare(argv: string[]): void {
         ...(d.agent_role ? { role: String(d.agent_role) } : {}),
       }
     : null;
-  const unparsed = prepareHooks(root, addr, out);
+  const { on } = ritualsOf(coverBlock(cover.text, COVER.root));
+  const unparsed = prepareHooks(root, addr, out, on);
   if (unparsed) return say(json, 1, { refused: W.unparsed(unparsed) });
   writeAgents(cover, out);
   writeReality(root, f["--case"], out);
   writeClaude(root, out);
   checkOpencode(root, out);
 
-  const keys = out.repeated?.map((k) => `'${k}'`).join(", ");
+  const listed = (ks?: string[]) => ks?.map((k) => `'${k}'`).join(", ");
   const left = out.left.map((item: PrepareLeft) => {
     const hook = out.named?.[item];
+    const keys = listed(item === "cover.rituals" ? out.rituals : out.repeated);
     return { item, why: hook ? W.unread(item, hook) : W.left(item, keys) };
   });
   say(json, left.length ? 3 : 0, {
     repo: root,
-    repository: repositoryOf(root),
+    repository,
+    derived,
     cover: d,
     done: out.done,
     kept: out.kept,

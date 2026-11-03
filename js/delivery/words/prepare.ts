@@ -1,6 +1,6 @@
 // The prepare subcommand: the repository made ready by the bridge without a model (graph
 // @nks/nks-dev, node #9319; the cover's form — #9316). The refusals, the REALITY.md stub, the
-// start hook and the memory guard's message (their samples: skills/verstak/references/
+// start word (the delivery's start ritual, #9341) and the memory guard's message (their samples: skills/verstak/references/
 // align-hooks.md, held byte for byte by js/tests/prepare.test.mjs), and what is left to the model.
 import type { Lang } from "../lang.ts";
 
@@ -19,6 +19,7 @@ export type PrepareLeft =
   | "cover.contract"
   | "cover.flat"
   | "cover.repeat"
+  | "cover.rituals"
   | "CLAUDE.md"
   | "hook.start"
   | "hook.guard"
@@ -38,13 +39,19 @@ export interface PrepareWords {
   start: (a: PrepareAddr) => string;
   /** The memory guard's message; graph — the cover's rN (no full address without the network). */
   guard: (graph: string) => string;
-  /** keys — the cover's keys named twice, for cover.repeat. */
+  /** keys — the cover's keys named twice (cover.repeat) or its unknown rituals (cover.rituals). */
   left: (item: PrepareLeft, keys?: string) => string;
   /** A script-form hook prepare could not tell as this kind: none of its own is put beside it. */
   unread: (item: PrepareLeft, hook: string) => string;
   /** The label of a text answer's line: done, already there, left to the model. */
   head: (kind: "done" | "kept" | "left") => string;
 }
+
+// A ritual the repository holds as its own while the delivery carries it: taking it off is the
+// transition to align contract 11 (graph @nks/nks-dev, nodes #9341, #9319); branches of other
+// kinds in the same script stay.
+const RITE = (what: string): string =>
+  `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
 
 export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
   en: {
@@ -64,6 +71,7 @@ export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
     left: (item, keys) =>
       ({
         "cover.repeat": `the key ${keys} stands twice in the front matter of AGENTS.md; strict YAML refuses it and AGENTS.md is untouched: keep one value and run prepare again`,
+        "cover.rituals": `the delivery knows no ritual ${keys} in the cover's rituals: field, so it switches nothing on; its rituals: start push merge guard turn. Fix the name or drop it`,
         "cover.graph":
           'no graph named: --graph rN (verstak_realm(action="list"); align, Round 1, step 1)',
         "cover.holon":
@@ -75,17 +83,18 @@ export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
           "an older flat cover stands beside the block: move its judgment slots into Project and drop the flat keys (align, From contract 9)",
         "CLAUDE.md":
           "CLAUDE.md is a file of its own, not a pointer: merge its content into AGENTS.md and replace it with the pointer (align, Step 7)",
-        "hook.start":
-          "the start hook waits for the graph, holon and agent role in the cover: run prepare again with --graph, --holon, --agent-role",
+        "hook.start": RITE("start hook"),
         "hook.guard":
           "the memory guard waits for a graph in the cover: run prepare again with --graph",
-        "hook.push": "the push hook: align, Step 4, by references/align-hooks.md",
-        "hook.merge": "the merge hook: align, Step 4, by references/align-hooks.md",
+        "hook.push": RITE("push hook"),
+        "hook.merge": RITE("merge hook"),
         "opencode.rituals":
-          "the repository has OpenCode: the rituals plugin by align, Step 4 (references/align-harness-surfaces.md)",
+          'the repository\'s own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks "ritual" (align, Step 4, the transition)',
       })[item],
     unread: (item, hook) =>
-      `"${hook}" stands, and prepare could not tell whether it is ${item === "hook.guard" ? "the memory guard" : "the start hook"} — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)`,
+      item === "hook.guard"
+        ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)`
+        : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
     head: (kind) => ({ done: "done", kept: "already there", left: "for the model" })[kind],
   },
 };

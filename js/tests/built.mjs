@@ -11,3 +11,4 @@ export const BUILT_BRIDGE = join(BUILT, "skills", "verstak", "scripts", "verstak
 export const BUILT_PLUGIN = join(BUILT, "skills", "verstak", "scripts", "opencode-plugin.js");
 export const BUILT_EXTENSION = join(BUILT, "extensions", "verstak.js");
 export const BUILT_ONBOARD_HOOK = join(BUILT, "hooks", "onboard.mjs");
+export const BUILT_RITUALS_HOOK = join(BUILT, "hooks", "rituals.mjs");

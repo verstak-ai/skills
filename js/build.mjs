@@ -26,14 +26,18 @@ const BRIDGE = "skills/verstak/scripts/verstak-bridge.mjs";
 const PLUGIN = "skills/verstak/scripts/opencode-plugin.js";
 const EXTENSION = "extensions/verstak.js";
 const ONBOARD_HOOK = "hooks/onboard.mjs";
+const RITUALS_HOOK = "hooks/rituals.mjs";
 /** Build outputs — paths from the repo root (committed) and from dist/dev (dev). */
-const OUTPUTS = [BRIDGE, EXTENSION, PLUGIN, ONBOARD_HOOK];
+const OUTPUTS = [BRIDGE, EXTENSION, PLUGIN, ONBOARD_HOOK, RITUALS_HOOK];
 /**
  * An output no release has carried yet: until the release of this version (by the committed
  * bridge's VERSION) it is absent from its committed path — the release job writes it first,
  * not a branch.
  */
-const PENDING = new Map([[ONBOARD_HOOK, [3, 10, 0]]]);
+const PENDING = new Map([
+  [ONBOARD_HOOK, [3, 10, 0]],
+  [RITUALS_HOOK, [3, 27, 0]],
+]);
 
 const common = {
   bundle: true,
@@ -74,6 +78,9 @@ async function produce() {
   // The Claude Code plugin's SessionStart hook (hooks/hooks.json): the onboarding invitation
   // by the repository's signs — a small file of its own, not the bridge: session start waits on it.
   outputs.set(ONBOARD_HOOK, await bundleNode("js/cli/onboard-hook.ts"));
+  // The Claude Code plugin's rituals (start, push, merge, the turn's end) by the repository's
+  // cover — one entry for the events of hooks/hooks.json (graph @nks/nks-dev, node #9341).
+  outputs.set(RITUALS_HOOK, await bundleNode("js/cli/rituals-hook.ts"));
   return outputs;
 }
 
