@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.28.4](https://github.com/verstak-ai/skills/compare/v3.28.3...v3.28.4) (2026-11-04)
+
+
+### Bug Fixes
+
+* a failed identity read blocks the binding in onboarding too ([#316](https://github.com/verstak-ai/skills/issues/316)) ([a5578db](https://github.com/verstak-ai/skills/commit/a5578dba6e50473fd36ac150bc2c7b17036a52e0))
+* bridge core v7.31.1 — a push before a failing && step keeps its word ([#312](https://github.com/verstak-ai/skills/issues/312)) ([deaf8a7](https://github.com/verstak-ai/skills/commit/deaf8a7da0792dcd4c44b5bb98c4291754335e40))
+* onboarding's role by name agrees with align and writing; the closing after the wizard ([#315](https://github.com/verstak-ai/skills/issues/315)) ([cbc4b94](https://github.com/verstak-ai/skills/commit/cbc4b9499379ecaf9a289d5d9bf39334bf193590))
+
 ## [3.28.3](https://github.com/verstak-ai/skills/compare/v3.28.2...v3.28.3) (2026-11-04)
 
 

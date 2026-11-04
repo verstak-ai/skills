@@ -79,7 +79,7 @@ Required on a role: how this actor is present as the origin of action. Gate firs
 
 Addressing: 主 gets strategic questions ("do we take this on?"), never tasks; 能 gets working questions — find it by `steward` from the question's holon, go to 主 when it's outside that mandate; 象 is **never** a `posed_to` target; 客 may be asked, but slowly. Take the addressee from the actual set (`verstak_search(q="", node_type="karta")` or `steward`), not from the overview's roles (only those carrying a signal now) or a keyword match.
 
-Traps: a person's name is not a role ("Product owner", not "Alex"); one external party is often two nodes (its API as `ding`, its account manager as 客); a working mode (Assembler, Weaver) is a sub-role via `group` and inherits the kind; only 主 or 能 steward a holon.
+Traps: a person's name is not a role ("Product owner", not "Alex") — except the person's own role onboarding registers by their name, which they rename later; one external party is often two nodes (its API as `ding`, its account manager as 客); a working mode (Assembler, Weaver) is a sub-role via `group` and inherits the kind; only 主 or 能 steward a holon.
 
 ## Decision 3: modes
 
