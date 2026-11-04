@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.28.1](https://github.com/verstak-ai/skills/compare/v3.28.0...v3.28.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* onboarding in the home speaks before it reads ([#306](https://github.com/verstak-ai/skills/issues/306)) ([f698433](https://github.com/verstak-ai/skills/commit/f6984335b1f78f9ee1e7528e8795e5572e5e66bd))
+
 ## [3.28.0](https://github.com/verstak-ai/skills/compare/v3.27.1...v3.28.0) (2026-11-03)
 
 
