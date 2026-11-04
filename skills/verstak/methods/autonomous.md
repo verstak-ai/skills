@@ -115,7 +115,7 @@ Mark what you're about to do, not the whole design; an act you can't state as a 
 
 Defect → fix and tests per AGENTS.md's gates; question → `methods/inquiry.md`; design → `methods/design.md`; graph repair → `methods/weaving.md`. The repository's ritual is law; merge your own PR only with AGENTS.md's sanction. A PR in review isn't mirrored as a vimarsha unless it blocks someone's anga.
 
-**Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N from <your seat>`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of nodes read and what they say against its advice. A mismatched restatement means redo; a probe against reality attests the result.
+**Delegate with a case and a launch line** (the door, `Work goes to subagents`). The brief: `verstak <graph> <role> case #N from <your seat>`, references to what you marked, "Answered when", the reality check with a negative probe, the gates, and a required report of the path read (`#A —sense→ #B`) and what it says against its advice — a report without it goes back. A mismatched restatement means redo; a probe against reality attests the result.
 
 **The subagent's seat**: the door's `Start`, step 2; the brief names the case, the caller's seat (`@handle:name`) and the role. A `reader` or `recaller` takes no seat. One seat-taking run per agent file at a time: its runs share a bridge, which the first to finish shuts. No seat came up → you write graph and case, no workaround by `connect` or another name; first move: `doctor` (`references/align-delegation.md`, "Bridge didn't come up: run `doctor` first").
 

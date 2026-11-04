@@ -64,7 +64,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | what the work changes — node modes; a big transition as a bianhua | — |
 | what the repo can't give a later agent | git refs (or a write's `reasoning`) |
 
-**Read before you speak or take on work** (**entry**); name the nodes read.
+**Read before you speak or take on work** (**entry**); **name the path you read**: each arrow your answer rests on as `#A —sense→ #B`. An answer about what is recorded, advice, a report or an acceptance without that path is unread — whoever receives it returns it, whoever gives it reads first. Arrows are the graph's text: a node says little, its links say where it stands.
 
 **A search hit is a lead, not an answer.** Open it, follow the arrow the question needs, run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
 
@@ -228,6 +228,7 @@ They apply unasked.
 |---|---|
 | about to answer, advise, retell, change the system, or say "there is none / not recorded" | orient on the subject, walk its arrows — **entry** |
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
+| a frame names a node, or you are about to edit a node from a card, a case line or a frame | `verstak_orient(focus=<node>)` first and, for a node others consume or apply, `lens="trace"` forward — before the edit, not after; a frame's own next call leads into its case, never into the neighbourhood — **entry** |
 | about to answer from what you remember (training, earlier context, a summary after compaction), or a search came back empty | climb the ladder — **entry**, `Recalling` |
 | about to ask the user something that may already be recorded ("what did we agree?", "why is it so?") | the ladder first; the user is its last rung — **entry**, `Recalling` |
 | mid-code, a choice needs its ground (why is it so, may I change it) | the code's graph reference, else the ladder from the holon — never the ground read off the code alone — **entry**, `Re-entering during work` |

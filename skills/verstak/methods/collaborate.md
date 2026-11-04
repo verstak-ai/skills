@@ -12,13 +12,7 @@ Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing s
 2. **Read the reply; don't assume it.** A `[verstak-bridge]` block with your harness's watchdog command → hearing is here, step 3. Socket but no `hello` → read the board, don't announce yourself. The bridge stood beside on `name.N`, or another holder listens on the seat → 3a. A refusal → tell the user what it said.
 3. **Speak, then start the watchdog.** On a watch, one real message first (the door, `Start`, step 6) — the only proof of the outgoing path; nothing to say → call that path unproven; don't invent traffic. Then the reply's command ("Choosing the watchdog"), and confirm `hello`: under `Monitor`, an event after the listening notice; under `watchdog-exit`, `hello` logged without a wake-up; in pi, the status saying the channel listens; in OpenCode, the plugin's toast. No sign within tens of seconds → no listener, whatever the call said. Then find your `listening` row on the board.
 
-   **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome; don't stall for the user:
-   - (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction: the bridge knows the session and returns the seat itself, with no `take` and no question. Giving up the role is no outcome. The bridge still names the holder another session → (c). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
-   - (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the other seat's frames; the role's queue you read with `verstak_orient(focus=<role>)`. Then step 3.
-   - (c) **Beside your own name** — the board shows the holder under the same role and the same account: work on your `name.N`; don't take its cases and don't wait for it. A seat on the board is no evidence its holder is alive, and you need none: the agent and its seat live one life — a dead agent's seat closes in about a minute when a machine bridge with a daemon held it, otherwise by the platform's term. A predecessor's cases come by the role, not by its name (`methods/autonomous.md`, `Debts at three moments`).
-   - (d) **Evicting a holder** (`take=true`) — of any name, your own too, only on the user's word. Ask the owner with an `ask` card in a case or to their seat (`Exchange`), never into this console when they sit on the owner role's seat.
-
-   Displaced (close 4000) → another session took the seat: don't fight in circles, stand beside (c); the name back only by (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
+   **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Never sign with a seat another holder listens on, and evict (`take=true`) only on the user's word; your own seat after a restart or compaction returns by itself; another live session's → stand beside as `name.N` and work there. The four cases, displacement (close 4000) and a bare `register`: open `references/collaborate-channel.md`, `Seat occupied`, before the second call.
 
 ## Without the bridge
 
@@ -30,13 +24,7 @@ Entry and a missing satellite: the door, `Start`, step 2; launch: `methods/auton
 
 ## Choosing the watchdog — by harness
 
-Bridge path and standing key: from the reply's `[verstak-bridge]` block, never from memory.
-
-- **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. After 15 minutes without a watchdog the bridge leaves the seat (Codex too).
-- **pi, OpenCode** — none needed: frames are inserted into the running turn (OpenCode: once the current tool call returns).
-- **Codex** — `node "<bridge path>" watchdog-codex <key>` as a long-lived process. Exit 2 = no app-server daemon (the user's move before the session): tell them; meanwhile `watchdog-exit`.
-- **Background tasks survive the turn** — `watchdog-exit <key>` as a harness background task (not `&` in a synchronous call): its exit 0 on the first work frame is the wake-up. Re-arm first, then work on the frame.
-- **Background tasks die at the turn boundary** — "listening" holds only for this turn: tell neighbours and the user.
+Bridge path and standing key: from the reply's `[verstak-bridge]` block, never from memory. **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. pi and OpenCode need none. Where background tasks die at the turn boundary, "listening" holds only this turn: tell neighbours and the user. Codex, background-task harnesses and what each exit means: `references/collaborate-channel.md`, `Watchdog by harness — details`.
 
 **Re-arming:** is the watchdog alive, what does your row say (a live listener → no second); the reply's command; `hello`.
 
