@@ -18,6 +18,8 @@ const PULL = new RegExp(
     String.raw`(?:${ARG}(?:&&|;|\n))+ *${ENV}git(?: -C \S+)* pull(?=[ ;&|)\n]|$)`,
 );
 const REFUSED = /^(?:fatal:|error:| ! \[(?:remote )?rejected\])/m;
+/** git's report of a push that updated a ref. */
+const PUSH_REPORT = /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/;
 const HELD = /^(?:[Ee]rror:|fatal:|GraphQL:|X )|not mergeable|merge failed/m;
 const TAGS_OUT = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new tag\])))/;
 const QUIET = new RegExp(
@@ -100,16 +102,20 @@ function quietLanded(c: ShellCall, cwd: string | null): boolean {
   );
 }
 
-/** A known non-zero exit of the push that ends the chain or stands before && — it was refused (#6919). */
+/**
+ * A known non-zero exit of the push that ends the chain, with no report of a landed ref — it was
+ * refused (#6919). Before && the exit is the last command's: a push that landed and printed its
+ * report, then a failed `gh pr create`, is no refusal (case №2774 [19]).
+ */
 function exitRefused(c: ShellCall): boolean {
-  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*(?:&&|$)`);
-  return c.exit != null && c.exit !== 0 && last.test(c.command);
+  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*$`);
+  return c.exit != null && c.exit !== 0 && last.test(c.command) && !PUSH_REPORT.test(c.output);
 }
 
 /** Whether the call pushed a branch; cwd — the session's directory for a quiet push. */
 export function pushed(c: ShellCall, cwd: string | null): boolean {
   if (REFUSED.test(c.output) || tagsOnly(c) || exitRefused(c)) return false;
-  if (ran(c, PUSH, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/)) return true;
+  if (ran(c, PUSH, "-h|--help", PUSH_REPORT)) return true;
   return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(c, cwd);
 }
 

@@ -140,3 +140,13 @@ test("claude code: a quiet push — to the trunk by refspec the merge word, refu
   for (const cmd of ["git push -q", "git push -q 2>&1 | tail -1"])
     assert.equal(bash(onTrunk(), cmd, ""), null, cmd);
 });
+
+// Core v7.31.1 (graph @nks/nks-dev, node #6919): the push landed and printed its report, then
+// `gh pr create` failed — the exit is the last command's, not the push's; the printed report wins.
+test("claude code: a push before a failing && command still says the push word", () => {
+  assert.equal(
+    bash(repo(), "git push -u origin feat/x && gh pr create --fill", PUSHED, 1)?.additionalContext,
+    RITES.en.push(),
+  );
+  assert.equal(bash(onTrunk(), "git push -q origin feat/x && gh pr create --fill", "", 1), null);
+});

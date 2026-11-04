@@ -101,7 +101,7 @@ Socket and busy line are the *receiving* half. `accepted` proves only that the q
 ## Reaching an unbound owner
 
 The owner is unreachable, or a cross-graph message to them was refused → before any route into another graph, check the binding of their 主 role in yours. The one sign: `verstak_look` on the role shows the person it is bound to only if it is bound (a `send` reply about an empty role is no sign — bound roles get it too).
-- Not bound → ask the session's user once whether the role is theirs and should be bound; on their confirmation, `verstak_update(realm=<graph>, node_id=<role>, user="me", basis_version=<read version>)`. A handle, name or identity-looking attribute does not establish the binding or authorize its repair.
+- Not bound → ask the session's user once whether the role is theirs and should be bound; on their confirmation, `verstak_update(realm=<graph>, node_id=<role>, user="me", basis_version=<read version>)`. A handle, name or identity-looking attribute does not establish the binding or authorize its repair — except an unbound role named as the person during onboarding (`methods/onboarding.md`).
 - The identity read failed, or the person has not confirmed → don't bind. No user in the session → a message to whoever launched you, or a question in the alignment case. An existing binding to a different user is not overwritten as repair.
 - Bound → repeat the message in your own graph.
 
