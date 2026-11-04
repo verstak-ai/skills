@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.28.2](https://github.com/verstak-ai/skills/compare/v3.28.1...v3.28.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* onboarding in the home opens and closes with fixed texts ([#308](https://github.com/verstak-ai/skills/issues/308)) ([7b1cfaa](https://github.com/verstak-ai/skills/commit/7b1cfaa313b530fe8ebf68533d6c5a812450d138))
+
 ## [3.28.1](https://github.com/verstak-ai/skills/compare/v3.28.0...v3.28.1) (2026-11-04)
 
 
