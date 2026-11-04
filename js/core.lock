@@ -1,5 +1,5 @@
 # The bridge core, copied from the sibling delivery; refresh with scripts/sync-core.sh.
-commit 31b3259015b60282e123706c76523db862925933
+commit 02913b7184ba7793cc12384d34bc97e23717f87a
 9c70655ed5b269b30c9870bd366c0e04cd256a0476563152c0883a2bba956878  js/bridge/absorb.ts
 2f41dd76cf2d9fc6adc3f30a2c7d75e978dcfd88a1162c655c6e1fcf17fd8047  js/bridge/addressmark.ts
 dd0e2613acdbc8c17db4343a0638510eb59fb9e0b8ff017f5e5004ff08b2b1b3  js/bridge/askdisk.ts
@@ -268,7 +268,7 @@ ede9b841e71a0ce4a5e87ff3a22542d29b34cd319e30976a2ac587d6e1d03169  js/shared/puls
 295824d107756e79436031766112fc78d7d9daa111d190e1c18c07a3f84ab154  js/shared/regex.ts
 7a832413770313a5ba919b24d7eb6c253bca41258710ec6c2552307f5e60000d  js/shared/reposigns.ts
 977c75304f7a10fe5936e6b59974c3b0cf4c74762a6e4706f78e8037de86b64a  js/shared/ritualcover.ts
-6f4e54f53fb10efcc23e1431b890e38fb732bab769ace34fae9c02b847e31557  js/shared/ritualjudge.ts
+397497d7f96c5ddba0ae6db906798cafca1cc759b2b2b1d70b6ec0a3f3f59b73  js/shared/ritualjudge.ts
 a1cdd74a33f7bc82b69e9fb7daaaba9a6221bb47ab6935a4f322f79462ea3625  js/shared/room-fields.ts
 a727b64f442a16666d9b0e814581b5d2213e0725fea7a94f0f320c80dffc211b  js/shared/room-kinds.ts
 9b2fa0f65a5b97180dad7114b83f2ada239d8484020fd236a50a58b5942308ab  js/shared/satname.ts
