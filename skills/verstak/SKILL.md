@@ -64,7 +64,7 @@ Start ends in **readiness**: graph and role named; a seat taken with one call, o
 | what the work changes — node modes; a big transition as a bianhua | — |
 | what the repo can't give a later agent | git refs (or a write's `reasoning`) |
 
-**Read before you speak or take on work** (**entry**); **name the path you read**: each arrow your answer rests on as `#A —sense→ #B`. An answer about what is recorded, advice, a report or an acceptance without that path is unread — whoever receives it returns it, whoever gives it reads first. Arrows are the graph's text: a node says little, its links say where it stands.
+**Read before you speak or take on work** (**entry**); **name the path you read**: each arrow your answer rests on as `#A —sense→ #B`. An answer about what is recorded, advice, a report or an acceptance without that path is unread — whoever receives it returns it, whoever gives it reads first. Arrows are the graph's text: a node says little, its links say where it stands. A greeting or a receipt needs no path; a claim put up for acceptance without a real one goes back. A folded fan (`… N more`) is not read — unfold it before leaning on it.
 
 **A search hit is a lead, not an answer.** Open it, follow the arrow the question needs, run the lens there; "closed?", "what if it never arrives?" → `tensions` on that holon. "Clean" is only as wide as its focus. Search silent → semantic search, then a lens.
 

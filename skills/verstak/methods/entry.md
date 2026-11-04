@@ -108,7 +108,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 1. **Search both ways.** `verstak_search(realm=<graph>, q=<term>)` catches only the author's words; `verstak_semantic_search(realm=<graph>, q=<one thought as a phrase>)` catches the concept named differently — on conceptual questions it goes first. One query, one concept.
 2. **Results are hooks, not reading.** Open a candidate with `verstak_look(realm=<graph>, node_id=<seq>)`, then go from card to evidence along the arrows (`Lenses`); joints → `integrity`. A conclusion from result names alone is a guess. Evidence is nodes, not version history or a case log: those only by an audit on a doubt (`Re-entering during work`).
-3. **Answer by synthesis**, not by retelling one node: cite the nodes by number, name the graph and anything you changed. Not enough recorded → say so ("#N covers X, not this") and offer a doubt or working it through in chat.
+3. **Answer by synthesis**, not by retelling one node: cite the nodes by number with the path between them (`#A —sense→ #B`, the door, `Cross-cutting norms`), name the graph and anything you changed. Not enough recorded → say so ("#N covers X, not this") and offer a doubt or working it through in chat.
 
 **No hit** → name the instruments you used; never "there is none".
 
