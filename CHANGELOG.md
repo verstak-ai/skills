@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.28.3](https://github.com/verstak-ai/skills/compare/v3.28.2...v3.28.3) (2026-11-04)
+
+
+### Bug Fixes
+
+* onboarding binds a pre-made role only by the person's name ([#310](https://github.com/verstak-ai/skills/issues/310)) ([44faa60](https://github.com/verstak-ai/skills/commit/44faa60a83422c7148eedbe021b343f170210cba))
+
 ## [3.28.2](https://github.com/verstak-ai/skills/compare/v3.28.1...v3.28.2) (2026-11-04)
 
 
