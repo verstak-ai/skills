@@ -107,7 +107,19 @@ The owner is unreachable, or a cross-graph message to them was refused → befor
 
 A person is addressable when all three hold: their 主 role is bound to them, the graph is within their bot's binding-token scope, the bot has a live seat on the role. Still landing in an empty role → look for the seat on the board. No seat → the user rebuilds the bot connection. Still nothing → tell the user the graph is probably outside the token's scope; rebinding is their move, naming the cause is yours; record the instance as a `posed_to` vimarsha to the bot's steward on the bot's node. No workarounds — no cross-graph message, no one else's seat. Binding is not standing: an agent doesn't stand on a 主 role (`methods/collaborate.md`, step 1).
 
+## Seat occupied
+
+**3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Same name is not same actor. Never sign with a seat another holder listens on — register-only is never the outcome; don't stall for the user:
+- (a) **Your own seat by its earlier name** — held by this same harness session, including its previous bridge instance after a restart or compaction: the bridge knows the session and returns the seat itself, with no `take` and no question. Giving up the role is no outcome. The bridge still names the holder another session → (c). After a long unload: `verstak_case(action="mine")`; empty → `join` your cases again.
+- (b) **Another live session holds it** → stand beside: `verstak_stand` without `name` gives you `name.N` with hearing. That is your own seat, not a takeover; it doesn't hear the other seat's frames; the role's queue you read with `verstak_orient(focus=<role>)`. Then step 3.
+- (c) **Beside your own name** — the board shows the holder under the same role and the same account: work on your `name.N`; don't take its cases and don't wait for it. A seat on the board is no evidence its holder is alive, and you need none: the agent and its seat live one life — a dead agent's seat closes in about a minute when a machine bridge with a daemon held it, otherwise by the platform's term. A predecessor's cases come by the role, not by its name (`methods/autonomous.md`, `Debts at three moments`).
+- (d) **Evicting a holder** (`take=true`) — of any name, your own too, only on the user's word. Ask the owner with an `ask` card in a case or to their seat (`Exchange`), never into this console when they sit on the owner role's seat.
+
+Displaced (close 4000) → another session took the seat: don't fight in circles, stand beside (c); the name back only by (d). On the bare `register` path with your seat live, no second watchdog: two on one socket both go deaf.
+
 ## Watchdog by harness — details
+
+- **pi, OpenCode** — none needed: frames are inserted into the running turn (OpenCode: once the current tool call returns).
 
 **Claude Code.** Message frames print speaker, provenance, envelope, body. The key may be omitted when the bridge holds one seat.
 

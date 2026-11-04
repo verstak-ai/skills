@@ -107,13 +107,13 @@ Every call carries `realm`; take each fork by the response. Where direction shou
 
 6. **Per question** → `Answering a question from what is recorded`, below.
 
-Then say in one line where you stand: graph, holon, transformations, seed, role. Next method: `verstak`'s `Agent moments`. In an aligned repository: this entry, integration scope (`integrity`), `design`, then the edit. Before writing, the seat you sign with: `verstak`, `Start`, step 2.
+Then say in one line where you stand: graph, holon, transformations, seed, role. Next method: `verstak`'s `Agent moments`. In an aligned repository: this entry, integration scope (`integrity`), `design`, then the edit. Before writing, the seat you sign with: `door-start`, `A seat for a watch or a write`.
 
 ## Answering a question from what is recorded
 
 1. **Search both ways.** `verstak_search(realm=<graph>, q=<term>)` catches only the author's words; `verstak_semantic_search(realm=<graph>, q=<one thought as a phrase>)` catches the concept named differently — on conceptual questions it goes first. One query, one concept.
-2. **Results are hooks, not reading.** Open a candidate with `verstak_look(realm=<graph>, node_id=<seq>)`, then go from card to evidence along the arrows (`Lenses`); joints → `integrity`. A conclusion from result names alone is a guess. Evidence is nodes, not version history or a case log: those only by an audit on a doubt (`Re-entering during work`).
-3. **Answer by synthesis**, not by retelling one node: cite the nodes by number, name the graph and anything you changed. Not enough recorded → say so ("#N covers X, not this") and offer a doubt or working it through in chat.
+2. **Results are hooks, not reading** — a hit is an address, not a neighbourhood. First `verstak_orient(realm=<graph>, focus=<candidate>)`, then `verstak_look(realm=<graph>, node_id=<seq>)` and from card to evidence along the arrows; output with relations is never cut, an incomplete fan is read to the end by a structural lens (`Lenses`); joints → `integrity`. A conclusion from result names alone is a guess. Evidence is nodes, not version history or a case log: those only by an audit on a doubt (`Re-entering during work`).
+3. **Answer by synthesis**, not by retelling one node: cite the nodes by number with the path between them where the answer rests on more than one (`#A —sense→ #B`, `verstak`, `How you got there`; an answer complete on one card names that card), name the graph and anything you changed. Not enough recorded → say so ("#N covers X, not this") and offer a doubt or working it through in chat.
 
 **No hit** → name the instruments you used; never "there is none".
 
@@ -121,7 +121,7 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 The knowledge you need is not in your context. Your own memory — training, earlier context, a summary after compaction, a subagent's retelling — is a reason to look, never the answer about what is recorded: answer from reading, naming what you read and its modes; what a record says about the world is its author's testimony, with that author's reach. Climb; each rung costs more than the last:
 1. **Search by the task's meaning**, several passes (above).
-2. **Walk the links** from what you found (`From a card to evidence`).
+2. **Walk the links** from what you found — its neighbourhood first, `verstak_orient(focus=<hit>)`, then the arrow the question needs (`From a card to evidence`).
 3. **Orient on where it should lie** — the holon the subject belongs to (`verstak_orient(focus=<holon>)`).
 4. **Ask that holon's steward to recall** (**collaborate**, `Exchange`, "Asking to recall").
 5. **Ask the user**, naming the search behind the question (**collaborate**, `Asking the user`).

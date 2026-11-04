@@ -17,6 +17,7 @@ const FILES = {
   minding: "skills/verstak/methods/minding.md",
   reference: "skills/verstak/references/minding-personal-realm.md",
   door: "skills/verstak/SKILL.md",
+  start: "skills/verstak/references/door-start.md",
   phrasebook: "skills/verstak/references/door-phrasebook.md",
   align: "skills/verstak/methods/align.md",
   home: "home/minding/SKILL.md",
@@ -95,6 +96,14 @@ const PRESENT = {
     "An aligned repo doesn't switch mind off",
     // a purely project request runs without mind beyond the start slice
     "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
+    // the door hands the start slice to its reference, opened whole before readiness
+    "Now open `references/door-start.md` whole and run it: the personal slice",
+    "search their mind before asking them",
+    "or their own way of working, development included → **minding**",
+    "this repo's rule, from its rule-holder) → `AGENTS.md`",
+    "a standing preference (a fork by whom it binds: this repo's rule or the user's own)",
+  ],
+  start: [
     // the start slice: a root session only, one read, below the project's rules
     "**The personal slice — only a root session talking to the user**",
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
@@ -106,10 +115,6 @@ const PRESENT = {
     "its `state` exactly `present` → one read",
     "`unknown` means the session's credential can't reach your own",
     "below this project's rules",
-    "search their mind before asking them",
-    "or their own way of working, development included → **minding**",
-    "this repo's rule, from its rule-holder) → `AGENTS.md`",
-    "a standing preference (a fork by whom it binds: this repo's rule or the user's own)",
   ],
   phrasebook: [
     "**A standing preference — one sign, whom it binds:**",
