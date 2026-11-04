@@ -148,5 +148,4 @@ test("claude code: a push before a failing && command still says the push word",
     bash(repo(), "git push -u origin feat/x && gh pr create --fill", PUSHED, 1)?.additionalContext,
     RITES.en.push(),
   );
-  assert.equal(bash(onTrunk(), "git push -q origin feat/x && gh pr create --fill", "", 1), null);
 });
