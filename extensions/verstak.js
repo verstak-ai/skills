@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.28.4";
+var VERSION = "3.29.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
