@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.29.0](https://github.com/verstak-ai/skills/compare/v3.28.4...v3.29.0) (2026-11-04)
+
+
+### Features
+
+* relations before text — the read path named in every answer and acceptance ([#314](https://github.com/verstak-ai/skills/issues/314)) ([ba60ae6](https://github.com/verstak-ai/skills/commit/ba60ae678d0d21468039f0a9aec68e7204b6fed9))
+
 ## [3.28.4](https://github.com/verstak-ai/skills/compare/v3.28.3...v3.28.4) (2026-11-04)
 
 
