@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.30.0](https://github.com/verstak-ai/skills/compare/v3.29.0...v3.30.0) (2026-11-04)
+
+
+### Features
+
+* help — help on the spot when the person asks how, or says it doesn't work ([#318](https://github.com/verstak-ai/skills/issues/318)) ([468b980](https://github.com/verstak-ai/skills/commit/468b980de42c3bda9021d74df2fc28f416fda2b6))
+
 ## [3.29.0](https://github.com/verstak-ai/skills/compare/v3.28.4...v3.29.0) (2026-11-04)
 
 
