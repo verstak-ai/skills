@@ -1,13 +1,13 @@
 ---
 name: help
-description: "The person asks how to do something with Verstak, or says it doesn't work: help on the spot — one step in plain words, done with them where the tools allow, and one sentence on how to do it alone next time; a failure acknowledged, named from what the surface shows, worked around. Answers come from readiness, the tools' own descriptions and this delivery's texts, never from memory; no complaint is recorded. Triggers: 'how do I … in Verstak', 'where do I …', 'how to invite / connect / share', 'why doesn't it work', 'nothing works'."
+description: "The person asks how to do something with Verstak, or says it doesn't work: help on the spot — one step in plain words, done with them where the tools allow, and one sentence on how to do it alone next time; a failure acknowledged, named from what the surface shows, worked around. Answers come from readiness, the tools' own descriptions and this delivery's texts, never from memory; no complaint is recorded. Triggers: 'how do I … in Verstak', 'where do I …', 'how to invite / connect / share', 'why doesn't it work', 'nothing works'. Needs the verstak_* tools."
 ---
 
 # help — the person asks how, or says it doesn't work
 
 **Use when:** the person asks how to do something with Verstak — "how do I invite someone to my graph?", "where do I connect a repository?", "how do I share this?", "can it do X?" — or says it doesn't work: "why doesn't it …", "nothing works", "this is broken", a curse at the product. Their signal is an invitation to help on the spot and to teach: do the step with them and show how it's done, so next time they can do it alone. Not for: "I don't know where to start" while a lasting readiness sign is missing (**onboarding**); your own trouble with a method or a tool (**feedback**); a question about their recorded work (**entry**).
 
-**Not in this release:** recording the person's complaint anywhere. Help, don't file.
+**Help records no complaint** — help, don't file. Your own experience of a method or a tool while helping still goes to **feedback**.
 
 ## Read the signal
 
@@ -20,7 +20,7 @@ One question decides the move: **do they want to get something done, or did some
 
 Never from memory of how products like this usually work. The sources, in this order:
 
-1. **The surface itself.** `verstak_me(action="readiness")` prints each sign with its state, its next step and the links to where it is done; a tool's own description and its `action="?"` say what it does; a refusal names its reason.
+1. **The surface itself.** `verstak_me(action="readiness")` prints each sign with its state, its next step and the nudges of what else can be done; a tool's own description and its `action="?"` say which moves it makes (inviting a person, sharing a graph, creating one) — that move is often the "where"; a refusal names its reason.
 2. **This delivery's texts** — onboarding's word about capabilities and billing (**onboarding**, step 6), connecting the tools (**establish-mcp**), personal memory (**minding**), sharing work with another agent (**collaborate**).
 3. **Their own data** — what exists in their graphs, read by **entry**.
 
@@ -28,7 +28,7 @@ Not found in any of them → say so plainly ("I don't know how Verstak does that
 
 ## How to
 
-1. **One step, in plain words.** What to do, in a sentence, and where — the link from readiness, or the exact place it names. One step, not the tour; the next one after they've done it.
+1. **One step, in plain words.** What to do, in a sentence, and where — readiness's next step, the tool move that does it, or the exact place a source names. One step, not the tour; the next one after they've done it.
 2. **Do it with them where you can.** A step you can take with the tools on their word (creating a graph, binding their role, inviting by email) — take it, then say what now exists.
 3. **Teach the way.** One sentence on how they'd do it themselves next time: where it lives and what to look for.
 
@@ -41,4 +41,4 @@ Not found in any of them → say so plainly ("I don't know how Verstak does that
 
 ## Words
 
-Plain English, short sentences, one question at most per message. Never the method's vocabulary (`svatantra`, `adhikarin` and their glyphs, holon, kriya, steward, seat, case lines), tool names or raw tool output — what they see is the product, not its kitchen. English only, whatever language they write in.
+Plain English, short sentences, one question at most per message. Never the method's vocabulary (`svatantra`, `adhikarin` and their glyphs, holon, kriya, steward, seat, case lines), tool names or raw tool output — what they see is the product, not its kitchen. English only (`verstak`, `Communication`).

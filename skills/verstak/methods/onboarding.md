@@ -44,7 +44,7 @@ If readiness cannot establish a repository or agent role from an adequate source
 ## Choose the next step
 
 1. Read the table from the top; the first missing sign is the candidate. In the harness branch the order below wins.
-2. **Offer one step**, in English — verstak speaks English only, whatever language the person writes in: what you will do, what it leaves behind, what it is for, and the condition that matters (who will own it, whether it can be renamed). One step, not the tour.
+2. **Offer one step**, in English (the door, `Communication`): what you will do, what it leaves behind, what it is for, and the condition that matters (who will own it, whether it can be renamed). One step, not the tour.
 3. The person goes on, refines or defers. A refinement changes the step, not the order; a deferral ("skip") leads on to the next missing sign (`Deferral and redo`).
 
 **Steps are offers, not conditions.** While onboarding is unfinished, everything the person can do in their position stays open: reading and searching the graph, talking to the assistant, writing where they have the right. A missing step — their role, the first holon, a repository, the bot, a harness — is offered as a hint, a line, a word, never made a condition of showing, input or conversation; only what is impossible by nature without it waits: a write without the right to write, a seat without a role.

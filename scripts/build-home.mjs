@@ -149,7 +149,7 @@ const SKILLS = {
   },
   help: {
     description:
-      "The person asks how to do something with Verstak, or says it doesn't work: help on the spot — one step in plain words, done with them where the tools allow, and one sentence on how to do it alone next time; a failure acknowledged, named from what the surface shows, worked around. Answers come from readiness, the tools' own descriptions and this delivery's texts, never from memory; no complaint is recorded. Triggers: 'how do I … in Verstak', 'where do I …', 'how to invite / connect / share', 'why doesn\'t it work', 'nothing works'.",
+      "The person asks how to do something with Verstak, or says it doesn't work: help on the spot — one step in plain words, done with them where the tools allow, and one sentence on how to do it alone next time; a failure acknowledged, named from what the surface shows, worked around. Answers come from readiness, the tools' own descriptions and this delivery's texts, never from memory; no complaint is recorded. Triggers: 'how do I … in Verstak', 'where do I …', 'how to invite / connect / share', 'why doesn\'t it work', 'nothing works'. Needs the verstak_* tools.",
   },
   forgetting: {
     description:
