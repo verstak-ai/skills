@@ -184,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.28.3";
+var VERSION = "3.28.4";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -6323,6 +6323,7 @@ var PULL = new RegExp(
   at(String.raw`${ENV}git(?: -C \S+)* (?:checkout|switch)`, "-h|--help") + String.raw` (?:main|master)(?=[ ;&|)\n]|$)` + String.raw`(?:${ARG}(?:&&|;|\n))+ *${ENV}git(?: -C \S+)* pull(?=[ ;&|)\n]|$)`
 );
 var REFUSED = /^(?:fatal:|error:| ! \[(?:remote )?rejected\])/m;
+var PUSH_REPORT = /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/;
 var HELD = /^(?:[Ee]rror:|fatal:|GraphQL:|X )|not mergeable|merge failed/m;
 var TAGS_OUT = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new tag\])))/;
 var QUIET = new RegExp(
@@ -6376,12 +6377,12 @@ function quietLanded(c, cwd) {
   return head2 !== "" && head2 === git(cwd, "rev-parse", "@{push}") && (!trunk || namesTrunk(pushRuns(c)));
 }
 function exitRefused(c) {
-  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*(?:&&|$)`);
-  return c.exit != null && c.exit !== 0 && last.test(c.command);
+  const last = new RegExp(at(PUSH, "-h|--help") + ARG + String.raw`\s*$`);
+  return c.exit != null && c.exit !== 0 && last.test(c.command) && !PUSH_REPORT.test(c.output);
 }
 function pushed(c, cwd) {
   if (REFUSED.test(c.output) || tagsOnly(c) || exitRefused(c)) return false;
-  if (ran(c, PUSH, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/)) return true;
+  if (ran(c, PUSH, "-h|--help", PUSH_REPORT)) return true;
   return QUIET.test(c.command) && !c.command.includes("<<") && quietLanded(c, cwd);
 }
 function pushedTo(c, cwd) {
