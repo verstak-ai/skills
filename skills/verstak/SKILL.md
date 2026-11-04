@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, forget this, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 11 — run /verstak align unprompted if a repo's cover has no contract or one below 11; a repo with no sign of alignment — only offer onboarding."
+description: "Load this skill first in every session, before any action or verstak_* call. The whole Verstak method: session start, then routes into methods/*.md. Return to it before answering about what is recorded, after a search hit (open the node, walk its arrows), and before saying the graph has nothing. Use for: orient, what's recorded, why did we decide, write it down, design this, weave, what's open, who is affected, does it really work, ship this code, tidy after merge, forget this, big picture, roadmap, ingest these issues, connect the graph, I can't be heard, ask the other agent, open or lead a case, what's on my plate, delegate to agents, stand watch, align the repo, onboarding, where to start, how do I…, it doesn't work, remember about me, update the bridge (DELIVERY BEHIND), a skill or tool let me down. AGENTS.md CONTRACT: 11 — run /verstak align unprompted if a repo's cover has no contract or one below 11; a repo with no sign of alignment — only offer onboarding."
 slash: true
 ---
 
@@ -140,6 +140,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "make a roadmap", "what next here" → **product-roadmap**
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
+- "how do I … in Verstak", "where do I …", "why doesn't it work", "nothing works", a curse at the product → **help**: on the spot, one step together, and how to do it alone
 
 **Make sure**
 - "does it really work" → **reality-audit**
@@ -169,6 +170,8 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **writing** ↔ **design** | nothing to argue vs. an open choice |
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
+| **help** ↔ **feedback** | the person can't do something with the product vs. your own experience of a method or a tool |
+| **help** ↔ **onboarding** | a named goal or failure vs. no working graph or role yet and "where do I start" |
 | **lead** ↔ **architect** | the case you lead — order, acceptance, closing — vs. the system's form across holons; leading gives no role's rights |
 | **autonomous** ↔ **foreman** | its own work to merge vs. carrying the human's word to the units, deciding within its mandate and keeping its own part of the graph |
 | **onboarding** ↔ **align** | the person has no working graph or role yet, or the repository bears no sign of alignment, vs. the repo's contract on a graph that exists |

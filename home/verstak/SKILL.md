@@ -141,6 +141,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "make a roadmap", "what next here" → product-roadmap, a plugin-only method this catalogue does not carry
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
+- "how do I … in Verstak", "where do I …", "why doesn't it work", "nothing works", a curse at the product → **help**: on the spot, one step together, and how to do it alone
 
 **Make sure**
 - "does it really work" → **reality-audit**
@@ -170,6 +171,8 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 | **writing** ↔ **design** | nothing to argue vs. an open choice |
 | **assistant** ↔ **intake** | the user's words go in verbatim; external text is checked first |
 | **intake** ↔ **feedback** | text about the work's subject vs. experience of the tools |
+| **help** ↔ **feedback** | the person can't do something with the product vs. your own experience of a method or a tool |
+| **help** ↔ **onboarding** | a named goal or failure vs. no working graph or role yet and "where do I start" |
 | **lead** ↔ **architect** | the case you lead — order, acceptance, closing — vs. the system's form across holons; leading gives no role's rights |
 | **autonomous** ↔ **foreman** | its own work to merge vs. carrying the human's word to the units, deciding within its mandate and keeping its own part of the graph |
 | **onboarding** ↔ **align** | the person has no working graph or role yet, or the repository bears no sign of alignment, vs. the repo's contract on a graph that exists |
