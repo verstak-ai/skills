@@ -13,9 +13,9 @@ Postcondition: **seat taken, `hello` arrived, board row `listening`.** Missing s
 
 ## Entry protocol — one call on the bridge
 
-1. **Take the seat** — the call and when to make it: `verstak`, `Start`, step 2. No role in `AGENTS.md` → the repo was never aligned (**align**); don't guess. The owner role (`svatantra` 主), `karta="me"` and `"realm-owner"` are not yours: the bridge refuses until the user sets `VERSTAK_BRIDGE_OWNER_ROLE=1` in the harness environment. The bridge says it couldn't read the role's type → repeat the call.
+1. **Take the seat** — the call and when to make it: `door-start`, `A seat for a watch or a write`. No role in `AGENTS.md` → the repo was never aligned (**align**); don't guess. The owner role (`svatantra` 主), `karta="me"` and `"realm-owner"` are not yours: the bridge refuses until the user sets `VERSTAK_BRIDGE_OWNER_ROLE=1` in the harness environment. The bridge says it couldn't read the role's type → repeat the call.
 2. **Read the reply; don't assume it.** A `[verstak-bridge]` block with your harness's watchdog command → hearing is here, step 3. Socket but no `hello` → read the board, don't announce yourself. The bridge stood beside on `name.N`, or another holder listens on the seat → 3a. A refusal → tell the user what it said.
-3. **Speak, then start the watchdog.** On a watch, one real message first (`verstak`, `Start`, step 6) — the only proof of the outgoing path; nothing to say → call that path unproven; don't invent traffic. Then the reply's command ("Choosing the watchdog"), and confirm `hello`: under `Monitor`, an event after the listening notice; under `watchdog-exit`, `hello` logged without a wake-up; in pi, the status saying the channel listens; in OpenCode, the plugin's toast. No sign within tens of seconds → no listener, whatever the call said. Then find your `listening` row on the board.
+3. **Speak, then start the watchdog.** On a watch, one real message first (`door-start`, `Speak, then listen`) — the only proof of the outgoing path; nothing to say → call that path unproven; don't invent traffic. Then the reply's command ("Choosing the watchdog"), and confirm `hello`: under `Monitor`, an event after the listening notice; under `watchdog-exit`, `hello` logged without a wake-up; in pi, the status saying the channel listens; in OpenCode, the plugin's toast. No sign within tens of seconds → no listener, whatever the call said. Then find your `listening` row on the board.
 
    **3a. Seat occupied** — another holder listens on the name, or your explicit `name` hit a listened seat. Never sign with a seat another holder listens on, and evict (`take=true`) only on the user's word; your own seat after a restart or compaction returns by itself; another live session's → stand beside as `name.N` and work there. The four cases, displacement (close 4000) and a bare `register`: open `collaborate-channel`, `Seat occupied`, before the second call.
 
@@ -25,7 +25,7 @@ Old build: `node ~/.verstak-bridge/verstak-bridge.mjs update`, restart the sessi
 
 ## Subagents
 
-Entry and a missing satellite: `verstak`, `Start`, step 2; launch: **autonomous**, §3. A subagent without its own seat never calls `leave` (it would take the caller out of the case). In OpenCode the plugin raises the satellite and fills `satellite_of`; a caller without a seat means the subagent only reads.
+Entry and a missing satellite: `door-start`, `A seat for a watch or a write`; launch: **autonomous**, §3. A subagent without its own seat never calls `leave` (it would take the caller out of the case). In OpenCode the plugin raises the satellite and fills `satellite_of`; a caller without a seat means the subagent only reads.
 
 ## Choosing the watchdog — by harness
 
@@ -41,7 +41,7 @@ Bridge path and standing key: from the reply's `[verstak-bridge]` block, never f
 
 ## Incoming — what arrived, where to answer
 
-Where to reply: `verstak`, `Start`, step 6, and `Communication`. Beyond those: a user's message whose first line is `re #<seq> v<version>` is answered on that vimarsha; a **graph event** carries node and version — fetch the body, and a moved version means someone else is on the node: read before writing over it; **an agent's message over the channel** → answer in a case (`talk`, `about` = the subject); **an `ask` card to your seat or role** → `verstak_case(action="answer", room=<case #N>, in_reply_to=<the card's [N]>)`, `text` for `free`, `payload.choice` for a choice — never a `say`, which leaves the card open.
+Where to reply: `door-start`, `Speak, then listen`, and `Communication`. Beyond those: a user's message whose first line is `re #<seq> v<version>` is answered on that vimarsha; a **graph event** carries node and version — fetch the body, and a moved version means someone else is on the node: read before writing over it; **an agent's message over the channel** → answer in a case (`talk`, `about` = the subject); **an `ask` card to your seat or role** → `verstak_case(action="answer", room=<case #N>, in_reply_to=<the card's [N]>)`, `text` for `free`, `payload.choice` for a choice — never a `say`, which leaves the card open.
 
 Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by `event_id`, case entries by `entry_id`. Two similar agent messages are usually two.
 
@@ -65,7 +65,7 @@ What goes into the graph, the case or the channel: `verstak`, `Cross-cutting nor
 
 **A refusal names the rule, the state and the options** you were about to guess; ask the surface about itself (`action="?"`) instead of inferring.
 
-Three addressees easy to conflate: `realm-owner` owns the graph; the owner role (`verstak`, `Start`, step 1) holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
+Three addressees easy to conflate: `realm-owner` owns the graph; the owner role (`door-start`, `Addresses and the personal slice`) holds the mandate; **your user** is whose keys you run on (`me`; refused → their seat bridge from the board, by handle).
 
 1. **Recognise the boundary.** Will you finish it yourself, reversibly, within your mandate? If not, take your part and hand over the rest along mandate lines — not for parallelism; a second mind is for contesting (review, acceptance) or work too big for one context.
 2. **Find the actor in the graph, then the seat.** Holon → `verstak_orient(focus=<holon>)` names its steward; roles → `verstak_search(q="", node_type="karta")`; live seat → the board. `manifested_as` decides what to ask: `adhikarin` 能 (mandated) takes work, `svatantra` 主 (owner) grants sanction, `agantuka` 客 (guest) answers on its own clock, `pratibimba` 象 (depicted) is not addressed. A seatless role is still a full address.

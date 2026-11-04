@@ -107,7 +107,7 @@ Every call carries `realm`; take each fork by the response. Where direction shou
 
 6. **Per question** → `Answering a question from what is recorded`, below.
 
-Then say in one line where you stand: graph, holon, transformations, seed, role. Next method: `verstak`'s `Agent moments`. In an aligned repository: this entry, integration scope (`integrity`), `design`, then the edit. Before writing, the seat you sign with: `verstak`, `Start`, step 2.
+Then say in one line where you stand: graph, holon, transformations, seed, role. Next method: `verstak`'s `Agent moments`. In an aligned repository: this entry, integration scope (`integrity`), `design`, then the edit. Before writing, the seat you sign with: `door-start`, `A seat for a watch or a write`.
 
 ## Answering a question from what is recorded
 

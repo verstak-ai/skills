@@ -209,6 +209,11 @@ const SKILLS = {
     description:
       "Reference for the collaborate skill: the channel's mechanics — seats, sockets, frames, watchdogs, per-harness listening, reaching an unbound owner, the failure table. Load when the channel broke or a skill points here; not a task of its own.",
   },
+  "door-start": {
+    source: "references",
+    description:
+      "Reference for the verstak skill: the mechanics of Start — addresses and the personal slice, the primer, the seat for a watch or a write, alignment, the greeting and hearing. Load when the door's Start points here; not a task of its own.",
+  },
   "door-menu": {
     source: "references",
     description:

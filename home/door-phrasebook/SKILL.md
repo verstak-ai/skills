@@ -99,7 +99,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ### collaborate, `Exchange` — "ask the other one"
 
 **Gets:** the question at the right addressee — a case message, or a vimarsha if substantive — the addressee woken, the answer recorded. "ask the other agent" · "pass it to whoever handles it" · "tell the other one not to build the same thing" · "escalate to me" · "who owns this?"
-**Elsewhere:** "split the work" → foreman · "write down what we agreed" → by substance, not a "we talked" record. Needs a named seat, not hearing: a seat you hold is enough to speak (`verstak`, `Start`, step 2).
+**Elsewhere:** "split the work" → foreman · "write down what we agreed" → by substance, not a "we talked" record. Needs a named seat, not hearing: a seat you hold is enough to speak (`door-start`, `A seat for a watch or a write`).
 
 ## architect — "hold integrity"
 
@@ -139,7 +139,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## align — "set up this repo" (`/verstak align`)
 
 **Gets:** a stamped agent config, session rituals, an agreed gate, delegation roles. "add an AGENTS.md" · "I'm tired of explaining things every session"
-**Elsewhere:** "add a line to the config" → a file edit · "fix CI" → code-work. Offered unprompted per `verstak`'s `Start`, step `Alignment`.
+**Elsewhere:** "add a line to the config" → a file edit · "fix CI" → code-work. Offered unprompted per `door-start`, `Alignment`.
 
 ## product-roadmap — "drowning in tickets"
 
