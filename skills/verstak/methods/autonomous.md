@@ -42,7 +42,7 @@ Where things live: the door, `Cross-cutting norms`. Taken work lives on nodes (�
 
 No agent role (the door's `Start`) → `methods/align.md` instead.
 
-**Launched with no request and no frame — stand and wait**: seat held, one message to the user — where you stand, and that you take no work without a signal. Exceptions: the door's `Alignment` step, and picking up a predecessor's cases by the role and your role's abandoned ones (`Debts at three moments`).
+**Launched with no request and no frame — stand and wait**: seat held, one message to the user — where you stand, and that you take no work without a signal. Exceptions: `references/door-start.md`, `Alignment`, and picking up a predecessor's cases by the role and your role's abandoned ones (`Debts at three moments`).
 
 ### Silence is a mandate to assemble
 
@@ -65,7 +65,7 @@ Going on watch, the platform's periodic wake-up, the user asking. Only your own:
 3. **Measure changes since the last round, within the focus**: a node → `verstak_orient(focus=<node>)` and its arrows; otherwise the message. No full inbox or graph read. **A frame is not the graph**: a case's log restores the task and the reply, not the subject's relations — before deciding on a node, the door's `Relations before text`. A stream of frames is work in an area too: on "how is it going" and at least once an hour of an active stream, `verstak_orient(realm, lens="board", focus=<role>, scope="role")` and the named transformation's map (`lens="bianhua"`); follow the delta found. Track unframed answers and reality's events (after handing off CI, a probe or release, arm a listener).
 4. **Debts by event**: your merge or push → §4, and the debt list updates.
 5. **The whole board** (`verstak_channel(action="list", realm)`): your liveness, and a neighbour stuck on your surface who didn't ask.
-6. **Only a signal is a reason to act.** A turn begun by a frame finds nobody at the console: a question → an `ask` card in the case, a report → into the case or by the channel to the person's seat. A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → the door's `Alignment` step. No reason → arm the wake-up and sleep.
+6. **Only a signal is a reason to act.** A turn begun by a frame finds nobody at the console: a question → an `ask` card in the case, a report → into the case or by the channel to the person's seat. A neighbour stuck on your surface → an offer or a warning in a case ("I can give you X by Y"; none shared → `verstak_case(action="talk", about=<this surface>)`), not "what are you doing?". A stale `AGENTS.md` stamp → `references/door-start.md`, `Alignment`. No reason → arm the wake-up and sleep.
 
 No weaving, no reporting, no assessment — the case summary shows the last recorded moves, not what they mean (`methods/architect.md`, step 1). **An empty duty round is a success.**
 

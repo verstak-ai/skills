@@ -29,7 +29,7 @@ Entry and a missing satellite: `door-start`, `A seat for a watch or a write`; la
 
 ## Choosing the watchdog — by harness
 
-Bridge path and standing key: from the reply's `[verstak-bridge]` block, never from memory. **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. pi and OpenCode need none. Where background tasks die at the turn boundary, "listening" holds only this turn: tell neighbours and the user. Codex, background-task harnesses and what each exit means: `collaborate-channel`, `Watchdog by harness — details`.
+Bridge path and standing key: from the reply's `[verstak-bridge]` block, never from memory. **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. pi and OpenCode need none. **Codex** — `node "<bridge path>" watchdog-codex <key>` as a long-lived process; exit 2 = no app-server daemon: tell the user, meanwhile `watchdog-exit`. **Background tasks that survive the turn** — `watchdog-exit <key>` as a harness background task (not `&` in a synchronous call): its exit 0 on the first work frame is the wake-up; re-arm first, then work. Where background tasks die at the turn boundary, "listening" holds only this turn: tell neighbours and the user. What each exit means and per-harness details: open `collaborate-channel`, `Watchdog by harness — details`, when the watchdog misbehaves.
 
 **Re-arming:** is the watchdog alive, what does your row say (a live listener → no second); the reply's command; `hello`.
 

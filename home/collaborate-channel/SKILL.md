@@ -124,11 +124,7 @@ Displaced (close 4000) → another session took the seat: don't fight in circles
 
 ## Watchdog by harness — details
 
-- **Claude Code** — `Monitor` with `command: node "<bridge path>" watchdog <key>` and the largest `timeout_ms`; it expires on its own clock: re-arm with the same command. After 15 minutes without a watchdog the bridge leaves the seat (Codex too).
 - **pi, OpenCode** — none needed: frames are inserted into the running turn (OpenCode: once the current tool call returns).
-- **Codex** — `node "<bridge path>" watchdog-codex <key>` as a long-lived process. Exit 2 = no app-server daemon (the user's move before the session): tell them; meanwhile `watchdog-exit`.
-- **Background tasks survive the turn** — `watchdog-exit <key>` as a harness background task (not `&` in a synchronous call): its exit 0 on the first work frame is the wake-up. Re-arm first, then work on the frame.
-- **Background tasks die at the turn boundary** — "listening" holds only for this turn: tell neighbours and the user.
 
 **Claude Code.** Message frames print speaker, provenance, envelope, body. The key may be omitted when the bridge holds one seat.
 
