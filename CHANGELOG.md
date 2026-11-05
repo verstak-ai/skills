@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.31.0](https://github.com/verstak-ai/skills/compare/v3.30.0...v3.31.0) (2026-11-05)
+
+
+### Features
+
+* minding keeps the person's way of doing a task and checks it before the next one ([#320](https://github.com/verstak-ai/skills/issues/320)) ([bcfa279](https://github.com/verstak-ai/skills/commit/bcfa279191af1e7b2f66ab6156541225456e1f55))
+
 ## [3.30.0](https://github.com/verstak-ai/skills/compare/v3.29.0...v3.30.0) (2026-11-04)
 
 
