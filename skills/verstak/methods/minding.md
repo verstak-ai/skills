@@ -38,6 +38,8 @@ If the surface cannot provision personal memory, name the missing operation.
 
 A miss the user then fills, on a graph you could read, is the cue to write (§1b). Found is not yet applicable: §1a.
 
+**A new task from the user → their way first.** Before doing it, search mind for a way of doing tasks of that kind (fact level, above). Found → show it before working: "You usually do it like this: 1, 2, 3 — shall I?", the steps read off the umbrella's sub-kriyas in their `next` order. Yes → do it that way. A correction → do it with the correction and refine the record (§2). "Not this time" → do it otherwise and leave the record as it is. Nothing found → work as usual; if they then tell you how, that is a dictated way (§1b).
+
 ## §1a Relate — what the hit changes now
 
 A recalled fact is a ground, not a sanction. Set it against the case at hand — goal, data, environment, tools, access, preconditions, obligations in force — and choose one move:
@@ -69,7 +71,8 @@ The user's own + useful later + serves no single project → here. Shapes: `refe
 **What you are writing:**
 - **Settle subject, source, scope, authority, audience and need** before the call.
 - **Kind and modes follow the judgement and the act, not the words** "prefer" or "always": an opinion is not a fact about the world; the user's clear act is recorded as they made it; your guess is not recorded as their choice. A one-off request doesn't silently rewrite a standing preference: honour it for this case and leave the stored one as it is; ask only when their words suggest the preference itself changed and a later move depends on it.
-- **A method of the user's own** carries its meaning, conditions, steps, observed outcome, the sign that tells when it applies, what is untested, and its limit. **One success shows it worked once, under those conditions** — not that it works in general. After a substantial piece of work the yield may be a method, a refinement, a negative observation, a doubt, or nothing.
+- **A method of the user's own** carries its meaning, conditions, steps, observed outcome, the sign that tells when it applies, what is untested, and its limit.
+- **A way of doing, dictated in steps** ("first this, then that, then so") → structure in mind in the same move, never prose in one node: under the area's holon for ways of doing (search first), an umbrella kriya for the task, named by its kind so the next task of that kind finds it; each step a sub-kriya (`contains` from the umbrella, `next` in the order given); what a step takes and gives — phenomena (`ahara`, `utpatti`), reused where they exist. Whose way it is decides the home: the user's own, portable way (how they prepare a release, sort complaints, want a report) → here; this project's way (how this runtime is rolled out) → the project's graph (route 1 below); unclear → one line, "is this your way, or this project's?". **One success shows it worked once, under those conditions** — not that it works in general. After a substantial piece of work the yield may be a method, a refinement, a negative observation, a doubt, or nothing.
 - **Unknown outcome** (a timeout, a dropped transport) → read before you retry; a version conflict → reread, then decide.
 
 **Where in mind — by reflex, not on request:**

@@ -30,6 +30,11 @@ const PRESENT = {
     // personal vs project on the same topic
     "a working preference stays theirs even when its topic is development",
     "Subject and ownership pick the home, not the topic",
+    // a way of doing dictated in steps is structure in mind; a new task shows it first (graph @nks/nks-dev, nodes #9648-#9650)
+    "an umbrella kriya for the task, named by its kind",
+    '"is this your way, or this project\'s?"',
+    "**A new task from the user → their way first.**",
+    '"Not this time" → do it otherwise and leave the record as it is',
     // recall outcomes
     "a bounded search proves no absence",
     "not a miss, and no licence to write what may already be there",
@@ -91,6 +96,7 @@ const PRESENT = {
     "used only once the `personal_mind` sign shows this account's own graph present",
   ],
   door: [
+    "search their mind for their way of doing that kind of task and show it before working",
     "before writing it, **whose fact?**",
     "before asking the user, search their mind",
     "An aligned repo doesn't switch mind off",
