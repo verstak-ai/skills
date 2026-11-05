@@ -32,6 +32,7 @@ const PRESENT = {
     "Subject and ownership pick the home, not the topic",
     // a way of doing dictated in steps is structure in mind; a new task shows it first (graph @nks/nks-dev, nodes #9648-#9650)
     "an umbrella kriya for the task, named by its kind",
+    'with `attrs` `{"slice":"ways"}`',
     '"is this your way, or this project\'s?"',
     "**A new task from the user → their way first.**",
     '"Not this time" → do it otherwise and leave the record as it is',
@@ -115,7 +116,7 @@ const PRESENT = {
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
     "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
     "no read and no create, say so in a line",
-    'verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)',
+    'verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=50)',
     // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
     "the `personal_mind` sign must be present for this account",
     "its `state` exactly `present` → one read",
@@ -135,7 +136,7 @@ const PRESENT = {
     "**No personal memory in `AGENTS.md`** — no slot, no rule",
   ],
   home: [
-    'so a root session reads them at its start: one `verstak_search(realm="mind", q="", attrs_filter="slice:agents", limit=50)`',
+    'so a root session reads them at its start: one `verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=50)`',
     "apply, adapt, don't apply, or ask one deciding question",
     "## §1a Relate — what the hit changes now",
     "it is retired by its carrying axis, as for any replaced node",
