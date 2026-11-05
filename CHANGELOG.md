@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.31.1](https://github.com/verstak-ai/skills/compare/v3.31.0...v3.31.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* a way of doing carries the ways slice; the start slice brings their names ([#322](https://github.com/verstak-ai/skills/issues/322)) ([e7f00c8](https://github.com/verstak-ai/skills/commit/e7f00c84b083247c26642aa0723b5bb9d3ca10f2))
+
 ## [3.31.0](https://github.com/verstak-ai/skills/compare/v3.30.0...v3.31.0) (2026-11-05)
 
 
