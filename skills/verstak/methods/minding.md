@@ -38,7 +38,7 @@ If the surface cannot provision personal memory, name the missing operation.
 
 A miss the user then fills, on a graph you could read, is the cue to write (§1b). Found is not yet applicable: §1a.
 
-**A new task from the user → their way first.** Before doing it, search mind for a way of doing tasks of that kind (fact level, above). Found → one `verstak_look` of the umbrella (its sub-kriyas, in `next` order; past the fact-level ceiling) and §1a against the case — a project's rule in force wins over their way. Then show it before working, where only the user reads it (Privacy — never in a shared case): "You usually do it like this: 1, 2, 3 — shall I?". Yes → do it that way. A correction → do it with the correction and refine the record (§2). "Not this time" → do it otherwise and leave the record as it is. Nothing found → work as usual; if they then tell you how, that is a dictated way (§1b).
+**A new task from the user → their way first.** Before doing it, search mind for a way of doing tasks of that kind (fact level, above). Found → read the steps and their order: `verstak_orient(realm="mind", focus=<umbrella>, lens="topology", arrow_types="contains,next", depth=2)`, past the fact-level ceiling and §1a against the case — a project's rule in force wins over their way. Then show it before working, where only the user reads it (Privacy — never in a shared case): "You usually do it like this: 1, 2, 3 — shall I?". Yes → do it that way. A correction → do it with the correction and refine the record (§2). "Not this time" → do it otherwise and leave the record as it is. Nothing found → work as usual; if they then tell you how, that is a dictated way (§1b).
 
 ## §1a Relate — what the hit changes now
 
