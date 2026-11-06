@@ -15,7 +15,7 @@ export interface FrameTextWords {
   /** The question to me [n] re-asked on its key of another addressee. */
   askMoved: (n: string, to: string) => string;
   inFull: (cases: string) => string;
-  caseHistory: (args: string, since: number) => string;
+  caseHistory: (args: string, since: number | string) => string;
   /** Below the text of a life check: how to answer it. */
   lifeCheckReply: () => string;
   /** The seat a life check warned; empty — the platform named none. */

@@ -77,7 +77,8 @@ export function askValues(kind: string, line: Rec, fields: Rec): Rec {
   const W = words(ASK);
   const to = toOf(fields);
   const k = obj(to.karta);
-  const place = addresseeOf(to.standing)?.label ?? "";
+  const seat = addresseeOf(to.standing);
+  const place = seat?.addr[0] ?? seat?.label ?? "";
   const rec = obj(fields.recommendation);
   return {
     to: str(k.name) || (str(k.seq) ? `#${str(k.seq)}` : ""),

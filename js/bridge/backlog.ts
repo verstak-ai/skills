@@ -98,7 +98,7 @@ export class Backlog {
     // Addressed to the seat as text, other case records counted per case
     // (graph @nks/nks-dev, node #6574).
     const bodies = [
-      ...caseCountLines(got),
+      ...caseCountLines(got, count > got.length),
       ...got
         .filter((f) => addressedToMine(f))
         .map((f) => {
