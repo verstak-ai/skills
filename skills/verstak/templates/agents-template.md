@@ -9,7 +9,7 @@ verstak:
 # `<project-name>`
 `<one line: what this project is and whom it serves>`
 
-<!-- The cover is the `verstak:` block above: five fields (a sixth, `rituals:`, is the person's choice of the delivery's rituals switched on — `start push merge guard turn`; no field means all), numbers without `#`, the graph as rN; N is the number after "AGENTS.md CONTRACT:" in the installed verstak skill's description, the date the day of the run. Judgment slots live in `Project`; an unresolved one reads `open`, its question a message in the holon's alignment case. -->
+<!-- The cover's form and fill: `methods/align.md`, Step 7, `Cover`. Judgment slots live in `Project`; an unresolved one reads `open`, its question a message in the holon's alignment case. -->
 
 ## Project
 - **Nature**: `<production / research / sandbox / one-off / library; if not production — what is relaxed and why>`
@@ -21,17 +21,15 @@ verstak:
 - **Feedback reflection**: `<yes — default / no>`
 - **Workflow-suite interop**: `<full / prose-only / none>`
 
-**Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above; its `Cross-cutting norms` apply here. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
+**Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
 ## Persistence
-- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; a temp directory is scratch, cleaned up with each finished piece, as are worktrees, your trees' development caches and cases you no longer owe a move (the door, `Case laws`). Only committed files and the project graph configure agents.
-- The memory directory is frozen: `MEMORY.md` is a one-line stub pointing here; the `PreToolUse` memory guard blocks writes (exit 2). A cover whose `rituals:` leaves out `guard` stops the delivery and `prepare` from writing or speaking it; a guard already in `.claude/settings.json` stays until taken off by hand. Where a fact goes: the door, `Routes`, Keep.
-- The start, push and merge rituals are the delivery's, by the cover; the memory guard — Claude Code: `.claude/settings.json`, OpenCode: the delivery`<; spec-write: .claude/settings.json>`; add beside other suites' entries. <!-- Keep the repository's harnesses; drop the guard of a harness without a hook surface. -->
+- State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; what a finished piece leaves behind — scratch, worktrees, caches, cases you no longer owe a move — is cleaned up with it (`methods/code-work.md`, `Cleanup`). Only committed files and the project graph configure agents.
+- The memory directory is frozen by the `PreToolUse` memory guard (exit 2) — Claude Code: `.claude/settings.json`, OpenCode: the delivery`<; spec-write: .claude/settings.json>`; add beside other suites' entries. A cover whose `rituals:` leaves out `guard` turns it off; a guard already in `.claude/settings.json` stays until taken off by hand. The start, push and merge rituals are the delivery's, by the cover. Where a fact goes: the door, `Routes`, Keep.
 
 ## Where things live
 | Concern | Home |
 |---|---|
-| Code, configs, commands, conventions | repo, this file |
 | Gotchas | `<GOTCHAS.md / graph nodes this file links>` |
 | Branch state, work in flight | git + PR with the case number; node modes and the transformation's seed (`methods/writing.md`, Decision 5) |
 | Decisions, plans, questions of substance | graph: nodes, vimarshas, the map of transformations |
@@ -50,7 +48,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 `<table: build / test / lint / dev / format; lint zero-warning where the stack allows>`
 
 ## Project structure
-`<top-level directories, one line each; path aliases — or the layering plus a "component → README" table>`
+`<the layering plus a "component → README" table, by the READMEs existing (this run writes none); a file map of the top-level directories, one line each, until the first touch of a component moves it into that README; path aliases; a section instead of READMEs only where Layout forbids a README beside shipped outputs>`
 
 ## Code conventions
 - Graph references in code: `(graph <graph name>, node #N)`. `<where they don't belong: readers without graph access>`
@@ -64,13 +62,12 @@ Before saying "works", or switching a mode or ending a question on a claim about
 - `<CLAUDE.md copy — regenerate on every AGENTS.md change>`
 - `<component README — in the commit that moves, renames or adds its files>`
 - `<GOTCHAS.md — one line per trap, its node linked where one exists; trap gone, line gone>`
-- `<MISSING_*.md — a need a neighbouring system doesn't cover yet>`
 
 ## Git workflow
 - Conventional commits (`feat:`, `fix:`, `chore:`…); branches and PR titles likewise.
 - PR body: one or two lines and the case number. No co-author trailer unless asked.
-- One branch and one PR per batch of changes, each in its own worktree inside the repo (`.worktrees/<branch>`, ignored by git and by every gate tool that walks the disk); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — its branch in `main` or deleted on the forge, its copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder.
-- The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`; with results reused by content, a test already run on the same content isn't run again (Test discipline). Pre-commit runs `<linter + formatter + type check>` on staged files.
+- One branch and one PR per batch, in its own worktree `.worktrees/<branch>` (ignored by git and by every gate tool that walks the disk); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — branch merged or deleted on the forge, copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder. `<(graph <graph name>, node #N) — the ritual's ground where the graph records one; else drop>`
+- The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`. Pre-commit runs `<linter + formatter + type check>` on staged files.
 - Forge CLI `<gh / fj / glab>`. **Done**: `<merge flow; how you learn it merged>`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
 

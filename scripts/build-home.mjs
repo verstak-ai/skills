@@ -203,6 +203,11 @@ const SKILLS = {
     description:
       "Reference for the align skill: the exact Claude Code hook shapes to project and repair — start, push, merge, memory guard, with their samples. Load when one of those skills points here; not a task of its own.",
   },
+  "align-migrations": {
+    source: "references",
+    description:
+      "Reference for the align skill: the moves an older contract or legacy content calls for — contracts 4 to 8, the old questionnaire, legacy sections — read whole before the first mutation when align points here; not a task of its own.",
+  },
   "align-superpowers-interop": {
     source: "references",
     description:
