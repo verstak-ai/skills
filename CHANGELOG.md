@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.34.1](https://github.com/verstak-ai/skills/compare/v3.34.0...v3.34.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* bridge core at the sibling's v7.34.0 — prepare rewrites a guard in older words; revoking by channel id no longer revokes your own seat ([#355](https://github.com/verstak-ai/skills/issues/355)) ([fa8c86f](https://github.com/verstak-ai/skills/commit/fa8c86f8876f2ebb32594193b57a8f44bf92a1c9))
+
 ## [3.34.0](https://github.com/verstak-ai/skills/compare/v3.33.3...v3.34.0) (2026-11-06)
 
 
