@@ -118,10 +118,11 @@ const PRESENT = {
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
     "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
     "no read and no create, say so in a line",
-    'verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=100)',
+    // the call itself stands in the door's Start (LAB probe of #9782: door-start went unopened)
+    "The door's `Start`, step 3, carries the call and its moment",
     // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
     "the `personal_mind` sign must be present for this account",
-    "its `state` exactly `present` → one read",
+    "`present` → the door's one read (a full page → read the next with `offset`)",
     "`unknown` means the session's credential can't reach your own",
     "below this project's rules",
   ],
