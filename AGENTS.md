@@ -3,8 +3,8 @@ verstak:
   graph: r5
   holon: 844
   agent_role: 8498
-  contract: 11
-  stamp: 2026-11-03
+  contract: 12
+  stamp: 2026-11-06
 ---
 # `verstak-ai/skills`
 The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
