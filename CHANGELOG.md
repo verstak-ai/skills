@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.31.2](https://github.com/verstak-ai/skills/compare/v3.31.1...v3.31.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* a way's task kriya carries the check in its outcome, so any agent asks first ([#324](https://github.com/verstak-ai/skills/issues/324)) ([8f8b958](https://github.com/verstak-ai/skills/commit/8f8b958a3f2eed758e3c225b467b444503e21071))
+
 ## [3.31.1](https://github.com/verstak-ai/skills/compare/v3.31.0...v3.31.1) (2026-11-05)
 
 
