@@ -3,7 +3,7 @@ import type { Lang } from "../lang.ts";
 import { FRAME_TEXT } from "./frame-text.ts";
 
 export interface StaleWords {
-  /** legacy — the full protocol sentence, for a reader that predates compact counts. */
+  /** legacy — the old full protocol sentence: never rendered now, kept so frames still queued under it read as quiet (shared/quietframe.ts; js/tests/quiet-frames.test.mjs). */
   head: (count: number, shown: number, legacy?: boolean) => string;
 }
 
