@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.32.0](https://github.com/verstak-ai/skills/compare/v3.31.2...v3.32.0) (2026-11-06)
+
+
+### Features
+
+* a declined question is re-thought, never repeated; refusals in the product's words ([#326](https://github.com/verstak-ai/skills/issues/326)) ([1b5782b](https://github.com/verstak-ai/skills/commit/1b5782b23fd99d21d7b644124368f793e65adf40))
+
 ## [3.31.2](https://github.com/verstak-ai/skills/compare/v3.31.1...v3.31.2) (2026-11-06)
 
 
