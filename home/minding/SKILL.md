@@ -14,7 +14,7 @@ The current user's personal mind graph holds the areas of their life and work, t
 | Reflex | Fires when | Move |
 |---|---|---|
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
-| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development | §1b — into their verified personal mind under its area's holon; a person as a guest role in a group; never harness-local memory |
+| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development; mid-project too, when they say how agents work for them ("always do it so", "don't wait", "in parallel", "one release", "ask me by card"): in the same move you act on it, the errand still the case's | §1b — into their verified personal mind under its area's holon; a person as a guest role in a group; never harness-local memory |
 
 Every user gets personal memory without being asked: onboarding and this method use the single entry below, then Appendix A1–A2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
