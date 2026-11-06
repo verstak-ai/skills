@@ -342,6 +342,10 @@ test("the memory guard cites the repository's own persistence heading, or none",
   assert.match(PREPARE.en.guard("r5", null), /\(AGENTS\.md\)\. Route the fact/);
 });
 
+test("the memory guard claims no stub: the directory takes no file (align contract 12)", () => {
+  assert.doesNotMatch(PREPARE.en.guard("r5"), /stub/);
+});
+
 test("the section kinds read English headings: our template's Persistence, a trunk push", () => {
   assert.ok(SECTIONS.persist("Persistence"));
   assert.ok(SECTIONS.trunk("Push to main"));
