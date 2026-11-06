@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.33.2](https://github.com/verstak-ai/skills/compare/v3.33.1...v3.33.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* a work-order word goes to mind from its record, never the summary alone ([#349](https://github.com/verstak-ai/skills/issues/349)) ([a6420fa](https://github.com/verstak-ai/skills/commit/a6420faaf26710212db36427ef9e0bdccd88c047))
+* after a compaction the root writes to mind a standing work-order word only the summary still holds ([#346](https://github.com/verstak-ai/skills/issues/346)) ([0eabcd8](https://github.com/verstak-ai/skills/commit/0eabcd87f9c5ccba9e16ebe8033c50662ae3f8b8))
+* the compaction summary keeps the user's standing work-order words; the write after it routes by minding ([#348](https://github.com/verstak-ai/skills/issues/348)) ([9b52303](https://github.com/verstak-ai/skills/commit/9b52303e5674f86cd59e7503ebf440f81c9f0c23))
+
 ## [3.33.1](https://github.com/verstak-ai/skills/compare/v3.33.0...v3.33.1) (2026-11-06)
 
 
