@@ -193,6 +193,7 @@ test("after a compaction a root session re-reads the personal slice by the door'
       w,
       /writes there a standing word of theirs on how agents work that only the summary still holds/,
     );
+    assert.match(w, /found where they said it .*never from the summary alone/);
     assert.match(
       w,
       /— and writing; a root session re-reads the user's personal slice, agents and ways, by the door's start \(its own-graph check first\)/,
