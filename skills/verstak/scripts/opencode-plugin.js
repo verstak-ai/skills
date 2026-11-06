@@ -184,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.31.2";
+var VERSION = "3.32.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
