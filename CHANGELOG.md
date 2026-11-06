@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.34.2](https://github.com/verstak-ai/skills/compare/v3.34.1...v3.34.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* a kriya's trace also runs forward; align defers the person's role binding to onboarding's rule ([#357](https://github.com/verstak-ai/skills/issues/357)) ([60c1c3d](https://github.com/verstak-ai/skills/commit/60c1c3de6f7a511e8e1a5ea4f525e846c5c9ee97))
+* a kriya's trace runs backward only; downstream is traced from its utpatti phenomenon ([#359](https://github.com/verstak-ai/skills/issues/359)) ([7d26f26](https://github.com/verstak-ai/skills/commit/7d26f26b92ddc734f2ded06cde6a1db28be3d42e))
+
 ## [3.34.1](https://github.com/verstak-ai/skills/compare/v3.34.0...v3.34.1) (2026-11-06)
 
 
