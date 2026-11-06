@@ -104,8 +104,9 @@ const PRESENT = {
     "An aligned repo doesn't switch mind off",
     // a purely project request runs without mind beyond the start slice
     "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
-    // the door hands the start slice to its reference, opened whole before readiness
-    "Now open `references/door-start.md` whole and run it: the personal slice",
+    // the door carries the start slice's call itself, before the first move on the task
+    "reads their personal slice **before its first move on their task**, a delegate never",
+    'attrs_filter="slice:agents,ways"',
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
     "this repo's rule, from its rule-holder) → `AGENTS.md`",
@@ -117,10 +118,11 @@ const PRESENT = {
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
     "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
     "no read and no create, say so in a line",
-    'verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=100)',
+    // the call itself stands in the door's Start (LAB probe of #9782: door-start went unopened)
+    "The door's `Start`, step 3, carries the call and its moment",
     // a bare `mind` read only once readiness shows this account's own (graph @nks/nks-dev, node #8661)
     "the `personal_mind` sign must be present for this account",
-    "its `state` exactly `present` → one read",
+    "`present` → the door's one read (a full page → read the next with `offset`)",
     "`unknown` means the session's credential can't reach your own",
     "below this project's rules",
   ],
