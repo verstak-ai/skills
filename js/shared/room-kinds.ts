@@ -3,7 +3,7 @@
 // rules are code (RULES, stackOf), words come from the delivery layer.
 import { CASE_LINE, ROOM, ROOM_AUTO, ROOM_REL, VERDICT } from "../delivery/index.ts";
 import { addressedMine, ASK_KINDS, askText, askValues } from "./asks.ts";
-import { type Frame } from "./channel.ts";
+import { classifyOrigin, type Frame } from "./channel.ts";
 import { words } from "./lang.ts";
 import {
   addresseeOf,
@@ -77,6 +77,8 @@ export interface RoomKind {
   /** The kind's word for the frame head. */
   words: string;
   author: string;
+  /** The caption already carries line.done; do not append the envelope's body again. */
+  bodyInWords?: boolean;
   /** Word phase (graph @nks/nks-dev, node #5953): said in flight — pending, cut off — aborted. */
   phase: "pending" | "aborted" | null;
   /** false — unknown kind: batch and a line in the bridge log. */
@@ -93,8 +95,8 @@ function authorOf(author: unknown): string {
   const a = obj(author);
   const name = str(a.name);
   const standing = str(a.standing);
-  if (name) return standing ? `${name} (${standing})` : name;
   if (standing) return standing;
+  if (name) return name;
   return a.kind === "platform" ? words(CASE_LINE).platform() : "?";
 }
 
@@ -175,11 +177,15 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
   const node = obj(fields.node);
   const cause = kind === "invite" ? str(fields.cause) : "";
   // A body line's author is the body record's; the word's author is in_reply_to_from (graph @nks/nks-dev, node #5893).
-  const byWhom = authorOf(
+  const authorName = authorOf(
     kind === "body" && Object.keys(obj(f.in_reply_to_from)).length
       ? f.in_reply_to_from
       : line.author,
   );
+  const byWhom =
+    (frame.origin ?? classifyOrigin(frame)) === "human"
+      ? `${authorName} (${words(ROOM).whoHuman("")})`
+      : authorName;
   const values: Rec = {
     kind,
     cause,
@@ -241,7 +247,7 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
     : null;
   if (to && (withheld || seatIs(f, ...named) === false)) {
     const counts = kind === "said";
-    const pair = JSON.stringify([roomOf(f.room), author, to.addr[0]]);
+    const pair = JSON.stringify([roomOf(f.room), authorName, to.addr[0]]);
     const id = need(counts ? values.entry_id : values.refers_to);
     const by = need(values.author);
     const addressee = need(to.label);
@@ -283,7 +289,17 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
           : rule;
   // A word in flight and a cut-off never wake: batch at any stack.
   const phase = pending ? "pending" : aborted ? "aborted" : null;
-  return { kind, rule: phase ? "batch" : stack, words: text, author, phase, known: true };
+  const bodyInWords =
+    !!str(line.done) && (ASK_KINDS.has(kind) || kind === "progress" || kind === "node");
+  return {
+    kind,
+    rule: phase ? "batch" : stack,
+    words: text,
+    author,
+    bodyInWords,
+    phase,
+    known: true,
+  };
 }
 
 export const byKind = (frame: Frame | null | undefined): boolean => roomKind(frame) !== null;

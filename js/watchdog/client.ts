@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
+import { setCompactCounts } from "../shared/frame-format.ts";
 import { batchHead } from "../shared/frame-text.ts";
 import { setLang } from "../shared/lang.ts";
 import { deliveryKeys, eventIn, type Marks, seenIds } from "../shared/seen.ts";
@@ -34,6 +35,7 @@ export interface WatchdogArgs {
 
 /** `[key] [--auth-dir <dir>] [--lang en|ru]`: the bridge's directory, else the watchdog looks elsewhere; the bridge names the language. */
 export function parseWatchdogArgs(argv: string[]): WatchdogArgs {
+  setCompactCounts(argv.includes("--compact-counts"));
   const out: WatchdogArgs = { authDir: authDirFromEnv() };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];

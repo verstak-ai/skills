@@ -3,16 +3,19 @@ import type { Lang } from "../lang.ts";
 import { FRAME_TEXT } from "./frame-text.ts";
 
 export interface StaleWords {
-  head: (count: number, shown: number) => string;
+  /** legacy — the old full protocol sentence: never rendered now, kept so frames still queued under it read as quiet (shared/quietframe.ts; js/tests/quiet-frames.test.mjs). */
+  head: (count: number, shown: number, legacy?: boolean) => string;
 }
 
 export const STALE: Readonly<Record<Lang, StaleWords>> = {
   en: {
-    head: (count, shown) =>
+    head: (count, shown, legacy = false) =>
       `Stale frames: ${count}` +
       (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") +
-      " — taken while the seat was not listening, or the service repeating after a session rebuild; " +
-      "those addressed to the seat as text, the rest by count; " +
-      `in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.`,
+      (legacy
+        ? " — taken while the seat was not listening, or the service repeating after a session rebuild; " +
+          "those addressed to the seat as text, the rest by count; " +
+          `in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.`
+        : "."),
   },
 };
