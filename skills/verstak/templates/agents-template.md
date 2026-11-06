@@ -17,7 +17,7 @@ verstak:
 - **Consumers**: `<who consumes the artifact and how they learn it broke>`
 - **Stack**: `<language + main frameworks>`
 - **Gate**: `<one call: make check / npm run gate>`
-- **Layout**: `<code map: component READMEs, or a section where a README beside outputs is forbidden>; <traps: the graph or GOTCHAS.md>`
+- **Layout**: `<code map: component READMEs, or — where a README beside outputs is forbidden — one non-shipped file or this section>; <traps: the graph or GOTCHAS.md>`
 - **Feedback reflection**: `<yes — default / no>`
 - **Workflow-suite interop**: `<full / prose-only / none>`
 
@@ -48,7 +48,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 `<table: build / test / lint / dev / format; lint zero-warning where the stack allows>`
 
 ## Project structure
-`<the layering plus a "component → README" table, by the READMEs existing (this run writes none); a file map of the top-level directories, one line each, until the first touch of a component moves it into that README; path aliases; a section instead of READMEs only where Layout forbids a README beside shipped outputs>`
+`<the layering plus a "component → README" table, by the READMEs existing (this run writes none); a file map of the top-level directories, one line each, until the first touch of a component moves it into that README; path aliases; where Layout forbids a README beside shipped outputs: one line pointing to the non-shipped map file, or the map here while it is a few lines>`
 
 ## Code conventions
 - Graph references in code: `(graph <graph name>, node #N)`. `<where they don't belong: readers without graph access>`
