@@ -12,6 +12,7 @@ import {
   setClosingOwn,
   setRevokingBeside,
   setRevokingOwn,
+  standingIdIn,
 } from "./hold.ts";
 import { keyOf, noteStoodAt } from "./holdrecord.ts";
 import { H, stoppedInMove } from "./holdstate.ts";
@@ -104,8 +105,17 @@ function revokesOwn(msg: JsonRpcMessage): boolean {
   return names(a, s) && !otherRealm(a.realm, s.realm);
 }
 
-/** Whether revoke names this seat — empty, "mine", the name or full address — and its role. */
+/** Revoke by explicit id takes precedence over the default own name (graph #9821). */
 function names(a: Record<string, unknown>, s: Standing): boolean {
+  if (a.channel != null) {
+    const id = standingIdIn(s.realm);
+    return (
+      typeof a.channel === "string" &&
+      id !== null &&
+      a.channel.trim() === id &&
+      normKarta(a.karta ?? s.karta) === normKarta(s.karta)
+    );
+  }
   const asked = typeof a.standing === "string" ? a.standing.trim() : "";
   const own =
     asked === "" ||
