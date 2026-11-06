@@ -31,7 +31,7 @@ verstak:
 
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; what a finished piece leaves behind — scratch, worktrees, caches, cases you no longer owe a move — is cleaned up with it (`methods/code-work.md`, `Cleanup`). Only committed files and the project graph configure agents.
-- The memory directory is frozen by the `PreToolUse` memory guard (exit 2) — Claude Code: `.claude/settings.json`, OpenCode: the delivery`<; spec-write: .claude/settings.json>`; add beside other suites' entries. A cover whose `rituals:` leaves out `guard` turns it off; a guard already in `.claude/settings.json` stays until taken off by hand. The start, push and merge rituals are the delivery's, by the cover. Where a fact goes: the door, `Routes`, Keep.
+- The memory directory is frozen by the `PreToolUse` memory guard (exit 2) — Claude Code: `.claude/settings.json`, OpenCode: the delivery; a harness without a hook surface carries none`<; the spec-write hook too: .claude/settings.json>`; add beside other suites' entries. A cover whose `rituals:` leaves out `guard` turns it off; a guard already in `.claude/settings.json` stays until taken off by hand. The start, push and merge rituals are the delivery's, by the cover. Where a fact goes: the door, `Routes`, Keep.
 
 ## Where things live
 | Concern | Home |
@@ -72,7 +72,7 @@ Before saying "works", or switching a mode or ending a question on a claim about
 ## Git workflow
 - Conventional commits (`feat:`, `fix:`, `chore:`…); branches and PR titles likewise.
 - PR body: one or two lines and the case number. No co-author trailer unless asked.
-- One branch and one PR per batch, in its own worktree `.worktrees/<branch>` (ignored by git and by every gate tool that walks the disk); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — branch merged or deleted on the forge, copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder. `<(graph <graph name>, node #N) — the ritual's ground where the graph records one; else drop>`
+- One branch and one PR per batch, in its own worktree `.worktrees/<branch>` (ignored by git and by every gate tool that walks the disk); review by the batch's tier (`methods/code-work.md`, `Branch and worktree`, `Cold review`). An abandoned tree — branch merged or deleted on the forge, copy clean — is removed by any agent of the repo; uncommitted or unmerged work is named to its holder.
 - The gate is one call: `<gate command>`; CI calls the same, on `<its triggers from the CI yaml: the batch's PR and trunk>`. Pre-commit runs `<linter + formatter + type check>` on staged files.
 - Forge CLI `<gh / fj / glab>`. **Done**: `<merge flow; how you learn it merged>`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
