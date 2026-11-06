@@ -49,7 +49,7 @@
 
 **An objection serves the case.** `object` with `in_reply_to` the proposal, reason `not_done`, `unverified` or `other`, and a message; the first one withdraws the proposal. Don't argue: attest what was named, propose again. After the closure record it lands late; its substance continues as new work in a new case.
 
-**What doesn't exist.** No platform record of the lead, and none of a child case's report: a message carries them (the outcome: the child case and its closing message). The kind of a message is the server's: `say_kind` goes as is, and an unknown one is refused with the accepted ones named. Technical messages reach the user in words — what happened and what is needed from them, not a raw code.
+**What doesn't exist.** No platform record of the lead, and none of a child case's report: a message carries them (the outcome: the child case and its closing message). The kind of a message is the server's: `say_kind` goes as is, and an unknown one is refused with the accepted ones named. Technical messages reach the user in the product's words (the door, `Communication`).
 
 ## An abandoned case — restoring the remainder
 
