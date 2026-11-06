@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.33.1](https://github.com/verstak-ai/skills/compare/v3.33.0...v3.33.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* a word on how agents work goes to the user's mind in the same move; after a compaction the root re-reads the agents slice ([#341](https://github.com/verstak-ai/skills/issues/341)) ([c80eed7](https://github.com/verstak-ai/skills/commit/c80eed7b22e6f47bcc0e5aea824be87f8bdcfb33))
+* a word received in a case that carries how agents work goes to the user's mind ([#343](https://github.com/verstak-ai/skills/issues/343)) ([be1ca16](https://github.com/verstak-ai/skills/commit/be1ca1641906f10a18a0f41e0fbec19eae19a153))
+* only a standing word on work order goes to mind; after compaction the personal slice is re-read through the door's start ([#344](https://github.com/verstak-ai/skills/issues/344)) ([4ad6c13](https://github.com/verstak-ai/skills/commit/4ad6c13aae2ca083ca79be48b1d6f02e734edd78))
+* the door writes a received work-order word to mind only when it is the user's own and standing ([#345](https://github.com/verstak-ai/skills/issues/345)) ([857e7b0](https://github.com/verstak-ai/skills/commit/857e7b0004de496f66c4a8d1fe90bed2e3fd8e2b))
+
 ## [3.33.0](https://github.com/verstak-ai/skills/compare/v3.32.2...v3.33.0) (2026-11-06)
 
 
