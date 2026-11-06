@@ -191,6 +191,10 @@ test("after a compaction a root session re-reads the personal slice by the door'
   for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
     assert.match(
       w,
+      /writes there a standing word of theirs on how agents work that only the summary still holds/,
+    );
+    assert.match(
+      w,
       /— and writing; a root session re-reads the user's personal slice, agents and ways, by the door's start \(its own-graph check first\)/,
     );
   }
