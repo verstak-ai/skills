@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.32.2](https://github.com/verstak-ai/skills/compare/v3.32.1...v3.32.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* a re-ask after a decline is a choice card with costs; a way's 'shall I?' waits ([#331](https://github.com/verstak-ai/skills/issues/331)) ([0877f02](https://github.com/verstak-ai/skills/commit/0877f025d3004ae18c2fee25fe9dd8cc07bead2e))
+
 ## [3.32.1](https://github.com/verstak-ai/skills/compare/v3.32.0...v3.32.1) (2026-11-06)
 
 
