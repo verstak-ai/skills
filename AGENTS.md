@@ -138,6 +138,9 @@ The code map: `docs/STRUCTURE.md`.
 - Never `--no-verify`, `--force`, `--no-gpg-sign`, `git reset --hard` without explicit instruction.
 
 ## Role file tails
+#### all roles
+- Graph tools here carry the sibling deployment's prefix, not `verstak_` (`Local overrides`, Graph access): read it off your tool list (the tool ending in `_orient`); each `verstak_X` your body names is that prefix plus `X`, and that is this repository's own bridge, not another's — stand, join and write through it.
+
 #### designer, worker
 - Skill prose is edited in `skills/verstak/`; run `make check` before reporting. Never hand-edit `verstak.skill`, `home/` or the built JS outputs: `make build` regenerates the bundle and `home/`, the pre-commit hook stages them, and the release job writes the JS outputs.
 - Prose here is the product: no wholesale rewrite for one fix; match the register and terminology of the file you edit.
