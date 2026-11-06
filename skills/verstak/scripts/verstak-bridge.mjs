@@ -198,7 +198,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.34.0";
+var VERSION = "3.34.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -11063,6 +11063,10 @@ function revokesOwn(msg) {
   return names(a, s2) && !otherRealm(a.realm, s2.realm);
 }
 function names(a, s2) {
+  if (a.channel != null) {
+    const id = standingIdIn(s2.realm);
+    return typeof a.channel === "string" && id !== null && a.channel.trim() === id && normKarta(a.karta ?? s2.karta) === normKarta(s2.karta);
+  }
   const asked = typeof a.standing === "string" ? a.standing.trim() : "";
   const own = asked === "" || asked === "mine" || asked === (s2.name ?? "") || asked.endsWith(`:${s2.name ?? ""}`);
   return own && normKarta(a.karta ?? s2.karta) === normKarta(s2.karta);
@@ -17290,10 +17294,13 @@ var GUARD_TAIL = " >&2; exit 2; } || exit 0";
 var GUARD_MATCHER = "Write|Edit|MultiEdit|NotebookEdit";
 var quoted = (t) => `'${t.replace(/'/g, "'\\''")}'`;
 var guardCommand = (graph) => `${GUARD_HEAD}echo ${quoted(words(PREPARE).guard(graph))}${GUARD_TAIL}`;
-var SLOT = "§";
-var written = (c, build) => new RegExp(
-  `^${build(SLOT).split(SLOT).map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[\\w./@-]*")}$`
-).test(c);
+var written = (c) => {
+  const head = `${GUARD_HEAD}echo '`;
+  const tail2 = `'${GUARD_TAIL}`;
+  if (!c.startsWith(head) || !c.endsWith(tail2) || c.length < head.length + tail2.length)
+    return false;
+  return /^(?:[^']|'\\'')*$/.test(c.slice(head.length, c.length - tail2.length));
+};
 var CARRIED = ["hook.start", "hook.push", "hook.merge"];
 function load2(path) {
   if (!existsSync17(path)) return {};
@@ -17308,7 +17315,7 @@ function guard(root, s2, addr, out7) {
   const k = KNOWN["hook.guard"];
   const command = addr ? guardCommand(addr.graph) : void 0;
   const known2 = knownOf(root, s2, "hook.guard");
-  const stale = known2.filter((h) => h.command !== command && written(cmd(h), guardCommand));
+  const stale = known2.filter((h) => h.command !== command && written(cmd(h)));
   const unread = hooksOf(s2, k.event, k.on).find((h) => opaque(root, cmd(h)));
   if (command && stale.length && !known2.some((h) => h.command === command)) {
     for (const h of stale) h.command = command;
