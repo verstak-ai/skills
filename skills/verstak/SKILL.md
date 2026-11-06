@@ -124,7 +124,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 **Keep** — fork: **whose fact, of what kind?**
 - how to act in this repo (ritual, command, order of steps; this repo's rule, from its rule-holder) → `AGENTS.md`; not gotchas or lessons
 - a work fact, decision, risk, owner, gotcha, idea → **writing**; code and `AGENTS.md` carry only a reference (gotchas: `Layout` may keep them in `GOTCHAS.md`)
-- a lasting fact about the user beyond one project, or their own way of working, development included → **minding** (a project's infrastructure and a project's rules are project facts); a way of doing a task dictated in steps → **minding**, a kriya with its steps in their mind (or the project's graph, if it is the project's way)
+- a lasting fact about the user beyond one project, or their own way of working, development included → **minding**, a correction of how agents work for them too, in the same move you act on it (a project's infrastructure and a project's rules are project facts); a way of doing a task dictated in steps → **minding**, a kriya with its steps in their mind (or the project's graph, if it is the project's way)
 - "learn how this works here" → **entry**, then write by this fork
 - someone else's text, or a story or dictated steps with several doers → **intake**
 

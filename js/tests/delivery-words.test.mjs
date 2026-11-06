@@ -187,6 +187,12 @@ test("the life check names the way to answer, a child seat's release, and the st
 // The role after compaction and a root without a cover that aligns in the same session (the
 // core's opencode/compaction.ts, rootseat-again.ts): the words name this delivery's door and
 // its align method, never the sibling's skill names.
+test("after a compaction a root session re-reads the user's agents slice and loads writing", () => {
+  for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
+    assert.match(w, /— and writing; a root session re-reads the user's agents slice \(minding\)/);
+  }
+});
+
 test("a compacted session is told its role and the door; a root without a cover is told to align", () => {
   const keep = COMPACTION.en.keep("931", "s.dev", "@x/dev");
   assert.match(
