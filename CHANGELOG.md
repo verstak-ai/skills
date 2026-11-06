@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.34.0](https://github.com/verstak-ai/skills/compare/v3.33.3...v3.34.0) (2026-11-06)
+
+
+### Features
+
+* bridge core at iskron v7.33.0 — compact counts for readers that declare them, English words for counts and stale batches ([#353](https://github.com/verstak-ai/skills/issues/353)) ([b13cc86](https://github.com/verstak-ai/skills/commit/b13cc8666ba61aa3ff1614bc2da4def32021046a))
+
 ## [3.33.3](https://github.com/verstak-ai/skills/compare/v3.33.2...v3.33.3) (2026-11-06)
 
 

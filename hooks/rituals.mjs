@@ -162,6 +162,13 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
+// js/delivery/words/take.ts
+var TAKE = {
+  en: {
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
+  }
+};
+
 // js/delivery/words/frame-text.ts
 var FRAME_TEXT = {
   en: {
@@ -184,13 +191,6 @@ var FRAME_TEXT = {
       m.standing && "the person's seat",
       m.id && "the word's id"
     ].filter(Boolean).join(", ")}`
-  }
-};
-
-// js/delivery/words/take.ts
-var TAKE = {
-  en: {
-    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
@@ -242,10 +242,55 @@ var RITES = {
   }
 };
 
+// js/delivery/words/rooms.ts
+var ROOM = {
+  en: {
+    said: (author) => `message from ${author}`,
+    saidPending: (author) => `message from ${author} in flight — the text follows`,
+    aside: (author, addressee, word2) => `${author} → ${addressee}: message [${word2}]`,
+    asideRun: (author, addressee, count, word2) => `${author} → ${addressee}: ${count} (last [${word2}])`,
+    asideBody: (author, addressee, word2) => `${author} → ${addressee}: text of message [${word2}]`,
+    messages: (n) => `${n} ${n === 1 ? "message" : "messages"}`,
+    body: (refersTo, author) => `text of message [${refersTo}] from ${author}`,
+    bodyAborted: (refersTo) => `message [${refersTo}] cut off by its author`,
+    bodyLapsed: (refersTo) => `message [${refersTo}] cut off by the platform on its deadline`,
+    closing: (author, endsAt, evidence) => `the lead ${author} proposes to close the case by ${endsAt}${evidence ? `; evidence: ${evidence}` : ""}`,
+    closingMay: (entryId) => `you may object — ${tool("case")}(action="object", in_reply_to=${entryId})`,
+    closingNot: () => "the objection is not yours to make",
+    closed: (reason) => `case closed: ${reason}`,
+    objection: (author, reason) => `${author} objects to closing: ${reason}`,
+    lateObjection: (author) => `${author} objected after the close`,
+    progress: (key, done, verdict, note, author) => `[${key}] [${done}] = ${verdict}${note} · ${author}`,
+    opened: (author) => `case opened by ${author}`,
+    joined: (who) => `entered ${who}`,
+    left: (who, reason) => `left ${who}${reason ? `; reason: ${reason}` : ""}`,
+    invite: (author, who) => `${author} invites ${who} to the case`,
+    withdraw: (author) => `invitation withdrawn by ${author}`,
+    retract: (author, answer, afterAck) => `answer [${answer}] retracted${afterAck ? " after acceptance" : ""} by ${author}`,
+    node: (seq, name, realm, reasoning) => `node #${seq} ${name} (${realm}) in the case${reasoning}`,
+    nodeUpdated: (seq, name, reasoning) => `node #${seq} ${name} updated${reasoning}`,
+    nodeDeleted: (seq, name, reasoning) => `node #${seq} ${name} deleted${reasoning}`,
+    nodeUndeleted: (seq, name, reasoning) => `node #${seq} ${name} restored${reasoning}`,
+    link: (room, rel) => `case linked to case #${room} (${rel})`,
+    auto: (code, room) => `platform record ${code} about case #${room}`,
+    unknown: (kind) => `kind ${kind} is unknown to the bridge`,
+    case: (room) => `case #${room}`,
+    replyTo: (id) => `in reply to [${id}]`,
+    stale: () => "stale",
+    bodyRead: (how) => `body: ${how}`,
+    whoHuman: (user) => `user${user}`,
+    whoRole: (karta) => `role #${karta}`,
+    whoSibling: (karta) => `sibling of role #${karta}`,
+    whoPlatform: () => "platform — a wake-up",
+    whoGraph: () => "graph event",
+    legacy: (kind, stack) => `kind ${kind}${stack ? ` · ${stack}` : ""}`
+  }
+};
+
 // js/delivery/words/stalebatch.ts
 var STALE = {
   en: {
-    head: (count, shown) => `Stale frames: ${count}` + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + ` — taken while the seat was not listening, or the service repeating after a session rebuild; those addressed to the seat as text, the rest by count; in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.`
+    head: (count, shown, legacy = false) => `Stale frames: ${count}` + (count > shown ? `, the first ${shown} here, ${count - shown} left out` : "") + (legacy ? ` — taken while the seat was not listening, or the service repeating after a session rebuild; those addressed to the seat as text, the rest by count; in full — by the case lines below, the rest — ${FRAME_TEXT.en.myCases()}.` : ".")
   }
 };
 
@@ -790,14 +835,28 @@ function countLine(lang2) {
   const count = esc(flat(T.count(HEAD2, N, 0))).replace(HEAD2, ".+?").replace(NUM, String.raw`\d+`);
   return `${count}[^()]*?${esc(flat(T.noneYours()))}${esc(flat(T.inFull(ARGS))).replace(ARGS, cases)}\\.`;
 }
-var head = (lang2) => [STALE[lang2].head(1, 1), STALE[lang2].head(2, 1)].map(
-  (h) => esc(flat(h)).replace(/\d+/g, String.raw`\d+`)
-);
+var head = (lang2) => [false, true].flatMap((legacy) => [STALE[lang2].head(1, 1, legacy), STALE[lang2].head(2, 1, legacy)]).map((h) => esc(flat(h)).replace(/\d+/g, String.raw`\d+`));
 var LINE = `(?:${LANGS.map(countLine).join("|")})`;
 var QUIET2 = new RegExp(`^(?:${LANGS.flatMap(head).join("|")})?(?:${LINE})+$`);
+function compact(lang2) {
+  const T = FRAME_TEXT[lang2];
+  const caseHead = esc(flat(ROOM[lang2].case(HEAD2))).replace(HEAD2, "[^«»():;]+") + "(?:«[^»]*»)?";
+  const count = esc(flat(T.count(HEAD2, N, 0))).replace(HEAD2, caseHead).replace(NUM, String.raw`\d+`);
+  const gone = esc(flat(T.supersededLines(N))).replace(NUM, String.raw`\d+`);
+  const history = esc(flat(T.inFull(T.caseHistory(ARGS, N)))).replace(ARGS, "[^()]*").replace(NUM, String.raw`-?\d+`);
+  const template = esc(flat(T.inFull(T.caseHistory('realm=R, action="history", room=N', "S"))));
+  const fallback = esc(flat(T.inFull("")));
+  const cursor = String.raw`·realm="(?:[^"\\]|\\.)*",since=\d+`;
+  const line = `${count}(?:${gone})?`;
+  return `(?:${line}(?:${cursor})?;(?:${history}|${fallback})\\.|(?:${line}(?:${cursor})?){2,}(?:${template}|${fallback})\\.)`;
+}
+var COMPACT = new RegExp(
+  `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact).join("|")})$`
+);
 function quiet(text2) {
   const t = flat(text2);
-  return QUIET2.test(t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t);
+  const body = t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t;
+  return QUIET2.test(body) || COMPACT.test(body);
 }
 
 // js/cli/turnread.ts
