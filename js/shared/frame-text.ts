@@ -1,6 +1,7 @@
 import { FRAME_MARK, FRAME_TEXT, ROOM } from "../delivery/index.ts";
 import { addressedToMine, closedQuestion } from "./addressed.ts";
 import { classifyOrigin, type Frame, type FrameOrigin } from "./channel.ts";
+import { compactCounts } from "./frame-format.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
 import { addresseeOf, need, opt } from "./room-fields.ts";
@@ -9,6 +10,9 @@ import { isLifeCheck } from "./seen.ts";
 
 const W = () => wordsOf(ROOM);
 const T = () => wordsOf(FRAME_TEXT);
+
+/** These kinds already name their reference in the structured caption (#4957). */
+const CAPTION_REPLY = new Set(["body", "answer", "ack", "retract"]);
 
 type Rec = Record<string, unknown>;
 const rec = (v: unknown): Rec => (v && typeof v === "object" ? (v as Rec) : {});
@@ -22,7 +26,8 @@ const ZACHIN = 40;
 function casesOf(frames: Frame[]): Frame[][] {
   const by = new Map<string, Frame[]>();
   for (const f of frames) {
-    const key = caseKey(f) || idOf((f as Rec).id) || "?";
+    const c = caseOf(f);
+    const key = c ? JSON.stringify([c.realm, c.room]) : idOf((f as Rec).id) || "?";
     const got = by.get(key);
     if (got) got.push(f);
     else by.set(key, [f]);
@@ -67,7 +72,8 @@ function whoOf(frame: Frame, withPlace: boolean): string {
 
 /** Frame text: a line as is, a JSON body (graph event) in one line. */
 function textOf(frame: Frame): string {
-  if (roomKind(frame)?.aside) return ""; // an addressed word not to me (#6081) has no body
+  const rk = roomKind(frame);
+  if (rk?.aside || rk?.bodyInWords) return "";
   const b = frame.body;
   return typeof b === "string" ? b : b === undefined ? "" : JSON.stringify(b);
 }
@@ -135,9 +141,9 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
       ? rk.words
       : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
     const author = rk?.author && !words.includes(rk.author) ? rk.author : "";
-    const who = origin === "platform" ? "" : whoOf(frame, false);
+    const who = rk || origin === "platform" ? "" : whoOf(frame, false);
     const by = [author, who].filter(Boolean).join(", ");
-    const withReply = rk?.kind !== "body"; // a body's in_reply_to is its word, already in the words
+    const withReply = !rk || !CAPTION_REPLY.has(rk.kind);
     const head =
       `${caseHead(frame, true)}${entry ? ` [${entry}]` : ""} ${words}` +
       `${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
@@ -160,12 +166,9 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
 export const warnedSeat = (frame: Frame): string =>
   typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
 
-/** Start of the frame text in a batch line — how many characters. */
-const BATCH_TEXT = 160;
-
 /**
  * A case batch frame for the watchdog in one line: case, [entry_id], kind, author,
- * start of text; the case opening on its first appearance. An addressed word not to
+ * full text; the case opening on its first appearance. An addressed word not to
  * me (#6081) has no body; run — the number of words in the pair's run closed by this
  * frame (foldAsides), absent for a lone frame. No envelope: batchPointer reads it whole.
  */
@@ -178,12 +181,13 @@ export function batchLine(frame: Frame, run?: number, withZachin = true): string
   const line = rec(f.line);
   const e = f.entry_id ?? line.entry_id ?? f.id;
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
-  const words = rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?");
+  const words = (rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?"))
+    .replace(/\s+/g, " ")
+    .trim();
   const author = rk?.author && !words.includes(rk.author) ? ` — ${rk.author}` : "";
-  const flat = [...textOf(frame).replace(/\s+/g, " ").trim()];
-  const text = flat.length > BATCH_TEXT ? flat.slice(0, BATCH_TEXT).join("") + "…" : flat.join("");
+  const text = textOf(frame).replace(/\s+/g, " ").trim();
   const dup = !!text && words.includes(text);
-  return `${pre}[${entry}] ${words}${author}${tail(frame, rk?.kind !== "body")}${text && !dup ? `: ${text}` : ""}`;
+  return `${pre}[${entry}] ${words}${author}${tail(frame, !rk || !CAPTION_REPLY.has(rk.kind))}${text && !dup ? `: ${text}` : ""}`;
 }
 
 /**
@@ -239,20 +243,31 @@ function closingOf(frame: Frame): string {
  * apart (keyfold.ts, #6718).
  */
 export function caseCountLine(frames: Frame[]): string {
+  const count = countText(frames, false);
+  if (!compactCounts()) return legacyCountLine(frames, false);
+  return count ? `${count}; ${batchPointer(frames)}.` : "";
+}
+
+function legacyCountLine(frames: Frame[], incomplete: boolean): string {
+  const count = countText(frames, false);
+  if (!count) return "";
+  const yours = frames.some((f) => addressedToMine(f)) ? "; " : T().noneYours();
+  return count + yours + (incomplete ? T().inFull("") : batchPointer(frames)) + ".";
+}
+
+function countText(frames: Frame[], withCursor: boolean): string {
   const c = frames.length ? caseOf(frames[0]) : null;
   if (!c) return "";
   const mineN = frames.filter((f) => addressedToMine(f)).length;
   const gone = superseded(frames).size;
   const head = caseHead(frames[0], true);
-  const yours = mineN ? T().yoursBelow() : T().noneYours();
+  const cursor = withCursor ? cursorOf(frames) : null;
   const n = frames.length - gone;
   return (
     T().count(head, n, mineN) +
     (gone ? T().supersededLines(gone) : "") +
     frames.map(closingOf).join("") +
-    yours +
-    batchPointer(frames) +
-    "."
+    (cursor ? ` · realm=${JSON.stringify(cursor.realm)}, since=${cursor.since}` : "")
   );
 }
 
@@ -260,8 +275,14 @@ export function caseCountLine(frames: Frame[]): string {
  * Batch count lines — one per case (#6574), above all its records: "yours N" counts the
  * addressed ones that follow as lines below, so the count does not contradict them.
  */
-export function caseCountLines(frames: Frame[]): string[] {
-  return casesOf(frames).map(caseCountLine).filter(Boolean);
+export function caseCountLines(frames: Frame[], incomplete = false): string[] {
+  const groups = casesOf(frames).filter((group) => caseOf(group[0]));
+  if (!groups.length) return [];
+  if (!compactCounts()) return groups.map((group) => legacyCountLine(group, incomplete));
+  if (groups.length === 1 && !incomplete) return [caseCountLine(groups[0])];
+  const counts = groups.map((group) => countText(group, true));
+  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
+  return groups.length === 1 ? [`${counts[0]}; ${pointer}.`] : [...counts, `${pointer}.`];
 }
 
 /** Case batch head: counts per case and where to read in full (#6574) — at the head, since cutting trims the tail. */
@@ -273,21 +294,27 @@ export function batchHead(frames: Frame[]): string {
  * How to read the batch in full: per case, history with since before the batch's
  * first record (since exists from mcp 0.84.2).
  */
+function cursorOf(frames: Frame[]): { realm: string; room: string; since: number } | null {
+  const first = frames[0];
+  const c = first && caseOf(first);
+  if (!c?.realm) return null;
+  const room = rec((first as Rec).room);
+  const entries = frames.map((f) => idOf(f.entry_id ?? rec((f as Rec).line).entry_id));
+  if (entries.some((e) => !e || !Number.isSafeInteger(Number(e)) || Number(e) < 1)) return null;
+  return {
+    realm: c.realm,
+    room: JSON.stringify(room.seq ?? room.id),
+    since: Math.min(...entries.map(Number)) - 1,
+  };
+}
+
 export function batchPointer(frames: Frame[]): string {
-  // A case is a graph plus a number; realm is always required by the case tool.
-  const since = new Map<string, number>();
-  for (const frame of frames) {
-    const f = frame as Record<string, unknown>;
-    const room = (f.room ?? {}) as Record<string, unknown>;
-    const line = (f.line ?? {}) as Record<string, unknown>;
-    const n = room.seq ?? room.id;
-    const e = Number(f.entry_id ?? line.entry_id);
-    if ((typeof n !== "number" && typeof n !== "string") || !Number.isFinite(e)) continue;
-    const realm = room.realm ?? f.realm;
-    const args =
-      (typeof realm === "string" && realm ? `realm="${realm}", ` : "") +
-      `action="history", room=${typeof n === "number" ? String(n) : JSON.stringify(n)}`;
-    since.set(args, Math.min(since.get(args) ?? e, e));
-  }
-  return T().inFull([...since].map(([args, e]) => T().caseHistory(args, e - 1)).join("; "));
+  const cursors = casesOf(frames).map(cursorOf);
+  const c = cursors[0];
+  if (!c || cursors.some((cursor) => !cursor)) return T().inFull("");
+  if (cursors.length > 1)
+    return T().inFull(T().caseHistory('realm=R, action="history", room=N', "S"));
+  return T().inFull(
+    T().caseHistory(`realm=${JSON.stringify(c.realm)}, action="history", room=${c.room}`, c.since),
+  );
 }

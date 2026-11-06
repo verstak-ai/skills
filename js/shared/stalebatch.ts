@@ -21,7 +21,7 @@ export function staleBatch(all: readonly Frame[], has: Marks): { text: string; k
   const count = kept.length;
   if (!count) return { text: "", keys };
   const bodies = [
-    ...caseCountLines(frames),
+    ...caseCountLines(frames, count > frames.length),
     ...frames
       .filter((f) => addressedToMine(f))
       .map((f) => {

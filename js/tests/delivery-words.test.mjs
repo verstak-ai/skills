@@ -126,17 +126,18 @@ test("rejoin joins the waiting cases by room, without checking mine first", () =
 });
 
 test("left-out and lost frames point at the seat's cases, never the channel log the server drops", () => {
-  const pointers = [
-    FRAME_TEXT.en.inFull(""),
-    BACKLOG.en.head(30, 30, 20, 1),
-    STALE.en.head(25, 20),
-    CHANNEL.en.hung(90, 30),
-  ];
+  const pointers = [FRAME_TEXT.en.inFull(""), STALE.en.head(25, 20, true), CHANNEL.en.hung(90, 30)];
   for (const text of pointers) {
     assert.match(text, /verstak_case\(action="mine"\), then read each/);
     assert.doesNotMatch(text, /verstak_channel/);
   }
   assert.match(CHANNEL.en.hung(90, 30), /a direct word — ask for it again/);
+  // Compact counts (core v7.33 line, graph @nks/nks-dev, node #9654): the head is numbers only.
+  assert.equal(
+    BACKLOG.en.head(30, 30, 20, 0),
+    "Wake-up: 30 frames (waiting in the queue: 30), the first 20 here, 10 left out.",
+  );
+  assert.equal(STALE.en.head(25, 20), "Stale frames: 25, the first 20 here, 5 left out.");
   for (const text of [
     OPENCODE.en.childGone("f", "c", " t"),
     OPENCODE.en.childEnded("f", "c", "t"),

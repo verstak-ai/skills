@@ -1,5 +1,6 @@
 import { BRIDGE_NAME, envName, ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
 import { OWN_CLIENTS } from "../shared/clients.ts";
+import { negotiateCounts } from "../shared/frame-format.ts";
 import {
   absorbChannelReply,
   absorbCloseReply,
@@ -202,7 +203,6 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
 }
 
 const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted, localRealm];
-
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   // Answered by the bridge itself, never sent upstream.
   const local = LOCAL.reduce<Promise<JsonRpcMessage> | null>((got, f) => got ?? f(msg), null);
@@ -211,7 +211,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
     return;
   }
   const isInit = msg?.method === "initialize";
-  if (isInit) state.initParams = msg.params;
+  if (isInit) state.initParams = negotiateCounts(msg.params);
   const harness = !ownClient();
   const hasId = msg?.id !== undefined && msg?.id !== null;
   let authRetried = false;
