@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.33.3](https://github.com/verstak-ai/skills/compare/v3.33.2...v3.33.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* the door carries the personal-slice call in its Start; door-start keeps the other states ([#350](https://github.com/verstak-ai/skills/issues/350)) ([e1fa87e](https://github.com/verstak-ai/skills/commit/e1fa87ec9d6ea3fbb47d215825e38e343ea6288a))
+
 ## [3.33.2](https://github.com/verstak-ai/skills/compare/v3.33.1...v3.33.2) (2026-11-06)
 
 
