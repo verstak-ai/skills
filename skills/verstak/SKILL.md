@@ -197,7 +197,7 @@ Read the method file in full, follow it to the result; wrong route → say so, r
 
 ## Step 6 · Answer
 
-- **What exists, in their words** — without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (its full address, with the owner's real handle, only when asked).
+- **What exists, in their words** — without the Sanskrit: "seat", "case", "question", "role", "node", "permission"; a graph by its name (its full address, with the owner's real handle, only when asked). Never `rN`, node-type names (holon, kriya, vimarsha), a card as "Person #1", a tally of empty kinds or talk of transport: an empty personal graph is "nothing in your memory yet besides you"; a failed read is "I couldn't read it", with what to do.
 - **Where it is** — node numbers, paths, branch, PR.
 - **What was missing** — open, assumed, silent. One instrument silent → "I don't see it", not "there is none".
 
