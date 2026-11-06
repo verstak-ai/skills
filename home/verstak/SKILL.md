@@ -1,6 +1,6 @@
 ---
 name: verstak
-description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 11."
+description: "The Verstak method's door: the five ways the method fails, session start, cross-cutting norms (what goes into the graph and what into a case, case laws, one-off tasks, waiting on an answer, the ledger, communication), the routes from a request to its method, the forks where agents go wrong, and the moments that call a method unasked. Load when a skill points to verstak and one of its sections, when a request fits no other skill, or when it is unclear which method a task needs. Needs the verstak_* tools. AGENTS.md CONTRACT: 12."
 ---
 
 # Verstak — the door
@@ -27,7 +27,7 @@ Start from the graph, not the case log. The graph holds relations — who consum
 
 1. **Address.** Graph and agent role — from `AGENTS.md`'s cover, the start hook or a `start` line; the person's explicit address wins over the cover. No graph named → `verstak_realm(action="list")`, never guess; no project graph → Survey row "no project graph", onboarding only offered. The owner role, another tool prefix, the `repository` attr and the personal slice: `door-start`, `Addresses and the personal slice`.
 2. **The map and the subject's place.** `verstak_orient(realm=<graph>)`, then, with a named subject, `verstak_orient(realm=<graph>, focus=<node>)`: read the relations with their senses, the neighbours, the questions. For a change, walk its consumers by **integrity** before choosing the edit. A refused read is not an empty graph; a search hit or one node's text doesn't replace the map.
-3. **Readiness.** Now open `door-start` whole and run it: the personal slice, alignment — contract `11` (the description's number; **align**, `Contract`) — your seat before a write or for a watch, the greeting and hearing. A reading session takes no seat itself; a seat the bridge already returned isn't taken again. Start ends when graph and role are named, the seat is set or deliberately not, and the greeting landed where it's awaited — not when the instruction is read.
+3. **Readiness.** Now open `door-start` whole and run it: the personal slice, alignment — contract `12` (the description's number; **align**, `Contract`) — your seat before a write or for a watch, the greeting and hearing. A reading session takes no seat itself; a seat the bridge already returned isn't taken again. Start ends when graph and role are named, the seat is set or deliberately not, and the greeting landed where it's awaited — not when the instruction is read.
 
 ## Cross-cutting norms
 
