@@ -118,6 +118,33 @@ test("prepare: the memory guard is align-hooks.md's sample with the graph filled
   assert.equal(blocked.stderr, `${PREPARE.en.guard("r7")}\n`);
 });
 
+// A guard written by an earlier delivery in its own words (contract 11 named a stub the
+// directory no longer has) is prepare's own: rewritten in place to today's words, not kept
+// (graph @nks/nks-dev, node #7910; the core's preparehooks.ts at the sibling's v7.34.0).
+test("prepare: a guard in an earlier delivery's words is rewritten to today's", () => {
+  const d = repo();
+  const now = "This dir stays frozen: nothing is written here.";
+  const old = fill(GUARD_SAMPLE).replace(now, "This dir stays frozen at its prohibition stub.");
+  assert.notEqual(old, fill(GUARD_SAMPLE), "the sample carries today's words");
+  mkdirSync(join(d, ".claude"));
+  writeFileSync(
+    join(d, ".claude/settings.json"),
+    JSON.stringify({
+      hooks: {
+        PreToolUse: [
+          {
+            matcher: "Write|Edit|MultiEdit|NotebookEdit",
+            hooks: [{ type: "command", command: old }],
+          },
+        ],
+      },
+    }),
+  );
+  const r = prepare(d, ADDR);
+  assert.ok(r.out?.done.includes("hook.guard"), r.stdout);
+  assert.deepEqual(commands(d, "PreToolUse"), [fill(GUARD_SAMPLE)]);
+});
+
 test("prepare: the REALITY.md stub is the template heading and align's line", () => {
   const reality = read(dir, "REALITY.md");
   const heading = read(REPO, "skills/verstak/templates/reality-template.md").split("\n")[0];
