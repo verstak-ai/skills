@@ -207,6 +207,7 @@ test("a compacted session is told its role and the door; a root without a cover 
     /^Verstak: the summary of this compaction must keep .*role #931 in graph @x\/dev, its seat s\.dev/,
   );
   assert.match(keep, /the live cases — by number and what each waits for/);
+  assert.match(keep, /the user's standing words on how agents work for them, verbatim/);
   assert.match(keep, /reload the verstak skill and the role's methods as the first move/);
   const back = COMPACTION.en.back("#931", "s.dev", "@x/dev");
   assert.match(
