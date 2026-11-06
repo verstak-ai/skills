@@ -17,6 +17,7 @@ import { envName, LOGGERS, PI, PLUGIN, tool } from "../delivery/index.ts";
 import { Bridge, resultToContent, snippet, toParameters } from "../shared/bridge-client.ts";
 import { HARNESS_VERSION_ENV, PI_CLIENT, SKILLS_ROOT_ENV } from "../shared/clients.ts";
 import { FIELDS_CAPABILITIES } from "../shared/fields.ts";
+import { COMPACT_COUNTS } from "../shared/frame-format.ts";
 import { words } from "../shared/lang.ts";
 import { enterCase, type LaunchCall, parseLaunch, withWord } from "../shared/launch.ts";
 import { createSeatRealms, type SeatRealms, withHarnessModel } from "../shared/seatmodel.ts";
@@ -179,7 +180,9 @@ export function setupBridge(pi: ExtensionAPI, onChannel: ChannelEventSink): void
         "initialize",
         {
           protocolVersion: PROTOCOL,
-          capabilities: FIELDS_CAPABILITIES, // answer fields — for this client too (#6637)
+          capabilities: {
+            experimental: { ...FIELDS_CAPABILITIES.experimental, ...COMPACT_COUNTS },
+          },
           clientInfo: { name: PI_CLIENT, version: "1" },
         },
         { timeoutMs: HANDSHAKE_MS },

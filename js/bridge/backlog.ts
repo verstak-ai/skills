@@ -5,10 +5,10 @@
 // hello with pending flushes the whole queue at once (else one turn per frame); a platform
 // wake frame should bring what arrives beside it. Bodies are capped like stale ones; the
 // rest via history.
-import { BACKLOG, envName } from "../delivery/index.ts";
+import { BACKLOG, envName, STALE } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame, isDirectWord } from "../shared/channel.ts";
-import { caseCountLines, frameToText } from "../shared/frame-text.ts";
+import { caseCountLines, caseKey, frameToText } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { isLifeCheck, type Marks, splitBatch } from "../shared/seen.ts";
 import { type ChannelEvent } from "./door.ts";
@@ -106,7 +106,12 @@ export class Backlog {
           return [...t].length > BODY_CAP ? [...t].slice(0, BODY_CAP).join("") + "…" : t;
         }),
     ];
-    const head = words(BACKLOG).head(count, expected, got.length, direct);
+    // Both readers know the accumulated-count head; the wake head is not a word
+    // when every record is somebody else's (graph @nks/nks-dev, node #9345).
+    const onlyCounts = !direct && got.every((f) => caseKey(f) && !addressedToMine(f));
+    const head = onlyCounts
+      ? words(STALE).head(count, got.length)
+      : words(BACKLOG).head(count, expected, got.length, direct);
     emit({
       kind: "backlog",
       frames: got,

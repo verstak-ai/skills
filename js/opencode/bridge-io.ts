@@ -16,6 +16,7 @@ import { envName, HALTS_CAPABILITY, HOME_DIR, OPENCODE, PLUGIN } from "../delive
 import { type Bridge, resultToContent } from "../shared/bridge-client.ts";
 import { OPENCODE_CLIENT } from "../shared/clients.ts";
 import { FIELDS_CAPABILITIES } from "../shared/fields.ts";
+import { COMPACT_COUNTS } from "../shared/frame-format.ts";
 import { homeBridgePath } from "../shared/home.ts";
 import { words } from "../shared/lang.ts";
 import { buildOf, buildOfFile } from "../shared/version.ts";
@@ -134,7 +135,11 @@ export async function handshake(
           protocolVersion: PROTOCOL,
           // answer fields — for this client too (#6637); the stop's interrupt is confirmed (#7519)
           capabilities: {
-            experimental: { ...FIELDS_CAPABILITIES.experimental, [HALTS_CAPABILITY]: {} },
+            experimental: {
+              ...FIELDS_CAPABILITIES.experimental,
+              ...COMPACT_COUNTS,
+              [HALTS_CAPABILITY]: {},
+            },
           },
           clientInfo: { name: OPENCODE_CLIENT, version: "1" },
         },
