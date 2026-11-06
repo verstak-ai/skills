@@ -339,36 +339,22 @@ for (const label of [".mcp.json", ".codex-plugin/plugin.json"]) {
 // drift silently (witnessed: the AGENTS.md structure line knew 16 skills while
 // the tree held 18) — so the lists are linted against readdir, not trusted.
 try {
-  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  const agents = readFileSync(join(root, "docs/STRUCTURE.md"), "utf8");
   const m = /one skill \(([^)]*)\)/.exec(agents);
   if (!m) {
-    fail("AGENTS.md", "inventory line not found (\"one skill (…)\" in Project structure)");
+    fail("docs/STRUCTURE.md", "inventory line not found (\"one skill (…)\")");
   } else {
     const listed = new Set([...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]));
     const onDisk = new Set(skillNames);
     for (const name of onDisk) if (!listed.has(name)) {
-      fail("AGENTS.md", `skill \`${name}\` exists in skills/ but is missing from the inventory line`);
+      fail("docs/STRUCTURE.md", `skill \`${name}\` exists in skills/ but is missing from the inventory line`);
     }
     for (const name of listed) if (!onDisk.has(name)) {
-      fail("AGENTS.md", `inventory line names \`${name}\` but skills/${name}/ does not exist`);
+      fail("docs/STRUCTURE.md", `inventory line names \`${name}\` but skills/${name}/ does not exist`);
     }
   }
 } catch (e) {
-  fail("AGENTS.md", `could not read: ${e.message}`);
-}
-try {
-  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
-  const m = /home catalogue \(([^)]*)\)/.exec(agents);
-  if (!m) {
-    fail("AGENTS.md", "home inventory line not found (\"home catalogue (…)\" in Project structure)");
-  } else {
-    const listed = [...m[1].matchAll(/`([a-z-]+)`/g)].map((x) => x[1]).sort();
-    if (listed.join() !== HOME_SKILLS.join()) {
-      fail("AGENTS.md", `home inventory line lists ${listed.join(", ")}; the catalogue is ${HOME_SKILLS.join(", ")}`);
-    }
-  }
-} catch (e) {
-  fail("AGENTS.md", `could not read: ${e.message}`);
+  fail("docs/STRUCTURE.md", `could not read: ${e.message}`);
 }
 try {
   const readme = readFileSync(join(root, "README.md"), "utf8");
@@ -421,16 +407,14 @@ for (const name of methodNames) {
     fail("skills/verstak/SKILL.md:1", `must route to ${name} (methods/${name}.md or **${name}**)`);
   }
 }
-for (const file of ["AGENTS.md", "README.md"]) {
+for (const file of ["README.md"]) {
   const text = readFileSync(join(root, file), "utf8");
-  const inventory = file === "AGENTS.md"
-    ? /methods list \(([^)]*)\)/.exec(text)?.[1]
-    : /## Methods\n([\s\S]*?)(?=\n## |$)/.exec(text)?.[1];
+  const inventory = /## Methods\n([\s\S]*?)(?=\n## |$)/.exec(text)?.[1];
   if (!inventory) {
     fail(file, "missing methods inventory");
     continue;
   }
-  const listed = new Set([...inventory.matchAll(file === "AGENTS.md" ? /`([a-z-]+)`/g : /^\| `([a-z-]+)` \|/gm)].map((m) => m[1]));
+  const listed = new Set([...inventory.matchAll(/^\| `([a-z-]+)` \|/gm)].map((m) => m[1]));
   for (const name of methodNames) if (!listed.has(name)) fail(file, `method ${name} missing from inventory`);
   for (const name of listed) if (!methodNames.includes(name)) fail(file, `method ${name} has no methods file`);
 }
