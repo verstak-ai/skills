@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.32.1](https://github.com/verstak-ai/skills/compare/v3.32.0...v3.32.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* on pickup your own open questions are re-asked or taken back first; the graph told in plain words ([#328](https://github.com/verstak-ai/skills/issues/328)) ([0db8336](https://github.com/verstak-ai/skills/commit/0db83360904e47c8df8e3e7b2644fe4ed40a8075))
+
 ## [3.32.0](https://github.com/verstak-ai/skills/compare/v3.31.2...v3.32.0) (2026-11-06)
 
 
