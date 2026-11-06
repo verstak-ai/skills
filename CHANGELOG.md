@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.33.0](https://github.com/verstak-ai/skills/compare/v3.32.2...v3.33.0) (2026-11-06)
+
+
+### Features
+
+* align contract 12 — trimmed template and method; a refresh cuts retellings in an existing AGENTS.md ([#333](https://github.com/verstak-ai/skills/issues/333)) ([6e30189](https://github.com/verstak-ai/skills/commit/6e30189db517fa90f12502402a45be7e49133f69))
+
+
+### Bug Fixes
+
+* a contract 12 refresh replaces the old guard words; cross-instance consumers keep their row ([#338](https://github.com/verstak-ai/skills/issues/338)) ([da6c2a4](https://github.com/verstak-ai/skills/commit/da6c2a4fcd568273273910d6b38b8180527a9f88))
+* a cross-instance consumer lives in Local overrides; a named holon with another repository is not overwritten ([#340](https://github.com/verstak-ai/skills/issues/340)) ([509fb26](https://github.com/verstak-ai/skills/commit/509fb26919ac35197a2a4f6cacad8801cf2990a2))
+* align gaps the contract 12 probe found ([#339](https://github.com/verstak-ai/skills/issues/339)) ([a121c2d](https://github.com/verstak-ai/skills/commit/a121c2de98517c81d7f230dd21e91cddb38aeeea))
+* align Step 7 closes the gaps its first run found; Layout allows a non-shipped map file ([#336](https://github.com/verstak-ai/skills/issues/336)) ([532cc51](https://github.com/verstak-ai/skills/commit/532cc51038bbf284ff409bec9a25af1fd1e89f2f))
+* the memory guard no longer claims a prohibition stub ([#337](https://github.com/verstak-ai/skills/issues/337)) ([8225faf](https://github.com/verstak-ai/skills/commit/8225faf5a681026c88c5a40d3d2fab3dfdccc911))
+
 ## [3.32.2](https://github.com/verstak-ai/skills/compare/v3.32.1...v3.32.2) (2026-11-06)
 
 
