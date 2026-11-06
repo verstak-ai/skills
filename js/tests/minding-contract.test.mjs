@@ -104,8 +104,9 @@ const PRESENT = {
     "An aligned repo doesn't switch mind off",
     // a purely project request runs without mind beyond the start slice
     "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
-    // the door hands the start slice to its reference, opened whole before readiness
-    "Now open `references/door-start.md` whole and run it: the personal slice",
+    // the door carries the start slice's call itself, before the first move on the task
+    "reads their personal slice **before its first move on their task**, a delegate never",
+    'attrs_filter="slice:agents,ways"',
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
     "this repo's rule, from its rule-holder) → `AGENTS.md`",
