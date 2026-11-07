@@ -126,7 +126,7 @@ Displaced (close 4000) → another session took the seat: don't fight in circles
 
 - **pi, OpenCode** — none needed: a vimarsha `posed_to` a role waits for the next turn; other frames, a case's `ask` card included, by their kind (OpenCode: once the current tool call returns).
 
-A frame of a vimarsha `posed_to` a role, and of its edits, wakes no one and don't interrupt the running turn: only the question's latest version arrives at the start of the next turn — in pi a service message at `before_agent_start`, in OpenCode the separate context of its admitted user message; a received notification doesn't yet prove it entered the context. A watchdog reads such a batch at its next arming, not on a timer within the turn. Below — the delivery of other frames.
+A frame of a vimarsha `posed_to` a role, and of its edits, wakes no one and doesn't interrupt the running turn: only the question's latest version arrives at the start of the next turn — in pi a service message at `before_agent_start`, in OpenCode the separate context of its admitted user message; a received notification doesn't yet prove it entered the context. A watchdog reads such a batch at its next arming, not on a timer within the turn. Below — the delivery of other frames.
 
 **Claude Code.** Message frames print speaker, provenance, envelope, body. The key may be omitted when the bridge holds one seat.
 
