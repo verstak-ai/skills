@@ -6,24 +6,24 @@ Shapes for the hooks Step 4 of `methods/align.md` names, in `.claude/settings.js
 Each hook's `command` echoes an envelope; mind the nesting `event → array → {"hooks":[{"type":"command","command":…}]}`:
 ```json
 { "hooks": { "SessionStart": [ { "hooks": [ { "type": "command",
-  "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>.\"}}'" } ] } ] } }
+  "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill (/verstak) and run its Start section before anything else. Cover: graph <Graph>, holon #<Focus holon>, role #<Agent role>.\"}}'" } ] } ] } }
 ```
 The delivery's start word is this `additionalContext`, the slots filled from the `verstak:` cover: `<Graph>` with its `graph` (the rN), `<Focus holon>` and `<Agent role>` with its `holon` and `agent_role`, digits only; no angle brackets or quotes remain. The owner role is not in the hook: the door reads it from the graph. The first sentence asks for the skill by name so the door loads every session. Written by hand (an older delivery), the entry is this sample byte for byte with the same fills. No apostrophes (single-quoted `echo`).
 
 Every envelope is JSON nested in a shell string: a valid JSON string can still break the shell. For every hook using single-quoted `echo`, avoid apostrophes in message text or shell-escape them. Parse the assembled command with `/bin/sh -n` before installing it, then exercise its event fixtures and parse the emitted JSON: shell syntax alone can pass while quoting changes the output.
 
-**Initial form** (onboarding, before the role, holon and gate exist): the same envelope, with the `additionalContext` byte for byte `Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph <Graph>; no holon or roles yet. Continue the onboarding method from the first missing sign.` — one slot, the cover's `graph`. The delivery says it while the cover names only the graph, and the full word once `holon` and `agent_role` stand there. With it, the memory guard with its project graph filled; its personal branch goes through minding without a handle or a stored address. Spec-write waits. A start entry of the repository's own (the initial or the full form, one naming the owner role too) silences the delivery's start: `prepare` names it in `left`, and the transition takes it off (`methods/align.md`, Step 4).
+**Initial form** (onboarding, before the role, holon and gate exist): the same envelope, with the `additionalContext` byte for byte `Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph <Graph>, no holon or roles yet — continue it from the first missing sign.` — one slot, the cover's `graph`. The delivery says it while the cover names only the graph, and the full word once `holon` and `agent_role` stand there. With it, the memory guard with its project graph filled; its personal branch goes through minding without a handle or a stored address. Spec-write waits. A start entry of the repository's own (the initial or the full form, one naming the owner role too) silences the delivery's start: `prepare` names it in `left`, and the transition takes it off (`methods/align.md`, Step 4).
 
 ## Push reminder envelope
 
 Copy this envelope into the push command below. Repository-specific additions must preserve its shell quoting and pass the same parse and fixture checks.
 ```json
-{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review)."}}
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Pushed, nothing shipped yet: self-review the diff and the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."}}
 ```
 
 The merge command's envelope, the same way:
 ```json
-{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes."}}
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence, end by axis, reconcile, feedback; work tasked by another agent: the seed and delivery modes only."}}
 ```
 
 ## Push and merge: fire on the outcome, not the form

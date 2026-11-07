@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph r5, focus holon #844, agent role #8498.\"}}'"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Load the verstak skill (/verstak) and run its Start section before anything else. Cover: graph r5, holon #844, role #8498.\"}}'"
           }
         ]
       }

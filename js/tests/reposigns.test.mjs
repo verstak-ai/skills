@@ -54,6 +54,17 @@ const STARTS = [
     "Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph @tester/work; no holon or roles yet. Continue the onboarding method from the first missing sign.",
   ),
 ];
+// The forms align writes today (references/align-hooks.md, prepare's start word); the older ones
+// above stay recognised as signs.
+const STARTS_NOW = [
+  envelope(
+    "Load the verstak skill (/verstak) and run its Start section before anything else. Cover: graph r1, holon #3, role #7.",
+  ),
+  envelope(
+    "Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph @tester/work, no holon or roles yet — continue it from the first missing sign.",
+  ),
+];
+STARTS.push(...STARTS_NOW);
 const START = session(STARTS[0]);
 const RITUALS = ".opencode/plugins/verstak-rituals.js";
 
@@ -226,7 +237,7 @@ test("repo signs: the start mark is the shipped hook text", () => {
     join(REPO, "skills/verstak/references/align-harness-surfaces.md"),
     "utf8",
   );
-  for (const text of STARTS.map((s) => /"additionalContext":"([^.]*\.)/.exec(s)[1]))
+  for (const text of STARTS_NOW.map((s) => /"additionalContext":"([^.]*\.)/.exec(s)[1]))
     assert.ok(hooks.includes(text), text);
   assert.ok(ritual.includes(`// ${RITUALS} — OpenCode 2`), "the rituals plugin's path");
 });

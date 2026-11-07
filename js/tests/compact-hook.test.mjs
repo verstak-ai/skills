@@ -85,11 +85,8 @@ test("compact hook: one seat for the directory — role, seat, the door and the 
   hold(s.auth, { name: "m3.skills", cwd: s.cwd, client: "claude-code" });
   const out = ok(hook(s, "compact"));
   assert.equal(out, `${COMPACTION.en.back("7", "m3.skills", "@tester/work")}\n`);
-  assert.match(
-    out,
-    /^Verstak: the context was compacted\. You are role #7 in graph @tester\/work; the bridge holds seat m3\.skills\./,
-  );
-  assert.match(out, /verstak skill.*"Recalling"/);
+  assert.match(out, /^Verstak: context compacted\. Role #7 in @tester\/work, seat m3\.skills /);
+  assert.match(out, /verstak skill.*Recalling/);
   assert.ok(!out.includes(ONBOARD_START.en.start()), "no invitation after a compaction");
 });
 
