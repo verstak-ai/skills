@@ -178,11 +178,15 @@ var role = (karta, none) => {
 var COMPACTION = {
   en: {
     keep: (karta, name, realm) => `Verstak: this summary keeps role ${role(karta, "<role>")} in ${realm}, seat ${name}, the live cases (number, what each waits for), the user's standing words on how agents work verbatim, and the instruction to reload the verstak skill and the role's methods first.`,
-    back: (karta, name, realm) => `Verstak: context compacted. Role ${role(karta, "<role>")} in ${realm}, seat ${name} (the bridge holds it). First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
-    bare: () => `Verstak: context compacted. First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
+    back: (karta, name, realm) => `Verstak: context compacted. Role ${role(karta, "<role>")} in ${realm}, seat ${name} (the bridge holds it). First load the verstak skill, the methods its door names for the role (only those) and writing. The user's personal slice comes back with the seat's answer (the door's Start) before your next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
+    bare: () => `Verstak: context compacted. First load the verstak skill, the methods its door names for the role (only those) and writing. With no seat, read the user's personal slice yourself (the door's Start) before your next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
+    restand: (karta, name, realm) => ` As the first move call ${tool("stand")}(realm="${realm}", karta="${role(karta, "<role>")}", name="${name}") without take: the seat stays, and its answer carries the human's rules.`,
     returned: (sessionID) => `Verstak: the role word after the compaction went into the first request of session ${sessionID}`
   }
 };
+
+// js/delivery/words/mindslice.ts
+var LOOK = `${tool("look")}(realm="mind", node_id="#N")`;
 
 // js/delivery/words/onboardstart.ts
 var ONBOARD_START = {
@@ -483,7 +487,8 @@ function line() {
   if (input.source === "compact") {
     const W = words(COMPACTION);
     const seat = seatByDir(authDirFromEnv(), dir, "claude-code");
-    if (seat) return W.back(seat.karta, seat.name, seat.realm);
+    if (seat)
+      return W.back(seat.karta, seat.name, seat.realm) + W.restand(seat.karta, seat.name, seat.realm);
     const { verdict } = repoSigns(dir, "claude-code");
     return verdict === "aligned" || verdict === "partial" ? W.bare() : null;
   }

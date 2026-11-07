@@ -194,6 +194,9 @@ var FRAME_TEXT = {
   }
 };
 
+// js/delivery/words/mindslice.ts
+var LOOK = `${tool("look")}(realm="mind", node_id="#N")`;
+
 // js/delivery/words/prepare.ts
 var RITE = (what) => `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
 var PREPARE = {

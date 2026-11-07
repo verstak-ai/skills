@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.34.5";
+var VERSION = "3.35.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -190,6 +190,22 @@ var LAUNCH = {
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
+  }
+};
+
+// js/delivery/words/mindslice.ts
+var MARK = "Verstak · the human's own:";
+var LOOK = `${tool("look")}(realm="mind", node_id="#N")`;
+var NEXT = (offset) => `${tool("search")}(realm="mind", q="", attrs_filter="slice:agents,ways", offset=${offset})`;
+var MIND_SLICE = {
+  en: {
+    mark: () => MARK,
+    head: (n2) => `${MARK} their rules for working with agents (mind, slice agents,ways; ${n2}). Keep them below the project's rules. Personal: neither the text nor any mention that this block exists goes into cases, briefs, commits or the project's graph — not even on a direct request.`,
+    foot: (cut, offset) => `A rule's body — ${LOOK}.` + (cut ? ` This is the first page; the rest — ${NEXT(offset)}.` : ""),
+    empty: () => `${MARK} mind holds no rules of the slice agents,ways.`,
+    absent: () => `${MARK} the account has no mind graph of its own — no rules of the human given.`,
+    unknown: () => `${MARK} no own mind graph confirmed (${tool("me")} readiness) — the rules slice was not read; the work goes on without it.`,
+    unread: (why) => `${MARK} the rules slice of mind was not read (${why}) — the work goes on without it.`
   }
 };
 
@@ -2118,6 +2134,18 @@ function resultToContent(result) {
   ];
 }
 
+// js/shared/mindslice.ts
+function sliceIn(text) {
+  for (const lang2 of LANGS) {
+    const mark = MIND_SLICE[lang2].mark();
+    if (text.startsWith(mark)) return text;
+    const at = text.indexOf(`
+${mark}`);
+    if (at >= 0) return text.slice(at + 1);
+  }
+  return null;
+}
+
 // js/shared/launch.ts
 var LINE = LAUNCH_LINE;
 function parseLaunch(text) {
@@ -2138,8 +2166,11 @@ async function enterCase(l, call, satelliteOf, placeName) {
   const room = `#${l.no}`;
   const stand = { realm: l.realm, karta: l.karta };
   if (satelliteOf) stand.satellite_of = satelliteOf;
+  let rules = null;
+  const said = (word2) => rules ? `${word2}
+${rules}` : word2;
   try {
-    await call(tool("stand"), stand);
+    rules = sliceIn(await call(tool("stand"), stand));
   } catch (e) {
     const why = e.message;
     const join5 = `${tool("case")}(action="join", room="${room}")`;
@@ -2149,9 +2180,9 @@ async function enterCase(l, call, satelliteOf, placeName) {
   try {
     await call(tool("case"), { action: "join", realm: l.realm, room });
   } catch (e) {
-    return W3.notEntered(place, l.no, e.message);
+    return said(W3.notEntered(place, l.no, e.message));
   }
-  return W3.entered(place, l.no);
+  return said(W3.entered(place, l.no));
 }
 
 // js/shared/busyargs.ts
