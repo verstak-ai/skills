@@ -190,50 +190,32 @@ test("the life check names the way to answer, a child seat's release, and the st
 // its align method, never the sibling's skill names.
 test("after a compaction a root session re-reads the personal slice by the door's start and loads writing", () => {
   for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
+    assert.match(w, /the methods its door names for the role \(only those\) and writing/);
     assert.match(
       w,
-      /writes there a standing word of theirs on how agents work that only the summary still holds/,
+      /A root session re-reads the user's personal slice by the door's Start \(own-graph check first\)/,
     );
-    assert.match(w, /found where they said it .*never from the summary alone/);
-    assert.match(
-      w,
-      /— and writing; a root session re-reads the user's personal slice, agents and ways, by the door's start \(its own-graph check first\)/,
-    );
+    assert.match(w, /a standing word of theirs on how agents work that only the summary holds/);
+    assert.match(w, /from where they said it, .*never from the summary alone/);
   }
 });
 
 test("a compacted session is told its role and the door; a root without a cover is told to align", () => {
   const keep = COMPACTION.en.keep("931", "s.dev", "@x/dev");
-  assert.match(
-    keep,
-    /^Verstak: the summary of this compaction must keep .*role #931 in graph @x\/dev, its seat s\.dev/,
-  );
-  assert.match(keep, /the live cases — by number and what each waits for/);
-  assert.match(keep, /the user's standing words on how agents work for them, verbatim/);
-  assert.match(keep, /reload the verstak skill and the role's methods as the first move/);
+  assert.match(keep, /^Verstak: this summary keeps role #931 in @x\/dev, seat s\.dev/);
+  assert.match(keep, /the live cases \(number, what each waits for\)/);
+  assert.match(keep, /the user's standing words on how agents work verbatim/);
+  assert.match(keep, /reload the verstak skill and the role's methods first/);
   const back = COMPACTION.en.back("#931", "s.dev", "@x/dev");
   assert.match(
     back,
-    /^Verstak: the context was compacted\. You are role #931 in graph @x\/dev; the bridge holds seat s\.dev\./,
+    /^Verstak: context compacted\. Role #931 in @x\/dev, seat s\.dev \(the bridge holds it\)\./,
   );
-  assert.match(
-    back,
-    /load the verstak skill and the methods its door names for the role — only those/,
-  );
-  assert.match(
-    back,
-    /The summary is a pointer, not the record: .* read it in the graph again \(the door's entry method, "Recalling"\)\.$/,
-  );
-  assert.match(COMPACTION.en.back("undefined", "s", "r5"), /You are role <role> in graph r5/);
+  assert.match(back, /re-read in the graph what you lean on \(entry, Recalling\)\.$/);
+  assert.match(COMPACTION.en.back("undefined", "s", "r5"), /Role <role> in r5/);
   const bare = COMPACTION.en.bare();
-  assert.match(
-    bare,
-    /^Verstak: the context was compacted\. Before the first substantive move, load the verstak skill/,
-  );
-  assert.match(
-    bare,
-    /The summary is a pointer, not the record: .*\(the door's entry method, "Recalling"\)\.$/,
-  );
+  assert.match(bare, /^Verstak: context compacted\. First load the verstak skill/);
+  assert.match(bare, /\(entry, Recalling\)\.$/);
   assert.doesNotMatch(bare, /role #|seat /);
   assert.match(COMPACTION.en.returned("ses_1"), /^Verstak: .*session ses_1$/);
   assert.equal(ROOT_SEAT.en.noFile("AGENTS.md"), "there is no AGENTS.md");

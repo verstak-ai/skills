@@ -15,7 +15,7 @@ export interface TurnWords {
 export const TURN: Readonly<Record<Lang, TurnWords>> = {
   en: {
     wake: () =>
-      `${FRAME_MARK} No human at the console: a question goes as an ask card in the case, a report as a word in the case or by the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say to anyone — the turn is over, no text needed.`,
+      `${FRAME_MARK} No human at the console: a question — an ask card in the case; a report — the case or the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`,
   },
 };

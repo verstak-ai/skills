@@ -167,10 +167,10 @@ export default {
       }
       const tagsOnly = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new tag\])))/; // a release tag is not a branch for review
       const note = (ran(push, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/) && !tagsOnly.test(out)) || quiet
-        ? "[verstak] A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review)."
+        ? "[verstak] Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."
         : ran("gh pr merge", "-h|--help|--auto|--disable-auto", /(Merged|Squashed and merged|Rebased and merged) pull request/) ||
             ran("fj pr merge", "-h|--help|--auto|--disable-auto", /Merged PR #/) || ((exit ?? 0) === 0 && pull.test(cmd))
-          ? "[verstak] Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes."
+          ? "[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only."
           : "";
       if (!note || !(await mine(input.sessionID)) || !once(input.id)) return;
       input.result = {
@@ -186,8 +186,8 @@ export default {
     // Same message as the SessionStart hook prepare writes (references/align-hooks.md), from the AGENTS.md
     // cover: the align run fills <Graph> (its rN) and the two seqs (digits only); no angle brackets or quotes remain.
     const START =
-      "Load the verstak skill first (/verstak) and read its Start section before any other action. " +
-      "Addresses from the AGENTS.md cover: graph <Graph>, focus holon #<Focus holon>, agent role #<Agent role>.";
+      "Load the verstak skill (/verstak) and run its Start section before anything else. " +
+      "Cover: graph <Graph>, holon #<Focus holon>, role #<Agent role>.";
     const ac = new AbortController();
     (async () => {
       for await (const ev of await ctx.event.subscribe({ signal: ac.signal })) {

@@ -67,10 +67,10 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,
     notNumber: (file, key) => `'${key}' in ${file} is not a number`,
     seated: (place, karta, realm, file) =>
-      `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by this seat. For a watch (room/model) or your own name, call ${tool("stand")} — it replaces a provisional seat without take.`,
+      `Verstak: provisional seat ${place} — role #${karta} in ${realm} (${file}); your writes sign with it. A watch or your own name: ${tool("stand")}, no take needed.`,
     /** Seated on the session's own seat returned from disk — not provisional. */
     ownSeated: (place, karta, realm, file) =>
-      `Verstak: the session holds its own seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by it. A different name requires ${tool("stand")} with take.`,
+      `Verstak: own seat ${place} — role #${karta} in ${realm} (${file}); your writes sign with it. Another name: ${tool("stand")} with take.`,
     cancelled: () => "The instance or session is stopped; no new seating is allowed.",
     cleanupFailed: (place, why) =>
       `Cancelled seating ${place}: could not revoke the seat (${why}); the bridge is closing, the seat may remain until the server's idle expiry.`,

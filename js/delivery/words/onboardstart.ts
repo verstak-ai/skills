@@ -11,6 +11,6 @@ export interface OnboardStartWords {
 export const ONBOARD_START: Readonly<Record<Lang, OnboardStartWords>> = {
   en: {
     start: () =>
-      "Verstak: this repository is not yet aligned for the agent — load the verstak skill and offer the person its onboarding method; it does not hold up their request and creates nothing without their word.",
+      "Verstak: this repository is not aligned yet — load the verstak skill and offer the person its onboarding method; it does not hold up their request and writes nothing without their word.",
   },
 };
