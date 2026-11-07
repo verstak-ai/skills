@@ -119,7 +119,9 @@ const PRESENT = {
     // the start slice: given with the seat's answer, a delegate holds it like its launcher (#9817, #9818)
     "a delegate holds it like its launcher: personal, never copied into the case or the brief",
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
-    "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
+    "`missing` → personal memory is provided here, unasked — by a root session talking to the user only",
+    // a delegate neither creates mind nor reads it itself (graph @nks/nks-dev, node #9817)
+    "a delegate never creates it nor reads mind itself, it holds what the bridge gave",
     "no read and no create, say so in a line",
     // the call itself stands in the door's Start (LAB probe of #9782: door-start went unopened)
     "The door's `Start`, step 3, carries the call and its moment",
