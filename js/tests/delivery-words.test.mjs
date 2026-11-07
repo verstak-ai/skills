@@ -189,12 +189,15 @@ test("the life check names the way to answer, a child seat's release, and the st
 // core's opencode/compaction.ts, rootseat-again.ts): the words name this delivery's door and
 // its align method, never the sibling's skill names.
 test("after a compaction the personal slice comes back with the seat's answer, and writing is loaded", () => {
+  assert.match(
+    COMPACTION.en.back("#931", "s.dev", "@x/dev"),
+    /The user's personal slice comes back with the seat's answer \(the door's Start\)/,
+  );
+  // No seat is known for `bare`: no seat's answer will bring the slice, so it is read here.
+  assert.match(COMPACTION.en.bare(), /With no seat, read the user's personal slice yourself/);
+  assert.doesNotMatch(COMPACTION.en.bare(), /seat's answer/);
   for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
     assert.match(w, /the methods its door names for the role \(only those\) and writing/);
-    assert.match(
-      w,
-      /The user's personal slice comes back with the seat's answer \(the door's Start\)/,
-    );
     assert.match(w, /a standing word of theirs on how agents work that only the summary holds/);
     assert.match(w, /from where they said it, .*never from the summary alone/);
   }
@@ -381,12 +384,12 @@ test("the mind slice words carry one mark, our tool names and the personal claus
 });
 
 // The server prose the core reads the slice from (patterns/mind.ts; graph @nks/nks-dev, node
-// #9817): readiness's personal_mind sign and a search row. The English server's exact prose is
-// unobserved; these pin the shape the core relies on — the key, the state token, the row.
+// #9817): readiness's personal_mind sign and a search row, as the English LAB verstak server
+// printed them (case #3255, 2026-11-06), plus a row with a fragment.
 test("the mind patterns read the readiness sign and a search row", async () => {
   const { MIND_MISSING, MIND_PRESENT, MIND_ROW } = await import("../delivery/patterns/mind.ts");
   const ready =
-    "Readiness\n  personal_mind «Personal memory» — present · scope: person · ready: yes\n";
+    "Readiness of @lab-en (English Lab Person)\n  personal_mind «Personal memory» — present · scope: person · ready: yes\n";
   assert.ok(MIND_PRESENT.test(ready));
   assert.ok(!MIND_MISSING.test(ready));
   assert.ok(MIND_MISSING.test("  personal_mind «Personal memory» — missing · lacks: mind_realm"));
@@ -394,6 +397,9 @@ test("the mind patterns read the readiness sign and a search row", async () => {
     "  🗺️ A short plan first (#3, phenomenon, Pt/Va/Ad, v1) — Before a task, a plan",
   );
   assert.deepEqual(row?.slice(1), ["🗺️ A short plan first", "3", "Before a task, a plan"]);
-  assert.equal(MIND_ROW.exec("  🗺️ A short plan first (#3, phenomenon, Pt/Va/Ad, v1)")?.[2], "3");
+  const seen = MIND_ROW.exec(
+    "  🗺️ A short plan before starting a task (#3, phenomenon, Pm/Va/Ad, v1)",
+  );
+  assert.deepEqual(seen?.slice(1, 3), ["🗺️ A short plan before starting a task", "3"]);
   assert.equal(MIND_ROW.exec("Found 1 nodes:"), null);
 });
