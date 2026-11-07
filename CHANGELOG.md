@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.34.3](https://github.com/verstak-ai/skills/compare/v3.34.2...v3.34.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* hook words cut to their load-bearing lines — start, seat, push, merge, turn end, compaction ([#360](https://github.com/verstak-ai/skills/issues/360)) ([15db41b](https://github.com/verstak-ai/skills/commit/15db41ba3625924b19a120605670de38cdb37b20))
+
 ## [3.34.2](https://github.com/verstak-ai/skills/compare/v3.34.1...v3.34.2) (2026-11-06)
 
 
