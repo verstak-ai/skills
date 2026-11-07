@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.35.0](https://github.com/verstak-ai/skills/compare/v3.34.5...v3.35.0) (2026-11-07)
+
+
+### Features
+
+* the human's rules from mind come with the seat's answer, after a compaction and at a subagent's launch (core at iskron v7.35.0) ([#367](https://github.com/verstak-ai/skills/issues/367)) ([d69e6d3](https://github.com/verstak-ai/skills/commit/d69e6d30ef32283469019bba6e450dc5085ab36f))
+
+
+### Bug Fixes
+
+* a seatless compaction word reads the slice itself; mind patterns pinned to the English server's observed prose ([#369](https://github.com/verstak-ai/skills/issues/369)) ([f1171f0](https://github.com/verstak-ai/skills/commit/f1171f0f952746a5e7a8b6c9ec05369b796087eb))
+
 ## [3.34.5](https://github.com/verstak-ai/skills/compare/v3.34.4...v3.34.5) (2026-11-07)
 
 

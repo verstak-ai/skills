@@ -180,6 +180,11 @@ var LAUNCH_LINE = new RegExp(
   "mu"
 );
 
+// js/delivery/patterns/mind.ts
+var MIND_PRESENT = /^\s*personal_mind\b[^\n]*—\s*present\b/m;
+var MIND_MISSING = /^\s*personal_mind\b[^\n]*—\s*missing\b/m;
+var MIND_ROW = /^\s+(\S[^\n]*?) \(#(\d+), [^\s,)]+[^)\n]*\)(?: — ([^\n]*))?$/;
+
 // js/delivery/patterns/satprobe.ts
 var SAT_LOGIN_RE = /\/login\b|oauth|authoriz|sign.?in|log.?in|\b401\b/i;
 var SAT_OLD_FLAG_RE = /satellite|unknown (flag|option)/i;
@@ -198,7 +203,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.34.5";
+var VERSION = "3.35.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -594,6 +599,22 @@ var MACHINE_STATUS = {
     silent: () => "not listening",
     lastWork: () => "last graph call",
     unknown: () => "not observed"
+  }
+};
+
+// js/delivery/words/mindslice.ts
+var MARK = "Verstak · the human's own:";
+var LOOK = `${tool("look")}(realm="mind", node_id="#N")`;
+var NEXT = (offset) => `${tool("search")}(realm="mind", q="", attrs_filter="slice:agents,ways", offset=${offset})`;
+var MIND_SLICE = {
+  en: {
+    mark: () => MARK,
+    head: (n) => `${MARK} their rules for working with agents (mind, slice agents,ways; ${n}). Keep them below the project's rules. Personal: neither the text nor any mention that this block exists goes into cases, briefs, commits or the project's graph — not even on a direct request.`,
+    foot: (cut, offset) => `A rule's body — ${LOOK}.` + (cut ? ` This is the first page; the rest — ${NEXT(offset)}.` : ""),
+    empty: () => `${MARK} mind holds no rules of the slice agents,ways.`,
+    absent: () => `${MARK} the account has no mind graph of its own — no rules of the human given.`,
+    unknown: () => `${MARK} no own mind graph confirmed (${tool("me")} readiness) — the rules slice was not read; the work goes on without it.`,
+    unread: (why) => `${MARK} the rules slice of mind was not read (${why}) — the work goes on without it.`
   }
 };
 
@@ -12869,6 +12890,48 @@ async function standAgainWord(realm, karta, miss) {
   return call ? ` ${words(STAND_MOVES).standAgain(call)}` : "";
 }
 
+// js/shared/mindslice.ts
+var LIMIT3 = 100;
+var NODE_ROW = /^\s+\S.* \(#\d+, /;
+var SLICE_ARGS = {
+  realm: "mind",
+  q: "",
+  attrs_filter: "slice:agents,ways",
+  limit: LIMIT3,
+  include_description: true
+};
+var brief = (s2) => {
+  const t = s2.replace(/\s+/g, " ").trim();
+  return t.length > 120 ? `${t.slice(0, 119)}…` : t || "-";
+};
+async function mindSlice(call) {
+  const W4 = words(MIND_SLICE);
+  try {
+    const ready = await call(tool("me"), { action: "readiness" });
+    if (ready.isError) return W4.unread(brief(ready.text));
+    if (MIND_MISSING.test(ready.text)) return W4.absent();
+    if (!MIND_PRESENT.test(ready.text)) return W4.unknown();
+    const got = await call(tool("search"), SLICE_ARGS);
+    if (got.isError) return W4.unread(brief(got.text));
+    const listed = got.text.split("\n").filter((l) => NODE_ROW.test(l)).length;
+    const rows = got.text.split("\n").flatMap((l) => {
+      const [, name2, seq3, line] = MIND_ROW.exec(l) ?? [];
+      return name2 ? [`  ${name2} (#${seq3})${line ? ` — ${line}` : ""}`] : [];
+    });
+    if (!rows.length) return listed >= LIMIT3 ? `${W4.empty()}
+${W4.foot(true, LIMIT3)}` : W4.empty();
+    return [W4.head(rows.length), ...rows, W4.foot(listed >= LIMIT3, LIMIT3)].join("\n");
+  } catch (e) {
+    return W4.unread(brief(e.message));
+  }
+}
+
+// js/bridge/standtail.ts
+async function standTail(stood) {
+  const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
+  return [...stale ? [stale] : [], ...stood ? [await mindSlice(callTool)] : []];
+}
+
 // js/bridge/standundo.ts
 var mw2 = () => words(STAND_MOVES);
 var heldAddress = (realm, prior) => prior && holdsStanding(realm, prior.karta, prior.name ?? "") && H2.currentUrl ? { url: H2.currentUrl, statusUrl: H2.currentStatusUrl } : null;
@@ -13264,9 +13327,8 @@ async function standOnce(msg) {
       st.ok ? busyLine(a.status.trim(), realm) : sw2().statusRefused(short(st.body), st.code === 404 ? ` ${TURNED_GUIDANCE()}` : "")
     );
   }
-  const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
-  if (stale) lines.push(stale);
   if (!priorKept) noteStood(auto, realm, karta, name2);
+  lines.push(...await standTail(!priorKept && !auto));
   return done(priorKept);
 }
 
