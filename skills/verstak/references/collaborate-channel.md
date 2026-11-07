@@ -119,7 +119,9 @@ Displaced (close 4000) → another session took the seat: don't fight in circles
 
 ## Watchdog by harness — details
 
-- **pi, OpenCode** — none needed: frames are inserted into the running turn (OpenCode: once the current tool call returns).
+- **pi, OpenCode** — none needed: a question to a role waits for the next turn; other frames by their kind (OpenCode: once the current tool call returns).
+
+A question-to-role frame and its edits wake no one and don't interrupt the running turn: only the question's latest version arrives at the start of the next turn — in pi a service message at `before_agent_start`, in OpenCode the separate context of its admitted user message; a received notification doesn't yet prove it entered the context. A watchdog reads such a batch at its next arming, not on a timer within the turn. Below — the delivery of other frames.
 
 **Claude Code.** Message frames print speaker, provenance, envelope, body. The key may be omitted when the bridge holds one seat.
 

@@ -32,7 +32,7 @@ export const LISTEN: Readonly<Record<Lang, ListenWords>> = {
     codex: (self, key, where) =>
       `in Codex inside one long command of your shell — node "${self}" watchdog-codex ${key}${where} & …; kill %1 (a frame enters the running thread through app-server; as a separate nohup command the watchdog dies with it)`,
     self: (pi) =>
-      `The ${pi ? "pi extension" : "OpenCode plugin"} listens itself — no watchdog needed, frames enter the turn.`,
+      `The ${pi ? "pi extension" : "OpenCode plugin"} listens itself — no watchdog needed: frames enter the turn by their kind, a question to a role at the next turn.`,
     claude: (monitor, exit) => `Listen: ${monitor}; without Monitor — ${exit}.`,
     codexLine: (codex, exit) => `Listen: ${codex}; without the app-server door — ${exit}.`,
     any: (monitor, exit, codex) => `Listen: ${monitor}; ${exit}; ${codex}.`,
