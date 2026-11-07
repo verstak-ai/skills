@@ -184,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.34.2";
+var VERSION = "3.34.3";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -263,9 +263,9 @@ var role = (karta, none) => {
 };
 var COMPACTION = {
   en: {
-    keep: (karta, name, realm) => `Verstak: the summary of this compaction must keep the agent's role ${role(karta, "<role>")} in graph ${realm}, its seat ${name} (the bridge holds it), the live cases — by number and what each waits for — the user's standing words on how agents work for them, verbatim, and the instruction to reload the verstak skill and the role's methods as the first move after the compaction.`,
-    back: (karta, name, realm) => `Verstak: the context was compacted. You are role ${role(karta, "<role>")} in graph ${realm}; the bridge holds seat ${name}. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones — and writing; a root session re-reads the user's personal slice, agents and ways, by the door's start (its own-graph check first) before its next word to them, and writes there a standing word of theirs on how agents work that only the summary still holds — first found where they said it (the case or channel record), else confirmed with them where they alone read, never from the summary alone (minding, Write: a project's rule stays the project's, a way in steps is a kriya in ways). The summary is a pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again (the door's entry method, "Recalling").`,
-    bare: () => `Verstak: the context was compacted. Before the first substantive move, load the verstak skill and the methods its door names for the role — only those, not all the earlier ones — and writing; a root session re-reads the user's personal slice, agents and ways, by the door's start (its own-graph check first) before its next word to them, and writes there a standing word of theirs on how agents work that only the summary still holds — first found where they said it (the case or channel record), else confirmed with them where they alone read, never from the summary alone (minding, Write: a project's rule stays the project's, a way in steps is a kriya in ways). The summary is a pointer, not the record: a decision, ground or fact from it you lean on — read it in the graph again (the door's entry method, "Recalling").`,
+    keep: (karta, name, realm) => `Verstak: this summary keeps role ${role(karta, "<role>")} in ${realm}, seat ${name}, the live cases (number, what each waits for), the user's standing words on how agents work verbatim, and the instruction to reload the verstak skill and the role's methods first.`,
+    back: (karta, name, realm) => `Verstak: context compacted. Role ${role(karta, "<role>")} in ${realm}, seat ${name} (the bridge holds it). First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
+    bare: () => `Verstak: context compacted. First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
     returned: (sessionID) => `Verstak: the role word after the compaction went into the first request of session ${sessionID}`
   }
 };
@@ -346,7 +346,7 @@ ${said2 || "(it left no text — see its case)"}`,
 // js/delivery/words/onboardstart.ts
 var ONBOARD_START = {
   en: {
-    start: () => "Verstak: this repository is not yet aligned for the agent — load the verstak skill and offer the person its onboarding method; it does not hold up their request and creates nothing without their word."
+    start: () => "Verstak: this repository is not aligned yet — load the verstak skill and offer the person its onboarding method; it does not hold up their request and writes nothing without their word."
   }
 };
 
@@ -493,7 +493,7 @@ var PREPARE = {
 
 Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Until they are, behavioural claims are not accepted.
 `,
-    start: ({ graph, holon, role: role2 }) => `Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph ${graph}${holon ? `, focus holon #${holon}` : ""}${role2 ? `, agent role #${role2}` : ""}.`,
+    start: ({ graph, holon, role: role2 }) => `Load the verstak skill (/verstak) and run its Start section before anything else. Cover: graph ${graph}${holon ? `, holon #${holon}` : ""}${role2 ? `, role #${role2}` : ""}.`,
     guard: (graph, section = "Persistence") => `BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md${section ? `, ${section}` : ""}). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph ${graph}; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen: nothing is written here.`,
     left: (item, keys) => ({
       "cover.repeat": `the key ${keys} stands twice in the front matter of AGENTS.md; strict YAML refuses it and AGENTS.md is untouched: keep one value and run prepare again`,
@@ -522,9 +522,9 @@ var via = tool("stand");
 var RITES = {
   en: {
     lifecycle: () => "Persistence",
-    push: () => `${FRAME_MARK} A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review).`,
-    merge: () => `${FRAME_MARK} Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes.`,
-    early: (graph) => `Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph ${graph}; no holon or roles yet. Continue the onboarding method from the first missing sign.`
+    push: () => `${FRAME_MARK} Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review).`,
+    merge: () => `${FRAME_MARK} Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only.`,
+    early: (graph) => `Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph ${graph}, no holon or roles yet — continue it from the first missing sign.`
   }
 };
 
@@ -604,9 +604,9 @@ var ROOT_SEAT = {
     noRoleRef: (file, key, ref) => `'${key}' in ${file} does not start with a ${ref} reference`,
     manyRoles: (file, key, list) => `'${key}' in ${file} names several roles: ${list}`,
     notNumber: (file, key) => `'${key}' in ${file} is not a number`,
-    seated: (place, karta, realm, file) => `Verstak: the session holds seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by this seat. For a watch (room/model) or your own name, call ${tool("stand")} — it replaces a provisional seat without take.`,
+    seated: (place, karta, realm, file) => `Verstak: provisional seat ${place} — role #${karta} in ${realm} (${file}); your writes sign with it. A watch or your own name: ${tool("stand")}, no take needed.`,
     /** Seated on the session's own seat returned from disk — not provisional. */
-    ownSeated: (place, karta, realm, file) => `Verstak: the session holds its own seat ${place} — role #${karta} in ${realm}, per ${file}; writes are signed by it. A different name requires ${tool("stand")} with take.`,
+    ownSeated: (place, karta, realm, file) => `Verstak: own seat ${place} — role #${karta} in ${realm} (${file}); your writes sign with it. Another name: ${tool("stand")} with take.`,
     cancelled: () => "The instance or session is stopped; no new seating is allowed.",
     cleanupFailed: (place, why) => `Cancelled seating ${place}: could not revoke the seat (${why}); the bridge is closing, the seat may remain until the server's idle expiry.`,
     unproven: () => "the bridge did not prove this attempt took a provisional seat; revoke is not authorized",
@@ -652,7 +652,7 @@ var STATUS_POST = {
 // js/delivery/words/turn.ts
 var TURN = {
   en: {
-    wake: () => `${FRAME_MARK} No human at the console: a question goes as an ask card in the case, a report as a word in the case or by the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say to anyone — the turn is over, no text needed.`,
+    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; a report — the case or the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`
   }
 };
