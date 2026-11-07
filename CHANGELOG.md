@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.34.5](https://github.com/verstak-ai/skills/compare/v3.34.4...v3.34.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* a posed_to vimarsha may wait long in Claude Code and Codex — the methods say so ([#366](https://github.com/verstak-ai/skills/issues/366)) ([d6e615b](https://github.com/verstak-ai/skills/commit/d6e615b7b33e67a35ff028c130afc55047af24f2))
+* bridge core at the sibling's v7.34.2 — a question to the role comes in the next context, without interrupting the turn ([#364](https://github.com/verstak-ai/skills/issues/364)) ([7e8412a](https://github.com/verstak-ai/skills/commit/7e8412ae93d27b1d74d8d80130661103f1c5db62))
+
 ## [3.34.4](https://github.com/verstak-ai/skills/compare/v3.34.3...v3.34.4) (2026-11-07)
 
 

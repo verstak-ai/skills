@@ -184,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.34.4";
+var VERSION = "3.34.5";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1305,6 +1305,48 @@ function superseded(frames) {
 }
 
 // js/shared/seen.ts
+import { appendFileSync, readFileSync as readFileSync3, renameSync, writeFileSync } from "node:fs";
+
+// js/shared/graph-inbox.ts
+function graphInboxKey(frame) {
+  if (frame?.type !== "message" || frame.provenance?.via !== "graph") return null;
+  const b = frame.body;
+  if (!b || typeof b !== "object" || Array.isArray(b)) return null;
+  const body = b;
+  if (typeof body.realm_slug !== "string" || !body.realm_slug || typeof body.vimarsha_seq !== "number" || !Number.isInteger(body.vimarsha_seq) || body.vimarsha_seq <= 0 || !["posed_to", "updated", "vimarsha.updated"].includes(String(body.event_kind)))
+    return null;
+  return JSON.stringify([body.realm_slug, body.vimarsha_seq]);
+}
+var isGraphInbox = (frame) => graphInboxKey(frame) !== null;
+var versionOf = (frame) => frame.body.vimarsha_version;
+function graphFolds(frames) {
+  const groups = /* @__PURE__ */ new Map();
+  for (const frame of frames) {
+    const key = graphInboxKey(frame);
+    if (key === null) continue;
+    const group = groups.get(key) ?? [];
+    group.push(frame);
+    groups.set(key, group);
+  }
+  return [...groups.values()].map((group) => {
+    const latest = group.reduce((a, b) => {
+      const av = versionOf(a);
+      const bv = versionOf(b);
+      return typeof av === "number" && typeof bv === "number" && av > bv ? a : b;
+    });
+    return { latest, superseded: group.filter((f) => f !== latest) };
+  });
+}
+
+// js/shared/seen.ts
+var SEEN_KEEP = 5e3;
+var SEEN_SLACK = 1e3;
+var graphMarks = /* @__PURE__ */ new WeakMap();
+function carryGraphMarks(frame, keys) {
+  if (!frame || !isGraphInbox(frame) || !keys?.length) return;
+  const all = [.../* @__PURE__ */ new Set([...graphMarks.get(frame) ?? [], ...keys])];
+  graphMarks.set(frame, all.slice(-SEEN_KEEP));
+}
 var evOf = (v) => typeof v === "number" || typeof v === "string" && v ? `ev:${v}` : "";
 function eventKeyOf(frame) {
   const via2 = frame?.provenance?.via;
@@ -1319,7 +1361,10 @@ function deliveryKeys(frame, named2 = false) {
   const id = typeof frame?.id === "string" ? frame.id : "";
   const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
   const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
-  return [id, mark && (named2 ? `c${mark}` : mark)].filter(Boolean);
+  const retired = (frame && !named2 && asText(frame) ? graphMarks.get(frame) ?? [] : []).map(
+    (k) => frame?.stale === true && k.startsWith("ev:") ? `evs:${k.slice(3)}` : k
+  );
+  return [...new Set([...retired, id, mark && (named2 ? `c${mark}` : mark)].filter(Boolean))];
 }
 function eventIn(frame, has) {
   const ev = frame ? eventKeyOf(frame) : "";
@@ -1331,8 +1376,68 @@ function eventIn(frame, has) {
 }
 var isTact = (frame) => frame?.provenance?.wake === "look_up";
 var isLifeCheck = (frame) => frame?.provenance?.wake === "life_check";
+function foldedTacts(all) {
+  const tacts = all.filter((f) => isTact(f));
+  const last = tacts.reduce((a, f) => a && tactAt([a]) > tactAt([f]) ? a : f, null);
+  return new Set(tacts.filter((f) => f !== last));
+}
 var tactAt = (frames) => (frames ?? []).filter(isTact).map((f) => typeof f.received_at === "string" ? f.received_at : "").reduce((a, b) => b > a ? b : a, "");
 var onlyTacts = (frames) => !!frames?.length && frames.every(isTact);
+function splitBatch(all, keep, has) {
+  const folded = foldedTacts(all);
+  for (const { latest, superseded: superseded2 } of graphFolds(all)) {
+    for (const frame of superseded2) {
+      folded.add(frame);
+      carryGraphMarks(latest, [...deliveryKeys(frame), eventKeyOf(frame)].filter(Boolean));
+    }
+  }
+  let kept2 = all.filter((f) => !folded.has(f) && !eventIn(f, has));
+  for (; ; ) {
+    const shown2 = new Set(kept2.slice(0, keep));
+    const marks = /* @__PURE__ */ new Set();
+    const local = (k) => marks.has(k) || has(k);
+    const texts2 = kept2.filter((f) => {
+      if (!asText(f)) return true;
+      if (eventIn(f, local)) return false;
+      for (const k of deliveryKeys(f, !shown2.has(f))) marks.add(k);
+      return true;
+    });
+    const next = texts2.filter((f) => asText(f) || !eventIn(f, local));
+    if (next.length < kept2.length) {
+      kept2 = next;
+      continue;
+    }
+    const on = new Set(next.slice(0, keep));
+    return {
+      shown: next.slice(0, keep),
+      kept: next,
+      keys: all.flatMap((f) => deliveryKeys(f, !on.has(f)))
+    };
+  }
+}
+function seenIds(seenPath) {
+  try {
+    return new Set(readFileSync3(seenPath, "utf8").split("\n").filter(Boolean));
+  } catch {
+    return /* @__PURE__ */ new Set();
+  }
+}
+function noteSeenStrict(seenPath, id, seen) {
+  if (seen.has(id)) return;
+  appendFileSync(seenPath, id + "\n");
+  seen.add(id);
+  if (seen.size > SEEN_KEEP + SEEN_SLACK) compact(seenPath, seen);
+}
+function compact(seenPath, seen) {
+  const file = [...seenIds(seenPath)];
+  const inFile = new Set(file);
+  const tail2 = [...[...seen].filter((x) => !inFile.has(x)), ...file].slice(-SEEN_KEEP);
+  const tmp = `${seenPath}.${process.pid}.tmp`;
+  writeFileSync(tmp, tail2.join("\n") + "\n");
+  renameSync(tmp, seenPath);
+  seen.clear();
+  for (const x of tail2) seen.add(x);
+}
 
 // js/shared/frame-text.ts
 var W = () => words(ROOM);
@@ -1536,9 +1641,9 @@ import {
   constants,
   mkdirSync,
   readdirSync as readdirSync2,
-  readFileSync as readFileSync4,
+  readFileSync as readFileSync5,
   statSync as statSync2,
-  writeFileSync
+  writeFileSync as writeFileSync2
 } from "node:fs";
 import { homedir as homedir4 } from "node:os";
 import { join as join6, resolve as resolve3 } from "node:path";
@@ -1672,12 +1777,12 @@ var Bridge = class {
         opts.signal?.removeEventListener("abort", onAbort);
         fn(v);
       };
-      const resolve7 = settle2(res);
+      const resolve8 = settle2(res);
       const reject = settle2(rej);
       function onAbort() {
         reject(new Error(W2().aborted()));
       }
-      this.pending.set(id, { resolve: resolve7, reject });
+      this.pending.set(id, { resolve: resolve8, reject });
       if (opts.signal) {
         if (opts.signal.aborted) return onAbort();
         opts.signal.addEventListener("abort", onAbort, { once: true });
@@ -1766,11 +1871,11 @@ var homeBridgePath = () => join4(homedir3(), HOME_DIR, HOME_BRIDGE_FILE);
 
 // js/shared/version.ts
 import { createHash as createHash2 } from "node:crypto";
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync4 } from "node:fs";
 import { fileURLToPath } from "node:url";
 function buildOf(selfUrl) {
   try {
-    const src = readFileSync3(fileURLToPath(selfUrl));
+    const src = readFileSync4(fileURLToPath(selfUrl));
     return `v${VERSION}+${createHash2("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
     return `v${VERSION}`;
@@ -1778,7 +1883,7 @@ function buildOf(selfUrl) {
 }
 function buildOfFile(path) {
   try {
-    const src = readFileSync3(path);
+    const src = readFileSync4(path);
     const v = versionIn(src.toString("utf8")) ?? "?";
     return `v${v}+${createHash2("sha256").update(src).digest("hex").slice(0, 8)}`;
   } catch {
@@ -1867,7 +1972,7 @@ function grantStamp() {
 var sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function readCache() {
   try {
-    const list = JSON.parse(readFileSync4(cachePath(), "utf8"));
+    const list = JSON.parse(readFileSync5(cachePath(), "utf8"));
     return Array.isArray(list) && list.length ? list : null;
   } catch {
     return null;
@@ -1876,7 +1981,7 @@ function readCache() {
 function writeCache(tools) {
   try {
     mkdirSync(join6(cachePath(), ".."), { recursive: true, mode: 448 });
-    writeFileSync(cachePath(), JSON.stringify(tools), { mode: 384 });
+    writeFileSync2(cachePath(), JSON.stringify(tools), { mode: 384 });
   } catch {
   }
 }
@@ -2132,6 +2237,26 @@ var B = scoped(() => /* @__PURE__ */ new Map());
 // js/bridge/roomstack.ts
 var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 
+// js/shared/stalebatch.ts
+var STALE_BURST_KEEP = 20;
+var BODY_CAP = 800;
+function staleBatch(all, has) {
+  const { shown: frames, kept: kept2, keys } = splitBatch(all, STALE_BURST_KEEP, has);
+  const count = kept2.length;
+  if (!count) return { text: "", keys };
+  const bodies = [
+    ...caseCountLines(frames, count > frames.length),
+    ...frames.filter((f) => addressedToMine(f)).map((f) => {
+      const t = frameToText(f, JSON.stringify(f));
+      return [...t].length > BODY_CAP ? [...t].slice(0, BODY_CAP).join("") + "…" : t;
+    })
+  ];
+  const head2 = words(STALE).head(count, frames.length);
+  return { text: `${head2}
+
+${bodies.join("\n\n")}`, keys };
+}
+
 // js/bridge/sweep.ts
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
 
@@ -2279,9 +2404,60 @@ onFellBack(
 import { AsyncLocalStorage as AsyncLocalStorage2 } from "node:async_hooks";
 var origin = new AsyncLocalStorage2();
 
+// js/shared/graph-receipt.ts
+import { lstatSync, realpathSync } from "node:fs";
+import { basename as basename2, dirname, isAbsolute, resolve as resolve4 } from "node:path";
+var receipts = /* @__PURE__ */ new WeakMap();
+function carryGraphReceipt(frame, seen, root) {
+  if (frame && isGraphInbox(frame) && typeof seen === "string")
+    receipts.set(frame, { path: seen, root });
+}
+function receiptGraph(frames) {
+  const paths = /* @__PURE__ */ new Map();
+  for (const f of frames) {
+    const receipt2 = receipts.get(f);
+    if (!receipt2) continue;
+    const { path, root } = receipt2;
+    if (!isAbsolute(path) || dirname(resolve4(path)) !== resolve4(standingsDirOf(root)) || !/^[a-f0-9]{16}(?:\.[a-f0-9]{8})?\.seen$/.test(basename2(path)) || realpathSync(dirname(path)) !== resolve4(realpathSync(root), "standings"))
+      throw new Error("graph receipt outside its bridge standings directory");
+    try {
+      if (lstatSync(path).isSymbolicLink()) throw new Error("graph receipt path is a link");
+    } catch (e) {
+      if (e.code !== "ENOENT") throw e;
+    }
+    const keys = paths.get(path) ?? /* @__PURE__ */ new Set();
+    for (const k of deliveryKeys(f)) keys.add(k);
+    paths.set(path, keys);
+  }
+  for (const [path, keys] of paths) {
+    const seen = seenIds(path);
+    for (const k of keys) noteSeenStrict(path, k, seen);
+  }
+}
+
+// js/shared/softbatch.ts
+function separateGraphBatch(ev) {
+  const graph = ev.frames?.filter(isGraphInbox) ?? [];
+  if (!graph.length) return { graph, rest: ev };
+  const other = splitBatch(ev.frames ?? [], Infinity, () => false).kept.filter(
+    (f) => !isGraphInbox(f)
+  );
+  const graphMarks2 = new Set(graph.flatMap((f) => deliveryKeys(f)));
+  const text2 = !other.length ? "" : ev.kind === "stale" ? staleBatch(other, () => false).text : [batchHead(other), ...batchLines(other)].filter(Boolean).join("\n");
+  return {
+    graph,
+    rest: {
+      ...ev,
+      frames: other,
+      marks: ev.marks?.filter((key) => !graphMarks2.has(key)),
+      text: text2
+    }
+  };
+}
+
 // js/opencode/halts.ts
 import { createHash as createHash3, randomUUID } from "node:crypto";
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync5, unlinkSync, writeFileSync as writeFileSync2 } from "node:fs";
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync6, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
 import { join as join7 } from "node:path";
 var PREFIX = "opencode-stopped";
 var fileOf = (dir, session) => join7(dir, `${PREFIX}.${createHash3("sha256").update(session).digest("hex").slice(0, 16)}.json`);
@@ -2293,7 +2469,7 @@ var alones = () => globalThis[`${GLOBAL_PREFIX}StopAlone`] ??= /* @__PURE__ */ n
 var code = (e) => e.code;
 function recorded(file, since) {
   try {
-    const r = JSON.parse(readFileSync5(file, "utf8"));
+    const r = JSON.parse(readFileSync6(file, "utf8"));
     if (r.lifted || since !== void 0 && Date.parse(r.at ?? "") <= since) return null;
     return { id: r.id ?? r.at ?? "?", word: r.word, alone: r.alone === true };
   } catch (e) {
@@ -2316,7 +2492,7 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
       let kept2 = false;
       try {
         const record2 = JSON.stringify({ session: s, lifted: (/* @__PURE__ */ new Date()).toISOString() });
-        writeFileSync2(file, record2, { mode: 384 });
+        writeFileSync3(file, record2, { mode: 384 });
       } catch {
         kept2 = true;
       }
@@ -2346,7 +2522,7 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
         mkdirSync2(dir(), { recursive: true, mode: 448 });
         const at2 = (/* @__PURE__ */ new Date()).toISOString();
         const record2 = JSON.stringify({ session, at: at2, id, word: word2, ...alone ? { alone } : {} });
-        writeFileSync2(fileOf(dir(), session), record2, { mode: 384 });
+        writeFileSync3(fileOf(dir(), session), record2, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
       }
@@ -2604,28 +2780,28 @@ function closeClient(pid) {
 }
 
 // js/opencode/skillread.ts
-import { existsSync as existsSync2, lstatSync, readdirSync as readdirSync3, realpathSync as realpathSync2 } from "node:fs";
+import { existsSync as existsSync2, lstatSync as lstatSync2, readdirSync as readdirSync3, realpathSync as realpathSync3 } from "node:fs";
 import { homedir as homedir6 } from "node:os";
-import { basename as basename3, dirname as dirname2, isAbsolute, join as join9, relative, resolve as resolve5 } from "node:path";
+import { basename as basename4, dirname as dirname3, isAbsolute as isAbsolute2, join as join9, relative, resolve as resolve6 } from "node:path";
 
 // js/shared/skilllock.ts
-import { existsSync, readFileSync as readFileSync6, realpathSync } from "node:fs";
+import { existsSync, readFileSync as readFileSync7, realpathSync as realpathSync2 } from "node:fs";
 import { homedir as homedir5 } from "node:os";
-import { basename as basename2, dirname, join as join8, resolve as resolve4 } from "node:path";
+import { basename as basename3, dirname as dirname2, join as join8, resolve as resolve5 } from "node:path";
 var canon = (p) => {
   try {
-    return realpathSync(p);
+    return realpathSync2(p);
   } catch {
-    return resolve4(p);
+    return resolve5(p);
   }
 };
 function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
   const places = [];
   if (stateHome && canon(root) === canon(join8(homedir5(), ".agents", "skills")))
     places.push(join8(stateHome, "skills", ".skill-lock.json"));
-  places.push(join8(dirname(root), ".skill-lock.json"));
-  if (basename2(root) === "skills" && basename2(dirname(root)) === ".agents")
-    places.push(join8(dirname(dirname(root)), "skills-lock.json"));
+  places.push(join8(dirname2(root), ".skill-lock.json"));
+  if (basename3(root) === "skills" && basename3(dirname2(root)) === ".agents")
+    places.push(join8(dirname2(dirname2(root)), "skills-lock.json"));
   return places;
 }
 var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
@@ -2633,7 +2809,7 @@ function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
   const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
   if (!place) return null;
   try {
-    const lock = JSON.parse(readFileSync6(place, "utf8"));
+    const lock = JSON.parse(readFileSync7(place, "utf8"));
     return lock.skills ?? {};
   } catch {
     return null;
@@ -2646,14 +2822,14 @@ var CALLS = 256;
 var WALK = 4096;
 var canon2 = (p) => {
   try {
-    return realpathSync2(p);
+    return realpathSync3(p);
   } catch {
     return null;
   }
 };
 var absent = (p) => {
   try {
-    return lstatSync(p, { throwIfNoEntry: false }) === void 0;
+    return lstatSync2(p, { throwIfNoEntry: false }) === void 0;
   } catch {
     return false;
   }
@@ -2665,8 +2841,8 @@ function canonReach(p) {
     const c = canon2(at2);
     if (c) return tail2.length ? join9(c, ...tail2.reverse()) : c;
     if (!absent(at2)) return null;
-    const name = basename3(at2);
-    const up = dirname2(at2);
+    const name = basename4(at2);
+    const up = dirname3(at2);
     if (up === at2 || name === "." || name === "..") return null;
     tail2.push(name);
     at2 = up;
@@ -2678,14 +2854,14 @@ function resourceDir(resource) {
 }
 function within(p, root) {
   const rel = relative(root, p);
-  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
+  return rel === "" || !rel.startsWith("..") && !isAbsolute2(rel);
 }
 function bridgeRoot(s) {
   const path = typeof s?.path === "string" ? s.path : null;
-  if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute(path)) return null;
-  const dir = dirname2(path);
-  if (basename3(dir) !== BRIDGE_SKILL || !existsSync2(join9(dir, "scripts", BRIDGE_FILE))) return null;
-  return dirname2(dir);
+  if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute2(path)) return null;
+  const dir = dirname3(path);
+  if (basename4(dir) !== BRIDGE_SKILL || !existsSync2(join9(dir, "scripts", BRIDGE_FILE))) return null;
+  return dirname3(dir);
 }
 async function skillDirs(ctx) {
   const res = await ctx.skill.list();
@@ -2693,10 +2869,10 @@ async function skillDirs(ctx) {
   const listed = [];
   for (const s of list) {
     const path = typeof s?.path === "string" ? s.path : null;
-    if (!path || !isAbsolute(path)) continue;
-    const dir = canon2(dirname2(path));
+    if (!path || !isAbsolute2(path)) continue;
+    const dir = canon2(dirname3(path));
     const id = String(s?.id ?? "");
-    if (dir && basename3(dir) === id) listed.push({ id, dir });
+    if (dir && basename4(dir) === id) listed.push({ id, dir });
   }
   const sets = /* @__PURE__ */ new Map();
   const lockless = /* @__PURE__ */ new Set();
@@ -2708,8 +2884,8 @@ async function skillDirs(ctx) {
     if (!hasSkillLock(c)) lockless.add(c);
   }
   return listed.filter(({ id, dir }) => {
-    const lock = sets.get(dirname2(dir));
-    if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname2(dir));
+    const lock = sets.get(dirname3(dir));
+    if (!lock) return id === BRIDGE_SKILL && lockless.has(dirname3(dir));
     const source = lock[BRIDGE_SKILL]?.source;
     return typeof source === "string" && lock[id]?.source === source;
   }).map(({ dir }) => dir);
@@ -2738,8 +2914,8 @@ function leadsOut(dir) {
 }
 function absolute(p, base) {
   if (p === "~" || p.startsWith("~/")) return join9(homedir6(), p.slice(1));
-  if (isAbsolute(p)) return p;
-  return base ? resolve5(base, p) : null;
+  if (isAbsolute2(p)) return p;
+  return base ? resolve6(base, p) : null;
 }
 var dotted = (p) => p.split(/[\\/]/).some((s) => s === "." || s === "..");
 function reached(call, resources, base) {
@@ -2753,7 +2929,7 @@ function reached(call, resources, base) {
   for (const key of ["path", "filePath"]) {
     const p = input[key];
     if (p === void 0) continue;
-    const abs = typeof p === "string" && !(isAbsolute(p) && dotted(p)) ? absolute(p, base) : null;
+    const abs = typeof p === "string" && !(isAbsolute2(p) && dotted(p)) ? absolute(p, base) : null;
     if (!abs) return null;
     out2.push(abs);
   }
@@ -2761,7 +2937,7 @@ function reached(call, resources, base) {
     if (call.tool === "grep" && key === "pattern") continue;
     const pat = input[key];
     if (pat === void 0) continue;
-    if (typeof pat !== "string" || isAbsolute(pat) || pat.startsWith("~") || pat.includes(".."))
+    if (typeof pat !== "string" || isAbsolute2(pat) || pat.startsWith("~") || pat.includes(".."))
       return null;
   }
   return out2.length ? out2 : null;
@@ -2973,20 +3149,64 @@ function rootAbove(session, parents) {
   return root;
 }
 
+// js/opencode/piles.ts
+function toPile(frame) {
+  if (isGraphInbox(frame)) return true;
+  if (!frame || frame.type !== "message" || isDirectWord(frame)) return false;
+  const rk = roomKind(frame);
+  if ((frame.origin ?? classifyOrigin(frame)) === "human" && !rk?.phase && !rk?.aside && !askFromPerson(frame))
+    return false;
+  return !addressedToMine(frame) || stackOf(frame) === "batch";
+}
+function freshRiders(p, frames) {
+  const unit = [.../* @__PURE__ */ new Set([...p.riders.filter(isGraphInbox), ...frames])];
+  const kept2 = new Set(splitBatch(unit, Infinity, (k) => p.marks.has(k)).kept);
+  return frames.filter((f) => kept2.has(f));
+}
+function takeRiders(p, graph) {
+  const all = p.riders.splice(0);
+  if (!graph) p.riders.push(...all.filter(isGraphInbox));
+  const events = new Set(all.filter(isGraphInbox).map(eventKeyOf));
+  const copies = graph ? p.held.filter((f) => events.has(eventKeyOf(f))) : [];
+  if (copies.length) p.held = p.held.filter((f) => !copies.includes(f));
+  const unit = graph ? [...all, ...copies] : all.filter((f) => !isGraphInbox(f));
+  const out2 = splitBatch(
+    [...p.riders.filter(isGraphInbox), ...unit],
+    Infinity,
+    (k) => p.marks.has(k)
+  );
+  return { ...out2, kept: graph ? out2.kept : out2.kept.filter((f) => !isGraphInbox(f)) };
+}
+function handRiders(ps, put, note) {
+  const batches = ps.map((p) => {
+    const preview = { ...p, riders: [...p.riders], held: [...p.held] };
+    return { p, preview, out: takeRiders(preview, true) };
+  });
+  const got = batches.flatMap((b) => b.out.kept);
+  if (!got.length) return;
+  put([batchHead(got), ...batchLines(got)].join("\n"));
+  receiptGraph(got);
+  for (const { p, preview, out: out2 } of batches) {
+    p.riders = preview.riders;
+    p.held = preview.held;
+    note(p, out2.keys);
+  }
+}
+
 // js/opencode/marker.ts
 import { createHash as createHash4 } from "node:crypto";
-import { mkdirSync as mkdirSync3, readdirSync as readdirSync4, readFileSync as readFileSync8, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync3 } from "node:fs";
+import { mkdirSync as mkdirSync3, readdirSync as readdirSync4, readFileSync as readFileSync9, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync4 } from "node:fs";
 import { join as join10 } from "node:path";
 
 // js/opencode/procstart.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
-import { readFileSync as readFileSync7 } from "node:fs";
+import { readFileSync as readFileSync8 } from "node:fs";
 var CLK_TCK = 100;
 function linuxStart(pid) {
-  const stat = readFileSync7(`/proc/${pid}/stat`, "utf8");
+  const stat = readFileSync8(`/proc/${pid}/stat`, "utf8");
   const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
   const ticks = Number(fields[19]);
-  const btime = Number(/^btime (\d+)$/m.exec(readFileSync7("/proc/stat", "utf8"))?.[1]);
+  const btime = Number(/^btime (\d+)$/m.exec(readFileSync8("/proc/stat", "utf8"))?.[1]);
   return Number.isFinite(ticks) && btime ? (btime + ticks / CLK_TCK) * 1e3 : null;
 }
 function psStart(pid) {
@@ -3045,7 +3265,7 @@ var otherLive = (f, path) => {
 };
 function stoodAtOf(authDir2, key) {
   try {
-    const at2 = JSON.parse(readFileSync8(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
+    const at2 = JSON.parse(readFileSync9(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
     return typeof at2 === "number" ? at2 : void 0;
   } catch {
     return void 0;
@@ -3067,7 +3287,7 @@ function writeLostMarker(authDir2, slots, home) {
     const lost = { at: (/* @__PURE__ */ new Date()).toISOString(), entries };
     const rand = Math.random().toString(36).slice(2, 8);
     const name = `${PREFIX2}.@${tagOf(home)}.${process.pid}.${rand}.json`;
-    writeFileSync3(join10(authDir2, name), JSON.stringify(lost), { mode: 384 });
+    writeFileSync4(join10(authDir2, name), JSON.stringify(lost), { mode: 384 });
     return entries;
   } catch {
     return [];
@@ -3091,7 +3311,7 @@ function readOwn(path, tag, home) {
   };
   let lost = null;
   try {
-    const text2 = readFileSync8(path, "utf8");
+    const text2 = readFileSync9(path, "utf8");
     if (tag !== null) drop2();
     lost = JSON.parse(text2);
   } catch {
@@ -3195,12 +3415,12 @@ var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept
 var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
 
 // js/shared/canon.ts
-import { realpathSync as realpathSync3 } from "node:fs";
+import { realpathSync as realpathSync4 } from "node:fs";
 import { sep } from "node:path";
 function canonDir(p) {
   let real2 = p;
   try {
-    real2 = realpathSync3.native(p);
+    real2 = realpathSync4.native(p);
   } catch {
   }
   while (real2.length > 1 && (real2.endsWith("/") || real2.endsWith(sep))) real2 = real2.slice(0, -1);
@@ -3784,7 +4004,7 @@ async function casesLeft(bridge, realm) {
 
 // js/opencode/leadends.ts
 import { createHash as createHash5 } from "node:crypto";
-import { mkdirSync as mkdirSync4, readFileSync as readFileSync9, unlinkSync as unlinkSync3, writeFileSync as writeFileSync4 } from "node:fs";
+import { mkdirSync as mkdirSync4, readFileSync as readFileSync10, unlinkSync as unlinkSync3, writeFileSync as writeFileSync5 } from "node:fs";
 import { join as join11 } from "node:path";
 var fileOf2 = (dir, session) => join11(
   dir,
@@ -3794,7 +4014,7 @@ var ended = () => globalThis[`${GLOBAL_PREFIX}Ended`] ??= /* @__PURE__ */ new Se
 var lifted2 = () => globalThis[`${GLOBAL_PREFIX}EndLiftedAt`] ??= /* @__PURE__ */ new Map();
 function recorded2(file, since) {
   try {
-    const r = JSON.parse(readFileSync9(file, "utf8"));
+    const r = JSON.parse(readFileSync10(file, "utf8"));
     return !r.lifted && !(since !== void 0 && Date.parse(r.at ?? "") <= since);
   } catch (e) {
     return e.code !== "ENOENT";
@@ -3808,7 +4028,7 @@ function createEnds(dir, unwritten, unlifted) {
       try {
         mkdirSync4(dir(), { recursive: true, mode: 448 });
         const record2 = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString() });
-        writeFileSync4(fileOf2(dir(), session), record2, { mode: 384 });
+        writeFileSync5(fileOf2(dir(), session), record2, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
       }
@@ -3822,7 +4042,7 @@ function createEnds(dir, unwritten, unlifted) {
       } catch (e) {
         if (e.code === "ENOENT") return;
         try {
-          writeFileSync4(file, JSON.stringify({ session, lifted: (/* @__PURE__ */ new Date()).toISOString() }), {
+          writeFileSync5(file, JSON.stringify({ session, lifted: (/* @__PURE__ */ new Date()).toISOString() }), {
             mode: 384
           });
         } catch {
@@ -4395,7 +4615,7 @@ async function revokeAsLauncher(freed, args, call) {
 }
 
 // js/opencode/rootseat-tools.ts
-import { readFileSync as readFileSync10 } from "node:fs";
+import { readFileSync as readFileSync11 } from "node:fs";
 
 // js/opencode/rootseat-by.ts
 function heldSeat(d, slot, session) {
@@ -4483,7 +4703,7 @@ function createSeatLife(d) {
   const recorded3 = (slot, session) => {
     if (!slot.key) return null;
     try {
-      const rec3 = JSON.parse(readFileSync10(holdFilePathOf(d.authDir(), slot.key), "utf8"));
+      const rec3 = JSON.parse(readFileSync11(holdFilePathOf(d.authDir(), slot.key), "utf8"));
       return rec3.session === session && rec3.key === slot.key && typeof rec3.realm === "string" && typeof rec3.name === "string" ? { name: rec3.name, karta: String(rec3.karta), realm: rec3.realm } : null;
     } catch {
       return null;
@@ -5255,13 +5475,6 @@ function setupTacts(send, takenEarly, freshestRoot, say) {
 var CASE_BATCH_MS = Number(process.env[envName("OPENCODE_BATCH_MS")]) || 5e3;
 var CASE_BATCH_CAP = 20;
 var PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 12e4;
-function toPile(frame) {
-  if (!frame || frame.type !== "message" || isDirectWord(frame)) return false;
-  const rk = roomKind(frame);
-  if ((frame.origin ?? classifyOrigin(frame)) === "human" && !rk?.phase && !rk?.aside && !askFromPerson(frame))
-    return false;
-  return !addressedToMine(frame) || stackOf(frame) === "batch";
-}
 var RIDERS_MAX = 500;
 var MARKS_KEPT = 500;
 function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(), onStop = () => {
@@ -5346,15 +5559,17 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     if (!frames.length) return;
     if (!frames.some((f) => addressedToMine(f))) {
       p.riders.push(...frames);
-      p.riders.splice(0, Math.max(0, p.riders.length - RIDERS_MAX));
+      p.riders = [
+        ...p.riders.filter(isGraphInbox),
+        ...p.riders.filter((f) => !isGraphInbox(f)).slice(-RIDERS_MAX)
+      ];
       return;
     }
     const at2 = Date.now();
     p.pending = { session: "", inbox: null, at: at2 };
-    const text2 = [
-      batchHead([...fresh(p, p.riders.splice(0)), ...frames]),
-      ...batchLines(frames)
-    ].join("\n");
+    const text2 = [batchHead([...takeRiders(p, false).kept, ...frames]), ...batchLines(frames)].join(
+      "\n"
+    );
     void deliver2(p.session, text2, W5.caseBatch(frames.length), "queue", p.child).then((got) => {
       const inbox = got?.inbox && !takenEarly.delete(got.inbox) ? got.inbox : null;
       p.pending = got && inbox ? { session: got.session, inbox, at: at2 } : null;
@@ -5382,6 +5597,10 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
         }
       );
     if (frame.id && p.held.some((f) => f.id === frame.id)) return;
+    if (isGraphInbox(frame)) {
+      if (!eventIn(frame, (k) => p.marks.has(k))) p.riders.push(frame);
+      return;
+    }
     p.held.push(frame);
     if (!p.pending && p.held.length >= CASE_BATCH_CAP) return flush(p);
     if (!p.timer) schedule(p);
@@ -5391,16 +5610,23 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     for (const k of keys ?? []) p.marks.add(k);
     for (const old of p.marks) if (p.marks.size > MARKS_KEPT) p.marks.delete(old);
   }
-  const fresh = (p, fs) => fs.filter((f) => !eventIn(f, (k) => p.marks.has(k)));
-  function riding(ps) {
-    const got = ps.flatMap((p) => fresh(p, p.riders.splice(0)));
-    return got.length ? [batchHead(got)] : [];
+  const fresh = freshRiders;
+  function riding(ps, graph = false) {
+    const got = ps.flatMap((p) => {
+      const out2 = takeRiders(p, graph);
+      if (graph) noteOwn(p, out2.keys);
+      return out2.kept;
+    });
+    return got.length ? [batchHead(got), ...batchLines(got)] : [];
   }
   function loud(session2, text2, child = false) {
     say(text2, "error");
     void deliver2(session2, text2, W5.frame(), "steer", child);
   }
   function batch(session2, child, ev, what) {
+    const parts2 = separateGraphBatch(ev);
+    for (const frame of parts2.graph) pile(session2, child, frame);
+    ev = parts2.rest;
     noteOwn(piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`), ev.marks);
     if (!ev.text) return;
     if (launcherWordIn(session2, child, ev.frames))
@@ -5454,6 +5680,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       else this.taken(session2);
     },
     gone(session2) {
+      for (const k of ["child", "root"]) dropPile(`${k}:${session2}`);
       tacts.gone(session2);
       lives.gone(session2);
       halts.gone(session2);
@@ -5498,12 +5725,12 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
         flush(p);
       }
     },
-    ride(session2) {
-      if (halts.halted(session2)) return null;
+    ride(session2, put) {
+      if (halts.halted(session2)) return;
       const own = [...piles.values()].filter(
         (p) => !p.child && (p.session === session2 || !p.session && freshestRoot() === session2)
       );
-      return riding(own).join("\n") || null;
+      handRiders(own, put, noteOwn);
     },
     stopWord(session2) {
       const word2 = halts.wordOf(session2, P.stoppedAny());
@@ -5515,6 +5742,8 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       switch (ev.kind) {
         case "frame": {
           const frame = ev.frame ?? null;
+          carryGraphMarks(frame, ev.marks);
+          carryGraphReceipt(frame, ev.seen, authDir());
           if (frame?.type === "hello") return say(P.listening(), "info");
           if (frame?.type === "status") return;
           if (isLifeCheck(frame)) return lifeCheck(session2, child, frame);
@@ -5581,8 +5810,8 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
 
 // js/opencode/commands.ts
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { readFileSync as readFileSync11, realpathSync as realpathSync4 } from "node:fs";
-import { dirname as dirname3 } from "node:path";
+import { readFileSync as readFileSync12, realpathSync as realpathSync5 } from "node:fs";
+import { dirname as dirname4 } from "node:path";
 function slashOf(markdown) {
   if (!markdown.startsWith("---")) return false;
   const end = markdown.indexOf("\n---", 3);
@@ -5592,7 +5821,7 @@ function slashOf(markdown) {
 }
 var canon3 = (p) => {
   try {
-    return realpathSync4(p);
+    return realpathSync5(p);
   } catch {
     return null;
   }
@@ -5611,13 +5840,13 @@ function skillCommands(list) {
     const id = String(s?.id ?? "");
     const path = typeof s?.path === "string" ? s.path : null;
     if (!id || !path) continue;
-    const root = canon3(dirname3(dirname3(path)));
+    const root = canon3(dirname4(dirname4(path)));
     if (!root || !roots.has(root)) continue;
     const source = roots.get(root);
     if (source && skillLock(root)?.[id]?.source !== source) continue;
     let text2;
     try {
-      text2 = readFileSync11(path, "utf8");
+      text2 = readFileSync12(path, "utf8");
     } catch {
       continue;
     }
@@ -5849,11 +6078,11 @@ function annotate(req, nameOf) {
 }
 
 // js/shared/reposigns.ts
-import { readFileSync as readFileSync13, statSync as statSync4 } from "node:fs";
-import { dirname as dirname4, join as join13, resolve as resolve6 } from "node:path";
+import { readFileSync as readFileSync14, statSync as statSync4 } from "node:fs";
+import { dirname as dirname5, join as join13, resolve as resolve7 } from "node:path";
 
 // js/shared/cover.ts
-import { readFileSync as readFileSync12 } from "node:fs";
+import { readFileSync as readFileSync13 } from "node:fs";
 import { join as join12 } from "node:path";
 
 // js/shared/coverblock.ts
@@ -6027,7 +6256,7 @@ function seatOfPairs(pairs, cover = COVER) {
 function readCover(dir, cover = COVER) {
   let text2;
   try {
-    text2 = readFileSync12(join12(dir, cover.file), "utf8");
+    text2 = readFileSync13(join12(dir, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -6050,16 +6279,16 @@ var exists = (path) => {
 };
 var text = (path) => {
   try {
-    return readFileSync13(path, "utf8");
+    return readFileSync14(path, "utf8");
   } catch {
     return null;
   }
 };
 function repoRoot(dir) {
-  let at2 = resolve6(dir);
+  let at2 = resolve7(dir);
   for (; ; ) {
     if (exists(join13(at2, ".git"))) return at2;
-    const up = dirname4(at2);
+    const up = dirname5(at2);
     if (up === at2) return null;
     at2 = up;
   }
@@ -6321,9 +6550,9 @@ function createPulseFeed(opts) {
 }
 
 // js/shared/memorypath.ts
-import { lstatSync as lstatSync2, readlinkSync } from "node:fs";
+import { lstatSync as lstatSync3, readlinkSync } from "node:fs";
 import { homedir as homedir7 } from "node:os";
-import { dirname as dirname5, isAbsolute as isAbsolute2, join as join14, parse } from "node:path";
+import { dirname as dirname6, isAbsolute as isAbsolute3, join as join14, parse } from "node:path";
 var slash = (p) => p.replaceAll("\\", "/");
 var parts = (p) => p.slice(parse(p).root.length).split(/[\\/]+/);
 function real(p, inMemory = () => false) {
@@ -6334,13 +6563,13 @@ function real(p, inMemory = () => false) {
     const c = rest.shift();
     if (!c || c === ".") continue;
     if (c === "..") {
-      r = dirname5(r);
+      r = dirname6(r);
       continue;
     }
     const q = join14(r, c);
     let link = false;
     try {
-      link = lstatSync2(q).isSymbolicLink();
+      link = lstatSync3(q).isSymbolicLink();
     } catch {
     }
     if (!link) {
@@ -6353,7 +6582,7 @@ function real(p, inMemory = () => false) {
     } catch {
     }
     if (++hops > 40 || !l || inMemory(q)) return null;
-    if (isAbsolute2(l)) r = parse(l).root;
+    if (isAbsolute3(l)) r = parse(l).root;
     rest = [...parts(l), ...rest];
   }
   return r;
@@ -6365,13 +6594,13 @@ function inLocalMemory(path, base) {
     const x = `${slash(p)}/`.toLowerCase();
     return /\/\.claude\/projects\/.*\/memory\//.test(x) || x.startsWith(`${projects}/`) && /\/memory\//.test(x.slice(projects.length));
   };
-  const abs = isAbsolute2(path) ? path : `${base || process.cwd()}/${path}`;
+  const abs = isAbsolute3(path) ? path : `${base || process.cwd()}/${path}`;
   const r = real(abs, inMemory);
   return r === null || inMemory(abs) || inMemory(r);
 }
 
 // js/shared/ritualcover.ts
-import { readdirSync as readdirSync5, readFileSync as readFileSync14 } from "node:fs";
+import { readdirSync as readdirSync5, readFileSync as readFileSync15 } from "node:fs";
 import { join as join15 } from "node:path";
 function headings(text2) {
   const lines = text2.split("\n");
@@ -6403,7 +6632,7 @@ function ritualCover(dir, cover = COVER) {
   if (!root) return null;
   let text2;
   try {
-    text2 = readFileSync14(join15(root, cover.file), "utf8");
+    text2 = readFileSync15(join15(root, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -6676,13 +6905,13 @@ ${note}` : [...content ?? [], { type: "text", text: note }]
 }
 
 // js/opencode/rootseat-again.ts
-import { realpathSync as realpathSync5, statSync as statSync5 } from "node:fs";
+import { realpathSync as realpathSync6, statSync as statSync5 } from "node:fs";
 import { join as join16 } from "node:path";
 function atRepoRoot(where) {
   const root = repoRoot(where);
   if (root === null) return false;
   try {
-    return realpathSync5(root) === realpathSync5(where);
+    return realpathSync6(root) === realpathSync6(where);
   } catch {
     return false;
   }
@@ -6968,7 +7197,7 @@ function countLine(lang2) {
 var head = (lang2) => [false, true].flatMap((legacy) => [STALE[lang2].head(1, 1, legacy), STALE[lang2].head(2, 1, legacy)]).map((h) => esc3(flat(h)).replace(/\d+/g, String.raw`\d+`));
 var LINE2 = `(?:${LANGS.map(countLine).join("|")})`;
 var QUIET2 = new RegExp(`^(?:${LANGS.flatMap(head).join("|")})?(?:${LINE2})+$`);
-function compact(lang2) {
+function compact2(lang2) {
   const T3 = FRAME_TEXT[lang2];
   const caseHead2 = esc3(flat(ROOM[lang2].case(HEAD2))).replace(HEAD2, "[^«»():;]+") + "(?:«[^»]*»)?";
   const count = esc3(flat(T3.count(HEAD2, N, 0))).replace(HEAD2, caseHead2).replace(NUM, String.raw`\d+`);
@@ -6981,7 +7210,7 @@ function compact(lang2) {
   return `(?:${line}(?:${cursor})?;(?:${history}|${fallback})\\.|(?:${line}(?:${cursor})?){2,}(?:${template}|${fallback})\\.)`;
 }
 var COMPACT = new RegExp(
-  `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact).join("|")})$`
+  `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact2).join("|")})$`
 );
 function quiet(text2) {
   const t = flat(text2);
@@ -7418,8 +7647,8 @@ async function setup(ctx) {
           const sid = String(req.sessionID);
           const ready = hookContext.take(sid, req.messages);
           for (const text2 of ready.words) req.system.push({ type: "text", text: text2 });
-          const counts = ready.ride ? ch?.ride(sid) : null;
-          if (counts) req.system.push({ type: "text", text: markFrame(counts) });
+          if (ready.ride)
+            ch?.ride(sid, (counts) => req.system.push({ type: "text", text: markFrame(counts) }));
         }
         const stop = hook === "context" ? ch?.stopWord(String(req.sessionID)) : null;
         if (stop) req.system.push({ type: "text", text: stop });
