@@ -349,3 +349,11 @@ test("the section kinds read English headings: our template's Persistence, a tru
   assert.ok(SECTIONS.trunk("Push to main"));
   assert.ok(!SECTIONS.persist("Project"));
 });
+
+// From core v7.34.1 the "/" command's head rides the request's system context alone, not glued
+// before the person's text (graph @nks/nks-dev, node #9867): it names the command, never "below".
+test("a / command's head stands alone in the system: it names the command, claims no text below", () => {
+  const head = OPENCODE.en.commandHead("verstak");
+  assert.match(head, /^The user ran \/verstak: load the skill `verstak` with the `skill` tool/);
+  assert.doesNotMatch(head, /below|typed this/);
+});

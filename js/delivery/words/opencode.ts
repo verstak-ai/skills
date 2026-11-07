@@ -118,8 +118,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     statusTools: (n, source) => `${TOOL_PREFIX}* tools: ${n} (${source})`,
     statusBridges: (live, sessions) => `live bridges: ${live}, sessions with a bridge: ${sessions}`,
     commandHead: (id) =>
-      `Load the skill \`${id}\` with the \`skill\` tool (id: \`${id}\`) and act strictly by it. ` +
-      "The user typed this, not you; their words are below.\n\n",
+      `The user ran /${id}: load the skill \`${id}\` with the \`skill\` tool and act strictly by it.\n\n`,
     commandsCount: (n) => `Verstak: "/" commands from the delivery's skills: ${n}.`,
     frame: () => "frame",
     frameId: (id) => `frame ${id}`,
