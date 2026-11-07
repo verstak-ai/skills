@@ -207,7 +207,7 @@ var PREPARE = {
 
 Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Until they are, behavioural claims are not accepted.
 `,
-    start: ({ graph, holon, role }) => `Load the verstak skill first (/verstak) and read its Start section before any other action. Addresses from the AGENTS.md cover: graph ${graph}${holon ? `, focus holon #${holon}` : ""}${role ? `, agent role #${role}` : ""}.`,
+    start: ({ graph, holon, role }) => `Load the verstak skill (/verstak) and run its Start section before anything else. Cover: graph ${graph}${holon ? `, holon #${holon}` : ""}${role ? `, role #${role}` : ""}.`,
     guard: (graph, section = "Persistence") => `BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md${section ? `, ${section}` : ""}). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo's servers and dated duties → the project graph ${graph}; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen: nothing is written here.`,
     left: (item, keys) => ({
       "cover.repeat": `the key ${keys} stands twice in the front matter of AGENTS.md; strict YAML refuses it and AGENTS.md is untouched: keep one value and run prepare again`,
@@ -236,9 +236,9 @@ var via = tool("stand");
 var RITES = {
   en: {
     lifecycle: () => "Persistence",
-    push: () => `${FRAME_MARK} A push ships nothing: self-review the diff, run the vocabulary pass over the PR text; choose the review tier for the finished batch (verstak skill, methods/code-work.md, Cold review).`,
-    merge: () => `${FRAME_MARK} Merged: run the after-merge acts (verstak skill, methods/code-work.md, After merge): weave, advance the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: only the seed and delivery modes.`,
-    early: (graph) => `Load the verstak skill first (/verstak) and read its Start section before any other action. Onboarding in progress: graph ${graph}; no holon or roles yet. Continue the onboarding method from the first missing sign.`
+    push: () => `${FRAME_MARK} Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review).`,
+    merge: () => `${FRAME_MARK} Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only.`,
+    early: (graph) => `Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph ${graph}, no holon or roles yet — continue it from the first missing sign.`
   }
 };
 
@@ -302,7 +302,7 @@ var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 // js/delivery/words/turn.ts
 var TURN = {
   en: {
-    wake: () => `${FRAME_MARK} No human at the console: a question goes as an ask card in the case, a report as a word in the case or by the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say to anyone — the turn is over, no text needed.`,
+    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; a report — the case or the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`
   }
 };
