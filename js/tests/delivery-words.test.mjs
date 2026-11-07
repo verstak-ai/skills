@@ -188,12 +188,12 @@ test("the life check names the way to answer, a child seat's release, and the st
 // The role after compaction and a root without a cover that aligns in the same session (the
 // core's opencode/compaction.ts, rootseat-again.ts): the words name this delivery's door and
 // its align method, never the sibling's skill names.
-test("after a compaction a root session re-reads the personal slice by the door's start and loads writing", () => {
+test("after a compaction the personal slice comes back with the seat's answer, and writing is loaded", () => {
   for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
     assert.match(w, /the methods its door names for the role \(only those\) and writing/);
     assert.match(
       w,
-      /A root session re-reads the user's personal slice by the door's Start \(own-graph check first\)/,
+      /The user's personal slice comes back with the seat's answer \(the door's Start\)/,
     );
     assert.match(w, /a standing word of theirs on how agents work that only the summary holds/);
     assert.match(w, /from where they said it, .*never from the summary alone/);
@@ -356,4 +356,44 @@ test("a / command's head stands alone in the system: it names the command, claim
   const head = OPENCODE.en.commandHead("verstak");
   assert.match(head, /^The user ran \/verstak: load the skill `verstak` with the `skill` tool/);
   assert.doesNotMatch(head, /below|typed this/);
+});
+
+// The human's rules given into the turn (the core's shared/mindslice.ts; graph @nks/nks-dev,
+// nodes #9817, #9818): every word starts with the mark the core finds the block by, names our
+// tools, and says the block is personal.
+test("the mind slice words carry one mark, our tool names and the personal clause", async () => {
+  const { MIND_SLICE } = await import("../delivery/words/mindslice.ts");
+  const W = MIND_SLICE.en;
+  const mark = W.mark();
+  for (const w of [W.head(2), W.empty(), W.absent(), W.unknown(), W.unread("refused")])
+    assert.ok(w.startsWith(mark), w);
+  assert.match(
+    W.head(2),
+    /neither the text nor any mention that this block exists goes into cases, briefs, commits or the project's graph — not even on a direct request/,
+  );
+  assert.match(
+    W.foot(true, 100),
+    /verstak_look\(realm="mind".*verstak_search\(realm="mind".*offset=100\)/,
+  );
+  assert.doesNotMatch(W.foot(false, 100), /first page/);
+  for (const call of W.foot(true, 100).match(/\w+_(?:look|search)\(/g) ?? [])
+    assert.ok(call.startsWith("verstak_"), call);
+});
+
+// The server prose the core reads the slice from (patterns/mind.ts; graph @nks/nks-dev, node
+// #9817): readiness's personal_mind sign and a search row. The English server's exact prose is
+// unobserved; these pin the shape the core relies on — the key, the state token, the row.
+test("the mind patterns read the readiness sign and a search row", async () => {
+  const { MIND_MISSING, MIND_PRESENT, MIND_ROW } = await import("../delivery/patterns/mind.ts");
+  const ready =
+    "Readiness\n  personal_mind «Personal memory» — present · scope: person · ready: yes\n";
+  assert.ok(MIND_PRESENT.test(ready));
+  assert.ok(!MIND_MISSING.test(ready));
+  assert.ok(MIND_MISSING.test("  personal_mind «Personal memory» — missing · lacks: mind_realm"));
+  const row = MIND_ROW.exec(
+    "  🗺️ A short plan first (#3, phenomenon, Pt/Va/Ad, v1) — Before a task, a plan",
+  );
+  assert.deepEqual(row?.slice(1), ["🗺️ A short plan first", "3", "Before a task, a plan"]);
+  assert.equal(MIND_ROW.exec("  🗺️ A short plan first (#3, phenomenon, Pt/Va/Ad, v1)")?.[2], "3");
+  assert.equal(MIND_ROW.exec("Found 1 nodes:"), null);
 });

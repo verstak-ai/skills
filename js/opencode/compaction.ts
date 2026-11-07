@@ -18,6 +18,8 @@ export interface CompactionDoors {
   placeOf(session: string): Place | null;
   /** Stopped by the owner or an ended lead: no word (halts.ts, #7505). */
   closed(session: string): boolean;
+  /** The human's rules read by the session's bridge (mindslice.ts); no bridge — null. */
+  slice(session: string): Promise<string> | null;
   say: Say;
 }
 
@@ -28,7 +30,8 @@ interface Req {
 
 export function createCompaction(doors: CompactionDoors) {
   const W = () => words(COMPACTION);
-  const pending = new Set<string>();
+  // Session → the human's rules being read since its compaction began (#9817): ready by the next request.
+  const pending = new Map<string, Promise<string> | null>();
   const seated = (s: string): Place | null => (doors.closed(s) ? null : doors.placeOf(s));
 
   return {
@@ -38,15 +41,19 @@ export function createCompaction(doors: CompactionDoors) {
       const p = seated(s);
       if (!p) return; // a session without a seat keeps no mark
       req.system.push({ type: "text", text: W().keep(p.karta, p.name, p.realm) });
-      pending.add(s);
+      if (!pending.get(s)) pending.set(s, doors.slice(s)); // a retried compaction request reads once
     },
     /** The "context" hook: the first primary request after a compaction carries the word. */
-    tell(req: Req): void {
+    async tell(req: Req): Promise<void> {
       const s = String(req.sessionID);
-      if (!pending.delete(s)) return;
+      if (!pending.has(s)) return;
+      const rules = pending.get(s);
+      pending.delete(s);
       const p = seated(s);
       if (!p) return;
       req.system.push({ type: "text", text: W().back(p.karta, p.name, p.realm) });
+      const text = rules ? await rules : null;
+      if (text && !doors.closed(s)) req.system.push({ type: "text", text });
       doors.say(W().returned(s), "info");
     },
     onEvent(ev: any): void {

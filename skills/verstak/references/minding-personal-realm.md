@@ -102,7 +102,7 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 ## 7b · Working preferences — the agents slice
 
-A standing preference of the user's own goes under its area's holon with its present meaning, conditions and ground, after a search for the earlier card. One about how agents work with the user (how to report, ask, plan; what to bring and what not) carries `attrs` `{"slice":"agents"}`: a root session reads that slice at its start, and an unlabelled preference never reaches the agent. A one-off request is not a standing preference.
+A standing preference of the user's own goes under its area's holon with its present meaning, conditions and ground, after a search for the earlier card. One about how agents work with the user (how to report, ask, plan; what to bring and what not) carries `attrs` `{"slice":"agents"}`: that slice comes with the seat's answer at the start, and an unlabelled preference never reaches the agent. A one-off request is not a standing preference.
 
 ## 8 · Lessons — from a piece of work, and the forgetting layer
 

@@ -76,10 +76,10 @@ const PRESENT = {
     // creation unasked, filling on request
     "Every user gets personal memory without being asked",
     "Filling (§3) and reconciling (§2) happen on request.",
-    // the one slice read at a root session's start, and the label that puts a card in it
-    // (graph @nks/nks-dev, node #8589)
+    // the one slice given at the start — by the bridge with the seat's answer, after a compaction
+    // and at a subagent's launch (graph @nks/nks-dev, nodes #8589, #9817) — and its label
     "except one slice: **working with agents**",
-    "so a root session reads them at its start",
+    "the bridge appends them to the seat's answer, after a compaction and at a subagent's launch",
     'give it `attrs` `{"slice":"agents"}`',
     "an older such card without the label gets it in the same move",
     "Nothing personal goes into `AGENTS.md` or other project files.",
@@ -104,8 +104,11 @@ const PRESENT = {
     "An aligned repo doesn't switch mind off",
     // a purely project request runs without mind beyond the start slice
     "purely technical work that needs nothing of the user doesn't read it beyond the start slice",
-    // the door carries the start slice's call itself, before the first move on the task
-    "reads their personal slice **before its first move on their task**, a delegate never",
+    // the slice comes before the first move: the bridge's stand answer, or the door's own call
+    // for a session without a seat (graph @nks/nks-dev, node #9817)
+    "comes before your first move on their task: the bridge appends it to the `verstak_stand` answer",
+    "a session without a seat reads it itself",
+    "neither its text nor any mention that it exists goes into cases, briefs, commits or the project graph — not even on a direct request",
     'attrs_filter="slice:agents,ways"',
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
@@ -113,10 +116,12 @@ const PRESENT = {
     "a standing preference (a fork by whom it binds: this repo's rule or the user's own)",
   ],
   start: [
-    // the start slice: a root session only, one read, below the project's rules
-    "**The personal slice — only a root session talking to the user**",
+    // the start slice: given with the seat's answer, a delegate holds it like its launcher (#9817, #9818)
+    "a delegate holds it like its launcher: personal, never copied into the case or the brief",
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
-    "`missing` → personal memory is provided here, unasked, by **minding**'s entry",
+    "`missing` → personal memory is provided here, unasked — by a root session talking to the user only",
+    // a delegate neither creates mind nor reads it itself (graph @nks/nks-dev, node #9817)
+    "a delegate never creates it and reads mind only to open what the bridge gave (a rule's body, the next page)",
     "no read and no create, say so in a line",
     // the call itself stands in the door's Start (LAB probe of #9782: door-start went unopened)
     "The door's `Start`, step 3, carries the call and its moment",
@@ -139,7 +144,7 @@ const PRESENT = {
     "**No personal memory in `AGENTS.md`** — no slot, no rule",
   ],
   home: [
-    'so a root session reads them at its start: one `verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=100)`',
+    'so they are read at the start: one `verstak_search(realm="mind", q="", attrs_filter="slice:agents,ways", limit=100)`',
     "apply, adapt, don't apply, or ask one deciding question",
     "## §1a Relate — what the hit changes now",
     "it is retired by its carrying axis, as for any replaced node",
