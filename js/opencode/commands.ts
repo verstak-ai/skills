@@ -4,10 +4,11 @@
 // drops that key and builds the palette only from commands, so the plugin registers a command
 // per such skill: it loads the skill with the skill tool and hands the human's words over as is.
 // The key is read from the SKILL.md itself, so the command set equals the delivery's installed set.
+import { randomUUID } from "node:crypto";
 import { readFileSync, realpathSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { BRIDGE_SKILL, OPENCODE } from "../delivery/index.ts";
+import { BRIDGE_SKILL, OPENCODE, PRODUCT } from "../delivery/index.ts";
 import { snippet } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
 import { skillLock } from "../shared/skilllock.ts";
@@ -25,6 +26,10 @@ export interface SkillCommand {
 export interface CommandsHalf {
   /** Reread the skills and replay the commands (skill.updated). */
   refresh(): Promise<void>;
+  /** Only the command's admitted prompt takes its header, never a context already in flight. */
+  word(session: string, metadata: Record<string, unknown> | undefined): string | null;
+  forget(session: string): void;
+  stop(): void;
 }
 
 /** `slash: true` in the frontmatter — and only that; anything else is no command. */
@@ -34,11 +39,6 @@ export function slashOf(markdown: string): boolean {
   if (end < 0) return false;
   const head = markdown.slice(3, end);
   return /^slash:\s*true\s*$/m.test(head);
-}
-
-/** The text the command puts into the session instead of the human's word. */
-export function commandText(id: string, args: string): string {
-  return words(OPENCODE).commandHead(id) + args.trim();
 }
 
 const canon = (p: string): string | null => {
@@ -91,24 +91,49 @@ async function listSkills(ctx: Context): Promise<SkillCommand[]> {
 
 export async function setupCommands(ctx: Context, say: Say): Promise<CommandsHalf> {
   const state = { commands: await listSkills(ctx) };
+  const key = `${PRODUCT}:command`;
+  const pending = new Map<string, { session: string; word: string }>();
   await ctx.command.transform((editor) => {
     for (const { id, description } of state.commands) {
       editor.add({
         name: id,
         description,
         async execute({ sessionID, prompt, delivery }) {
-          await ctx.session.prompt({
-            ...(prompt as any),
-            sessionID,
-            text: commandText(id, String((prompt as any)?.text ?? "")),
-            delivery,
-          } as any);
+          const nonce = randomUUID();
+          pending.set(nonce, {
+            session: sessionID,
+            word: words(OPENCODE).commandHead(id),
+          });
+          try {
+            await ctx.session.prompt({
+              ...(prompt as any),
+              sessionID,
+              text: String((prompt as any)?.text ?? ""),
+              metadata: { ...(prompt as any)?.metadata, [key]: nonce },
+              delivery,
+            } as any);
+          } catch (e) {
+            pending.delete(nonce);
+            throw e;
+          }
         },
       });
     }
   });
   if (state.commands.length) say(words(OPENCODE).commandsCount(state.commands.length), "info");
   return {
+    word(session, metadata) {
+      const nonce = metadata?.[key];
+      if (typeof nonce !== "string") return null;
+      const entry = pending.get(nonce);
+      if (!entry || entry.session !== session) return null;
+      pending.delete(nonce);
+      return entry.word;
+    },
+    forget(session) {
+      for (const [nonce, entry] of pending) if (entry.session === session) pending.delete(nonce);
+    },
+    stop: () => pending.clear(),
     async refresh() {
       const next = await listSkills(ctx);
       const same =
