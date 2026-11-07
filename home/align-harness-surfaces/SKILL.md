@@ -172,10 +172,10 @@ export default {
       }
       const tagsOnly = /^(?=[\s\S]*\n [*] \[new tag\])(?![\s\S]*\n (?:[ +-] |\* (?!\[new tag\])))/; // a release tag is not a branch for review
       const note = (ran(push, "-h|--help", /To [^\n]+(?:\n [!=] .*)*\n [ *+-]/) && !tagsOnly.test(out)) || quiet
-        ? "[verstak] Pushed, nothing shipped yet: self-review the diff and the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."
+        ? "[verstak] Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."
         : ran("gh pr merge", "-h|--help|--auto|--disable-auto", /(Merged|Squashed and merged|Rebased and merged) pull request/) ||
             ran("fj pr merge", "-h|--help|--auto|--disable-auto", /Merged PR #/) || ((exit ?? 0) === 0 && pull.test(cmd))
-          ? "[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence, end by axis, reconcile, feedback; work tasked by another agent: the seed and delivery modes only."
+          ? "[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only."
           : "";
       if (!note || !(await mine(input.sessionID)) || !once(input.id)) return;
       input.result = {

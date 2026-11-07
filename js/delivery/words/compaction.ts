@@ -23,8 +23,8 @@ export const COMPACTION: Readonly<Record<Lang, CompactionWords>> = {
   en: {
     keep: (karta, name, realm) =>
       `Verstak: this summary keeps role ${role(karta, "<role>")} in ${realm}, seat ${name}, the live cases ` +
-      `(number, what each waits for), the user's standing words on how agents work verbatim, and: ` +
-      `reload the verstak skill and the role's methods first.`,
+      `(number, what each waits for), the user's standing words on how agents work verbatim, and the instruction ` +
+      `to reload the verstak skill and the role's methods first.`,
     back: (karta, name, realm) =>
       `Verstak: context compacted. Role ${role(karta, "<role>")} in ${realm}, seat ${name} (the bridge holds it). ` +
       `First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,

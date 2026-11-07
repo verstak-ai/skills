@@ -23,12 +23,12 @@ Every envelope is JSON nested in a shell string: a valid JSON string can still b
 
 Copy this envelope into the push command below. Repository-specific additions must preserve its shell quoting and pass the same parse and fixture checks.
 ```json
-{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Pushed, nothing shipped yet: self-review the diff and the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."}}
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review)."}}
 ```
 
 The merge command's envelope, the same way:
 ```json
-{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence, end by axis, reconcile, feedback; work tasked by another agent: the seed and delivery modes only."}}
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[verstak] Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only."}}
 ```
 
 ## Push and merge: fire on the outcome, not the form

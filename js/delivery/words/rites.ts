@@ -22,9 +22,9 @@ export const RITES: Readonly<Record<Lang, RiteWords>> = {
   en: {
     lifecycle: () => "Persistence",
     push: () =>
-      `${FRAME_MARK} Pushed, nothing shipped yet: self-review the diff and the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review).`,
+      `${FRAME_MARK} Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review).`,
     merge: () =>
-      `${FRAME_MARK} Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence, end by axis, reconcile, feedback; work tasked by another agent: the seed and delivery modes only.`,
+      `${FRAME_MARK} Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only.`,
     early: (graph) =>
       `Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph ${graph}, no holon or roles yet — continue it from the first missing sign.`,
   },
