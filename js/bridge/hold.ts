@@ -7,6 +7,7 @@
 // The busy text is written by the doer beside the socket (#4231) and published by the bridge.
 import { LOGGERS } from "../delivery/index.ts";
 import { type HoldOptions, isDirectWord, statusUrl as deriveStatusUrl } from "../shared/channel.ts";
+import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { bindAll } from "../shared/scope.ts";
 import { deliveryKeys, isLifeCheck, noteSeen } from "../shared/seen.ts";
 import { socketPathOf } from "../shared/standings.ts";
@@ -14,7 +15,7 @@ import { markAddressed } from "./addressmark.ts";
 import { harnessName, notifiedClient } from "./client.ts";
 import { stampOrigin } from "./complete.ts";
 import { CFG } from "./config.ts";
-import { type ChannelEvent, Door, type DoorHooks, ENV_KEY } from "./door.ts";
+import { type ChannelEvent, Door, type DoorHooks, ENV_KEY, frameEvent } from "./door.ts";
 import { isDelivered, redundantCopy } from "./fanout.ts";
 import { holdStray, letGo, takeSpool } from "./handoff.ts";
 import { dropOwnHoldRecord, keyOf, readHoldRecord, writeHoldRecord } from "./holdrecord.ts";
@@ -342,7 +343,7 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
   const seenPath = d.seenPath;
   const id = full?.type === "message" && typeof full.id === "string" ? full.id : "";
   // A copy of a graph event already offered or delivered (fanout.ts) goes to no one.
-  if (redundantCopy(full, d)) return;
+  if (!d.approveGraph(raw, full) || redundantCopy(full, d)) return;
   if (full?.type === "message") markAddressed(full, seenPath, d.seen); // before repeat and stale checks
   // A repeat of a delivered frame (same id, re-sent after the place returned) is broadcast to no one; clients mark delivered frames themselves, in the file.
   const again = isDelivered(id ? [id] : [], d.seen, seenPath);
@@ -351,7 +352,8 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
   // a stale copy of a delivered frame is skipped. In pi and OpenCode the batch notification is
   // the delivery, so every frame of the lane is marked seen, else the platform re-sends and
   // wakes again after reconnect (#5831). A direct word and a life check skip it and go live.
-  if (full?.type === "message" && full.stale === true && !isDirectWord(full) && !isLifeCheck(full))
+  const live = isDirectWord(full) || isLifeCheck(full) || isGraphInbox(full);
+  if (full?.type === "message" && full.stale === true && !live)
     return again
       ? log(`stale frame ${id} already delivered — dropped`)
       : d.stale.note(full, (ev) => {
@@ -365,7 +367,7 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
   for (const x of hello ? doors() : [d]) x.push(text, full);
   if (hello) Object.assign(H, { unheard: false, deafKey: null }); // hearing proven
   if (hello) for (const w of [...H.helloWaiters]) w(full);
-  const ev: ChannelEvent = { kind: "frame", raw: text, frame: full };
+  const ev = frameEvent(text, full, seenPath);
   const msg = full?.type === "message" && !again ? full : null;
   if (msg) noteRoomKind(msg);
   // Watchdogs get batched room frames per window, an interrupting one after the batch (roomstack.ts).
@@ -384,11 +386,11 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
       notify("info", keyed(d, b));
     };
     if (hello && Number(full.pending) > 0) d.backlog.open(Number(full.pending), flushBacklog);
-    if (full?.type === "message") {
+    if (full?.type === "message" && !isGraphInbox(full)) {
       if (full.origin === "platform" && !isLifeCheck(full)) d.backlog.open(0, flushBacklog);
       if (d.backlog.note(full)) return;
     }
-    for (const k of deliveryKeys(full)) noteSeen(seenPath, k, d.seen);
+    if (!isGraphInbox(full)) for (const k of deliveryKeys(full)) noteSeen(seenPath, k, d.seen);
   }
   notify("info", keyed(d, ev));
 }

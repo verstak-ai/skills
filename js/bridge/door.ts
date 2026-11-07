@@ -7,9 +7,17 @@ import { dirname } from "node:path";
 
 import { DOOR } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
+import { foldedGraph, isGraphInbox } from "../shared/graph-inbox.ts";
 import { words } from "../shared/lang.ts";
 import { bindScope } from "../shared/scope.ts";
-import { foldedTacts, type Marks, noteSeen, seenIds, splitBatch } from "../shared/seen.ts";
+import {
+  deliveryKeys,
+  foldedTacts,
+  type Marks,
+  noteSeen,
+  seenIds,
+  splitBatch,
+} from "../shared/seen.ts";
 import {
   keyFilePathOf,
   privateDirProblem,
@@ -22,6 +30,7 @@ import { Backlog } from "./backlog.ts";
 import { CFG } from "./config.ts";
 import { closeServerKeeping, stampOf, unlinkOwned, writeOwned } from "./doorfiles.ts";
 import { marksOf } from "./fanout.ts";
+import { GraphRetirements } from "./graph-retirements.ts";
 import { formerKeysOf } from "./holdrecord.ts";
 import { countOnly, emitBatch, RoomBatch } from "./roomstack.ts";
 import { StaleBurst } from "./stale.ts";
@@ -53,7 +62,7 @@ export interface ChannelEvent {
   seen?: string;
   /** kind="stale": frames received while unheard or replayed, judged by the watchdog (shared/stalebatch.ts); kind="backlog": shown frames by received_at. */
   frames?: Frame[];
-  /** kind="stale" and "backlog": delivery marks of the batch (seen.ts splitBatch), written by whoever delivers it. */
+  /** Batch or frame delivery keys, including superseded graph events; written only by the actual giver. */
   marks?: string[];
   /** kind="stale" from an older bridge: marks beyond the shown frames (watchdog/client.ts staleOf). */
   unshown?: string[];
@@ -96,6 +105,16 @@ export interface DoorHooks {
   onError: (text: string) => void;
 }
 
+/** Delivery metadata belongs to this local door, never to fields of the server frame. */
+export function frameEvent(raw: string, frame: Frame | null, seen: string): ChannelEvent {
+  return {
+    kind: "frame",
+    raw,
+    frame,
+    ...(isGraphInbox(frame) ? { seen, marks: deliveryKeys(frame) } : {}),
+  };
+}
+
 export class Door {
   readonly key: string;
   readonly clients = new Set<Socket>();
@@ -134,6 +153,9 @@ export class Door {
    */
   private readonly aliases: string[];
   private aliasServers: { path: string; srv: Server; stamp: string | null }[] = [];
+  private readonly retirements: GraphRetirements;
+  private readonly blockedGraph: { raw: string; frame: Frame }[] = [];
+  private retirementError = false;
 
   constructor(key: string, hooks: DoorHooks) {
     this.key = key;
@@ -146,6 +168,28 @@ export class Door {
     this.authDir = CFG.authDir;
     this.serverUrl = CFG.serverUrl;
     this.seen = seenIds(this.seenPath);
+    this.retirements = new GraphRetirements(this.seenPath);
+  }
+
+  /** Receipt reconciliation precedes even a room copy of an old graph event. */
+  approveGraph(raw: string, frame: Frame | null): boolean {
+    if (frame && isGraphInbox(frame) && this.blockedGraph.length) {
+      if (!this.blockedGraph.some((h) => h.frame === frame)) this.blockedGraph.push({ raw, frame });
+      return false;
+    }
+    try {
+      return this.retirements.accept(frame);
+    } catch (e) {
+      if (!this.retirementError)
+        this.hooks.onError(`graph retirement unavailable: ${(e as Error).message}`);
+      this.retirementError = true;
+      if (frame && isGraphInbox(frame)) {
+        if (!this.blockedGraph.some((h) => h.frame === frame))
+          this.blockedGraph.push({ raw, frame });
+        return false;
+      }
+      return true; // a broken graph ledger must not block ordinary words
+    }
   }
 
   /** A seat keeps its delivered memory per server beyond the bridge; the "env" standing's memory dies with it. */
@@ -218,14 +262,30 @@ export class Door {
       // the ring is folded and marked by the bridge (#6569).
       const folded = foldedTacts(this.ring.map((r) => r.frame));
       for (const f of folded) if (f.id) noteSeen(this.seenPath, String(f.id), this.seen);
-      const waiting = this.ring.filter(
-        ({ frame }) =>
-          frame?.type !== "message" ||
-          (!folded.has(frame) &&
-            !this.marks(String(frame.id ?? "")) &&
-            !this.roomBatch.holds(frame)),
-      );
+      const candidates = this.ring
+        .filter(
+          ({ frame }) =>
+            frame?.type !== "message" ||
+            (!folded.has(frame) &&
+              !this.marks(String(frame.id ?? "")) &&
+              !this.roomBatch.holds(frame)),
+        )
+        .concat(this.roomBatch.takeGraph(), this.blockedGraph.splice(0));
+      const waiting = candidates.filter(({ raw, frame }) => this.approveGraph(raw, frame));
+      if (this.blockedGraph.length) {
+        // A failed newer update must never let the older ring copy escape instead.
+        for (const h of candidates)
+          if (
+            h.frame &&
+            isGraphInbox(h.frame) &&
+            !this.blockedGraph.some((b) => b.frame === h.frame)
+          )
+            this.blockedGraph.push({ raw: h.raw, frame: h.frame });
+        waiting.splice(0, waiting.length, ...waiting.filter((h) => !isGraphInbox(h.frame)));
+      } else this.retirementError = false;
       const msgs = waiting.flatMap(({ frame }) => (frame?.type === "message" ? [frame] : []));
+      // Folding retires only the old frame id: the kept copy's event is not delivered yet.
+      for (const f of foldedGraph(msgs)) if (f.id) noteSeen(this.seenPath, String(f.id), this.seen);
       const kept = new Set<Frame | null>(splitBatch(msgs, Infinity, this.marks).kept);
       const backlog = waiting.filter(({ frame }) => frame?.type !== "message" || kept.has(frame));
       sock.write(
@@ -242,7 +302,7 @@ export class Door {
       const put = (ev: ChannelEvent): void => void sock.write(JSON.stringify(ev) + "\n");
       if (counts.length) emitBatch(counts, put);
       for (const { raw, frame } of backlog) {
-        if (!countOnly(frame)) put({ kind: "frame", raw, frame });
+        if (!countOnly(frame)) put({ kind: "frame", raw, frame, marks: deliveryKeys(frame) });
       }
       // Seat taken and the watchdog re-armed: silence would read as hearing.
       const late = this.hooks.lateEvent();
@@ -313,7 +373,13 @@ export class Door {
 
   /** The owner's stop (stophold.ts): unsent batches are dropped, not flushed; how many frames. */
   dropBatches(): number {
-    return this.backlog.drop() + this.roomBatch.drop();
+    const blocked = this.blockedGraph.splice(0).length;
+    try {
+      this.retirements.clear();
+    } catch (e) {
+      this.hooks.onError(`graph retirement stop failed: ${(e as Error).message}`);
+    }
+    return this.backlog.drop() + this.roomBatch.drop() + blocked;
   }
 
   /**
@@ -357,6 +423,9 @@ export class Door {
     if (!this.persistent) {
       try {
         unlinkSync(this.seenPath);
+      } catch {}
+      try {
+        unlinkSync(this.retirements.path);
       } catch {}
     }
     this.ring.length = 0;

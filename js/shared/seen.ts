@@ -8,6 +8,7 @@ import { appendFileSync, readFileSync, renameSync, writeFileSync } from "node:fs
 
 import { addressedToMine } from "./addressed.ts";
 import { type Frame } from "./channel.ts";
+import { graphFolds, isGraphInbox } from "./graph-inbox.ts";
 
 /**
  * How many marks the memory keeps: a day of a seat's traffic plus the whole queue the
@@ -16,6 +17,16 @@ import { type Frame } from "./channel.ts";
  */
 export const SEEN_KEEP = 5000;
 export const SEEN_SLACK = 1000;
+
+// Internal delivery metadata, never read from a server frame's arbitrary fields.
+const graphMarks = new WeakMap<Frame, string[]>();
+
+/** Bind only our ChannelEvent.marks to its carrier; this is not a seen receipt. */
+export function carryGraphMarks(frame: Frame | null | undefined, keys?: readonly string[]): void {
+  if (!frame || !isGraphInbox(frame) || !keys?.length) return;
+  const all = [...new Set([...(graphMarks.get(frame) ?? []), ...keys])];
+  graphMarks.set(frame, all.slice(-SEEN_KEEP));
+}
 
 const evOf = (v: unknown): string =>
   typeof v === "number" || (typeof v === "string" && v) ? `ev:${v}` : "";
@@ -60,7 +71,10 @@ export function deliveryKeys(frame: Frame | null | undefined, named = false): st
   const id = typeof frame?.id === "string" ? frame.id : "";
   const ev = frame && asText(frame) ? eventKeyOf(frame) : "";
   const mark = ev && frame?.stale === true ? `evs:${ev.slice(3)}` : ev;
-  return [id, mark && (named ? `c${mark}` : mark)].filter(Boolean);
+  const retired = (frame && !named && asText(frame) ? (graphMarks.get(frame) ?? []) : []).map(
+    (k) => (frame?.stale === true && k.startsWith("ev:") ? `evs:${k.slice(3)}` : k),
+  );
+  return [...new Set([...retired, id, mark && (named ? `c${mark}` : mark)].filter(Boolean))];
 }
 
 /**
@@ -139,6 +153,12 @@ export function splitBatch(
   has: Marks,
 ): { shown: Frame[]; kept: Frame[]; keys: string[] } {
   const folded = foldedTacts(all);
+  for (const { latest, superseded } of graphFolds(all)) {
+    for (const frame of superseded) {
+      folded.add(frame);
+      carryGraphMarks(latest, [...deliveryKeys(frame), eventKeyOf(frame)].filter(Boolean));
+    }
+  }
   let kept = all.filter((f) => !folded.has(f) && !eventIn(f, has));
   for (;;) {
     const shown = new Set(kept.slice(0, keep));
@@ -181,6 +201,14 @@ export function noteSeen(seenPath: string, id: string, seen: Set<string>): void 
   } catch {
     /* memory is best effort: a lost note costs one extra wake, never a lost one */
   }
+}
+
+/** A retirement obligation is removed only after its marks reached disk. */
+export function noteSeenStrict(seenPath: string, id: string, seen: Set<string>): void {
+  if (seen.has(id)) return;
+  appendFileSync(seenPath, id + "\n");
+  seen.add(id);
+  if (seen.size > SEEN_KEEP + SEEN_SLACK) compact(seenPath, seen);
 }
 
 /**

@@ -244,8 +244,8 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
           const ready = hookContext.take(sid, req.messages);
           for (const text of ready.words) req.system.push({ type: "text", text });
           // Counts wake no turn; take them only when their own root actually requests a model.
-          const counts = ready.ride ? ch?.ride(sid) : null;
-          if (counts) req.system.push({ type: "text", text: markFrame(counts) });
+          if (ready.ride)
+            ch?.ride(sid, (counts) => req.system.push({ type: "text", text: markFrame(counts) }));
         }
         const stop = hook === "context" ? ch?.stopWord(String(req.sessionID)) : null;
         if (stop) req.system.push({ type: "text", text: stop });

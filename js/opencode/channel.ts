@@ -18,12 +18,13 @@
 import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, OPENCODE, PLUGIN } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
-import { askFromPerson } from "../shared/asks.ts";
-import { classifyOrigin, type Frame, isDirectWord } from "../shared/channel.ts";
+import { type Frame } from "../shared/channel.ts";
 import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
+import { isGraphInbox } from "../shared/graph-inbox.ts";
+import { carryGraphReceipt } from "../shared/graph-receipt.ts";
 import { words } from "../shared/lang.ts";
-import { roomKind, stackOf } from "../shared/room-kinds.ts";
-import { deliveryKeys, eventIn, isLifeCheck } from "../shared/seen.ts";
+import { carryGraphMarks, deliveryKeys, eventIn, isLifeCheck } from "../shared/seen.ts";
+import { separateGraphBatch } from "../shared/softbatch.ts";
 import { authDir } from "./bridge-io.ts";
 import { createCuts } from "./cuts.ts";
 import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
@@ -31,6 +32,7 @@ import { createHalts, descendantsOf } from "./halts.ts";
 import { archiver } from "./host.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
+import { freshRiders, handRiders, takeRiders, toPile } from "./piles.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -56,7 +58,7 @@ export interface Channel {
   /** The plugin stops: what gathered leaves now. */
   stop(): void;
   /** Counts of records waiting for a passing prompt into root session `session`; null — none. */
-  ride(session: string): string | null;
+  ride(session: string, put: (text: string) => void): void;
   /** The stop word a turn of root session `session` reads while it stays stopped; null — none. */
   stopWord(session: string): string | null;
 }
@@ -67,23 +69,6 @@ const CASE_BATCH_MS = Number(process.env[envName("OPENCODE_BATCH_MS")]) || 5_000
 const CASE_BATCH_CAP = 20;
 /** A pile prompt whose taking OpenCode keeps silent about longer is counted taken. */
 const PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 120_000;
-/**
- * A case frame for the pile: not a direct word and not a human's word (its flight and abort —
- * to the pile, #6081); a case record not addressed to the seat — to the pile at any stack (#6574).
- */
-function toPile(frame: Frame | null): boolean {
-  if (!frame || frame.type !== "message" || isDirectWord(frame)) return false;
-  const rk = roomKind(frame);
-  if (
-    (frame.origin ?? classifyOrigin(frame)) === "human" &&
-    !rk?.phase &&
-    !rk?.aside &&
-    !askFromPerson(frame)
-  )
-    return false;
-  return !addressedToMine(frame) || stackOf(frame) === "batch"; // addressing before stack: a word in flight is remembered
-}
-
 /** How many unaddressed records wait for a passing prompt at most; older ones go. */
 const RIDERS_MAX = 500;
 
@@ -214,15 +199,17 @@ export function setupChannel(
     // A pile of counts only wakes no turn (#6574): it waits for a passing prompt.
     if (!frames.some((f) => addressedToMine(f))) {
       p.riders.push(...frames);
-      p.riders.splice(0, Math.max(0, p.riders.length - RIDERS_MAX));
+      p.riders = [
+        ...p.riders.filter(isGraphInbox),
+        ...p.riders.filter((f) => !isGraphInbox(f)).slice(-RIDERS_MAX),
+      ];
       return;
     }
     const at = Date.now();
     p.pending = { session: "", inbox: null, at };
-    const text = [
-      batchHead([...fresh(p, p.riders.splice(0)), ...frames]),
-      ...batchLines(frames),
-    ].join("\n");
+    const text = [batchHead([...takeRiders(p, false).kept, ...frames]), ...batchLines(frames)].join(
+      "\n",
+    );
     void deliver(p.session, text, W.caseBatch(frames.length), "queue", p.child).then((got) => {
       // Without an id the taking is not seen: the next pile goes by the window.
       const inbox = got?.inbox && !takenEarly.delete(got.inbox) ? got.inbox : null;
@@ -253,6 +240,10 @@ export function setupChannel(
         }),
       );
     if (frame.id && p.held.some((f) => f.id === frame.id)) return; // a repeat of a waiting one
+    if (isGraphInbox(frame)) {
+      if (!eventIn(frame, (k) => p.marks.has(k))) p.riders.push(frame);
+      return; // only context admission takes graph text, never the pile timer
+    }
     p.held.push(frame);
     if (!p.pending && p.held.length >= CASE_BATCH_CAP) return flush(p);
     if (!p.timer) schedule(p);
@@ -266,13 +257,16 @@ export function setupChannel(
   }
 
   /** The pile's frames whose event has not entered the session yet (seen.ts eventIn). */
-  const fresh = (p: Pile, fs: Frame[]): Frame[] =>
-    fs.filter((f) => !eventIn(f, (k) => p.marks.has(k)));
+  const fresh = freshRiders;
 
   /** The piles' riding counts as head lines; the piles give them away. */
-  function riding(ps: Pile[]): string[] {
-    const got = ps.flatMap((p) => fresh(p, p.riders.splice(0)));
-    return got.length ? [batchHead(got)] : [];
+  function riding(ps: Pile[], graph = false): string[] {
+    const got = ps.flatMap((p) => {
+      const out = takeRiders(p, graph);
+      if (graph) noteOwn(p, out.keys);
+      return out.kept;
+    });
+    return got.length ? [batchHead(got), ...batchLines(got)] : [];
   }
 
   function loud(session: string | null, text: string, child = false): void {
@@ -287,6 +281,9 @@ export function setupChannel(
    * the same predicate (onEvent "frame"), so no queued path carries it.
    */
   function batch(session: string | null, child: boolean, ev: ChannelEvent, what: string): void {
+    const parts = separateGraphBatch(ev);
+    for (const frame of parts.graph) pile(session, child, frame);
+    ev = parts.rest;
     noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
     if (!ev.text) return;
     if (launcherWordIn(session, child, ev.frames))
@@ -363,6 +360,7 @@ export function setupChannel(
       else this.taken(session);
     },
     gone(session) {
+      for (const k of ["child", "root"]) dropPile(`${k}:${session}`);
       tacts.gone(session);
       lives.gone(session);
       halts.gone(session);
@@ -408,12 +406,12 @@ export function setupChannel(
         flush(p);
       }
     },
-    ride(session) {
-      if (halts.halted(session)) return null;
+    ride(session, put) {
+      if (halts.halted(session)) return;
       const own = [...piles.values()].filter(
         (p) => !p.child && (p.session === session || (!p.session && freshestRoot() === session)),
       );
-      return riding(own).join("\n") || null;
+      handRiders(own, put, noteOwn);
     },
     stopWord(session) {
       const word = halts.wordOf(session, P.stoppedAny());
@@ -425,6 +423,8 @@ export function setupChannel(
       switch (ev.kind) {
         case "frame": {
           const frame = ev.frame ?? null;
+          carryGraphMarks(frame, ev.marks);
+          carryGraphReceipt(frame, ev.seen, authDir());
           // Service frames wake nothing: hello proves the socket is held, and only that.
           if (frame?.type === "hello") return say(P.listening(), "info");
           if (frame?.type === "status") return;

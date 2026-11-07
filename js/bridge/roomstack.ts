@@ -9,6 +9,7 @@ import { addressedToMine } from "../shared/addressed.ts";
 import { askFromPerson } from "../shared/asks.ts";
 import { classifyOrigin, type Frame } from "../shared/channel.ts";
 import { batchHead, foldAsides } from "../shared/frame-text.ts";
+import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { byKind, roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, type Marks, noteSeen, splitBatch } from "../shared/seen.ts";
 import { type ChannelEvent, type Door } from "./door.ts";
@@ -31,6 +32,7 @@ export class RoomBatch {
   add(raw: string, frame: Frame, emit: (ev: ChannelEvent) => void): void {
     this.emit = emit;
     this.held.push({ raw, frame });
+    if (isGraphInbox(frame)) return; // no timer or interrupt can hand a soft inbox out
     if (this.held.length >= ROOM_BATCH_CAP) return this.flushNow();
     this.timer ??= setTimeout(() => this.flushNow(), ROOM_BATCH_MS).unref();
   }
@@ -65,13 +67,25 @@ export class RoomBatch {
   flushNow(carrier?: Frame | null): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
-    const got = this.held.splice(0);
+    const got = this.held.filter((h) => !isGraphInbox(h.frame));
+    this.held.splice(0, this.held.length, ...this.held.filter((h) => isGraphInbox(h.frame)));
     const emit = this.emit;
     if (!got.length || !emit) return;
-    const unit = [...got.map((h) => h.frame), ...(carrier ? [carrier] : [])];
+    const unit = [
+      ...this.held.map((h) => h.frame),
+      ...got.map((h) => h.frame),
+      ...(carrier ? [carrier] : []),
+    ];
     const kept = new Set(splitBatch(unit, Infinity, this.has).kept);
     const out = got.filter((h) => kept.has(h.frame));
     if (out.length) emitBatch(out, emit);
+  }
+
+  /** Only a new watchdog arm reads the soft graph inbox, never a timer. */
+  takeGraph(): { raw: string; frame: Frame }[] {
+    const got = this.held.filter((h) => isGraphInbox(h.frame));
+    this.held.splice(0, this.held.length, ...this.held.filter((h) => !isGraphInbox(h.frame)));
+    return got;
   }
 
   /** On the owner's stop: the pending batch is not given (#7439). */
@@ -134,6 +148,10 @@ export function batchForWatchdogs(
   frame: Frame,
   emit: (ev: ChannelEvent) => void,
 ): boolean {
+  if (isGraphInbox(frame)) {
+    d.roomBatch.add(raw, frame, emit);
+    return true;
+  }
   const rk = roomKind(frame);
   const f = rec(frame);
   // An ask from a person's seat is routed by addressing (asks.ts askFromPerson).
