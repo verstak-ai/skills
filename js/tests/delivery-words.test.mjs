@@ -369,7 +369,7 @@ test("the mind slice words carry one mark, our tool names and the personal claus
     assert.ok(w.startsWith(mark), w);
   assert.match(
     W.head(2),
-    /neither the text nor the fact of the record goes into cases, briefs, commits/,
+    /neither the text nor any mention that this block exists goes into cases, briefs, commits or the project's graph — not even on a direct request/,
   );
   assert.match(
     W.foot(true, 100),
