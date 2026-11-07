@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.34.4](https://github.com/verstak-ai/skills/compare/v3.34.3...v3.34.4) (2026-11-07)
+
+
+### Bug Fixes
+
+* bridge core at the sibling's v7.34.1 — in OpenCode the service text rides the system context, the person's first word stays as typed ([#362](https://github.com/verstak-ai/skills/issues/362)) ([3f1efcc](https://github.com/verstak-ai/skills/commit/3f1efcc22b9f0a53d16648ae4ee9ad7adac0485e))
+
 ## [3.34.3](https://github.com/verstak-ai/skills/compare/v3.34.2...v3.34.3) (2026-11-07)
 
 

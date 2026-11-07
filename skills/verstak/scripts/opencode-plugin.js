@@ -184,7 +184,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.34.3";
+var VERSION = "3.34.4";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -380,7 +380,7 @@ var OPENCODE = {
     statusLoginWaiting: () => "sign-in: the bridge has not answered yet (handshake in progress)",
     statusTools: (n2, source) => `${TOOL_PREFIX}* tools: ${n2} (${source})`,
     statusBridges: (live, sessions) => `live bridges: ${live}, sessions with a bridge: ${sessions}`,
-    commandHead: (id) => `Load the skill \`${id}\` with the \`skill\` tool (id: \`${id}\`) and act strictly by it. The user typed this, not you; their words are below.
+    commandHead: (id) => `The user ran /${id}: load the skill \`${id}\` with the \`skill\` tool and act strictly by it.
 
 `,
     commandsCount: (n2) => `Verstak: "/" commands from the delivery's skills: ${n2}.`,
@@ -1530,42 +1530,6 @@ function batchPointer(frames) {
   );
 }
 
-// js/shared/launch.ts
-var LINE = LAUNCH_LINE;
-function parseLaunch(text2) {
-  const [, realm, karta, no, of] = LINE.exec(text2) ?? [];
-  return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
-}
-function withWord(text2, word2) {
-  const m = LINE.exec(text2);
-  if (!m) return `${text2}
-${word2}`;
-  const nl = text2.indexOf("\n", m.index);
-  return nl < 0 ? `${text2}
-${word2}` : `${text2.slice(0, nl)}
-${word2}${text2.slice(nl)}`;
-}
-async function enterCase(l, call, satelliteOf, placeName) {
-  const W5 = words(LAUNCH);
-  const room = `#${l.no}`;
-  const stand = { realm: l.realm, karta: l.karta };
-  if (satelliteOf) stand.satellite_of = satelliteOf;
-  try {
-    await call(tool("stand"), stand);
-  } catch (e) {
-    const why = e.message;
-    const join17 = `${tool("case")}(action="join", room="${room}")`;
-    return W5.notSeated(why, l.no, join17);
-  }
-  const place = placeName() || W5.ownSeat();
-  try {
-    await call(tool("case"), { action: "join", realm: l.realm, room });
-  } catch (e) {
-    return W5.notEntered(place, l.no, e.message);
-  }
-  return W5.entered(place, l.no);
-}
-
 // js/opencode/bridge-io.ts
 import {
   accessSync,
@@ -2351,8 +2315,8 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
       if (code(e) === "ENOENT") return;
       let kept2 = false;
       try {
-        const record = JSON.stringify({ session: s, lifted: (/* @__PURE__ */ new Date()).toISOString() });
-        writeFileSync2(file, record, { mode: 384 });
+        const record2 = JSON.stringify({ session: s, lifted: (/* @__PURE__ */ new Date()).toISOString() });
+        writeFileSync2(file, record2, { mode: 384 });
       } catch {
         kept2 = true;
       }
@@ -2381,8 +2345,8 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
       try {
         mkdirSync2(dir(), { recursive: true, mode: 448 });
         const at2 = (/* @__PURE__ */ new Date()).toISOString();
-        const record = JSON.stringify({ session, at: at2, id, word: word2, ...alone ? { alone } : {} });
-        writeFileSync2(fileOf(dir(), session), record, { mode: 384 });
+        const record2 = JSON.stringify({ session, at: at2, id, word: word2, ...alone ? { alone } : {} });
+        writeFileSync2(fileOf(dir(), session), record2, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
       }
@@ -3750,6 +3714,33 @@ function createKeepAlive(ctx, d) {
   };
 }
 
+// js/shared/launch.ts
+var LINE = LAUNCH_LINE;
+function parseLaunch(text2) {
+  const [, realm, karta, no, of] = LINE.exec(text2) ?? [];
+  return realm && karta && no ? { realm, karta, no, of: of ?? null } : null;
+}
+async function enterCase(l, call, satelliteOf, placeName) {
+  const W5 = words(LAUNCH);
+  const room = `#${l.no}`;
+  const stand = { realm: l.realm, karta: l.karta };
+  if (satelliteOf) stand.satellite_of = satelliteOf;
+  try {
+    await call(tool("stand"), stand);
+  } catch (e) {
+    const why = e.message;
+    const join17 = `${tool("case")}(action="join", room="${room}")`;
+    return W5.notSeated(why, l.no, join17);
+  }
+  const place = placeName() || W5.ownSeat();
+  try {
+    await call(tool("case"), { action: "join", realm: l.realm, room });
+  } catch (e) {
+    return W5.notEntered(place, l.no, e.message);
+  }
+  return W5.entered(place, l.no);
+}
+
 // js/opencode/launch.ts
 function createLauncher(d) {
   const prompted = /* @__PURE__ */ new Set();
@@ -3816,8 +3807,8 @@ function createEnds(dir, unwritten, unlifted) {
       lifted2().delete(session);
       try {
         mkdirSync4(dir(), { recursive: true, mode: 448 });
-        const record = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString() });
-        writeFileSync4(fileOf2(dir(), session), record, { mode: 384 });
+        const record2 = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString() });
+        writeFileSync4(fileOf2(dir(), session), record2, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
       }
@@ -5589,6 +5580,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
 }
 
 // js/opencode/commands.ts
+import { randomUUID as randomUUID2 } from "node:crypto";
 import { readFileSync as readFileSync11, realpathSync as realpathSync4 } from "node:fs";
 import { dirname as dirname3 } from "node:path";
 function slashOf(markdown) {
@@ -5597,9 +5589,6 @@ function slashOf(markdown) {
   if (end < 0) return false;
   const head2 = markdown.slice(3, end);
   return /^slash:\s*true\s*$/m.test(head2);
-}
-function commandText(id, args) {
-  return words(OPENCODE).commandHead(id) + args.trim();
 }
 var canon3 = (p) => {
   try {
@@ -5643,24 +5632,49 @@ async function listSkills(ctx) {
 }
 async function setupCommands(ctx, say) {
   const state2 = { commands: await listSkills(ctx) };
+  const key = `${PRODUCT}:command`;
+  const pending = /* @__PURE__ */ new Map();
   await ctx.command.transform((editor) => {
     for (const { id, description } of state2.commands) {
       editor.add({
         name: id,
         description,
         async execute({ sessionID, prompt, delivery }) {
-          await ctx.session.prompt({
-            ...prompt,
-            sessionID,
-            text: commandText(id, String(prompt?.text ?? "")),
-            delivery
+          const nonce = randomUUID2();
+          pending.set(nonce, {
+            session: sessionID,
+            word: words(OPENCODE).commandHead(id)
           });
+          try {
+            await ctx.session.prompt({
+              ...prompt,
+              sessionID,
+              text: String(prompt?.text ?? ""),
+              metadata: { ...prompt?.metadata, [key]: nonce },
+              delivery
+            });
+          } catch (e) {
+            pending.delete(nonce);
+            throw e;
+          }
         }
       });
     }
   });
   if (state2.commands.length) say(words(OPENCODE).commandsCount(state2.commands.length), "info");
   return {
+    word(session, metadata) {
+      const nonce = metadata?.[key];
+      if (typeof nonce !== "string") return null;
+      const entry = pending.get(nonce);
+      if (!entry || entry.session !== session) return null;
+      pending.delete(nonce);
+      return entry.word;
+    },
+    forget(session) {
+      for (const [nonce, entry] of pending) if (entry.session === session) pending.delete(nonce);
+    },
+    stop: () => pending.clear(),
     async refresh() {
       const next = await listSkills(ctx);
       const same = next.length === state2.commands.length && next.every((c, i) => c.id === state2.commands[i]?.id);
@@ -5699,6 +5713,118 @@ function createCompaction(doors) {
         pending.delete(ev.data.sessionID);
     },
     forget: (session) => void pending.delete(session)
+  };
+}
+
+// js/opencode/hook-context.ts
+var record = (x) => typeof x === "object" && x !== null;
+function checkpoint(m) {
+  if (!record(m.metadata) || typeof m.metadata.keepID !== "string") return null;
+  if (!Array.isArray(m.content) || m.content.length !== 1) return null;
+  const part = m.content[0];
+  return record(part) && part.type === "text" && typeof part.text === "string" && part.text.startsWith("<conversation-checkpoint>\n") && part.text.endsWith("</conversation-checkpoint>") ? m.metadata.keepID : null;
+}
+function createHookContext(closed) {
+  const pending = /* @__PURE__ */ new Map();
+  const riding = /* @__PURE__ */ new Map();
+  const generations = /* @__PURE__ */ new Map();
+  const forgotten = /* @__PURE__ */ new Set();
+  const preparedIDs = /* @__PURE__ */ new Map();
+  const aliases2 = /* @__PURE__ */ new Map();
+  let stopped = false;
+  const clear = (s) => {
+    pending.delete(s);
+    riding.delete(s);
+    preparedIDs.delete(s);
+    aliases2.delete(s);
+    generations.delete(s);
+  };
+  const allowed = (s) => !stopped && !forgotten.has(s) && !closed(s);
+  return {
+    sweep() {
+      for (const s of preparedIDs.keys()) if (closed(s)) clear(s);
+    },
+    prepare(s, message) {
+      if (allowed(s)) {
+        const ids2 = preparedIDs.get(s) ?? /* @__PURE__ */ new Set();
+        ids2.add(message);
+        preparedIDs.set(s, ids2);
+      } else clear(s);
+      const generation = generations.get(s) ?? {};
+      if (allowed(s)) generations.set(s, generation);
+      const current = () => {
+        if (!allowed(s)) {
+          clear(s);
+          return false;
+        }
+        return generations.get(s) === generation;
+      };
+      return {
+        put(text2) {
+          if (!text2 || !current()) return;
+          const byMessage = pending.get(s) ?? /* @__PURE__ */ new Map();
+          byMessage.set(message, [...byMessage.get(message) ?? [], text2]);
+          pending.set(s, byMessage);
+        },
+        ride() {
+          if (!current()) return;
+          const ids2 = riding.get(s) ?? /* @__PURE__ */ new Set();
+          ids2.add(message);
+          riding.set(s, ids2);
+        }
+      };
+    },
+    compact(s) {
+      if (!allowed(s)) {
+        clear(s);
+        return;
+      }
+      aliases2.set(s, /* @__PURE__ */ new Set([...pending.get(s)?.keys() ?? [], ...riding.get(s) ?? []]));
+    },
+    failed(s) {
+      aliases2.delete(s);
+      generations.delete(s);
+    },
+    take(s, messages) {
+      const result = { words: [], ride: false };
+      if (!allowed(s)) {
+        clear(s);
+        return result;
+      }
+      const ids2 = /* @__PURE__ */ new Set();
+      for (const m of messages) {
+        if (m.role !== "user" || typeof m.id !== "string") continue;
+        ids2.add(m.id);
+        const alias = !preparedIDs.get(s)?.has(m.id) ? checkpoint(m) : null;
+        if (alias && aliases2.get(s)?.has(alias)) ids2.add(alias);
+      }
+      const queued = pending.get(s);
+      const riders = riding.get(s);
+      for (const id of ids2) {
+        result.words.push(...queued?.get(id) ?? []);
+        queued?.delete(id);
+        if (riders?.delete(id)) result.ride = true;
+        aliases2.get(s)?.delete(id);
+      }
+      if (!queued?.size) pending.delete(s);
+      if (!riders?.size) riding.delete(s);
+      return result;
+    },
+    forget(s) {
+      forgotten.add(s);
+      clear(s);
+    },
+    moved(s) {
+      clear(s);
+    },
+    stop() {
+      stopped = true;
+      pending.clear();
+      riding.clear();
+      preparedIDs.clear();
+      aliases2.clear();
+      generations.clear();
+    }
   };
 }
 
@@ -7177,6 +7303,7 @@ async function setup(ctx) {
   let onChannel = () => {
   };
   let ch = null;
+  let cancelContext = nothing;
   const pulse = createPulseFeed({
     bridgeOf: (s) => half.bridgeOf(s),
     overflow: (s, n2) => say(W5.pulseOverflow(s, n2), "warning")
@@ -7193,7 +7320,10 @@ async function setup(ctx) {
       say,
       freshestRoot,
       parents,
-      () => sweepAll(),
+      () => {
+        cancelContext();
+        sweepAll();
+      },
       { ended: (s) => half.ended(s), launcherOf: (s) => half.launcherOf(s) },
       (s, inbox, _delivery, text2) => {
         pulse.prompted(s, inbox);
@@ -7246,6 +7376,8 @@ async function setup(ctx) {
     closed
   );
   const started = startWords(rootSeats, (s) => onboard.prompt(s), closed);
+  const hookContext = createHookContext(closed);
+  cancelContext = () => hookContext.sweep();
   try {
     await rites.wire();
     await turns.wire();
@@ -7255,17 +7387,16 @@ async function setup(ctx) {
   try {
     await ctx.session.hook("prompt", async (p) => {
       const sid = String(p.sessionID);
+      const prepared = hookContext.prepare(sid, String(p.messageID));
+      prepared.put(commands.word(sid, p.metadata));
       turns.prompt(sid, p.prompt.text);
       const root = await rootOf(sid) === sid;
       const word2 = await half.launch(sid, p.prompt.text);
-      if (word2) p.prompt.text = withWord(p.prompt.text, word2);
+      prepared.put(word2);
       const rite = root && !closed(sid) ? await rites.word(sid) : null;
-      if (rite) p.prompt.text = withWord(p.prompt.text, rite);
-      for (const w of root ? await started(sid) : []) p.prompt.text = withWord(p.prompt.text, w);
-      const counts = root ? ch?.ride(sid) : null;
-      if (counts) p.prompt.text = `${p.prompt.text}
-
-${markFrame(counts)}`;
+      prepared.put(rite);
+      for (const w of root ? await started(sid) : []) prepared.put(w);
+      if (root) prepared.ride();
     });
   } catch (e) {
     say(W5.launchDown(e.message), "error");
@@ -7279,16 +7410,30 @@ ${markFrame(counts)}`;
     for (const hook of ["context", "compaction"])
       await ctx.session.hook(hook, (req) => {
         annotate(req, (s) => half.leadOf(s));
-        if (hook === "compaction") compaction.instruct(req);
-        else compaction.tell(req);
+        if (hook === "compaction") {
+          hookContext.compact(String(req.sessionID));
+          compaction.instruct(req);
+        } else compaction.tell(req);
+        if (hook === "context") {
+          const sid = String(req.sessionID);
+          const ready = hookContext.take(sid, req.messages);
+          for (const text2 of ready.words) req.system.push({ type: "text", text: text2 });
+          const counts = ready.ride ? ch?.ride(sid) : null;
+          if (counts) req.system.push({ type: "text", text: markFrame(counts) });
+        }
         const stop = hook === "context" ? ch?.stopWord(String(req.sessionID)) : null;
         if (stop) req.system.push({ type: "text", text: stop });
       });
   } catch (e) {
     say(W5.noticeDown(e.message), "error");
   }
-  let commands = { refresh: async () => {
-  } };
+  let commands = {
+    refresh: async () => {
+    },
+    word: () => null,
+    forget: nothing,
+    stop: nothing
+  };
   try {
     commands = await setupCommands(ctx, say);
   } catch (e) {
@@ -7326,8 +7471,13 @@ ${markFrame(counts)}`;
         compaction.onEvent(ev);
         turns.onEvent(ev);
         switch (ev?.type) {
+          case "session.compaction.failed":
+            if (id) hookContext.failed(id);
+            break;
           case "session.deleted":
             if (!id) break;
+            hookContext.forget(id);
+            commands.forget(id);
             pulse.forget(id);
             turns.forget(id);
             compaction.forget(id);
@@ -7363,6 +7513,8 @@ ${markFrame(counts)}`;
             const loc = ev.data?.location;
             const to = typeof loc?.directory === "string" ? { directory: loc.directory, workspace: loc.workspaceID ?? null } : null;
             if (!id) break;
+            hookContext.moved(id);
+            commands.forget(id);
             half.moved(id, to);
             rootSeats.moved(
               id,
@@ -7398,6 +7550,7 @@ ${markFrame(counts)}`;
     }
   })();
   async function sweep() {
+    hookContext.sweep();
     for (const s of half.children()) {
       if (!parents.has(s)) await rootOf(s);
       if (ch?.halt(s)) half.halt(s);
@@ -7414,6 +7567,8 @@ ${markFrame(counts)}`;
     sweep: () => void sweep()
   });
   return async () => {
+    hookContext.stop();
+    commands.stop();
     rootSeats.stop();
     clearInterval(sweeper);
     twins.leave();
