@@ -58,6 +58,16 @@ export function sweepStale(authDir: string, mine: string): void {
       unlinkSync(join(dir, f));
     } catch {}
   }
+  // Pending retirements can precede the first .seen receipt. They share its seven-day
+  // unheld-seat lifetime, not an "absent .seen" orphan rule (graph #9904).
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".seen.graph-retirements.json"))) {
+    const keyHash = f.split(".")[0];
+    if (keyHash === mineHash || existsSync(join(dir, `${keyHash}.key`))) continue;
+    try {
+      if (Date.now() - statSync(join(dir, f)).mtimeMs > SEEN_FILE_MAX_AGE_MS)
+        unlinkSync(join(dir, f));
+    } catch {}
+  }
   // Hold records past the seat's idle limit are dead at the platform. A record whose key
   // lies beside is held: its age counts from its socket's departure (holdkeep.ts, #6649);
   // a dead key there is removed by the probe below.

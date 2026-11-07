@@ -11,7 +11,7 @@ import { type Frame } from "../shared/channel.ts";
 import { setCompactCounts } from "../shared/frame-format.ts";
 import { batchHead } from "../shared/frame-text.ts";
 import { setLang } from "../shared/lang.ts";
-import { deliveryKeys, eventIn, type Marks, seenIds } from "../shared/seen.ts";
+import { carryGraphMarks, deliveryKeys, eventIn, type Marks, seenIds } from "../shared/seen.ts";
 import { staleBatch } from "../shared/stalebatch.ts";
 import { authDirFromEnv, socketPathOf, standingsDirOf } from "../shared/standings.ts";
 import { wd } from "./words.ts";
@@ -171,6 +171,7 @@ export function attach(path: string, o: AttachOptions): void {
         }
         if (ev.kind === "released" && ev.own) ownRelease = true; // own close/revoke: the watchdog leaves itself
         if (ev.kind === "released" && ev.beside) forgotten = true;
+        if (ev.kind === "frame") carryGraphMarks(ev.frame, ev.marks);
         o.onEvent(ev);
       }
     });
