@@ -84,7 +84,15 @@ test("compact hook: one seat for the directory — role, seat, the door and the 
   const s = lay(t);
   hold(s.auth, { name: "m3.skills", cwd: s.cwd, client: "claude-code" });
   const out = ok(hook(s, "compact"));
-  assert.equal(out, `${COMPACTION.en.back("7", "m3.skills", "@tester/work")}\n`);
+  assert.equal(
+    out,
+    `${COMPACTION.en.back("7", "m3.skills", "@tester/work")}${COMPACTION.en.restand("7", "m3.skills", "@tester/work")}\n`,
+  );
+  // The hook stays offline; the stand answer brings the human's rules (graph @nks/nks-dev, node #9817).
+  assert.match(
+    out,
+    /As the first move call verstak_stand\(realm="@tester\/work", karta="#7", name="m3\.skills"\) without take/,
+  );
   assert.match(out, /^Verstak: context compacted\. Role #7 in @tester\/work, seat m3\.skills /);
   assert.match(out, /verstak skill.*Recalling/);
   assert.ok(!out.includes(ONBOARD_START.en.start()), "no invitation after a compaction");

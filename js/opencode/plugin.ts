@@ -24,6 +24,7 @@ import { createHookContext } from "./hook-context.ts";
 import { homeOf, sessionDirectory } from "./host.ts";
 import { createKeepAlive, keepaliveTitle } from "./keepalive.ts";
 import { teller } from "./leaddoors.ts";
+import { sliceBy } from "./mindslice.ts";
 import { annotate } from "./notice.ts";
 import { createOnboardStart } from "./onboardstart.ts";
 import { createPulseFeed } from "./pulse.ts";
@@ -195,6 +196,11 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     closed,
   );
   const started = startWords(rootSeats, (s) => onboard.prompt(s), closed);
+  // The human's rules by the session's own bridge (mindslice.ts, #9817); no seat — none.
+  const rulesOf = (s: string): Promise<string> | null => {
+    const bridge = half.bridgeOf(s);
+    return bridge ? sliceBy(bridge) : null;
+  };
   const hookContext = createHookContext(closed);
   cancelContext = () => hookContext.sweep();
   try {
@@ -216,7 +222,10 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       prepared.put(word);
       const rite = root && !closed(sid) ? await rites.word(sid) : null;
       prepared.put(rite);
-      for (const w of root ? await started(sid) : []) prepared.put(w);
+      const start = root ? await started(sid) : [];
+      for (const w of start) prepared.put(w);
+      // A root's start word: its seating's stand was a service move the model never read — the rules go beside it.
+      if (start.length) prepared.put(await (rulesOf(sid) ?? null));
       if (root) prepared.ride();
     });
   } catch (e) {
@@ -227,18 +236,19 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   const compaction = createCompaction({
     placeOf: (s) => half.held(s)?.place ?? null,
     closed,
+    slice: rulesOf,
     say,
   });
   // OpenCode's «completed» at the end of a lead subagent's turn — a word to the model that it is a turn (notice.ts).
   // A turn of a stopped session reads the stop word here, not from its inbox (#7585).
   try {
     for (const hook of ["context", "compaction"] as const)
-      await ctx.session.hook(hook, (req) => {
+      await ctx.session.hook(hook, async (req) => {
         annotate(req, (s) => half.leadOf(s));
         if (hook === "compaction") {
           hookContext.compact(String(req.sessionID));
           compaction.instruct(req);
-        } else compaction.tell(req);
+        } else await compaction.tell(req);
         if (hook === "context") {
           const sid = String(req.sessionID);
           const ready = hookContext.take(sid, req.messages);

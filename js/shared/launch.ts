@@ -5,6 +5,7 @@
 // The line's pattern is the delivery layer's (LAUNCH_LINE).
 import { LAUNCH, LAUNCH_LINE, tool } from "../delivery/index.ts";
 import { words } from "./lang.ts";
+import { sliceIn } from "./mindslice.ts";
 
 /** What the launch line names: graph, role, case and maybe the launcher's seat. */
 export interface Launch {
@@ -52,8 +53,11 @@ export async function enterCase(
   const room = `#${l.no}`;
   const stand: Record<string, unknown> = { realm: l.realm, karta: l.karta };
   if (satelliteOf) stand.satellite_of = satelliteOf;
+  // The human's rules the stand answer carries go into the word: the delivery gives them, not the brief (#9818).
+  let rules: string | null = null;
+  const said = (word: string): string => (rules ? `${word}\n${rules}` : word);
   try {
-    await call(tool("stand"), stand);
+    rules = sliceIn(await call(tool("stand"), stand));
   } catch (e) {
     const why = (e as Error).message;
     const join = `${tool("case")}(action="join", room="${room}")`;
@@ -64,7 +68,7 @@ export async function enterCase(
   try {
     await call(tool("case"), { action: "join", realm: l.realm, room });
   } catch (e) {
-    return W.notEntered(place, l.no, (e as Error).message);
+    return said(W.notEntered(place, l.no, (e as Error).message));
   }
-  return W.entered(place, l.no);
+  return said(W.entered(place, l.no));
 }

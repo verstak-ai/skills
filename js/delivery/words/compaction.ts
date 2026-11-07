@@ -3,6 +3,7 @@
 // first request after it; the Claude Code plugin's compaction hook (the core's cli/onboard-hook.ts)
 // says `back`, or `bare` in an aligned repository whose directory names no seat.
 import type { Lang } from "../lang.ts";
+import { tool } from "../protocol.ts";
 
 export interface CompactionWords {
   /** In the compaction request's system: what the summary must keep. */
@@ -11,6 +12,8 @@ export interface CompactionWords {
   back: (karta: string, name: string, realm: string) => string;
   /** The same word without a role and seat: none is known for the session's directory. */
   bare: () => string;
+  /** The tail of `back` in Claude Code: the hook stays offline — the verstak_stand answer carries the human's rules (#9817). */
+  restand: (karta: string, name: string, realm: string) => string;
   returned: (sessionID: string) => string;
 }
 
@@ -31,6 +34,8 @@ export const COMPACTION: Readonly<Record<Lang, CompactionWords>> = {
     bare: () =>
       `Verstak: context compacted. ` +
       `First load the verstak skill, the methods its door names for the role (only those) and writing. A root session re-reads the user's personal slice by the door's Start (own-graph check first) before its next word to them; a standing word of theirs on how agents work that only the summary holds goes to their mind from where they said it, else confirmed where they alone read — never from the summary alone (minding, Write). The summary points, it isn't the record: re-read in the graph what you lean on (entry, Recalling).`,
+    restand: (karta, name, realm) =>
+      ` As the first move call ${tool("stand")}(realm="${realm}", karta="${role(karta, "<role>")}", name="${name}") without take: the seat stays, and its answer carries the human's rules.`,
     returned: (sessionID) =>
       `Verstak: the role word after the compaction went into the first request of session ${sessionID}`,
   },

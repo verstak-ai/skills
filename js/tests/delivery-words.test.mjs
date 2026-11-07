@@ -357,3 +357,25 @@ test("a / command's head stands alone in the system: it names the command, claim
   assert.match(head, /^The user ran \/verstak: load the skill `verstak` with the `skill` tool/);
   assert.doesNotMatch(head, /below|typed this/);
 });
+
+// The human's rules given into the turn (the core's shared/mindslice.ts; graph @nks/nks-dev,
+// nodes #9817, #9818): every word starts with the mark the core finds the block by, names our
+// tools, and says the block is personal.
+test("the mind slice words carry one mark, our tool names and the personal clause", async () => {
+  const { MIND_SLICE } = await import("../delivery/words/mindslice.ts");
+  const W = MIND_SLICE.en;
+  const mark = W.mark();
+  for (const w of [W.head(2), W.empty(), W.absent(), W.unknown(), W.unread("refused")])
+    assert.ok(w.startsWith(mark), w);
+  assert.match(
+    W.head(2),
+    /neither the text nor the fact of the record goes into cases, briefs, commits/,
+  );
+  assert.match(
+    W.foot(true, 100),
+    /verstak_look\(realm="mind".*verstak_search\(realm="mind".*offset=100\)/,
+  );
+  assert.doesNotMatch(W.foot(false, 100), /first page/);
+  for (const call of W.foot(true, 100).match(/\w+_(?:look|search)\(/g) ?? [])
+    assert.ok(call.startsWith("verstak_"), call);
+});

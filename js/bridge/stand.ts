@@ -24,7 +24,6 @@ import {
   short,
   unresolvedRefusal,
 } from "./call.ts";
-import { CFG } from "./config.ts";
 import {
   askedHearing,
   boardHearing,
@@ -74,12 +73,12 @@ import { seatProof } from "./seatproof.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
 import { standAgainWord } from "./standagain.ts";
 import { besideHoldsMain, ledIn, refusedWord, releasePrior } from "./standmoves.ts";
+import { standTail } from "./standtail.ts";
 import { connectInMove, heldAddress, registerRefused, stopGuard } from "./standundo.ts";
 import { boardHeaders, needRealmKarta, sw } from "./standwords.ts";
 import { busyLine, publishStatus, standStatusOnly, TAKE_PATH, TURNED_GUIDANCE } from "./status.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
-import { readLatest, staleNotice } from "./update.ts";
 
 /** One repeat of the call after a refused return to a left seat. */
 const R = scoped(() => ({ again: false }));
@@ -493,8 +492,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
         : sw().statusRefused(short(st.body), st.code === 404 ? ` ${TURNED_GUIDANCE()}` : ""),
     );
   }
-  const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
-  if (stale) lines.push(stale);
   if (!priorKept) provisional.noteStood(auto, realm, karta, name);
+  lines.push(...(await standTail(!priorKept && !auto))); // a seating's answer no model reads
   return done(priorKept);
 }
