@@ -203,7 +203,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.35.0";
+var VERSION = "3.35.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -609,10 +609,10 @@ var NEXT = (offset) => `${tool("search")}(realm="mind", q="", attrs_filter="slic
 var MIND_SLICE = {
   en: {
     mark: () => MARK,
-    head: (n) => `${MARK} their rules for working with agents (mind, slice agents,ways; ${n}). Keep them below the project's rules. Personal: neither the text nor any mention that this block exists goes into cases, briefs, commits or the project's graph — not even on a direct request.`,
+    head: (n) => `${MARK} their rules for working with agents (mind, slice agents,ways; ${n}). Keep them below the project's rules. Personal: cite a rule in a case only when it describes that case; it never goes into a brief, the project's graph or commits.`,
     foot: (cut, offset) => `A rule's body — ${LOOK}.` + (cut ? ` This is the first page; the rest — ${NEXT(offset)}.` : ""),
     empty: () => `${MARK} mind holds no rules of the slice agents,ways.`,
-    absent: () => `${MARK} the account has no mind graph of its own — no rules of the human given.`,
+    absent: () => `${MARK} personal memory is not ready (no own mind graph or no card of the human) — no rules given.`,
     unknown: () => `${MARK} no own mind graph confirmed (${tool("me")} readiness) — the rules slice was not read; the work goes on without it.`,
     unread: (why) => `${MARK} the rules slice of mind was not read (${why}) — the work goes on without it.`
   }
