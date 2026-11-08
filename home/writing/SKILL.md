@@ -130,7 +130,7 @@ Start every name with an emoji by meaning, not by type (🔥 marks incidents), o
 
 **Timelessness: provenance never goes in the node** — name, body and `attrs` say what the node is and how to use it, not who said it, when, by whose hand or what came before. Provenance lives in `verstak_history` and each write's `reasoning`, `arose_from`, and the case (→ `verstak`, `Case laws`). Change a node by **rewriting the body to current knowledge**, never by appending a dated section. Smells: "now", "in this session", a date, a signed section, a trailing "✅". Exceptions: a `sachverhalt` incident carries its time in `attrs`; external testimony is dated by nature. **A closed node is an archive** — don't rewrite its name or body; only a part instructing a future agent reads as live.
 
-**`attrs` hold data, not prose:** a seq, the subject's handle (not the author's — leave the factory's `posed_by` empty), the subject's date (an incident's time, a deadline — never when the node was written), flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation is a vimarsha; a decision changes the graph in the form the deed needs (Decision 1), not necessarily a new node.
+**`attrs` hold data, not prose:** a seq, the subject's handle (not the author's — leave the factory's `posed_by` empty), the subject's date (an incident's time, a deadline — never when the node was written), flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation with a question or defect is a vimarsha, one without refines the node that carries it (**feedback**); a decision changes the graph in the form the deed needs (Decision 1), not necessarily a new node.
 
 ## Decision 5: arrows
 
