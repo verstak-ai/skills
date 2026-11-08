@@ -48,7 +48,7 @@ export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
     severalHeld: (held) => `the bridge holds several standings — name the one you need: ${held}`,
     bridgeLetGo: () => "the bridge released the standing or went away — did the session end?",
     seatNotBack: (s, path) =>
-      `the seat did not return within ${s}s after the daemon change — socket ${path} is not up; to bring it back use ${tool("stand")}`,
+      `the seat did not return within ${s}s of the daemon change (socket ${path} not up); bring it back with ${tool("stand")}`,
     noSocket: (path, s) => `the bridge did not bring up the local socket ${path} within ${s}s`,
     bridgeReleasedSocket: (text) => `the bridge released the socket: ${text}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,

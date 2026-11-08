@@ -24,11 +24,11 @@ export const LISTEN: Readonly<Record<Lang, ListenWords>> = {
       `\nFrames also come as MCP notifications (logger verstak-channel).`,
     unheard: (listen) => `[verstak-bridge] No watchdog on this seat — frames pile up. ${listen}`,
     monitor: (self, key, where) =>
-      `under Monitor — node "${self}" watchdog ${key}${where}, largest timeout_ms, re-armed when it runs out (Claude Code)`,
+      `under Monitor — node "${self}" watchdog ${key}${where}, largest timeout_ms, re-armed when it ends (Claude Code)`,
     exit: (self, key, where) =>
       `as a background task — node "${self}" watchdog-exit ${key}${where} (exits on the first message)`,
     codex: (self, key, where) =>
-      `in Codex inside one long shell command — node "${self}" watchdog-codex ${key}${where} & …; kill %1 (a separate nohup command dies)`,
+      `in Codex, within one shell command — node "${self}" watchdog-codex ${key}${where} & …; kill %1 (a separate nohup command dies)`,
     self: (pi) =>
       `The ${pi ? "pi extension" : "OpenCode plugin"} listens itself — no watchdog needed: frames enter the turn by their kind, a graph question posed to a role at the next turn.`,
     claude: (monitor, exit) => `Listen: ${monitor}; without Monitor — ${exit}.`,

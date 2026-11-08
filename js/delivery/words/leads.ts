@@ -64,7 +64,7 @@ export interface LeadWords {
 
 const act = (action: string): string => (action ? ` (${action})` : "");
 const keptEn = (who: string, place: string): string =>
-  `child ${who} stood not as a satellite (${place}) — the seat is not revoked, the bridge is not down`;
+  `child ${who} stood not as a satellite (${place}): its seat is not revoked, its bridge is up`;
 
 export const LEAD: Readonly<Record<Lang, LeadWords>> = {
   en: {
@@ -82,24 +82,24 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       `Verstak: subagent ${who} ENDED — ${why}. The errand is over, not just a turn: ${done}` +
       `Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:\n${said || "(it left no text — see its case)"}`,
     endKept: (who, kept) =>
-      `${keptEn(who, kept)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept}"), only on the user's word. `,
+      `${keptEn(who, kept)}; revoke only on the user's word: ${tool("channel")}(action="revoke", standing="${kept}"). `,
     endPlain: () =>
       "its bridge goes down, it leaves its cases, its seat is revoked (if not, a separate word says so). ",
     keptLine: keptEn,
     keptSaid: (who, place) => `Verstak: ${keptEn(who, place)}`,
     unrevokedUnknown: (who) =>
-      `Verstak: the bridge of subagent ${who} is down; whether it revoked its seat it did not answer: if it is left on the board — revoke it with ${tool("channel")}(action="revoke").`,
+      `Verstak: subagent ${who}'s bridge is down without saying whether its seat was revoked; if the seat is still on the board — ${tool("channel")}(action="revoke").`,
     unrevoked: (who, places, first) =>
-      `Verstak: subagent ${who}'s seat was not revoked (network): ${places} — revoke it with ${tool("channel")}(action="revoke", standing="${first}").`,
+      `Verstak: subagent ${who}'s seat is not revoked (network): ${places} — ${tool("channel")}(action="revoke", standing="${first}").`,
     turn: (place) =>
-      `Verstak: subagent ${place} handed over a turn, not the errand — it goes on and waits for frames of its case; the outcome lands here at its end. ` +
-      `To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
+      `Verstak: subagent ${place} ended a turn, not the errand — it waits for frames of its case; its outcome lands here when it ends. ` +
+      `Release it earlier: ${tool("channel")}(action="revoke", standing="${place}").`,
     notice: (child, place) =>
       `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> ends a TURN of subagent ${place}, not the errand: ` +
       `it stays on its own seat, waiting for frames of its case. It is not finished until its outcome lands here marked "ENDED". ` +
       `To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) =>
-      `Verstak: subagent ${who} is released — its bridge is down, it is out of its cases, its seat is revoked on the platform; the outcome landed here as a synthetic message.`,
+      `Verstak: subagent ${who} is released — bridge down, out of its cases, seat revoked; its outcome is the synthetic message here.`,
     unreleased: (who, why) =>
       `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. ` +
       `Repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
@@ -109,7 +109,7 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       `to release it — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
     noError: () => "OpenCode named no error",
     lost: (who, why) =>
-      `Verstak: subagent ${who} is taken down — ${why}. The seat without a bridge goes with the channel's term, its cases with the seat's term; there is no outcome, its turn is in its session.`,
+      `Verstak: subagent ${who} is taken down — ${why}. No outcome: its turn is in its session; its seat and cases expire by their terms.`,
     tellDone: (sessionID) =>
       `Verstak: the word about the subagent was delivered into session ${sessionID}`,
     tellFailed: (sessionID, message) =>
@@ -139,25 +139,25 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     reloadStale: (names) =>
       `plugin reload: the outdated seat ${names} was not taken — the subagent's session has a fresher seat, and it did not return`,
     identity: (name, action) =>
-      `Refused (plugin): ${name}${act(action)} is the user's identity, and the child session has no seat of its own: ` +
-      "it does not get it through the root's bridge. The graph and cases can be read; who you are — ask the launcher.",
+      `Refused (plugin): ${name}${act(action)} is the user's identity; a child session without its own seat does not get it through the root's bridge. ` +
+      "Reading the graph and cases works; who you are — ask the launcher.",
     writeUnderParent: (name, of) =>
-      `Refused (plugin): a child session writes only with its own satellite seat — ${name} would go under the parent's seat ${of}. ` +
-      `Stand: ${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat; reading works as is.`,
+      `Refused (plugin): ${name} would go under the parent's seat ${of}; a child writes only with its own satellite seat — ` +
+      `${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat. Reading works as is.`,
     writeNoParent: () =>
-      "Refused (plugin): a child session writes only with its own satellite seat, and the parent's seat is unknown — the root holds no seat. " +
-      "It cannot have a seat of its own; reading works as is, writing — by a word to the launcher.",
+      "Refused (plugin): a child session writes only with a satellite seat, and the root holds no seat to stand under — no seat is possible here. " +
+      "Reading works as is; writing — by a word to the launcher.",
     finalRefusal: (why, name) =>
-      `Refused (plugin): ${why} — the errand is over, the seat is revoked; ` +
-      `${name} goes neither with its seat nor with the launcher's, and standing again is not possible.`,
+      `Refused (plugin): ${why} — the errand is over, its seat revoked; ` +
+      `${name} can go under no seat, and standing again is not possible.`,
     releasedChild: () => "the launcher released this child session",
     endedChild: () => "this child session has ended",
     endedSatellite: () => "this child session has ended, its satellite seat is released",
     launcherSeat: () => "<the launcher's seat>",
     endedRefusal: (why, name, action, of) =>
       `Refused (plugin): ${why} — ` +
-      `${name}${act(action)} would go with the launcher's bridge and seat. Stand again: ` +
-      `${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat the call.`,
+      `${name}${act(action)} would go under the launcher's seat. Stand again: ` +
+      `${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat.`,
     ask: (who, what) =>
       `Verstak: subagent ${who} waits for a permission: ${what}. Only the user can answer it or cancel the turn, in the window of the subagent's session ${who}; ` +
       "neither you nor a message to the subagent unblocks it. Tell the user what waits and where.",

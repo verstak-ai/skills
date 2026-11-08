@@ -92,8 +92,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     skillReadsDown: (message) =>
       `Verstak: reading the delivery's skill files did not open — ${message}`,
     hearingLost: (hhmm, message) =>
-      `Verstak: hearing lost at ${hhmm} — the standing's bridge exited (${message}). ` +
-      `The hearing watchdog raises the bridge and returns the seat from disk; if you will not wait — ${tool("stand")}.`,
+      `Verstak: hearing lost at ${hhmm} — the bridge exited (${message}). ` +
+      `The hearing watchdog raises it and returns the seat from disk; if you will not wait — ${tool("stand")}.`,
     fromCache: () => "from the previous list",
     fromServer: () => "from the server",
     cached: (n) => `Verstak: tools from the previous list: ${n}; checking with the server.`,
@@ -133,8 +133,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
     lifeCheck: () => "life check",
     lifeCheckChild: (name, karta, realm) =>
-      `Verstak: the platform warned the subagent's seat ${name || "<seat name>"} that it will be put out unless it acts: ` +
-      `still working — it answers with its own move; ended — release the seat: ${tool("channel")}(realm="${realm || "<graph>"}", ` +
+      `Verstak: the platform will put out the subagent's seat ${name || "<seat name>"} unless it acts: ` +
+      `still working — its own move keeps it; ended — release it: ${tool("channel")}(realm="${realm || "<graph>"}", ` +
       `action="revoke", standing="${name || "<seat name>"}", karta=${karta || "<role>"}).`,
     childGone: (frame, id, text) =>
       `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; ` +

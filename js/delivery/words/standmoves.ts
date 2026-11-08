@@ -47,13 +47,13 @@ export const STAND_MOVES: Readonly<Record<Lang, StandMovesWords>> = {
         : `Its name is this channel's line on the board ${board}; stand as it: ${tool("stand")}(realm="${realm}", karta, name=<that name>). `) +
       `For a new name, release the former one first: ${leave}, then repeat the call.`,
     standAgain: (call) =>
-      `The bridge does not hold this session's seat now — take it with the full call: ${call} (status can go in the same call).`,
+      `The bridge holds no seat for this session now — take it: ${call} (status may go in the same call).`,
     priorReleased: (prior) =>
       `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
     provisionalReplaced: (prior) =>
       `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
     priorKept: (prior, text, revoke) =>
-      `this session's former seat ${prior} is not revoked (${text}) — while it lives, cases will ask for from_standing; revoke it: ${revoke}`,
+      `this session's former seat ${prior} is not revoked (${text}); until it is, cases ask for from_standing. Revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside, revokes, keep) =>
       `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside}; moving to ${asked} opens a new channel, they would lose hearing and ${prior} could not be revoked. Nothing was touched. Revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds, own) =>
