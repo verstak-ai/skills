@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.5](https://github.com/verstak-ai/skills/compare/v3.35.4...v3.35.5) (2026-11-08)
+
+
+### Bug Fixes
+
+* corpus corrections confirmed in the sibling's 7.36 reading, projected ([#378](https://github.com/verstak-ai/skills/issues/378)) ([2bc13d7](https://github.com/verstak-ai/skills/commit/2bc13d7710f898a6dea5ad693a2b20be240c8687))
+
 ## [3.35.4](https://github.com/verstak-ai/skills/compare/v3.35.3...v3.35.4) (2026-11-08)
 
 
