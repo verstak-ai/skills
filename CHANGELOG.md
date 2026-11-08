@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.1](https://github.com/verstak-ai/skills/compare/v3.35.0...v3.35.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* a rule from the personal slice may be cited in a case it describes, never in the graph or commits ([#370](https://github.com/verstak-ai/skills/issues/370)) ([8ff4a0e](https://github.com/verstak-ai/skills/commit/8ff4a0e1d240cb30061ccf80b6c9929906e8826d))
+
 ## [3.35.0](https://github.com/verstak-ai/skills/compare/v3.34.5...v3.35.0) (2026-11-07)
 
 
