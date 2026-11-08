@@ -60,15 +60,15 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     noRecord: (key, cwd) =>
       `there is no own hold record ${key ? `with the key ${key}` : `for the directory ${cwd ?? "?"}`}`,
     rejoin: () =>
-      `the seat may have expired at the platform and left its cases — after ${via} join again the cases that wait for you: ${tool("case")}(action="join", room="#N")`,
+      `the seat may have expired and left its cases — after ${via}, join again the cases that wait for you: ${tool("case")}(action="join", room="#N")`,
     foreignDir: (foreign) =>
-      `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
+      `the directory holds records of seats this session never stood on (${foreign}); not taken by directory alone — ${via} takes the seat`,
     neighbourKey: (keys) =>
       `another session stood on the seat ${keys} — a return does not take a neighbour's seat; ${via} will take your own`,
     left: (left) =>
-      `the seat was released by the holder's word (leave): ${left} — it will not return by itself, to bring it back: ${via} with the same name`,
+      `released by the holder (leave): ${left} — no return by itself; to bring it back: ${via} with the same name`,
     staleKey: (stale, fresher) =>
-      `the seat ${stale} is not returned: this session has a fresher seat in the same role, ${fresher}; take it: ${via}(name="${fresher}"), or the former: ${via}(name="${stale}")`,
+      `the seat ${stale} is not returned: the session has a fresher one in this role, ${fresher}; take it: ${via}(name="${fresher}"), or the former: ${via}(name="${stale}")`,
     alreadyHolding: () => "the bridge already holds this seat",
     byRecord: () => "return by record",
     otherSeat: (key, led) => `${key}: the bridge leads another seat ${led}`,

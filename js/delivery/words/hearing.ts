@@ -18,6 +18,6 @@ export const HEARING: Readonly<Record<Lang, HearingWords>> = {
     unknownListens: (seat) =>
       `the bridge does not know whether another session listens on the seat ${seat} (the board did not read, or not all of it)`,
     rawSeatRefusal: (who, action) =>
-      `Refused (bridge): ${who} — ${action} ${action === "register" ? "would sign writes with another's seat" : "would take it"}; the call was not sent. Stand with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`,
+      `Refused (bridge): ${who} — ${action} ${action === "register" ? "would sign writes with another's seat" : "would take it"}; the call was not sent. Use ${tool("stand")}: it retakes your own seat and stands beside another's on name.N with hearing.`,
   },
 };

@@ -40,13 +40,13 @@ export const HOLD: Readonly<Record<Lang, HoldWords>> = {
     besideDone: (name, said) =>
       `Verstak: the seat ${name} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said}`,
     besideFailed: (name, base, said) =>
-      `Verstak: the seat ${name} was taken (4000), and the bridge could not stand beside — no hearing: ${said} The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
+      `Verstak: the seat ${name} was taken (4000) and the bridge could not stand beside — no hearing: ${said} The move — ${tool("stand")} with name=${base} without take: it stands beside as ${base}.N with hearing.`,
     evictedRefusal: (name, base) =>
       `Refused (bridge): the seat ${name} was taken (4000) and the bridge has not stood beside yet — the write would go under the holder's signature; not sent. ${tool("stand")} with name=${base} without take stands beside as ${base}.N with hearing; then repeat the call.`,
     besideOther: (place, ok, said) =>
       ok
         ? `The seat of another graph ${place} was on the taken channel — it stands again on the new one. ${said}`
-        : `The seat of another graph ${place} was on the taken channel and did not stand again — no hearing there: ${said} The move — ${tool("stand")} in that graph with the same name.`,
+        : `The seat ${place} of another graph was on the taken channel and did not stand again — no hearing there: ${said} ${tool("stand")} in that graph with the same name.`,
     takenBySession: () =>
       "a new bridge of this same session took the seat — this instance lets the socket go, the hearing is the new one's",
     dead: (advice) => `DOER: ${advice}`,

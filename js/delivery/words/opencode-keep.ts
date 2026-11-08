@@ -61,7 +61,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       "it returns this session's own seat and stands beside another session's on name.N with hearing.",
     notBack: (place, why) =>
       `Verstak: the seat ${place} did not return from disk: ${why}. ` +
-      `The seat is returning: the hearing watchdog retries the return once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
+      `The hearing watchdog retries once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word) => `Verstak: ${word}.`,
@@ -70,7 +70,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       `Verstak: returning the seat of session ${root} failed — ${message}`,
     retryFailed: (place, why) =>
       `Verstak: the seat ${place} did not return on the watchdog's retry either: ${why}. ` +
-      `The watchdog no longer raises it by itself — take the seat with ${tool("stand")}.`,
+      `No more retries — take the seat with ${tool("stand")}.`,
     noWhy: () => "the bridge did not say why",
     watchResumed: (root, word) =>
       `Verstak: the hearing watchdog returned the seat of session ${root} — ${word}`,
