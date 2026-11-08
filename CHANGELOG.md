@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.3](https://github.com/verstak-ai/skills/compare/v3.35.2...v3.35.3) (2026-11-08)
+
+
+### Bug Fixes
+
+* the longest service words cut to their load-bearing lines (batch 1) ([#374](https://github.com/verstak-ai/skills/issues/374)) ([e75c6cf](https://github.com/verstak-ai/skills/commit/e75c6cff6185e0ec86f50d8df47f469ecc0bfe6b))
+
 ## [3.35.2](https://github.com/verstak-ai/skills/compare/v3.35.1...v3.35.2) (2026-11-08)
 
 
