@@ -189,7 +189,7 @@ var serverProtocol = {
 };
 
 // js/delivery/version.ts
-var VERSION = "3.35.2";
+var VERSION = "3.35.3";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -226,7 +226,7 @@ var BRIDGE_CLIENT = {
 // js/delivery/words/take.ts
 var TAKE = {
   en: {
-    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute if held via a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
@@ -279,7 +279,7 @@ var COMPACTION = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join17) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join17}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join17) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join17}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -291,26 +291,26 @@ var act = (action) => action ? ` (${action})` : "";
 var keptEn = (who, place) => `child ${who} stood not as a satellite (${place}) — the seat is not revoked, the bridge is not down`;
 var LEAD = {
   en: {
-    cascade: (who) => `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases and waits for frames of its case. To go on — a word into its case; to release it — ${tool("channel")}(action="revoke", standing="${who}").`,
+    cascade: (who) => `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases, waiting for frames of its case. To go on — a word into its case; to release it — ${tool("channel")}(action="revoke", standing="${who}").`,
     placeEvicted: () => "its satellite seat was evicted by another holder",
     placeClosed: () => "its satellite seat was revoked not through the launcher or closed by the platform (4001)",
     placeEvictedRefusal: () => "its satellite seat was evicted by another holder",
     placeClosedRefusal: () => "its satellite seat was revoked or closed by the platform (4001)",
     cut: (shown2, total) => `
 [report truncated: ${shown2} of ${total} characters shown — incomplete here, whole in its case]`,
-    end: (who, why, done, said2) => `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:
+    end: (who, why, done, said2) => `Verstak: subagent ${who} ENDED — ${why}. The errand is over, not just a turn: ${done}Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:
 ${said2 || "(it left no text — see its case)"}`,
     endKept: (who, kept2) => `${keptEn(who, kept2)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept2}"), only on the user's word. `,
-    endPlain: () => "the subagent's bridge goes down: it leaves its cases, its seat is revoked (if it is not, I will say so separately). ",
+    endPlain: () => "its bridge goes down, it leaves its cases, its seat is revoked (if not, a separate word says so). ",
     keptLine: keptEn,
     keptSaid: (who, place) => `Verstak: ${keptEn(who, place)}`,
     unrevokedUnknown: (who) => `Verstak: the bridge of subagent ${who} is down; whether it revoked its seat it did not answer: if it is left on the board — revoke it with ${tool("channel")}(action="revoke").`,
     unrevoked: (who, places, first) => `Verstak: subagent ${who}'s seat was not revoked (network): ${places} — revoke it with ${tool("channel")}(action="revoke", standing="${first}").`,
     turn: (place) => `Verstak: subagent ${place} handed over a turn, not the errand — it goes on and waits for frames of its case; the outcome lands here at its end. To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
-    notice: (child, place) => `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> is the end of a TURN of subagent ${place}, not of the errand: it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
+    notice: (child, place) => `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> ends a TURN of subagent ${place}, not the errand: it stays on its own seat, waiting for frames of its case. It is not finished until its outcome lands here marked "ENDED". To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) => `Verstak: subagent ${who} is released — its bridge is down, it is out of its cases, its seat is revoked on the platform; the outcome landed here as a synthetic message.`,
-    unreleased: (who, why) => `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. It hangs on the board: repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
-    failed: (who, why) => `Verstak: the turn of subagent ${who} failed — ${why}. It has not ended: it holds its seat and cases, frames of its case wake it, but while its turns fail it cannot carry out the errand. A model provider's error (sign-in, limit) — tell the user; to release it and do otherwise — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
+    unreleased: (who, why) => `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. Repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
+    failed: (who, why) => `Verstak: the turn of subagent ${who} failed — ${why}. It has not ended: it holds its seat and cases, frames of its case wake it, but it cannot do the errand while its turns fail. A model provider's error (sign-in, limit) — tell the user; to release it — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
     noError: () => "OpenCode named no error",
     lost: (who, why) => `Verstak: subagent ${who} is taken down — ${why}. The seat without a bridge goes with the channel's term, its cases with the seat's term; there is no outcome, its turn is in its session.`,
     tellDone: (sessionID) => `Verstak: the word about the subagent was delivered into session ${sessionID}`,
@@ -326,7 +326,7 @@ ${said2 || "(it left no text — see its case)"}`,
     leftSeat: () => "left its seat by the outcome",
     leftCases: () => "left its cases by the outcome",
     leftCase: (room) => `left case #${room} by the outcome`,
-    lastUnknown: (who, room, why) => `Verstak: subagent ${who} left case #${room}, but whether it was its last case the platform did not say (${why}) — the errand has NOT ended, its bridge and seat live. If it is over — release it: ${tool("channel")}(action="revoke", standing="${who}").`,
+    lastUnknown: (who, room, why) => `Verstak: subagent ${who} left case #${room}; the platform did not say whether it was its last (${why}) — the errand has NOT ended, its bridge and seat live. If it is over, release it: ${tool("channel")}(action="revoke", standing="${who}").`,
     releasedByLauncher: () => "released on the launcher's word",
     deleted: () => "the subagent's session was deleted",
     reloadUnreadable: () => "plugin reload, the subagent's session is unreadable",
@@ -342,7 +342,7 @@ ${said2 || "(it left no text — see its case)"}`,
     endedSatellite: () => "this child session has ended, its satellite seat is released",
     launcherSeat: () => "<the launcher's seat>",
     endedRefusal: (why, name, action, of) => `Refused (plugin): ${why} — ${name}${act(action)} would go with the launcher's bridge and seat. Stand again: ${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat the call.`,
-    ask: (who, what) => `Verstak: subagent ${who} is waiting for a permission: ${what}. Only the user can answer this request — in the window of the subagent's session ${who}. You cannot answer it, and no message to the subagent unblocks it. Tell the user what is waiting and where: only they can answer or cancel the subagent's turn.`,
+    ask: (who, what) => `Verstak: subagent ${who} waits for a permission: ${what}. Only the user can answer it or cancel the turn, in the window of the subagent's session ${who}; neither you nor a message to the subagent unblocks it. Tell the user what waits and where.`,
     more: (n2) => ` and ${n2} more`,
     action: () => "action",
     interrupt: (who, reason2) => `Verstak: the turn of subagent ${who} was interrupted (${reason2}).`
@@ -440,9 +440,9 @@ var OPENCODE = {
 // js/delivery/words/opencode-keep.ts
 var OPENCODE_KEEP = {
   en: {
-    resumed: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. Check the name against the one derived for this session: if it is someone else's, release it with ${tool("channel")}(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one ${tool("stand")}; a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.`,
+    resumed: (key) => `Verstak: the bridge returned the seat ${key} by its own hold record, without your move. If it is someone else's (neither the name derived for this session nor its own name.N), release it with ${tool("channel")}(action="leave") (not revoke: the platform refuses it for the channel's founding seat) and take your own with one ${tool("stand")}; check the author of any write already made on it in the node's history — under another name the bridge still answers success.`,
     resumedOwn: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
-    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: the seat of this same session's previous bridge the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.`,
+    elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — another live bridge holds its socket, not the one serving this session now; hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: it returns this session's own seat and stands beside another session's on name.N with hearing.`,
     notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The seat is returning: the hearing watchdog retries the return once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
@@ -496,7 +496,7 @@ var PLUGIN = {
     stopped: (text2) => `Verstak: ${text2}`,
     stoppedTurn: (stopped) => `${stopped}. This word stands while the seat is taken off; if the user tells you to stand again — stand by an explicit ${tool("stand")} call, and the word goes.`,
     stoppedAny: () => "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
-    evicted: (code2) => `Verstak: the channel was closed with code ${code2} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
+    evicted: (code2) => `Verstak: the channel was closed with code ${code2} — the seat was taken, another holder listens. The bridge stands beside on its own seat name.N with hearing, not taking the other; the outcome follows, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
     alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
     note: (text2) => `Verstak: ${text2}`
   }
@@ -633,7 +633,7 @@ var ROOT_SEAT = {
     cleanupFailed: (place, why) => `Cancelled seating ${place}: could not revoke the seat (${why}); the bridge is closing, the seat may remain until the server's idle expiry.`,
     unproven: () => "the bridge did not prove this attempt took a provisional seat; revoke is not authorized",
     notSeated: (why) => `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
-    realign: (why, file) => `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method from its real sources; do not guess the graph or the role — what cannot be determined, ask as the align method says. Seating repeats by itself once the cover ${file} is unambiguous.`,
+    realign: (why, file) => `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method; do not guess the graph or the role. Seating repeats by itself once the cover ${file} is unambiguous.`,
     refused: (text2) => `seating failed: ${text2}`,
     ownOther: (place, karta, realm) => `Verstak: the session holds seat ${place} — role #${karta} in ${realm}; its role or graph differs from the cover. To change seats, use ${tool("stand")} with take or explicitly revoke the held seat.`,
     /** The session holds a seat whose graph could not be compared with the cover's. */

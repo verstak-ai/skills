@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.35.2";
+var VERSION = "3.35.3";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -148,7 +148,7 @@ var BRIDGE_CLIENT = {
 // js/delivery/words/take.ts
 var TAKE = {
   en: {
-    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute if held via a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
@@ -186,7 +186,7 @@ var CASE_LINE = {
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join5) => `Verstak: launch line — not seated: ${why}. A subagent takes only a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join5}; if not, the launcher takes a seat and launches you again; until then the work goes without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join5) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join5}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -247,7 +247,7 @@ var PLUGIN = {
     stopped: (text) => `Verstak: ${text}`,
     stoppedTurn: (stopped) => `${stopped}. This word stands while the seat is taken off; if the user tells you to stand again — stand by an explicit ${tool("stand")} call, and the word goes.`,
     stoppedAny: () => "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
-    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
+    evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder listens. The bridge stands beside on its own seat name.N with hearing, not taking the other; the outcome follows, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
     alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
     note: (text) => `Verstak: ${text}`
   }
