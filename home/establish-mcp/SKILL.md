@@ -1,6 +1,6 @@
 ---
 name: establish-mcp
-description: "The transport to the graph, only when it is missing: no verstak_* tools, or they fail on transport — not connected, an OAuth link, a dead token, silence; a first sign-in; switching instance; DELIVERY BEHIND in a reply; which bridge version is installed. Triggers: 'connect the graph', 'bring up the bridge', 'verstak tools unavailable', 'MCP won't connect', 'OAuth isn't going through', 'update the bridge'."
+description: "Connecting and maintaining the bridge to the graph: no verstak_* tools, or they fail on transport — not connected, an OAuth link, a dead token, silence; a first sign-in; switching instance; DELIVERY BEHIND in a reply; which bridge version is installed. Triggers: 'connect the graph', 'bring up the bridge', 'verstak tools unavailable', 'MCP won't connect', 'OAuth isn't going through', 'update the bridge'."
 ---
 
 # establish-mcp — connecting and maintaining the bridge
