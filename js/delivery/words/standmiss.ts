@@ -13,7 +13,7 @@ export interface StandMissWords {
   elsewhere: () => string;
 }
 
-const ONLY_EN = "Without karta the call only sets the busy line of this bridge's seat";
+const ONLY_EN = "Without karta the call only sets the busy line of the seat this bridge leads";
 
 export const STAND_MISS: Readonly<Record<Lang, StandMissWords>> = {
   en: {
