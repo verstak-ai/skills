@@ -26,6 +26,8 @@ const FILES = {
 // Each distinction, by a short phrase at its file.
 const PRESENT = {
   minding: [
+    // the one exception to Privacy, the owner's word (graph @nks/nks-dev, #9818; case #3619 [97])
+    "a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case",
     '**Read or write it only once the `personal_mind` sign of `verstak_me(action="readiness")` shows this account\'s own graph present**',
     // personal vs project on the same topic
     "a working preference stays theirs even when its topic is development",
@@ -118,7 +120,7 @@ const PRESENT = {
   ],
   start: [
     // the start slice: given with the seat's answer, a delegate holds it like its launcher (#9817, #9818)
-    "a delegate holds it like its launcher: personal, never copied into the case or the brief",
+    "a delegate holds it like its launcher: personal: a rule is cited in a case only when it describes that case",
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
     "`missing` → personal memory is provided here, unasked — by a root session talking to the user only",
     // a delegate neither creates mind nor reads it itself (graph @nks/nks-dev, node #9817)

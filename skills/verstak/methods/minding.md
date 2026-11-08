@@ -133,6 +133,8 @@ The user appears in each graph through one **owner role** (`svatantra` 主) boun
 
 ## Privacy — mind doesn't leave
 
+One exception, the user's own word: a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case — never into the project graph, commits or PRs. Everything else below holds.
+
 Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded. Before an act on a shared surface (a commit, a config line, a message), ask: **would its reader learn the record from the act?** Yes → ground it in the project's own source, or ask the user where only they read it. The line holds from the first read: retrieving and sorting candidates happens out of shared view too. The user's other agents read it with their own access.
 
 Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets only what the work needs, no source cited. A fact the project needs as its own (its deadline, its server) goes into the project graph from the user's words or a project source, not copied from mind. Unsure → ask the user, where only they read it.
