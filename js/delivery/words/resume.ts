@@ -68,7 +68,7 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     left: (left) =>
       `the seat was released by the holder's word (leave): ${left} — it will not return by itself, to bring it back: ${via} with the same name`,
     staleKey: (stale, fresher) =>
-      `the seat ${stale} is not taken by the return: this session has a fresher record in the same role — ${fresher}; to bring the seat back: ${via}(name="${fresher}"), the former one — ${via}(name="${stale}")`,
+      `the seat ${stale} is not returned: this session has a fresher seat in the same role, ${fresher}; take it: ${via}(name="${fresher}"), or the former: ${via}(name="${stale}")`,
     alreadyHolding: () => "the bridge already holds this seat",
     byRecord: () => "return by record",
     otherSeat: (key, led) => `${key}: the bridge leads another seat ${led}`,
@@ -92,8 +92,8 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
     noSeatOnBoard: () => "the own seat is not on the board",
     listening: () => "listening",
     gaveUp: (key, limit) =>
-      `Verstak: the board reads the seat ${key} as not listening and after ${limit} socket reopenings — ` +
-      `I no longer tear it; check the board and the server, to restore hearing — ${via} with the same name: it leaves another session on the seat alone and stands beside; take=true: ${TAKE.en.rule()}.`,
+      `Verstak: after ${limit} socket reopenings the board still reads the seat ${key} as not listening — I stop reopening; check the board and the server. ` +
+      `To restore hearing — ${via} with the same name (stands beside, leaves another session's seat alone); take=true: ${TAKE.en.rule()}.`,
     deafBoard: () => "the board does not read it as listening",
     reopened: (pending) =>
       pending === null

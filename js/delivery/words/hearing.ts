@@ -13,7 +13,7 @@ export interface HearingWords {
 export const HEARING: Readonly<Record<Lang, HearingWords>> = {
   en: {
     unresolvedAgent: (what) =>
-      `Refused (bridge): karta="agent" — the bridge leads no seat in this graph and does not know which role this session held the name under, and a seat under the sentinel matches neither the board nor a former hold (${what} could make a second seat or take another's). Name the role by number — the agent's role from AGENTS.md.`,
+      `Refused (bridge): karta="agent" — the bridge leads no seat in this graph and cannot tell this session's role (${what} could make a second seat or take another's). Name the role by number — the agent's role from AGENTS.md.`,
     otherListens: (seat) => `another session listens on the seat ${seat}`,
     unknownListens: (seat) =>
       `the bridge does not know whether another session listens on the seat ${seat} (the board did not read, or not all of it)`,

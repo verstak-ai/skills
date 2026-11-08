@@ -79,7 +79,7 @@ export const ROOT_SEAT: Readonly<Record<Lang, RootSeatWords>> = {
     notSeated: (why) =>
       `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
     realign: (why, file) =>
-      `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method from its real sources; do not guess the graph or the role — what cannot be determined, ask as the align method says. Seating repeats by itself once the cover ${file} is unambiguous.`,
+      `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method; do not guess the graph or the role. Seating repeats by itself once the cover ${file} is unambiguous.`,
     refused: (text) => `seating failed: ${text}`,
     ownOther: (place, karta, realm) =>
       `Verstak: the session holds seat ${place} — role #${karta} in ${realm}; its role or graph differs from the cover. To change seats, use ${tool("stand")} with take or explicitly revoke the held seat.`,

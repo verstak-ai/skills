@@ -41,11 +41,11 @@ export interface StandMovesWords {
 export const STAND_MOVES: Readonly<Record<Lang, StandMovesWords>> = {
   en: {
     standsInRealm: (realm, call, board, leave, roleOpen) =>
-      `Refused (409): this bridge's channel already stands in the graph ${realm} with another seat — the platform holds no second seat of one channel in one graph. ` +
+      `Refused (409): this bridge's channel already holds another seat in the graph ${realm} — one seat per channel per graph. ` +
       (call
         ? `Stand as it: ${call}${roleOpen ? ` — the seat's karta is in its line on the board ${board}` : ""}. `
         : `Its name is this channel's line on the board ${board}; stand as it: ${tool("stand")}(realm="${realm}", karta, name=<that name>). `) +
-      `If a new name is what you need, release the former one first: ${leave}, then repeat the call.`,
+      `For a new name, release the former one first: ${leave}, then repeat the call.`,
     standAgain: (call) =>
       `The bridge does not hold this session's seat now — take it with the full call: ${call} (status can go in the same call).`,
     priorReleased: (prior) =>
@@ -55,7 +55,7 @@ export const STAND_MOVES: Readonly<Record<Lang, StandMovesWords>> = {
     priorKept: (prior, text, revoke) =>
       `this session's former seat ${prior} is not revoked (${text}) — while it lives, cases will ask for from_standing; revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside, revokes, keep) =>
-      `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside}. Moving to ${asked} would open a new channel: the seats beside would lose hearing, and ${prior} would not be revoked while they stand. Nothing was touched. Move: revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
+      `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside}; moving to ${asked} opens a new channel, they would lose hearing and ${prior} could not be revoked. Nothing was touched. Revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds, own) =>
       own
         ? `yours — returned: the bridge itself was reopening this seat's socket at that moment, the call waited for its outcome (${seconds} s)`
