@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.4](https://github.com/verstak-ai/skills/compare/v3.35.3...v3.35.4) (2026-11-08)
+
+
+### Bug Fixes
+
+* service words of 150–299 chars cut to their load-bearing lines (batch 2) ([#376](https://github.com/verstak-ai/skills/issues/376)) ([bd29d40](https://github.com/verstak-ai/skills/commit/bd29d40aaa6840c5bb45fd510e9b5118383cae87))
+
 ## [3.35.3](https://github.com/verstak-ai/skills/compare/v3.35.2...v3.35.3) (2026-11-08)
 
 
