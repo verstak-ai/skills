@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.2](https://github.com/verstak-ai/skills/compare/v3.35.1...v3.35.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* bridge core at the sibling's v7.35.3 — a satellite's revoke in a short graph is not sent twice ([#372](https://github.com/verstak-ai/skills/issues/372)) ([b0d3422](https://github.com/verstak-ai/skills/commit/b0d34225f939d427b8483956b3deed98633a8b77))
+
 ## [3.35.1](https://github.com/verstak-ai/skills/compare/v3.35.0...v3.35.1) (2026-11-08)
 
 
