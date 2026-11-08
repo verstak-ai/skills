@@ -51,7 +51,7 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
   en: {
     resumed: (key) =>
       `Verstak: the bridge returned the seat ${key} by its own hold record, without your move. ` +
-      `If it is not the name derived for this session, release it with ${tool("channel")}(action="leave") (not revoke: the platform refuses it for the channel's founding seat) and take your own with one ${tool("stand")}; ` +
+      `If it is someone else's (neither the name derived for this session nor its own name.N), release it with ${tool("channel")}(action="leave") (not revoke: the platform refuses it for the channel's founding seat) and take your own with one ${tool("stand")}; ` +
       "check the author of any write already made on it in the node's history — under another name the bridge still answers success.",
     resumedOwn: (key) =>
       `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
