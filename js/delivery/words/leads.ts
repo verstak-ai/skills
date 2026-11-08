@@ -69,7 +69,7 @@ const keptEn = (who: string, place: string): string =>
 export const LEAD: Readonly<Record<Lang, LeadWords>> = {
   en: {
     cascade: (who) =>
-      `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases and waits for frames of its case. ` +
+      `Verstak: the turn of subagent ${who} was cut by the cancel of your turn — it has not ended: it holds its seat and cases, waiting for frames of its case. ` +
       `To go on — a word into its case; to release it — ${tool("channel")}(action="revoke", standing="${who}").`,
     placeEvicted: () => "its satellite seat was evicted by another holder",
     placeClosed: () =>
@@ -79,12 +79,12 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     cut: (shown, total) =>
       `\n[report truncated: ${shown} of ${total} characters shown — incomplete here, whole in its case]`,
     end: (who, why, done, said) =>
-      `Verstak: subagent ${who} ENDED — ${why}. This is the end of the errand, not a turn: ${done}` +
+      `Verstak: subagent ${who} ENDED — ${why}. The errand is over, not just a turn: ${done}` +
       `Its final report follows — testimony, not acceptance evidence; the case and the carrier hold the grounds and limits:\n${said || "(it left no text — see its case)"}`,
     endKept: (who, kept) =>
       `${keptEn(who, kept)}; to revoke it — ${tool("channel")}(action="revoke", standing="${kept}"), only on the user's word. `,
     endPlain: () =>
-      "the subagent's bridge goes down: it leaves its cases, its seat is revoked (if it is not, I will say so separately). ",
+      "its bridge goes down, it leaves its cases, its seat is revoked (if not, a separate word says so). ",
     keptLine: keptEn,
     keptSaid: (who, place) => `Verstak: ${keptEn(who, place)}`,
     unrevokedUnknown: (who) =>
@@ -95,18 +95,18 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       `Verstak: subagent ${place} handed over a turn, not the errand — it goes on and waits for frames of its case; the outcome lands here at its end. ` +
       `To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     notice: (child, place) =>
-      `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> is the end of a TURN of subagent ${place}, not of the errand: ` +
-      `it is a lead, stands on its own seat and waits for frames of its case. Do not count it finished — the outcome lands here with the word "ENDED" at its end. ` +
+      `Verstak: the OpenCode notice <subagent sessionID="${child}" state="completed"> ends a TURN of subagent ${place}, not the errand: ` +
+      `it stays on its own seat, waiting for frames of its case. It is not finished until its outcome lands here marked "ENDED". ` +
       `To release it earlier — ${tool("channel")}(action="revoke", standing="${place}").`,
     release: (who) =>
       `Verstak: subagent ${who} is released — its bridge is down, it is out of its cases, its seat is revoked on the platform; the outcome landed here as a synthetic message.`,
     unreleased: (who, why) =>
       `Verstak: subagent ${who} has ended and its bridge is down, but its seat is NOT revoked — the platform answered: ${why}. ` +
-      `It hangs on the board: repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
+      `Repeat ${tool("channel")}(action="revoke", standing="${who}", karta) or tell the user.`,
     failed: (who, why) =>
       `Verstak: the turn of subagent ${who} failed — ${why}. It has not ended: it holds its seat and cases, frames of its case wake it, ` +
-      "but while its turns fail it cannot carry out the errand. A model provider's error (sign-in, limit) — tell the user; " +
-      `to release it and do otherwise — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
+      "but it cannot do the errand while its turns fail. A model provider's error (sign-in, limit) — tell the user; " +
+      `to release it — ${tool("channel")}(action="revoke", standing="${who}"). Further failures in a row are not repeated.`,
     noError: () => "OpenCode named no error",
     lost: (who, why) =>
       `Verstak: subagent ${who} is taken down — ${why}. The seat without a bridge goes with the channel's term, its cases with the seat's term; there is no outcome, its turn is in its session.`,
@@ -129,8 +129,8 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     leftCases: () => "left its cases by the outcome",
     leftCase: (room) => `left case #${room} by the outcome`,
     lastUnknown: (who, room, why) =>
-      `Verstak: subagent ${who} left case #${room}, but whether it was its last case the platform did not say (${why}) — the errand has NOT ended, its bridge and seat live. ` +
-      `If it is over — release it: ${tool("channel")}(action="revoke", standing="${who}").`,
+      `Verstak: subagent ${who} left case #${room}; the platform did not say whether it was its last (${why}) — the errand has NOT ended, its bridge and seat live. ` +
+      `If it is over, release it: ${tool("channel")}(action="revoke", standing="${who}").`,
     releasedByLauncher: () => "released on the launcher's word",
     deleted: () => "the subagent's session was deleted",
     reloadUnreadable: () => "plugin reload, the subagent's session is unreadable",
@@ -159,9 +159,8 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
       `${name}${act(action)} would go with the launcher's bridge and seat. Stand again: ` +
       `${tool("stand")}(realm, karta, satellite_of="${of}"), then repeat the call.`,
     ask: (who, what) =>
-      `Verstak: subagent ${who} is waiting for a permission: ${what}. Only the user can answer this request — in the window of the subagent's session ${who}. ` +
-      "You cannot answer it, and no message to the subagent unblocks it. " +
-      "Tell the user what is waiting and where: only they can answer or cancel the subagent's turn.",
+      `Verstak: subagent ${who} waits for a permission: ${what}. Only the user can answer it or cancel the turn, in the window of the subagent's session ${who}; ` +
+      "neither you nor a message to the subagent unblocks it. Tell the user what waits and where.",
     more: (n) => ` and ${n} more`,
     action: () => "action",
     interrupt: (who, reason) => `Verstak: the turn of subagent ${who} was interrupted (${reason}).`,

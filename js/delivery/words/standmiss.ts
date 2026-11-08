@@ -27,6 +27,6 @@ export const STAND_MISS: Readonly<Record<Lang, StandMissWords>> = {
     parked: () =>
       `${ONLY_EN}, and this bridge left its seat by word (leave): return by ${tool("stand")} with karta under the same name.`,
     elsewhere: () =>
-      `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by ${tool("stand")} with karta.`,
+      `${ONLY_EN}, and this seat's socket is not with this bridge (awaiting its return from disk, or released: dead token, revoke); take the seat by ${tool("stand")} with karta.`,
   },
 };

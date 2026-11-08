@@ -18,19 +18,17 @@ export interface ListenWords {
 export const LISTEN: Readonly<Record<Lang, ListenWords>> = {
   en: {
     block: (listen) =>
-      `[verstak-bridge] The bridge holds this standing's socket — there is no one to hand it to` +
-      ` (a line above saying no one listens describes the moment before this holding).` +
+      `[verstak-bridge] The bridge holds this standing's socket (a "no one listens" line above predates this).` +
       `\n${listen}` +
-      `\nBusy line: ${tool("stand")}(realm, status) on this seat — an empty status clears it.` +
+      `\nBusy line: ${tool("stand")}(realm, status) on this seat; an empty status clears it.` +
       `\nFrames also come as MCP notifications (logger verstak-channel).`,
-    unheard: (listen) =>
-      `[verstak-bridge] No watchdog is attached to this seat — frames pile up. ${listen}`,
+    unheard: (listen) => `[verstak-bridge] No watchdog on this seat — frames pile up. ${listen}`,
     monitor: (self, key, where) =>
-      `under Monitor — node "${self}" watchdog ${key}${where} with the largest timeout_ms, re-armed when it runs out (Claude Code)`,
+      `under Monitor — node "${self}" watchdog ${key}${where}, largest timeout_ms, re-armed when it runs out (Claude Code)`,
     exit: (self, key, where) =>
-      `as a background task — node "${self}" watchdog-exit ${key}${where} (exits zero on the first message)`,
+      `as a background task — node "${self}" watchdog-exit ${key}${where} (exits on the first message)`,
     codex: (self, key, where) =>
-      `in Codex inside one long command of your shell — node "${self}" watchdog-codex ${key}${where} & …; kill %1 (a frame enters the running thread through app-server; as a separate nohup command the watchdog dies with it)`,
+      `in Codex inside one long shell command — node "${self}" watchdog-codex ${key}${where} & …; kill %1 (a separate nohup command dies)`,
     self: (pi) =>
       `The ${pi ? "pi extension" : "OpenCode plugin"} listens itself — no watchdog needed: frames enter the turn by their kind, a graph question posed to a role at the next turn.`,
     claude: (monitor, exit) => `Listen: ${monitor}; without Monitor — ${exit}.`,

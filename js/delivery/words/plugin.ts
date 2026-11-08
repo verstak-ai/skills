@@ -46,8 +46,8 @@ export const PLUGIN: Readonly<Record<Lang, PluginWords>> = {
     stoppedAny: () =>
       "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
     evicted: (code) =>
-      `Verstak: the channel was closed with code ${code} — the seat was taken, another holder is listening. ` +
-      `The bridge stands beside as name.N with hearing itself — its own seat, the other one is not taken over; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command. ` +
+      `Verstak: the channel was closed with code ${code} — the seat was taken, another holder listens. ` +
+      `The bridge stands beside on its own seat name.N with hearing, not taking the other; the outcome follows, ${tool("stand")} with the same call tells the seat and the watchdog command. ` +
       `Evicting that session (take=true): ${TAKE.en.rule()}.`,
     alive: (version) =>
       `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; ` +

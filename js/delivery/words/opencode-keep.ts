@@ -50,15 +50,15 @@ export interface OpencodeKeepWords {
 export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
   en: {
     resumed: (key) =>
-      `Verstak: the bridge came up and returned the seat ${key} itself — by its own holding record (the session's directory or the previous seat's key), without your move. ` +
-      `Check the name against the one derived for this session: if it is someone else's, release it with ${tool("channel")}(action="leave") (the channel stays; the platform rejects a revoke of the seat that founded the channel) and take your own with one ${tool("stand")}; ` +
-      "a write that already went out on this move — check it by its author in the node's history: a word under someone else's name lands on another seat, and the bridge answers with success.",
+      `Verstak: the bridge returned the seat ${key} by its own hold record, without your move. ` +
+      `If it is not the name derived for this session, release it with ${tool("channel")}(action="leave") (not revoke: the platform refuses it for the channel's founding seat) and take your own with one ${tool("stand")}; ` +
+      "check the author of any write already made on it in the node's history — under another name the bridge still answers success.",
     resumedOwn: (key) =>
       `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
     elsewhere: (keys) =>
-      `Verstak: returning the seat ${keys} from disk failed — its socket is held by another live bridge, not the one serving this session now: ` +
-      `hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: the seat of this same session's previous bridge ` +
-      "the bridge returns itself, it does not touch another session's seat and stands beside on name.N with hearing.",
+      `Verstak: returning the seat ${keys} from disk failed — another live bridge holds its socket, not the one serving this session now; ` +
+      `hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: ` +
+      "it returns this session's own seat and stands beside another session's on name.N with hearing.",
     notBack: (place, why) =>
       `Verstak: the seat ${place} did not return from disk: ${why}. ` +
       `The seat is returning: the hearing watchdog retries the return once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,

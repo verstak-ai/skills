@@ -10,6 +10,6 @@ export interface TakeWords {
 export const TAKE: Readonly<Record<Lang, TakeWords>> = {
   en: {
     rule: () =>
-      "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term",
+      "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute if held via a machine bridge with a daemon, otherwise by the platform's term",
   },
 };
