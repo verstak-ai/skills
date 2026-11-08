@@ -1,15 +1,15 @@
 ---
 name: establish-mcp
-description: "The transport to the graph, only when it is missing: no verstak_* tools, or they fail on transport — not connected, an OAuth link, a dead token, silence; a first sign-in; switching instance; DELIVERY BEHIND in a reply; which bridge version is installed. Triggers: 'connect the graph', 'bring up the bridge', 'verstak tools unavailable', 'MCP won't connect', 'OAuth isn't going through', 'update the bridge'."
+description: "Connecting and maintaining the bridge to the graph: no verstak_* tools, or they fail on transport — not connected, an OAuth link, a dead token, silence; a first sign-in; switching instance; DELIVERY BEHIND in a reply; which bridge version is installed. Triggers: 'connect the graph', 'bring up the bridge', 'verstak tools unavailable', 'MCP won't connect', 'OAuth isn't going through', 'update the bridge'."
 ---
 
-# establish-mcp — the transport to the graph
+# establish-mcp — connecting and maintaining the bridge
 
-**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge". **Not when** any `verstak_*` call has answered on substance: a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
+**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge". **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
 
 **Grounding:** a record's author is attested by the seat that wrote it, not by a name in the text; the bridge holds that seat binding and the grant, so without it writes go out without an author. The rest of transport is product mechanics.
 
-Installs `verstak-bridge` (the stdio bridge; OAuth or a personal token) — the only path to the graph. Done when a `verstak_me` or `verstak_orient` call has answered in the session.
+Installs `verstak-bridge` (the stdio bridge; OAuth or a personal token) — the only path to the graph. Connecting is done when a `verstak_me` or `verstak_orient` call has answered in the session. Maintaining a bridge that already answers goes by its own section below: an update ends only with a restart and a check of the new build — an answer from the old bridge doesn't finish it.
 
 ## What lives on the machine
 

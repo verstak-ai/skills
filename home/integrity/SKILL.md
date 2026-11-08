@@ -107,7 +107,7 @@ verstak_add_vimarsha(genre="samshaya",
   name="<emoji> Is <X> affected by the transformation \"<bianhua>\"?",
   vimarsha_of=<first anchor>,   # who asked and why — in reasoning
   description=<what the telos means for these nodes; what counts as an answer>,
-  epistemic_mode="anumita", ontic_mode="vartamana", volitive_mode="chanda")
+  epistemic_mode="anumita", ontic_mode=<the subject's: vartamana or anagata>, volitive_mode="chanda")
 → extra anchors: verstak_arrow(action="link", arrow_type="vimarsha_of", ...)
 → verstak_arrow(action="link", arrow_type="anga", source=<new>, target=<bianhua>,
    sense="integrity front: the transformation cannot be accomplished until this is answered")

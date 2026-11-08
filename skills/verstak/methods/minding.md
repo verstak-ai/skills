@@ -159,7 +159,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a role** (§1b), bound with `user=their sub` when on the platform.
+- **A person is a role** (§1b), bound by `user` when on the platform — its format from the writing tool's description, never guessed.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (`methods/writing.md`, Decision 4); a recurring duty is a kriya.
 
 ## Limits

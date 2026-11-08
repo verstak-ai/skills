@@ -130,7 +130,7 @@ Start every name with an emoji by meaning, not by type (🔥 marks incidents), o
 
 **Timelessness: provenance never goes in the node** — name, body and `attrs` say what the node is and how to use it, not who said it, when, by whose hand or what came before. Provenance lives in `verstak_history` and each write's `reasoning`, `arose_from`, and the case (→ `verstak`, `Case laws`). Change a node by **rewriting the body to current knowledge**, never by appending a dated section. Smells: "now", "in this session", a date, a signed section, a trailing "✅". Exceptions: a `sachverhalt` incident carries its time in `attrs`; external testimony is dated by nature. **A closed node is an archive** — don't rewrite its name or body; only a part instructing a future agent reads as live.
 
-**`attrs` hold data, not prose:** a seq, the subject's handle (not the author's — leave the factory's `posed_by` empty), the subject's date (an incident's time, a deadline — never when the node was written), flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation is a vimarsha; a decision changes the graph in the form the deed needs (Decision 1), not necessarily a new node.
+**`attrs` hold data, not prose:** a seq, the subject's handle (not the author's — leave the factory's `posed_by` empty), the subject's date (an incident's time, a deadline — never when the node was written), flag or enumerated word; a one-line condition only where the key *is* it (`breaks_if`). An observation with a question or defect is a vimarsha, one without refines the node that carries it (**feedback**); a decision changes the graph in the form the deed needs (Decision 1), not necessarily a new node.
 
 ## Decision 5: arrows
 
@@ -141,7 +141,7 @@ Without arrows a node is invisible. **The connection lives in the arrow; its exp
 **A kriya — four questions** (the factory refuses one with neither `ahara` nor `utpatti`):
 
 1. **Consumes?** → `ahara` (consumed: its participation in this scope ends, not necessarily the thing); only reads or keeps → `upadhi`.
-2. **Produces?** → `utpatti`. Can't name it → you haven't understood the kriya.
+2. **Produces?** → `utpatti`. Can't name it → first tell an exit edge (`Edge kriyas` below); not an edge → you haven't understood the kriya.
 3. **Who acts?** → `actor` to the role. One kriya, one actor.
 4. **In what context?** → `upadhi` (a condition or method relied on, not consumed); `attrs.mutable=true` if it changes it.
 
@@ -178,7 +178,7 @@ Can't pick → two questions are tangled. Can name where it breaks → `risk`; c
 1. Read `CHECKS:` in the factory's response; fix warnings before moving on. The orphan check on a fresh phenomenon stays until a kriya takes it; `context` doesn't clear it.
 2. The body names a connection with no arrow → draw it now, prose into `sense`.
 3. A phenomenon with `ahara`/`utpatti` → `verstak_orient(lens="trace", focus=…)`: is the cycle connected?
-4. A kriya → do its actor, `ahara` and `utpatti` exist?
+4. A kriya → do its actor and its applicable `ahara`/`utpatti` exist? A one-sided edge — `Edge kriyas` (Decision 5).
 5. You replaced a node → move anchors and consumers over and retire the predecessor by its carrying axis (`supersedes` only between vimarshas). An unreleased predecessor is a live duplicate.
 6. `CHECKS`, a connected trace and legal arrows are graph integrity, not the truth of a behavioural claim (Decision 3).
 7. **Next moment:** the write answered a question → end it by axis (**inquiry**); neighbours still describe the old shape → **weaving**.
