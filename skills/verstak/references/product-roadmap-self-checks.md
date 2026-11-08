@@ -24,7 +24,7 @@ Run every check before publishing (`methods/product-roadmap.md`, Step 8). A PASS
 
 - [ ] **Every cited issue/PR re-checked individually** — open / merged / closed / draft + `mergeable` — one evidence line each (`REPO#N: open, mergeable=true, author=login/ASSOC`), every discrepancy fixed.
 - [ ] Author + association re-checked in the same pass for **every named person**, deferred and risk mentions included; in doubt, remove the name.
-- [ ] Nothing merged or closed shown as open work; no OPEN PR as shipped; no "merge/rebase X" where X is a draft, merged, or `mergeable=true`. `mergeable=null` re-queried once, then "mergeability pending".
+- [ ] Nothing merged or closed shown as open work; no OPEN PR as shipped. No merge recommended for a draft or an already merged PR; rebase only for a confirmed conflict or divergence, never on `mergeable=true` alone. `mergeable=null` re-queried once, then "mergeability pending".
 - [ ] Each recommended PR action removes its **binding** constraint (draft → mark ready; conflicted → rebase; CI red → fix CI; unresolved review → answer it; clean + green + reviewed → merge).
 
 ## Graph leverage (Steps 2, 5, 6)

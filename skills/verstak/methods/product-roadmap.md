@@ -25,7 +25,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 - `gh` authenticated (`gh auth status`); target repos accessible.
 - **A local checkout of every repo in scope** (`git clone --depth 1`; private: `gh repo clone`) — Step 2 reads real code; `gh` metadata alone short-changes the product.
-- Delegation as the door's `Work goes to subagents` says; here harvesting, reading code and rendering may go to subagents in the run's case. Results pass as **files on disk** with short confirmations and paths (large returns drop the connection); check a step by its artifact, not its report.
+- Delegation as the door's `Work goes to subagents` says; here harvesting and rendering may go to a `worker`, reading code to a `reader`, editing many nodes by a decision made to a `weaver` on its own satellite bridge, in the run's case. Results pass as **files on disk** with short confirmations and paths (large returns drop the connection); check a step by its artifact, not its report.
 
 ## Step 1 — Frame and bootstrap
 
@@ -64,8 +64,9 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 - **Multi-repo:** every repo in scope, items tagged by repo, coordinated work as one cross-repo theme.
 - **Milestones first:** `gh api repos/OWNER/REPO/milestones?state=open`, then the issues of every non-"Backlog" milestone; **read each description** (goals without issues). Also Projects boards and pinned "roadmap" issues.
-- **Issues:** `gh issue list --state open --limit N --json number,title,body,author,authorAssociation,labels,reactionGroups,comments,milestone,createdAt,updatedAt`
-- **PRs (open + recently merged):** `gh pr list --state all --limit N --json number,title,body,author,authorAssociation,labels,state,milestone,additions,deletions,createdAt,mergedAt`
+- **Issues:** `gh issue list --state open --limit N --json number,title,body,author,labels,reactionGroups,comments,milestone,createdAt,updatedAt`
+- **PRs (open + recently merged):** `gh pr list --state all --limit N --json number,title,body,author,labels,state,milestone,additions,deletions,createdAt,mergedAt`
+- **Authorship of the selected:** `gh api repos/OWNER/REPO/issues/NUMBER --jq '{number, author: .user.login, authorAssociation: .author_association}'`; for a PR, `pulls/NUMBER`. `gh issue/pr list --json` has no such field. The API refused → name the gap, never invent the weight.
 - **Selection is a UNION, the cut declared and logged:** (a) every milestone issue, (b) every one labelled accepted/approved/roadmap, (c) top N by reactions / comments, (d) the N most recently active, (e) contributor PRs. Reactions alone drop decided work; don't window PRs to the newest N (a long-open maintainer PR is a strong signal).
 - **A thin backlog is a fact:** invent nothing; the ground plus the merged-PR trajectory (`gh pr list --state merged`) carry the roadmap — say so.
 - Per item: number, title, truncated body, **verified author login + authorAssociation from the API**, labels, milestone, engagement, linked issues, state.
@@ -97,8 +98,8 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 **Roadmap additions:**
 
 - **Anchor every item to its subsystem** (`context` / `vimarsha_of` → the Step 2 holon or the capability it extends). No home → under-modelled ground (back to Step 2) or new ground — say which. A cross-repo theme anchors to the focus holon, linking every subsystem it touches.
-- **Dedupe against the GROUND too:** a request matching a shipped capability is "improve X", never "add X" — name the real remaining gap. GitHub reference (number, author, weight) in `attrs`.
-- **Modes as they stand now:** a backlog item, milestone-committed or speculative, is `anagata` + `chanda` (the milestone is evidence in `attrs` and ranking weight, not will); the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
+- **Dedupe against the GROUND too:** a request matching a shipped capability is "improve X", never "add X" — name the real remaining gap. The GitHub reference (number, author, weight) stays in the harvested source slice for the render; the node's provenance goes in `reasoning` and the case, not `attrs`.
+- **Modes as they stand now:** a backlog item, milestone-committed or speculative, is `anagata` + `chanda` (the milestone is evidence in the source slice and ranking weight — not `attrs`, not will); the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
 - **Each backlog kriya's `actor`** is the verified author's dev-driver role, never a runtime actor — ownership as an edge.
 
 ## Step 6 — Assembly (discern the directions)

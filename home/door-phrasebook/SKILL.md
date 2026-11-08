@@ -24,7 +24,7 @@ Dividing signs: `verstak`, Step 3 (the two channel pairs carry theirs below). He
 | hearing ↔ addressing (**collaborate**) | hearing — arrived, silence, no author: "you can't hear me", "writes have no author". addressing — to whom, what (`Exchange`): "ask the other one", "who owns this" |
 | **lead** ↔ **architect** | lead: "this case", "close it", "hand over the lead". architect: "the system", "across holons", "the contract" |
 | **autonomous** ↔ **foreman** | foreman: "spread this across the agents", "who's stuck". autonomous: "work on your own", "take it to merge" |
-| **establish-mcp** ↔ **collaborate** | establish-mcp, transport to the graph: "I don't see the tools", "oauth". collaborate, the channel's socket: "you can't hear me", "the frame didn't arrive" |
+| **establish-mcp** ↔ **collaborate** | establish-mcp, connecting and maintaining the bridge: "I don't see the tools", "oauth", "update the bridge". collaborate, the seat and the channel's hearing: "you can't hear me", "the frame didn't arrive". "Writes have no author" — collaborate first; still authorless after standing again → establish-mcp |
 | **feedback** ↔ a complaint about the work | feedback: "the skill is wrong", "the description says one thing, it does another" |
 
 **A standing preference — one sign, whom it binds:** "always show the plan" said as this repo's rule by whoever holds its rules, binding anyone who works on this repo → `AGENTS.md` or the project graph; how this user wants to be worked with, wherever they are → minding. Neither sign → keep it personal and ask; never write it to the repo on a guess — a personal preference in `AGENTS.md` binds others on a shared surface, while a project rule kept in mind is only missed by other agents. Files outside the worktree configure nothing.
@@ -128,7 +128,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 
 ## establish-mcp — "connect the graph"
 
-**Gets:** tools that answer; it ends where entry begins. "bring up the bridge" · "I don't see the Verstak tools" · "oauth won't go through"
+**Gets:** connecting — tools that answer, ending where entry begins; maintenance — a checked version, a server switch, or an update with a restart. "bring up the bridge" · "I don't see the Verstak tools" · "oauth won't go through" · "update the bridge" · "which bridge version"
 **Elsewhere:** "writes have no author" → collaborate · "upstream unreachable" → the server or network · "tools answer, but not as promised" → surface drift.
 
 ## minding — "remember this about me"

@@ -104,7 +104,7 @@ Weaving a decision into many parts and seeds goes to a `weaver` on its own satel
 
 **Type and genre before a body.** Before reading an unfamiliar number, establish its type and genre from a list without bodies — `verstak_search(realm, q="", anga_of=<bianhua>, include_description=false)`; an unknown type is no licence to read. A `hint` goes to the reading subagent. Compose single and batch reads from metadata you already hold, never from numbers in someone's report: every number's type and genre checked before the batch runs. A title such as "contract", "spec" or "door" doesn't tell the genre; the guard written in a brief doesn't show it was kept.
 
-**Seeds.** A served seed is released with its historical links kept (**inquiry**, §3, `hint`); a fragment is not saved as a new vimarsha each. A substantial remainder is kept after a duplicate search (**writing**); an idea explicitly deferred is not a served seed to throw away.
+**Seeds.** A served seed is released with its historical links kept (**inquiry**, §3, `hint`) — who releases it, by that row; a subagent's report doesn't replace their own reading of the seed and its links; a fragment is not saved as a new vimarsha each. A substantial remainder is kept after a duplicate search (**writing**); an idea explicitly deferred is not a served seed to throw away.
 
 ### 4. Weave — not optional
 

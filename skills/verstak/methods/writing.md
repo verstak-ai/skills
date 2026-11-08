@@ -136,7 +136,7 @@ Without arrows a node is invisible. **The connection lives in the arrow; its exp
 **A kriya — four questions** (the factory refuses one with neither `ahara` nor `utpatti`):
 
 1. **Consumes?** → `ahara` (consumed: its participation in this scope ends, not necessarily the thing); only reads or keeps → `upadhi`.
-2. **Produces?** → `utpatti`. Can't name it → you haven't understood the kriya.
+2. **Produces?** → `utpatti`. Can't name it → first tell an exit edge (`Edge kriyas` below); not an edge → you haven't understood the kriya.
 3. **Who acts?** → `actor` to the role. One kriya, one actor.
 4. **In what context?** → `upadhi` (a condition or method relied on, not consumed); `attrs.mutable=true` if it changes it.
 
@@ -173,7 +173,7 @@ Can't pick → two questions are tangled. Can name where it breaks → `risk`; c
 1. Read `CHECKS:` in the factory's response; fix warnings before moving on. The orphan check on a fresh phenomenon stays until a kriya takes it; `context` doesn't clear it.
 2. The body names a connection with no arrow → draw it now, prose into `sense`.
 3. A phenomenon with `ahara`/`utpatti` → `verstak_orient(lens="trace", focus=…)`: is the cycle connected?
-4. A kriya → do its actor, `ahara` and `utpatti` exist?
+4. A kriya → do its actor and its applicable `ahara`/`utpatti` exist? A one-sided edge — `Edge kriyas` (Decision 5).
 5. You replaced a node → move anchors and consumers over and retire the predecessor by its carrying axis (`supersedes` only between vimarshas). An unreleased predecessor is a live duplicate.
 6. `CHECKS`, a connected trace and legal arrows are graph integrity, not the truth of a behavioural claim (Decision 3).
 7. **Next moment:** the write answered a question → end it by axis (`methods/inquiry.md`); neighbours still describe the old shape → `methods/weaving.md`.

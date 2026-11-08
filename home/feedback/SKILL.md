@@ -41,13 +41,13 @@ A second node saying what one already says splits the answer, and the second get
 
 ## Form
 
-Genre first — it decides how the report will be read:
+The kind of record first; for a question, its genre — it decides how the report will be read:
 
 | What you carry | Genre |
 |---|---|
 | A rule exists and the instance slipped past it | `vyabhichara` (counterexample) |
 | The description or its reasoning is itself wrong | `hetu-dosha` (defect in the grounds) |
-| An observation worth carrying, without a claim of defect | `hint` |
+| An observation with no question or defect | no vimarsha: refine the node that carries it (**writing**); a one-off — a message in a case. A `hint` is only a transformation's seed |
 | A real question about how it should be | `samshaya` (doubt) |
 
 The body, in order:

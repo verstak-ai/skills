@@ -12,7 +12,7 @@ Fetching is the adapter's job (`gh`, a file read, a transcript). Per item it han
 
 - **content** — the claim (title + trimmed body, or a fragment of prose);
 - **form** — bug / feature request / RFC / design doc / fact from code / decision; the core maps by it;
-- **provenance** — a stable back-link (issue URL, path + symbol, "conversation of 2026-…") for `arose_from` or `attrs.source` (step 4);
+- **provenance** — a stable back-link (issue URL, path + symbol, "conversation of 2026-…") for `arose_from` and the write's `reasoning` (step 4);
 - **speaker and means** — who said it, with what claimed standing, by what means and with what evidence: inputs to the judgment of step 2, not a grade.
 
 No provenance → it doesn't get in. Cut along the distinctions the graph will carry, not the source's paragraphs: too fine gives many nodes, too coarse gives containers.
@@ -57,7 +57,7 @@ Before every insert: `verstak_semantic_search(q=<the claim as a phrase>, realm=�
 
 ## 4. Anchor every node to its origin
 
-- **`arose_from`** → the node that stands for the provenance (a document `ding`, an issue's node), where one does; its URL or path in `attrs.source` (`methods/writing.md`, Decision 4). Who let it in, on whose word, goes in `reasoning` — the body carries the claim.
+- **`arose_from`** → the node that stands for the provenance (a document `ding`, an issue's node), where one does. Its number, URL, author and who let it in, on whose word, go in the write's `reasoning` and the case — not in the body or `attrs` (`methods/writing.md`, Timelessness); the body carries the claim.
 - The type's home: a vimarsha → **`vimarsha_of`** what it is about; a phenomenon → **`context`** its holon.
 
 Anchor at intake, not afterwards (`methods/inquiry.md`, §1).

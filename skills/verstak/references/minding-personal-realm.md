@@ -32,7 +32,7 @@ The **assistant's role**, when the companion runtime needs one, is unbound to a 
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; `methods/writing.md`, Decision 2b):
 
 - `manifested_as="agantuka"` 客 by default — they answer on their own time from beyond the user's boundary (relative, friend, client, counterparty, doctor). `svatantra` only for a person who works in this graph themselves (`methods/writing.md`, Decision 2b); `adhikarin` is an agent's kind, never a person's.
-- `user=their sub` when on the platform (the `sub` `verstak_admin(action="list_members")` prints) — that's how the graph knows it's the same person met in a project graph.
+- `user` when they are on the platform — that's how the graph knows it's the same person met in a project graph. Found through `verstak_admin(action="search_users")`: a matching name is not enough — confirm it is them with the user before binding. The value's format comes from the writing tool's description of `user`, never guessed.
 - What's open with them is a vimarsha `posed_to` their role: the relationship is carried by what passes between you.
 - **Groups** — a group role, also `agantuka` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
