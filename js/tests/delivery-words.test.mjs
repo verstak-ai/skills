@@ -372,7 +372,7 @@ test("the mind slice words carry one mark, our tool names and the personal claus
     assert.ok(w.startsWith(mark), w);
   assert.match(
     W.head(2),
-    /cite a rule in a case only when it describes that case; it never goes into the project's graph or commits/,
+    /cite a rule in a case only when it describes that case; it never goes into a brief, the project's graph or commits/,
   );
   assert.match(
     W.foot(true, 100),

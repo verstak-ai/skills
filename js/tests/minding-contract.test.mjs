@@ -109,9 +109,9 @@ const PRESENT = {
     // the slice comes before the first move: the bridge's stand answer, or the door's own call
     // for a session without a seat (graph @nks/nks-dev, node #9817)
     "comes before your first move on their task: the bridge appends it to the `verstak_stand` answer",
-    "a session without a seat reads it itself",
+    "or a session without a seat → a root session reads it itself, readiness first",
     // the owner's word on the mark (graph @nks/nks-dev, #9818 accepted; case #3619 [97])
-    "a rule is cited in a case only when it describes that case, never into the project graph or commits",
+    "a rule is cited in a case only when it describes that case, never into a brief (a subagent gets the slice from the bridge), the project graph or commits",
     'attrs_filter="slice:agents,ways"',
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
@@ -120,7 +120,7 @@ const PRESENT = {
   ],
   start: [
     // the start slice: given with the seat's answer, a delegate holds it like its launcher (#9817, #9818)
-    "a delegate holds it like its launcher: personal: a rule is cited in a case only when it describes that case",
+    "a delegate holds it like its launcher — personal, a rule cited in a case only when it describes that case",
     // a root session that finds personal memory missing provides it, unasked (graph @nks/nks-dev, node #4694)
     "`missing` → personal memory is provided here, unasked — by a root session talking to the user only",
     // a delegate neither creates mind nor reads it itself (graph @nks/nks-dev, node #9817)

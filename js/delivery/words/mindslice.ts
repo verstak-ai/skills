@@ -29,7 +29,7 @@ export const MIND_SLICE: Readonly<Record<Lang, MindSliceWords>> = {
   en: {
     mark: () => MARK,
     head: (n) =>
-      `${MARK} their rules for working with agents (mind, slice agents,ways; ${n}). Keep them below the project's rules. Personal: cite a rule in a case only when it describes that case; it never goes into the project's graph or commits.`,
+      `${MARK} their rules for working with agents (mind, slice agents,ways; ${n}). Keep them below the project's rules. Personal: cite a rule in a case only when it describes that case; it never goes into a brief, the project's graph or commits.`,
     foot: (cut, offset) =>
       `A rule's body — ${LOOK}.` +
       (cut ? ` This is the first page; the rest — ${NEXT(offset)}.` : ""),
