@@ -108,7 +108,8 @@ const PRESENT = {
     // for a session without a seat (graph @nks/nks-dev, node #9817)
     "comes before your first move on their task: the bridge appends it to the `verstak_stand` answer",
     "a session without a seat reads it itself",
-    "neither its text nor any mention that it exists goes into cases, briefs, commits or the project graph — not even on a direct request",
+    // the owner's word on the mark (graph @nks/nks-dev, #9818 accepted; case #3619 [97])
+    "a rule is cited in a case only when it describes that case, never into the project graph or commits",
     'attrs_filter="slice:agents,ways"',
     "search their mind before asking them",
     "or their own way of working, development included → **minding**",
