@@ -203,7 +203,7 @@ var serverProtocol = {
 var SERVER_LOCALE = { en: "en" };
 
 // js/delivery/version.ts
-var VERSION = "3.35.2";
+var VERSION = "3.35.3";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -251,7 +251,7 @@ var BACKLOG = {
 // js/delivery/words/take.ts
 var TAKE = {
   en: {
-    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute when it held the seat through a machine bridge with a daemon, otherwise by the platform's term"
+    rule: () => "only on the user's word; a seat on the board is no evidence its holder is alive: a dead agent's seat closes in about a minute if held via a machine bridge with a daemon, otherwise by the platform's term"
   }
 };
 
@@ -362,7 +362,7 @@ var DEAF = {
   en: {
     takenByOther: (name2) => `the seat ${name2} has no hearing (left, or the token died), and the board reads it listening — another session may have taken it`,
     unknownHearing: (name2) => `the seat ${name2} has no hearing (left, or the token died), and the bridge does not know whether another session listens on it`,
-    refusal: (why) => `Refused (bridge): ${why}; the call will not go under its signature — not sent. Stand again with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
+    refusal: (why) => `Refused (bridge): ${why}; not sent under its signature. Stand again with ${tool("stand")}: the bridge takes its own seat back and stands beside another's on name.N with hearing.`
   }
 };
 
@@ -497,7 +497,7 @@ var HANDOFF = {
 // js/delivery/words/hearing.ts
 var HEARING = {
   en: {
-    unresolvedAgent: (what) => `Refused (bridge): karta="agent" — the bridge leads no seat in this graph and does not know which role this session held the name under, and a seat under the sentinel matches neither the board nor a former hold (${what} could make a second seat or take another's). Name the role by number — the agent's role from AGENTS.md.`,
+    unresolvedAgent: (what) => `Refused (bridge): karta="agent" — the bridge leads no seat in this graph and cannot tell this session's role (${what} could make a second seat or take another's). Name the role by number — the agent's role from AGENTS.md.`,
     otherListens: (seat2) => `another session listens on the seat ${seat2}`,
     unknownListens: (seat2) => `the bridge does not know whether another session listens on the seat ${seat2} (the board did not read, or not all of it)`,
     rawSeatRefusal: (who, action) => `Refused (bridge): ${who} — ${action} ${action === "register" ? "would sign writes with another's seat" : "would take it"}; the call was not sent. Stand with ${tool("stand")}: the bridge takes its own seat back by itself and stands beside another's on name.N with hearing.`
@@ -513,11 +513,11 @@ var HOLD = {
     resumeFailed: () => "resume from disk failed",
     tokenDead: () => "the seat went out after idling (4002)",
     parked: (reason) => `the bridge left the seat (${reason}) — socket closed, seat intact; to return use the watchdog or ${tool("stand")}`,
-    evicted: (code) => `DOER: close ${code} — the seat was taken, another holder is listening; the bridge sends no writes into this graph until you stand on your own seat — they would go under its signature; to listen here, ${tool("stand")} without name stands beside on name.N; to retake the seat (take=true): ${TAKE.en.rule()}`,
-    evictedBeside: (code, name2, base) => `DOER: close ${code} — the seat ${name2} was taken, another holder is listening; not taking it over and not signing with it — standing beside as ${base}.N with hearing myself; the outcome comes next, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true): ${TAKE.en.rule()}`,
+    evicted: (code) => `DOER: close ${code} — the seat was taken, another holder listens; the bridge sends no writes into this graph until you stand on your own seat (they would go under its signature); to listen here, ${tool("stand")} without name stands beside on name.N; to retake the seat (take=true): ${TAKE.en.rule()}`,
+    evictedBeside: (code, name2, base) => `DOER: close ${code} — the seat ${name2} was taken, another holder listens; standing beside as ${base}.N with hearing, not taking or signing with it; the outcome follows, ${tool("stand")} with the same call tells the seat and the watchdog command; evicting that session (take=true): ${TAKE.en.rule()}`,
     besideDone: (name2, said2) => `Verstak: the seat ${name2} was taken (4000) — the bridge stood beside on its own seat with hearing. ${said2}`,
     besideFailed: (name2, base, said2) => `Verstak: the seat ${name2} was taken (4000), and the bridge could not stand beside — no hearing: ${said2} The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing.`,
-    evictedRefusal: (name2, base) => `Refused (bridge): the seat ${name2} was taken (4000), another holder listens on it, and the bridge could not stand beside yet — the write would go under its signature; the call was not sent. The move — ${tool("stand")} with name=${base} without take: the bridge stands beside as ${base}.N with hearing; then repeat the call.`,
+    evictedRefusal: (name2, base) => `Refused (bridge): the seat ${name2} was taken (4000) and the bridge has not stood beside yet — the write would go under the holder's signature; not sent. ${tool("stand")} with name=${base} without take stands beside as ${base}.N with hearing; then repeat the call.`,
     besideOther: (place, ok, said2) => ok ? `The seat of another graph ${place} was on the taken channel — it stands again on the new one. ${said2}` : `The seat of another graph ${place} was on the taken channel and did not stand again — no hearing there: ${said2} The move — ${tool("stand")} in that graph with the same name.`,
     takenBySession: () => "a new bridge of this same session took the seat — this instance lets the socket go, the hearing is the new one's",
     dead: (advice) => `DOER: ${advice}`,
@@ -552,14 +552,14 @@ var LEAVE = {
 // js/delivery/words/listen.ts
 var LISTEN = {
   en: {
-    block: (listen2) => `[verstak-bridge] The bridge holds this standing's socket — there is no one to hand it to (a line above saying no one listens describes the moment before this holding).
+    block: (listen2) => `[verstak-bridge] The bridge holds this standing's socket (a "no one listens" line above predates this).
 ${listen2}
-Busy line: ${tool("stand")}(realm, status) on this seat — an empty status clears it.
+Busy line: ${tool("stand")}(realm, status) on this seat; an empty status clears it.
 Frames also come as MCP notifications (logger verstak-channel).`,
-    unheard: (listen2) => `[verstak-bridge] No watchdog is attached to this seat — frames pile up. ${listen2}`,
-    monitor: (self, key2, where) => `under Monitor — node "${self}" watchdog ${key2}${where} with the largest timeout_ms, re-armed when it runs out (Claude Code)`,
-    exit: (self, key2, where) => `as a background task — node "${self}" watchdog-exit ${key2}${where} (exits zero on the first message)`,
-    codex: (self, key2, where) => `in Codex inside one long command of your shell — node "${self}" watchdog-codex ${key2}${where} & …; kill %1 (a frame enters the running thread through app-server; as a separate nohup command the watchdog dies with it)`,
+    unheard: (listen2) => `[verstak-bridge] No watchdog on this seat — frames pile up. ${listen2}`,
+    monitor: (self, key2, where) => `under Monitor — node "${self}" watchdog ${key2}${where}, largest timeout_ms, re-armed when it runs out (Claude Code)`,
+    exit: (self, key2, where) => `as a background task — node "${self}" watchdog-exit ${key2}${where} (exits on the first message)`,
+    codex: (self, key2, where) => `in Codex inside one long shell command — node "${self}" watchdog-codex ${key2}${where} & …; kill %1 (a separate nohup command dies)`,
     self: (pi) => `The ${pi ? "pi extension" : "OpenCode plugin"} listens itself — no watchdog needed: frames enter the turn by their kind, a graph question posed to a role at the next turn.`,
     claude: (monitor, exit) => `Listen: ${monitor}; without Monitor — ${exit}.`,
     codexLine: (codex, exit) => `Listen: ${codex}; without the app-server door — ${exit}.`,
@@ -779,7 +779,7 @@ var RESUME = {
     foreignDir: (foreign) => `the directory holds records of seats this session did not stand on (${foreign}); they are not taken by directory alone, ${via} will take the seat`,
     neighbourKey: (keys) => `another session stood on the seat ${keys} — a return does not take a neighbour's seat; ${via} will take your own`,
     left: (left2) => `the seat was released by the holder's word (leave): ${left2} — it will not return by itself, to bring it back: ${via} with the same name`,
-    staleKey: (stale, fresher) => `the seat ${stale} is not taken by the return: this session has a fresher record in the same role — ${fresher}; to bring the seat back: ${via}(name="${fresher}"), the former one — ${via}(name="${stale}")`,
+    staleKey: (stale, fresher) => `the seat ${stale} is not returned: this session has a fresher seat in the same role, ${fresher}; take it: ${via}(name="${fresher}"), or the former: ${via}(name="${stale}")`,
     alreadyHolding: () => "the bridge already holds this seat",
     byRecord: () => "return by record",
     otherSeat: (key2, led) => `${key2}: the bridge leads another seat ${led}`,
@@ -798,7 +798,7 @@ var RESUME = {
     boardUnread: (text3) => `the board could not be read — ${text3}`,
     noSeatOnBoard: () => "the own seat is not on the board",
     listening: () => "listening",
-    gaveUp: (key2, limit) => `Verstak: the board reads the seat ${key2} as not listening and after ${limit} socket reopenings — I no longer tear it; check the board and the server, to restore hearing — ${via} with the same name: it leaves another session on the seat alone and stands beside; take=true: ${TAKE.en.rule()}.`,
+    gaveUp: (key2, limit) => `Verstak: after ${limit} socket reopenings the board still reads the seat ${key2} as not listening — I stop reopening; check the board and the server. To restore hearing — ${via} with the same name (stands beside, leaves another session's seat alone); take=true: ${TAKE.en.rule()}.`,
     deafBoard: () => "the board does not read it as listening",
     reopened: (pending2) => pending2 === null ? "the socket is reopened, hello did not come in 4 s" : `the socket is reopened: frames waiting — ${pending2}`,
     busyRestored: (kept3) => `; busy line restored: ${kept3}`,
@@ -1037,19 +1037,19 @@ var STAND_MISS = {
     satellite: (of) => `${ONLY_EN}: the bridge's seat is not a satellite of ${of}.`,
     cwd: (cwd) => `${ONLY_EN}: the directory ${cwd} does not exist or is not absolute.`,
     parked: () => `${ONLY_EN}, and this bridge left its seat by word (leave): return by ${tool("stand")} with karta under the same name.`,
-    elsewhere: () => `${ONLY_EN}, and the bridge has neither the socket nor the status address of this seat — the seat's socket is not with this bridge: the seat waits for its return from disk, or the socket was released (dead token, revoke); take the seat by ${tool("stand")} with karta.`
+    elsewhere: () => `${ONLY_EN}, and this seat's socket is not with this bridge (awaiting its return from disk, or released: dead token, revoke); take the seat by ${tool("stand")} with karta.`
   }
 };
 
 // js/delivery/words/standmoves.ts
 var STAND_MOVES = {
   en: {
-    standsInRealm: (realm, call, board, leave, roleOpen) => `Refused (409): this bridge's channel already stands in the graph ${realm} with another seat — the platform holds no second seat of one channel in one graph. ` + (call ? `Stand as it: ${call}${roleOpen ? ` — the seat's karta is in its line on the board ${board}` : ""}. ` : `Its name is this channel's line on the board ${board}; stand as it: ${tool("stand")}(realm="${realm}", karta, name=<that name>). `) + `If a new name is what you need, release the former one first: ${leave}, then repeat the call.`,
+    standsInRealm: (realm, call, board, leave, roleOpen) => `Refused (409): this bridge's channel already holds another seat in the graph ${realm} — one seat per channel per graph. ` + (call ? `Stand as it: ${call}${roleOpen ? ` — the seat's karta is in its line on the board ${board}` : ""}. ` : `Its name is this channel's line on the board ${board}; stand as it: ${tool("stand")}(realm="${realm}", karta, name=<that name>). `) + `For a new name, release the former one first: ${leave}, then repeat the call.`,
     standAgain: (call) => `The bridge does not hold this session's seat now — take it with the full call: ${call} (status can go in the same call).`,
     priorReleased: (prior) => `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
     provisionalReplaced: (prior) => `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
     priorKept: (prior, text3, revoke) => `this session's former seat ${prior} is not revoked (${text3}) — while it lives, cases will ask for from_standing; revoke it: ${revoke}`,
-    besideHoldsMain: (prior, asked, beside2, revokes, keep) => `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside2}. Moving to ${asked} would open a new channel: the seats beside would lose hearing, and ${prior} would not be revoked while they stand. Nothing was touched. Move: revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
+    besideHoldsMain: (prior, asked, beside2, revokes, keep) => `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside2}; moving to ${asked} opens a new channel, they would lose hearing and ${prior} could not be revoked. Nothing was touched. Revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds2, own) => own ? `yours — returned: the bridge itself was reopening this seat's socket at that moment, the call waited for its outcome (${seconds2} s)` : `this seat's socket was just reopened — the call waited out the platform's threshold (${seconds2} s) and took the seat`,
     moveUndone: (asked, prior) => `The move did not happen: the seat ${asked} just taken is revoked, the session stays on its former seat ${prior} — its only one.`,
     moveNotUndone: (asked, text3, revoke) => `The seat ${asked} just taken could not be revoked (${text3}) — revoke it: ${revoke}`
