@@ -60,7 +60,7 @@ export function sameSeat(seat: HeldSeat, realm: string, karta: string): boolean 
 const REALM_MS = 10_000;
 
 /** rN as the serving bridge names it (#8191); an older bridge or an unknown name — as given. */
-async function canonOf(slot: Slot, realm: string): Promise<string> {
+export async function canonOf(slot: Pick<Slot, "bridge">, realm: string): Promise<string> {
   try {
     const opts = { timeoutMs: REALM_MS, service: true };
     const r = (await slot.bridge.request(method("realm"), { realm }, opts)) as { realm?: unknown };

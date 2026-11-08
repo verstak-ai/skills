@@ -174,7 +174,7 @@ export function createLeads(d: LeadDoors): Leads {
       else if (room)
         void lastLeave(child, l, room, String(args.realm ?? "").trim() || l.place?.realm || "");
     },
-    async release(caller, name, args) {
+    async release(caller, name, args, canon) {
       const s = String(args.standing ?? "").trim();
       if (name !== tool("channel") || args.action !== "revoke" || !s) return null;
       for (const [child, l] of leads) {
@@ -185,9 +185,13 @@ export function createLeads(d: LeadDoors): Leads {
         // No word into the child (#7505): anything laid there would wake it for a turn.
         const run = await finish(child, W().releasedByLauncher(), true, true, "end", true);
         // Off only for the very seat the launcher revokes — its call's graph and role, else its
-        // seat's; one name in another graph is another seat (#5838, №664).
+        // seat's; one name in another graph is another seat (#5838, №664). A short spelling of
+        // the call's graph (rN, slug) goes by the launcher's bridge first (#8191, #7599).
+        const asked = String(args.realm ?? "").trim();
+        const realm =
+          asked && !asked.startsWith("@") && run?.revoked.length ? await canon(asked) : asked;
         const seat = place && {
-          realm: String(args.realm ?? "").trim() || place.realm,
+          realm: realm || place.realm,
           karta: args.karta == null ? place.karta : String(args.karta),
           name: place.name,
         };

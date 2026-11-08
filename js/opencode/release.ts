@@ -4,7 +4,8 @@
 // by the launcher's bridge, the seat's role filled in. One word of the launcher takes the seat
 // off the board whatever the child's bridge managed; a seat the child's bridge revoked itself is
 // not revoked twice — the second call met only "no such seat" (#7599); the same seat is the same
-// canonical graph, role and name, a graph not known in that form is no match (№664); a seat
+// canonical graph, role and name — a short spelling as the launcher's bridge resolves it (#8191),
+// a graph not known in that form is no match (№664); a seat
 // already gone counts as taken off, any other refusal is a loud refusal of the launcher's call,
 // not a quiet "released".
 import { refusalOf, seatAlreadyOff } from "../bridge/refusal.ts";
