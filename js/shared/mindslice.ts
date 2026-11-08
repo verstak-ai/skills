@@ -2,7 +2,8 @@
 // the delivery reads the slice agents,ways of the account's own graph "mind" — not the model.
 // Readiness first: no own graph — no read (the short name must not reach another's graph).
 // Name and one line per rule, the body by number (#9819); every word carries the mark
-// "personal — not copied into cases, briefs or the project's graph" (#9818).
+// "personal": a rule is cited only in a case it describes, never in briefs, the project's graph
+// or commits — the owner's word on #9818; the words themselves live in MIND_SLICE.
 import {
   LANGS,
   MIND_MISSING,

@@ -27,9 +27,14 @@ export interface Leads {
    * The launcher's revoke naming its lead's seat ends the child; null — not this case. The
    * launcher's own revoke follows by its bridge (tools.ts): the seat goes on the platform —
    * unless the child's bridge revoked that very seat — graph, role, name — itself at its run's
-   * end (off, #7599, №664).
+   * end (off, #7599, №664). canon — the call's graph as the launcher's bridge names it (#8191).
    */
-  release(caller: string, name: string, args: Record<string, unknown>): Promise<Released | null>;
+  release(
+    caller: string,
+    name: string,
+    args: Record<string, unknown>,
+    canon: (realm: string) => Promise<string>,
+  ): Promise<Released | null>;
   /** Ended or ending by any end: nothing is laid into its session any more (#7505). */
   ended(child: string): boolean;
   /** Released by the launcher — may not stand again. */

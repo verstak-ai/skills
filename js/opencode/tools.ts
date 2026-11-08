@@ -41,7 +41,7 @@ import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { type PutDown } from "./putdown.ts";
 import { revokeAsLauncher } from "./release.ts";
-import type { HeldSeat } from "./rootseat-by.ts";
+import { canonOf, type HeldSeat } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, STAND_TOOL, standsBy } from "./satellite.ts";
@@ -308,7 +308,12 @@ export async function setupTools(
             // The launcher's revoke of its lead's seat ends the child, then goes to the platform
             // by the launcher's bridge (#6625, #7505); a child ended by a move is answered here (adopt.ts).
             const caller = String(tool.sessionID);
-            const freed = await leads.release(caller, name, input ?? {});
+            const freed = await leads.release(caller, name, input ?? {}, (realm) =>
+              slotFor(caller).then(
+                (slot) => canonOf(slot, realm),
+                () => realm,
+              ),
+            );
             if (freed)
               return {
                 content: await revokeAsLauncher(freed, input ?? {}, async (args) => {
