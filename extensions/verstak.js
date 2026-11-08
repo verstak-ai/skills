@@ -111,7 +111,7 @@ var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/version.ts
-var VERSION = "3.35.3";
+var VERSION = "3.35.4";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -243,12 +243,12 @@ var PLUGIN = {
     refusalNoText: (name) => `${name}: refusal without text`,
     relistFailed: (message) => `Verstak: the tool list was not reread after the change on the server — ${message}`,
     listening: () => "Verstak: the channel is listening",
-    dead: (code) => String(code) === "4002" ? `Verstak: the channel was closed with code 4002 — the seat went out after idling. To return it — ${tool("stand")} with the same name.` : `Verstak: the channel was closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name: the bridge takes the new socket from the answer itself, no restart needed.`,
+    dead: (code) => String(code) === "4002" ? `Verstak: channel closed with code 4002 — the seat went out after idling. Return it: ${tool("stand")} with the same name.` : `Verstak: channel closed with code ${code} — the token is dead. Call ${tool("channel")}(action="connect"), then register with the same name; no restart needed.`,
     stopped: (text) => `Verstak: ${text}`,
-    stoppedTurn: (stopped) => `${stopped}. This word stands while the seat is taken off; if the user tells you to stand again — stand by an explicit ${tool("stand")} call, and the word goes.`,
+    stoppedTurn: (stopped) => `${stopped}. This holds while the seat is off; stand again only on the user's word, by an explicit ${tool("stand")} call.`,
     stoppedAny: () => "Verstak: the seat was taken off — you are stopped: end the work, do not take the seat",
     evicted: (code) => `Verstak: the channel was closed with code ${code} — the seat was taken, another holder listens. The bridge stands beside on its own seat name.N with hearing, not taking the other; the outcome follows, ${tool("stand")} with the same call tells the seat and the watchdog command. Evicting that session (take=true): ${TAKE.en.rule()}.`,
-    alive: (version) => `Verstak: the socket keeps being cut while the service answers (${version}) — the bridge holds the seat and reopens less often; if it fails, ask about the token.`,
+    alive: (version) => `Verstak: the socket keeps dropping though the service answers (${version}) — seat held, reopening less often; if it fails, ask about the token.`,
     note: (text) => `Verstak: ${text}`
   }
 };
