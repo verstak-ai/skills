@@ -44,7 +44,7 @@ export interface OrchestraWords {
 export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
   en: {
     usage: () =>
-      "usage: orchestra <on|off|status|step> [--realm <graph>]… [--auth-dir <dir>] [--lang en]\n",
+      "usage: orchestra <on|off|status|step|demands> [--realm <graph>]… [--auth-dir <dir>] [--lang en]\n",
     noDaemon: () =>
       "the machine daemon is not running — the orchestrator lives by the daemon and its local entrance; raise a bridge (any harness session raises the daemon) and retry",
     doorSilent: () =>
