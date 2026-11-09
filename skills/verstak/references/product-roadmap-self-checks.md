@@ -44,7 +44,7 @@ Run every check before publishing (`methods/product-roadmap.md`, Step 8). A PASS
 
 - [ ] `#N` only for real GitHub numbers; graph seqs `VERSTAK#…`; directions `D1`/`D2` or named.
 - [ ] Multi-repo: grep for bare or grouped `#\d+` without a repo key, home-made abbreviations (`be#`/`fe#`), ranges (`#\d+-\d+`), empty `directions[].repos` / driver `repo` keys; expand every hit.
-- [ ] Multi-repo: ONE focus holon, every repo a subsystem under it, at least one cross-repo direction or relay.
+- [ ] Multi-repo: one product scope with no artificial common root; the repos marked in their subsystems; at least one cross-repo direction or relay (else N stapled roadmaps). Boundaries and nesting by Step 1, not by the number of repos.
 - [ ] Label facts from real labels; kinds inferred from titles marked "inferred".
 - [ ] Grep for "highest/most/biggest/largest": each scoped or backed by a full-set computation.
 - [ ] No self-check label overclaimed ("every item re-checked", "nothing dropped", "covers all themes").
