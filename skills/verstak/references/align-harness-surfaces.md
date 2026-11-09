@@ -10,7 +10,7 @@ The **rituals** (start, push, merge, memory guard) are carried by the delivery f
 
 Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Take every one present through the table.
 
-**The start ritual everywhere:** one message, word for word the same in every harness (the delivery's start word; a hand-written hook of an older delivery copies it), whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; the owner role stays out of it — the door reads it from the graph. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
+**The start ritual everywhere:** one message, word for word the same in every harness (the delivery's start word; a hand-written hook of an older delivery copies it), whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; no person's role is in it — the agent asks the human who launched the session. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
 ## Claude Code
 

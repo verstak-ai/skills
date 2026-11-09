@@ -87,7 +87,7 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 **A start is made, not announced**: a turn ending in a plan without a change failed. "If you don't mind" is only for the irreversible — then a recorded question **plus** work on what it doesn't touch.
 
-**Record every refusal**: an assignment's in a message with the reason, a vimarsha's by an edit. Several bounces → the owner role (§5).
+**Record every refusal**: an assignment's in a message with the reason, a vimarsha's by an edit. Several bounces → the escalation role (§5).
 
 ## 2a · Grasp before you take
 
@@ -161,7 +161,7 @@ Without the user's word there is no handover; a session's end closes the seat wi
 
 ## 5 · Escalation
 
-Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the mandate's holder per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question, whether a person or an agent holds the mandate (the door, `Waiting on an answer`) — no case → open one on the subject node.
+Not yours: refusal, the order between questions, scope and telos, production and money, sanction for destructive work, anything AGENTS.md marks owner-only. Address the escalation role (`references/door-start.md`, `Addresses and the personal slice`) per `methods/collaborate.md`, `Exchange`, step 6, with a recommendation and counter-arguments; a choice the work waits on goes as `ask` cards in the subject's case, one per question, whether a person or an agent holds the mandate (the door, `Waiting on an answer`) — no case → open one on the subject node.
 
 **A question doesn't end the round**: in the same turn continue with what the answer doesn't touch; three questions are three gates. All hangs on it → one list on the node, wake-up armed.
 

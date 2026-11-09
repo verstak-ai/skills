@@ -31,7 +31,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 - Fix the target — one `owner/repo` or a set (an org, or a named list) — and the product boundary in one line.
 - Find the graph and focus holon (`verstak_realm` list; `verstak_orient` / `verstak_semantic_search`): exists → incremental refresh; missing → propose, create only on the go-ahead.
-- Exactly **one focus holon**, named for the **product**, `contains` from the root.
+- Exactly **one focus holon**, named for the **product**, under the top-level holon of its area or top-level itself — never under one root holon (`methods/writing.md`, `Fifth: part of what?`).
 - Never write `AGENTS.md` into a repo whose ownership you are only playing.
 
 ## Step 2 — Model the current product (the vartamana ground)
