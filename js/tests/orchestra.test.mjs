@@ -201,5 +201,5 @@ test("orchestra: a line that is no known op is answered in our words, and the do
 
 test("orchestra: the usage names the subcommand in our CLI help", async () => {
   const r = await cli([]);
-  assert.match(`${r.out}${r.err}`, /usage: orchestra <on\|off\|status\|step>/);
+  assert.match(`${r.out}${r.err}`, /usage: orchestra <on\|off\|status\|step\|demands>/);
 });

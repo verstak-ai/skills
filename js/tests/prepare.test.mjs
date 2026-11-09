@@ -174,15 +174,25 @@ test("prepare: left items name our method, steps and tools; nothing in another d
     assert.doesNotMatch(text, FOREIGN);
 });
 
+// --help is admitted before any subcommand and prints the whole usage (core v7.36.0);
+// prepare's own usage line answers a malformed argument.
 test("prepare: the usage line in our words", () => {
-  const r = spawnSync(process.execPath, [BRIDGE, "prepare", "--help"], {
-    env: ENV,
-    encoding: "utf8",
-    timeout: 10000,
-    input: "",
-  });
-  assert.equal(r.stdout, PREPARE.en.usage());
-  assert.doesNotMatch(r.stdout, /--lang/);
+  const run = (arg) =>
+    spawnSync(process.execPath, [BRIDGE, "prepare", arg], {
+      env: ENV,
+      encoding: "utf8",
+      timeout: 10000,
+      input: "",
+    });
+  const help = run("--help");
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /verstak-bridge\.mjs prepare \[--dir <repo>\]/);
+  assert.doesNotMatch(help.stdout, FOREIGN);
+  const bad = run("--frobnicate");
+  const said = bad.stdout + bad.stderr;
+  assert.ok(said.includes(PREPARE.en.usage()));
+  assert.doesNotMatch(said, /--lang/);
+  assert.doesNotMatch(said, FOREIGN);
 });
 
 // A start or guard the repository runs from a script prepare can't read (graph @nks/nks-dev,

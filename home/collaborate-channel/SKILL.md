@@ -155,7 +155,7 @@ Binding self-repair holds only within the platform session that registered, and 
 
 ## Repair — more detail
 
-- **Watchdog exited non-zero** (dead token, displacement: the close table). Socket cut while the service answers → the grant is alive and the bridge holds the seat; the exit-on-frame watchdog exited to tell you. Exit 2 at start → no seat (login needed) or several (name the key from the block). Exit 0 from the exit-on-frame watchdog is a delivery. `persistent` on a harness watcher means no timeout, not restart: a crash gives one event.
+- **Watchdog exited non-zero** (dead token, displacement: the close table). Socket cut while the service answers → the grant is alive and the bridge holds the seat; the exit-on-frame watchdog exited to tell you. Exit 2 at start → read stderr first: "unknown argument" or "needs a value" is your command, fix it; otherwise no seat (login needed) or several (name the key from the block). Exit 0 from the exit-on-frame watchdog is a delivery. `persistent` on a harness watcher means no timeout, not restart: a crash gives one event.
 - **Orphaned watchdogs of your own** → stop them via whatever launched them or by the process carrying your standing key in its arguments. Killing by file path hits other sessions' bridges.
 - **Frame cut off.** The frame declares its body length; compare with the body received. Re-read by id; if the id fails twice, ask the sender for the gist.
 - **Busy line refused** → the refusal names the reason; a 4xx means fix the text, not the path.

@@ -33,6 +33,7 @@ import {
   PLUGIN_NAME,
 } from "../delivery/index.ts";
 import { homeBridgePath } from "../shared/home.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { escapeRe } from "../shared/regex.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
@@ -107,7 +108,7 @@ async function serverReport(): Promise<void> {
   out(`  ${freshnessWord(CFG.serverUrl)}`);
   let res: Response;
   try {
-    res = await fetch(CFG.serverUrl, {
+    res = await namedFetch(CFG.serverUrl, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -141,7 +142,7 @@ async function patReport(): Promise<void> {
   out(dw().grantPat(String(CFG.patSource)));
   let res: Response;
   try {
-    res = await fetch(CFG.serverUrl, {
+    res = await namedFetch(CFG.serverUrl, {
       method: "POST",
       headers: {
         "content-type": "application/json",

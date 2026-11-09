@@ -6,10 +6,10 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { BRIDGE_NAME, envName, RELEASES, SKILL_SET } from "../delivery/index.ts";
+import { envName, RELEASES, SKILL_SET } from "../delivery/index.ts";
 import { homeBridgePath } from "../shared/home.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
-import { VERSION } from "../shared/version.ts";
 import { log } from "./streams.ts";
 
 const rw = () => words(RELEASES);
@@ -83,8 +83,8 @@ function rateLimitOf(res: Response): RateLimitError | null {
 }
 
 async function tagFromApi(): Promise<string | null> {
-  const res = await fetch(RELEASES_URL, {
-    headers: { accept: "application/vnd.github+json", "user-agent": `${BRIDGE_NAME}/${VERSION}` },
+  const res = await namedFetch(RELEASES_URL, {
+    headers: { accept: "application/vnd.github+json" },
     signal: AbortSignal.timeout(15_000),
   });
   const limited = rateLimitOf(res);
@@ -96,9 +96,8 @@ async function tagFromApi(): Promise<string | null> {
 
 /** The page answers 302 to …/releases/tag/<tag>; the redirect is not followed. */
 async function tagFromPage(url: string): Promise<string> {
-  const res = await fetch(url, {
+  const res = await namedFetch(url, {
     redirect: "manual",
-    headers: { "user-agent": `${BRIDGE_NAME}/${VERSION}` },
     signal: AbortSignal.timeout(15_000),
   });
   const location = res.headers.get("location") ?? "";

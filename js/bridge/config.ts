@@ -121,6 +121,10 @@ export function readArgs(argv: string[]): Config {
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
+    if (["--timeout", "--tools", "--auth-dir", "--client-name"].includes(a)) {
+      const value = argv[i + 1];
+      if (!value || value.startsWith("--")) throw new ArgsError(`${a} needs a value`, 2);
+    }
     if (a === "--timeout") cfg.timeoutMs = Number(argv[++i]);
     else if (a === "--tools") {
       // Harness tool set (narrow.ts): comma-separated names, the tool prefix optional.
@@ -129,8 +133,7 @@ export function readArgs(argv: string[]): Config {
         .map((s) => s.trim())
         .filter(Boolean);
       if (!names.length) {
-        log("--tools needs a comma-separated list of tool names");
-        process.exit(2);
+        throw new ArgsError("--tools needs a comma-separated list of tool names", 2);
       }
       cfg.tools = new Set(names.map((n) => (n.startsWith(TOOL_PREFIX) ? n : tool(n))));
     } else if (a === "--auth-dir") cfg.authDir = argv[++i];

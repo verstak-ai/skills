@@ -2,6 +2,7 @@
 // status.ts and handoff.ts both call it, and hold.ts → handoff.ts → status.ts → hold.ts
 // would close a cycle.
 import { STATUS_POST } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { closedUnder } from "./errors.ts";
 import { liveOnDispatcher, onDispatcher, onFellBack, type SeatScope, tickFor } from "./muxhold.ts";
@@ -117,7 +118,7 @@ async function postStatus(
   if (left <= 0) return { ok: false, body: late() };
   const signal = AbortSignal.timeout(left);
   const post = (): Promise<Response> =>
-    fetch(url, {
+    namedFetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(

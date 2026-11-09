@@ -5,6 +5,7 @@
 // nothing is derived and the model's way stays, as before.
 import { CFG, readArgs, setConfig } from "../bridge/config.ts";
 import { tool } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { keyFor } from "./stopapi.ts";
 
 const TIMEOUT_MS = 8_000;
@@ -37,7 +38,7 @@ function session(url: string, token: string) {
   let sid: string | null = null;
   let n = 0;
   const post = async (body: Record<string, unknown>): Promise<Rpc | null> => {
-    const res = await fetch(url, {
+    const res = await namedFetch(url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -73,7 +74,7 @@ function session(url: string, token: string) {
     close: async (): Promise<void> => {
       if (!sid) return;
       const headers = { authorization: `Bearer ${token}`, "mcp-session-id": sid };
-      await fetch(url, { method: "DELETE", headers, signal: AbortSignal.timeout(TIMEOUT_MS) })
+      await namedFetch(url, { method: "DELETE", headers, signal: AbortSignal.timeout(TIMEOUT_MS) })
         .then((r) => r.body?.cancel())
         .catch(() => {});
     },

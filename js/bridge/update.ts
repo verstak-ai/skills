@@ -16,7 +16,6 @@ import { fileURLToPath } from "node:url";
 
 import {
   BRIDGE_FILE,
-  BRIDGE_NAME,
   BRIDGE_SKILL,
   envName,
   LOGGERS,
@@ -27,6 +26,7 @@ import {
   UPDATE,
 } from "../delivery/index.ts";
 import { homeBridgePath } from "../shared/home.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { compareVersions } from "../shared/semver.ts";
@@ -181,11 +181,8 @@ export function readLatest(authDir: string): Latest | null {
 }
 
 async function fetchText(url: string): Promise<string> {
-  const res = await fetch(url, {
-    headers: {
-      accept: "application/vnd.github+json, text/plain, */*",
-      "user-agent": `${BRIDGE_NAME}/${VERSION}`,
-    },
+  const res = await namedFetch(url, {
+    headers: { accept: "application/vnd.github+json, text/plain, */*" },
     signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(words(RELEASES).httpFrom(res.status, url));

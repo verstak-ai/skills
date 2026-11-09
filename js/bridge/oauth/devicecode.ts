@@ -1,3 +1,4 @@
+import { namedFetch } from "../../shared/http.ts";
 import { noteServerDate } from "../clock.ts";
 import { utcTime } from "../errors.ts";
 import { log } from "../streams.ts";
@@ -52,7 +53,7 @@ export async function post(
   type: "json" | "form",
   body: Record<string, string | string[]>,
 ): Promise<Record<string, unknown>> {
-  const res = await fetch(url, {
+  const res = await namedFetch(url, {
     method: "POST",
     headers: {
       "content-type": type === "json" ? "application/json" : "application/x-www-form-urlencoded",

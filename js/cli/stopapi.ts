@@ -9,6 +9,7 @@ import { canonIn, realmIndexOf } from "../bridge/realmindex.ts";
 import { apiRealm, OWN_REALM } from "../bridge/realms.ts";
 import { loadStore } from "../bridge/store.ts";
 import { STOP_CLI, type StopCliWords } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { type PlaceSnapshot } from "../shared/snapshot.ts";
 
@@ -50,7 +51,7 @@ async function ask(
   token: string,
   body?: unknown,
 ): Promise<{ status: number; text: string }> {
-  const res = await fetch(url, {
+  const res = await namedFetch(url, {
     method,
     headers: {
       authorization: `Bearer ${token}`,
@@ -73,7 +74,7 @@ async function realmForApi(base: string, token: string, realm: string): Promise<
   const t = realm.trim();
   if (!t || t.startsWith("@") || t === OWN_REALM) return t;
   try {
-    const res = await fetch(`${base}/realms?limit=200`, {
+    const res = await namedFetch(`${base}/realms?limit=200`, {
       headers: { authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

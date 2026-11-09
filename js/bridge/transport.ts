@@ -1,5 +1,6 @@
 import { ID_PREFIX, SERVER_LOCALE } from "../delivery/index.ts";
 import { withFieldsAsked } from "../shared/fields.ts";
+import { namedFetch } from "../shared/http.ts";
 import { lang } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { noteServerDate } from "./clock.ts";
@@ -170,7 +171,7 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
   // The bridge asks for reply fields on every session open, re-opens too (shared/fields.ts).
   const sent = isInit ? { ...msg, params: withFieldsAsked(msg.params) } : msg;
   const send = (): Promise<Response> =>
-    fetch(CFG.serverUrl, {
+    namedFetch(CFG.serverUrl, {
       method: "POST",
       headers,
       body: JSON.stringify(sent),

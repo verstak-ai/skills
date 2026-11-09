@@ -15,6 +15,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
@@ -54,7 +55,7 @@ export function tactStateOf(authDir: string): TactState {
 }
 
 async function getJson(base: string, token: string, path: string): Promise<unknown> {
-  const res = await fetch(`${base}${path}`, {
+  const res = await namedFetch(`${base}${path}`, {
     headers: { authorization: `Bearer ${token}` },
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

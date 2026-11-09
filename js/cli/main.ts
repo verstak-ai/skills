@@ -2,12 +2,14 @@
 // subcommands are listed by --help. No subcommand, or anything that is not one,
 // runs the bridge, so a harness config entry stays valid whatever the copy is named.
 import { BUILD } from "../bridge/build.ts";
+import { parseArgs } from "../bridge/config.ts";
 import { daemonMain } from "../bridge/daemon.ts";
 import { bridgeMain } from "../bridge/main.ts";
 import { versionLines } from "../bridge/probe.ts";
 import { reexec, syncHome, updatesDisabled } from "../bridge/update.ts";
 import { CLI, type CliWords, envName } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { parseWatchdogArgs } from "../watchdog/client.ts";
 import { runWatchdogCodex } from "../watchdog/codex.ts";
 import { runWatchdog } from "../watchdog/watchdog.ts";
 import { runWatchdogExit } from "../watchdog/watchdog-exit.ts";
@@ -26,6 +28,13 @@ const usage = (): string => cw().usage(BUILD, RITUALS_USAGE());
 
 const argv = process.argv.slice(2);
 const [first, ...rest] = argv;
+
+// Admission precedes home alignment, re-execution and all command side effects.
+const optionArgs = argv.slice(0, argv.includes("--") ? argv.indexOf("--") : argv.length);
+if (optionArgs.includes("--help") || optionArgs.includes("-h")) {
+  process.stdout.write(usage());
+  process.exit(0);
+}
 
 // Only long-lived runs (bridge, watchdogs) align the home copy first (bridge/update.ts):
 // doctor and update speak of the file that was launched, and the daemon aligns itself,
@@ -48,6 +57,17 @@ const longLived =
       "version",
       "-h",
     ].includes(first));
+const watchdog = ["watchdog", "watchdog-exit", "watchdog-codex"].includes(first ?? "");
+if (watchdog) {
+  try {
+    parseWatchdogArgs(rest);
+  } catch (e) {
+    process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`);
+    process.exit(2);
+  }
+} else if (longLived || (first?.startsWith("--") && first !== "--version")) {
+  parseArgs(first === "bridge" ? rest : argv);
+}
 if (longLived && !updatesDisabled() && !process.env[envName("BRIDGE_REEXEC")]) {
   const sync = syncHome();
   for (const p of sync.copied) process.stderr.write(cw().homeUpdated(p));

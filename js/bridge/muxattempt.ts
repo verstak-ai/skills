@@ -1,6 +1,7 @@
 // One opening of the dispatcher connection (graph @nks/nks-dev, node #8620): the socket, its
 // connect limit and the upgrade answer it failed with. It ends once, however it ended: the
 // close event names the code, a runtime that gives only error gets a 1006 guess after a breath.
+import { namedSocket } from "../shared/http.ts";
 import { watchAnswer } from "./muxprobe.ts";
 
 const CONNECT_MS = 10_000;
@@ -29,7 +30,7 @@ export interface Attempt {
 
 export function attempt(url: string, h: AttemptHooks): Attempt {
   const answer = watchAnswer(url);
-  const sock = new WebSocket(url);
+  const sock = namedSocket(url);
   let over = false;
   let opened = false;
   let timedOut = false;

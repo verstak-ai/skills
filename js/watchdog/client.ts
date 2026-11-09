@@ -6,7 +6,7 @@ import { connect } from "node:net";
 import { join } from "node:path";
 
 import { type ChannelEvent } from "../bridge/hold.ts";
-import { envName } from "../delivery/index.ts";
+import { envName, LANGS } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
 import { setCompactCounts } from "../shared/frame-format.ts";
 import { batchHead } from "../shared/frame-text.ts";
@@ -33,15 +33,24 @@ export interface WatchdogArgs {
   authDir: string;
 }
 
-/** `[key] [--auth-dir <dir>] [--lang en|ru]`: the bridge's directory, else the watchdog looks elsewhere; the bridge names the language. */
+/** Strict watchdog grammar, shared with CLI admission before home alignment. */
 export function parseWatchdogArgs(argv: string[]): WatchdogArgs {
   setCompactCounts(argv.includes("--compact-counts"));
   const out: WatchdogArgs = { authDir: authDirFromEnv() };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--auth-dir") out.authDir = argv[++i] ?? out.authDir;
-    else if (a === "--lang") setLang(argv[++i]);
-    else if (!a.startsWith("--") && !out.key) out.key = a;
+    if (a === "--auth-dir" || a === "--lang") {
+      const value = argv[++i];
+      if (!value || value.startsWith("-")) throw new Error(`${a} needs a value`);
+      if (a === "--auth-dir") out.authDir = value;
+      else {
+        if (!LANGS.some((lang) => lang === value))
+          throw new Error("--lang needs a supported language");
+        setLang(value);
+      }
+    } else if (a === "--compact-counts") continue;
+    else if (!a.startsWith("-") && !out.key) out.key = a;
+    else throw new Error(`unknown argument: ${a}`);
   }
   return out;
 }

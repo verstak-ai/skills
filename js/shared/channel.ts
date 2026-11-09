@@ -16,6 +16,7 @@
 import * as diagnostics from "node:diagnostics_channel";
 
 import { CHANNEL, envName } from "../delivery/index.ts";
+import { namedFetch, namedSocket } from "./http.ts";
 import { words } from "./lang.ts";
 
 /** The channel where undici (Node's WebSocket) publishes every incoming protocol ping. */
@@ -87,7 +88,7 @@ export function statusUrl(socketUrl: string): string {
 }
 
 export async function serviceUp(socketUrl: string): Promise<{ version?: string } | null> {
-  return fetch(versionUrl(socketUrl), { signal: AbortSignal.timeout(5000) })
+  return namedFetch(versionUrl(socketUrl), { signal: AbortSignal.timeout(5000) })
     .then((r) => (r.ok ? (r.json() as Promise<{ version?: string }>) : null))
     .catch(() => null);
 }
@@ -268,7 +269,7 @@ export function holdSocket(o: HoldOptions): Holder {
   function open(): void {
     if (stopped) return;
     const startedAt = Date.now(); // from construction, NOT in onopen — see channel.md
-    const sock = new WebSocket(o.url);
+    const sock = namedSocket(o.url);
     ws = sock;
     stopWatch();
     lastLife = startedAt;
