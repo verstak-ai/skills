@@ -98,9 +98,9 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 **Read the task by its references, not the brief's text**: the reference standard, "Answered when", touched phenomena and kriyas, the transformation and its telos. Strike the text — do you still know what to build, how to check it, whom it touches? No → ask which nodes should stand. Text and nodes disagree → nodes win. **The tasking names how reality checks it** — carrier and probe, a negative one included; if not, ask.
 
-A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides.
+A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: **lead**, `Closing`).
 
-**Taking a vimarsha means a case on it.** Before taking, look for cases on its node (`verstak_case(action="at", node=<vimarsha>)`): one exists → `join` it or wait for its outcome; none → open one on it (`verstak_update(node_id=<vimarsha>, basis_version, open_room=<what you take>)`) and take it there. Other holders of the role join that case or wait, so two seats don't do the same work. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: **lead**, `Closing`).
+**Taking a vimarsha means a case on it.** Before taking, look for cases on its node (`verstak_case(action="at", node=<vimarsha>)`): one exists → `join` it or wait for its outcome; none → open one on it (`verstak_update(node_id=<vimarsha>, basis_version, open_room=<what you take>)`) and take it there. Other holders of the role join that case or wait, so two seats don't do the same work.
 
 Read the item in context (`verstak_orient(focus=<node>)`, then its arrows) and hold five things before taking it: **where it integrates** and who else is on that surface; **what changes**, before and after (can't say it → not grasped); **where the risk is** and how loudly it breaks; **anything irreversible** (§3's sanction gate); **which transformation it moves** (`verstak_orient(lens="bianhua", focus=<N>)`). Ask for what's missing, don't infer it (**collaborate**, `Exchange`); a well-specified item may still belong to another mandate.
 

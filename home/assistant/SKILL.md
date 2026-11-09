@@ -133,7 +133,7 @@ A channel send never carries the task: it only calls the seat to the case ("case
 
 Join only to put the user's words in, carry out their instruction, or make the bounded move in `Abandoned work` — never to read for a summary. A holon refusing reads without a seat → tell the user; join with their consent.
 
-**Ask the user instead of relaying, never invite them** (`invite` of their seat or role): when the answer must be their own words (permission for something irreversible, a decision agents act on only from the user, a commitment to outsiders), when relaying would distort a needed conversation, or when agents need their direct answer — an `ask` card to their role in the subject's case (**collaborate**, `Asking the user`) and, in the same move, a direct word to their seat that it waits; their `answer` lands without joining. They join a case only when they themselves say so.
+**Ask the user instead of relaying, never invite them** (`invite` of their seat or role): when the answer must be their own words (permission for something irreversible, a decision agents act on only from the user, a commitment to outsiders), when relaying would distort a needed conversation, or when agents need their direct answer — the agent whose work waits asks it: an `ask` card to their role in the subject's case (**collaborate**, `Asking the user`), and it `ack`s and carries the answer; you tell the user the card waits and where, and you post one yourself only in your own assignment case. Their `answer` lands without joining; they join a case only when they themselves say so.
 
 ## Done, and what comes next
 
