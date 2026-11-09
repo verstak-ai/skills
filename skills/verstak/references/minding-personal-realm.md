@@ -31,10 +31,10 @@ The **assistant's role**, when the companion runtime needs one, is unbound to a 
 
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; `methods/writing.md`, Decision 2b):
 
-- `manifested_as="agantuka"` 客 by default — they answer on their own time from beyond the user's boundary (relative, friend, client, counterparty, doctor). `svatantra` only for a person who works in this graph themselves (`methods/writing.md`, Decision 2b); `adhikarin` is an agent's kind, never a person's.
-- `user` when they are on the platform — that's how the graph knows it's the same person met in a project graph. Found through `verstak_admin(action="search_users")`: a matching name is not enough — confirm it is them with the user before binding. The value's format comes from the writing tool's description of `user`, never guessed.
-- What's open with them is a vimarsha `posed_to` their role: the relationship is carried by what passes between you.
-- **Groups** — a group role, also `agantuka` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
+- `manifested_as="pratibimba"` 象 by default — the user's image of them (relative, friend, client, counterparty, doctor): modelled, not a member of the graph, not an addressee — nobody answers through mind, so even a counterparty, `agantuka` in a working graph, is depicted here. `svatantra` here is the user's own role alone (§2); `adhikarin` is an agent's kind, never a person's.
+- No `user` on a depicted person: mentioning someone, a search hit or a matching name doesn't make them a graph user, and the owner-role repair (`user="me"`) never applies to another person. If the user wants them to take part, that is an invitation into a working or shared graph, never into mind: there they enter with their own account and get their own `svatantra` role (`methods/onboarding.md`); the depiction here stays as it is, unbound, and nothing of mind goes with them (`methods/minding.md`, Privacy).
+- What's open with them is a vimarsha `vimarsha_of` their role (never `posed_to` a depiction): the relationship is carried by what passes between you.
+- **Groups** — a group role, also `pratibimba` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
 
 A project's people live in its graph; here, those who cross areas or belong to none.
@@ -118,7 +118,7 @@ How the user changes across graphs lives here as bianhua. **The owner accepts ev
 
 - the graph list, access, roles, organization membership; which roles the user holds — derivable;
 - a stored cross-graph agenda (`methods/minding.md`, §4);
-- **a dossier on a person** — the role, binding and open matters are modelled (§2b); a judgement of a person is not a node;
+- **a dossier on a person** — the role and open matters are modelled (§2b); a judgement of a person is not a node;
 - a project's rules and process — AGENTS.md or the project graph, set by whoever holds them (the user's own working preference, a development one too, is theirs and does go in);
 - a copy of a project graph's content.
 

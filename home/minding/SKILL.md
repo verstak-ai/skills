@@ -14,7 +14,7 @@ The current user's personal mind graph holds the areas of their life and work, t
 | Reflex | Fires when | Move |
 |---|---|---|
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
-| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development; mid-project too, when they say how agents work for them ("always do it so", "don't wait", "in parallel", "a short plan first", "ask me by card"): in the same move you act on it, the errand still the case's; say you kept it in one line only where they alone read — in a shared case the line would reveal the record | §1b — into their verified personal mind under its area's holon; a person as a guest role in a group; never harness-local memory |
+| **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development; mid-project too, when they say how agents work for them ("always do it so", "don't wait", "in parallel", "a short plan first", "ask me by card"): in the same move you act on it, the errand still the case's; say you kept it in one line only where they alone read — in a shared case the line would reveal the record | §1b — into their verified personal mind under its area's holon; a person as a depicted role in a group; never harness-local memory |
 
 Every user gets personal memory without being asked: onboarding and this method use the single entry below, then Appendix A1–A2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
@@ -82,7 +82,7 @@ The user's own + useful later + serves no single project → here. Shapes, in th
 
 **Where in mind — by reflex, not on request:**
 - **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm="mind", q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
-- **A person gets a guest role** — `manifested_as="agantuka"` 客 (outside the user's boundary, answering on their own time), with the motivation they have *in the user's life*, not a dossier (A2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `posed_to` their role.
+- **A person gets a depicted role** — `manifested_as="pratibimba"` 象 (the person as the user sees them: modelled, not a member of the graph, not an addressee), with the motivation they have *in the user's life*, not a dossier (A2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `vimarsha_of` their role — a depiction is never `posed_to`.
 
 ## §2 Reconcile
 
@@ -164,7 +164,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a role** (§1b), bound by `user` when on the platform — its format from the writing tool's description, never guessed.
+- **A person is a depicted role** (§1b), never bound by `user` — not from a search, not from a matching name; one the user invites takes part in a working or shared graph under their own role, never in mind.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (**writing**, Decision 4); a recurring duty is a kriya.
 
 ## Limits
@@ -178,7 +178,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 - Personal memory addressed as `realm="mind"` and its presence established before recall or write; preferences about working with agents labelled into the slice. Recall within its ceilings, its outcome named (found, not found within the bound, unreachable, ambiguous); a write by reflex when the user's own fact surfaces (§1b), never after an unreachable read.
 - A recalled fact ends in a move — apply, adapt, don't apply, one question — or a direct answer, not a retold card.
 - After §3, `verstak_me(action="kartas")` shows a role in every live graph the user holds one in.
-- Nothing derivable written; new-area facts under their holon; people as guest roles in groups; nothing of mind outside it but the `Privacy` exception.
+- Nothing derivable written; new-area facts under their holon; people as depicted roles in groups, unbound; nothing of mind outside it but the `Privacy` exception.
 
 Next moment: a fact turns out to be one project's → that project's graph (**writing**), not mind.
 
@@ -215,10 +215,10 @@ The **assistant's role**, when the companion runtime needs one, is unbound to a 
 
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; **writing**, Decision 2b):
 
-- `manifested_as="agantuka"` 客 by default — they answer on their own time from beyond the user's boundary (relative, friend, client, counterparty, doctor). `svatantra` only for a person who works in this graph themselves (**writing**, Decision 2b); `adhikarin` is an agent's kind, never a person's.
-- `user` when they are on the platform — that's how the graph knows it's the same person met in a project graph. Found through `verstak_admin(action="search_users")`: a matching name is not enough — confirm it is them with the user before binding. The value's format comes from the writing tool's description of `user`, never guessed.
-- What's open with them is a vimarsha `posed_to` their role: the relationship is carried by what passes between you.
-- **Groups** — a group role, also `agantuka` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
+- `manifested_as="pratibimba"` 象 by default — the user's image of them (relative, friend, client, counterparty, doctor): modelled, not a member of the graph, not an addressee — nobody answers through mind, so even a counterparty, `agantuka` in a working graph, is depicted here. `svatantra` here is the user's own role alone (§2); `adhikarin` is an agent's kind, never a person's.
+- No `user` on a depicted person: mentioning someone, a search hit or a matching name doesn't make them a graph user, and the owner-role repair (`user="me"`) never applies to another person. If the user wants them to take part, that is an invitation into a working or shared graph, never into mind: there they enter with their own account and get their own `svatantra` role (**onboarding**); the depiction here stays as it is, unbound, and nothing of mind goes with them (**minding**, Privacy).
+- What's open with them is a vimarsha `vimarsha_of` their role (never `posed_to` a depiction): the relationship is carried by what passes between you.
+- **Groups** — a group role, also `pratibimba` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
 
 A project's people live in its graph; here, those who cross areas or belong to none.
@@ -298,7 +298,7 @@ A finished area is the other occasion. Nobody opens an archived graph; what the 
 
 - the graph list, access, roles, organization membership; which roles the user holds — derivable;
 - a stored cross-graph agenda (§4);
-- **a dossier on a person** — the role, binding and open matters are modelled (A2b); a judgement of a person is not a node;
+- **a dossier on a person** — the role and open matters are modelled (A2b); a judgement of a person is not a node;
 - a project's rules and process — AGENTS.md or the project graph, set by whoever holds them (the user's own working preference, a development one too, is theirs and does go in);
 - a copy of a project graph's content.
 
