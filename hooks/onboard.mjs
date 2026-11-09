@@ -117,9 +117,14 @@ var COVER = {
       roleQuotes: ['"', '"'],
       /**
        * Align's stamp in the cover file: "(verstak align: contract N, stamped …"; before the
-       * contract counter it read "(verstakify: contract DATE".
+       * contract counter it read "(verstakify: contract DATE". Capture 1 is the contract number.
        */
-      stamp: /\((?:verstak align:\s*contract\s*`?\d+`?\s*,\s*stamped|verstakify:\s*contract\b)/
+      stamp: /\((?:verstak align:\s*contract\s*`?(\d+)`?\s*,\s*stamped|verstakify:\s*contract\b)/,
+      /**
+       * The older stamp lines' contract number, capture 1: "(verstak align: contract N" and
+       * "(verstakify: contract N" at a line's start; a date there is no contract number.
+       */
+      contractStamp: /^[\s*_]*\((?:verstak align|verstakify):\s*contract\s*`?(\d+)`?(?=\s*[,\u2014)])/m
     }
   },
   /**
@@ -162,6 +167,9 @@ var ID_PREFIX = `${PRODUCT}-`;
 var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
+
+// js/delivery/spawned-for.ts
+var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/words/take.ts
 var TAKE = {
