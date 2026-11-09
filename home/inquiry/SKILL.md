@@ -27,7 +27,7 @@ A vimarsha stays in work while it calls: a doubt *seeking an answer*, a risk *gu
 
 | Exit | What happens | How |
 |---|---|---|
-| **Resolution** | answered by an acting or deciding node | `addressed_by` to the answering node; release, as its own act, when the answer condition is met and the release is yours by kind. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (**reality-audit**) |
+| **Resolution** | answered by an acting or deciding node | `addressed_by` to the answering node; release, as its own act, when its "Answered when" is met verbatim, each condition observed, and the release is yours by kind; not all met → it stands, its body saying what's left. A behavioural answer ("works", "fixed") needs a reality check at a declared level first (**reality-audit**) |
 | **Death** | released *without* an answer — wrong, fell away, superseded | `visarjana` with a reasoning line saying *why* |
 | **Crystallization** | the insight sets into a standing form (a principle, distinction, method) that keeps being applied | a phenomenon with a `given_as`, `arose_from` → the vimarsha, `addressed_by` vimarsha → it. The insight exits, the vimarsha doesn't: it then moves on its own carrying axis — released as under Resolution, held while the question still stands |
 
@@ -69,7 +69,7 @@ Decide deliberately: is the vimarsha part of a **bianhua** (a qualitative transf
 | You decide (as weaving does) | You put on the owner's agenda |
 |---|---|
 | anchor a hanging vimarsha | decline a proposal |
-| end an answered question | prioritise between questions |
+| end an answered question, by its "Answered when"; one whose will another holds is not your move | prioritise between questions |
 | leave it as is, with deliberate reasoning | choose otherwise against a recorded direction |
 | attach a driver to a transformation | accept the unwanted — risk, defect, incident |
 

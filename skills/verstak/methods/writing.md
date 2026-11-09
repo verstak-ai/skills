@@ -83,7 +83,7 @@ Traps: a person's name is not a role ("Product owner", not "Alex") — except th
 
 ## Decision 3: modes
 
-Three required axes. The factories print each axis's values and **the kind's starting triad** — read them. **Every mode is a claim about this node — a question you answer, not a box you tick.** Name a node's state with the cell word of its **carrying axis** ("seeking an answer", "holding the question", "accepted", "ahead", "practised", "in force"), never "open", "closed", "alive". Self-check, patterns, cell words, moves: `references/writing-modes.md`.
+Three required axes. The factories print each axis's values and **the kind's starting triad** — read them. **Every mode is a claim about this node — a question you answer, not a box you tick.** Name a node's state with the cell word of its **carrying axis** ("seeking an answer", "holding the question", "accepted", "ahead", "practised", "in force"), never "open", "closed", "alive". Self-check, patterns, cell words, moves: `references/writing-modes.md` — open it before your first mode write in a session and read it whole.
 
 **Epistemic — how do we know:** supposed (`kalpita`), inferred (`anumita`), seen (`pratyakshita`), attested repeatedly and independently (`pramanita`), refuted and kept (`badhita`). Reading code observes the code; what it does stays `anumita` until a run is observed. A focused test with a recorded zero exit observes its own run (`pratyakshita`). `pramanita` needs independent grounds; sources with a shared origin count once, and agreement with the graph grounds only a claim about the record. Re-reading raises nothing.
 
@@ -105,7 +105,7 @@ Three required axes. The factories print each axis's values and **the kind's sta
 | doubt, counter-thesis, hint, seed | refusal | itself the ending |
 | bianhua | set by a person | `visarjana` — also by a person |
 
-On a doubt, counter-thesis or hint, `upeksha` is **accepted as is**: out of the queue, not answered, not counted toward the transformation. **A principle:** `chanda` (proposed), `adhimoksha` (in force by being held — the owner puts it there), `upeksha` (in force as given); its grounds are `derived_from`/`arose_from`, without them it's a tension. Not endings (`pramanita` on a seed, `atita` on a principle): `references/writing-modes.md`, "Polarity of virodha and ending".
+On a doubt, counter-thesis or hint, `upeksha` is **accepted as is**: out of the queue, not answered, not counted toward the transformation. **A principle:** `chanda` (proposed), `adhimoksha` (in force by being held — the owner puts it there), `upeksha` (in force as given); its grounds are `derived_from`/`arose_from`, without them it's a tension. Not endings (`pramanita` on a seed, `atita` on a principle): `references/writing-modes.md`, "Polarity of virodha and ending" — read that section whole before closing a record (`atita`, `vikalpa`, `nashta`, `visarjana`, `upeksha` on the unwanted).
 
 ## Decision 4: name and description
 
