@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.38.1](https://github.com/verstak-ai/skills/compare/v3.38.0...v3.38.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* align names the sign that the delivery replaced a repository's own ritual; one home for the rule ([#396](https://github.com/verstak-ai/skills/issues/396)) ([3379943](https://github.com/verstak-ai/skills/commit/33799438629051b1dea8bce3d822c6deb030dcee))
+
 ## [3.38.0](https://github.com/verstak-ai/skills/compare/v3.37.2...v3.38.0) (2026-11-09)
 
 
