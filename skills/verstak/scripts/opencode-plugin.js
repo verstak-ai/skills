@@ -93,6 +93,9 @@ var CONFIG_SERVER = CONFIG.server ?? null;
 var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
+// js/delivery/contract.ts
+var CONTRACT_SUPPORT = { minimum: 11, target: 12 };
+
 // js/delivery/patterns/cover.ts
 var COVER = {
   /** The cover file in the session's directory. */
@@ -115,9 +118,14 @@ var COVER = {
       roleQuotes: ['"', '"'],
       /**
        * Align's stamp in the cover file: "(verstak align: contract N, stamped …"; before the
-       * contract counter it read "(verstakify: contract DATE".
+       * contract counter it read "(verstakify: contract DATE". Capture 1 is the contract number.
        */
-      stamp: /\((?:verstak align:\s*contract\s*`?\d+`?\s*,\s*stamped|verstakify:\s*contract\b)/
+      stamp: /\((?:verstak align:\s*contract\s*`?(\d+)`?\s*,\s*stamped|verstakify:\s*contract\b)/,
+      /**
+       * The older stamp lines' contract number, capture 1: "(verstak align: contract N" and
+       * "(verstakify: contract N" at a line's start; a date there is no contract number.
+       */
+      contractStamp: /^[\s*_]*\((?:verstak align|verstakify):\s*contract\s*`?(\d+)`?(?=\s*[,\u2014)])/m
     }
   },
   /**
@@ -188,8 +196,11 @@ var serverProtocol = {
   refusal: "verstak/refusal"
 };
 
+// js/delivery/spawned-for.ts
+var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
+
 // js/delivery/version.ts
-var VERSION = "3.37.2";
+var VERSION = "3.38.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -276,10 +287,17 @@ var COMPACTION = {
   }
 };
 
+// js/delivery/words/contract.ts
+var CONTRACT_WORDS = {
+  en: {
+    unsupported: (n2, target) => `Contract ${n2} is no longer supported; old hooks have not been removed. Run a full verstak align to contract ${target}; rituals will be accepted after verification`
+  }
+};
+
 // js/delivery/words/launch.ts
 var LAUNCH = {
   en: {
-    notSeated: (why, no, join17) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join17}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
+    notSeated: (why, no, join18) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join18}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
@@ -503,7 +521,7 @@ var PLUGIN = {
 };
 
 // js/delivery/words/prepare.ts
-var RITE = (what) => `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
+var RITE = (what) => `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off once the delivery's replacement is verified, never by the contract's number, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
 var PREPARE = {
   en: {
     usage: () => "usage: prepare [--dir <repo>] [--graph rN] [--holon N] [--agent-role N] [--contract N] [--stamp YYYY-MM-DD] [--case N] [--json]\n",
@@ -524,15 +542,15 @@ Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Unti
       "cover.holon": "no holon named: --holon N, the repository's holon found by its repository attr or created (align, Round 1, step 2)",
       "cover.agent_role": "no agent role named: --agent-role N, the holon's steward (verstak_search with steward_of) or created (align, Round 1, step 3)",
       "cover.contract": "no contract named: --contract N in the run's last call (align, Step 7)",
-      "cover.flat": "an older flat cover stands beside the block: move its judgment slots into Project and drop the flat keys (align, From contract 9)",
+      "cover.flat": "an older flat cover stands beside the block: move its judgment slots into Project and drop the flat keys (align, An older cover)",
       "CLAUDE.md": "CLAUDE.md is a file of its own, not a pointer: merge its content into AGENTS.md and replace it with the pointer (align, Step 7)",
       "hook.start": RITE("start hook"),
       "hook.guard": "the memory guard waits for a graph in the cover: run prepare again with --graph",
       "hook.push": RITE("push hook"),
       "hook.merge": RITE("merge hook"),
-      "opencode.rituals": `the repository's own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks "ritual" (align, Step 4, the transition)`
+      "opencode.rituals": `the repository's own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off once the delivery's replacement is verified, never by the contract's number, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks "ritual" (align, Step 4, the transition)`
     })[item],
-    unread: (item, hook) => item === "hook.guard" ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)` : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
+    unread: (item, hook) => item === "hook.guard" ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)` : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off once the delivery's replacement is verified (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
     head: (kind) => ({ done: "done", kept: "already there", left: "for the model" })[kind]
   }
 };
@@ -642,6 +660,19 @@ var ROOT_SEAT = {
     uncompared: (cover, held) => `graph not compared: ${cover} in the cover, ${held} on the seat`,
     late: (seconds) => `seating did not finish in ${seconds} s, the request goes without a seat`,
     noBridge: () => "no bridge raised"
+  }
+};
+
+// js/delivery/words/spawned-for.ts
+var SPAWNED_FOR = {
+  en: {
+    invalid: () => "spawned_for requires {invite: positive safe integer, room: UUID}; invalid JSON, a duplicate key or conflicting sources. Do not take a seat.",
+    echo: () => "Register did not confirm the same spawned_for pair. The launch is not confirmed; do not start work.",
+    initial: () => "spawned_for: an empty prior session context did not prove this is the initial prompt. The history is nonempty, unavailable or of an unknown shape; no seat was taken.",
+    kept: (seat) => `spawned_for: this attempt did not prove seat ${seat} fresh; the previous seat is not revoked. The seat may remain.`,
+    connect: () => `Raw channel connect does not accept spawned_for. Use ${tool("stand")}: connect without the field, then register with the pair. No seat was taken.`,
+    unbound: () => "spawned_for: the taken seat is not yet bound to this session again after a passing refusal; the bridge retries before the next call. This call did not run; another seat or a call without the pair does not replace it.",
+    schema: () => "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take."
   }
 };
 
@@ -868,8 +899,7 @@ function addresseeOf(v) {
   const handle = str(o.handle).replace(/^@/, "");
   const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
   const id = str(o.id);
-  const name = str(o.standing) ? str(o.name) : "";
-  const label = name && standing ? `${name} (${standing})` : standing || str(o.name) || id;
+  const label = standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);
   return addr.length ? { addr, label } : null;
 }
@@ -1079,9 +1109,7 @@ function roomOf(v) {
 function whoOf(fields) {
   const st = obj(fields.standing);
   const ka = obj(fields.karta);
-  const name = str(st.name) || str(ka.name);
-  const addr = str(st.standing);
-  return name && addr ? `${name} (${addr})` : name || addr;
+  return str(st.standing) || str(st.name) || str(ka.name);
 }
 function kindText(kind, v, f, pending, aborted) {
   const W5 = words(ROOM);
@@ -1504,11 +1532,14 @@ var CAPTION_REPLY = /* @__PURE__ */ new Set(["body", "answer", "ack", "retract"]
 var rec2 = (v) => v && typeof v === "object" ? v : {};
 var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var ZACHIN = 40;
+function groupKey(f) {
+  const c = caseOf(f);
+  return c ? JSON.stringify([c.realm, c.room]) : idOf2(f.id) || "?";
+}
 function casesOf(frames) {
   const by = /* @__PURE__ */ new Map();
   for (const f of frames) {
-    const c = caseOf(f);
-    const key = c ? JSON.stringify([c.realm, c.room]) : idOf2(f.id) || "?";
+    const key = groupKey(f);
     const got = by.get(key);
     if (got) got.push(f);
     else by.set(key, [f]);
@@ -1573,7 +1604,7 @@ function humanWordReply(frame, origin2) {
   };
   return Object.values(missing).every((x) => !x) ? T().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame.id)) : T().noReplyAddress(missing);
 }
-function frameToText(frame, raw) {
+function frameToText(frame, raw, withCase = true) {
   if (!frame) return raw;
   const f = frame;
   const origin2 = frame.origin ?? classifyOrigin(frame);
@@ -1589,7 +1620,8 @@ function frameToText(frame, raw) {
     const who = rk || origin2 === "platform" ? "" : whoOf2(frame, false);
     const by = [author, who].filter(Boolean).join(", ");
     const withReply = !rk || !CAPTION_REPLY.has(rk.kind);
-    const head2 = `${caseHead(frame, true)}${entry ? ` [${entry}]` : ""} ${words4}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
+    const label = [withCase ? caseHead(frame, true) : "", entry ? `[${entry}]` : ""];
+    const head2 = `${[...label.filter(Boolean), words4].join(" ")}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
     const lines2 = [head2];
     if (text2 && !words4.includes(text2.trim())) lines2.push(text2);
     return lines2.join("\n");
@@ -1602,10 +1634,10 @@ function frameToText(frame, raw) {
   return lines.join("\n");
 }
 var warnedSeat = (frame) => typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
-function batchLine(frame, run, withZachin = true) {
+function batchLine(frame, run, withZachin = true, withCase = true) {
   const f = frame;
   const rk = roomKind(frame);
-  const head2 = caseHead(frame, withZachin);
+  const head2 = withCase ? caseHead(frame, withZachin) : "";
   const pre = head2 ? `${head2} ` : "";
   if (rk?.aside) return pre + (run === void 0 ? rk.words : rk.aside.run(run));
   const line = rec2(f.line);
@@ -1617,15 +1649,49 @@ function batchLine(frame, run, withZachin = true) {
   const dup = !!text2 && words4.includes(text2);
   return `${pre}[${entry}] ${words4}${author}${tail(frame, !rk || !CAPTION_REPLY.has(rk.kind))}${text2 && !dup ? `: ${text2}` : ""}`;
 }
-function batchLines(frames) {
+function batchShown(frames) {
   const seen = /* @__PURE__ */ new Set();
   return frames.flatMap((f) => {
     if (!addressedToMine(f)) return [];
     const key = caseKey(f);
     const first = !seen.has(key);
     seen.add(key);
-    return [batchLine(f, void 0, first)];
+    return [{ frame: f, text: (withCase) => batchLine(f, void 0, first, withCase) }];
   });
+}
+var textShown = (frames, cap) => frames.filter((f) => addressedToMine(f)).map((f) => ({
+  frame: f,
+  text: (withCase) => {
+    const t = [...frameToText(f, JSON.stringify(f), withCase)];
+    return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
+  }
+}));
+var batchText = (counted, frames = counted) => underCounts(counted, batchShown(frames)).join("\n");
+function underCounts(counted, shown2, incomplete = false) {
+  const groups = casesOf(counted).filter((group) => caseOf(group[0]));
+  const placed = /* @__PURE__ */ new Set();
+  const under = (group) => {
+    const key = groupKey(group[0]);
+    return shown2.filter((s) => caseOf(s.frame) && groupKey(s.frame) === key).map((s) => (placed.add(s), s.text(false)));
+  };
+  const rest = () => shown2.filter((s) => !placed.has(s)).map((s) => s.text(true));
+  if (!groups.length) return rest();
+  if (!compactCounts())
+    return [...groups.flatMap((g) => [legacyCountLine(g, incomplete), ...under(g)]), ...rest()];
+  if (groups.length === 1 && !incomplete)
+    return [caseCountLine(groups[0]), ...under(groups[0]), ...rest()];
+  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
+  if (groups.length === 1)
+    return [`${countText(groups[0], true)}; ${pointer}.`, ...under(groups[0]), ...rest()];
+  return [...groups.flatMap((g) => [countText(g, true), ...under(g)]), `${pointer}.`, ...rest()];
+}
+function countsWithShown(counted, shown2) {
+  const asCount = shown2.filter((s) => caseOf(s.frame) && !addressedToMine(s.frame));
+  const lines = shown2.filter((s) => !asCount.includes(s));
+  const all = [...counted, ...asCount.map((s) => s.frame).filter((f) => !counted.includes(f))];
+  if (!all.length) return lines.map((s) => s.text(true));
+  const extra = lines.map((s) => s.frame).filter((f) => caseOf(f) && !all.includes(f));
+  return underCounts([...all, ...extra], lines);
 }
 function closingOf(frame) {
   const n2 = closedQuestion(frame);
@@ -1656,18 +1722,6 @@ function countText(frames, withCursor) {
   const cursor = withCursor ? cursorOf(frames) : null;
   const n2 = frames.length - gone;
   return T().count(head2, n2, mineN) + (gone ? T().supersededLines(gone) : "") + frames.map(closingOf).join("") + (cursor ? ` · realm=${JSON.stringify(cursor.realm)}, since=${cursor.since}` : "");
-}
-function caseCountLines(frames, incomplete = false) {
-  const groups = casesOf(frames).filter((group) => caseOf(group[0]));
-  if (!groups.length) return [];
-  if (!compactCounts()) return groups.map((group) => legacyCountLine(group, incomplete));
-  if (groups.length === 1 && !incomplete) return [caseCountLine(groups[0])];
-  const counts = groups.map((group) => countText(group, true));
-  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
-  return groups.length === 1 ? [`${counts[0]}; ${pointer}.`] : [...counts, `${pointer}.`];
-}
-function batchHead(frames) {
-  return caseCountLines(frames).join("\n");
 }
 function cursorOf(frames) {
   const first = frames[0];
@@ -2256,6 +2310,37 @@ var state = scoped(() => ({
 }));
 var reinit = scoped(() => ({ inFlight: null }));
 
+// js/shared/stalebatch.ts
+var STALE_BURST_KEEP = 20;
+var BODY_CAP = 800;
+var shownOf = (frames, body) => body.shown.map((i) => frames[i]).filter((f) => !!f);
+function batchBodyText(frames, body, riding = []) {
+  const shown2 = shownOf(frames, body);
+  const bodies = underCounts([...riding, ...shown2], textShown(shown2, BODY_CAP), body.incomplete);
+  return `${body.head}
+
+${bodies.join("\n\n")}`;
+}
+function ridesIn(riding, frames, body) {
+  const cases = new Set(shownOf(frames, body).map(caseKey).filter(Boolean));
+  return riding.some((f) => cases.has(caseKey(f)));
+}
+function staleBatch(all, has, riding = []) {
+  const { shown: frames, kept: kept2, keys } = splitBatch(all, STALE_BURST_KEEP, has);
+  const count = kept2.length;
+  if (!count) return { text: "", keys };
+  const body = {
+    head: words(STALE).head(count, frames.length),
+    shown: frames.map((f) => all.indexOf(f)),
+    incomplete: count > frames.length
+  };
+  return { text: batchBodyText(all, body, ridingOf(riding, frames, has)), keys, body };
+}
+function ridingOf(riding, frames, has) {
+  const own = new Set(frames.flatMap((f) => deliveryKeys(f)));
+  return riding.filter((f) => !frames.includes(f) && !eventIn(f, (k) => has(k) || own.has(k)));
+}
+
 // js/bridge/backlog.ts
 var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 
@@ -2266,26 +2351,6 @@ var B = scoped(() => /* @__PURE__ */ new Map());
 
 // js/bridge/roomstack.ts
 var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
-
-// js/shared/stalebatch.ts
-var STALE_BURST_KEEP = 20;
-var BODY_CAP = 800;
-function staleBatch(all, has) {
-  const { shown: frames, kept: kept2, keys } = splitBatch(all, STALE_BURST_KEEP, has);
-  const count = kept2.length;
-  if (!count) return { text: "", keys };
-  const bodies = [
-    ...caseCountLines(frames, count > frames.length),
-    ...frames.filter((f) => addressedToMine(f)).map((f) => {
-      const t = frameToText(f, JSON.stringify(f));
-      return [...t].length > BODY_CAP ? [...t].slice(0, BODY_CAP).join("") + "…" : t;
-    })
-  ];
-  const head2 = words(STALE).head(count, frames.length);
-  return { text: `${head2}
-
-${bodies.join("\n\n")}`, keys };
-}
 
 // js/bridge/sweep.ts
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
@@ -2473,14 +2538,16 @@ function separateGraphBatch(ev) {
     (f) => !isGraphInbox(f)
   );
   const graphMarks2 = new Set(graph.flatMap((f) => deliveryKeys(f)));
-  const text2 = !other.length ? "" : ev.kind === "stale" ? staleBatch(other, () => false).text : [batchHead(other), ...batchLines(other)].filter(Boolean).join("\n");
+  const text2 = !other.length ? "" : ev.kind === "stale" ? staleBatch(other, () => false).text : batchText(other);
   return {
     graph,
     rest: {
       ...ev,
       frames: other,
       marks: ev.marks?.filter((key) => !graphMarks2.has(key)),
-      text: text2
+      text: text2,
+      body: void 0
+      // its indexes point into the frames before the split
     }
   };
 }
@@ -3188,6 +3255,17 @@ function toPile(frame) {
     return false;
   return !addressedToMine(frame) || stackOf(frame) === "batch";
 }
+function rideWith(got, frame, raw) {
+  if (!frame) return [...got.length ? [batchText(got)] : [], raw].join("\n");
+  const text2 = (withCase) => frameToText(frame, raw, withCase);
+  return countsWithShown(got, [...batchShown(got), { frame, text: text2 }]).join("\n");
+}
+function ridersInBatch(p, ev) {
+  const frames = ev.frames ?? [];
+  const waiting = p?.riders.filter((f) => !isGraphInbox(f)) ?? [];
+  if (!p || !ev.body || !ridesIn(waiting, frames, ev.body)) return ev.text ?? "";
+  return batchBodyText(frames, ev.body, takeRiders(p, false).kept);
+}
 function freshRiders(p, frames) {
   const unit = [.../* @__PURE__ */ new Set([...p.riders.filter(isGraphInbox), ...frames])];
   const kept2 = new Set(splitBatch(unit, Infinity, (k) => p.marks.has(k)).kept);
@@ -3214,7 +3292,7 @@ function handRiders(ps, put, note) {
   });
   const got = batches.flatMap((b) => b.out.kept);
   if (!got.length) return;
-  put([batchHead(got), ...batchLines(got)].join("\n"));
+  put(batchText(got));
   receiptGraph(got);
   for (const { p, preview, out: out2 } of batches) {
     p.riders = preview.riders;
@@ -4028,8 +4106,8 @@ ${rules}` : word2;
     rules = sliceIn(await call(tool("stand"), stand));
   } catch (e) {
     const why = e.message;
-    const join17 = `${tool("case")}(action="join", room="${room}")`;
-    return W5.notSeated(why, l.no, join17);
+    const join18 = `${tool("case")}(action="join", room="${room}")`;
+    return W5.notSeated(why, l.no, join18);
   }
   const place = placeName() || W5.ownSeat();
   try {
@@ -4743,7 +4821,8 @@ async function seatBy(d, root, realm, karta) {
       if (slot.resume) await slot.resume;
       if (cancelled()) return { cancelled: true };
       const provisional = () => d.provisional?.(slot, root) === true;
-      if (slot.holding) return await outcome(d, slot, root, realm, karta, provisional());
+      if (slot.holding && !d.claiming?.(root))
+        return await outcome(d, slot, root, realm, karta, provisional());
       const model = await d.modelOf(root);
       if (cancelled()) return { cancelled: true };
       const args = { realm, karta, provisional: true, ...model ? { model } : {} };
@@ -4848,7 +4927,8 @@ function createSeatLife(d) {
         ...service && name === tool("stand") && place ? {
           place,
           provisional: sc?.provisional === true,
-          key: typeof sc?.key === "string" ? sc.key : void 0
+          key: typeof sc?.key === "string" ? sc.key : void 0,
+          fresh: typeof sc?.fresh === "boolean" ? sc.fresh : void 0
         } : {}
       };
     },
@@ -4920,9 +5000,12 @@ function createSeatLife(d) {
             callThrough: async (...args) => {
               attempt3.onWire = true;
               attempt3.fresh = true;
+              const claim = d.claiming?.(args[3]) === true;
               try {
                 const out2 = await d.callThrough(...args);
-                if (out2.provisional === true && out2.key && out2.place)
+                if (out2.fresh === false) attempt3.returned = true;
+                const fresh = out2.fresh === true || out2.fresh === void 0 && !claim;
+                if (fresh && out2.provisional === true && out2.key && out2.place)
                   attempt3.owned = { key: out2.key, place: out2.place };
                 return out2;
               } catch (e) {
@@ -4933,6 +5016,7 @@ function createSeatLife(d) {
               }
             },
             modelOf: d.modelOf,
+            claiming: d.claiming,
             cancelled,
             provisional: (slot) => slot.provisional === true,
             recorded: recorded3
@@ -4954,14 +5038,14 @@ function createSeatLife(d) {
         } while (attempt3?.explicit !== last);
         const owned = attempt3?.owned;
         if (!owned || attempt3?.adopted || !slot.holding || slot.key !== owned.key || slot.provisional !== true) {
-          if (attempt3?.fresh && !owned && !attempt3.explicit && (slot.holding || attempt3.failure))
+          if (attempt3?.fresh && !attempt3.explicit && (slot.holding || attempt3.failure))
             d.failed(
-              words(ROOT_SEAT).cleanupFailed(
+              attempt3.returned ? words(SPAWNED_FOR).kept(slot.key ?? s) : words(ROOT_SEAT).cleanupFailed(
                 slot.key ?? s,
                 attempt3.failure ?? words(ROOT_SEAT).unproven()
               )
             );
-          if (d.stopped() || deleted.has(s) || attempt3?.fresh && !attempt3.explicit) {
+          if (d.stopped() || deleted.has(s) || attempt3?.fresh && !attempt3.explicit && !attempt3.returned) {
             slot.ownStop = true;
             slot.bridge.stop();
             drop2(s, slot);
@@ -5134,7 +5218,9 @@ function statusLines(path, builds, login, state2, sessions, spare) {
 
 // js/opencode/tools.ts
 async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => {
-}, closed = () => false, halted = async () => null) {
+}, closed = () => false, halted = async () => null, launchBasis = () => {
+}, claiming = () => false, verifyClaim = () => {
+}) {
   const W5 = words(OPENCODE);
   const P = words(PLUGIN);
   const found = findBridge();
@@ -5200,7 +5286,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       },
       args
     );
-    slot.bridge.start(hostEnv);
+    slot.bridge.start({ ...hostEnv, [SPAWNED_FOR_ENV]: void 0 });
     shake(slot);
     return slot;
   }
@@ -5248,6 +5334,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     awaitReady: (slot) => awaitReady(slot),
     callThrough,
     modelOf: (s) => models.of(s),
+    claiming,
     failed: (word2) => say(word2, "error"),
     stood: (slot) => keeper.stood(slot),
     forgot: (s) => keeper.forget(s),
@@ -5293,7 +5380,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     }
     const s = slot;
     if (far !== "foreign" && unasked.delete(s))
-      s.resume = keeper.resume(s, root).finally(() => s.resume = null);
+      s.resume = (claiming(root) ? awaitReady(s).then(() => s.bridge.request(method("resume"), { session: root })) : keeper.resume(s, root)).finally(() => s.resume = null);
     if (touch) slot.lastCall = Date.now();
     return slot;
   }
@@ -5385,6 +5472,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     if (slot.resume) await slot.resume;
     seats.guard(sessionID, service);
     const args = { ...input ?? {} };
+    launchBasis(sessionID, name, args);
     if (standsBy(name, args) && slot.session !== sessionID) {
       if (!slot.place)
         throw new Error(
@@ -5405,6 +5493,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     if (!service && slot.child && slot.satelliteOf && slot.session === sessionID)
       leads.dispatched(sessionID, name, args);
     const result = await slot.bridge.request("tools/call", { name, arguments: args }, { service });
+    verifyClaim(sessionID, args, result);
     const out2 = seats.answer(
       slot,
       name,
@@ -5654,9 +5743,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     }
     const at2 = Date.now();
     p.pending = { session: "", inbox: null, at: at2 };
-    const text2 = [batchHead([...takeRiders(p, false).kept, ...frames]), ...batchLines(frames)].join(
-      "\n"
-    );
+    const text2 = batchText([...takeRiders(p, false).kept, ...frames], frames);
     void deliver2(p.session, text2, W5.caseBatch(frames.length), "queue", p.child).then((got) => {
       const inbox = got?.inbox && !takenEarly.delete(got.inbox) ? got.inbox : null;
       p.pending = got && inbox ? { session: got.session, inbox, at: at2 } : null;
@@ -5698,14 +5785,11 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     for (const old of p.marks) if (p.marks.size > MARKS_KEPT) p.marks.delete(old);
   }
   const fresh = freshRiders;
-  function riding(ps, graph = false) {
-    const got = ps.flatMap((p) => {
-      const out2 = takeRiders(p, graph);
-      if (graph) noteOwn(p, out2.keys);
-      return out2.kept;
-    });
-    return got.length ? [batchHead(got), ...batchLines(got)] : [];
-  }
+  const riding = (ps, frame, raw) => rideWith(
+    ps.flatMap((p) => takeRiders(p, false).kept),
+    frame,
+    raw
+  );
   function loud(session2, text2, child = false) {
     say(text2, "error");
     void deliver2(session2, text2, W5.frame(), "steer", child);
@@ -5713,12 +5797,13 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
   function batch(session2, child, ev, what) {
     const parts2 = separateGraphBatch(ev);
     for (const frame of parts2.graph) pile(session2, child, frame);
-    ev = parts2.rest;
-    noteOwn(piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`), ev.marks);
-    if (!ev.text) return;
-    if (launcherWordIn(session2, child, ev.frames))
-      void deliver2(session2, ev.text, what, "steer", child);
-    else if (!tact(session2, child, ev, what)) void deliver2(session2, ev.text, what, "queue", child);
+    const own = piles.get(`${child ? "child" : "root"}:${session2 ?? ""}`);
+    noteOwn(own, parts2.rest.marks);
+    if (!parts2.rest.text) return;
+    const b = { ...parts2.rest, text: ridersInBatch(own, parts2.rest) };
+    if (launcherWordIn(session2, child, b.frames))
+      void deliver2(session2, b.text, what, "steer", child);
+    else if (!tact(session2, child, b, what)) void deliver2(session2, b.text, what, "queue", child);
   }
   const launcherWordIn = (session2, child, frames) => {
     const launcher = child ? leads.launcherOf(session2 ?? "") : null;
@@ -5840,7 +5925,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           noteOwn(own, deliveryKeys(frame));
           void deliver2(
             session2,
-            [...riding(own ? [own] : []), frameToText(frame, ev.raw ?? "")].join("\n"),
+            riding(own ? [own] : [], frame, ev.raw ?? ""),
             frame?.id != null ? W5.frameId(String(frame.id)) : W5.frameNoId(),
             "steer",
             child
@@ -6243,6 +6328,23 @@ function coverBlocks(text2) {
     else open = null;
   }
   return blocks;
+}
+function repeatedKeys(text2) {
+  const f = fences(text2);
+  const [seen, twice] = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
+  let block = null;
+  for (const line of f ? f.lines.slice(1, f.end) : []) {
+    const kv = PAIR.exec(line);
+    const at2 = line.search(/\S/);
+    if (!kv || line[at2] === "-") continue;
+    const name = unquote(kv[1]);
+    if (at2 === 0) block = TOP.test(line) ? { root: name, at: -1 } : null;
+    else if (!block || block.at >= 0 && block.at !== at2) continue;
+    else block.at = at2;
+    const key = at2 === 0 ? name : `${block?.root}.${name}`;
+    (seen.has(key) ? twice : seen).add(key);
+  }
+  return [...twice];
 }
 var coverBlock = (text2, root) => coverBlocks(text2).get(root) ?? null;
 var stamped = (block) => /^\d+$/.test(block.get("contract") ?? "") && !!block.get("stamp");
@@ -6653,10 +6755,51 @@ function createPulseFeed(opts) {
   };
 }
 
+// js/shared/covercontract.ts
+import { readFileSync as readFileSync15 } from "node:fs";
+import { join as join14 } from "node:path";
+function contractOf(text2, cover = COVER) {
+  if (stampOf2(text2, cover) === "foreign") return { kind: "foreign" };
+  if (repeatedKeys(text2).length) return { kind: "ambiguous" };
+  const block = coverBlock(text2, cover.root);
+  const pairs = frontMatter(text2);
+  const stamps = Object.values(cover.forms).flatMap((f) => {
+    const re = f.contractStamp ?? f.stamp;
+    return [...text2.matchAll(new RegExp(re.source, `${re.flags.replace("g", "")}g`))].map(
+      (m) => m[1]
+    );
+  });
+  if (pairs) {
+    const form = formOf2(pairs, cover);
+    const count = Object.values(cover.forms).filter(
+      (f) => pairs.has(f.graph) || pairs.has(f.role)
+    ).length;
+    if ("why" in form && count > 1 || block && count > 0) return { kind: "ambiguous" };
+  }
+  const values = [...block?.has("contract") ? [block.get("contract")] : [], ...stamps];
+  if (!values.length) return { kind: "missing" };
+  if (values.length > 1) return { kind: "ambiguous" };
+  const value = values[0] ?? "";
+  const n2 = Number(value);
+  return /^\d+$/.test(value) && Number.isSafeInteger(n2) ? { kind: "known", contract: n2 } : { kind: "invalid" };
+}
+function contractWarning(c, lang2) {
+  return c.kind === "known" && c.contract < CONTRACT_SUPPORT.minimum ? wordsIn(CONTRACT_WORDS, lang2).unsupported(c.contract, CONTRACT_SUPPORT.target) : null;
+}
+function repoContractWarning(dir, lang2) {
+  const root = repoRoot(dir);
+  if (!root) return null;
+  try {
+    return contractWarning(contractOf(readFileSync15(join14(root, COVER.file), "utf8")), lang2);
+  } catch {
+    return null;
+  }
+}
+
 // js/shared/memorypath.ts
 import { lstatSync as lstatSync3, readlinkSync } from "node:fs";
 import { homedir as homedir7 } from "node:os";
-import { dirname as dirname6, isAbsolute as isAbsolute3, join as join14, parse } from "node:path";
+import { dirname as dirname6, isAbsolute as isAbsolute3, join as join15, parse } from "node:path";
 var slash = (p) => p.replaceAll("\\", "/");
 var parts = (p) => p.slice(parse(p).root.length).split(/[\\/]+/);
 function real(p, inMemory = () => false) {
@@ -6670,7 +6813,7 @@ function real(p, inMemory = () => false) {
       r = dirname6(r);
       continue;
     }
-    const q = join14(r, c);
+    const q = join15(r, c);
     let link = false;
     try {
       link = lstatSync3(q).isSymbolicLink();
@@ -6692,7 +6835,7 @@ function real(p, inMemory = () => false) {
   return r;
 }
 function inLocalMemory(path, base) {
-  const home = join14(homedir7(), ".claude", "projects");
+  const home = join15(homedir7(), ".claude", "projects");
   const projects = slash(real(home) ?? home).toLowerCase();
   const inMemory = (p) => {
     const x = `${slash(p)}/`.toLowerCase();
@@ -6704,8 +6847,8 @@ function inLocalMemory(path, base) {
 }
 
 // js/shared/ritualcover.ts
-import { readdirSync as readdirSync5, readFileSync as readFileSync15 } from "node:fs";
-import { join as join15 } from "node:path";
+import { readdirSync as readdirSync5, readFileSync as readFileSync16 } from "node:fs";
+import { join as join16 } from "node:path";
 function headings(text2) {
   const lines = text2.split("\n");
   let i = lines[0]?.trim() === "---" ? lines.findIndex((l, n2) => n2 > 0 && l.trim() === "---") + 1 : 0;
@@ -6736,7 +6879,7 @@ function ritualCover(dir, cover = COVER) {
   if (!root) return null;
   let text2;
   try {
-    text2 = readFileSync15(join15(root, cover.file), "utf8");
+    text2 = readFileSync16(join16(root, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -6768,7 +6911,7 @@ function startWord(c) {
 }
 function ownRitualsPlugin(root) {
   try {
-    return readdirSync5(join15(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
+    return readdirSync5(join16(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
   } catch {
     return false;
   }
@@ -6958,8 +7101,11 @@ function createRites(ctx) {
     async word(session) {
       if (started.has(session)) return null;
       started.add(session);
+      const dir = await sessionDirectory(ctx, session) ?? own;
+      const warning = dir ? repoContractWarning(dir, ritualCover(dir)?.lang) : null;
       const c = await coverOf(session);
-      return c?.cover.on.has("start") ? startWord(c.cover) : null;
+      const start = c?.cover.on.has("start") ? startWord(c.cover) : null;
+      return [warning, start].filter(Boolean).join("\n\n") || null;
     },
     /** The guard before a writing call and the push and merge lines after a shell call. */
     async wire() {
@@ -7010,7 +7156,7 @@ ${note}` : [...content ?? [], { type: "text", text: note }]
 
 // js/opencode/rootseat-again.ts
 import { realpathSync as realpathSync6, statSync as statSync5 } from "node:fs";
-import { join as join16 } from "node:path";
+import { join as join17 } from "node:path";
 function atRepoRoot(where) {
   const root = repoRoot(where);
   if (root === null) return false;
@@ -7029,7 +7175,7 @@ function coverIn(where) {
 }
 function stamp(where) {
   try {
-    const st = statSync5(join16(where, COVER.file));
+    const st = statSync5(join17(where, COVER.file));
     return `${st.mtimeMs}:${st.size}:${st.ino}`;
   } catch {
     return "";
@@ -7281,6 +7427,187 @@ function startWords(seats, invitation, closed) {
     const invite = invited && !closed(session) ? invited : null;
     const out2 = seat && !(invite && seats.aligning(session)) ? [seat] : [];
     return invite ? [...out2, invite] : out2;
+  };
+}
+
+// js/shared/spawned-for.ts
+var sameSpawn = (a, b) => a.invite === b.invite && a.room === b.room;
+var invalid = () => {
+  throw new Error(words(SPAWNED_FOR).invalid());
+};
+function parseSpawn(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return invalid();
+  const a = value;
+  if (Object.keys(a).length !== 2 || !Number.isSafeInteger(a.invite) || Number(a.invite) <= 0 || typeof a.room !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(a.room))
+    return invalid();
+  return { invite: a.invite, room: a.room.toLowerCase() };
+}
+function spawnJson(text2) {
+  try {
+    const keys = [...text2.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
+      (m) => JSON.parse(m[1])
+    );
+    if (keys.length !== new Set(keys).size) return invalid();
+    return parseSpawn(JSON.parse(text2));
+  } catch {
+    return invalid();
+  }
+}
+function mergeSpawn(...values) {
+  const pairs = values.filter((v) => v !== void 0);
+  if (pairs.some((v) => !sameSpawn(v, pairs[0]))) return invalid();
+  return pairs[0];
+}
+function firstLineSpawn(text2) {
+  const first = text2.split(/\r?\n/, 1)[0];
+  return first.startsWith("spawned_for:") ? spawnJson(first.slice("spawned_for:".length)) : void 0;
+}
+function spawnReceipt(structured, expected, identity) {
+  if (!structured || typeof structured !== "object") return null;
+  const s = structured;
+  if (s.action !== "register" || s.incomplete === true || s.dropped !== void 0 && s.dropped !== 0 || !Array.isArray(s.seats))
+    return null;
+  if (!identity.seat_id && !identity.standing && (!identity.name || s.seats.length !== 1))
+    return null;
+  const seats = s.seats;
+  if (seats.some(
+    (v2) => !v2 || typeof v2 !== "object" || typeof v2.seat_id !== "string" || !v2.seat_id || typeof v2.standing !== "string" || !/^@[^:]+:.+$/.test(v2.standing)
+  ))
+    return null;
+  const matches = seats.filter((v2) => {
+    if (identity.seat_id) return v2.seat_id === identity.seat_id;
+    if (identity.standing) return v2.standing === identity.standing;
+    return v2.standing.slice(v2.standing.indexOf(":") + 1) === identity.name;
+  });
+  if (matches.length !== 1) return null;
+  const v = matches[0];
+  if (identity.standing && v.standing !== identity.standing) return null;
+  if (identity.name && v.standing.slice(v.standing.indexOf(":") + 1) !== identity.name)
+    return null;
+  try {
+    const pair = parseSpawn(v.spawned_for);
+    return sameSpawn(pair, expected) ? { seat_id: v.seat_id, standing: v.standing, spawned_for: pair } : null;
+  } catch {
+    return null;
+  }
+}
+
+// js/opencode/spawn-admission.ts
+function spawnAdmission(starts, readContext) {
+  return async (session, text2, message) => {
+    if (text2.startsWith(FRAME_MARK)) return text2;
+    const pair = firstLineSpawn(text2);
+    let entry = starts.get(session);
+    if (!pair) {
+      await entry?.pending?.catch(() => {
+      });
+      if (!starts.has(session)) starts.set(session, {});
+      return text2;
+    }
+    const initialError = () => new Error(words(SPAWNED_FOR).initial());
+    if (entry?.error) throw entry.error;
+    if (entry && !entry.pair) throw initialError();
+    const stripped = () => text2.slice(text2.indexOf("\n") + 1);
+    const compare = (own2) => {
+      try {
+        mergeSpawn(own2.pair, pair);
+      } catch (e) {
+        own2.conflict = true;
+        own2.error = e;
+        throw e;
+      }
+    };
+    if (entry?.pending || entry?.ids?.has(message)) {
+      compare(entry);
+      await entry.pending;
+      if (entry.error) throw entry.error;
+      entry.ids?.add(message);
+      return stripped();
+    }
+    const fresh = !entry;
+    entry ??= { pair, ids: /* @__PURE__ */ new Set() };
+    const own = entry;
+    starts.set(session, own);
+    const proof = Promise.resolve().then(async () => {
+      let previous;
+      try {
+        previous = await readContext(session);
+      } catch {
+        throw initialError();
+      }
+      if (!Array.isArray(previous) || previous.length !== 0) throw initialError();
+      compare(own);
+      if (own.error) throw own.error;
+    });
+    own.pending = proof;
+    try {
+      await proof;
+      own.ids?.add(message);
+      return stripped();
+    } catch (e) {
+      if (fresh && !own.error && starts.get(session) === own) starts.delete(session);
+      throw e;
+    } finally {
+      if (own.pending === proof) own.pending = void 0;
+    }
+  };
+}
+
+// js/opencode/spawned-for.ts
+function createSpawnStarts(readContext) {
+  const starts = /* @__PURE__ */ new Map();
+  return {
+    has(session) {
+      return !!starts.get(session)?.pair;
+    },
+    async cleanup(session, release) {
+      const entry = starts.get(session);
+      if (!entry?.conflict) return;
+      await (entry.cleanup ??= Promise.resolve(entry.start).catch(() => {
+      }).then(release));
+    },
+    start(session, run) {
+      const entry = starts.get(session);
+      if (!entry?.pair || entry.claimed) return run();
+      return entry.start ??= Promise.resolve().then(run);
+    },
+    guard(session) {
+      const e = starts.get(session);
+      if (e?.error) throw e.error;
+      if (e?.pair && !e.claimed) throw new Error(words(SPAWNED_FOR).echo());
+    },
+    verify(session, args, result) {
+      if (!args.spawned_for) return;
+      const r = result;
+      const entry = starts.get(session);
+      const name = r?.structuredContent?.place?.name ?? (typeof args.name === "string" ? args.name : void 0);
+      if (r?.isError || !spawnReceipt(r?.structuredContent, parseSpawn(args.spawned_for), { name })) {
+        const error = new Error(words(SPAWNED_FOR).echo());
+        if (entry) entry.error = error;
+        throw error;
+      }
+      if (entry) entry.claimed = true;
+    },
+    prompt: spawnAdmission(starts, readContext),
+    apply(session, name, args) {
+      const entry = starts.get(session);
+      if (entry?.error) throw entry.error;
+      if (!(name === tool("stand") || name === tool("channel") && ["connect", "register", "mint"].includes(String(args.action))))
+        return;
+      if (entry?.pending) throw new Error(words(SPAWNED_FOR).initial());
+      const target = `${String(args.realm)}#${String(args.karta).replace(/^#/, "")}`;
+      const explicit = Object.hasOwn(args, "spawned_for") ? parseSpawn(args.spawned_for) : void 0;
+      const pair = mergeSpawn(
+        explicit,
+        !entry?.target || entry.target === target ? entry?.pair : void 0
+      );
+      if (!pair) return;
+      if (entry && !entry.target) entry.target = target;
+      args.spawned_for = pair;
+    },
+    forget(session) {
+      starts.delete(session);
+    }
   };
 }
 
@@ -7597,6 +7924,7 @@ async function setup(ctx) {
   };
   const roots = /* @__PURE__ */ new Map();
   const seen = /* @__PURE__ */ new Map();
+  const spawnStarts = createSpawnStarts((sessionID) => ctx.session.context({ sessionID }));
   const parents = /* @__PURE__ */ new Map();
   async function rootOf(sessionID) {
     const known = roots.get(sessionID);
@@ -7687,7 +8015,10 @@ async function setup(ctx) {
       (s) => flushUsage(s),
       closed,
       // No channel half — no interrupt: the order's stop is refused, not reported executed.
-      (s, signal) => ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN)
+      (s, signal) => ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN),
+      (s, name, args) => spawnStarts.apply(s, name, args),
+      (s) => spawnStarts.has(s),
+      (s, args, result) => spawnStarts.verify(s, args, result)
     );
   } catch (e) {
     say(words(PLUGIN).notRaised(e.message), "error");
@@ -7698,7 +8029,9 @@ async function setup(ctx) {
     seat: (s, realm, karta, cancelled) => half.seatRoot(s, realm, karta, cancelled),
     cancel: (s) => half.cancelSeat(s),
     release: (s) => half.releaseSeat(s),
-    finished: (s) => half.finishSeat(s),
+    finished: (s) => {
+      if (!spawnStarts.has(s)) half.finishSeat(s);
+    },
     tell: (s, text2) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text: text2 } }),
     steer: (s, text2) => teller(ctx, say, closed)(s, text2, false)
   });
@@ -7728,14 +8061,23 @@ async function setup(ctx) {
       prepared.put(commands.word(sid, p.metadata));
       turns.prompt(sid, p.prompt.text);
       const root = await rootOf(sid) === sid;
-      const word2 = await half.launch(sid, p.prompt.text);
-      prepared.put(word2);
-      const rite = root && !closed(sid) ? await rites.word(sid) : null;
-      prepared.put(rite);
-      const start = root ? await started(sid) : [];
-      for (const w of start) prepared.put(w);
-      if (start.length) prepared.put(await (rulesOf(sid) ?? null));
-      if (root) prepared.ride();
+      try {
+        const launchText = await spawnStarts.prompt(sid, p.prompt.text, String(p.messageID));
+        const word2 = await half.launch(sid, launchText);
+        prepared.put(word2);
+        const rite = root && !closed(sid) ? await rites.word(sid) : null;
+        prepared.put(rite);
+        const start = root ? await spawnStarts.start(sid, () => started(sid)) : [];
+        spawnStarts.guard(sid);
+        for (const w of start) prepared.put(w);
+        if (start.length) prepared.put(await (rulesOf(sid) ?? null));
+        spawnStarts.guard(sid);
+        if (root) prepared.ride();
+      } catch (e) {
+        await spawnStarts.cleanup(sid, () => half.releaseSeat(sid));
+        if (root) half.finishSeat(sid);
+        throw e;
+      }
     });
   } catch (e) {
     say(W5.launchDown(e.message), "error");
@@ -7756,6 +8098,13 @@ async function setup(ctx) {
         } else await compaction.tell(req);
         if (hook === "context") {
           const sid = String(req.sessionID);
+          try {
+            spawnStarts.guard(sid);
+          } catch (e) {
+            await spawnStarts.cleanup(sid, () => half.releaseSeat(sid));
+            throw e;
+          }
+          if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
           for (const text2 of ready.words) req.system.push({ type: "text", text: text2 });
           if (ready.ride)
@@ -7817,6 +8166,7 @@ async function setup(ctx) {
           case "session.deleted":
             if (!id) break;
             hookContext.forget(id);
+            spawnStarts.forget(id);
             commands.forget(id);
             pulse.forget(id);
             turns.forget(id);
