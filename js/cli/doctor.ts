@@ -32,6 +32,7 @@ import {
   PLUGIN_FILE,
   PLUGIN_NAME,
 } from "../delivery/index.ts";
+import { repoContractWarning } from "../shared/covercontract.ts";
 import { homeBridgePath } from "../shared/home.ts";
 import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
@@ -431,6 +432,8 @@ export async function runDoctor(argv: string[]): Promise<void> {
   out(dw().title(BUILD));
   out(dw().thisFile(fileURLToPath(import.meta.url)));
   out(`node: ${process.version}`);
+  const warning = repoContractWarning(process.cwd());
+  if (warning) out(warning);
   homeCopyReport();
   latestReport();
   await daemonReport();

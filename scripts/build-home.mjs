@@ -206,12 +206,17 @@ const SKILLS = {
   "align-migrations": {
     source: "references",
     description:
-      "Reference for the align skill: the moves an older contract or legacy content calls for — contracts 4 to 8, the old questionnaire, legacy sections — read whole before the first mutation when align points here; not a task of its own.",
+      "Reference for the align skill: the support boundary and legacy content — a full run below contract 11, legacy content at any contract, the old questionnaire, legacy sections — read whole before the first mutation when align points here; not a task of its own.",
   },
   "align-superpowers-interop": {
     source: "references",
     description:
       "Reference for the align skill: the canonical template for interop with the superpowers workflow suite. Load when align points here; not a task of its own.",
+  },
+  "establish-mcp-orca": {
+    source: "references",
+    description:
+      "Reference for the establish-mcp skill: teaching your own Orca to raise an agent by invitation — the mapping the owner sets, reading the bridge's demands, the dry plan, the spawned_for pair, one permitted launch and its stop. Load when establish-mcp points here; not a task of its own.",
   },
   "collaborate-channel": {
     source: "references",

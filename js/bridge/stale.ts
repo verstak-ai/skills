@@ -33,9 +33,9 @@ export class StaleBurst {
       if (!all.length) return; // a live copy of the same event took them all
       // Text and marks by the seat's memory now, as the bridge delivers it (pi, OpenCode);
       // watchdogs judge the frames themselves at print time (shared/stalebatch.ts).
-      const { text, keys } = staleBatch(all, this.has);
+      const { text, keys, body } = staleBatch(all, this.has);
       if (!text) return; // all already in play: marks only grow, the watchdog decides the same
-      flush({ kind: "stale", frames: all, marks: keys, text });
+      flush({ kind: "stale", frames: all, marks: keys, text, body });
     }, STALE_BURST_MS).unref();
   }
 

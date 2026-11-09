@@ -78,7 +78,7 @@ export function seatIs(frame: Rec, ...named: unknown[]): boolean | null {
 /**
  * Addressee of a word (api 0.91.3, observed in production): a seat address string
  * or a seat object {standing | handle+name, id, name}. addr — what to compare with
- * my seat, label — how to name it.
+ * my seat, label — how to name it: by one address, the name only without one (#9654).
  */
 export function addresseeOf(v: unknown): { addr: string[]; label: string } | null {
   if (typeof v === "string") return v ? { addr: [v], label: v } : null;
@@ -87,8 +87,7 @@ export function addresseeOf(v: unknown): { addr: string[]; label: string } | nul
   const standing =
     str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
   const id = str(o.id);
-  const name = str(o.standing) ? str(o.name) : "";
-  const label = name && standing ? `${name} (${standing})` : standing || str(o.name) || id;
+  const label = standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);
   return addr.length ? { addr, label } : null;
 }

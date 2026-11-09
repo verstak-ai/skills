@@ -31,8 +31,10 @@ export interface CoverForm {
   readonly graphJoins?: readonly string[];
   readonly role: string;
   readonly roleQuotes: readonly [string, string];
-  /** The delivery's current alignment stamp in this language. */
+  /** The delivery's alignment stamp in this language; capture 1 is its contract number. */
   readonly stamp: RegExp;
+  /** Older numeric stamps, where distinct from the stamped form; capture 1 is the contract. */
+  readonly contractStamp?: RegExp;
 }
 
 /** A delivery's cover: the file, its root key, the flat forms by language, another delivery's stamp. */

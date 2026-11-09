@@ -1,12 +1,14 @@
 // Frame routing to the case pile (graph @nks/nks-dev, nodes #4957, #7334).
+import { type ChannelEvent } from "../bridge/hold.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { askFromPerson } from "../shared/asks.ts";
 import { classifyOrigin, type Frame, isDirectWord } from "../shared/channel.ts";
-import { batchHead, batchLines } from "../shared/frame-text.ts";
+import { batchShown, batchText, countsWithShown, frameToText } from "../shared/frame-text.ts";
 import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { receiptGraph } from "../shared/graph-receipt.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { eventKeyOf, splitBatch } from "../shared/seen.ts";
+import { batchBodyText, ridesIn } from "../shared/stalebatch.ts";
 
 /** Addressing precedes stack; graph inbox text waits for next-turn context. */
 export function toPile(frame: Frame | null): boolean {
@@ -27,6 +29,21 @@ interface Riders {
   riders: Frame[];
   held: Frame[];
   marks: Set<string>;
+}
+
+/** Riding counts before a frame given as text; the frame stands under its case's count (#9654). */
+export function rideWith(got: Frame[], frame: Frame | null, raw: string): string {
+  if (!frame) return [...(got.length ? [batchText(got)] : []), raw].join("\n");
+  const text = (withCase: boolean): string => frameToText(frame, raw, withCase);
+  return countsWithShown(got, [...batchShown(got), { frame, text }]).join("\n");
+}
+
+/** Waiting counts of a case a stale or wake-up batch shows ride in it, counted in that case (#9654). */
+export function ridersInBatch(p: Riders | undefined, ev: ChannelEvent): string {
+  const frames = ev.frames ?? [];
+  const waiting = p?.riders.filter((f) => !isGraphInbox(f)) ?? [];
+  if (!p || !ev.body || !ridesIn(waiting, frames, ev.body)) return ev.text ?? "";
+  return batchBodyText(frames, ev.body, takeRiders(p, false).kept);
 }
 
 /** Pending graph text suppresses its counted case copy before either is handed out. */
@@ -62,7 +79,7 @@ export function handRiders<T extends Riders>(
   });
   const got = batches.flatMap((b) => b.out.kept);
   if (!got.length) return;
-  put([batchHead(got), ...batchLines(got)].join("\n"));
+  put(batchText(got));
   receiptGraph(got);
   for (const { p, preview, out } of batches) {
     p.riders = preview.riders;

@@ -1,6 +1,6 @@
 # establish-mcp — connecting and maintaining the bridge
 
-**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge". **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
+**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge". **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`) — or Codex under Orca ("Codex under Orca", "Orca as a launcher", the app-server door missing): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
 
 **Grounding:** a record's author is attested by the seat that wrote it, not by a name in the text; the bridge holds that seat binding and the grant, so without it writes go out without an author. The rest of transport is product mechanics.
 
@@ -13,6 +13,8 @@ The server is remote; the machine holds only this delivery and its transport, **
 Plugins bring it up themselves (Claude Code as the plugin's MCP entry `verstak`, Codex as the MCP entry `verstak` of the plugin `verstak@verstak-ai`, pi as a package extension, OpenCode as the delivery's plugin); elsewhere it is a stdio entry pointing at the home copy. Finding BRIDGE, in order: the home copy `~/.verstak-bridge/verstak-bridge.mjs` (a harness-raised bridge puts it there); the path in `claude mcp list` / `codex mcp get verstak` (its `args` relative to its `cwd`); the `[verstak-bridge]` block of a `verstak_stand` response; `$SKILL_DIR/scripts/verstak-bridge.mjs`.
 
 ## First move — `doctor`
+
+**Your own Orca as an agent launcher:** before setting it up or launching, read `references/establish-mcp-orca.md` whole. A separate recipe: reading the demands and the dry plan launch no agent and turn on no automatic cycle.
 
 ```sh
 node ~/.verstak-bridge/verstak-bridge.mjs doctor      # or: node BRIDGE doctor

@@ -6,6 +6,7 @@
 // out keeps silent. A repository keeping a rituals plugin
 // of its own hears only that one — the delivery keeps silent there until the transition.
 import { PREPARE, RITES } from "../delivery/index.ts";
+import { repoContractWarning } from "../shared/covercontract.ts";
 import { wordsIn } from "../shared/lang.ts";
 import { inLocalMemory } from "../shared/memorypath.ts";
 import { mergeHeads, ownRitualsPlugin, ritualCover, startWord } from "../shared/ritualcover.ts";
@@ -59,8 +60,11 @@ export function createRites(ctx: Context) {
     async word(session: string): Promise<string | null> {
       if (started.has(session)) return null;
       started.add(session);
+      const dir = (await sessionDirectory(ctx, session)) ?? own;
+      const warning = dir ? repoContractWarning(dir, ritualCover(dir)?.lang) : null;
       const c = await coverOf(session);
-      return c?.cover.on.has("start") ? startWord(c.cover) : null;
+      const start = c?.cover.on.has("start") ? startWord(c.cover) : null;
+      return [warning, start].filter(Boolean).join("\n\n") || null;
     },
     /** The guard before a writing call and the push and merge lines after a shell call. */
     async wire(): Promise<boolean> {

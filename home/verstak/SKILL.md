@@ -145,6 +145,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "make a roadmap", "what next here" → product-roadmap, a plugin-only method this catalogue does not carry
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
+- "Codex under Orca", "Orca as an agent launcher" → **establish-mcp** (`establish-mcp-orca`, read whole)
 - "how do I … in Verstak", "where do I …", "why doesn't it work", "nothing works", a curse at the product → **help**: on the spot, one step together, and how to do it alone
 
 **Make sure**

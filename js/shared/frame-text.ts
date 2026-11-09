@@ -22,12 +22,17 @@ const idOf = (v: unknown): string =>
 /** Case opening (zachin) in a line — how many characters. */
 const ZACHIN = 40;
 
+/** The case a frame is grouped by — graph and number; a frame outside a case by its id. */
+function groupKey(f: Frame): string {
+  const c = caseOf(f);
+  return c ? JSON.stringify([c.realm, c.room]) : idOf((f as Rec).id) || "?";
+}
+
 /** Cases of the batch frames — by case, in order of first appearance. */
 function casesOf(frames: Frame[]): Frame[][] {
   const by = new Map<string, Frame[]>();
   for (const f of frames) {
-    const c = caseOf(f);
-    const key = c ? JSON.stringify([c.realm, c.room]) : idOf((f as Rec).id) || "?";
+    const key = groupKey(f);
     const got = by.get(key);
     if (got) got.push(f);
     else by.set(key, [f]);
@@ -124,9 +129,10 @@ function humanWordReply(frame: Frame, origin: FrameOrigin): string {
  * as a count (caseCountLine). The bridge has already checked the frame; provenance and
  * envelope are never printed raw (case history reads the whole record), and
  * delivery never tells the agent to answer — but for the life check and a person's
- * word from the window (#9128).
+ * word from the window (#9128). withCase false — the line stands under its case's count,
+ * which names the case (underCounts, #9654).
  */
-export function frameToText(frame: Frame | null | undefined, raw: string): string {
+export function frameToText(frame: Frame | null | undefined, raw: string, withCase = true): string {
   if (!frame) return raw;
   const f = frame as Rec;
   const origin = frame.origin ?? classifyOrigin(frame);
@@ -144,8 +150,9 @@ export function frameToText(frame: Frame | null | undefined, raw: string): strin
     const who = rk || origin === "platform" ? "" : whoOf(frame, false);
     const by = [author, who].filter(Boolean).join(", ");
     const withReply = !rk || !CAPTION_REPLY.has(rk.kind);
+    const label = [withCase ? caseHead(frame, true) : "", entry ? `[${entry}]` : ""];
     const head =
-      `${caseHead(frame, true)}${entry ? ` [${entry}]` : ""} ${words}` +
+      `${[...label.filter(Boolean), words].join(" ")}` +
       `${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
     const lines = [head];
     if (text && !words.includes(text.trim())) lines.push(text);
@@ -171,11 +178,12 @@ export const warnedSeat = (frame: Frame): string =>
  * full text; the case opening on its first appearance. An addressed word not to
  * me (#6081) has no body; run — the number of words in the pair's run closed by this
  * frame (foldAsides), absent for a lone frame. No envelope: batchPointer reads it whole.
+ * withCase false — under its case's count, which names the case (underCounts, #9654).
  */
-export function batchLine(frame: Frame, run?: number, withZachin = true): string {
+export function batchLine(frame: Frame, run?: number, withZachin = true, withCase = true): string {
   const f = frame as Rec;
   const rk = roomKind(frame);
-  const head = caseHead(frame, withZachin);
+  const head = withCase ? caseHead(frame, withZachin) : "";
   const pre = head ? `${head} ` : "";
   if (rk?.aside) return pre + (run === undefined ? rk.words : rk.aside.run(run));
   const line = rec(f.line);
@@ -211,16 +219,78 @@ export function foldAsides(frames: Frame[]): (number | null)[] {
   return out;
 }
 
-/** Batch lines — only those addressed to the seat (#6574), as text; the rest counted in the head. */
-export function batchLines(frames: Frame[]): string[] {
+/** A record shown as text: with its case's label, or under its case's count without it. */
+export interface Shown {
+  frame: Frame;
+  text: (withCase: boolean) => string;
+}
+
+/** Batch lines — only those addressed to the seat (#6574); the rest counted in the head. */
+export function batchShown(frames: Frame[]): Shown[] {
   const seen = new Set<string>();
   return frames.flatMap((f) => {
     if (!addressedToMine(f)) return [];
     const key = caseKey(f);
     const first = !seen.has(key);
     seen.add(key);
-    return [batchLine(f, undefined, first)];
+    return [{ frame: f, text: (withCase: boolean) => batchLine(f, undefined, first, withCase) }];
   });
+}
+
+/** Addressed records as their whole text (frameToText), cut at `cap` characters: stale and wake-up batches. */
+export const textShown = (frames: Frame[], cap: number): Shown[] =>
+  frames
+    .filter((f) => addressedToMine(f))
+    .map((f) => ({
+      frame: f,
+      text: (withCase: boolean) => {
+        const t = [...frameToText(f, JSON.stringify(f), withCase)];
+        return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
+      },
+    }));
+
+/** A batch as text: counts of `counted` per case, the addressed of `frames` under their case's count. */
+export const batchText = (counted: Frame[], frames: Frame[] = counted): string =>
+  underCounts(counted, batchShown(frames)).join("\n");
+
+/**
+ * Count lines with the shown records under their case's count (#9654): a case is named
+ * once, in its count — its records carry no number or opening. A shown record whose case
+ * is not counted keeps its label and follows the counts.
+ */
+export function underCounts(counted: Frame[], shown: Shown[], incomplete = false): string[] {
+  const groups = casesOf(counted).filter((group) => caseOf(group[0]));
+  const placed = new Set<Shown>();
+  const under = (group: Frame[]): string[] => {
+    const key = groupKey(group[0]);
+    return shown
+      .filter((s) => caseOf(s.frame) && groupKey(s.frame) === key)
+      .map((s) => (placed.add(s), s.text(false)));
+  };
+  const rest = (): string[] => shown.filter((s) => !placed.has(s)).map((s) => s.text(true));
+  if (!groups.length) return rest();
+  if (!compactCounts())
+    return [...groups.flatMap((g) => [legacyCountLine(g, incomplete), ...under(g)]), ...rest()];
+  if (groups.length === 1 && !incomplete)
+    return [caseCountLine(groups[0]), ...under(groups[0]), ...rest()];
+  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
+  if (groups.length === 1)
+    return [`${countText(groups[0], true)}; ${pointer}.`, ...under(groups[0]), ...rest()];
+  return [...groups.flatMap((g) => [countText(g, true), ...under(g)]), `${pointer}.`, ...rest()];
+}
+
+/**
+ * Waiting counts and the records shown with them in one output (#9654): a shown case record
+ * not to the seat joins its case's count (#6574), not a count line of its own; the shown to
+ * the seat are counted in their case and stand under it. Nothing counted — the shown alone.
+ */
+export function countsWithShown(counted: Frame[], shown: Shown[]): string[] {
+  const asCount = shown.filter((s) => caseOf(s.frame) && !addressedToMine(s.frame));
+  const lines = shown.filter((s) => !asCount.includes(s));
+  const all = [...counted, ...asCount.map((s) => s.frame).filter((f) => !counted.includes(f))];
+  if (!all.length) return lines.map((s) => s.text(true));
+  const extra = lines.map((s) => s.frame).filter((f) => caseOf(f) && !all.includes(f));
+  return underCounts([...all, ...extra], lines);
 }
 
 /**
@@ -275,17 +345,14 @@ function countText(frames: Frame[], withCursor: boolean): string {
  * Batch count lines — one per case (#6574), above all its records: "yours N" counts the
  * addressed ones that follow as lines below, so the count does not contradict them.
  */
-export function caseCountLines(frames: Frame[], incomplete = false): string[] {
-  const groups = casesOf(frames).filter((group) => caseOf(group[0]));
-  if (!groups.length) return [];
-  if (!compactCounts()) return groups.map((group) => legacyCountLine(group, incomplete));
-  if (groups.length === 1 && !incomplete) return [caseCountLine(groups[0])];
-  const counts = groups.map((group) => countText(group, true));
-  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
-  return groups.length === 1 ? [`${counts[0]}; ${pointer}.`] : [...counts, `${pointer}.`];
-}
+export const caseCountLines = (frames: Frame[], incomplete = false): string[] =>
+  underCounts(frames, [], incomplete);
 
-/** Case batch head: counts per case and where to read in full (#6574) — at the head, since cutting trims the tail. */
+/**
+ * Case batch head: counts per case and where to read in full (#6574). The pointer closes the
+ * counts — in one case's count line, after several cases' counts and so after their records
+ * under them (underCounts); nothing trims a batch's text, bodies are cut per record (textShown).
+ */
 export function batchHead(frames: Frame[]): string {
   return caseCountLines(frames).join("\n");
 }

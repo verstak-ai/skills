@@ -106,12 +106,11 @@ function roomOf(v: unknown): string {
   return str(r.seq) || str(r.id) || str(v);
 }
 
+/** A seat by one address, its name only without one, as the author is (#4957, #9654). */
 function whoOf(fields: Rec): string {
   const st = obj(fields.standing);
   const ka = obj(fields.karta);
-  const name = str(st.name) || str(ka.name);
-  const addr = str(st.standing);
-  return name && addr ? `${name} (${addr})` : name || addr;
+  return str(st.standing) || str(st.name) || str(ka.name);
 }
 
 /** The word of a known kind, from the frame's values. */

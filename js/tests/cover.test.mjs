@@ -23,7 +23,7 @@ const NKS_931 = { realm: "@nks/nks-dev", karta: "931" };
 test("the delivery's cover form: AGENTS.md, one en form — Graph, Agent role, straight double quotes", () => {
   assert.equal(COVER.file, "AGENTS.md");
   assert.deepEqual(Object.keys(COVER.forms), ["en"]);
-  const { stamp, ...keys } = COVER.forms.en;
+  const { stamp, contractStamp, ...keys } = COVER.forms.en;
   assert.deepEqual(keys, {
     graph: "Graph",
     graphJoins: ["or", "and", "Or", "And", "OR", "AND"],
@@ -31,6 +31,7 @@ test("the delivery's cover form: AGENTS.md, one en form — Graph, Agent role, s
     roleQuotes: ['"', '"'],
   });
   assert.ok(stamp instanceof RegExp);
+  assert.ok(contractStamp instanceof RegExp);
   assert.ok(COVER.stampShape instanceof RegExp);
 });
 

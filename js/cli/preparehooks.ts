@@ -73,13 +73,19 @@ function load(path: string): Settings | null {
  * prepare wrote whose text is not the current one: an earlier address or earlier words. Any other
  * guard — inline of the person's own or carried by a repository script — is the repository's: kept.
  */
-function guard(root: string, s: Settings, addr: PrepareAddr | null, out: Outcome): boolean {
+function guard(
+  root: string,
+  s: Settings,
+  addr: PrepareAddr | null,
+  out: Outcome,
+  preserve: boolean,
+): boolean {
   const k = KNOWN["hook.guard"];
   const command = addr ? guardCommand(addr.graph) : undefined;
   const known = knownOf(root, s, "hook.guard");
   const stale = known.filter((h) => h.command !== command && written(cmd(h)));
   const unread = hooksOf(s, k.event, k.on).find((h) => opaque(root, cmd(h)));
-  if (command && stale.length && !known.some((h) => h.command === command)) {
+  if (!preserve && command && stale.length && !known.some((h) => h.command === command)) {
     for (const h of stale) h.command = command;
   } else if (known.length) {
     out.kept.push("hook.guard");
@@ -106,12 +112,13 @@ export function prepareHooks(
   addr: PrepareAddr | null,
   out: Outcome,
   on: ReadonlySet<string>,
+  preserve = false,
 ): string | null {
   const dir = join(root, ".claude");
   const path = join(dir, "settings.json");
   const s = load(path);
   if (!s) return path;
-  const changed = on.has("guard") && guard(root, s, addr, out);
+  const changed = on.has("guard") && guard(root, s, addr, out, preserve);
   const carried = CARRIED.filter((kind) => on.has(kind.slice("hook.".length)));
   for (const kind of carried) if (knownOf(root, s, kind).length) out.left.push(kind);
   // A start script prepare cannot read may be the repository's start hook: named for reading.

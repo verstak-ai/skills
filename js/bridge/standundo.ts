@@ -113,9 +113,17 @@ export async function registerRefused(
   taken: Required<Standing> | null,
   prior: Standing | null,
   addr: HeldAddress | null,
+  cleanupFresh = false,
+  claimFailed = false,
 ): Promise<string> {
   const text = short(r.text);
-  if (!taken || !prior) return refusedWord("register", r, realm, sw().takenButRegister(text));
+  if (!taken) return refusedWord("register", r, realm, sw().takenButRegister(text));
+  if (!prior && cleanupFresh) {
+    const refusal = refusedWord("register", r, realm);
+    const left = await dropTaken(taken);
+    return left ? `${refusal}\n${left}` : refusal;
+  }
+  if (!prior) return refusedWord("register", r, realm, sw().takenButRegister(text));
   const refusal = refusedWord("register", r, realm, sw().refused("register", text));
   // Stopped since the call began: the former seat is not held again (held lifts a harness's
   // wake ban that the stop does not restore); the stop guard takes the new one off and answers.
@@ -125,6 +133,9 @@ export async function registerRefused(
   if (stoppedInMove()) return refusal;
   state.standing = { ...prior };
   if (addr) holdStanding(addr.url, addr.statusUrl);
+  // Do not try a failed invitation on the previous place as a compensating
+  // register. Claim refusal blocks this session's work, including a missing echo.
+  if (claimFailed) return `${refusal}\n${mw().moveUndone(taken.name, prior.name ?? "")}`;
   const back = await callTool(tool("channel"), {
     action: "register",
     ...prior,

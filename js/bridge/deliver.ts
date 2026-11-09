@@ -1,6 +1,7 @@
 import { BRIDGE_NAME, envName, ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
 import { OWN_CLIENTS } from "../shared/clients.ts";
 import { negotiateCounts } from "../shared/frame-format.ts";
+import { parseSpawn } from "../shared/spawned-for.ts";
 import {
   absorbChannelReply,
   absorbCloseReply,
@@ -14,6 +15,7 @@ import { localAway } from "./away.ts";
 import { BUILD } from "./build.ts";
 import { crossPlaceRefusal, resolveAgainstLed, serialized } from "./call.ts";
 import { noteCaseEntry } from "./caseexit.ts";
+import { claimReply, refuseLaunch, refuseUnbound } from "./claimdelivery.ts";
 import { deafRefusal } from "./deaf.ts";
 import {
   AuthPending,
@@ -34,12 +36,13 @@ import { ownerRefusal } from "./owner.ts";
 import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
 import { isPulseCall, runPulse } from "./pulse.ts";
 import { localRealm } from "./realmask.ts";
-import { READ_TOOLS } from "./repeat.ts";
+import { isRead } from "./repeat.ts";
 import { isCheckCall, isResumeCall } from "./resume.ts";
 import { localEnd } from "./runend.ts";
 import { satelliteChannelRefusal } from "./satellite.ts";
 import { withCallOrigin } from "./seatorigin.ts";
 import { refreshSkills } from "./skillrefresh.ts";
+import { rememberBasis } from "./spawned-for.ts";
 import { isStandCall } from "./stand.ts";
 import { resumeByOrigin, standForHarness } from "./standdelivery.ts";
 import { ensureStanding, isUnattributed, noteStanding, replyText } from "./standing.ts";
@@ -145,11 +148,6 @@ onReinitialized(() => {
   }, emit);
 });
 
-function isRead(msg: JsonRpcMessage): boolean {
-  if (msg?.method === "initialize" || msg?.method === "tools/list") return true;
-  return msg?.method === "tools/call" && READ_TOOLS.has(String(msg.params?.name ?? ""));
-}
-
 // initialize/tools/list blocked by network or login are answered from the last
 // cached server answer (graph @nks/nks-dev, node #4790): a harness refused here treats the
 // server as dead until restart; the next call reinitializes and carries the login link.
@@ -188,8 +186,7 @@ function withNotice(reply: JsonRpcMessage): JsonRpcMessage {
   return reply;
 }
 
-// Deliver one harness message upstream, with one auth retry and one session
-// retry. On final failure a request id is ALWAYS answered with an error.
+// Deliver with one auth/session retry; final failures always answer the request id.
 export async function deliver(msg: JsonRpcMessage): Promise<void> {
   const listed = msg?.method === "tools/list" ? watchHarnessListing(msg, emit) : null;
   try {
@@ -204,7 +201,7 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
 
 const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted, localRealm];
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
-  // Answered by the bridge itself, never sent upstream.
+  if (refuseLaunch(msg)) return;
   const local = LOCAL.reduce<Promise<JsonRpcMessage> | null>((got, f) => got ?? f(msg), null);
   if (local) {
     emit(await local);
@@ -234,7 +231,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   let heldReply: JsonRpcMessage | null;
   let standingRetried = false;
   const forward = (reply: JsonRpcMessage) => {
-    let m = reply;
+    let m = claimReply(msg, reply);
     if (isInit && m.id === msg.id && m.result?.protocolVersion) {
       state.protocolVersion = m.result.protocolVersion;
     }
@@ -278,6 +275,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         await reinitialize();
       }
       if (!isInit) await ensureStanding(); // the session may have turned over under us
+      if (refuseLaunch(msg) || refuseUnbound(msg)) return; // replay may have failed its claim
       // A taken or deaf seat signs no record (graph @nks/nks-dev, node #6706).
       const taken = hasId ? (evictedRefusal(msg) ?? (await deafRefusal(msg))) : null;
       if (taken) {
@@ -316,6 +314,8 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       // (node #5838); a seat-taking move goes as @owner/slug before any check (#8677, hearing.ts).
       if (takes && ch.realm != null) ch.realm = await seatRealm(ch.realm);
       else if (onChannel) await resolveAgainstLed(ch.realm);
+      if (takes && ch.action === "register" && ch.spawned_for)
+        rememberBasis(ch, parseSpawn(ch.spawned_for));
       // A satellite bridge moves only its own .sub-N seat.
       const satWord =
         hasId && msg.method === "tools/call" && msg.params?.name === tool("channel")

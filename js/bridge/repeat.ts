@@ -13,6 +13,11 @@ export const OWN_CALL_PREFIX = `${ID_PREFIX}bridge-call-`;
 /** Tools that only read: a repeated call changes nothing. */
 export const READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(tool));
 
+export function isRead(msg: JsonRpcMessage): boolean {
+  if (msg?.method === "initialize" || msg?.method === "tools/list") return true;
+  return msg?.method === "tools/call" && READ_TOOLS.has(String(msg.params?.name ?? ""));
+}
+
 /**
  * Actions whose repeat is harmless: reading the board and the graph list. Not
  * register: the bridge cannot show a double one is harmless, and ensureStanding

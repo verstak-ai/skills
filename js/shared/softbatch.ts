@@ -1,6 +1,6 @@
 // Legacy/mixed bridge batches still obey the soft graph path (#7334).
 import type { ChannelEvent } from "../bridge/door.ts";
-import { batchHead, batchLines } from "./frame-text.ts";
+import { batchText } from "./frame-text.ts";
 import { isGraphInbox } from "./graph-inbox.ts";
 import { deliveryKeys, splitBatch } from "./seen.ts";
 import { staleBatch } from "./stalebatch.ts";
@@ -16,7 +16,7 @@ export function separateGraphBatch(ev: ChannelEvent) {
     ? ""
     : ev.kind === "stale"
       ? staleBatch(other, () => false).text
-      : [batchHead(other), ...batchLines(other)].filter(Boolean).join("\n");
+      : batchText(other);
   return {
     graph,
     rest: {
@@ -24,6 +24,7 @@ export function separateGraphBatch(ev: ChannelEvent) {
       frames: other,
       marks: ev.marks?.filter((key) => !graphMarks.has(key)),
       text,
+      body: undefined, // its indexes point into the frames before the split
     },
   };
 }
