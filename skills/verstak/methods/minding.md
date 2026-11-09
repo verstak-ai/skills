@@ -159,7 +159,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a depicted role** (§1b), not a graph user: `user` binds only one who joins the graph themselves, by the user's invitation — never from a search or a matching name.
+- **A person is a depicted role** (§1b), never bound by `user` — not from a search, not from a matching name; one the user invites takes part in a working or shared graph under their own role, never in mind.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (`methods/writing.md`, Decision 4); a recurring duty is a kriya.
 
 ## Limits

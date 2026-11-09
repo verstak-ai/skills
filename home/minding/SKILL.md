@@ -164,7 +164,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 ### People and dated facts
 
-- **A person is a depicted role** (§1b), not a graph user: `user` binds only one who joins the graph themselves, by the user's invitation — never from a search or a matching name.
+- **A person is a depicted role** (§1b), never bound by `user` — not from a search, not from a matching name; one the user invites takes part in a working or shared graph under their own role, never in mind.
 - **A date is an attribute**: a `sachverhalt` (state of affairs) with its timestamp in `attrs` (**writing**, Decision 4); a recurring duty is a kriya.
 
 ## Limits
@@ -215,8 +215,8 @@ The **assistant's role**, when the companion runtime needs one, is unbound to a 
 
 Each person is **the role they play in your area**, with their own motivation (a name is not a role; **writing**, Decision 2b):
 
-- `manifested_as="pratibimba"` 象 by default — the user's image of them (relative, friend, client, counterparty, doctor): modelled, not a member of the graph, not an addressee. `svatantra` only for a person who works in this graph themselves (**writing**, Decision 2b); `adhikarin` is an agent's kind, never a person's.
-- No `user` on a depicted person: mentioning someone, a search hit or a matching name doesn't make them a graph user, and the owner-role repair (`user="me"`) never applies to another person. They take part only when the user shares access and they accept the invitation with their own account — that entry binds their account to their role.
+- `manifested_as="pratibimba"` 象 by default — the user's image of them (relative, friend, client, counterparty, doctor): modelled, not a member of the graph, not an addressee — nobody answers through mind, so even a counterparty, `agantuka` in a working graph, is depicted here. `svatantra` only for a person who works in this graph themselves (**writing**, Decision 2b); `adhikarin` is an agent's kind, never a person's.
+- No `user` on a depicted person: mentioning someone, a search hit or a matching name doesn't make them a graph user, and the owner-role repair (`user="me"`) never applies to another person. If the user wants them to take part, that is an invitation into a working or shared graph, never into mind: there they enter with their own account and get their own `svatantra` role (**onboarding**); the depiction here stays as it is, unbound, and nothing of mind goes with them (**minding**, Privacy).
 - What's open with them is a vimarsha `vimarsha_of` their role (never `posed_to` a depiction): the relationship is carried by what passes between you.
 - **Groups** — a group role, also `pratibimba` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
@@ -298,7 +298,7 @@ A finished area is the other occasion. Nobody opens an archived graph; what the 
 
 - the graph list, access, roles, organization membership; which roles the user holds — derivable;
 - a stored cross-graph agenda (§4);
-- **a dossier on a person** — the role, binding and open matters are modelled (A2b); a judgement of a person is not a node;
+- **a dossier on a person** — the role and open matters are modelled (A2b); a judgement of a person is not a node;
 - a project's rules and process — AGENTS.md or the project graph, set by whoever holds them (the user's own working preference, a development one too, is theirs and does go in);
 - a copy of a project graph's content.
 
