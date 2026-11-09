@@ -13,7 +13,7 @@ The current user's personal mind graph holds the areas of their life and work, t
 
 **A repository without our cover** (the door's `Start`, `Only where the person chose it` — someone else's, an employer's, one they never chose for Verstak): neither reflex fires by itself. Nothing about that repository, its code, its people or its business goes into mind — not as a fact, a person, a lesson or a method — and the user's own fact only on their explicit word there ("remember …"); recall too waits for them to ask, and no start slice is read and no personal memory provided there unasked.
 
-Every user gets personal memory without being asked, in a session the door's `Start` runs in: the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then `references/minding-personal-realm.md` — its §1–2 opened and read whole before the first write — for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
+Every user gets personal memory without being asked, in a session the door's `Start` runs in by our cover (in an unmarked repository, only on their word about their memory — above): the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then `references/minding-personal-realm.md` — its §1–2 opened and read whole before the first write — for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
 ## Personal memory before reading or writing
 
