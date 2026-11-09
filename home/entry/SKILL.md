@@ -135,7 +135,7 @@ The knowledge you need is not in your context. Your own memory — training, ear
 
 Nodes contradicting each other or the world are a find: name it; the fix is a question to the steward, or by **writing** if the node is in your holon. Read the closed questions and risks at the subject's place too: they often keep a fact still in force.
 
-**A word the user gave in a case** — a permission or an answer not yet woven into a node — is what you seek as the answer, the one exception to `history` staying off this path: look for it addressed: `verstak_case(action="history", room=<case #N>, since=<[N] of the question>, keep_cursor=true)`, paged to the end, like a receipt — `key` narrows to ledger lines and never shows the user's words.
+**A word the user gave in a case** — a permission or an answer not yet woven into a node — is what you seek as the answer, the one exception to `history` staying off this path: look for it addressed: `verstak_case(action="history", room=<case #N>, since=<[N] of the question>, keep_cursor=true)` (no question asked → `since` the assignment's [N], else `from_start=true`), paged to the end, like a receipt — `key` narrows to ledger lines and never shows the user's words.
 
 Rungs 1–3 may go to a `recaller` subagent by a setting: what is sought, what counts as an answer, where you already searched (`verstak`, `Work goes to subagents`). Its find is reported, not established: open the node yourself before leaning on it; rungs 4–5 and the answer in the case stay yours.
 
