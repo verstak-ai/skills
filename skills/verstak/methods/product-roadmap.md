@@ -121,7 +121,7 @@ The assembled picture and what the graph found go on the first screen. Three art
 
 1. **The graph** — `verstak_orient(lens="bianhua")`; the HTML renders it (spine + directions in dependency order + risk flags).
 2. **`roadmap.md`**, in this order:
-   - **"The product, assembled"** — subsystems (one per repo) + the cross-repo spine, a sentence or two.
+   - **"The product, assembled"** — subsystems by subject, each repo named where it lives + the cross-repo spine, a sentence or two.
    - **"What the graph found"** — structural risks, each with its joint.
    - **"Next 3 moves"** — 3–5 lines.
    - **"What this product is today"** — the ground, every line cited.
