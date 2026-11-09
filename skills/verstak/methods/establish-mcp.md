@@ -14,6 +14,8 @@ Plugins bring it up themselves (Claude Code as the plugin's MCP entry `verstak`,
 
 ## First move — `doctor`
 
+**Your own Orca as an agent launcher:** before setting it up or launching, read `references/establish-mcp-orca.md` whole. A separate recipe: reading the demands and the dry plan launch no agent and turn on no automatic cycle.
+
 ```sh
 node ~/.verstak-bridge/verstak-bridge.mjs doctor      # or: node BRIDGE doctor
 ```
