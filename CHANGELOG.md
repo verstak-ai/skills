@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.37.0](https://github.com/verstak-ai/skills/compare/v3.36.1...v3.37.0) (2026-11-09)
+
+
+### Features
+
+* quiet by default — no invitation, no unasked align or onboarding, the skill loads only in repositories that chose verstak ([#386](https://github.com/verstak-ai/skills/issues/386)) ([a9fee54](https://github.com/verstak-ai/skills/commit/a9fee548ef249d800975bcbf00a062e19a931b2a))
+
 ## [3.36.1](https://github.com/verstak-ai/skills/compare/v3.36.0...v3.36.1) (2026-11-09)
 
 
