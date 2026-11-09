@@ -4,6 +4,7 @@
 import * as diagnostics from "node:diagnostics_channel";
 
 import { apiBase, FLAP_PAUSES_MS } from "../shared/channel.ts";
+import { namedFetch } from "../shared/http.ts";
 
 const HEADERS = "undici:request:headers";
 
@@ -45,7 +46,7 @@ export function watchAnswer(wsUrl: string): () => number | undefined {
  */
 export async function askAnswer(wsUrl: string): Promise<number | undefined> {
   try {
-    const r = await fetch(wsUrl.replace(/^ws/, "http"), { signal: AbortSignal.timeout(5000) });
+    const r = await namedFetch(wsUrl.replace(/^ws/, "http"), { signal: AbortSignal.timeout(5000) });
     void r.body?.cancel().catch(() => {});
     return r.status;
   } catch {

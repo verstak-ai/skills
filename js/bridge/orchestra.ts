@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { envName, ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
+import { readDemands } from "./orchestra-demands.ts";
 import type { OrchestraServe } from "./orchestra-door.ts";
 import { stepTact, tactStateOf } from "./orchestra-tact.ts";
 
@@ -71,6 +72,18 @@ export interface OrchestraNet {
  */
 export function orchestraServe(authDir: string, net?: OrchestraNet): OrchestraServe {
   return async (op, realms, gone) => {
+    if (op === "demands") {
+      const flag = readOrchestraFlag(authDir);
+      const boundary = [...new Set([...(flag?.realms ?? []), ...(net?.realms?.() ?? [])])];
+      const demands = await readDemands(
+        net?.base() ?? "",
+        net?.token() ?? null,
+        realms,
+        boundary,
+        gone,
+      );
+      return { ok: demands.complete, said: "", demands };
+    }
     if (op === "on") {
       if (!orchestraAdmitted()) return { ok: false, said: w().notAdmitted() };
       // A short rN does not ride REST as is (live probe: 404 "Realm not found") — the door

@@ -11,13 +11,15 @@ import { connect, createServer, type Server, type Socket } from "node:net";
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { orchestraDoorPath } from "../shared/seam-entrance.ts";
+import type { Demands } from "./orchestra-demands.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
 
-export type OrchestraOp = "on" | "off" | "status" | "step";
+export type OrchestraOp = "on" | "off" | "status" | "step" | "demands";
 export interface OrchestraAnswer {
   ok: boolean;
   said: string;
+  demands?: Demands;
 }
 /** What the door calls: the daemon's answer of one op (orchestra.ts serves it).
  * gone.gone: the caller left before the answer — a tact must not commit after its refusal (#8202). */
@@ -57,7 +59,7 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       const realms = Array.isArray(msg.realms)
         ? msg.realms.filter((x): x is string => typeof x === "string")
         : [];
-      if (op !== "on" && op !== "off" && op !== "status" && op !== "step") {
+      if (op !== "on" && op !== "off" && op !== "status" && op !== "step" && op !== "demands") {
         socket.end(JSON.stringify({ ok: false, said: w().unknownOp(op) }) + "\n");
         return;
       }

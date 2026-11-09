@@ -3,6 +3,7 @@
 // PATCH /standings/{id} {"model": null} with the key that opened the seat (api 0.123.0, #5083),
 // the seat's graph in X-NKS-Realm, required by the api (#99).
 import { apiBase } from "../shared/channel.ts";
+import { namedFetch } from "../shared/http.ts";
 import { type Answer } from "./call.ts";
 import { standingIdIn } from "./hold.ts";
 import { H } from "./holdstate.ts";
@@ -36,7 +37,7 @@ export async function clearSeatModel(realm: string): Promise<string | null> {
   };
   if (!id || !url) return fail("no seat id or channel");
   try {
-    const res = await fetch(`${apiBase(url)}/standings/${encodeURIComponent(id)}`, {
+    const res = await namedFetch(`${apiBase(url)}/standings/${encodeURIComponent(id)}`, {
       method: "PATCH",
       headers: { ...headers(), "x-nks-realm": apiRealm(realm) },
       body: JSON.stringify({ model: null }),

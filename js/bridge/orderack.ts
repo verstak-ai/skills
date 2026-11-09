@@ -2,6 +2,7 @@
 // with the key of the account that opened the seat (the read — orderread.ts). An answer the
 // api has not taken is repeated from the journal (orderjournal.ts) until it is taken.
 import { envName } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { scoped } from "../shared/scope.ts";
 import {
   ANSWER_WINDOW_MS,
@@ -61,7 +62,7 @@ export async function sendAck(
   reason?: string,
 ): Promise<"taken" | "later"> {
   try {
-    const res = await fetch(`${base}/me/orders/${encodeURIComponent(id)}/ack`, {
+    const res = await namedFetch(`${base}/me/orders/${encodeURIComponent(id)}/ack`, {
       method: "POST",
       headers: headers(),
       body: JSON.stringify({

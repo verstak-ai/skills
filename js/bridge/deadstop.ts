@@ -7,6 +7,7 @@
 // there a holder taking the name between the check and the revoke loses its seat — the race
 // this stop closes.
 import { apiBase } from "../shared/channel.ts";
+import { namedFetch } from "../shared/http.ts";
 import { revokeOwnPlaces } from "./caseexit.ts";
 import { dropConfirmed, seatKeyOf, stillOwn } from "./deadseat.ts";
 import { dropOwnHoldRecord } from "./holdrecord.ts";
@@ -48,7 +49,7 @@ export async function stopBySocket(
   if (!token) return { how: "absent", why: "no token in the socket address", ended: [] };
   let res: Response;
   try {
-    res = await fetch(`${apiBase(socketUrl)}/channel/ws/${token}/stop`, {
+    res = await namedFetch(`${apiBase(socketUrl)}/channel/ws/${token}/stop`, {
       method: "POST",
       signal: AbortSignal.timeout(5000),
     });

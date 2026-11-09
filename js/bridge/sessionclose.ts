@@ -5,6 +5,7 @@
 // already answered 404 for is not closed again. One attempt, bounded: a leave never hangs on
 // the network, and a refusal is only written down.
 import { envName } from "../delivery/index.ts";
+import { namedFetch } from "../shared/http.ts";
 import { scoped } from "../shared/scope.ts";
 import { CFG } from "./config.ts";
 import { errorMessage } from "./errors.ts";
@@ -46,7 +47,7 @@ async function send(s: HeldSession, why: string): Promise<void> {
   if (s.protocolVersion) headers["mcp-protocol-version"] = s.protocolVersion;
   let outcome: string;
   try {
-    const res = await fetch(CFG.serverUrl, {
+    const res = await namedFetch(CFG.serverUrl, {
       method: "DELETE",
       headers,
       signal: AbortSignal.timeout(CLOSE_MS),

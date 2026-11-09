@@ -1,5 +1,6 @@
 // The open stop orders read (graph @nks/nks-dev, nodes #7509, #7579): GET <api>/me/orders with
 // the account's key, page by page by next_since, from the cursor kept in the bridge's home.
+import { namedFetch } from "../shared/http.ts";
 import { headers, type Order, TIMEOUT_MS } from "./orderack.ts";
 import { readSince, settled, writeSince } from "./orderjournal.ts";
 
@@ -14,7 +15,7 @@ async function ordersPage(
 ): Promise<{ orders: Order[]; next: number } | null> {
   try {
     const q = `open=true&limit=${PAGE}${since ? `&since=${since}` : ""}`;
-    const res = await fetch(`${base}/me/orders?${q}`, {
+    const res = await namedFetch(`${base}/me/orders?${q}`, {
       headers: headers(),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

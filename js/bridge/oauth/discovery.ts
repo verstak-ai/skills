@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 
 import { envName } from "../../delivery/index.ts";
+import { namedFetch } from "../../shared/http.ts";
 import { noteServerDate, now } from "../clock.ts";
 import { CFG } from "../config.ts";
 import { errorMessage } from "../errors.ts";
@@ -14,7 +15,7 @@ export async function fetchJson<T = any>( // eslint-disable-line @typescript-esl
   opts: RequestInit = {},
   timeoutMs = 15_000,
 ): Promise<T> {
-  const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(timeoutMs) });
+  const res = await namedFetch(url, { ...opts, signal: AbortSignal.timeout(timeoutMs) });
   noteServerDate(res);
   if (!res.ok) throw new Error(`${opts.method || "GET"} ${url} -> ${res.status}`);
   return res.json() as Promise<T>;

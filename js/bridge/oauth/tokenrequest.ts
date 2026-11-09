@@ -1,3 +1,4 @@
+import { namedFetch } from "../../shared/http.ts";
 import { noteServerDate, now } from "../clock.ts";
 import { TokenError } from "../errors.ts";
 import { clearGrantState, grantLog, loadStore, saveStore } from "../store.ts";
@@ -12,7 +13,7 @@ interface TokenEndpointError {
 }
 
 async function tokenRequestOnce(meta: Meta, params: Record<string, string>): Promise<Tokens> {
-  const res = await fetch(meta.as.token_endpoint, {
+  const res = await namedFetch(meta.as.token_endpoint, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams(params).toString(),
