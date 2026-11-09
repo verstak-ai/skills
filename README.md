@@ -42,7 +42,7 @@ The door selects methods for reading, writing, designing and weaving through the
 
 ## Install
 
-Installed, verstak stays quiet in every repository you haven't chosen: no invitation, the
+From release 3.37.0, installed verstak stays quiet in every repository you haven't chosen: no invitation, the
 skill isn't loaded, no file written, nothing of that repository in your personal memory. A
 repository is chosen by its `AGENTS.md` cover (written by `align`) or by asking for verstak
 in it — your own projects on verstak, your employer's untouched. Until the shared bridge

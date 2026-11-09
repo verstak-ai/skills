@@ -23,7 +23,7 @@ No harness login command and no connector button is involved.
 
 ## Quiet outside the repositories you choose
 
-Installing verstak changes nothing in a repository you haven't chosen for it: no
+From release 3.37.0, installing verstak changes nothing in a repository you haven't chosen for it: no
 invitation, the skill isn't loaded, no file is written, and nothing of that repository goes
 into your personal memory. A repository is chosen by its `AGENTS.md` cover (the `align`
 method writes it), or by asking for verstak in it. So some repositories can run on
