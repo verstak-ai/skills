@@ -34,10 +34,11 @@ A seat comes with the word "watch", a `start` with a seat address, a `verstak �
 **Contract `12`** (the description's number; **align**, `Contract`). The cover is the `verstak:` block of `AGENTS.md`'s YAML front matter: `graph`, `holon`, `agent_role`, `contract`, `stamp`, and `rituals` where the person narrowed the delivery's rituals; judgment slots live in the body's `Project`.
 - **None of the three signs of alignment** (`verstak`'s Survey) → only the offer of **onboarding**'s harness branch, which runs on the person's word; the items below don't fire there.
 - **`contract` below `12`** → **align**, full arc; no file in a repository bearing a sign → its first round. An older cover — flat slots, a section or table, the stamp line at the file's end (`verstak align: contract N`, below `10`) — is align's `From contract 9`; a date, no contract at all, or a hole naming a node ranks below every number; `verstakify: contract N` counts on the same counter.
+- **`contract` above `12`** → the file is ahead of this delivery: no **align** run, the number never rewritten — update the delivery (**establish-mcp**, `Updating`; a shadowing copy of the skill too), then re-read the description's number.
 - **Another delivery's cover** — a front-matter block under another root key carrying a `contract`, or a last line naming another skill's alignment (`<name>: contract N`, not `verstak align` or `verstakify`), and none of ours → a sibling delivery aligned this repository. Work by its `AGENTS.md`; don't align it or rewrite its cover unasked — only on the user's word, which replaces it deliberately.
 - **`contract` current, but your role files are missing on this machine** (a fresh clone; a pull took them out of the index) → only **align**, Step 6: they are a projection on the machine, not part of the repo.
 - **A `Project` slot reads `open`** → one `read` of the holon's alignment case (`verstak_case(action="at", node=<holon>)`), then **align**, round 2; **the run doesn't wait for the user** (**align**, "Who runs the alignment").
-- **An `AGENTS.md` line contradicts the method → say so.** `contract` below → the method is right; equal → template defect, **feedback**.
+- **An `AGENTS.md` line contradicts the method → say so.** `contract` below → the method is right; above → the file is right (update the delivery, above); equal → template defect, **feedback**.
 
 ## Speak, then listen — watch only
 
