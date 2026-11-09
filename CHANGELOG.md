@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.38.0](https://github.com/verstak-ai/skills/compare/v3.37.2...v3.38.0) (2026-11-09)
+
+
+### Features
+
+* bridge core v7.36.1 — spawned-for admission, contract support boundary 11/12 ([#394](https://github.com/verstak-ai/skills/issues/394)) ([cbb7566](https://github.com/verstak-ai/skills/commit/cbb7566b922a7b3272aa1d691711754e7f6e3f1a))
+
 ## [3.37.2](https://github.com/verstak-ai/skills/compare/v3.37.1...v3.37.2) (2026-11-09)
 
 
