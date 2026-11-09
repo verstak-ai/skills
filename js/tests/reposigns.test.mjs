@@ -321,7 +321,11 @@ const startInput = (cwd) => ({
   hook_event_name: "SessionStart",
   source: "startup",
 });
-const LINE = `${ONBOARD_START.en.start()}\n`;
+// The owner's word (graph @nks/nks-dev, node #10020): no invitation unasked in a repository
+// the person did not choose — an unmarked one is silent like every other.
+test("onboarding invitation: the word is empty — the hook stays silent", () => {
+  assert.equal(ONBOARD_START.en.start(), "");
+});
 
 for (const c of CASES)
   test(`claude code hook: ${c.name}`, (t) => {
@@ -331,7 +335,7 @@ for (const c of CASES)
     const elapsed = Date.now() - started;
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stderr, "");
-    assert.equal(r.stdout, c.verdicts["claude-code"] === "invite" ? LINE : "");
+    assert.equal(r.stdout, "", "no invitation, no word: silence in every repository");
     assert.ok(elapsed < 1000, `fractions of a second: ${elapsed}ms`);
   });
 
@@ -349,23 +353,17 @@ test("claude code hook: no plugin root — silence, exit 0, no error", (t) => {
   assert.equal(r.stderr, "");
 });
 
-test("claude code hook: one English line naming the skill and its method", (t) => {
+test("claude code hook: an unmarked repository — silence, no invitation", (t) => {
   const r = hook(t, startInput(lay(t, { git: "dir" })));
-  assert.equal(r.status, 0);
-  assert.equal(r.stdout, LINE);
-  assert.equal(r.stdout.trimEnd().split("\n").length, 1);
-  assert.match(r.stdout, /\bverstak skill\b.*\bonboarding method\b/);
-  assert.match(
-    r.stdout,
-    /offer the person its onboarding method; it does not hold up their request/,
-  );
-  assert.doesNotMatch(r.stdout, /before anything else/, "an offer, not a condition of the request");
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stdout, "");
+  assert.equal(r.stderr, "");
 });
 
 test("claude code hook: without input — the project variable, then its own directory", (t) => {
   const fresh = lay(t, { git: "dir" });
-  assert.equal(hook(t, undefined, { project: fresh }).stdout, LINE);
-  assert.equal(hook(t, "not json", { cwd: fresh }).stdout, LINE);
+  assert.equal(hook(t, undefined, { project: fresh }).stdout, "");
+  assert.equal(hook(t, "not json", { cwd: fresh }).stdout, "");
   assert.equal(hook(t, undefined, { cwd: lay(t) }).stdout, "", "outside — silence");
 });
 

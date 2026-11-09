@@ -42,6 +42,13 @@ The door selects methods for reading, writing, designing and weaving through the
 
 ## Install
 
+Installed, verstak stays quiet in every repository you haven't chosen: no invitation, the
+skill isn't loaded, no file written, nothing of that repository in your personal memory. A
+repository is chosen by its `AGENTS.md` cover (written by `align`) or by asking for verstak
+in it — your own projects on verstak, your employer's untouched. Until the shared bridge
+core's per-session opt-in ships, the harness still starts the bridge process in every
+session (it lists its tools and may connect). Details: [`SETUP.md`](SETUP.md).
+
 ### Hand setup to your agent
 
 ```text
@@ -66,8 +73,8 @@ follow.
 /plugin install verstak@verstak-ai
 ```
 
-The single skill installs under the plugin; invoke `/verstak:verstak` or let the
-agent select it. Third-party marketplaces do not auto-update by default:
+The single skill installs under the plugin; invoke `/verstak:verstak`, or let the
+agent select it in a repository carrying the cover. Third-party marketplaces do not auto-update by default:
 
 ```sh
 /plugin marketplace update verstak-ai

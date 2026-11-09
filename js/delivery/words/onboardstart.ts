@@ -1,16 +1,16 @@
 // The first word in a repository not yet aligned for the agent: no cover, no start hook,
-// no align stamp (the core's shared/reposigns.ts) — one line, from the Claude Code plugin's
-// SessionStart hook and before an OpenCode root's first request.
+// no align stamp (the core's shared/reposigns.ts). Empty: a repository the person did not
+// choose gets no invitation unasked (graph @nks/nks-dev, node #10020); the core's Claude Code
+// SessionStart hook and OpenCode root skip an empty word, so the start stays silent.
 import type { Lang } from "../lang.ts";
 
 export interface OnboardStartWords {
-  /** No sign of alignment: the onboarding method is offered, never a condition of the request. */
+  /** No sign of alignment: silence — align and onboarding wait for the person's word. */
   start: () => string;
 }
 
 export const ONBOARD_START: Readonly<Record<Lang, OnboardStartWords>> = {
   en: {
-    start: () =>
-      "Verstak: this repository is not aligned yet — load the verstak skill and offer the person its onboarding method; it does not hold up their request and writes nothing without their word.",
+    start: () => "",
   },
 };

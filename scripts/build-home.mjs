@@ -104,7 +104,7 @@ const SKILLS = {
   },
   align: {
     description:
-      "Align a repository to the AGENTS.md contract: graph, focus holon and agent role, the AGENTS.md cover and its slots, the ritual hooks for each harness, delegation roles, the alignment case and its second round. Triggers: 'align this repo', 'verstak align', 'set up AGENTS.md', 'update AGENTS.md', 'bring this project up to standard'; an AGENTS.md missing, unstamped or below the contract. Needs the verstak_* tools.",
+      "Align a repository to the AGENTS.md contract: graph, focus holon and agent role, the AGENTS.md cover and its slots, the ritual hooks for each harness, delegation roles, the alignment case and its second round. Triggers: 'align this repo', 'verstak align', 'set up AGENTS.md', 'update AGENTS.md', 'bring this project up to standard'; unasked only where AGENTS.md carries the verstak cover, unstamped or below the contract — a repository without it only on the person's word. Needs the verstak_* tools.",
     rewrites: [["a roadmap teaser (`methods/product-roadmap.md`, quick mode)", "a roadmap teaser (the plugin's product-roadmap method, quick mode; not in this catalogue)"]],
   },
   architect: {

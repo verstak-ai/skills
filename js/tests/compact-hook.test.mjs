@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { test } from "node:test";
 
-import { COMPACTION, envName, ONBOARD_START } from "../delivery/index.ts";
+import { COMPACTION, envName } from "../delivery/index.ts";
 import { BUILT_ONBOARD_HOOK, REPO } from "./built.mjs";
 
 const COMMAND = JSON.parse(
@@ -95,7 +95,7 @@ test("compact hook: one seat for the directory — role, seat, the door and the 
   );
   assert.match(out, /^Verstak: context compacted\. Role #7 in @tester\/work, seat m3\.skills /);
   assert.match(out, /verstak skill.*Recalling/);
-  assert.ok(!out.includes(ONBOARD_START.en.start()), "no invitation after a compaction");
+  assert.doesNotMatch(out, /onboarding method/, "no invitation after a compaction");
 });
 
 const AMBIGUOUS = {
@@ -129,8 +129,8 @@ test("compact hook: no seat in a repository not aligned — silence", (t) => {
   }
 });
 
-test("compact hook: startup keeps the invitation, not the compaction word", (t) => {
+test("compact hook: startup in an unmarked repository — silence, not the compaction word", (t) => {
   const s = lay(t, false);
   hold(s.auth, { name: "m3.skills", cwd: s.cwd, client: "claude-code" });
-  assert.equal(ok(hook(s, "startup")), `${ONBOARD_START.en.start()}\n`);
+  assert.equal(ok(hook(s, "startup")), "");
 });

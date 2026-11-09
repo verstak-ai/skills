@@ -21,6 +21,17 @@ verstak is two parts:
 Sign-in is the bridge's own: OAuth through a local link it prints, or a personal token.
 No harness login command and no connector button is involved.
 
+## Quiet outside the repositories you choose
+
+Installing verstak changes nothing in a repository you haven't chosen for it: no
+invitation, the skill isn't loaded, no file is written, and nothing of that repository goes
+into your personal memory. A repository is chosen by its `AGENTS.md` cover (the `align`
+method writes it), or by asking for verstak in it. So some repositories can run on
+verstak, some on another delivery, some on your own setup — verstak for your own projects,
+say, while your employer's repositories stay untouched. One limit of this release: until
+the shared bridge core's per-session opt-in ships, the harness still starts the bridge
+process in every session — it lists its tools and may connect to the graph.
+
 Report the literal blocker rather than claiming an install succeeded.
 
 **Reporting to the user:** a progress report is two things — what is done, and the one
@@ -348,9 +359,10 @@ the connection are picked up, then to start the new session with the `verstak` d
 
 In the fresh session the user calls the `verstak` door and says what they want in their
 own words. The agent checks the connection — `verstak_realm(action="list")` answers with
-the graphs — and the door leads from there: a repository without `AGENTS.md` gets the
-`align` method, which brings it to the verstak standard (`AGENTS.md` + session rituals) and
-seeds the graph with the structure the codebase already shows.
+the graphs — and the door leads from there. A repository they want on verstak they ask for
+by name ("/verstak align this repo"): the `align` method brings it to the verstak standard
+(`AGENTS.md` + session rituals) and seeds the graph with the structure the codebase already
+shows. Nothing offers it unasked.
 
 ## Troubleshooting
 
