@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.35.6](https://github.com/verstak-ai/skills/compare/v3.35.5...v3.35.6) (2026-11-09)
+
+
+### Bug Fixes
+
+* minding — a described person is a depicted role, not a graph user ([#380](https://github.com/verstak-ai/skills/issues/380)) ([b2aecb4](https://github.com/verstak-ai/skills/commit/b2aecb4417e28d018775dee1f1fbafa0c272b1b4))
+
 ## [3.35.5](https://github.com/verstak-ai/skills/compare/v3.35.4...v3.35.5) (2026-11-08)
 
 
