@@ -191,7 +191,7 @@ var LOOK = `${tool("look")}(realm="mind", node_id="#N")`;
 // js/delivery/words/onboardstart.ts
 var ONBOARD_START = {
   en: {
-    start: () => "Verstak: this repository is not aligned yet — load the verstak skill and offer the person its onboarding method; it does not hold up their request and writes nothing without their word."
+    start: () => ""
   }
 };
 
