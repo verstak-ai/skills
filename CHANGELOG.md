@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.36.1](https://github.com/verstak-ai/skills/compare/v3.36.0...v3.36.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* align never lowers a newer cover and updates the delivery first; assistant lists cases by the role's board call ([#384](https://github.com/verstak-ai/skills/issues/384)) ([c0f5835](https://github.com/verstak-ai/skills/commit/c0f5835c2193656c3e5ad92b378cece671a98087))
+
 ## [3.36.0](https://github.com/verstak-ai/skills/compare/v3.35.6...v3.36.0) (2026-11-09)
 
 
