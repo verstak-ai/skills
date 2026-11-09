@@ -11,7 +11,9 @@ The current user's personal mind graph holds the areas of their life and work, t
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
 | **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development; mid-project too, when they say how agents work for them ("always do it so", "don't wait", "in parallel", "a short plan first", "ask me by card"): in the same move you act on it, the errand still the case's; say you kept it in one line only where they alone read — in a shared case the line would reveal the record | §1b — into their verified personal mind under its area's holon; a person as a depicted role in a group; never harness-local memory |
 
-Every user gets personal memory without being asked: the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then `references/minding-personal-realm.md` — its §1–2 opened and read whole before the first write — for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
+**A repository without our cover** (the door's `Start`, `Only where the person chose it` — someone else's, an employer's, one they never chose for Verstak): neither reflex fires by itself. Nothing about that repository, its code, its people or its business goes into mind — not as a fact, a person, a lesson or a method — and the user's own fact only on their explicit word there ("remember …"); recall too waits for them to ask, and no start slice is read and no personal memory provided there unasked.
+
+Every user gets personal memory without being asked, in a session the door's `Start` runs in by our cover (in an unmarked repository, only on their word about their memory — above): the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then `references/minding-personal-realm.md` — its §1–2 opened and read whole before the first write — for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
 ## Personal memory before reading or writing
 
@@ -58,7 +60,7 @@ A recalled fact is a ground, not a sanction. Set it against the case at hand —
 
 ## §1b The write reflex
 
-The user's own + useful later + serves no single project → here. Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).
+The user's own + useful later + serves no single project → here; in a repository without our cover, only on their explicit word, and never a fact of that repository (`Two reflexes`). Shapes: `references/minding-personal-realm.md` — machines (§7), people (§2b), dated facts (§7), lessons (§8).
 
 **Whose fact is it?** — where agents misroute most. Infrastructure that exists for **this project** (servers, pipeline, dated duties) is the project graph's, however long it outlives the repo; here goes only the user's **own**. A card carries only its subject's traits: a project's deploy procedure is not a trait of the machine. **Subject and ownership pick the home, not the topic**: the user's own working preference ("show me the plan first", "I review diffs in the terminal") stays theirs when it is about development, and one about how agents work with them goes into the slice — `attrs` `{"slice":"agents"}`; an older such card without the label gets it in the same move; a project's rule belongs to the project, set by whoever holds its rules, and is never carried into mind. Route in order:
 
@@ -134,6 +136,8 @@ The user appears in each graph through one **owner role** (`svatantra` 主) boun
 ## Privacy — mind doesn't leave
 
 One exception, the user's own word: a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case — never into the project graph, commits or PRs. Everything else below holds.
+
+The other way holds too: a repository the person didn't choose for Verstak gives mind nothing of its own (`Two reflexes`).
 
 Don't retell mind's facts or structure (which holons, people, groups, cards exist) into project graphs, to other agents, into PRs, commits or any shared surface — not even that something is recorded. Before an act on a shared surface (a commit, a config line, a message), ask: **would its reader learn the record from the act?** Yes → ground it in the project's own source, or ask the user where only they read it. The line holds from the first read: retrieving and sorting candidates happens out of shared view too. The user's other agents read it with their own access.
 
