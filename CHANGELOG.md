@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.37.1](https://github.com/verstak-ai/skills/compare/v3.37.0...v3.37.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* methods level with the sibling's later fixes — posts, asking without joining, companion slice, receipts, watch, recall ([#391](https://github.com/verstak-ai/skills/issues/391)) ([313893d](https://github.com/verstak-ai/skills/commit/313893d77d4dd1bc32e0acda1bfd208cf1a44fa6))
+* the person chooses the graph; agent roles belong to the repository, not people; no root holon ([#389](https://github.com/verstak-ai/skills/issues/389)) ([e379be5](https://github.com/verstak-ai/skills/commit/e379be5e429c76953726e2441015c9a93f7b512b))
+
 ## [3.37.0](https://github.com/verstak-ai/skills/compare/v3.36.1...v3.37.0) (2026-11-09)
 
 
