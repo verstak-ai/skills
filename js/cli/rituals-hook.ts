@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 
 import { RITES, TURN } from "../delivery/index.ts";
+import { repoContractWarning } from "../shared/covercontract.ts";
 import { wordsIn } from "../shared/lang.ts";
 import { mergeHeads, ritualCover, startWord } from "../shared/ritualcover.ts";
 import { merged, pushedTo } from "../shared/ritualjudge.ts";
@@ -47,14 +48,18 @@ function printed(r: unknown): { output: string; exit: number | null } {
 /** The words this event calls for in the session's repository. */
 function riteWords(input: HookInput, dir: string): string[] {
   const cover = ritualCover(dir);
-  if (!cover) return [];
   const event = input.hook_event_name;
   if (event === "SessionStart") {
     const source = typeof input.source === "string" ? input.source : "startup";
-    if (source === "compact" || !cover.on.has("start")) return [];
-    if (standingRites(cover.root, source).has("hook.start")) return [];
-    return [startWord(cover)];
+    if (source === "compact") return [];
+    const warning = repoContractWarning(dir, cover?.lang);
+    const start =
+      cover?.on.has("start") && !standingRites(cover.root, source).has("hook.start")
+        ? startWord(cover)
+        : null;
+    return [warning, start].filter((s): s is string => !!s);
   }
+  if (!cover) return [];
   if (event !== "PostToolUse" || input.tool_name !== "Bash") return [];
   const own = standingRites(cover.root, "Bash");
   const call = {

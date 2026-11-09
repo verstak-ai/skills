@@ -5,12 +5,9 @@
 // ctx.tool.transform under its own name: OpenCode's native `mcp` entry names a foreign
 // tool <entry>.<tool> (observed on 2.0.9), and every skill phrase calling a tool by name
 // would turn false.
-//
-// A root owns its bridge/socket/MCP session; a child borrows only reads until its stand (#5154).
-//
 // Tool transforms serve the cached list and status without waiting for sign-in.
 // The server list replaces them in the background via ctx.tool.reload().
-import { LOGGERS, OPENCODE, PLUGIN } from "../delivery/index.ts";
+import { LOGGERS, method, OPENCODE, PLUGIN, SPAWNED_FOR_ENV } from "../delivery/index.ts";
 import { Bridge, toParameters } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
 import { createAdopt } from "./adopt.ts";
@@ -41,7 +38,7 @@ import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { type PutDown } from "./putdown.ts";
 import { revokeAsLauncher } from "./release.ts";
-import { canonOf, type HeldSeat } from "./rootseat-by.ts";
+import { canonOf, type SeatAnswer } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
 import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
 import { asSatellite, STAND_TOOL, standsBy } from "./satellite.ts";
@@ -64,6 +61,9 @@ export async function setupTools(
   closed: Closed = () => false,
   halted: (session: string | null, signal?: AbortSignal) => Promise<string | null> = async () =>
     null,
+  launchBasis: (session: string, name: string, args: Record<string, unknown>) => void = () => {},
+  claiming: (session: string) => boolean = () => false,
+  verifyClaim: (session: string, args: Record<string, unknown>, result: unknown) => void = () => {},
 ): Promise<ToolsHalf> {
   const W = words(OPENCODE);
   const P = words(PLUGIN);
@@ -138,7 +138,7 @@ export async function setupTools(
       },
       args,
     );
-    slot.bridge.start(hostEnv);
+    slot.bridge.start({ ...hostEnv, [SPAWNED_FOR_ENV]: undefined });
     shake(slot);
     return slot;
   }
@@ -195,6 +195,7 @@ export async function setupTools(
     awaitReady: (slot) => awaitReady(slot),
     callThrough,
     modelOf: (s) => models.of(s),
+    claiming,
     failed: (word) => say(word, "error"),
     stood: (slot) => keeper.stood(slot),
     forgot: (s) => keeper.forget(s),
@@ -251,10 +252,14 @@ export async function setupTools(
       slots.set(root, slot);
       unasked.add(slot);
     }
-    // A previous instance's seat returns from disk by the session's directory before the first call; never for a foreign root.
+    // Claims bind session identity without returning an old place; ordinary roots return by directory.
     const s = slot;
     if (far !== "foreign" && unasked.delete(s))
-      s.resume = keeper.resume(s, root).finally(() => (s.resume = null));
+      s.resume = (
+        claiming(root)
+          ? awaitReady(s).then(() => s.bridge.request(method("resume"), { session: root }))
+          : keeper.resume(s, root)
+      ).finally(() => (s.resume = null));
     if (touch) slot.lastCall = Date.now();
     return slot;
   }
@@ -360,12 +365,13 @@ export async function setupTools(
     input: any,
     sessionID: string,
     service = false, // the launch line is a service move, not the agent's work (#6510)
-  ): Promise<{ content: string; place?: HeldSeat; provisional?: boolean; key?: string }> {
+  ): Promise<SeatAnswer> {
     await awaitReady(slot);
     if (slot.resume) await slot.resume; // the seat is returning from disk — do not take it twice
     seats.guard(sessionID, service);
     // No ceiling: the v2 execute context carries no abort signal.
     const args: Record<string, unknown> = { ...(input ?? {}) };
+    launchBasis(sessionID, name, args);
     // One seat per bridge: a child standing by its own call gets its own bridge (#5154).
     if (standsBy(name, args) && slot.session !== sessionID) {
       // The parent's seat is unknown — a refusal (#6550 item 2).
@@ -392,6 +398,7 @@ export async function setupTools(
     if (!service && slot.child && slot.satelliteOf && slot.session === sessionID)
       leads.dispatched(sessionID, name, args);
     const result = await slot.bridge.request("tools/call", { name, arguments: args }, { service });
+    verifyClaim(sessionID, args, result);
     const out = seats.answer(
       slot,
       name,

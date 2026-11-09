@@ -32,6 +32,7 @@ import { createRites } from "./rites.ts";
 import { createRootSeats } from "./rootseat.ts";
 import { startWords, watchCover } from "./rootseat-start.ts";
 import { setupSkillReads } from "./skillread.ts";
+import { createSpawnStarts } from "./spawned-for.ts";
 import { type Say, setupTools } from "./tools.ts";
 import { createTurnEnds } from "./turnend.ts";
 import { createTwins, sweepAll } from "./twins.ts";
@@ -59,6 +60,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // and an ownerless bridge's frame goes to the freshest one seen — the v2 context lists no sessions.
   const roots = new Map<string, string>();
   const seen = new Map<string, number>();
+  const spawnStarts = createSpawnStarts((sessionID) => ctx.session.context({ sessionID } as any));
   // Child → parent as learnt: the owner's stop reaches a session's descendants (channel.ts, #7440).
   const parents = new Map<string, string>();
   async function rootOf(sessionID: string): Promise<string> {
@@ -171,6 +173,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       closed,
       // No channel half — no interrupt: the order's stop is refused, not reported executed.
       (s, signal) => (ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN)),
+      (s, name, args) => spawnStarts.apply(s, name, args),
+      (s) => spawnStarts.has(s),
+      (s, args, result) => spawnStarts.verify(s, args, result),
     );
   } catch (e) {
     say(words(PLUGIN).notRaised((e as Error).message), "error");
@@ -183,7 +188,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     seat: (s, realm, karta, cancelled) => half.seatRoot(s, realm, karta, cancelled),
     cancel: (s) => half.cancelSeat(s),
     release: (s) => half.releaseSeat(s),
-    finished: (s) => half.finishSeat(s),
+    finished: (s) => {
+      if (!spawnStarts.has(s)) half.finishSeat(s);
+    },
     tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } }),
     steer: (s, text) => teller(ctx, say, closed)(s, text, false),
   });
@@ -218,15 +225,24 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       prepared.put(commands.word(sid, p.metadata));
       turns.prompt(sid, p.prompt.text);
       const root = (await rootOf(sid)) === sid;
-      const word = await half.launch(sid, p.prompt.text);
-      prepared.put(word);
-      const rite = root && !closed(sid) ? await rites.word(sid) : null;
-      prepared.put(rite);
-      const start = root ? await started(sid) : [];
-      for (const w of start) prepared.put(w);
-      // A root's start word: its seating's stand was a service move the model never read — the rules go beside it.
-      if (start.length) prepared.put(await (rulesOf(sid) ?? null));
-      if (root) prepared.ride();
+      try {
+        const launchText = await spawnStarts.prompt(sid, p.prompt.text, String(p.messageID));
+        const word = await half.launch(sid, launchText);
+        prepared.put(word);
+        const rite = root && !closed(sid) ? await rites.word(sid) : null;
+        prepared.put(rite);
+        const start = root ? await spawnStarts.start(sid, () => started(sid)) : [];
+        spawnStarts.guard(sid);
+        for (const w of start) prepared.put(w);
+        // A service seating's stand was not read by the model; its rules go beside it.
+        if (start.length) prepared.put(await (rulesOf(sid) ?? null));
+        spawnStarts.guard(sid);
+        if (root) prepared.ride();
+      } catch (e) {
+        await spawnStarts.cleanup(sid, () => half.releaseSeat(sid));
+        if (root) half.finishSeat(sid);
+        throw e;
+      }
     });
   } catch (e) {
     say(W.launchDown((e as Error).message), "error");
@@ -251,6 +267,13 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
         } else await compaction.tell(req);
         if (hook === "context") {
           const sid = String(req.sessionID);
+          try {
+            spawnStarts.guard(sid);
+          } catch (e) {
+            await spawnStarts.cleanup(sid, () => half.releaseSeat(sid));
+            throw e;
+          }
+          if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
           for (const text of ready.words) req.system.push({ type: "text", text });
           // Counts wake no turn; take them only when their own root actually requests a model.
@@ -320,6 +343,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
           case "session.deleted":
             if (!id) break;
             hookContext.forget(id);
+            spawnStarts.forget(id);
             commands.forget(id);
             pulse.forget(id);
             turns.forget(id);

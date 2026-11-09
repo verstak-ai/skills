@@ -26,9 +26,15 @@ export const COVER = {
       roleQuotes: ['"', '"'],
       /**
        * Align's stamp in the cover file: "(verstak align: contract N, stamped …"; before the
-       * contract counter it read "(verstakify: contract DATE".
+       * contract counter it read "(verstakify: contract DATE". Capture 1 is the contract number.
        */
-      stamp: /\((?:verstak align:\s*contract\s*`?\d+`?\s*,\s*stamped|verstakify:\s*contract\b)/,
+      stamp: /\((?:verstak align:\s*contract\s*`?(\d+)`?\s*,\s*stamped|verstakify:\s*contract\b)/,
+      /**
+       * The older stamp lines' contract number, capture 1: "(verstak align: contract N" and
+       * "(verstakify: contract N" at a line's start; a date there is no contract number.
+       */
+      contractStamp:
+        /^[\s*_]*\((?:verstak align|verstakify):\s*contract\s*`?(\d+)`?(?=\s*[,\u2014)])/m,
     },
   },
   /**

@@ -7,6 +7,7 @@
 // says the same: 0 — nothing left, 3 — something left, 1 — refused and nothing written, 2 — usage.
 import { COVER, PREPARE, type PrepareLeft } from "../delivery/index.ts";
 import { coverBlock, type CoverData, ritualsOf } from "../shared/coverblock.ts";
+import { repoContractWarning } from "../shared/covercontract.ts";
 import { setLang, words } from "../shared/lang.ts";
 import {
   checkOpencode,
@@ -57,6 +58,7 @@ function say(json: boolean, code: number, body: Record<string, unknown>): void {
   else {
     const left = (body.left ?? []) as { item: string; why: string }[];
     const lines = [
+      ...((body.warnings ?? []) as string[]),
       ...((body.done ?? []) as string[]).map((x) => `+ ${W.head("done")}: ${x}`),
       ...((body.kept ?? []) as string[]).map((x) => `= ${W.head("kept")}: ${x}`),
       ...left.map((x) => `- ${W.head("left")}: ${x.item} — ${x.why}`),
@@ -81,6 +83,7 @@ export async function runPrepare(argv: string[]): Promise<void> {
   const dir = f["--dir"] ?? process.cwd();
   const root = repoRoot(dir);
   if (!root) return say(json, 1, { refused: W.notRepo(dir) });
+  const warning = repoContractWarning(root);
 
   const given: CoverData = {
     graph: f["--graph"],
@@ -115,7 +118,7 @@ export async function runPrepare(argv: string[]): Promise<void> {
       }
     : null;
   const { on } = ritualsOf(coverBlock(cover.text, COVER.root));
-  const unparsed = prepareHooks(root, addr, out, on);
+  const unparsed = prepareHooks(root, addr, out, on, !!warning);
   if (unparsed) return say(json, 1, { refused: W.unparsed(unparsed) });
   writeAgents(cover, out);
   writeReality(root, f["--case"], out);
@@ -133,6 +136,7 @@ export async function runPrepare(argv: string[]): Promise<void> {
     repository,
     derived,
     cover: d,
+    ...(warning ? { warnings: [warning] } : {}),
     done: out.done,
     kept: out.kept,
     left,

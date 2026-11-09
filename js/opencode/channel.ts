@@ -19,7 +19,7 @@ import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, OPENCODE, PLUGIN } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
-import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
+import { batchText, markFrame } from "../shared/frame-text.ts";
 import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { carryGraphReceipt } from "../shared/graph-receipt.ts";
 import { words } from "../shared/lang.ts";
@@ -32,7 +32,7 @@ import { createHalts, descendantsOf } from "./halts.ts";
 import { archiver } from "./host.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
-import { freshRiders, handRiders, takeRiders, toPile } from "./piles.ts";
+import { freshRiders, handRiders, ridersInBatch, rideWith, takeRiders, toPile } from "./piles.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -207,9 +207,7 @@ export function setupChannel(
     }
     const at = Date.now();
     p.pending = { session: "", inbox: null, at };
-    const text = [batchHead([...takeRiders(p, false).kept, ...frames]), ...batchLines(frames)].join(
-      "\n",
-    );
+    const text = batchText([...takeRiders(p, false).kept, ...frames], frames);
     void deliver(p.session, text, W.caseBatch(frames.length), "queue", p.child).then((got) => {
       // Without an id the taking is not seen: the next pile goes by the window.
       const inbox = got?.inbox && !takenEarly.delete(got.inbox) ? got.inbox : null;
@@ -259,15 +257,16 @@ export function setupChannel(
   /** The pile's frames whose event has not entered the session yet (seen.ts eventIn). */
   const fresh = freshRiders;
 
-  /** The piles' riding counts as head lines; the piles give them away. */
-  function riding(ps: Pile[], graph = false): string[] {
-    const got = ps.flatMap((p) => {
-      const out = takeRiders(p, graph);
-      if (graph) noteOwn(p, out.keys);
-      return out.kept;
-    });
-    return got.length ? [batchHead(got), ...batchLines(got)] : [];
-  }
+  /**
+   * The piles' riding counts as head lines, the carrier frame under its case's count (#9654);
+   * the piles give them away.
+   */
+  const riding = (ps: Pile[], frame: Frame | null, raw: string): string =>
+    rideWith(
+      ps.flatMap((p) => takeRiders(p, false).kept),
+      frame,
+      raw,
+    );
 
   function loud(session: string | null, text: string, child = false): void {
     say(text, "error");
@@ -283,12 +282,13 @@ export function setupChannel(
   function batch(session: string | null, child: boolean, ev: ChannelEvent, what: string): void {
     const parts = separateGraphBatch(ev);
     for (const frame of parts.graph) pile(session, child, frame);
-    ev = parts.rest;
-    noteOwn(piles.get(`${child ? "child" : "root"}:${session ?? ""}`), ev.marks);
-    if (!ev.text) return;
-    if (launcherWordIn(session, child, ev.frames))
-      void deliver(session, ev.text, what, "steer", child);
-    else if (!tact(session, child, ev, what)) void deliver(session, ev.text, what, "queue", child);
+    const own = piles.get(`${child ? "child" : "root"}:${session ?? ""}`);
+    noteOwn(own, parts.rest.marks);
+    if (!parts.rest.text) return;
+    const b = { ...parts.rest, text: ridersInBatch(own, parts.rest) };
+    if (launcherWordIn(session, child, b.frames))
+      void deliver(session, b.text, what, "steer", child);
+    else if (!tact(session, child, b, what)) void deliver(session, b.text, what, "queue", child);
   }
 
   const launcherWordIn = (
@@ -437,7 +437,7 @@ export function setupChannel(
           noteOwn(own, deliveryKeys(frame)); // the frame enters as text — the pile's count skips it
           void deliver(
             session,
-            [...riding(own ? [own] : []), frameToText(frame, ev.raw ?? "")].join("\n"),
+            riding(own ? [own] : [], frame, ev.raw ?? ""),
             frame?.id != null ? W.frameId(String(frame.id)) : W.frameNoId(),
             "steer",
             child,

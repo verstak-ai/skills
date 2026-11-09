@@ -1,7 +1,9 @@
 // The delivery layer: the core (js/) takes everything that tells this delivery
-// apart through this one path. Order is by file path: the machine's config, language, server prose forms
-// (patterns/), product name, protocol, version, words (words/).
+// apart through this one path. Order is by file path: the machine's config, the contract support,
+// language, server prose forms (patterns/), product name, protocol, launch basis, version, words
+// (words/).
 export { DEFAULT_SERVER_URL } from "./config.ts";
+export { CONTRACT_SUPPORT } from "./contract.ts";
 export { DEFAULT_LANG, type Lang, langOfServer, LANGS } from "./lang.ts";
 export { BOARD_FORM, BOARD_HEADER } from "./patterns/board.ts";
 export { CASE_EXIT_CLOSED } from "./patterns/caseexit.ts";
@@ -50,6 +52,7 @@ export {
   tool,
   TOOL_PREFIX,
 } from "./protocol.ts";
+export { SPAWNED_FOR_ENV, spawnedForSchema } from "./spawned-for.ts";
 export { BUILD_MARK, CHANNEL_MARK, VERSION } from "./version.ts";
 export { ABSORB, type AbsorbWords } from "./words/absorb.ts";
 export { APPSERVER, type AppServerWords } from "./words/appserver.ts";
@@ -60,6 +63,7 @@ export { CALL, type CallWords } from "./words/call.ts";
 export { CHANNEL, type ChannelWords } from "./words/channel.ts";
 export { CLI, type CliWords } from "./words/cli.ts";
 export { COMPACTION, type CompactionWords } from "./words/compaction.ts";
+export { CONTRACT_WORDS, type ContractWords } from "./words/contract.ts";
 export { DEAF, type DeafWords } from "./words/deaf.ts";
 export { DOCTOR, type DoctorWords } from "./words/doctor.ts";
 export { HARNESS, type HarnessWords } from "./words/doctorharness.ts";
@@ -118,6 +122,7 @@ export { RUN_END, type RunEndWords } from "./words/runend.ts";
 export { SATELLITE, type SatelliteWords } from "./words/satellite.ts";
 export { SAT_PROBE, type SatProbeWords } from "./words/satprobe.ts";
 export { type Kin, SEPARATE, type SeparateWords } from "./words/separate.ts";
+export { SPAWNED_FOR, type SpawnedForWords } from "./words/spawned-for.ts";
 export { STALE, type StaleWords } from "./words/stalebatch.ts";
 export { STAND, type StandWords } from "./words/stand.ts";
 export { STANDING, type StandingWords } from "./words/standing.ts";

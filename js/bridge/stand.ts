@@ -9,7 +9,6 @@
 // One answer: name, watchdog command, waiting frames, knock receipt. A call with
 // status on a seat the bridge already holds is busyness only (status.ts, #6509).
 // No stand tool in a session means tools bypass the bridge or the bridge is an old build.
-import { statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
@@ -69,9 +68,11 @@ import { otherRealm } from "./realms.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
-import { seatProof } from "./seatproof.ts";
 import { baseOf, type Resumed, seatFor, theirsByRecord } from "./separate.ts";
+import { launchBasis, rememberBasis } from "./spawned-for.ts";
 import { standAgainWord } from "./standagain.ts";
+import { standAnswer } from "./standanswer.ts";
+import { isDirectory } from "./standcwd.ts";
 import { besideHoldsMain, ledIn, refusedWord, releasePrior } from "./standmoves.ts";
 import { standTail } from "./standtail.ts";
 import { connectInMove, heldAddress, registerRefused, stopGuard } from "./standundo.ts";
@@ -86,15 +87,8 @@ const R = scoped(() => ({ again: false }));
 /** The name of the seat the bridge leads — for the one-standing-per-bridge refusal. */
 const ledName = (): string => state.standing?.name ?? "";
 
+export { isDirectory } from "./standcwd.ts";
 export { STAND_TOOL_NAME, standTool } from "./standtool.ts";
-
-export const isDirectory = (p: string): boolean => {
-  try {
-    return isAbsolute(p) && statSync(p).isDirectory();
-  } catch {
-    return false;
-  }
-};
 
 export const isStandCall = (msg: JsonRpcMessage): boolean =>
   msg?.method === "tools/call" && msg?.params?.name === tool("stand");
@@ -104,6 +98,7 @@ export const runStand = (msg: JsonRpcMessage): Promise<JsonRpcMessage> =>
   stopGuard(msg, () => standOnce(msg));
 
 async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
+  const basis = launchBasis(msg.params?.arguments ?? {});
   // Busyness on a seat the bridge already holds — the line only (#6509).
   const statusOnly = await standStatusOnly(msg);
   if ("reply" in statusOnly) return statusOnly.reply;
@@ -113,15 +108,9 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   let realm = typeof a.realm === "string" ? a.realm.trim() : "";
   let karta = a.karta != null ? normKarta(a.karta) : "";
   const lines: string[] = [];
-  const done = (isError = false): JsonRpcMessage => ({
-    jsonrpc: "2.0",
-    id: msg.id,
-    result: {
-      ...(isError ? { isError: true } : {}),
-      ...(isError ? {} : { structuredContent: seatProof(heldKey(realm)) }),
-      content: [{ type: "text", text: lines.join("\n") }],
-    },
-  });
+  let createdHere = false;
+  const done = (isError = false): JsonRpcMessage =>
+    standAnswer(msg, lines, realm, basis, isError, createdHere);
   if (!realm || !karta) {
     lines.push(
       needRealmKarta(statusOnly.miss, statusOnly.of) +
@@ -151,6 +140,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     }
   }
   realm = await seatRealm(realm); // @owner/slug before any server call (#5838, #8677; hearing.ts)
+  rememberBasis({ realm, karta }, basis);
   // The owner's role — only on the human's word (owner.ts, #6550 p.2).
   const notOwner = await ownerRefusal(realm, karta);
   if (notOwner) return (lines.push(notOwner), done(true));
@@ -225,7 +215,15 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // The session directory goes into the hold record: a re-raised bridge returns the seat by it (#5140).
   noteStandCwd(cwd);
   const here = (move: SeatMove = "register") => placeFields({ realm, karta, name }, true, move); // seat fields on every registration (#5174)
-  const reg = () => call(tool("channel"), { action: "register", realm, karta, name, ...here() });
+  const reg = () =>
+    call(tool("channel"), {
+      action: "register",
+      realm,
+      karta,
+      name,
+      ...here(),
+      ...(basis ? { spawned_for: basis } : {}),
+    });
   const { register, kept: modelKept } = clearingRegister(reg, realm); // register keeps a model (#7591)
   // 1. The board — before any change.
   const board = await call(tool("channel"), { action: "list", realm });
@@ -302,9 +300,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   if (unread) lines.push(sw().boardCountFound(declared ?? 0, entries.length));
   const mine = own[0];
 
-  // 2. The seat. This bridge holds the socket — register. Another session's seat does not
-  // get here — a seat beside was chosen above (#6706); a former bridge of this session —
-  // connect, as by take. Otherwise connect and register; a new socket resets the knock count.
+  // 2. Held socket — register; former own session — connect; another session stands beside (#6706).
   let how: string;
   let heardHere: boolean;
   // Own seat whose socket the bridge is reopening itself: the board still reads it listening — it is us.
@@ -424,10 +420,12 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     }
     const r = await register();
     if (r.isError) {
-      lines.push(await registerRefused(r, realm, taken, prior, addr));
+      const freshClaim = !!basis && !mine && !ownSession && !reopening;
+      lines.push(await registerRefused(r, realm, taken, prior, addr, freshClaim, !!basis));
       return done(true);
     }
     resetKnocks(realm, karta, name);
+    createdHere = !!taken && !mine && !ownSession && !reopening && !prior;
     heardHere = true;
     socketBefore = ownReopen;
     how = ownReopen

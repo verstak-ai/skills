@@ -9,10 +9,10 @@ import { writeSync } from "node:fs";
 import { type ChannelEvent } from "../bridge/hold.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
-import { batchLine, caseKey, frameToText } from "../shared/frame-text.ts";
+import { batchLine, caseKey, frameToText, type Shown } from "../shared/frame-text.ts";
 import { deliveryKeys, noteSeen, seenIds } from "../shared/seen.ts";
 import { seenFilePathOf } from "../shared/standings.ts";
-import { adoptSeenPath, attach, heldHeads, resolveStanding, staleOf } from "./client.ts";
+import { adoptSeenPath, attach, heldText, resolveStanding, staleOf } from "./client.ts";
 import { doer, wd } from "./words.ts";
 
 // The bridge replays its ring to every client that attaches, so a watchdog
@@ -51,13 +51,13 @@ export function runWatchdogExit(argv: string[]): void {
   const seen = seenIds(seenPath);
   let head = false; // the current batch's head waits for its last frame
   let fresh = false; // the current batch has a frame not delivered before
-  let block: { lines: string[]; shown: Frame[]; ids: string[] } = { lines: [], shown: [], ids: [] };
+  let block: { shown: Shown[]; ids: string[] } = { shown: [], ids: [] };
   const folded: string[] = []; // ids of folded addressed words of a run, marked with its line (#6081)
   const cases = new Set<string>(); // cases already introduced in the current batch
   // A count-only batch (#6574) does not wake: its head waits for the next wake-up, its
   // ids for that marking; if the watchdog dies, the undelivered comes again from the ring.
   let batch: Frame[] = []; // the current batch's frames, its count if it did not wake
-  const riders: Frame[][] = []; // count-only batches, as frames until a wake-up (heldHeads)
+  const riders: Frame[][] = []; // count-only batches, as frames until a wake-up (heldText)
   const riderIds: string[] = [];
   const hold = (): void => {
     if (head) riders.push(batch);
@@ -77,23 +77,25 @@ export function runWatchdogExit(argv: string[]): void {
           // delivery. Marking before the wake-up would lose the frame on a death in between.
           const deliver = (
             groups: Frame[][],
-            lines: string[],
-            shown: Frame[],
+            shown: Shown[],
             ids: string[],
+            raw: string | null = null,
           ): never => {
-            for (const s of [...heldHeads(groups, has, shown), ...lines]) wake(s);
-            const keys = [...riderIds.splice(0), ...ids, ...shown.flatMap((s) => deliveryKeys(s))];
+            for (const s of [...heldText(groups, has, shown), ...(raw === null ? [] : [raw])])
+              wake(s);
+            const keys = [
+              ...riderIds.splice(0),
+              ...ids,
+              ...shown.flatMap((s) => deliveryKeys(s.frame)),
+            ];
             for (const k of keys) noteSeen(seenPath, k, seen);
             process.exit(0);
           };
           if (!ev.batch) {
             if (seen.has(id)) return note(wd().seenEarlier(id));
-            return deliver(
-              riders.splice(0),
-              [f ? frameToText(f, ev.raw ?? "") : (ev.raw ?? "")],
-              f ? [f] : [],
-              [id],
-            );
+            const raw = ev.raw ?? "";
+            const one = f ? [{ frame: f, text: (w: boolean) => frameToText(f, raw, w) }] : [];
+            return deliver(riders.splice(0), one, [id], f ? null : raw);
           }
           // A room batch (bridge, roomstack.ts) is one wake-up, printed as a block on the last
           // frame: the head over all its frames (#6574), lines only for the addressed seat.
@@ -101,7 +103,7 @@ export function runWatchdogExit(argv: string[]): void {
           if (ev.batch.at === 1) {
             batch = [];
             cases.clear(); // a case's intro goes with its first line in the batch
-            block = { lines: [], shown: [], ids: [] };
+            block = { shown: [], ids: [] };
             fresh = false;
           }
           if (f) batch.push(f);
@@ -113,20 +115,20 @@ export function runWatchdogExit(argv: string[]): void {
             else {
               const first = !cases.has(caseKey(f));
               cases.add(caseKey(f));
-              block.lines.push(batchLine(f, ev.batch.fold, first));
-              block.shown.push(f);
+              const fold = ev.batch.fold;
+              block.shown.push({ frame: f, text: (w) => batchLine(f, fold, first, w) });
               block.ids.push(id, ...folded.splice(0));
             }
           }
           if (ev.batch.at < ev.batch.of) return;
           if (!fresh) head = false; // a batch of only delivered frames is a repeat: not counted
-          if (!block.lines.length) {
+          if (!block.shown.length) {
             hold();
             return note(wd().unaddressed());
           }
           const groups = [...riders.splice(0), ...(head ? [batch] : [])];
           head = false;
-          return deliver(groups, block.lines, block.shown, block.ids);
+          return deliver(groups, block.shown, block.ids);
         }
         case "stale":
           {

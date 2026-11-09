@@ -8,15 +8,15 @@
 import { BACKLOG, envName, STALE } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame, isDirectWord } from "../shared/channel.ts";
-import { caseCountLines, caseKey, frameToText } from "../shared/frame-text.ts";
+import { caseKey } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { isLifeCheck, type Marks, splitBatch } from "../shared/seen.ts";
+import { batchBodyText } from "../shared/stalebatch.ts";
 import { type ChannelEvent } from "./door.ts";
 
 /** The accumulation window; the variable is a seam for probes, not a human's knob. */
 const BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
 const BACKLOG_KEEP = 20;
-const BODY_CAP = 800;
 
 const at = (f: Frame): string => (typeof f.received_at === "string" ? f.received_at : "");
 
@@ -95,29 +95,20 @@ export class Backlog {
     const emit = this.flush;
     this.flush = null;
     if (!got.length || !emit) return;
-    // Addressed to the seat as text, other case records counted per case
-    // (graph @nks/nks-dev, node #6574).
-    const bodies = [
-      ...caseCountLines(got, count > got.length),
-      ...got
-        .filter((f) => addressedToMine(f))
-        .map((f) => {
-          const t = frameToText(f, JSON.stringify(f));
-          return [...t].length > BODY_CAP ? [...t].slice(0, BODY_CAP).join("") + "…" : t;
-        }),
-    ];
     // Both readers know the accumulated-count head; the wake head is not a word
     // when every record is somebody else's (graph @nks/nks-dev, node #9345).
     const onlyCounts = !direct && got.every((f) => caseKey(f) && !addressedToMine(f));
     const head = onlyCounts
       ? words(STALE).head(count, got.length)
       : words(BACKLOG).head(count, expected, got.length, direct);
+    const body = { head, shown: got.map((_, i) => i), incomplete: count > got.length };
     emit({
       kind: "backlog",
       frames: got,
       marks: keys,
       pending: expected,
-      text: `${head}\n\n${bodies.join("\n\n")}`,
+      text: batchBodyText(got, body),
+      body,
     });
   }
 }

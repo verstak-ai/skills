@@ -18,6 +18,7 @@ import {
   seenIds,
   splitBatch,
 } from "../shared/seen.ts";
+import { type BatchBody } from "../shared/stalebatch.ts";
 import {
   keyFilePathOf,
   privateDirProblem,
@@ -64,6 +65,11 @@ export interface ChannelEvent {
   frames?: Frame[];
   /** Batch or frame delivery keys, including superseded graph events; written only by the actual giver. */
   marks?: string[];
+  /**
+   * kind="stale"/"backlog": the text's parts, so a giver holding counts of a shown case puts
+   * them into the batch (shared/stalebatch.ts batchBodyText, #9654); absent from an older bridge.
+   */
+  body?: BatchBody;
   /** kind="stale" from an older bridge: marks beyond the shown frames (watchdog/client.ts staleOf). */
   unshown?: string[];
   /** kind="held": the held seat — the OpenCode plugin seats a child session as satellite by it (#6002). */

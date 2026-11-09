@@ -14,7 +14,14 @@ import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, LOGGERS, PLUGIN, PRODUCT } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
-import { batchHead, batchLines, frameToText, markFrame } from "../shared/frame-text.ts";
+import {
+  batchShown,
+  batchText,
+  caseKey,
+  countsWithShown,
+  frameToText,
+  markFrame,
+} from "../shared/frame-text.ts";
 import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { carryGraphReceipt, receiptGraph } from "../shared/graph-receipt.ts";
 import { words } from "../shared/lang.ts";
@@ -29,6 +36,7 @@ import {
   tactAt,
 } from "../shared/seen.ts";
 import { separateGraphBatch } from "../shared/softbatch.ts";
+import { batchBodyText, ridesIn } from "../shared/stalebatch.ts";
 import { authDirFromEnv } from "../shared/standings.ts";
 
 /** The fold window of unaddressed case frames; the variable is a probe seam. */
@@ -77,18 +85,22 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     for (const k of keys ?? []) marks.add(k);
     for (const old of marks) if (marks.size > 500) marks.delete(old);
   }
-  function flushAsides(): void {
+  /** The gathered case records, taken out of the fold; graph updates stay in it. */
+  function takeAsides(): Frame[] {
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     const unit = aside.splice(0);
     const out = splitBatch(unit, Infinity, (k) => marks.has(k));
     aside.push(...unit.filter(isGraphInbox));
-    const got = out.kept.filter((f) => !isGraphInbox(f));
+    return out.kept.filter((f) => !isGraphInbox(f));
+  }
+  function flushAsides(): void {
+    const got = takeAsides();
     if (!got.length) return;
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: markFrame([batchHead(got), ...batchLines(got)].join("\n")),
+        content: markFrame(batchText(got)),
         display: true,
         details: { count: got.map((f) => f.id ?? null) },
       },
@@ -109,7 +121,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     return {
       message: {
         customType: LOGGERS.channel,
-        content: markFrame([batchHead(out.kept), ...batchLines(out.kept)].join("\n")),
+        content: markFrame(batchText(out.kept)),
         display: true,
         details: { graphInbox: true, receipt: token },
       },
@@ -130,12 +142,18 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     graphHandoff = null;
   });
 
-  // One batch — one word into the turn: stale frames or a wake-up with the backlog.
+  // One batch — one word into the turn: stale frames or a wake-up with the backlog. Gathered
+  // of a case the batch shows rides in it, counted in that case, so the case is named once (#9654).
   function sendBatch(ev: ChannelEvent): void {
+    const frames = ev.frames ?? [];
+    const gathered = aside.filter((f) => !isGraphInbox(f));
+    const got = ev.body && ridesIn(gathered, frames, ev.body) ? takeAsides() : [];
     pi.sendMessage(
       {
         customType: LOGGERS.channel,
-        content: markFrame(ev.text ?? ""),
+        content: markFrame(
+          ev.body && got.length ? batchBodyText(frames, ev.body, got) : (ev.text ?? ""),
+        ),
         display: true,
         details: ev.kind === "stale" ? { stale: true } : { backlog: true },
       },
@@ -229,13 +247,24 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
           return;
         }
         noteText(deliveryKeys(frame)); // the frame enters as text — the fold skips its event
-        flushAsides(); // what gathered — before the next frame: the order holds
+        // What gathered goes before the frame: the order holds. Gathered of the frame's own case
+        // rides in its message, the counts above it, so the case is named once (#9654).
+        const own = frame && caseKey(frame);
+        const ride = !!own && aside.some((f) => !isGraphInbox(f) && caseKey(f) === own);
+        if (!ride) flushAsides();
+        const got = ride ? takeAsides() : [];
+        const text = frame
+          ? countsWithShown(got, [
+              ...batchShown(got),
+              { frame, text: (w: boolean) => frameToText(frame, raw, w) },
+            ]).join("\n")
+          : raw;
         // A room frame of a "pile" kind (#5851) waits for the turn's end; one without event_kind steers.
         const later = byKind(frame) && stackOf(frame) === "batch";
         pi.sendMessage(
           {
             customType: LOGGERS.channel,
-            content: markFrame(frameToText(frame, raw)),
+            content: markFrame(text),
             display: true,
             details: frame ?? { raw },
           },

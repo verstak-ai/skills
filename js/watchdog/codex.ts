@@ -14,13 +14,13 @@ import { CLIENTS, LOGGERS, PRODUCT } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Door, openDoor } from "../shared/appserver.ts";
 import { type Frame } from "../shared/channel.ts";
-import { frameToText } from "../shared/frame-text.ts";
+import { caseKey, frameToText } from "../shared/frame-text.ts";
 import { deliveryKeys, eventIn, noteSeen, seenIds } from "../shared/seen.ts";
 import { seenFilePathOf } from "../shared/standings.ts";
 import {
   adoptSeenPath,
   attach,
-  heldHeads,
+  heldText,
   parseWatchdogArgs,
   resolveStanding,
   staleOf,
@@ -163,7 +163,10 @@ export function runWatchdogCodex(argv: string[]): void {
     if (door) putStale(stale);
     else again.push(...stale);
   }
-  /** A stale batch is one turn, judged at put time (shared/stalebatch.ts); marks on acceptance. */
+  /**
+   * A stale batch is one turn, judged at put time (shared/stalebatch.ts); marks on acceptance.
+   * The pending count rides in it when a case of the batch is among it: the case once (#9654).
+   */
   function putStale(frames: Frame[], ev?: ChannelEvent): void {
     // An older bridge's batch goes as its text, nothing to judge it by (client.ts staleOf).
     const rest = ev?.unshown
@@ -171,9 +174,14 @@ export function runWatchdogCodex(argv: string[]): void {
       : holdOut(frames.map((f) => ({ frame: f, ids: deliveryKeys(f), stale: true }))).map(
           (h) => h.frame,
         );
-    const b = staleOf({ ...(ev ?? { kind: "stale" }), frames: rest }, (k) => seen.has(k));
-    if (b.text) void deliver(b.text, b.keys);
-    else for (const k of b.keys) noteSeen(seenPath, k, seen);
+    const cases = new Set(rest.map(caseKey).filter(Boolean));
+    const rides = !ev?.unshown && pend.some((p) => cases.has(caseKey(p.frame)));
+    const got = rides ? holdOut(pend.splice(0).map((p) => ({ ...p, stale: false }))) : [];
+    const riding = got.map((g) => g.frame);
+    const b = staleOf({ ...(ev ?? { kind: "stale" }), frames: rest }, (k) => seen.has(k), riding);
+    if (b.text) return void deliver(b.text, [...b.keys, ...got.flatMap((g) => g.ids)]);
+    for (const k of b.keys) noteSeen(seenPath, k, seen);
+    if (got.length) pend.unshift(...got.map(({ frame, ids }) => ({ frame, ids }))); // keep waiting
   }
 
   // The ring replays only what nobody delivered (#5428): frames that came between
@@ -185,14 +193,17 @@ export function runWatchdogCodex(argv: string[]): void {
   let pend: { frame: NonNullable<ChannelEvent["frame"]>; ids: string[] }[] = [];
   /**
    * The pending count as a head before `text`, built at put time by the watchdog's memory;
-   * copies of an event on a turn awaiting the thread wait with it (holdOut, client.ts heldHeads).
+   * copies of an event on a turn awaiting the thread wait with it (holdOut, client.ts heldText);
+   * the carrier stands under its case's count (#9654).
    */
-  const withPend = (text: string, ids: string[], carrier?: ChannelEvent["frame"]): void => {
+  const withPend = (ids: string[], carrier?: ChannelEvent["frame"], raw = ""): void => {
     const got = holdOut(pend.map((p) => ({ ...p, stale: false })));
     pend = [];
-    const head = heldHeads([got.map((g) => g.frame)], (k) => seen.has(k), carrier ? [carrier] : []);
+    const shown = carrier
+      ? [{ frame: carrier, text: (w: boolean) => frameToText(carrier, raw, w) }]
+      : [];
     const keys = [...got.flatMap((g) => g.ids), ...ids];
-    const lines = [...head, ...(text ? [text] : [])];
+    const lines = heldText([got.map((g) => g.frame)], (k) => seen.has(k), shown).filter(Boolean);
     // Nothing to put, what waited is already in a turn: marks are written, no empty turn.
     if (!lines.length) return void keys.forEach((k) => noteSeen(seenPath, k, seen));
     void deliver(lines.join("\n"), keys);
@@ -216,7 +227,7 @@ export function runWatchdogCodex(argv: string[]): void {
             return;
           }
           // The piled-up count as a head in front; the frame as text, marks on acceptance.
-          withPend(frameToText(ev.frame, ev.raw ?? ""), deliveryKeys(ev.frame), ev.frame);
+          withPend(deliveryKeys(ev.frame), ev.frame, ev.raw ?? "");
           break;
         }
         case "stale":
@@ -250,7 +261,7 @@ export function runWatchdogCodex(argv: string[]): void {
           }
           // An own close/revoke/leave: last frames and the pending count into the thread, then exit (#6638).
           if (!ev.own) break;
-          if (pend.length) withPend("", []);
+          if (pend.length) withPend([]);
           if (again.length) putStale(again.splice(0)); // a batch that waited for the door opens it
           // A door that never answers the upgrade would hold the watchdog forever: a limit and a loud exit.
           setTimeout(() => {

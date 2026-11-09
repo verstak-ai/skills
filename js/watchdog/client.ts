@@ -9,7 +9,7 @@ import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, LANGS } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
 import { setCompactCounts } from "../shared/frame-format.ts";
-import { batchHead } from "../shared/frame-text.ts";
+import { countsWithShown, type Shown } from "../shared/frame-text.ts";
 import { setLang } from "../shared/lang.ts";
 import { carryGraphMarks, deliveryKeys, eventIn, type Marks, seenIds } from "../shared/seen.ts";
 import { staleBatch } from "../shared/stalebatch.ts";
@@ -105,26 +105,38 @@ export function adoptSeenPath(
  * An older bridge's event carries only the shown frames and the marks beyond them
  * (unshown): then its text and marks are used, shown ones as delivery keys (#5831);
  * events beyond the shown went in only as a count: `ev:`/`evs:` become `cev:`/`cevs:` (seen.ts).
+ * `riding` — waiting counts printed in the batch, counted in their cases (#9654).
  */
-export function staleOf(ev: ChannelEvent, has: Marks): { text: string; keys: string[] } {
-  if (!ev.unshown) return staleBatch(ev.frames ?? [], has);
+export function staleOf(
+  ev: ChannelEvent,
+  has: Marks,
+  riding: Frame[] = [],
+): { text: string; keys: string[] } {
+  if (!ev.unshown) return staleBatch(ev.frames ?? [], has, riding);
   const shown = (ev.frames ?? []).flatMap((f) => deliveryKeys(f));
   const named = ev.unshown.map((k) => (/^evs?:/.test(k) ? `c${k}` : k));
   return { text: ev.text ?? "", keys: [...shown, ...named] };
 }
 
 /**
- * Batch heads as lines at print time (#6574): a copy whose event is already in the turn
- * by the watchdog's memory, or goes as text in this same output (`carriers`), is not
- * counted (seen.ts eventIn). The carriers themselves stay in their own head.
+ * Batch heads and the shown records as lines at print time (#6574): a copy whose event is
+ * already in the turn by the watchdog's memory, or goes as text in this same output
+ * (`shown`), is not counted (seen.ts eventIn). The shown case records are counted in their
+ * case's head and stand under it, without naming the case again (#9654); with nothing
+ * counted they go alone, as they are (countsWithShown). `apart` — frames going as text in
+ * an output of their own right after: not counted, as the shown ones.
  */
-export function heldHeads(groups: Frame[][], marks: Marks, carriers: Frame[] = []): string[] {
+export function heldText(
+  groups: Frame[][],
+  marks: Marks,
+  shown: Shown[] = [],
+  apart: Frame[] = [],
+): string[] {
+  const carriers = [...shown.map((s) => s.frame), ...apart];
   const own = new Set(carriers.flatMap((f) => deliveryKeys(f)));
   const has: Marks = (k) => marks(k) || own.has(k);
-  return groups
-    .map((g) => g.filter((f) => carriers.includes(f) || !eventIn(f, has)))
-    .filter((g) => g.length)
-    .map(batchHead);
+  const counted = groups.flatMap((g) => g.filter((f) => carriers.includes(f) || !eventIn(f, has)));
+  return countsWithShown(counted, shown);
 }
 
 export interface AttachOptions {

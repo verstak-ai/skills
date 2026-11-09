@@ -1,9 +1,11 @@
 // The bridge's own tool calls (board, connect, register), absorbed like proxied ones;
 // an accepted register is remembered by the standing.
-import { CALL, tool } from "../delivery/index.ts";
+import { CALL, SPAWNED_FOR, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { absorbChannelReply } from "./absorb.ts";
+import { claimReply } from "./claimdelivery.ts";
+import { errorMessage } from "./errors.ts";
 import { structuredOf } from "./fields.ts";
 import { holdsChannel, ledKey } from "./hold.ts";
 import { keyOf } from "./holdrecord.ts";
@@ -14,6 +16,7 @@ import { extraIn } from "./places.ts";
 import { canonRealm, otherRealm, resolveRealms, unknownRealm, unresolvedWord } from "./realms.ts";
 import { openedConcurrently, type Refusal, refusalOf } from "./refusal.ts";
 import { OWN_CALL_PREFIX } from "./repeat.ts";
+import { launchBasis, refuseClaim, rememberBasis } from "./spawned-for.ts";
 import { noteStanding, replyText } from "./standing.ts";
 import { takingSeat } from "./taking.ts";
 import { post, state } from "./transport.ts";
@@ -169,15 +172,41 @@ async function ask(
 }
 
 /** Seat connect and mint run under the taking intent up to the holding record (taking.ts). */
-export const callTool = (name: string, args: Record<string, unknown>): Promise<Answer> =>
-  name === tool("channel") ? takingSeat(args, () => answer(name, args)) : answer(name, args);
+export const callTool = async (name: string, args: Record<string, unknown>): Promise<Answer> => {
+  if (name === tool("channel") && args.action === "register") {
+    const basis = launchBasis(args);
+    rememberBasis(args, basis);
+    if (basis) args = { ...args, spawned_for: basis };
+  }
+  try {
+    return await (name === tool("channel")
+      ? takingSeat(args, () => answer(name, args))
+      : answer(name, args));
+  } catch (e) {
+    if (name === tool("channel") && args.action === "register" && args.spawned_for) {
+      const text = `${words(SPAWNED_FOR).echo()} ${errorMessage(e)}`;
+      refuseClaim(text);
+      return { text, isError: true };
+    }
+    throw e;
+  }
+};
 
 async function answer(name: string, args: Record<string, unknown>): Promise<Answer> {
   let { msg, got } = await ask(name, args);
   // Seat-open race (409 without rule, refusal.ts): register once more, only once.
-  if (name === tool("channel") && args.action === "register" && openedConcurrently(got))
+  if (
+    name === tool("channel") &&
+    args.action === "register" &&
+    !args.spawned_for &&
+    openedConcurrently(got)
+  )
     ({ msg, got } = await ask(name, args));
-  if (!got) return { text: words(CALL).noReply(), isError: true };
+  if (!got) {
+    if (args.spawned_for) refuseClaim(words(SPAWNED_FOR).echo());
+    return { text: words(CALL).noReply(), isError: true };
+  }
+  got = claimReply(msg, got);
   const structured = structuredOf(got);
   const refusal = refusalOf(got);
   if (name === tool("channel")) {

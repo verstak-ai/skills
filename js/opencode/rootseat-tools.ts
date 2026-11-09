@@ -1,7 +1,7 @@
 // Lifetime of service root seats: cancellation keeps only an in-flight bridge until revoke.
 import { readFileSync } from "node:fs";
 
-import { LOGGERS, PLUGIN, ROOT_SEAT, tool } from "../delivery/index.ts";
+import { LOGGERS, PLUGIN, ROOT_SEAT, SPAWNED_FOR, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { holdFilePathOf } from "../shared/standings.ts";
 import { textOf } from "./bridge-io.ts";
@@ -20,6 +20,7 @@ interface Doors extends Pick<SeatDoors, "slotFor" | "awaitReady" | "callThrough"
   stood(slot: Slot): void;
   failed(word: string): void;
   held(session: string, slot: Slot): void;
+  claiming(session: string): boolean;
 }
 
 export const explicitHeld = (slot: Slot) => ({
@@ -38,6 +39,7 @@ export function createSeatLife(d: Doors) {
       failure?: string;
       onWire?: boolean;
       fresh?: boolean;
+      returned?: boolean;
       owned?: { key: string; place: Place };
       explicit?: Promise<void>;
       closing?: Promise<void>;
@@ -114,7 +116,12 @@ export function createSeatLife(d: Doors) {
     ) {
       const r = result as {
         isError?: boolean;
-        structuredContent?: { provisional?: unknown; key?: unknown; place?: Partial<Place> };
+        structuredContent?: {
+          provisional?: unknown;
+          key?: unknown;
+          place?: Partial<Place>;
+          fresh?: unknown;
+        };
       } | null;
       if (r?.isError)
         throw Object.assign(new Error(textOf(result) || words(PLUGIN).refusalNoText(name)), {
@@ -141,6 +148,7 @@ export function createSeatLife(d: Doors) {
               place,
               provisional: sc?.provisional === true,
               key: typeof sc?.key === "string" ? sc.key : undefined,
+              fresh: typeof sc?.fresh === "boolean" ? sc.fresh : undefined,
             }
           : {}),
       };
@@ -214,6 +222,7 @@ export function createSeatLife(d: Doors) {
           failure?: string;
           onWire?: boolean;
           fresh?: boolean;
+          returned?: boolean;
           owned?: { key: string; place: Place };
           explicit?: Promise<void>;
           closing?: Promise<void>;
@@ -235,9 +244,15 @@ export function createSeatLife(d: Doors) {
             callThrough: async (...args) => {
               attempt.onWire = true;
               attempt.fresh = true;
+              // Read before the wire: a session removed meanwhile forgets its claim.
+              const claim = d.claiming?.(args[3]) === true;
               try {
                 const out = await d.callThrough(...args);
-                if (out.provisional === true && out.key && out.place)
+                if (out.fresh === false) attempt.returned = true;
+                // A bridge without the mark (an older release) proves an ordinary seat as before;
+                // a claim's seat is owned only on the mark.
+                const fresh = out.fresh === true || (out.fresh === undefined && !claim);
+                if (fresh && out.provisional === true && out.key && out.place)
                   attempt.owned = { key: out.key, place: out.place };
                 return out;
               } catch (e) {
@@ -248,6 +263,7 @@ export function createSeatLife(d: Doors) {
               }
             },
             modelOf: d.modelOf,
+            claiming: d.claiming,
             cancelled,
             provisional: (slot) => slot.provisional === true,
             recorded,
@@ -276,14 +292,20 @@ export function createSeatLife(d: Doors) {
           slot.provisional !== true
         ) {
           // Returned explicit places and a newer explicit stand are not this attempt's property.
-          if (attempt?.fresh && !owned && !attempt.explicit && (slot.holding || attempt.failure))
+          if (attempt?.fresh && !attempt.explicit && (slot.holding || attempt.failure))
             d.failed(
-              words(ROOT_SEAT).cleanupFailed(
-                slot.key ?? s,
-                attempt.failure ?? words(ROOT_SEAT).unproven(),
-              ),
+              attempt.returned
+                ? words(SPAWNED_FOR).kept(slot.key ?? s)
+                : words(ROOT_SEAT).cleanupFailed(
+                    slot.key ?? s,
+                    attempt.failure ?? words(ROOT_SEAT).unproven(),
+                  ),
             );
-          if (d.stopped() || deleted.has(s) || (attempt?.fresh && !attempt.explicit)) {
+          if (
+            d.stopped() ||
+            deleted.has(s) ||
+            (attempt?.fresh && !attempt.explicit && !attempt.returned)
+          ) {
             slot.ownStop = true;
             slot.bridge.stop();
             drop(s, slot);

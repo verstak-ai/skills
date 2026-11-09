@@ -71,7 +71,7 @@ export class Bridge {
   }
 
   /** env — over the runtime's: host version for attrs.harness_version (#6226). */
-  start(env: Record<string, string> = {}): void {
+  start(env: Record<string, string | undefined> = {}): void {
     const rt = bridgeRuntime();
     const proc = spawn(rt.bin, [this.bin, ...this.args], {
       stdio: ["pipe", "pipe", "pipe"],

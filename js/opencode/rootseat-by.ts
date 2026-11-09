@@ -23,6 +23,7 @@ export interface SeatDoors {
   cancelled?(session: string): boolean;
   provisional?(slot: Slot, session: string): boolean;
   recorded?(slot: Slot, session: string): HeldSeat | null;
+  claiming?(session: string): boolean;
   awaitReady(slot: Slot): Promise<void>;
   callThrough(
     slot: Slot,
@@ -30,7 +31,7 @@ export interface SeatDoors {
     input: Record<string, unknown>,
     session: string,
     service: boolean,
-  ): Promise<{ content: string; place?: HeldSeat; provisional?: boolean; key?: string }>;
+  ): Promise<SeatAnswer>;
 }
 
 /** Bridge's held word, else the real record; a sanitized key cannot recover a graph. */
@@ -90,6 +91,14 @@ async function outcome(
     : { other: own };
 }
 
+export interface SeatAnswer {
+  content: string;
+  place?: HeldSeat;
+  provisional?: boolean;
+  key?: string;
+  fresh?: boolean;
+}
+
 /** Return this session's disk seat first, else take a fresh provisional seat by service call. */
 export async function seatBy(
   d: SeatDoors,
@@ -107,7 +116,8 @@ export async function seatBy(
       if (slot.resume) await slot.resume;
       if (cancelled()) return { cancelled: true };
       const provisional = () => d.provisional?.(slot, root) === true;
-      if (slot.holding) return await outcome(d, slot, root, realm, karta, provisional());
+      if (slot.holding && !d.claiming?.(root))
+        return await outcome(d, slot, root, realm, karta, provisional());
       const model = await d.modelOf(root);
       if (cancelled()) return { cancelled: true };
       const args = { realm, karta, provisional: true, ...(model ? { model } : {}) };

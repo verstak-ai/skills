@@ -1,6 +1,6 @@
 // The bridge's stand tool as the harness sees it in tools/list (moment.ts inserts it
 // into the server's list); stand.ts executes it.
-import { STAND_TOOL, tool } from "../delivery/index.ts";
+import { SPAWNED_FOR, spawnedForSchema, STAND_TOOL, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 
 export const STAND_TOOL_NAME = tool("stand");
@@ -27,6 +27,7 @@ export const standTool = () => {
         satellite_of: str(w.satelliteOf()),
         status: str(w.status()),
         cwd: str(w.cwd()),
+        spawned_for: spawnedForSchema(words(SPAWNED_FOR).schema()),
       },
       required: ["realm"], // karta only takes a seat; busyness on a held seat goes without it (graph @nks/nks-dev, node #6509)
     },

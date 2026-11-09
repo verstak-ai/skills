@@ -4,7 +4,7 @@ The code map: what the directory tree does not show by itself. Outside `skills/`
 
 ## Source and derived
 - `skills/verstak/` — the source of truth, one skill (`verstak`): the door `SKILL.md` selects plain Markdown methods; `references/` and `templates/` carry no frontmatter. Everything under it ships in the bundle, so no README or repository-internal file goes there. `templates/agents-template.md` + `methods/align.md` bootstrap other repos; the root `AGENTS.md` is this repo's own config — don't confuse them.
-- `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (names and the skill layout, protocol keys, version, server prose `patterns/`, English `words/`), `js/build.mjs` and the dev toolchain with the only lockfile.
+- `js/` — the bridge's single source: the core `js/{bridge,shared,opencode,extension,watchdog,cli}` (the sibling delivery's, pinned by `js/core.lock`), our delivery layer `js/delivery/` (names and the skill layout, protocol keys, version, the contract support boundary, the launch-basis variable, server prose `patterns/`, English `words/`), `js/build.mjs` and the dev toolchain with the only lockfile.
 - Derived, never edited by hand:
   - the release build — `skills/verstak/scripts/verstak-bridge.mjs` (the bridge with its daemon, watchdogs and doctor), `skills/verstak/scripts/opencode-plugin.js`, `extensions/verstak.js` (pi loads `extensions/`), `hooks/onboard.mjs`, `hooks/rituals.mjs`; the dev build goes to `dist/dev/` (ignored);
   - `verstak.skill` — the bundle (a top-level `verstak/` tree), committed for manual install;
