@@ -16,7 +16,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 
 - **Figure on ground.** Issues and PRs are the *delta*: model the existing product first as a verified `vartamana` ground, apart from the `kalpita` / shabda backlog, so every direction transforms something real.
 - **Use the graph's leverage, not just its text**: roles with real arrows, figure on ground as a legal link, key flows as a relay, structural risks from tensions. Prose claims are carried by edges (claim-audit mode, `methods/integrity.md`).
-- **One product, even across many repos**: ONE focus holon, each repo a top-level subsystem, the cross-repo flow as headline — never N stapled roadmaps. Confirm the repos in scope.
+- **One product, even across many repos**: one scope for the run, not a required common holon; the repos are told apart as subsystems, the cross-repo flow is the headline — never N stapled roadmaps. Confirm the repos in scope.
 - **Read and refresh, never re-seed**: refresh an existing graph **in place** (locate before every write, add only the new, close what shipped); a missing one is *proposed*. A snapshot of the present, not a journal.
 - **Accurate before impressive**: a thin backlog stated, cut-offs declared, superlatives only over computed sets, every cited primitive verified.
 - **Reference discipline.** `#N` only for real GitHub numbers; multi-repo: the full repo key on every reference (`backend#1`) — no home-made abbreviations, groupings, ranges or bare `#N`. Graph seqs take a non-repo prefix (`VERSTAK#1120`). Directions are `D1`/`D2` or named.
@@ -30,8 +30,8 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 ## Step 1 — Frame and bootstrap
 
 - Fix the target — one `owner/repo` or a set (an org, or a named list) — and the product boundary in one line.
-- Find the graph and focus holon (`verstak_realm` list; `verstak_orient` / `verstak_semantic_search`): exists → incremental refresh; missing → propose, create only on the go-ahead.
-- Exactly **one focus holon**, named for the **product**, under the top-level holon of its area or top-level itself — never under one root holon (`methods/writing.md`, `Fifth: part of what?`).
+- Find the graph and the product's boundaries (`verstak_realm` list; `verstak_orient` / `verstak_semantic_search`): exists → incremental refresh; missing → propose, create only on the go-ahead.
+- **A product's own graph is the product**, with no holon over all its subsystems: the run's focus is the graph or one of its top-level holons by subject. In a wider graph a product holon may stand as one of its real top-level neighbours with its own boundary; nearly everything under it with a few orphans beside it is a root in disguise. The top level is 5–7 independent holons by real distinctions, none empty for the count (`methods/writing.md`, `Fifth: part of what?`). A root found → name it and propose lifting its children with their arrows kept; never restructure an existing graph silently.
 - Never write `AGENTS.md` into a repo whose ownership you are only playing.
 
 ## Step 2 — Model the current product (the vartamana ground)
@@ -48,7 +48,7 @@ Composes `methods/align.md` (read the codebase, set up graph and holon), `method
 | a key flow the product runs today | **kriya** | — | An/Va/Up |
 | a shipped fact confirmed by a release | phenomenon | sachverhalt | An/Va/Up — a release note is the maintainer's word, not an observation |
 
-- Subsystems nest under the focus holon (`contains`), capabilities and objects in their subsystem. **Multi-repo: the repositories ARE the top-level subsystems** (`attrs.repo`).
+- In a product's own graph the subsystems are independent top-level holons; in a wider graph they may sit under a real local product holon (`contains`). Capabilities and objects live in their subsystem. **Multi-repo:** mark the repositories with `attrs.repo`; the subject sets boundaries and nesting, not the number of repos.
 - **Grounding:** the real primitive in `attrs.source_ref` (module path, flag, endpoint, release tag; repo-qualified) — the **exact** symbol at that path, where behaviour is **implemented** not read, **executable over doc prose**, versions from the **manifest**. No citable primitive → a guess: downgrade or drop. A feature request is backlog, not ground.
 - **Scope:** a map the maintainer recognises as "my product", not a reverse-engineering.
 - **Actors — role test first (`methods/writing.md`, Decision 2b).** Two layers, never collapsed:
@@ -97,7 +97,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 **Roadmap additions:**
 
-- **Anchor every item to its subsystem** (`context` / `vimarsha_of` → the Step 2 holon or the capability it extends). No home → under-modelled ground (back to Step 2) or new ground — say which. A cross-repo theme anchors to the focus holon, linking every subsystem it touches.
+- **Anchor every item to its subsystem** (`context` / `vimarsha_of` → the Step 2 holon or the capability it extends). No home → under-modelled ground (back to Step 2) or new ground — say which. A cross-repo theme anchors by its own subject and links every subsystem it touches, needing no common parent.
 - **Dedupe against the GROUND too:** a request matching a shipped capability is "improve X", never "add X" — name the real remaining gap. The GitHub reference (number, author, weight) stays in the harvested source slice for the render; the node's provenance goes in `reasoning` and the case, not `attrs`.
 - **Modes as they stand now:** a backlog item, milestone-committed or speculative, is `anagata` + `chanda` (the milestone is evidence in the source slice and ranking weight — not `attrs`, not will); the ground stays `vartamana`, its epistemic mode as Step 2 set it. **`adhimoksha` only from what the graph's owner said** — a milestone's setter may not hold this graph (`methods/writing.md`, Decision 3).
 - **Each backlog kriya's `actor`** is the verified author's dev-driver role, never a runtime actor — ownership as an edge.
@@ -121,7 +121,7 @@ The assembled picture and what the graph found go on the first screen. Three art
 
 1. **The graph** — `verstak_orient(lens="bianhua")`; the HTML renders it (spine + directions in dependency order + risk flags).
 2. **`roadmap.md`**, in this order:
-   - **"The product, assembled"** — subsystems (one per repo) + the cross-repo spine, a sentence or two.
+   - **"The product, assembled"** — subsystems by subject, each repo named where it lives + the cross-repo spine, a sentence or two.
    - **"What the graph found"** — structural risks, each with its joint.
    - **"Next 3 moves"** — 3–5 lines.
    - **"What this product is today"** — the ground, every line cited.
