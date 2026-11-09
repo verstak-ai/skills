@@ -67,15 +67,31 @@ codex plugin marketplace add https://github.com/verstak-ai/skills
 codex plugin add verstak@verstak-ai
 ```
 
-**OpenCode, Cursor, any other agent** (flat install; Codex without the plugin too):
+**Cursor, any other agent** (flat install; Codex without the plugin too):
 
 ```sh
 npx skills add verstak-ai/skills --all --global
 ```
 
-`--all` already means every skill to every harness; `--global` is required — without it
-the skill lands in the current repository. The content lands once in `~/.agents/skills/`,
-harness directories get symlinks to it.
+`--all` already means every skill to every harness (`--skill '*' --agent '*' -y`), so an
+`--agent` appended to it only narrows it; `--global` is required — without it the skill
+lands in the current repository. The content lands once in `~/.agents/skills/`, harness
+directories get symlinks to it. With the Claude Code or Codex plugin on the same machine,
+`--all` also puts a flat `verstak` beside the plugin's `verstak:verstak` (in
+`~/.claude/skills/`, and in `~/.agents/skills/`, which Codex reads): name only your harness
+instead — `--skill verstak --agent NAME --global -y`, as OpenCode below.
+
+**OpenCode** — the skill flat, for OpenCode alone; the tools and the channel come with the
+delivery's plugin (step 2, OpenCode):
+
+```sh
+npx skills add verstak-ai/skills --skill verstak --agent opencode --global -y
+```
+
+The skill lands in `~/.agents/skills/verstak/`, which OpenCode reads, and nothing is linked
+into `~/.claude/skills/`, so a Claude Code plugin on the machine sees no second `verstak`.
+Codex reads `~/.agents/skills/` too: beside the Codex plugin this copy still shows, and no
+flat install avoids that.
 
 **pi** — one command installs the skill and the `verstak` extension:
 
@@ -159,8 +175,9 @@ codex mcp add verstak -- node "$HOME/.verstak-bridge/verstak-bridge.mjs"
 
 **Non-interactive runs.** `codex exec` refuses approvals by default and MCP calls need
 them: they fail with `MCP tool call requires approval, but approval policy is never` — the
-tools are visible and not callable. Approve them through the harness's approval setting;
-the flag that also removes the sandbox is for externally isolated environments only.
+tools are visible and not callable. Add `--approve-for-me`: approvals go through automatic
+review in the workspace-write sandbox. The flag that also removes the sandbox is for
+externally isolated environments only.
 
 **Codex hears the channel through the app-server door.** A seat's frame enters a running
 thread only if the thread lives under a local app-server daemon. The daemon starts from a
@@ -207,16 +224,18 @@ file doctor names. Two files, both from the installed `verstak` skill:
 ```sh
 mkdir -p ~/.verstak-bridge ~/.config/opencode/plugins
 src=$(dirname "$(find -L ~/.agents/skills ~/.claude -path '*verstak/scripts/opencode-plugin.js' 2>/dev/null | head -1)")
-[ -n "$src" ] && [ -f "$src/verstak-bridge.mjs" ] || { echo "no OpenCode plugin in the installed skill — update it (npx skills add verstak-ai/skills --all --global) and repeat"; false; }
+[ -n "$src" ] && [ -f "$src/verstak-bridge.mjs" ] || { echo "no OpenCode plugin in the installed skill — update it (step 1, OpenCode) and repeat"; false; }
 cp "$src/verstak-bridge.mjs" ~/.verstak-bridge/verstak-bridge.mjs
 cp "$src/opencode-plugin.js" ~/.config/opencode/plugins/verstak.js
 ```
 
 OpenCode 2 loads file plugins from `~/.config/opencode/plugins/`. The plugin has no
 imports, takes the bridge from `~/.verstak-bridge/verstak-bridge.mjs` (or
-`VERSTAK_BRIDGE_PATH`) and runs it on OpenCode's own Bun — no Node needed. After a
-delivery update repeat both copies; `node "$src/verstak-bridge.mjs" doctor` says whether a
-copy lags.
+`VERSTAK_BRIDGE_PATH`) and runs it on OpenCode's own Bun — no Node needed. The two copies
+are placed by hand once: the bridge's update (section 3) refreshes both files, but the
+plugin only where it already lies. Whether a copy lags, `node "$src/verstak-bridge.mjs"
+doctor` says (from the installed skill: only the file beside the reference can compare);
+then repeat both copies.
 
 **Sign-in.** Until there is a grant, the session has the `verstak_bridge` tool, which names
 the sign-in address, and every `verstak_*` tool refuses with the same address. The address
@@ -224,11 +243,16 @@ is local to the OpenCode machine; from another machine use the sign-in-by-code p
 error offers one, or `ssh -L PORT:127.0.0.1:PORT HOST`. After sign-in the tools come up by
 themselves. Every installed skill becomes a `/` palette command. The plugin keeps a
 directory with a held seat loaded; turn that off with `VERSTAK_KEEPALIVE_MS=0` in the
-OpenCode service's environment. Verify:
+OpenCode service's environment. Verify, after restarting the OpenCode service so it loads
+the plugin:
 
 ```sh
 opencode run --format json "Call the verstak_me tool and print the person's name"
 ```
+
+This is a model's turn: without a configured model it answers with a provider error, not
+the graph. Then check by `node "$src/verstak-bridge.mjs" doctor` — the plugin and the bridge
+of one build with the installed skill.
 
 ### Bring up the bridge by hand
 
@@ -329,7 +353,7 @@ Remove the token and the bridge returns to OAuth. Never put it in a committed fi
 
 The bridge updates itself: at each start it compares its version with the home copy
 `~/.verstak-bridge/verstak-bridge.mjs` — a newer self goes into the home, a newer home runs
-instead; periodically it asks this repository's releases and, if there is a newer one,
+instead; every six hours it asks this repository's releases and, if there is a newer one,
 downloads the bridge, the OpenCode plugin (if installed) and this file into the home, and
 tells the agent with a `DELIVERY BEHIND` line in a tool response. On demand:
 
@@ -343,11 +367,12 @@ response; call `update` and `doctor` by it.
 
 The bridge does not update the skill — the harness channel does. After `update` repeat
 step 1 of your branch (`/plugin marketplace update verstak-ai` and `/reload-plugins` in
-Claude Code; `npx skills add verstak-ai/skills --all --global` again;
+Claude Code; your flat `npx skills add` command again;
 `pi update git:github.com/verstak-ai/skills`; `codex plugin marketplace upgrade verstak-ai`,
 then `codex plugin remove verstak@verstak-ai` and `codex plugin add verstak@verstak-ai`),
 then restart the session: a bridge of the
-previous build lives until its session ends.
+previous build lives until its session ends. The person can just say "update" to the agent:
+the `verstak` door runs this section from the fresh copy `update` places beside the grant.
 
 ## 4. Restart
 
@@ -375,9 +400,23 @@ shows. Nothing offers it unasked.
   start: restart the session and check again. Then `node BRIDGE doctor` from the project directory — it names
   every mismatch with its fix.
 - **Every call answers with a sign-in link** → no grant yet: give the link to the user,
-  repeat the call after they sign in. One link per machine, valid while any bridge listens.
-- **Sign-in keeps failing** → a personal token (section 2).
+  repeat the call after they sign in. One link per machine, valid while any bridge listens:
+  don't reload an old tab, take the fresh link from the tool's answer (whole, on Windows).
+- **The grant has expired** (`doctor`: `refresh: … EXPIRED — a login is needed`) → `doctor`
+  prints no link: take it from any `verstak_*` call (in OpenCode the `verstak_bridge` tool),
+  or, with no tools in the session, from the harness's notice that the server failed or
+  `claude mcp list`.
+- **Sign-in keeps failing** → a personal token (section 2); a token already set that still
+  gets 401 is wrong or expired: ask for a fresh one.
+- **The bridge cannot run here at all** → name what is missing instead of "doesn't work":
+  Node 22+ (`node --version`; OpenCode needs none), a harness that runs stdio MCP servers,
+  a browser for sign-in or a personal token. Once fixed, walk this file again.
 - **An error names `verstak-bridge` and a verdict** → do what it says; quote the build from
   `node BRIDGE --version` when reporting a breakage.
+- **The bridge refuses the owner's role** → the user's own seat (`karta="me"`) is taken only
+  with `VERSTAK_BRIDGE_OWNER_ROLE=1` in the environment the bridge starts from, set by the
+  user; an agent doesn't set it and stands in an agent role.
+- **The seat was taken (close 4000)** → another holds it and the bridge yields at once.
+  Taking it back — `verstak_stand` with `take=true`, only on the user's word.
 - **Skill name collision on flat installs** → another pack ships a skill named `verstak`.
   Rename that directory, or use the Claude Code or Codex plugin channel, which namespaces it.

@@ -56,8 +56,9 @@ Install the verstak skill for me through your harness's own channel: in Claude C
 (`claude plugin marketplace add verstak-ai/skills`, then `claude plugin install verstak@verstak-ai`),
 in Codex the plugin (`codex plugin marketplace add https://github.com/verstak-ai/skills`, then
 `codex plugin add verstak@verstak-ai`), in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
-`verstak.skill` from the latest release, elsewhere flat — `npx skills add verstak-ai/skills
---all --global`. Then, in a new session, do "/verstak connect the graph"
+`verstak.skill` from the latest release, in OpenCode `npx skills add verstak-ai/skills
+--skill verstak --agent opencode --global -y` and the plugin from SETUP.md, elsewhere flat —
+`npx skills add verstak-ai/skills --all --global`. Then, in a new session, do "/verstak connect the graph"
 (`/verstak:verstak connect the graph` under the Claude Code plugin).
 ```
 
@@ -100,10 +101,14 @@ app-server daemon recipe in [`SETUP.md`](SETUP.md), the Codex branch.
 ### Portable install
 
 ```sh
-npx skills add verstak-ai/skills --all --agent claude
+npx skills add verstak-ai/skills --all --global
 ```
 
-This installs `verstak` flat into `~/.claude/skills/`. For manual installation:
+This installs `verstak` flat for your user: the content once in `~/.agents/skills/`, each
+harness's directory a symlink to it (`--agent` appended to `--all` only narrows it; without
+`--global` the skill lands in the current repository). Beside the Claude Code or Codex
+plugin, name only your harness — OpenCode's command and why: [`SETUP.md`](SETUP.md), step 1.
+For manual installation:
 
 ```sh
 unzip verstak.skill -d ~/.claude/skills/
