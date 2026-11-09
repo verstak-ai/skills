@@ -52,7 +52,7 @@ export interface PrepareWords {
 // transition to align contract 11 (graph @nks/nks-dev, nodes #9341, #9319); branches of other
 // kinds in the same script stay.
 const RITE = (what: string): string =>
-  `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
+  `the repository's own ${what} in .claude/settings.json — the delivery carries the rituals and keeps silent beside its own: take it off once the delivery's replacement is verified, never by the contract's number, and in a script with branches of other kinds only this one's branch (align, Step 4, the transition)`;
 
 export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
   en: {
@@ -81,7 +81,7 @@ export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
           "no agent role named: --agent-role N, the holon's steward (verstak_search with steward_of) or created (align, Round 1, step 3)",
         "cover.contract": "no contract named: --contract N in the run's last call (align, Step 7)",
         "cover.flat":
-          "an older flat cover stands beside the block: move its judgment slots into Project and drop the flat keys (align, From contract 9)",
+          "an older flat cover stands beside the block: move its judgment slots into Project and drop the flat keys (align, An older cover)",
         "CLAUDE.md":
           "CLAUDE.md is a file of its own, not a pointer: merge its content into AGENTS.md and replace it with the pointer (align, Step 7)",
         "hook.start": RITE("start hook"),
@@ -90,12 +90,12 @@ export const PREPARE: Readonly<Record<Lang, PrepareWords>> = {
         "hook.push": RITE("push hook"),
         "hook.merge": RITE("merge hook"),
         "opencode.rituals":
-          'the repository\'s own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks "ritual" (align, Step 4, the transition)',
+          "the repository's own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off once the delivery's replacement is verified, never by the contract's number, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks \"ritual\" (align, Step 4, the transition)",
       })[item],
     unread: (item, hook) =>
       item === "hook.guard"
         ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)`
-        : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
+        : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off once the delivery's replacement is verified (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
     head: (kind) => ({ done: "done", kept: "already there", left: "for the model" })[kind],
   },
 };

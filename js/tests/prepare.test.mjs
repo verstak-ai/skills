@@ -221,7 +221,7 @@ test("prepare: an unread script-form hook gets none beside it and a left item in
       "hook.start",
       start,
       "the start hook",
-      /if it is, take it off \(the delivery carries the start/,
+      /if it is, take it off once the delivery's replacement is verified \(the delivery carries the start/,
     ],
     ["hook.guard", guard, "the memory guard", /align's Step 4 \(references\/align-hooks\.md\)/],
   ]) {
@@ -262,7 +262,7 @@ test("prepare: the repository's own carried rituals are kept and named for the t
   for (const item of ["hook.start", "hook.push", "hook.merge", "opencode.rituals"]) {
     const why = r.out.left.find((x) => x.item === item)?.why ?? "";
     assert.match(why, /the delivery carries the rituals and keeps silent beside/, item);
-    assert.match(why, /take it off/, item);
+    assert.match(why, /take it off once the delivery's replacement is verified/, item);
     assert.match(why, /\(align, Step 4, the transition\)/, item);
     assert.doesNotMatch(why, FOREIGN, item);
   }
