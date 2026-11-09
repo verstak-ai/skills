@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.37.2](https://github.com/verstak-ai/skills/compare/v3.37.1...v3.37.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* product-roadmap — a product's own graph is the product, no common root over its subsystems ([#392](https://github.com/verstak-ai/skills/issues/392)) ([18f6d4c](https://github.com/verstak-ai/skills/commit/18f6d4cd9d78a0991704639803f08fe6741f99cc))
+
 ## [3.37.1](https://github.com/verstak-ai/skills/compare/v3.37.0...v3.37.1) (2026-11-09)
 
 
