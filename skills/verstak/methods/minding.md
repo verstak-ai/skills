@@ -11,7 +11,7 @@ The current user's personal mind graph holds the areas of their life and work, t
 | **Recall** | the user asks; the task needs something about the user; nothing names the graph in play; "what's on me" | §1, then §1a; the agenda → §4 |
 | **Write** | the fact is the user's own, will matter later, and no project graph owns it — a working preference stays theirs even when its topic is development; mid-project too, when they say how agents work for them ("always do it so", "don't wait", "in parallel", "a short plan first", "ask me by card"): in the same move you act on it, the errand still the case's; say you kept it in one line only where they alone read — in a shared case the line would reveal the record | §1b — into their verified personal mind under its area's holon; a person as a depicted role in a group; never harness-local memory |
 
-Every user gets personal memory without being asked: the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then `references/minding-personal-realm.md` §1–2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
+Every user gets personal memory without being asked: the door's start slice, onboarding, align and this method use the single entry below — a root session that finds it `missing` provides it before reading, then — opened and read whole before the first write — `references/minding-personal-realm.md` §1–2 for what is established missing. Reuse what exists. Filling (§3) and reconciling (§2) happen on request.
 
 ## Personal memory before reading or writing
 
