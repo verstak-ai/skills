@@ -77,7 +77,7 @@ The user's own + useful later + serves no single project → here. Shapes: `refe
 
 **Where in mind — by reflex, not on request:**
 - **A subject area gets a holon.** A fact from a new area (health, home, a language, a client field) goes under that area's holon, not the root. Search first (`verstak_search(realm="mind", q=area, node_type="holon")` plus semantic); not found → create it, as a sub-holon (`contains` from the parent) if it belongs to an existing area, named in the user's words.
-- **A person gets a depicted role** — `manifested_as="pratibimba"` 象 (the person as the user sees them: modelled, not a member of the graph, not an addressee), with the motivation they have *in the user's life*, not a dossier (reference §2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `vimarsha_of` their role — a depiction is never `posed_to`.
+- **A person gets a depicted role** — `manifested_as="pratibimba"` 象 (the person as the user sees them: modelled, not a member of the graph, not an addressee), with the motivation they have *in the user's life*, not a dossier (reference §2b). Search first. Members point by `group` arrows to group roles (family, the studio's clients); groups nest. What's open with them is a vimarsha `vimarsha_of` their role — a depiction is never `posed_to`; a question about them goes to whoever can answer it, the user or another real answerer.
 
 ## §2 Reconcile
 

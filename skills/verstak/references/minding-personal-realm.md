@@ -33,7 +33,7 @@ Each person is **the role they play in your area**, with their own motivation (a
 
 - `manifested_as="pratibimba"` 象 by default — the user's image of them (relative, friend, client, counterparty, doctor): modelled, not a member of the graph, not an addressee — nobody answers through mind, so even a counterparty, `agantuka` in a working graph, is depicted here. `svatantra` here is the user's own role alone (§2); `adhikarin` is an agent's kind, never a person's.
 - No `user` on a depicted person: mentioning someone, a search hit or a matching name doesn't make them a graph user, and the owner-role repair (`user="me"`) never applies to another person. If the user wants them to take part, that is an invitation into a working or shared graph, never into mind: there they enter with their own account and get their own `svatantra` role (`methods/onboarding.md`); the depiction here stays as it is, unbound, and nothing of mind goes with them (`methods/minding.md`, Privacy).
-- What's open with them is a vimarsha `vimarsha_of` their role (never `posed_to` a depiction): the relationship is carried by what passes between you.
+- What's open with them is a vimarsha `vimarsha_of` their role (never `posed_to` a depiction; a question about them goes to whoever can answer it, such as the user): the relationship is carried by what passes between you.
 - **Groups** — a group role, also `pratibimba` (`👥 Family`, `👥 Studio clients`), with a shared motivation and a `group` arrow from each member. A group names a distinction the user makes, not a catalogue; groups nest, a role can sit in several, and a sub-role (a reviewer under a team lead) gets a `group` arrow to the senior role.
 - **Search first** — `verstak_search(realm=…, q=name or role, node_type="karta")`.
 
