@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.36.0](https://github.com/verstak-ai/skills/compare/v3.35.6...v3.36.0) (2026-11-09)
+
+
+### Features
+
+* bridge core v7.36.0 and the corpus caught up with the sibling's 7.36.0 release ([#382](https://github.com/verstak-ai/skills/issues/382)) ([44a2841](https://github.com/verstak-ai/skills/commit/44a2841d50791a80dd323960f3c754ab22d5882c))
+
 ## [3.35.6](https://github.com/verstak-ai/skills/compare/v3.35.5...v3.35.6) (2026-11-09)
 
 
