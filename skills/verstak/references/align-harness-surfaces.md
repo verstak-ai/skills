@@ -16,9 +16,17 @@ Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.open
 
 Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`references/align-delegation.md`).
 
+### A subagent's entry and tool set
+
+**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block of `references/align-delegation.md`) is identical in all nine except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so one form serves every machine. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
+
+**Tool set per role.** Claude Code sends every tool schema whole on every request (a full server list costs tens of thousands of tokens). `--tools a,b,c`, last in `args` after `--satellite`, names the whole set, `verstak_stand` always included; a tool outside it is refused out loud, so add a needed tool rather than drop the flag. Every bridge hides `verstak_channel`'s `mint`, `connect`, `sessions`; `register` and `revoke` stay. **Use `--tools` only with a bridge that knows it**: an older one exits on it (`doctor`: "home bridge older than the --tools flag"). `doctor` keeps a `--tools` tail in the block it prints.
+
+**The entry needs a home bridge that knows `--satellite`**: an older one exits on the flag, leaving no graph tools. Update first (`node ~/.verstak-bridge/verstak-bridge.mjs update`). A flag, not an environment variable, so an old bridge fails loudly instead of silently taking the session's seat.
+
 ### When a subagent's entry fails
 
-The entry itself and its rules: `references/align-delegation.md`, `Claude Code`.
+The entry itself and its rules: `A subagent's entry and tool set` above; the role blocks: `references/align-delegation.md`, `Claude Code`.
 
 - **Where the entry doesn't come up at all**: an agent of a plugin, an untrusted folder (the trust dialog not accepted), `--strict-mcp-config`, `--bare` or `--safe-mode`, remote mode, a corporate MCP config — the subagent has no graph tools there.
 

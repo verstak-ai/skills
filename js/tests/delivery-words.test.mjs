@@ -414,6 +414,7 @@ test("the launch and wake words send movement to a line, a word only addressed",
   assert.match(entered, /partial/);
   assert.match(entered, /`to` the assigner/);
   assert.doesNotMatch(entered, /first message/);
+  assert.match(entered, /a take card to you → answer it/);
   const listen = SATELLITE.en.listen(60);
   assert.match(listen, /partial line/);
   assert.match(listen, /`to` the assigner/);
