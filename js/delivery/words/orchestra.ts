@@ -154,7 +154,10 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
     planCheckout: (repository) => `<orca checkout of ${repository}>`,
     planClone: (url, destination) =>
       `if Orca has no checkout — would clone ${url} into ${destination}`,
-    planNoClone: (code) => `if Orca has no checkout — would not clone: ${code}`,
+    planNoClone: (code) =>
+      code === "cloning"
+        ? "if Orca has no checkout — a clone is already running"
+        : `if Orca has no checkout — would not clone: ${code}`,
     planBrief: () => "<brief>",
     describeWritten: (launcher, seq, holon) =>
       `the description of launcher ${launcher} written in mind${seq ? ` (#${seq})` : ""}` +

@@ -273,4 +273,7 @@ test("orchestra: a clone is said in our words — its status line and both dry-r
   assert.match(would, /would clone https:\/\/github\.com\/o\/r into \/src\/o\/r/, would);
   const refused = ORCHESTRA.en.planNoClone("clone_refused (not_allowed)");
   assert.match(refused, /would not clone: clone_refused \(not_allowed\)/, refused);
+  const running = ORCHESTRA.en.planNoClone("cloning");
+  assert.doesNotMatch(running, /would not clone/, running);
+  assert.match(running, /a clone is already running/, running);
 });
