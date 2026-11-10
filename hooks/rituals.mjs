@@ -96,7 +96,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 14 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
 
 // js/delivery/patterns/cover.ts
 var COVER = {

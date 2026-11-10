@@ -109,7 +109,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 14 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
 
 // js/delivery/patterns/board.ts
 var BOARD_HEADER = { en: "Channels" };
@@ -224,7 +224,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.41.0";
+var VERSION = "3.42.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -714,6 +714,7 @@ var ORCHESTRA = {
     stepNoApi: () => "the tact is refused: the api address is unknown — the daemon holds no live channel and no hold records; the channel (the connect answer) carries the api address, not the mcp server",
     stepGone: () => "the tact commits nothing: the caller left before its end — the refusal has already been spoken, no cursor moved",
     tactOut: (realm, invites, signals, cursor, at3) => `${realm}: invites ${invites}, signals ${signals}, cursor ${cursor || "—"} (${at3})`,
+    cloneOut: (repository, state2, why, at3) => `clone of ${repository}: ${state2}${why ? ` (${why})` : ""} (${at3})`,
     lead: (lines) => `leading: ${lines}`,
     leadRow: (realm, room, invite, code2) => `${realm} case ${room} invite ${invite}: ${code2}`,
     leadNotAdmitted: () => "the flag lies, but the machine has not admitted the orchestrator (orchestra on typed at a terminal, or VERSTAK_ORCHESTRA=1 in the daemon's environment) — no agent is raised or extinguished",
@@ -728,6 +729,8 @@ ${rows}` : " no invites"}`,
     planRefuse: (code2) => `would refuse: ${code2}`,
     planAlready: (state2) => `already in the registry: ${state2}`,
     planCheckout: (repository) => `<orca checkout of ${repository}>`,
+    planClone: (url, destination) => `if Orca has no checkout — would clone ${url} into ${destination}`,
+    planNoClone: (code2) => code2 === "cloning" ? "if Orca has no checkout — a clone is already running" : `if Orca has no checkout — would not clone: ${code2}`,
     planBrief: () => "<brief>",
     describeWritten: (launcher, seq4, holon) => `the description of launcher ${launcher} written in mind${seq4 ? ` (#${seq4})` : ""}` + (holon ? ` under the holon of the work with agents ${holon}` : " at the root: no single holon of the work with agents (holding slice:agents cards) was found — move it under one when there is"),
     describeTooLong: (launcher, max) => `launcher name ${launcher} is longer than ${max} characters — the bridge would not take such a description; name it shorter, the flag is not moved`,
@@ -999,7 +1002,7 @@ var SATELLITE = {
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) => `Refused (satellite bridge): ${action} bypassing ${tool("stand")} — only ${tool("stand")} with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
     onlyOwn: (action, own, karta, realm) => `Refused (satellite bridge): ${action} — only its own seat ${own} (role #${karta}, graph ${realm}); a satellite neither takes nor releases the caller's seat or any other.`,
-    listen: (ttl) => `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. The first move — enter the case the brief names and restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
+    listen: (ttl) => `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. The first move — enter the case the brief names and take up the brief: a take card to you → answer it, nothing beside it; another assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
   }
 };
 
@@ -1764,9 +1767,9 @@ function readPat(cfg) {
 }
 
 // js/bridge/daemon.ts
-import { spawn as spawn3 } from "node:child_process";
-import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync19, readFileSync as readFileSync34, statSync as statSync10 } from "node:fs";
-import { join as join30 } from "node:path";
+import { spawn as spawn4 } from "node:child_process";
+import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync20, readFileSync as readFileSync34, statSync as statSync10 } from "node:fs";
+import { join as join31 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 
 // js/shared/channel.ts
@@ -5219,10 +5222,10 @@ var PART_MIN = 3;
 var CUT_ORDER = ["repo", "host", "model"];
 function fitName(parts) {
   const p = { ...parts };
-  const join49 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
+  const join50 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
   const cut = [];
   for (const k of CUT_ORDER) {
-    const over = join49().length - NAME_MAX;
+    const over = join50().length - NAME_MAX;
     if (over <= 0) break;
     const keep = Math.max(k === "model" ? 1 : PART_MIN, p[k].length - over);
     if (keep >= p[k].length) continue;
@@ -5230,7 +5233,7 @@ function fitName(parts) {
     cut.push(k);
   }
   return {
-    name: join49().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
+    name: join50().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
     cut
   };
 }
@@ -12740,7 +12743,203 @@ function mcpSession(url, token, client = "bridge") {
 
 // js/bridge/orchestra-launchers.ts
 import { hostname as hostname2 } from "node:os";
-import { isAbsolute as isAbsolute2 } from "node:path";
+import { isAbsolute as isAbsolute3 } from "node:path";
+
+// js/bridge/orchestra-clone.ts
+import { existsSync as existsSync9 } from "node:fs";
+import { homedir as homedir8 } from "node:os";
+import { isAbsolute as isAbsolute2, join as join24 } from "node:path";
+
+// js/bridge/orchestra-orca.ts
+import { execFile } from "node:child_process";
+var ORCA_VERSION = "1.4.242";
+var FLAGS = ["agent", "worktree", "model", "prompt", "json"];
+function run2(args, timeoutMs) {
+  return new Promise((resolve12) => {
+    execFile(
+      "orca",
+      args,
+      { timeout: timeoutMs, maxBuffer: 4 * 1024 * 1024, windowsHide: true },
+      (err, stdout) => {
+        const e = err;
+        const code2 = !e ? 0 : e.killed ? "timeout" : typeof e.code === "number" ? e.code : e.code ?? 1;
+        resolve12({ code: code2, out: String(stdout ?? "") });
+      }
+    );
+  });
+}
+async function orcaReady() {
+  const v = await run2(["--version"], 1e4);
+  if (v.code !== 0) return v.code === "ENOENT" ? "orca_missing" : "orca_unreadable";
+  if (v.out.trim() !== ORCA_VERSION) return "orca_version_unverified";
+  const ctx = await run2(["agent-context", "--json"], 1e4);
+  try {
+    const schema = JSON.parse(ctx.out);
+    const launch = schema.commands?.find((c) => c.command === "agent launch");
+    if (ctx.code === 0 && launch && FLAGS.every((f) => launch.flags?.includes(f))) return null;
+  } catch {
+  }
+  return "orca_schema_unverified";
+}
+function remoteKey(url) {
+  let u = url.trim();
+  const scheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(u);
+  u = u.replace(/^[a-z][a-z0-9+.-]*:\/\//i, "").replace(/^[^@/]+@/, "");
+  if (!scheme) u = u.replace(/^([^/:]+):/, "$1/");
+  return u.replace(/\/+$/, "").replace(/\.git$/, "");
+}
+var hostFolded = (repository) => {
+  const i = repository.indexOf("/");
+  return i < 0 ? repository : repository.slice(0, i).toLowerCase() + repository.slice(i);
+};
+async function orcaCheckouts() {
+  const list3 = await run2(["project", "list", "--json"], 1e4);
+  const setups = await run2(["project", "setups", "--json"], 1e4);
+  let projects;
+  let ready;
+  try {
+    if (list3.code !== 0 || setups.code !== 0) throw new Error();
+    projects = JSON.parse(list3.out).result.projects;
+    ready = JSON.parse(setups.out).result.setups;
+    if (!Array.isArray(projects) || !Array.isArray(ready)) throw new Error();
+  } catch {
+    return "orca_projects_unreadable";
+  }
+  return (repository) => {
+    const want = hostFolded(repository);
+    const ids = new Set(
+      projects.filter((p) => {
+        const g = p.gitRemoteIdentity ?? {};
+        return typeof g.canonicalKey === "string" && hostFolded(g.canonicalKey) === want || typeof g.remoteUrl === "string" && hostFolded(remoteKey(g.remoteUrl)) === want;
+      }).map((p) => p.id)
+    );
+    const paths = [
+      ...new Set(
+        ready.filter(
+          (s2) => ids.has(s2.projectId) && s2.setupState === "ready" && s2.hostId === "local" && typeof s2.path === "string" && s2.path
+        ).map((s2) => s2.path)
+      )
+    ];
+    if (!paths.length) return { code: "no_checkout" };
+    if (paths.length > 1) return { code: "ambiguous_checkout" };
+    return { path: paths[0] };
+  };
+}
+function launchArgv(agent, worktree, model, prompt) {
+  return [
+    "agent",
+    "launch",
+    "--agent",
+    agent,
+    "--worktree",
+    `path:${worktree}`,
+    "--model",
+    model,
+    "--prompt",
+    prompt,
+    "--json"
+  ];
+}
+function launchHandle(out7) {
+  try {
+    const r = JSON.parse(out7).result ?? {};
+    for (const o of [r.outcome, r.launch?.outcome]) {
+      const x = o;
+      if (x?.kind === "terminal" && typeof x.handle === "string" && x.handle) return x.handle;
+    }
+    if (typeof r.agentTerminalHandle === "string" && r.agentTerminalHandle)
+      return r.agentTerminalHandle;
+  } catch {
+  }
+  return void 0;
+}
+function runtimeOf(out7) {
+  try {
+    const id = JSON.parse(out7)._meta?.runtimeId;
+    return typeof id === "string" && id ? id : void 0;
+  } catch {
+    return void 0;
+  }
+}
+async function orcaLaunch(argv2) {
+  const r = await run2(argv2, 12e4);
+  if (r.code === 0)
+    return { outcome: "ok", handle: launchHandle(r.out), runtime: runtimeOf(r.out) };
+  if (r.code === "timeout") return { outcome: "ambiguous", why: "launch_timeout" };
+  return { outcome: "failed", why: `launch_exit_${r.code}` };
+}
+async function orcaClose(handle, runtime) {
+  const shown = await run2(["terminal", "show", "--terminal", handle, "--json"], 3e4);
+  if (shown.code !== 0) return `terminal_show_failed_${shown.code}`;
+  if (runtimeOf(shown.out) !== runtime) return "terminal_runtime_changed";
+  const r = await run2(["terminal", "close", "--terminal", handle, "--json"], 3e4);
+  return r.code === 0 ? "terminal_closed" : `terminal_close_failed_${r.code}`;
+}
+
+// js/bridge/orchestra-clone.ts
+var ALLOW = /^[^\s/:@]+\/[^\s/:@]+$/;
+var SEGMENT = /^[A-Za-z0-9._-]+$/;
+var hostLower = (hostOrg) => {
+  const [host, org] = hostOrg.split("/");
+  return `${host.toLowerCase()}/${org}`;
+};
+function parseClone(d) {
+  if (d.clone === void 0 || d.clone === false) return null;
+  if (d.clone !== true) return { code: "clone_invalid" };
+  const raw = typeof d.clone_root === "string" ? d.clone_root.trim() : "";
+  const root = raw === "~" ? homedir8() : raw.startsWith("~/") ? join24(homedir8(), raw.slice(2)) : raw;
+  if (!root || !isAbsolute2(root)) return { code: "clone_root_invalid" };
+  const allow = d.allow;
+  if (!Array.isArray(allow) || !allow.length || !allow.every((a) => typeof a === "string" && ALLOW.test(a.trim())))
+    return { code: "allow_invalid" };
+  return { root, allow: allow.map((a) => hostLower(a.trim())) };
+}
+function cloneTarget(policy, repository) {
+  const parts = repository.split("/");
+  if (parts.length !== 3 || !parts.every((p) => SEGMENT.test(p) && p !== "." && p !== ".."))
+    return { code: "clone_refused (repository_form)" };
+  const [rawHost, org, repo] = parts;
+  const host = rawHost.toLowerCase();
+  if (!policy.allow.includes(`${host}/${org}`)) return { code: "clone_refused (not_allowed)" };
+  const parent = join24(policy.root, org);
+  const destination = join24(parent, repo);
+  if (existsSync9(destination)) return { code: "clone_refused (destination_exists)" };
+  return {
+    url: `https://${host}/${org}/${repo}.git`,
+    project: projectId(host, org, repo),
+    parent,
+    destination
+  };
+}
+var projectId = (host, org, repo) => host === "github.com" ? `github:${org}/${repo}`.toLowerCase() : `git:${host}/${org}/${repo}`;
+var CLONE_FLAGS = ["project", "host", "url", "destination", "json"];
+async function cloneDeclared() {
+  const ctx = await run2(["agent-context", "--json"], 1e4);
+  try {
+    const schema = JSON.parse(ctx.out);
+    const c = schema.commands?.find((x) => x.command === "project setup-clone");
+    return ctx.code === 0 && !!c && CLONE_FLAGS.every((f) => c.flags?.includes(f));
+  } catch {
+    return false;
+  }
+}
+function cloneArgv(project, url, parent) {
+  return [
+    "project",
+    "setup-clone",
+    "--project",
+    project,
+    "--host",
+    "local",
+    "--url",
+    url,
+    "--destination",
+    parent,
+    "--json"
+  ];
+}
+
+// js/bridge/orchestra-launchers.ts
 var SLICE = "slice:orchestra";
 var LIMIT3 = 50;
 var HANDLE = /^@[^\s:@/]+$/;
@@ -12776,12 +12975,14 @@ function parseLauncher(raw) {
   const c = d.checkouts ?? {};
   if (typeof c !== "object" || Array.isArray(c)) return { code: "checkouts_invalid", launcher };
   for (const [repo, path] of Object.entries(c)) {
-    if (!str2(path) || !isAbsolute2(path)) return { code: "checkouts_invalid", launcher };
+    if (!str2(path) || !isAbsolute3(path)) return { code: "checkouts_invalid", launcher };
     checkouts[repo] = path;
   }
   const callers = d.callers ?? [];
   if (!Array.isArray(callers) || !callers.every((h2) => str2(h2) && HANDLE.test(h2.trim())))
     return { code: "callers_invalid", launcher };
+  const clone = parseClone(d);
+  if (clone && "code" in clone) return { code: clone.code, launcher };
   return {
     launcher,
     host: str2(d.host) ? d.host.trim() : null,
@@ -12789,7 +12990,8 @@ function parseLauncher(raw) {
     limit: d.limit,
     harnesses,
     checkouts,
-    callers: callers.map((h2) => h2.trim().slice(1).toLowerCase())
+    callers: callers.map((h2) => h2.trim().slice(1).toLowerCase()),
+    clone
   };
 }
 function accountOf(address) {
@@ -13006,13 +13208,13 @@ function orchestraAsk(authDir, op, realms, timeoutMs = 5e3, extra = {}) {
 
 // js/bridge/orchestra-flag.ts
 import { mkdirSync as mkdirSync14, readFileSync as readFileSync28, writeFileSync as writeFileSync16 } from "node:fs";
-import { join as join24 } from "node:path";
+import { join as join25 } from "node:path";
 var ORCHESTRA_ENV = envName("ORCHESTRA");
 var envAdmitted = () => {
   const v = process.env[ORCHESTRA_ENV]?.trim().toLowerCase();
   return v === "1" || v === "true" || v === "yes";
 };
-var flagFile = (authDir) => join24(seamRunDir(authDir), "orchestra.json");
+var flagFile = (authDir) => join25(seamRunDir(authDir), "orchestra.json");
 function readOrchestraFlag(authDir) {
   try {
     const f = JSON.parse(readFileSync28(flagFile(authDir), "utf8"));
@@ -13040,151 +13242,42 @@ var orchestraAdmitted = (authDir) => envAdmitted() || !!readOrchestraFlag(authDi
 
 // js/bridge/orchestra-foreign.ts
 import { mkdirSync as mkdirSync16, readFileSync as readFileSync30, writeFileSync as writeFileSync18 } from "node:fs";
-import { join as join26 } from "node:path";
+import { join as join27 } from "node:path";
 
 // js/bridge/orchestra-quench.ts
 import { createHash as createHash8 } from "node:crypto";
 
-// js/bridge/orchestra-orca.ts
-import { execFile } from "node:child_process";
-var ORCA_VERSION = "1.4.242";
-var FLAGS = ["agent", "worktree", "model", "prompt", "json"];
-function run2(args, timeoutMs) {
-  return new Promise((resolve12) => {
-    execFile(
-      "orca",
-      args,
-      { timeout: timeoutMs, maxBuffer: 4 * 1024 * 1024, windowsHide: true },
-      (err, stdout) => {
-        const e = err;
-        const code2 = !e ? 0 : e.killed ? "timeout" : typeof e.code === "number" ? e.code : e.code ?? 1;
-        resolve12({ code: code2, out: String(stdout ?? "") });
-      }
-    );
-  });
-}
-async function orcaReady() {
-  const v = await run2(["--version"], 1e4);
-  if (v.code !== 0) return v.code === "ENOENT" ? "orca_missing" : "orca_unreadable";
-  if (v.out.trim() !== ORCA_VERSION) return "orca_version_unverified";
-  const ctx = await run2(["agent-context", "--json"], 1e4);
-  try {
-    const schema = JSON.parse(ctx.out);
-    const launch = schema.commands?.find((c) => c.command === "agent launch");
-    if (ctx.code === 0 && launch && FLAGS.every((f) => launch.flags?.includes(f))) return null;
-  } catch {
-  }
-  return "orca_schema_unverified";
-}
-function remoteKey(url) {
-  let u = url.trim();
-  const scheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(u);
-  u = u.replace(/^[a-z][a-z0-9+.-]*:\/\//i, "").replace(/^[^@/]+@/, "");
-  if (!scheme) u = u.replace(/^([^/:]+):/, "$1/");
-  return u.replace(/\/+$/, "").replace(/\.git$/, "");
-}
-async function orcaCheckouts() {
-  const list3 = await run2(["project", "list", "--json"], 1e4);
-  const setups = await run2(["project", "setups", "--json"], 1e4);
-  let projects;
-  let ready;
-  try {
-    if (list3.code !== 0 || setups.code !== 0) throw new Error();
-    projects = JSON.parse(list3.out).result.projects;
-    ready = JSON.parse(setups.out).result.setups;
-    if (!Array.isArray(projects) || !Array.isArray(ready)) throw new Error();
-  } catch {
-    return "orca_projects_unreadable";
-  }
-  return (repository) => {
-    const ids = new Set(
-      projects.filter((p) => {
-        const g = p.gitRemoteIdentity ?? {};
-        return g.canonicalKey === repository || typeof g.remoteUrl === "string" && remoteKey(g.remoteUrl) === repository;
-      }).map((p) => p.id)
-    );
-    const paths = [
-      ...new Set(
-        ready.filter(
-          (s2) => ids.has(s2.projectId) && s2.setupState === "ready" && s2.hostId === "local" && typeof s2.path === "string" && s2.path
-        ).map((s2) => s2.path)
-      )
-    ];
-    if (!paths.length) return { code: "no_checkout" };
-    if (paths.length > 1) return { code: "ambiguous_checkout" };
-    return { path: paths[0] };
-  };
-}
-function launchArgv(agent, worktree, model, prompt) {
-  return [
-    "agent",
-    "launch",
-    "--agent",
-    agent,
-    "--worktree",
-    `path:${worktree}`,
-    "--model",
-    model,
-    "--prompt",
-    prompt,
-    "--json"
-  ];
-}
-function launchHandle(out7) {
-  try {
-    const r = JSON.parse(out7).result ?? {};
-    for (const o of [r.outcome, r.launch?.outcome]) {
-      const x = o;
-      if (x?.kind === "terminal" && typeof x.handle === "string" && x.handle) return x.handle;
-    }
-    if (typeof r.agentTerminalHandle === "string" && r.agentTerminalHandle)
-      return r.agentTerminalHandle;
-  } catch {
-  }
-  return void 0;
-}
-function runtimeOf(out7) {
-  try {
-    const id = JSON.parse(out7)._meta?.runtimeId;
-    return typeof id === "string" && id ? id : void 0;
-  } catch {
-    return void 0;
-  }
-}
-async function orcaLaunch(argv2) {
-  const r = await run2(argv2, 12e4);
-  if (r.code === 0)
-    return { outcome: "ok", handle: launchHandle(r.out), runtime: runtimeOf(r.out) };
-  if (r.code === "timeout") return { outcome: "ambiguous", why: "launch_timeout" };
-  return { outcome: "failed", why: `launch_exit_${r.code}` };
-}
-async function orcaClose(handle, runtime) {
-  const shown = await run2(["terminal", "show", "--terminal", handle, "--json"], 3e4);
-  if (shown.code !== 0) return `terminal_show_failed_${shown.code}`;
-  if (runtimeOf(shown.out) !== runtime) return "terminal_runtime_changed";
-  const r = await run2(["terminal", "close", "--terminal", handle, "--json"], 3e4);
-  return r.code === 0 ? "terminal_closed" : `terminal_close_failed_${r.code}`;
-}
-
 // js/bridge/orchestra-runs.ts
 import { mkdirSync as mkdirSync15, readFileSync as readFileSync29, renameSync as renameSync13, writeFileSync as writeFileSync17 } from "node:fs";
-import { join as join25 } from "node:path";
+import { join as join26 } from "node:path";
 var LIVE = ["launched", "raised", "stopping"];
 var runKey = (realm, room, invite) => `${realm}|${room}|${invite}`;
-var file = (authDir) => join25(seamRunDir(authDir), "orchestra-runs.json");
-function readRuns(authDir) {
+var file = (authDir) => join26(seamRunDir(authDir), "orchestra-runs.json");
+function readFile(authDir) {
   try {
     const f = JSON.parse(readFileSync29(file(authDir), "utf8"));
-    if (f.runs && typeof f.runs === "object") return f.runs;
+    const obj5 = (v) => v && typeof v === "object" ? v : {};
+    return { runs: obj5(f.runs), clones: obj5(f.clones) };
   } catch {
+    return { runs: {}, clones: {} };
   }
-  return {};
 }
-function writeRuns(authDir, runs) {
+function writeFile(authDir, f) {
   mkdirSync15(seamRunDir(authDir), { recursive: true, mode: 448 });
   const tmp = `${file(authDir)}.${process.pid}.tmp`;
-  writeFileSync17(tmp, JSON.stringify({ runs }) + "\n", { mode: 384 });
+  writeFileSync17(tmp, JSON.stringify(f) + "\n", { mode: 384 });
   renameSync13(tmp, file(authDir));
+}
+var readRuns = (authDir) => readFile(authDir).runs;
+function writeRuns(authDir, runs) {
+  writeFile(authDir, { runs, clones: readFile(authDir).clones });
+}
+var readClones = (authDir) => readFile(authDir).clones;
+function writeClone(authDir, repository, row) {
+  const f = readFile(authDir);
+  if (row) f.clones[repository] = row;
+  else delete f.clones[repository];
+  writeFile(authDir, f);
 }
 
 // js/bridge/orchestra-quench.ts
@@ -13316,7 +13409,7 @@ var MAX_PAGES2 = 50;
 var OPEN = /* @__PURE__ */ new Set(["issued", "accepted"]);
 var SKEW_MS = 6e4;
 var sinceStop = (r, v) => Date.parse(String(v.issued_at ?? "")) >= Date.parse(r.stopping_at ?? r.at) - SKEW_MS;
-var cursorFile = (authDir) => join26(seamRunDir(authDir), "orchestra-orders.json");
+var cursorFile = (authDir) => join27(seamRunDir(authDir), "orchestra-orders.json");
 function readSince(authDir) {
   try {
     const n = JSON.parse(readFileSync30(cursorFile(authDir), "utf8")).since;
@@ -13405,11 +13498,11 @@ async function foreignStops(authDir, base, token, runs) {
 }
 
 // js/bridge/orchestra-raise.ts
-import { existsSync as existsSync9, statSync as statSync8 } from "node:fs";
+import { existsSync as existsSync10, statSync as statSync8 } from "node:fs";
 
 // js/shared/cover.ts
 import { readFileSync as readFileSync31 } from "node:fs";
-import { join as join27 } from "node:path";
+import { join as join28 } from "node:path";
 
 // js/shared/coverblock.ts
 var FIELDS = ["graph", "holon", "agent_role", "contract", "stamp"];
@@ -13600,7 +13693,7 @@ function seatOfPairs(pairs, cover = COVER) {
 function readCover(dir2, cover = COVER) {
   let text5;
   try {
-    text5 = readFileSync31(join27(dir2, cover.file), "utf8");
+    text5 = readFileSync31(join28(dir2, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -13610,6 +13703,82 @@ function readCover(dir2, cover = COVER) {
   const pairs = frontMatter(text5);
   if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(cover.file) };
   return seatOfPairs(pairs, cover);
+}
+
+// js/bridge/orchestra-cloning.ts
+import { spawn as spawn3 } from "node:child_process";
+import { createHash as createHash9 } from "node:crypto";
+import { mkdirSync as mkdirSync17, realpathSync as realpathSync4 } from "node:fs";
+var CLONE_MS = Number(process.env[envName("ORCHESTRA_CLONE_MS")]) || 6e5;
+var specOf = (launcher) => createHash9("sha256").update(JSON.stringify(launcher)).digest("hex").slice(0, 16);
+function cloneRun(argv2, ms2) {
+  return new Promise((resolve12) => {
+    const child = spawn3("orca", argv2, { stdio: "ignore", windowsHide: true });
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGKILL");
+    }, ms2);
+    const done = (code2) => {
+      clearTimeout(timer);
+      resolve12(timedOut ? "timeout" : code2);
+    };
+    child.once("error", (e) => done(e.code ?? 1));
+    child.once("exit", (code2, signal) => done(code2 ?? signal ?? 1));
+  });
+}
+var inflight = /* @__PURE__ */ new Set();
+async function cloneTurn(authDir, policy, spec, repository, gone) {
+  let row = readClones(authDir)[repository];
+  if (row?.state === "cloning" && inflight.has(repository)) return "cloning";
+  if (row?.state === "cloning") {
+    row = { ...row, state: "failed", why: "clone_interrupted" };
+    writeClone(authDir, repository, row);
+  }
+  if (row?.state === "cloned") return "cloned";
+  if (row?.state === "failed" && row.spec === spec) {
+    if (row.told) return `clone_failed_before (${row.why})`;
+    writeClone(authDir, repository, { ...row, told: true });
+    return `clone_failed (${row.why})`;
+  }
+  if (row) writeClone(authDir, repository, null);
+  const target = cloneTarget(policy, repository);
+  if ("code" in target) return target.code;
+  if (!await cloneDeclared()) return "clone_failed (orca_schema_unverified)";
+  let parent;
+  try {
+    mkdirSync17(target.parent, { recursive: true });
+    parent = realpathSync4.native(target.parent);
+  } catch {
+    return "clone_failed (clone_root_unwritable)";
+  }
+  if (gone?.gone) return "gone";
+  inflight.add(repository);
+  writeClone(authDir, repository, { state: "cloning", at: (/* @__PURE__ */ new Date()).toISOString(), spec });
+  void cloneRun(cloneArgv(target.project, target.url, parent), CLONE_MS).then((code2) => {
+    inflight.delete(repository);
+    const why = code2 === 0 ? void 0 : code2 === "timeout" ? "clone_timeout" : `clone_exit_${code2}`;
+    const at3 = (/* @__PURE__ */ new Date()).toISOString();
+    try {
+      writeClone(
+        authDir,
+        repository,
+        why ? { state: "failed", at: at3, spec, why } : { state: "cloned", at: at3, spec }
+      );
+    } catch {
+    }
+  });
+  return "cloning";
+}
+function cloneTaken(authDir, repository, spec, found) {
+  if (found) {
+    writeClone(authDir, repository, null);
+    return null;
+  }
+  const at3 = (/* @__PURE__ */ new Date()).toISOString();
+  const why = "clone_unregistered";
+  writeClone(authDir, repository, { state: "failed", at: at3, spec, why, told: true });
+  return `clone_failed (${why})`;
 }
 
 // js/bridge/orchestra-raise.ts
@@ -13637,7 +13806,7 @@ function refusal2(row, ls, runs) {
   const model = text3(row.model);
   if (!model) return "model_missing";
   if (!offer.models.includes(model)) return "model_not_offered";
-  if (!text3(row.repository)) return "no_checkout";
+  if (!text3(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
   const live2 = Object.values(runs).filter(
     (r) => r.launcher === launcher && LIVE.includes(r.state)
   ).length;
@@ -13648,7 +13817,7 @@ function checkoutFor(own, repository, orca) {
   const named2 = own.checkouts[repository];
   const got = named2 ? { path: named2 } : orca(repository);
   if ("code" in got) return got;
-  if (!existsSync9(got.path) || !statSync8(got.path).isDirectory())
+  if (!existsSync10(got.path) || !statSync8(got.path).isDirectory())
     return { code: "checkout_absent" };
   return got.path;
 }
@@ -13684,11 +13853,26 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
     const own = ls.own.get(String(row.launcher).trim());
     const repository = String(row.repository).trim();
     orca = orca === void 0 ? await orcaCheckouts() : orca;
-    const worktree = checkoutFor(
+    const find = () => checkoutFor(
       own,
       repository,
       typeof orca === "string" ? () => ({ code: orca }) : orca
     );
+    let worktree = find();
+    if (typeof worktree !== "string" && worktree.code === "no_checkout" && own.clone) {
+      const spec = specOf(own);
+      const turn = await cloneTurn(authDir, own.clone, spec, repository, gone);
+      if (turn === "gone") break;
+      if (turn !== "cloned") {
+        said2.push(w5().leadRow(realm, room, invite, turn));
+        continue;
+      }
+      orca = await orcaCheckouts();
+      worktree = find();
+      const lost = typeof orca === "string" || typeof worktree !== "string" && worktree.code === "no_checkout";
+      const why2 = cloneTaken(authDir, repository, spec, !lost);
+      if (why2) worktree = { code: why2 };
+    }
     if (typeof worktree !== "string") {
       said2.push(w5().leadRow(realm, room, invite, worktree.code));
       continue;
@@ -13737,12 +13921,12 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
 }
 
 // js/bridge/orchestra-tact.ts
-import { mkdirSync as mkdirSync17, readFileSync as readFileSync32, writeFileSync as writeFileSync19 } from "node:fs";
-import { join as join28 } from "node:path";
+import { mkdirSync as mkdirSync18, readFileSync as readFileSync32, writeFileSync as writeFileSync19 } from "node:fs";
+import { join as join29 } from "node:path";
 var w6 = () => words(ORCHESTRA);
 var LIMIT5 = 200;
 var TIMEOUT_MS3 = 1e4;
-var cursorsFile = (authDir) => join28(seamRunDir(authDir), "orchestra-cursors.json");
+var cursorsFile = (authDir) => join29(seamRunDir(authDir), "orchestra-cursors.json");
 function readTactState(authDir) {
   try {
     const f = JSON.parse(readFileSync32(cursorsFile(authDir), "utf8"));
@@ -13871,7 +14055,7 @@ async function stepTact(authDir, base, token, realms, gone, act) {
         signals: r.signals.length
       };
   try {
-    mkdirSync17(seamRunDir(authDir), { recursive: true, mode: 448 });
+    mkdirSync18(seamRunDir(authDir), { recursive: true, mode: 448 });
     writeFileSync19(cursorsFile(authDir), JSON.stringify(state2) + "\n", { mode: 384 });
   } catch (e) {
     return { ok: false, said: w6().doorError(e.message) };
@@ -13962,6 +14146,7 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary) {
     return { ok: false, said: w8().leadNoLaunchers(e.message) };
   }
   const runs = structuredClone(readRuns(authDir));
+  const clones = readClones(authDir);
   const rows = ls.refused.map((r) => w8().leadDescription(r.what, r.code));
   for (const row of demands.start) {
     const realm = String(row.realm);
@@ -13990,8 +14175,18 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary) {
         continue;
       }
       worktree = got;
-    } else if (got.code === ORCA) worktree = w8().planCheckout(repository);
-    else {
+    } else if (got.code === ORCA) {
+      worktree = w8().planCheckout(repository);
+      if (own.clone) {
+        const kept3 = clones[repository];
+        const c = cloneTarget(own.clone, repository);
+        if (kept3?.state === "cloning") say3(w8().planNoClone("cloning"));
+        else if (kept3?.state === "failed" && kept3.spec === specOf(own))
+          say3(w8().planNoClone(`clone_failed_before (${kept3.why})`));
+        else if ("code" in c) say3(w8().planNoClone(c.code));
+        else say3(w8().planClone(c.url, c.destination));
+      }
+    } else {
       say3(w8().planRefuse(got.code));
       continue;
     }
@@ -14021,12 +14216,14 @@ var orchestraLeading = (authDir) => orchestraAdmitted(authDir) && readOrchestraF
 var TACT_MS = Number(process.env[envName("ORCHESTRA_TACT_MS")]) || 6e4;
 async function openOrchestra(authDir, serve, paused, say3) {
   const door = await listenOrchestraDoor(authDir, serve);
+  let busy = false;
   setInterval(() => {
-    if (paused() || !orchestraLeading(authDir)) return;
+    if (busy || paused() || !orchestraLeading(authDir)) return;
+    busy = true;
     void serve("step", []).then(
       (a) => say3(`orchestra tact: ${a.said.replace(/\n/g, " · ")}`),
       (e) => say3(`orchestra tact failed: ${e.message}`)
-    );
+    ).finally(() => busy = false);
   }, TACT_MS).unref();
   return door;
 }
@@ -14111,6 +14308,8 @@ function orchestraServe(authDir, net) {
     const lines = Object.entries(tact.realms).map(
       ([realm, t]) => w9().tactOut(realm, t.invites, t.signals, t.cursor ?? "", t.at)
     );
+    for (const [repo, c] of Object.entries(readClones(authDir)))
+      lines.push(w9().cloneOut(repo, c.state, c.why ?? "", c.at));
     if (tact.lead) lines.push(w9().lead(tact.lead));
     const named2 = flag?.realms ?? [];
     const found = [...new Set(net?.realms?.() ?? [])].filter((r) => !named2.includes(r));
@@ -14265,7 +14464,7 @@ function restore(rec5) {
 var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
 
 // js/bridge/stand.ts
-import { isAbsolute as isAbsolute4 } from "node:path";
+import { isAbsolute as isAbsolute5 } from "node:path";
 
 // js/bridge/knock.ts
 var knocks = scoped(() => /* @__PURE__ */ new Map());
@@ -14299,14 +14498,14 @@ async function knock(k) {
 
 // js/bridge/orderjournal.ts
 import {
-  mkdirSync as mkdirSync18,
+  mkdirSync as mkdirSync19,
   readdirSync as readdirSync12,
   readFileSync as readFileSync33,
   renameSync as renameSync14,
   unlinkSync as unlinkSync18,
   writeFileSync as writeFileSync20
 } from "node:fs";
-import { join as join29 } from "node:path";
+import { join as join30 } from "node:path";
 var ANSWER_WINDOW_MS = 6e4;
 var RESTARTED = "bridge_restarted";
 var alive5 = (pid) => {
@@ -14320,9 +14519,9 @@ var alive5 = (pid) => {
   }
 };
 var KEEP_MS = 24 * 36e5;
-var dir = () => join29(CFG.authDir, "orders");
+var dir = () => join30(CFG.authDir, "orders");
 var SAFE = /^[A-Za-z0-9_-]{1,80}$/;
-var fileOf = (id) => SAFE.test(id) ? join29(dir(), `${id}.json`) : null;
+var fileOf = (id) => SAFE.test(id) ? join30(dir(), `${id}.json`) : null;
 function readOrder(id) {
   const f = fileOf(id);
   if (!f) return null;
@@ -14336,7 +14535,7 @@ function writeOrder(e) {
   const f = fileOf(e.id);
   if (!f) return false;
   try {
-    mkdirSync18(dir(), { recursive: true, mode: 448 });
+    mkdirSync19(dir(), { recursive: true, mode: 448 });
     const tmp = `${f}.tmp-${process.pid}`;
     writeFileSync20(tmp, JSON.stringify(e), { mode: 384 });
     renameSync14(tmp, f);
@@ -14350,7 +14549,7 @@ var settled = (id) => {
   const e = readOrder(id);
   return !!e && isTerminal(e.state);
 };
-var sincePath = () => join29(dir(), "since");
+var sincePath = () => join30(dir(), "since");
 function readSince2(base) {
   try {
     const n = JSON.parse(readFileSync33(sincePath(), "utf8"))[base];
@@ -14366,7 +14565,7 @@ function writeSince2(base, seq4) {
   } catch {
   }
   try {
-    mkdirSync18(dir(), { recursive: true, mode: 448 });
+    mkdirSync19(dir(), { recursive: true, mode: 448 });
     const tmp = `${sincePath()}.tmp-${process.pid}`;
     writeFileSync20(tmp, JSON.stringify({ ...all2, [base]: seq4 }), { mode: 384 });
     renameSync14(tmp, sincePath());
@@ -14387,7 +14586,7 @@ function unanswered(now2 = Date.now()) {
     if (!e) continue;
     if (e.acked && now2 - e.at > KEEP_MS) {
       try {
-        unlinkSync18(join29(dir(), n));
+        unlinkSync18(join30(dir(), n));
       } catch {
       }
       continue;
@@ -14593,10 +14792,10 @@ function standAnswer(msg, lines, realm, basis, isError, fresh2 = false) {
 
 // js/bridge/standcwd.ts
 import { statSync as statSync9 } from "node:fs";
-import { isAbsolute as isAbsolute3 } from "node:path";
+import { isAbsolute as isAbsolute4 } from "node:path";
 var isDirectory2 = (p) => {
   try {
-    return isAbsolute3(p) && statSync9(p).isDirectory();
+    return isAbsolute4(p) && statSync9(p).isDirectory();
   } catch {
     return false;
   }
@@ -14783,7 +14982,7 @@ async function standOnce(msg) {
   rememberStandModel(model);
   const cwd = typeof a.cwd === "string" && a.cwd.trim() ? a.cwd.trim() : sessionCwd();
   if (cwd !== sessionCwd() && !isDirectory2(cwd)) {
-    lines.push(sw2().badCwd(cwd, !isAbsolute4(cwd)));
+    lines.push(sw2().badCwd(cwd, !isAbsolute5(cwd)));
     return done(true);
   }
   const nameNotes = [];
@@ -16134,10 +16333,10 @@ async function daemonMain(argv2) {
   const cfg = parseArgs(argv2.filter((a) => a !== "--successor"));
   const authDir = cfg.authDir;
   const run3 = seamRunDir(authDir);
-  const journalPath = join30(run3, "daemon.log");
+  const journalPath = join31(run3, "daemon.log");
   const journal = (line) => {
     try {
-      mkdirSync19(run3, { recursive: true, mode: 448 });
+      mkdirSync20(run3, { recursive: true, mode: 448 });
       rotateJournal(journalPath, JOURNAL_MAX);
       const text5 = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync5(
@@ -16449,7 +16648,7 @@ async function daemonMain(argv2) {
 }
 function spawnDaemon(file2, authDir, successor) {
   try {
-    const child = spawn3(
+    const child = spawn4(
       process.execPath,
       [file2, "daemon", "--auth-dir", authDir, ...successor ? ["--successor"] : []],
       {
@@ -16472,7 +16671,7 @@ import { createInterface as createInterface3 } from "node:readline";
 import { PassThrough as PassThrough2 } from "node:stream";
 
 // js/bridge/raise.ts
-import { spawn as spawn4 } from "node:child_process";
+import { spawn as spawn5 } from "node:child_process";
 import { readFileSync as readFileSync35 } from "node:fs";
 import { fileURLToPath as fileURLToPath6 } from "node:url";
 var RAISE_STALE_MS = 15e3;
@@ -16501,7 +16700,7 @@ function raiseDaemon(authDir) {
   const entry = daemonEntry();
   log(`no bridge daemon for ${authDir} — raising one: ${entry} daemon`);
   try {
-    const child = spawn4(process.execPath, [entry, "daemon", "--auth-dir", authDir], {
+    const child = spawn5(process.execPath, [entry, "daemon", "--auth-dir", authDir], {
       detached: true,
       stdio: "ignore",
       cwd: seamRunDir(authDir),
@@ -16956,9 +17155,9 @@ async function probeDaemon(args) {
 }
 
 // js/watchdog/client.ts
-import { existsSync as existsSync10, readdirSync as readdirSync13, readFileSync as readFileSync36 } from "node:fs";
+import { existsSync as existsSync11, readdirSync as readdirSync13, readFileSync as readFileSync36 } from "node:fs";
 import { connect as connect5 } from "node:net";
-import { join as join31 } from "node:path";
+import { join as join32 } from "node:path";
 
 // js/watchdog/words.ts
 var wd = () => words(WATCHDOG);
@@ -16993,9 +17192,9 @@ function resolveStanding(argv2) {
   const dir2 = standingsDirOf(authDir);
   const pathFor = (k) => socketPathOf(authDir, k);
   if (key3) return { key: key3, path: pathFor(key3), authDir };
-  const held2 = existsSync10(dir2) ? readdirSync13(dir2).filter((f) => f.endsWith(".key")).map((f) => {
+  const held2 = existsSync11(dir2) ? readdirSync13(dir2).filter((f) => f.endsWith(".key")).map((f) => {
     try {
-      return readFileSync36(join31(dir2, f), "utf8").trim();
+      return readFileSync36(join32(dir2, f), "utf8").trim();
     } catch {
       return "";
     }
@@ -17098,9 +17297,9 @@ function attach(path, o) {
 }
 
 // js/watchdog/codex.ts
-import { existsSync as existsSync11 } from "node:fs";
-import { homedir as homedir8 } from "node:os";
-import { join as join32 } from "node:path";
+import { existsSync as existsSync12 } from "node:fs";
+import { homedir as homedir9 } from "node:os";
+import { join as join33 } from "node:path";
 
 // js/shared/appserver.ts
 import { randomBytes as randomBytes5 } from "node:crypto";
@@ -17184,8 +17383,8 @@ var note2 = (s2) => {
   process.stderr.write(s2 + "\n");
 };
 function codexDoorPath() {
-  const home = process.env.CODEX_HOME?.trim() || join32(homedir8(), ".codex");
-  return join32(home, "app-server-control", "app-server-control.sock");
+  const home = process.env.CODEX_HOME?.trim() || join33(homedir9(), ".codex");
+  return join33(home, "app-server-control", "app-server-control.sock");
 }
 function runWatchdogCodex(argv2) {
   parseWatchdogArgs(argv2);
@@ -17195,7 +17394,7 @@ function runWatchdogCodex(argv2) {
     process.exit(2);
   }
   const socketPath = codexDoorPath();
-  if (!existsSync11(socketPath)) {
+  if (!existsSync12(socketPath)) {
     note2(wd().noDoor(socketPath));
     process.exit(2);
   }
@@ -17658,11 +17857,11 @@ function runWatchdog(argv2) {
 }
 
 // js/watchdog/watchdog-exit.ts
-import { createHash as createHash9 } from "node:crypto";
+import { createHash as createHash10 } from "node:crypto";
 import { writeSync as writeSync2 } from "node:fs";
 function frameId(ev) {
   const id = ev.frame?.id;
-  return typeof id === "string" && id ? id : `raw:${createHash9("sha256").update(ev.raw ?? "").digest("hex").slice(0, 16)}`;
+  return typeof id === "string" && id ? id : `raw:${createHash10("sha256").update(ev.raw ?? "").digest("hex").slice(0, 16)}`;
 }
 var wake = (s2) => {
   writeSync2(1, s2 + "\n");
@@ -17785,19 +17984,19 @@ function runWatchdogExit(argv2) {
 }
 
 // js/cli/doctor.ts
-import { createHash as createHash10 } from "node:crypto";
-import { existsSync as existsSync17, readFileSync as readFileSync43 } from "node:fs";
-import { homedir as homedir15 } from "node:os";
-import { dirname as dirname16, join as join40 } from "node:path";
+import { createHash as createHash11 } from "node:crypto";
+import { existsSync as existsSync18, readFileSync as readFileSync43 } from "node:fs";
+import { homedir as homedir16 } from "node:os";
+import { dirname as dirname16, join as join41 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // js/shared/covercontract.ts
 import { readFileSync as readFileSync38 } from "node:fs";
-import { join as join34 } from "node:path";
+import { join as join35 } from "node:path";
 
 // js/shared/reposigns.ts
 import { readFileSync as readFileSync37, statSync as statSync11 } from "node:fs";
-import { dirname as dirname12, join as join33, resolve as resolve8 } from "node:path";
+import { dirname as dirname12, join as join34, resolve as resolve8 } from "node:path";
 var exists = (path) => {
   try {
     statSync11(path);
@@ -17809,7 +18008,7 @@ var exists = (path) => {
 function repoRoot(dir2) {
   let at3 = resolve8(dir2);
   for (; ; ) {
-    if (exists(join33(at3, ".git"))) return at3;
+    if (exists(join34(at3, ".git"))) return at3;
     const up = dirname12(at3);
     if (up === at3) return null;
     at3 = up;
@@ -17849,15 +18048,15 @@ function repoContractWarning(dir2, lang2) {
   const root = repoRoot(dir2);
   if (!root) return null;
   try {
-    return contractWarning(contractOf(readFileSync38(join34(root, COVER.file), "utf8")), lang2);
+    return contractWarning(contractOf(readFileSync38(join35(root, COVER.file), "utf8")), lang2);
   } catch {
     return null;
   }
 }
 
 // js/cli/codexcache.ts
-import { existsSync as existsSync12, readdirSync as readdirSync14 } from "node:fs";
-import { join as join35 } from "node:path";
+import { existsSync as existsSync13, readdirSync as readdirSync14 } from "node:fs";
+import { join as join36 } from "node:path";
 
 // js/cli/installnames.ts
 var PRODUCT_PATTERN = escapeRe(PRODUCT);
@@ -17873,30 +18072,30 @@ var list2 = (d) => {
     return [];
   }
 };
-var isCopy = (d) => existsSync12(join35(d, ".codex-plugin", "plugin.json"));
+var isCopy = (d) => existsSync13(join36(d, ".codex-plugin", "plugin.json"));
 function codexCopies(home) {
-  const cache = join35(home, "plugins", "cache");
+  const cache = join36(home, "plugins", "cache");
   const out7 = [];
   for (const market of list2(cache))
-    for (const plugin of list2(join35(cache, market))) {
+    for (const plugin of list2(join36(cache, market))) {
       if (!PRODUCT_RE.test(plugin)) continue;
-      const dir2 = join35(cache, market, plugin);
-      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join35(dir2, v)));
+      const dir2 = join36(cache, market, plugin);
+      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join36(dir2, v)));
       if (!versions.length) out7.push({ market, plugin, dir: dir2 });
-      for (const v of versions) out7.push({ market, plugin, dir: join35(dir2, v) });
+      for (const v of versions) out7.push({ market, plugin, dir: join36(dir2, v) });
     }
   return out7;
 }
 
 // js/cli/doctornode.ts
 import { accessSync, constants } from "node:fs";
-import { homedir as homedir11 } from "node:os";
-import { basename as basename8, dirname as dirname14, isAbsolute as isAbsolute6 } from "node:path";
+import { homedir as homedir12 } from "node:os";
+import { basename as basename8, dirname as dirname14, isAbsolute as isAbsolute7 } from "node:path";
 
 // js/cli/subagents.ts
-import { existsSync as existsSync13, readdirSync as readdirSync15, readFileSync as readFileSync39, statSync as statSync12 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { basename as basename7, delimiter, dirname as dirname13, isAbsolute as isAbsolute5, join as join36, resolve as resolve9 } from "node:path";
+import { existsSync as existsSync14, readdirSync as readdirSync15, readFileSync as readFileSync39, statSync as statSync12 } from "node:fs";
+import { homedir as homedir11 } from "node:os";
+import { basename as basename7, delimiter, dirname as dirname13, isAbsolute as isAbsolute6, join as join37, resolve as resolve9 } from "node:path";
 
 // js/cli/frontmatter.ts
 function frontmatterText(file2) {
@@ -18021,7 +18220,7 @@ function parseFrontmatter(text5) {
 }
 
 // js/cli/satform.ts
-import { homedir as homedir9 } from "node:os";
+import { homedir as homedir10 } from "node:os";
 import { basename as basename6 } from "node:path";
 var SATELLITE_ARGS = ["-e", SATELLITE_CODE, "--", "--satellite"];
 var SHELLS = /* @__PURE__ */ new Set(["sh", "bash", "zsh", "dash"]);
@@ -18058,7 +18257,7 @@ var SHELL_PATH_RE = new RegExp(
   `"([^"]*${P5}[^"]*\\.mjs)"|'([^']*${P5}[^']*\\.mjs)'|(\\S*${P5}\\S*\\.mjs)`
 );
 var ARG_PATH_RE = new RegExp(`${P5}[^\\\\/]*\\.mjs$`, "i");
-var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir9()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir9());
+var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir10()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir10());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
   if (base === "node" && (e.args[0] === "-e" || e.args[0] === "--eval")) {
@@ -18088,7 +18287,7 @@ function readyEntry(name2, disallowed, tail2 = []) {
 }
 
 // js/cli/satprobe.ts
-import { spawn as spawn5 } from "node:child_process";
+import { spawn as spawn6 } from "node:child_process";
 import { createInterface as createInterface4 } from "node:readline";
 var sw3 = () => words(SAT_PROBE);
 var PROBE_MS = Number(process.env[envName("DOCTOR_PROBE_MS")]) || 3e4;
@@ -18108,7 +18307,7 @@ async function probeSatellite(label, e, cwd) {
   };
   delete env2[envName("CHANNEL_SOCKET")];
   delete env2[envName("CHANNEL_STATUS")];
-  const child = spawn5(e.command, e.args, {
+  const child = spawn6(e.command, e.args, {
     cwd,
     env: env2,
     stdio: ["pipe", "pipe", "pipe"],
@@ -18250,7 +18449,7 @@ function entriesOf(fm) {
 }
 var listOf = (v) => Array.isArray(v) ? v.map((x) => str5(x).trim()).filter(Boolean) : str5(v).split(",").map((x) => x.trim()).filter(Boolean);
 function agentFiles(dir2, scope) {
-  if (!existsSync13(dir2)) return [];
+  if (!existsSync14(dir2)) return [];
   let names2;
   try {
     names2 = readdirSync15(dir2).filter((f) => f.endsWith(".md"));
@@ -18258,7 +18457,7 @@ function agentFiles(dir2, scope) {
     return [];
   }
   return names2.sort().map((f) => {
-    const path = join36(dir2, f);
+    const path = join37(dir2, f);
     let fm = {};
     try {
       const text5 = frontmatterText(readFileSync39(path, "utf8"));
@@ -18269,13 +18468,13 @@ function agentFiles(dir2, scope) {
   });
 }
 function projectRoot() {
-  const home = resolve9(homedir10());
+  const home = resolve9(homedir11());
   let gitRoot = null;
   for (let d = process.cwd(); ; ) {
     if (resolve9(d) === home) break;
-    if (existsSync13(join36(d, ".claude", "agents")) || existsSync13(join36(d, ".opencode", "agents")))
+    if (existsSync14(join37(d, ".claude", "agents")) || existsSync14(join37(d, ".opencode", "agents")))
       return d;
-    if (!gitRoot && existsSync13(join36(d, ".git"))) gitRoot = d;
+    if (!gitRoot && existsSync14(join37(d, ".git"))) gitRoot = d;
     const up = dirname13(d);
     if (up === d) break;
     d = up;
@@ -18283,14 +18482,14 @@ function projectRoot() {
   return gitRoot ?? process.cwd();
 }
 function which(cmd2, cwd) {
-  if (isAbsolute5(cmd2) || /[\\/]/.test(cmd2)) {
+  if (isAbsolute6(cmd2) || /[\\/]/.test(cmd2)) {
     const p = resolve9(cwd, cmd2);
-    return existsSync13(p) ? p : null;
+    return existsSync14(p) ? p : null;
   }
   const exts = platform() === "win32" ? ["", ...(process.env.PATHEXT || ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
   for (const dir2 of (process.env.PATH || "").split(delimiter).filter(Boolean)) {
     for (const ext of exts) {
-      const p = join36(dir2, cmd2 + ext);
+      const p = join37(dir2, cmd2 + ext);
       try {
         if (statSync12(p).isFile()) return p;
       } catch {
@@ -18321,7 +18520,7 @@ function parentBridges(root) {
       return null;
     }
   };
-  const user = readJson2(join36(homedir10(), ".claude.json"));
+  const user = readJson2(join37(homedir11(), ".claude.json"));
   if (user) {
     scan(user.mcpServers, (n) => `mcp__${n}`);
     const projects = user.projects ?? {};
@@ -18329,8 +18528,8 @@ function parentBridges(root) {
     for (const [k, p] of Object.entries(projects))
       if (k.replace(/\\/g, "/") === key3) scan(p.mcpServers, (n) => `mcp__${n}`);
   }
-  scan(readJson2(join36(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
-  const registry = readJson2(join36(homedir10(), ".claude", "plugins", "installed_plugins.json"));
+  scan(readJson2(join37(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
+  const registry = readJson2(join37(homedir11(), ".claude", "plugins", "installed_plugins.json"));
   const plugins = registry?.plugins ?? {};
   for (const [key3, installs] of Object.entries(plugins)) {
     const plugin = key3.split("@")[0];
@@ -18338,7 +18537,7 @@ function parentBridges(root) {
     for (const inst of installs)
       if (inst.installPath)
         scan(
-          readJson2(join36(inst.installPath, ".mcp.json"))?.mcpServers,
+          readJson2(join37(inst.installPath, ".mcp.json"))?.mcpServers,
           (n) => `mcp__plugin_${plugin}_${n}`
         );
   }
@@ -18347,7 +18546,7 @@ function parentBridges(root) {
 function trustLine(root) {
   let cfg;
   try {
-    cfg = JSON.parse(readFileSync39(join36(homedir10(), ".claude.json"), "utf8"));
+    cfg = JSON.parse(readFileSync39(join37(homedir11(), ".claude.json"), "utf8"));
   } catch {
     return null;
   }
@@ -18368,7 +18567,7 @@ function trustLine(root) {
 function hasGrant() {
   if (CFG.pat) return true;
   try {
-    if (!existsSync13(storePath())) return false;
+    if (!existsSync14(storePath())) return false;
     const t = loadStore().tokens;
     return Boolean(t?.access_token || t?.refresh_token);
   } catch {
@@ -18377,20 +18576,20 @@ function hasGrant() {
 }
 async function subagentsReport(out7) {
   const root = projectRoot();
-  const userDir = join36(homedir10(), ".claude", "agents");
-  const atHome = resolve9(root) === resolve9(homedir10());
-  const project = atHome ? [] : agentFiles(join36(root, ".claude", "agents"), "project");
+  const userDir = join37(homedir11(), ".claude", "agents");
+  const atHome = resolve9(root) === resolve9(homedir11());
+  const project = atHome ? [] : agentFiles(join37(root, ".claude", "agents"), "project");
   const shadowed = new Set(project.map((f) => f.agent));
   const user = agentFiles(userDir, "user");
   const claude = [...project, ...user.filter((f) => !shadowed.has(f.agent))];
   const opencode = [
-    ...agentFiles(join36(root, ".opencode", "agents"), "project"),
-    ...agentFiles(join36(root, ".opencode", "agent"), "project")
+    ...agentFiles(join37(root, ".opencode", "agents"), "project"),
+    ...agentFiles(join37(root, ".opencode", "agent"), "project")
   ];
   const osNote = process.env[PLATFORM_ENV] ? subWords().osJudged(platform()) : platform();
   out7(subWords().header(root, osNote));
   if (!claude.length && !opencode.length) {
-    const dirs = `${join36(root, ".claude", "agents")}, ${userDir}, ${join36(root, ".opencode", "agents")}`;
+    const dirs = `${join37(root, ".claude", "agents")}, ${userDir}, ${join37(root, ".opencode", "agents")}`;
     out7(subWords().noFiles(dirs));
     return;
   }
@@ -18436,7 +18635,7 @@ async function subagentsReport(out7) {
       const form = formOf3(e);
       if (form !== "eval") {
         lines.push(subWords().replaceEntry(e.name, formWord(form), block(name2, e)));
-        if (!probeEntry && existsSync13(homeBridgePath())) probeEntry = canonical(e);
+        if (!probeEntry && existsSync14(homeBridgePath())) probeEntry = canonical(e);
         continue;
       }
       if (!which(e.command, root)) {
@@ -18444,7 +18643,7 @@ async function subagentsReport(out7) {
         continue;
       }
       const bridge = bridgePathOf(e);
-      if (bridge && !existsSync13(resolve9(root, bridge))) {
+      if (bridge && !existsSync14(resolve9(root, bridge))) {
         lines.push(subWords().noBridge(bridge, homeBridgePath()));
         continue;
       }
@@ -18520,18 +18719,18 @@ var executable = (p) => {
     return false;
   }
 };
-var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir11(), "$HOME"));
+var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir12(), "$HOME"));
 function launchReport(out7, launches2) {
   for (const l of launches2) {
     const cmd2 = l.command || "node";
     const found = which(cmd2, process.cwd());
     if (!found || !executable(found)) {
-      out7(`${todo()} ${hw().launchNotFound(l.who, cmd2, isAbsolute6(cmd2))}`);
+      out7(`${todo()} ${hw().launchNotFound(l.who, cmd2, isAbsolute7(cmd2))}`);
       const own = /^node/i.test(basename8(process.execPath)) ? process.execPath : null;
       out7(fix(l, own));
       continue;
     }
-    if (isAbsolute6(cmd2)) {
+    if (isAbsolute7(cmd2)) {
       out7(hw().launchAbsolute(l.who, cmd2));
       continue;
     }
@@ -18548,9 +18747,9 @@ function launchReport(out7, launches2) {
 var openCodeRuntimeWord = () => hw().openCodeRuntime();
 
 // js/cli/doctorpaths.ts
-import { existsSync as existsSync14, readFileSync as readFileSync40 } from "node:fs";
-import { homedir as homedir12 } from "node:os";
-import { join as join37 } from "node:path";
+import { existsSync as existsSync15, readFileSync as readFileSync40 } from "node:fs";
+import { homedir as homedir13 } from "node:os";
+import { join as join38 } from "node:path";
 var hw2 = () => words(HARNESS);
 var readJson = (p) => {
   try {
@@ -18563,7 +18762,7 @@ var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => t
 var say = (out7, where, name2, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name2, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
-  const file2 = join37(homedir12(), ".claude.json");
+  const file2 = join38(homedir13(), ".claude.json");
   const cfg = readJson(file2);
   if (!cfg) return;
   for (const [n, url] of httpEntries(cfg.mcpServers))
@@ -18578,7 +18777,7 @@ function claudeCode(out7) {
         url,
         `cd "${dir2}" && claude mcp remove "${n}" --scope local`
       );
-  const mcp = join37(projectRoot(), ".mcp.json");
+  const mcp = join38(projectRoot(), ".mcp.json");
   for (const [n, url] of httpEntries(readJson(mcp)?.mcpServers))
     say(out7, `Claude Code (${mcp})`, n, url, hw2().deleteFrom(mcp));
   const ever = Array.isArray(cfg.claudeAiMcpEverConnected) ? cfg.claudeAiMcpEverConnected : [];
@@ -18600,8 +18799,8 @@ function codexHttp(text5) {
 function secondPathReport(out7, codexHomes2) {
   claudeCode(out7);
   for (const home of codexHomes2) {
-    const file2 = join37(home, "config.toml");
-    if (!existsSync14(file2)) continue;
+    const file2 = join38(home, "config.toml");
+    if (!existsSync15(file2)) continue;
     let text5;
     try {
       text5 = readFileSync40(file2, "utf8");
@@ -18614,33 +18813,33 @@ function secondPathReport(out7, codexHomes2) {
 }
 
 // js/cli/doctorskills.ts
-import { existsSync as existsSync15, readFileSync as readFileSync41 } from "node:fs";
-import { homedir as homedir13 } from "node:os";
-import { join as join38, resolve as resolve10 } from "node:path";
+import { existsSync as existsSync16, readFileSync as readFileSync41 } from "node:fs";
+import { homedir as homedir14 } from "node:os";
+import { join as join39, resolve as resolve10 } from "node:path";
 var hw3 = () => words(HARNESS);
-var IN_SET = join38(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
+var IN_SET = join39(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
 function sets(codexHomes2) {
   const found = [];
   try {
     const reg = JSON.parse(
-      readFileSync41(join38(homedir13(), ".claude", "plugins", "installed_plugins.json"), "utf8")
+      readFileSync41(join39(homedir14(), ".claude", "plugins", "installed_plugins.json"), "utf8")
     );
     for (const [key3, installs] of Object.entries(reg.plugins ?? {}))
       if (PLUGIN_KEY_RE.test(key3)) {
         for (const i of installs)
-          if (i.installPath) found.push([join38(i.installPath, "skills"), "claude"]);
+          if (i.installPath) found.push([join39(i.installPath, "skills"), "claude"]);
       }
   } catch {
   }
   for (const home of codexHomes2)
-    for (const c of codexCopies(home)) found.push([join38(c.dir, "skills"), "codex"]);
-  found.push([join38(homedir13(), ".agents", "skills"), "flat"]);
+    for (const c of codexCopies(home)) found.push([join39(c.dir, "skills"), "codex"]);
+  found.push([join39(homedir14(), ".agents", "skills"), "flat"]);
   const own = skillsRoot();
   if (own) found.push([own, "other"]);
   const seen = /* @__PURE__ */ new Set();
   return found.filter(([root]) => {
     const key3 = resolve10(root);
-    if (seen.has(key3) || !existsSync15(join38(root, IN_SET))) return false;
+    if (seen.has(key3) || !existsSync16(join39(root, IN_SET))) return false;
     seen.add(key3);
     return true;
   });
@@ -18660,7 +18859,7 @@ function skillsReport(out7, codexHomes2) {
   for (const [root, kind] of found) {
     let v = null;
     try {
-      v = versionIn(readFileSync41(join38(root, IN_SET), "utf8"));
+      v = versionIn(readFileSync41(join39(root, IN_SET), "utf8"));
     } catch {
     }
     if (!v) out7(hw3().skillsUnreadable(root));
@@ -18674,19 +18873,19 @@ function skillsReport(out7, codexHomes2) {
 }
 
 // js/cli/opencode-config.ts
-import { existsSync as existsSync16, readFileSync as readFileSync42 } from "node:fs";
-import { homedir as homedir14 } from "node:os";
-import { dirname as dirname15, join as join39 } from "node:path";
+import { existsSync as existsSync17, readFileSync as readFileSync42 } from "node:fs";
+import { homedir as homedir15 } from "node:os";
+import { dirname as dirname15, join as join40 } from "node:path";
 var BRIDGE_PART_RE = new RegExp(
   `(^|[\\\\/])${PRODUCT_PATTERN}[^\\\\/]*\\.mjs$|${escapeRe(BRIDGE_NAME)}`
 );
 var hw4 = () => words(HARNESS);
 function openCodeMcpEntries(out7) {
   const dirFiles = (d) => [
-    join39(d, "opencode.json"),
-    join39(d, "opencode.jsonc"),
-    join39(d, ".opencode", "opencode.json"),
-    join39(d, ".opencode", "opencode.jsonc")
+    join40(d, "opencode.json"),
+    join40(d, "opencode.jsonc"),
+    join40(d, ".opencode", "opencode.json"),
+    join40(d, ".opencode", "opencode.jsonc")
   ];
   const upwards = [];
   if (!process.env.OPENCODE_CONFIG_PROJECT_DISABLE)
@@ -18700,7 +18899,7 @@ function openCodeMcpEntries(out7) {
     ...process.env.OPENCODE_CONFIG ? [process.env.OPENCODE_CONFIG] : [],
     // Whether this directory belongs to the switchable project layer was not observed (#5559).
     ...process.env.OPENCODE_CONFIG_DIR ? dirFiles(process.env.OPENCODE_CONFIG_DIR) : [],
-    ...dirFiles(join39(homedir14(), ".config", "opencode")),
+    ...dirFiles(join40(homedir15(), ".config", "opencode")),
     ...upwards
   ];
   const kindOf3 = (v) => {
@@ -18736,7 +18935,7 @@ function openCodeMcpEntries(out7) {
   let unreadable = 0;
   const sources = [];
   for (const f of new Set(files)) {
-    if (!existsSync16(f)) continue;
+    if (!existsSync17(f)) continue;
     try {
       sources.push([f, readFileSync42(f, "utf8")]);
     } catch {
@@ -18773,7 +18972,7 @@ var out3 = (s2) => {
   process.stdout.write(s2 + "\n");
 };
 var dw = () => words(DOCTOR);
-var hashOf3 = (buf) => createHash10("sha256").update(buf).digest("hex").slice(0, 8);
+var hashOf3 = (buf) => createHash11("sha256").update(buf).digest("hex").slice(0, 8);
 var seconds = (ms2) => `${Math.round(ms2 / 1e3)}s`;
 var ENTRY = escapeRe(PLUGIN_NAME);
 var CODEX_ENTRY_RE = new RegExp(
@@ -18787,7 +18986,7 @@ function homeCopyReport() {
     self = readFileSync43(fileURLToPath8(import.meta.url));
   } catch {
   }
-  if (!existsSync17(home)) {
+  if (!existsSync18(home)) {
     out3(dw().homeNone(home));
     return;
   }
@@ -18876,12 +19075,12 @@ async function patReport() {
   else if (res.ok) out3(dw().patAccepted(res.status));
   else out3(dw().patOther(res.status));
   const path = storePath();
-  if (existsSync17(path)) out3(dw().patStore(path));
+  if (existsSync18(path)) out3(dw().patStore(path));
 }
 function grantReport() {
   const path = storePath();
   out3(dw().grant(path));
-  if (!existsSync17(path)) {
+  if (!existsSync18(path)) {
     out3(dw().noStore());
     return;
   }
@@ -18913,10 +19112,10 @@ function grantReport() {
   if (st.refused_since)
     out3(dw().refusedSince(new Date(st.refused_since).toISOString(), st.reason ?? ""));
   for (const suffix of [".auth-pending", ".refreshing"]) {
-    if (existsSync17(path + suffix)) out3(dw().lock(path + suffix));
+    if (existsSync18(path + suffix)) out3(dw().lock(path + suffix));
   }
   const logPath = grantLogPath();
-  if (existsSync17(logPath)) {
+  if (existsSync18(logPath)) {
     const lines = readFileSync43(logPath, "utf8").trim().split("\n").slice(-3);
     out3(dw().grantLog());
     for (const l of lines) out3(`    ${l}`);
@@ -18935,8 +19134,8 @@ function latestReport() {
   else out3(dw().latestCurrent(latest.version, ago));
 }
 function claudePluginReport() {
-  const registry = join40(homedir15(), ".claude", "plugins", "installed_plugins.json");
-  if (!existsSync17(registry)) return;
+  const registry = join41(homedir16(), ".claude", "plugins", "installed_plugins.json");
+  if (!existsSync18(registry)) return;
   try {
     const reg = JSON.parse(readFileSync43(registry, "utf8"));
     const mine = Object.entries(reg.plugins ?? {}).filter(([k]) => PLUGIN_KEY_RE.test(k));
@@ -18946,9 +19145,9 @@ function claudePluginReport() {
     }
     for (const [key3, installs] of mine) {
       for (const inst of installs) {
-        const manifest = inst.installPath ? join40(inst.installPath, ".mcp.json") : "";
+        const manifest = inst.installPath ? join41(inst.installPath, ".mcp.json") : "";
         let entry = dw().entryNotFound();
-        if (manifest && existsSync17(manifest)) {
+        if (manifest && existsSync18(manifest)) {
           try {
             const m = JSON.parse(readFileSync43(manifest, "utf8"));
             const hit = Object.entries(m.mcpServers ?? {}).find(
@@ -18984,19 +19183,19 @@ function claudePluginReport() {
 function codexHomes() {
   const homes = [
     process.env.CODEX_HOME?.trim() || "",
-    join40(homedir15(), ".codex"),
-    ...process.platform === "darwin" ? [join40(homedir15(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
+    join41(homedir16(), ".codex"),
+    ...process.platform === "darwin" ? [join41(homedir16(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
   ].filter(Boolean);
-  return [...new Set(homes)].filter((h) => existsSync17(h));
+  return [...new Set(homes)].filter((h) => existsSync18(h));
 }
 function codexPluginReport(home) {
-  const cache = join40(home, "plugins", "cache");
-  if (!existsSync17(cache)) return;
+  const cache = join41(home, "plugins", "cache");
+  if (!existsSync18(cache)) return;
   let found = 0;
   for (const { market, plugin, dir: dir2 } of codexCopies(home)) {
-    const manifest = join40(dir2, ".codex-plugin", "plugin.json");
+    const manifest = join41(dir2, ".codex-plugin", "plugin.json");
     let word3 = dw().codexNoManifest();
-    if (existsSync17(manifest)) {
+    if (existsSync18(manifest)) {
       try {
         const m = JSON.parse(readFileSync43(manifest, "utf8"));
         const hit = Object.values(m.mcpServers ?? {}).find(
@@ -19022,8 +19221,8 @@ var launches = [];
 function harnessReport() {
   launches.length = 0;
   claudePluginReport();
-  const claude = join40(homedir15(), ".claude.json");
-  if (existsSync17(claude)) {
+  const claude = join41(homedir16(), ".claude.json");
+  if (existsSync18(claude)) {
     try {
       const cfg = JSON.parse(readFileSync43(claude, "utf8"));
       const entries2 = Object.entries(cfg.mcpServers ?? {}).filter(
@@ -19044,26 +19243,26 @@ function harnessReport() {
       out3(dw().claudeUnreadable(claude));
     }
   }
-  const opencodeDir = join40(homedir15(), ".config", "opencode");
-  if (existsSync17(opencodeDir)) {
-    const copy = join40(opencodeDir, "plugins", PLUGIN_COPY_FILE);
-    const packaged = join40(dirname16(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
-    if (!existsSync17(copy)) out3(dw().ocNoPlugin(copy));
-    else if (!existsSync17(packaged)) out3(dw().ocNoPackaged(copy));
+  const opencodeDir = join41(homedir16(), ".config", "opencode");
+  if (existsSync18(opencodeDir)) {
+    const copy = join41(opencodeDir, "plugins", PLUGIN_COPY_FILE);
+    const packaged = join41(dirname16(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
+    if (!existsSync18(copy)) out3(dw().ocNoPlugin(copy));
+    else if (!existsSync18(packaged)) out3(dw().ocNoPackaged(copy));
     else if (readFileSync43(copy).equals(readFileSync43(packaged))) out3(dw().ocSame(copy));
     else out3(dw().ocDiffers(copy, packaged));
-    if (existsSync17(copy)) out3(openCodeRuntimeWord());
+    if (existsSync18(copy)) out3(openCodeRuntimeWord());
   }
   openCodeMcpEntries(out3);
   for (const codexHome of codexHomes()) {
     out3(dw().codexHome(codexHome));
     codexPluginReport(codexHome);
-    const door = join40(codexHome, "app-server-control", "app-server-control.sock");
-    if (existsSync17(door)) out3(dw().codexDoorOpen(door));
+    const door = join41(codexHome, "app-server-control", "app-server-control.sock");
+    if (existsSync18(door)) out3(dw().codexDoorOpen(door));
     else if (Buffer.byteLength(door) > 100) out3(dw().codexDoorNever());
     else out3(dw().codexDoorNone(door));
-    const codex = join40(codexHome, "config.toml");
-    if (existsSync17(codex)) {
+    const codex = join41(codexHome, "config.toml");
+    if (existsSync18(codex)) {
       const text5 = readFileSync43(codex, "utf8");
       out3(dw().codexManual(CODEX_ENTRY_RE.test(text5)));
     }
@@ -19080,7 +19279,7 @@ async function daemonReport() {
     out3(dw().fallbackCount(fallbacks.length));
     for (const f of fallbacks) out3(dw().fallbackOne(f.pid, f.build, f.since, f.cwd, f.why));
   }
-  if (!existsSync17(seamRunDir(CFG.authDir))) {
+  if (!existsSync18(seamRunDir(CFG.authDir))) {
     out3(dw().daemonNeverUp(seamRunDir(CFG.authDir)));
     return;
   }
@@ -19178,14 +19377,14 @@ async function runOrchestra(argv2) {
 // js/cli/preparefiles.ts
 import { spawnSync } from "node:child_process";
 import {
-  existsSync as existsSync19,
+  existsSync as existsSync20,
   lstatSync as lstatSync4,
   readFileSync as readFileSync47,
   readlinkSync,
   symlinkSync,
   writeFileSync as writeFileSync22
 } from "node:fs";
-import { join as join44 } from "node:path";
+import { join as join45 } from "node:path";
 
 // js/shared/coverwrite.ts
 var scalar = (v) => {
@@ -19233,22 +19432,22 @@ function others(lines) {
 
 // js/shared/ritualcover.ts
 import { readdirSync as readdirSync16, readFileSync as readFileSync44 } from "node:fs";
-import { join as join41 } from "node:path";
+import { join as join42 } from "node:path";
 function ownRitualsPlugin(root) {
   try {
-    return readdirSync16(join41(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
+    return readdirSync16(join42(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
   } catch {
     return false;
   }
 }
 
 // js/cli/preparehooks.ts
-import { existsSync as existsSync18, mkdirSync as mkdirSync20, readFileSync as readFileSync46, writeFileSync as writeFileSync21 } from "node:fs";
-import { join as join43 } from "node:path";
+import { existsSync as existsSync19, mkdirSync as mkdirSync21, readFileSync as readFileSync46, writeFileSync as writeFileSync21 } from "node:fs";
+import { join as join44 } from "node:path";
 
 // js/cli/preparescripts.ts
 import { readFileSync as readFileSync45, statSync as statSync13 } from "node:fs";
-import { isAbsolute as isAbsolute7, join as join42 } from "node:path";
+import { isAbsolute as isAbsolute8, join as join43 } from "node:path";
 var SCRIPT = /\.(sh|bash|zsh|js|cjs|mjs|ts|py|rb|pl)$/;
 var PROJECT = /\$\{?CLAUDE_PROJECT_DIR\}?/g;
 var INTERPRETER = /(^|\/)(sh|bash|zsh|dash|node|bun|deno|tsx|python3?|ruby|perl)$/;
@@ -19256,7 +19455,7 @@ function scriptsOf(root, command) {
   const words2 = command.split(/\s+/).map((t) => t.replace(/["']/g, ""));
   const at3 = (t) => {
     const p = t.replace(PROJECT, root);
-    return isAbsolute7(p) ? p : join42(root, p);
+    return isAbsolute8(p) ? p : join43(root, p);
   };
   return words2.filter(
     (t, i) => SCRIPT.test(t) || t.includes("CLAUDE_PROJECT_DIR") || i > 0 && INTERPRETER.test(words2[i - 1] ?? "") && /^[\w.~]/.test(t) || t.includes("/") && isFile(at3(t))
@@ -19336,7 +19535,7 @@ var written = (c) => {
 };
 var CARRIED = ["hook.start", "hook.push", "hook.merge"];
 function load2(path) {
-  if (!existsSync18(path)) return {};
+  if (!existsSync19(path)) return {};
   try {
     const s2 = JSON.parse(readFileSync46(path, "utf8"));
     return s2 && typeof s2 === "object" && !Array.isArray(s2) ? s2 : null;
@@ -19368,8 +19567,8 @@ function guard(root, s2, addr, out7, preserve) {
   return true;
 }
 function prepareHooks(root, addr, out7, on, preserve = false) {
-  const dir2 = join43(root, ".claude");
-  const path = join43(dir2, "settings.json");
+  const dir2 = join44(root, ".claude");
+  const path = join44(dir2, "settings.json");
   const s2 = load2(path);
   if (!s2) return path;
   const changed = on.has("guard") && guard(root, s2, addr, out7, preserve);
@@ -19382,7 +19581,7 @@ function prepareHooks(root, addr, out7, on, preserve = false) {
     (out7.named ??= {})["hook.start"] = cmd(unread);
   }
   if (changed) {
-    mkdirSync20(dir2, { recursive: true });
+    mkdirSync21(dir2, { recursive: true });
     writeFileSync21(path, `${JSON.stringify(s2, null, 2)}
 `);
   }
@@ -19404,8 +19603,8 @@ function repositoryOf(root) {
 }
 function coverText(root, given) {
   const W4 = words(PREPARE);
-  const file2 = join44(root, COVER.file);
-  const before = existsSync19(file2) ? readFileSync47(file2, "utf8") : null;
+  const file2 = join45(root, COVER.file);
+  const before = existsSync20(file2) ? readFileSync47(file2, "utf8") : null;
   if (before !== null && stampOf2(before) === "foreign") return { why: W4.foreign(COVER.file) };
   const had = before === null ? null : coverBlock(before, COVER.root);
   const twice = before === null ? [] : repeatedKeys(before);
@@ -19443,16 +19642,16 @@ function writeAgents(c, out7) {
     out7.left.push("cover.flat");
 }
 function writeReality(root, caseNo, out7) {
-  const file2 = join44(root, "REALITY.md");
+  const file2 = join45(root, "REALITY.md");
   const stub = words(PREPARE).reality(caseNo);
-  const had = existsSync19(file2) ? readFileSync47(file2, "utf8") : null;
+  const had = existsSync20(file2) ? readFileSync47(file2, "utf8") : null;
   if (had !== null && (had === stub || !caseNo || had !== words(PREPARE).reality()))
     return void out7.kept.push("REALITY.md");
   writeFileSync22(file2, stub);
   out7.done.push("REALITY.md");
 }
 function writeClaude(root, out7) {
-  const file2 = join44(root, "CLAUDE.md");
+  const file2 = join45(root, "CLAUDE.md");
   const st = lstatSync4(file2, { throwIfNoEntry: false });
   if (st?.isSymbolicLink()) {
     out7[readlinkSync(file2) === COVER.file ? "kept" : "left"].push("CLAUDE.md");
@@ -19703,20 +19902,20 @@ ${W4.usage()}` });
 }
 
 // js/cli/rituals.ts
-import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync17, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync14 } from "node:fs";
+import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync17, realpathSync as realpathSync5, rmSync as rmSync3, statSync as statSync14 } from "node:fs";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join47, resolve as resolve11 } from "node:path";
+import { join as join48, resolve as resolve11 } from "node:path";
 
 // js/cli/ritualprobe.ts
 import { mkdtempSync, rmSync as rmSync2, symlinkSync as symlinkSync2 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join46 } from "node:path";
+import { join as join47 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // js/cli/ritualcalls.ts
-import { homedir as homedir16 } from "node:os";
-import { join as join45 } from "node:path";
-var memoryPath = join45(homedir16(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
+import { homedir as homedir17 } from "node:os";
+import { join as join46 } from "node:path";
+var memoryPath = join46(homedir17(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
 var pushed = "To github.com:o/r.git\n   1234567..89abcde  feat/x -> feat/x";
 var seq3 = 0;
 var fresh = (kind) => `${kind}-${++seq3}`;
@@ -19814,9 +20013,9 @@ var created = (sessionID, directory) => {
 };
 var settle = (ms2 = SETTLE_MS) => new Promise((r) => setTimeout(r, ms2));
 async function probeScope(file2, own, foreign) {
-  const aliasRoot = mkdtempSync(join46(tmpdir(), "ritual-scope-alias-"));
+  const aliasRoot = mkdtempSync(join47(tmpdir(), "ritual-scope-alias-"));
   try {
-    const alias = join46(aliasRoot, "own");
+    const alias = join47(aliasRoot, "own");
     symlinkSync2(own, alias, "dir");
     return await probeWith(file2, own, alias, foreign);
   } finally {
@@ -19901,19 +20100,19 @@ var out4 = (s2) => {
 };
 var rw2 = () => words(RITUALS);
 async function auditRepo(repo) {
-  const own = realpathSync4(repo);
-  const dir2 = join47(own, ".opencode", "plugins");
+  const own = realpathSync5(repo);
+  const dir2 = join48(own, ".opencode", "plugins");
   let names2;
   try {
     names2 = readdirSync17(dir2).filter((n) => /\.(m?js|ts)$/.test(n));
   } catch {
     return [];
   }
-  const foreign = realpathSync4(mkdtempSync2(join47(tmpdir2(), "ritual-scope-foreign-")));
+  const foreign = realpathSync5(mkdtempSync2(join48(tmpdir2(), "ritual-scope-foreign-")));
   const verdicts = [];
   try {
     for (const name2 of names2.sort()) {
-      const file2 = join47(dir2, name2);
+      const file2 = join48(dir2, name2);
       try {
         const scope = await probeScope(file2, own, foreign);
         const hole = scope.writes.theirs > 0 || lostSpelling(scope) || mute(scope) || scope.broken.length > 0;
@@ -19982,13 +20181,13 @@ async function runCheckRituals(argv2) {
 }
 
 // js/cli/status.ts
-import { existsSync as existsSync20 } from "node:fs";
+import { existsSync as existsSync21 } from "node:fs";
 
 // js/cli/statusdisk.ts
 import { readdirSync as readdirSync18, readFileSync as readFileSync48 } from "node:fs";
-import { join as join48 } from "node:path";
+import { join as join49 } from "node:path";
 async function diskPlaces(authDir, sessions = []) {
-  const dir2 = join48(authDir, "standings");
+  const dir2 = join49(authDir, "standings");
   let names2;
   try {
     names2 = readdirSync18(dir2).filter((n) => n.endsWith(".hold")).sort();
@@ -19998,7 +20197,7 @@ async function diskPlaces(authDir, sessions = []) {
   const rows = await Promise.all(
     names2.map(async (n) => {
       try {
-        const p = record(JSON.parse(readFileSync48(join48(dir2, n), "utf8")));
+        const p = record(JSON.parse(readFileSync48(join49(dir2, n), "utf8")));
         if (!text(p.name) || !text(p.realm) || !["string", "number"].includes(typeof p.karta))
           return null;
         if (sessions.some(
@@ -20026,7 +20225,7 @@ var fallbackSnapshot = (authDir) => readFallbacks(authDir).map((f) => ({ pid: f.
 // js/cli/status.ts
 async function machine(authDir) {
   let daemon_error = "no answer";
-  if (!existsSync20(authDir)) daemon_error = "missing directory";
+  if (!existsSync21(authDir)) daemon_error = "missing directory";
   else if (!seamEntranceProblem(authDir, false)) {
     try {
       const link = await connectSeam(
