@@ -59,10 +59,10 @@ var warn = (path, what) => {
   process.stderr.write(`${BRIDGE_NAME}: ${path}: ${what}
 `);
 };
-function parseConfig(text5, say3) {
+function parseConfig(text6, say3) {
   let raw;
   try {
-    raw = JSON.parse(text5);
+    raw = JSON.parse(text6);
   } catch (e) {
     say3(`not JSON (${e.message}) — build defaults are used`);
     return {};
@@ -95,13 +95,13 @@ function parseConfig(text5, say3) {
 }
 function readConfig() {
   const path = configPath();
-  let text5;
+  let text6;
   try {
-    text5 = readFileSync(path, "utf8");
+    text6 = readFileSync(path, "utf8");
   } catch {
     return {};
   }
-  return parseConfig(text5, (what) => warn(path, what));
+  return parseConfig(text6, (what) => warn(path, what));
 }
 var CONFIG = readConfig();
 var CONFIG_SERVER = CONFIG.server ?? null;
@@ -224,7 +224,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.42.0";
+var VERSION = "3.43.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -292,8 +292,20 @@ var CALL = {
 };
 
 // js/delivery/words/frame-text.ts
+function clockNotice(kind2, f) {
+  const unknown = "unknown";
+  const flag = (v) => v === null ? unknown : v ? "yes" : "no";
+  const card = kind2 === "card_unanswered";
+  const ref = `case #${f.room ?? unknown} (id: ${f.roomId ?? unknown}, graph: ${f.realm ?? unknown}) [${f.entry ?? unknown}], key: ${f.key ?? unknown}`;
+  const who = `${card ? "addressee" : "holder"}: ${f.standing ?? unknown} (id: ${f.standingId ?? unknown}, role: ${f.karta ?? unknown})`;
+  const facts = card ? `listening: ${flag(f.listening)}; last move: ${f.lastAct ?? unknown}; role called: ${flag(f.roleCalled)}` : `due: ${f.due ?? unknown}; passed to the assigner: ${flag(f.escalated)}`;
+  return `${card ? "card unanswered" : "line due"}: ${ref}; ${who}; ${facts}`;
+}
 var FRAME_TEXT = {
   en: {
+    clockNotice: (kind2, facts) => clockNotice(kind2, facts),
+    cardRepeat: (n) => `card repeated: ${n ?? "repeat number unknown"}`,
+    openCards: (count, oldest, malformed = false) => `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
@@ -792,7 +804,7 @@ Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Unti
       "opencode.rituals": `the repository's own rituals plugin in .opencode/plugins — the delivery carries the rituals and keeps silent beside it: take it off once the delivery's replacement is verified, never by the contract's number, and if it carries branches of other kinds (a merge gate and the like) take off only start, push, merge and the memory guard and keep the rest in a file whose name lacks "ritual" (align, Step 4, the transition)`
     })[item],
     unread: (item, hook) => item === "hook.guard" ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)` : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off once the delivery's replacement is verified (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
-    head: (kind) => ({ done: "done", kept: "already there", left: "for the model" })[kind]
+    head: (kind2) => ({ done: "done", kept: "already there", left: "for the model" })[kind2]
   }
 };
 
@@ -840,7 +852,7 @@ var RESUME = {
     ownNotTaken: (key3, why) => `${key3}: a former bridge of this session holds it, taking it failed — ${why}`,
     noHello: (key3) => `${key3}: hello did not come — the record is intact, the watchdog will repeat the return; if you do not wait — ${via}`,
     stale: (key3) => `${key3}: the record went stale — ${via} will take the seat`,
-    registerRefused: (text5) => `register refused — ${text5}`,
+    registerRefused: (text6) => `register refused — ${text6}`,
     othersInDir: (others2) => `the same directory holds records of other seats too: ${others2}`,
     notYours: () => `the seat is not yours — ${tool("channel")}(action="leave") will release it, the channel stays intact`,
     nothingToReturn: (skipped) => `nothing to return — ${skipped}`,
@@ -848,7 +860,7 @@ var RESUME = {
     noSeatNoKeyNoCwd: () => "no seat, and neither key nor cwd was passed",
     leftByWord: (key3) => `the seat ${key3} was released by the holder's word (leave) — the watchdog does not raise it; to bring it back: ${via} with the same name`,
     watchdogReason: () => "the hearing watchdog",
-    boardUnread: (text5) => `the board could not be read — ${text5}`,
+    boardUnread: (text6) => `the board could not be read — ${text6}`,
     noSeatOnBoard: () => "the own seat is not on the board",
     listening: () => "listening",
     gaveUp: (key3, limit) => `Verstak: after ${limit} socket reopenings the board still reads the seat ${key3} as not listening — I stop reopening; check the board and the server. To restore hearing — ${via} with the same name (stands beside, leaves another session's seat alone); take=true: ${TAKE.en.rule()}.`,
@@ -912,7 +924,7 @@ var ROOM = {
     nodeUndeleted: (seq4, name2, reasoning) => `node #${seq4} ${name2} restored${reasoning}`,
     link: (room, rel) => `case linked to case #${room} (${rel})`,
     auto: (code2, room) => `platform record ${code2} about case #${room}`,
-    unknown: (kind) => `kind ${kind} is unknown to the bridge`,
+    unknown: (kind2) => `kind ${kind2} is unknown to the bridge`,
     case: (room) => `case #${room}`,
     replyTo: (id) => `in reply to [${id}]`,
     stale: () => "stale",
@@ -922,7 +934,7 @@ var ROOM = {
     whoSibling: (karta) => `sibling of role #${karta}`,
     whoPlatform: () => "platform — a wake-up",
     whoGraph: () => "graph event",
-    legacy: (kind, stack) => `kind ${kind}${stack ? ` · ${stack}` : ""}`
+    legacy: (kind2, stack) => `kind ${kind2}${stack ? ` · ${stack}` : ""}`
   }
 };
 var ROOM_AUTO = {
@@ -965,7 +977,7 @@ var ROOT_SEAT = {
     unproven: () => "the bridge did not prove this attempt took a provisional seat; revoke is not authorized",
     notSeated: (why) => `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
     realign: (why, file2) => `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method; do not guess the graph or the role. Seating repeats by itself once the cover ${file2} is unambiguous.`,
-    refused: (text5) => `seating failed: ${text5}`,
+    refused: (text6) => `seating failed: ${text6}`,
     ownOther: (place, karta, realm) => `Verstak: the session holds seat ${place} — role #${karta} in ${realm}; its role or graph differs from the cover. To change seats: ${tool("stand")} with take, or revoke the held seat.`,
     /** The session holds a seat whose graph could not be compared with the cover's. */
     heldUncompared: (place, karta, held2, cover) => `Verstak: the session holds seat ${place} — role #${karta}, ${held2}; not compared with the cover's ${cover}. To change seats: ${tool("stand")} with take, or revoke the held seat.`,
@@ -996,7 +1008,7 @@ var SATELLITE = {
     needSatelliteOf: () => "Refused (bridge): this is a satellite bridge — it takes only a subagent's satellite seat; pass satellite_of — the caller's seat (@handle:name) from the brief.",
     notSatellite: () => "Refused (bridge): satellite_of is for a satellite bridge only (a bridge entry with --satellite in the agent file); this is a session bridge, and a satellite seat on it would take the caller's voice. A subagent without a bridge of its own has a limit: it speaks as the caller's seat and names itself in its lines.",
     derivesName: () => "Refused (bridge): the bridge derives the satellite's name — name, take and room do not go with satellite_of.",
-    boardUnread: (text5) => `Refused: the board did not read — ${text5}`,
+    boardUnread: (text6) => `Refused: the board did not read — ${text6}`,
     claimsUnsure: (unsure, name2) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name2} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
     seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
@@ -1075,12 +1087,12 @@ var STAND = {
     nameCut: (full, max, name2, what) => `the derived name ${full} is longer than the ${max}-sign limit — cut to ${name2} (dropped: ${what}); want another — pass name`,
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: ${tool("channel")}(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
-    boardUnread: (text5) => `Refused: the board did not read — ${text5}`,
+    boardUnread: (text6) => `Refused: the board did not read — ${text6}`,
     boardUnknown: (start, own, others2) => `Refused: the board's form is not recognized — no "${own}" header${others2 ? ` ("${others2}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name2, karta) => `Refused: the board has ${n} seats named ${name2} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) => `Refused: the board declares ${declared} seats, ${parsed} were read, and your own is not among them — the unread line may be it, or a seat another session listens on; connect would rotate it blind, and take=true would take it. Repeat when the board reads, or stand under another name.`,
     boardCountFound: (declared, parsed) => `The board declares ${declared} seats, ${parsed} were read — the parser missed a line; your own seat is found, going on.`,
-    refused: (what, text5) => `Refused: ${what} — ${text5}`,
+    refused: (what, text6) => `Refused: ${what} — ${text6}`,
     noIdInRegister: () => "register did not name the seat's id — the seat's frames are found by graph and address; the busy line waits for the id.",
     modelNotCleared: (why) => `The seat's earlier model is not cleared (${why}): the harness named no model, and the board may still show the earlier one.`,
     howBeside: (led) => `a seat of another graph — stands beside on the channel this bridge holds (${led}): register`,
@@ -1088,11 +1100,11 @@ var STAND = {
     howOwnSession: () => "this session's own seat — taken back: a former bridge of this same harness session held it, connect (the socket is now this bridge's, the former one got 4000) and register",
     otherHolder: (holder) => `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: ${tool("stand")} without name or with another name.`,
     howRegister: () => "this bridge already holds the socket — register",
-    ttlRefused: (ttl, text5) => `The contour refused the ${ttl} s idle window (${text5}) — the seat is taken with the contour's default window.`,
-    takenButRegister: (text5) => `The seat is taken, but register refused — ${text5}`,
+    ttlRefused: (ttl, text6) => `The contour refused the ${ttl} s idle window (${text6}) — the seat is taken with the contour's default window.`,
+    takenButRegister: (text6) => `The seat is taken, but register refused — ${text6}`,
     howConnect: (mine, listensElsewhere, take3) => mine ? listensElsewhere ? "another holder listened on the seat — connect by take (the socket is now this bridge's, the former holder got 4000) and register" : take3 ? "connect by take — a new entry cycle, the knock count reset — and register" : "the seat was there — connect (the socket is now this bridge's) and register" : "connect and register",
     head: (place, karta, realm, how2) => `[${tool("stand")}] standing ${place} — role #${karta}, graph ${realm}: ${how2}.`,
-    note: (text5) => `[${tool("stand")}] ${text5}`,
+    note: (text6) => `[${tool("stand")}] ${text6}`,
     noWatchdog: () => "No watchdog command: the bridge does not hold this seat's socket yet — this session takes no frames and no invitations until the seat is back.",
     noSocket: () => "The bridge holds no socket — nothing to listen with; check the connect answer.",
     besideNoDoor: () => "The seat is recorded, but it has no door — the bridge's channel socket is not alive; this graph's frames will not come here.",
@@ -1106,8 +1118,8 @@ var STAND = {
     knockSent: (room, waited, window) => `The user's seat ${room}: a knock went ${s(waited)} s ago — wait for the invitation; a deliberate repeat — the same call with repeat_knock=true, not before ${s(window)} s.`,
     knockEarly: (room, waited, window) => `The user's seat ${room}: too early to repeat — ${s(waited)} s since the first knock, the rule waits ${s(window)} s; repeat in ${left(window, waited)} s.`,
     knockNoRole: (room, realm) => `The user's seat ${room}: the board of graph ${realm} does not have it, and send needs its holder's role — no knock sent. The user's seat lives by their presence: either they have been away past the threshold (ask them to open the chat and repeat), or pass room_karta=<the user's role>.`,
-    knockRefused: (room, text5) => `The user's seat ${room}: the knock was refused — ${text5}`,
-    knockDone: (room, again, text5) => `The user's seat ${room}: ${again ? "repeated " : ""}knock sent — ${text5} Wait for the first message from the user's seat with its header; do not write there before it — you will stand beside the user when it comes.`,
+    knockRefused: (room, text6) => `The user's seat ${room}: the knock was refused — ${text6}`,
+    knockDone: (room, again, text6) => `The user's seat ${room}: ${again ? "repeated " : ""}knock sent — ${text6} Wait for the first message from the user's seat with its header; do not write there before it — you will stand beside the user when it comes.`,
     statusElsewhere: (takePath) => `The busy line is not published: the bridge has no status address for this standing — the socket's holder has it; ${takePath}.`,
     statusRefused: (body, guidance) => `The busy line was not accepted: ${body}${guidance}`
   }
@@ -1148,11 +1160,11 @@ var STAND_MOVES = {
     standAgain: (call) => `The bridge holds no seat for this session now — take it: ${call} (status may go in the same call).`,
     priorReleased: (prior) => `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
     provisionalReplaced: (prior) => `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
-    priorKept: (prior, text5, revoke) => `this session's former seat ${prior} is not revoked (${text5}); until it is, cases ask for from_standing. Revoke it: ${revoke}`,
+    priorKept: (prior, text6, revoke) => `this session's former seat ${prior} is not revoked (${text6}); until it is, cases ask for from_standing. Revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside2, revokes, keep) => `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside2}; moving to ${asked} opens a new channel, they would lose hearing and ${prior} could not be revoked. Nothing was touched. Revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds2, own) => own ? `yours — returned: the bridge itself was reopening this seat's socket at that moment, the call waited for its outcome (${seconds2} s)` : `this seat's socket was just reopened — the call waited out the platform's threshold (${seconds2} s) and took the seat`,
     moveUndone: (asked, prior) => `The move did not happen: the seat ${asked} just taken is revoked, the session stays on its former seat ${prior} — its only one.`,
-    moveNotUndone: (asked, text5, revoke) => `The seat ${asked} just taken could not be revoked (${text5}) — revoke it: ${revoke}`
+    moveNotUndone: (asked, text6, revoke) => `The seat ${asked} just taken could not be revoked (${text6}) — revoke it: ${revoke}`
   }
 };
 
@@ -1354,7 +1366,7 @@ var USAGE = {
 // js/delivery/words/watchdog.ts
 var WATCHDOG = {
   en: {
-    doer: (text5) => `DOER: ${text5}`,
+    doer: (text6) => `DOER: ${text6}`,
     listening: (key3, tail2 = "") => `listening on standing ${key3}${tail2}`,
     listeningCodex: (key3, thread) => `listening on standing ${key3}; putting frames into thread ${thread}`,
     backfilled: (count) => ` (${count} back-dated)`,
@@ -1364,7 +1376,7 @@ var WATCHDOG = {
     bridgeLetGo: () => "the bridge released the standing or went away — did the session end?",
     seatNotBack: (s2, path) => `the seat did not return within ${s2}s of the daemon change (socket ${path} not up); bring it back with ${tool("stand")}`,
     noSocket: (path, s2) => `the bridge did not bring up the local socket ${path} within ${s2}s`,
-    bridgeReleasedSocket: (text5) => `the bridge released the socket: ${text5}`,
+    bridgeReleasedSocket: (text6) => `the bridge released the socket: ${text6}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
     seenEarlier: (id) => `frame ${id} was already delivered by an earlier arming — not a reason to wake`,
     unaddressed: () => "a batch with nothing addressed to the seat — the count waits for the next wake-up",
@@ -1389,7 +1401,7 @@ var WATCHDOG = {
 
 // js/shared/version.ts
 var releaseBuild = () => CHANNEL_MARK.endsWith(":release");
-var devBuildIn = (text5) => text5.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
+var devBuildIn = (text6) => text6.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
 function buildOf(selfUrl) {
   try {
     const src = readFileSync2(fileURLToPath(selfUrl));
@@ -1399,9 +1411,9 @@ function buildOf(selfUrl) {
   }
 }
 var MARK_LITERAL = /"([^"\s]+-build):(?:dev|release)"/g;
-function versionIn(text5) {
-  for (const [, name2] of text5.matchAll(MARK_LITERAL)) if (name2 !== BUILD_MARK) return null;
-  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text5);
+function versionIn(text6) {
+  for (const [, name2] of text6.matchAll(MARK_LITERAL)) if (name2 !== BUILD_MARK) return null;
+  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text6);
   return m ? m[1] : null;
 }
 
@@ -1544,8 +1556,8 @@ function resolve2() {
   const fromEnv = envOf(envName("BRIDGE_URL"))?.trim();
   if (fromEnv) return langOfServer(fromEnv);
   try {
-    const text5 = readFileSync3(join3(authDirFromEnv(), "server"), "utf8").trim();
-    if (text5) return langOfServer(text5);
+    const text6 = readFileSync3(join3(authDirFromEnv(), "server"), "utf8").trim();
+    if (text6) return langOfServer(text6);
   } catch {
   }
   return DEFAULT_LANG;
@@ -1580,10 +1592,10 @@ function guardStream(s2) {
   if (s2) s2.on("error", () => deadStreams.add(s2));
 }
 var backlogged = /* @__PURE__ */ new WeakSet();
-function writeTo(s2, text5) {
+function writeTo(s2, text6) {
   if (!canWrite(s2)) return false;
   try {
-    const fit = s2.write(text5);
+    const fit = s2.write(text6);
     if (!fit && !backlogged.has(s2)) s2.once("drain", () => backlogged.delete(s2));
     if (fit) backlogged.delete(s2);
     else backlogged.add(s2);
@@ -1647,8 +1659,8 @@ function resolveServerChoice(word3) {
 var serverChoicePath = (authDir) => join4(authDir, "server");
 function readServerChoice(authDir) {
   try {
-    const text5 = readFileSync4(serverChoicePath(authDir), "utf8").trim();
-    return text5 ? new URL(text5).href : null;
+    const text6 = readFileSync4(serverChoicePath(authDir), "utf8").trim();
+    return text6 ? new URL(text6).href : null;
   } catch {
     return null;
   }
@@ -1757,9 +1769,9 @@ function readPat(cfg) {
   }
   const file2 = join4(cfg.authDir, "token");
   try {
-    const text5 = readFileSync4(file2, "utf8").trim();
-    if (text5) {
-      cfg.pat = text5;
+    const text6 = readFileSync4(file2, "utf8").trim();
+    if (text6) {
+      cfg.pat = text6;
       cfg.patSource = file2;
     }
   } catch {
@@ -2002,10 +2014,10 @@ function holdSocket(o) {
       stopWatch();
       handing = { onFrame, onGone };
     },
-    send(text5, sent) {
+    send(text6, sent) {
       if (stopped || handing || !ws || ws.readyState !== 1) return false;
       try {
-        ws.send(text5);
+        ws.send(text6);
       } catch {
         return false;
       }
@@ -2226,9 +2238,9 @@ function writeFrame(socket, frame2, cb) {
 var SeamError = class extends Error {
   kind;
   protocol;
-  constructor(kind, message, protocol) {
+  constructor(kind2, message, protocol) {
     super(message);
-    this.kind = kind;
+    this.kind = kind2;
     this.protocol = protocol;
   }
 };
@@ -2713,9 +2725,9 @@ var UpstreamError = class extends Error {
   // itself: a connection that failed outright. A timeout is not — it already
   // spent the whole deadline, and repeating it multiplies the wait.
   retryable;
-  constructor(message, kind, presented = null, outcome = UNKNOWN, retryable = false) {
+  constructor(message, kind2, presented = null, outcome = UNKNOWN, retryable = false) {
     super(message);
-    this.kind = kind;
+    this.kind = kind2;
     this.presented = presented;
     this.outcome = outcome;
     this.retryable = retryable;
@@ -4388,8 +4400,8 @@ var byMe = (frame2) => {
 };
 var askFromPerson = (frame2) => {
   const line = obj(frame2.line);
-  const kind = str(line.kind);
-  const asking = ASK_KINDS.has(kind) || kind === "progress" && !!str(obj(line.fields).withdraws);
+  const kind2 = str(line.kind);
+  const asking = ASK_KINDS.has(kind2) || kind2 === "progress" && !!str(obj(line.fields).withdraws);
   return asking && classifyOrigin(frame2) === "human";
 };
 function askedMine(frame2, fields) {
@@ -4414,27 +4426,27 @@ function formOf(fields) {
   }).join(", ");
   return W4.choice(need(options));
 }
-function askValues(kind, line, fields) {
-  if (kind !== "ask")
+function askValues(kind2, line, fields) {
+  if (kind2 !== "ask")
     return { reply: [str(fields.choice), quote(str(line.done))].filter(Boolean).join("; ") };
   const W4 = words(ASK);
   const to = toOf(fields);
   const k = obj(to.karta);
   const seat2 = addresseeOf(to.standing);
   const place = seat2?.addr[0] ?? seat2?.label ?? "";
-  const rec5 = obj(fields.recommendation);
+  const rec6 = obj(fields.recommendation);
   return {
     to: str(k.name) || (str(k.seq) ? `#${str(k.seq)}` : ""),
     to_place: place ? W4.place(need(place)) : "",
     form: formOf(fields),
-    advice: str(rec5.option) || str(rec5.why) ? W4.advice(need(str(rec5.option) || "—"), opt(" — ", rec5.why)) : ""
+    advice: str(rec6.option) || str(rec6.why) ? W4.advice(need(str(rec6.option) || "—"), opt(" — ", rec6.why)) : ""
   };
 }
-function askText(kind, cause, v) {
+function askText(kind2, cause, v) {
   const W4 = words(ASK);
   const invite = cause ? pick(INVITE_CAUSES, cause) : void 0;
   if (invite) return W4[invite](need(v.who), need(v.standing));
-  if (kind === "progress" && str(v.withdraws))
+  if (kind2 === "progress" && str(v.withdraws))
     return W4.withdrawn(
       need(v.withdraws),
       need(v.key),
@@ -4442,7 +4454,7 @@ function askText(kind, cause, v) {
       need(v.verdict),
       need(v.author)
     );
-  if (kind === "ask")
+  if (kind2 === "ask")
     return W4.ask(
       need(v.author),
       need(v.to),
@@ -4452,8 +4464,8 @@ function askText(kind, cause, v) {
       opt("; ", v.form),
       opt("; ", v.advice)
     );
-  if (kind === "answer") return W4.answer(need(v.author), need(v.refers_to), need(v.reply));
-  if (kind === "ack") return W4.ack(need(v.refers_to), opt(": ", v.reply), need(v.author));
+  if (kind2 === "answer") return W4.answer(need(v.author), need(v.refers_to), need(v.reply));
+  if (kind2 === "ack") return W4.ack(need(v.refers_to), opt(": ", v.reply), need(v.author));
   return void 0;
 }
 
@@ -4477,9 +4489,9 @@ function openOn(store, frame2) {
   return out7;
 }
 var namedOf = (frame2) => {
-  const kind = kindOf(frame2);
-  if (kind === "progress") return str(obj(lineOf(frame2).fields).withdraws);
-  if (kind === "answer") return str(lineOf(frame2).refers_to) || str(frame2.in_reply_to);
+  const kind2 = kindOf(frame2);
+  if (kind2 === "progress") return str(obj(lineOf(frame2).fields).withdraws);
+  if (kind2 === "answer") return str(lineOf(frame2).refers_to) || str(frame2.in_reply_to);
   return "";
 };
 var isOpen = (store, frame2, n) => {
@@ -4488,30 +4500,30 @@ var isOpen = (store, frame2, n) => {
 };
 function closesMine(store, frame2) {
   if (byMe(frame2) || !str(lineOf(frame2).key)) return "";
-  const kind = kindOf(frame2);
-  if (kind === "progress" || kind === "answer") {
+  const kind2 = kindOf(frame2);
+  if (kind2 === "progress" || kind2 === "answer") {
     const n = namedOf(frame2);
     return isOpen(store, frame2, n) ? n : "";
   }
-  if (kind !== "ask" || askedMine(frame2, obj(lineOf(frame2).fields))) return "";
+  if (kind2 !== "ask" || askedMine(frame2, obj(lineOf(frame2).fields))) return "";
   return openOn(store, frame2).at(-1) ?? "";
 }
 function noteAsk(store, frame2) {
   if (!str(lineOf(frame2).key)) return;
-  const kind = kindOf(frame2);
+  const kind2 = kindOf(frame2);
   const fields = obj(lineOf(frame2).fields);
   const base = `${baseOf(frame2)}#`;
-  if (kind === "ask" && askedMine(frame2, fields)) {
+  if (kind2 === "ask" && askedMine(frame2, fields)) {
     const own = numOf(frame2);
     if (store.has(`${base}${own}`)) return;
     for (const n of openOn(store, frame2)) store.add(`off:${base}${n}`);
     store.add(`${base}${own}`);
     return;
   }
-  if (kind === "progress" || kind === "answer" && !byMe(frame2)) {
+  if (kind2 === "progress" || kind2 === "answer" && !byMe(frame2)) {
     const n = namedOf(frame2);
     if (isOpen(store, frame2, n)) store.add(`off:${base}${n}`);
-  } else if ((kind === "ack" || kind === "ask") && !byMe(frame2))
+  } else if ((kind2 === "ack" || kind2 === "ask") && !byMe(frame2))
     for (const n of openOn(store, frame2)) store.add(`off:${base}${n}`);
 }
 var ASKS_KEPT = 512;
@@ -4581,20 +4593,20 @@ function whoOf(fields) {
   const ka = obj(fields.karta);
   return str(st.standing) || str(st.name) || str(ka.name);
 }
-function kindText(kind, v, f, pending2, aborted) {
+function kindText(kind2, v, f, pending2, aborted) {
   const W4 = words(ROOM);
   const n = (k) => need(v[k]);
   const lapsed = obj(obj(f.line).author).kind === "platform";
   if (pending2) return W4.saidPending(n("author"));
   if (aborted) return lapsed ? W4.bodyLapsed(n("refers_to")) : W4.bodyAborted(n("refers_to"));
-  if (kind === "auto")
+  if (kind2 === "auto")
     return pick(words(ROOM_AUTO), str(v.code))?.(n("room")) ?? W4.auto(n("code"), n("room"));
-  const ask3 = askText(kind, str(v.cause), v);
+  const ask3 = askText(kind2, str(v.cause), v);
   if (ask3 !== void 0) return ask3;
   const reasoning = opt("; ", v.reasoning);
-  const op = kind === "node" ? pick(NODE_OPS, str(v.op)) : void 0;
+  const op = kind2 === "node" ? pick(NODE_OPS, str(v.op)) : void 0;
   if (op) return W4[op](n("seq"), n("name"), reasoning);
-  switch (kind) {
+  switch (kind2) {
     case "said":
       return W4.said(n("author"));
     case "body":
@@ -4634,18 +4646,18 @@ function roomKind(frame2) {
   const f = frame2;
   const ek = f.event_kind;
   if (typeof ek !== "string" || !ek.startsWith("room.")) return null;
-  const kind = ek.slice(5);
+  const kind2 = ek.slice(5);
   const line = obj(f.line);
   const fields = obj(line.fields);
   const key3 = str(line.key);
   const node = obj(fields.node);
-  const cause = kind === "invite" ? str(fields.cause) : "";
+  const cause = kind2 === "invite" ? str(fields.cause) : "";
   const authorName = authorOf(
-    kind === "body" && Object.keys(obj(f.in_reply_to_from)).length ? f.in_reply_to_from : line.author
+    kind2 === "body" && Object.keys(obj(f.in_reply_to_from)).length ? f.in_reply_to_from : line.author
   );
   const byWhom = (frame2.origin ?? classifyOrigin(frame2)) === "human" ? `${authorName} (${words(ROOM).whoHuman("")})` : authorName;
   const values = {
-    kind,
+    kind: kind2,
     cause,
     author: byWhom,
     key: key3,
@@ -4661,9 +4673,9 @@ function roomKind(frame2) {
     // Observed live: the invite key carries the id, the invitee's name is in the line fields (standing/karta with name).
     // Joined and left — fields.standing (a timed-out leave is written by the platform, api 0.89.6), else the author;
     // a role call by cause — fields.karta (graph @nks/nks-dev, node #6870).
-    who: kind === "joined" || kind === "left" ? whoOf({ standing: fields.standing }) || byWhom : (cause ? whoOf({ karta: fields.karta }) : whoOf(fields)) || after(key3, "invite:"),
+    who: kind2 === "joined" || kind2 === "left" ? whoOf({ standing: fields.standing }) || byWhom : (cause ? whoOf({ karta: fields.karta }) : whoOf(fields)) || after(key3, "invite:"),
     standing: str(fields.gone_standing) || addresseeOf(fields.gone_standing)?.label,
-    ...ASK_KINDS.has(kind) ? askValues(kind, line, fields) : {},
+    ...ASK_KINDS.has(kind2) ? askValues(kind2, line, fields) : {},
     room: roomOf(fields.room) || after(key3, "link:"),
     rel: pick(words(ROOM_REL), str(fields.rel))?.() ?? fields.rel,
     code: fields.code,
@@ -4672,29 +4684,29 @@ function roomKind(frame2) {
     name: node.name,
     realm: node.realm,
     // A node delta's reasoning is the record's body, not a field (graph @nks/nks-dev, node #6070).
-    reasoning: kind === "node" ? line.done || f.body : void 0,
+    reasoning: kind2 === "node" ? line.done || f.body : void 0,
     withdraws: fields.withdraws,
     // Observed on the wire (#5893 §4.2, case №1010 [8]): line.fields.after_ack.
     after_ack: fields.after_ack === true
   };
   const W4 = words(ROOM);
-  const rule = RULES[kind];
+  const rule = RULES[kind2];
   const author = str(values.author);
   if (!rule)
     return {
-      kind,
+      kind: kind2,
       rule: "batch",
-      words: W4.unknown(need(kind)),
+      words: W4.unknown(need(kind2)),
       author,
       phase: null,
       known: false
     };
-  const word3 = kind === "said" || kind === "body";
+  const word3 = kind2 === "said" || kind2 === "body";
   const withheld = word3 && f.body_withheld === true;
   const named2 = word3 ? wordSeats(f) : [];
   const to = word3 ? named2.map(addresseeOf).find(Boolean) ?? (withheld ? { addr: ["?"], label: "?" } : null) : null;
   if (to && (withheld || seatIs(f, ...named2) === false)) {
-    const counts = kind === "said";
+    const counts = kind2 === "said";
     const pair = JSON.stringify([roomOf(f.room), authorName, to.addr[0]]);
     const id = need(counts ? values.entry_id : values.refers_to);
     const by = need(values.author);
@@ -4702,24 +4714,24 @@ function roomKind(frame2) {
     const run3 = (n) => n === 0 ? W4.asideBody(by, addressee, id) : n > 1 ? W4.asideRun(by, addressee, W4.messages(n), id) : W4.aside(by, addressee, id);
     const aside = { pair, counts, run: run3 };
     const words2 = run3(counts ? 1 : 0);
-    return { kind, rule: "batch", words: words2, author, phase: null, known: true, aside };
+    return { kind: kind2, rule: "batch", words: words2, author, phase: null, known: true, aside };
   }
-  const pending2 = kind === "said" && f.body_pending === true && !str(f.body) && !str(line.done);
-  const aborted = kind === "body" && fields.aborted === true;
-  let text5 = kindText(kind, values, f, pending2, aborted);
-  if (kind === "closing") {
+  const pending2 = kind2 === "said" && f.body_pending === true && !str(f.body) && !str(line.done);
+  const aborted = kind2 === "body" && fields.aborted === true;
+  let text6 = kindText(kind2, values, f, pending2, aborted);
+  if (kind2 === "closing") {
     const may = Array.isArray(fields.may_object) ? fields.may_object.map((m) => typeof m === "string" ? m : str(obj(m).id)) : [];
     const myId = str(f.to_standing_id);
     const mayI = !!myId && may.includes(myId);
-    text5 += "; " + (mayI ? W4.closingMay(need(values.entry_id)) : W4.closingNot());
+    text6 += "; " + (mayI ? W4.closingMay(need(values.entry_id)) : W4.closingNot());
   }
   const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? inviteMine(f) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
   const phase = pending2 ? "pending" : aborted ? "aborted" : null;
-  const bodyInWords = !!str(line.done) && (ASK_KINDS.has(kind) || kind === "progress" || kind === "node");
+  const bodyInWords = !!str(line.done) && (ASK_KINDS.has(kind2) || kind2 === "progress" || kind2 === "node");
   return {
-    kind,
+    kind: kind2,
     rule: phase ? "batch" : stack,
-    words: text5,
+    words: text6,
     author,
     bodyInWords,
     phase,
@@ -4730,27 +4742,27 @@ var byKind = (frame2) => roomKind(frame2) !== null;
 var stackOf = (frame2) => roomKind(frame2)?.rule ?? (frame2?.stack === "defer" ? "batch" : "interrupt");
 
 // js/shared/seats.ts
-function seatsOf(f, kind) {
+function seatsOf(f, kind2) {
   const to = obj(obj(obj(f.line).fields).to);
-  if (kind === "said" || kind === "body") return wordSeats(f);
+  if (kind2 === "said" || kind2 === "body") return wordSeats(f);
   return [
-    kind === "ask" ? to.standing : ASK_KINDS.has(kind) || kind === "retract" ? to : null,
+    kind2 === "ask" ? to.standing : ASK_KINDS.has(kind2) || kind2 === "retract" ? to : null,
     f.addressee
   ];
 }
-function seatOf(frame2, kind) {
+function seatOf(frame2, kind2) {
   const f = frame2;
-  if (kind === "ask" && byMe(f)) return false;
-  return seatIs(f, ...seatsOf(f, kind));
+  if (kind2 === "ask" && byMe(f)) return false;
+  return seatIs(f, ...seatsOf(f, kind2));
 }
 var named = (v) => typeof v === "string" ? !!v : Object.keys(obj(v)).length > 0;
-function namesAddress(f, kind) {
+function namesAddress(f, kind2) {
   const fields = obj(obj(f.line).fields);
-  const to = kind === "ask" ? obj(fields.to).standing : fields.to;
+  const to = kind2 === "ask" ? obj(fields.to).standing : fields.to;
   if (named(to) || named(f.addressee)) return true;
-  return (kind === "invite" || kind === "withdraw") && (named(fields.standing) || named(fields.karta));
+  return (kind2 === "invite" || kind2 === "withdraw") && (named(fields.standing) || named(fields.karta));
 }
-var namedMine = (frame2, kind) => seatOf(frame2, kind) === true;
+var namedMine = (frame2, kind2) => seatOf(frame2, kind2) === true;
 
 // js/shared/addressed.ts
 var LOUD_KINDS = /* @__PURE__ */ new Set(["closing", "closed", "objection", "late_objection"]);
@@ -5465,9 +5477,9 @@ async function post2(msg, heard2) {
   }
   if (res.status === 202 || res.status === 204) return;
   if (!res.ok) {
-    const text6 = (await res.text().catch(() => "")).slice(0, 300);
+    const text7 = (await res.text().catch(() => "")).slice(0, 300);
     throw new UpstreamError(
-      `upstream HTTP ${res.status}: ${text6}`,
+      `upstream HTTP ${res.status}: ${text7}`,
       "http",
       null,
       res.status < 500 ? UpstreamError.NOT_SENT : UpstreamError.UNKNOWN
@@ -5495,12 +5507,12 @@ async function post2(msg, heard2) {
     }
     return;
   }
-  const text5 = await res.text();
-  if (!text5.trim()) return;
+  const text6 = await res.text();
+  if (!text6.trim()) return;
   try {
-    onMessage(JSON.parse(text5));
+    onMessage(JSON.parse(text6));
   } catch {
-    throw new UpstreamError(`upstream sent unparseable JSON: ${text5.slice(0, 200)}`, "http");
+    throw new UpstreamError(`upstream sent unparseable JSON: ${text6.slice(0, 200)}`, "http");
   }
 }
 var reinit = scoped(() => ({ inFlight: null }));
@@ -5552,8 +5564,113 @@ function harnessVersion() {
 }
 var notifiedClient = () => NOTIFIED_CLIENTS.has(harnessName());
 
+// js/shared/clock-notices.ts
+var rec = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+var text2 = (v) => typeof v === "string" && v.length > 0 && v.length <= 256 && [...v].every((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127) ? v : null;
+var number2 = (v) => typeof v === "number" && Number.isSafeInteger(v) && v > 0 ? v : null;
+var bool = (v) => typeof v === "boolean" ? v : null;
+var timestamp = (v) => {
+  const s2 = text2(v);
+  return s2 && /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(
+    s2
+  ) && Number.isFinite(Date.parse(s2)) && (/* @__PURE__ */ new Date(`${s2.slice(0, 10)}T00:00:00Z`)).toISOString().slice(0, 10) === s2.slice(0, 10) ? s2 : null;
+};
+function kind(frame2) {
+  const p = frame2.provenance;
+  return frame2.type === "message" && p?.via === "platform" && p.auth === "none" && (p.notice === "card_unanswered" || p.notice === "line_due") ? p.notice : null;
+}
+function dataOf(frame2, notice) {
+  const d = rec(frame2.provenance?.notice_data);
+  const r = rec(d.room);
+  const who = rec(notice === "card_unanswered" ? d.to : d.holder);
+  const seat2 = {
+    standing_id: text2(who.standing_id),
+    standing: text2(who.standing),
+    karta_seq: number2(who.karta_seq)
+  };
+  return {
+    room: { id: text2(r.id), number: number2(r.number), realm: text2(r.realm) },
+    entry_id: number2(d.entry_id),
+    key: text2(d.key),
+    ...notice === "card_unanswered" ? {
+      to: seat2,
+      listening: bool(d.listening),
+      last_act_at: timestamp(d.last_act_at),
+      role_called: bool(d.role_called)
+    } : { holder: seat2, due_at: timestamp(d.due_at), escalated: bool(d.escalated) }
+  };
+}
+function clockNoticeFrame(frame2) {
+  const notice = kind(frame2);
+  if (!notice) return frame2;
+  return {
+    ...frame2,
+    body: "",
+    provenance: { ...frame2.provenance, notice_data: dataOf(frame2, notice) }
+  };
+}
+function clockNoticeText(frame2) {
+  const notice = kind(frame2);
+  if (!notice) return "";
+  const d = dataOf(frame2, notice);
+  const seat2 = "to" in d ? d.to : d.holder;
+  return words(FRAME_TEXT).clockNotice(notice, {
+    room: d.room.number,
+    roomId: d.room.id,
+    realm: d.room.realm,
+    entry: d.entry_id,
+    key: d.key,
+    standing: seat2?.standing ?? null,
+    standingId: seat2?.standing_id ?? null,
+    karta: seat2?.karta_seq ?? null,
+    listening: "listening" in d ? d.listening : null,
+    lastAct: "last_act_at" in d ? d.last_act_at : null,
+    roleCalled: "role_called" in d ? d.role_called : null,
+    due: "due_at" in d ? d.due_at : null,
+    escalated: "escalated" in d ? d.escalated : null
+  });
+}
+
+// js/shared/open-cards.ts
+var repeatNumber = (n) => typeof n === "number" && Number.isSafeInteger(n) && n > 0 ? n : null;
+function cardFrame(frame2) {
+  if (!frame2) return null;
+  frame2 = clockNoticeFrame(frame2);
+  const checked = {};
+  if (Object.hasOwn(frame2, "my_open_cards")) checked.my_open_cards = openCards(frame2.my_open_cards);
+  if (Object.hasOwn(frame2, "repeat")) checked.repeat = frame2.repeat === true;
+  if (Object.hasOwn(frame2, "repeat_n")) checked.repeat_n = repeatNumber(frame2.repeat_n);
+  return Object.keys(checked).length ? { ...frame2, ...checked } : frame2;
+}
+var cardRepeatText = (frame2) => {
+  if (frame2.repeat !== true) return "";
+  return words(FRAME_TEXT).cardRepeat(repeatNumber(frame2.repeat_n));
+};
+function openCards(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const { count, oldest_at: at3 } = value;
+  if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return null;
+  if (count === 0) return at3 === null ? { count, oldest_at: null } : null;
+  if (typeof at3 !== "string" || at3.length > 64 || !/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(
+    at3
+  ) || !Number.isFinite(Date.parse(at3)) || (/* @__PURE__ */ new Date(`${at3.slice(0, 10)}T00:00:00Z`)).toISOString().slice(0, 10) !== at3.slice(0, 10))
+    return null;
+  return { count, oldest_at: at3 };
+}
+var openCardsText = (frame2) => {
+  const value = frame2.my_open_cards;
+  const cards = openCards(value);
+  return words(FRAME_TEXT).openCards(
+    cards?.count ?? null,
+    cards?.oldest_at ?? null,
+    value !== void 0 && cards === null
+  );
+};
+var cardsIn = (frames) => frames.length ? openCardsText(frames[frames.length - 1]) : "";
+
 // js/bridge/complete.ts
 function stampOrigin(frame2) {
+  frame2 = cardFrame(frame2);
   if (!frame2 || frame2.type !== "message") return frame2;
   return { ...frame2, origin: classifyOrigin(frame2, state.standing?.karta) };
 }
@@ -5581,17 +5698,17 @@ function negotiateCounts(params) {
 }
 
 // js/shared/keyfold.ts
-var rec = (v) => v && typeof v === "object" ? v : {};
+var rec2 = (v) => v && typeof v === "object" ? v : {};
 var idOf = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 function superseded(frames) {
   const last = /* @__PURE__ */ new Map();
   const out7 = /* @__PURE__ */ new Set();
   frames.forEach((f, i) => {
     const r = f;
-    const line = rec(r.line);
+    const line = rec2(r.line);
     const key3 = typeof line.key === "string" ? line.key : "";
     if (line.kind !== "progress" || !key3 || line.verdict === "bad" || addressedToMine(f)) return;
-    const k = `${idOf(rec(r.room).id) || idOf(rec(r.room).seq)}|${key3}`;
+    const k = `${idOf(rec2(r.room).id) || idOf(rec2(r.room).seq)}|${key3}`;
     const e = Number(r.entry_id ?? line.entry_id);
     const at3 = Number.isFinite(e) ? e : i;
     const was = last.get(k);
@@ -5608,7 +5725,7 @@ function superseded(frames) {
 var W = () => words(ROOM);
 var T2 = () => words(FRAME_TEXT);
 var CAPTION_REPLY = /* @__PURE__ */ new Set(["body", "answer", "ack", "retract"]);
-var rec2 = (v) => v && typeof v === "object" ? v : {};
+var rec3 = (v) => v && typeof v === "object" ? v : {};
 var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var ZACHIN = 40;
 function groupKey(f) {
@@ -5627,7 +5744,7 @@ function casesOf(frames) {
 }
 function caseOf(frame2) {
   const f = frame2;
-  const room = rec2(f.room);
+  const room = rec3(f.room);
   const n = idOf2(room.seq) || idOf2(room.id);
   if (!n) return null;
   const z = typeof room.zachin === "string" ? [...room.zachin.trim()] : [];
@@ -5665,6 +5782,8 @@ function tail(frame2, withReply) {
   const to = idOf2(f.in_reply_to) || idOf2(frame2.provenance?.in_reply_to);
   if (withReply && to) parts.push(W().replyTo(need(to)));
   if (frame2.stale === true) parts.push(W().stale());
+  const repeat = cardRepeatText(frame2);
+  if (repeat) parts.push(repeat);
   if (typeof frame2.body_read === "string" && frame2.body_read !== "history")
     parts.push(W().bodyRead(need(frame2.body_read)));
   return parts.length ? `, ${parts.join(", ")}` : "";
@@ -5672,7 +5791,7 @@ function tail(frame2, withReply) {
 function humanWordReply(frame2, origin2) {
   if (origin2 !== "human") return "";
   const f = frame2;
-  const p = rec2(frame2.provenance);
+  const p = rec3(frame2.provenance);
   const karta = idOf2(p.from_karta_seq) || idOf2(p.user_karta_seq);
   const missing = {
     realm: !idOf2(f.realm),
@@ -5683,15 +5802,24 @@ function humanWordReply(frame2, origin2) {
   return Object.values(missing).every((x) => !x) ? T2().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame2.id)) : T2().noReplyAddress(missing);
 }
 function frameToText(frame2, raw, withCase = true) {
+  const text6 = frameText(frame2, raw, withCase);
+  if (!frame2 || !withCase) return text6;
+  const cards = openCardsText(frame2);
+  return text6.split("\n").includes(cards) ? text6 : `${text6}
+${cards}`;
+}
+function frameText(frame2, raw, withCase) {
   if (!frame2) return raw;
+  const notice = clockNoticeText(frame2);
+  if (notice) return notice;
   const f = frame2;
   const origin2 = frame2.origin ?? classifyOrigin(frame2);
-  const text5 = textOf(frame2);
+  const text6 = textOf(frame2);
   const c = caseOf(frame2);
   if (c) {
     if (!addressedToMine(frame2)) return caseCountLine([frame2]);
     const rk = roomKind(frame2);
-    const line = rec2(f.line);
+    const line = rec3(f.line);
     const entry = idOf2(f.entry_id) || idOf2(line.entry_id);
     const words2 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
     const author = rk?.author && !words2.includes(rk.author) ? rk.author : "";
@@ -5701,11 +5829,11 @@ function frameToText(frame2, raw, withCase = true) {
     const label = [withCase ? caseHead(frame2, true) : "", entry ? `[${entry}]` : ""];
     const head = `${[...label.filter(Boolean), words2].join(" ")}${by ? ` — ${by}` : ""}${tail(frame2, withReply)}`;
     const lines2 = [head];
-    if (text5 && !words2.includes(text5.trim())) lines2.push(text5);
+    if (text6 && !words2.includes(text6.trim())) lines2.push(text6);
     return lines2.join("\n");
   }
   const lines = [`${whoOf2(frame2, true) || "?"}${tail(frame2, true)}`];
-  if (text5) lines.push(text5);
+  if (text6) lines.push(text6);
   const reply2 = humanWordReply(frame2, origin2);
   if (reply2) lines.push(reply2);
   if (isLifeCheck(frame2)) lines.push(T2().lifeCheckSeat(warnedSeat(frame2)), T2().lifeCheckReply());
@@ -5713,19 +5841,21 @@ function frameToText(frame2, raw, withCase = true) {
 }
 var warnedSeat = (frame2) => typeof frame2.to_standing === "string" ? frame2.to_standing.replace(/^.*:/, "") : "";
 function batchLine(frame2, run3, withZachin = true, withCase = true) {
+  const notice = clockNoticeText(frame2);
+  if (notice) return notice;
   const f = frame2;
   const rk = roomKind(frame2);
   const head = withCase ? caseHead(frame2, withZachin) : "";
   const pre = head ? `${head} ` : "";
   if (rk?.aside) return pre + (run3 === void 0 ? rk.words : rk.aside.run(run3));
-  const line = rec2(f.line);
+  const line = rec3(f.line);
   const e = f.entry_id ?? line.entry_id ?? f.id;
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
   const words2 = (rk?.words ?? T2().frame(typeof f.id === "string" ? f.id : "?")).replace(/\s+/g, " ").trim();
   const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
-  const text5 = textOf(frame2).replace(/\s+/g, " ").trim();
-  const dup = !!text5 && words2.includes(text5);
-  return `${pre}[${entry}] ${words2}${author}${tail(frame2, !rk || !CAPTION_REPLY.has(rk.kind))}${text5 && !dup ? `: ${text5}` : ""}`;
+  const text6 = textOf(frame2).replace(/\s+/g, " ").trim();
+  const dup = !!text6 && words2.includes(text6);
+  return `${pre}[${entry}] ${words2}${author}${tail(frame2, !rk || !CAPTION_REPLY.has(rk.kind))}${text6 && !dup ? `: ${text6}` : ""}`;
 }
 function foldAsides(frames) {
   const asides = frames.map((f) => roomKind(f)?.aside ?? null);
@@ -5745,11 +5875,19 @@ function foldAsides(frames) {
 var textShown = (frames, cap) => frames.filter((f) => addressedToMine(f)).map((f) => ({
   frame: f,
   text: (withCase) => {
-    const t = [...frameToText(f, JSON.stringify(f), withCase)];
+    const t = [...frameText(f, JSON.stringify(f), withCase)];
     return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
   }
 }));
-function underCounts(counted, shown, incomplete2 = false) {
+function underCounts(counted, shown, incomplete2 = false, cardFrames = [
+  ...counted,
+  ...shown.map((s2) => s2.frame).filter((f) => !counted.includes(f))
+]) {
+  const lines = groupedCounts(counted, shown, incomplete2);
+  const cards = cardsIn(cardFrames);
+  return cards && !lines.some((line) => line.split("\n").includes(cards)) ? [...lines, cards] : lines;
+}
+function groupedCounts(counted, shown, incomplete2) {
   const groups = casesOf(counted).filter((group) => caseOf(group[0]));
   const placed = /* @__PURE__ */ new Set();
   const under = (group) => {
@@ -5779,9 +5917,9 @@ function closingOf(frame2) {
   const n = closedQuestion(frame2);
   if (!n) return "";
   const rk = roomKind(frame2);
-  const to = rec2(rec2(rec2(rec2(frame2).line).fields).to);
+  const to = rec3(rec3(rec3(rec3(frame2).line).fields).to);
   if (rk?.kind !== "ask") return T2().askAnswered(n, need(rk?.author));
-  const seat2 = addresseeOf(to.standing)?.label || idOf2(rec2(to.karta).name);
+  const seat2 = addresseeOf(to.standing)?.label || idOf2(rec3(to.karta).name);
   return T2().askMoved(n, need(seat2));
 }
 function caseCountLine(frames) {
@@ -5813,8 +5951,8 @@ function cursorOf(frames) {
   const first2 = frames[0];
   const c = first2 && caseOf(first2);
   if (!c?.realm) return null;
-  const room = rec2(first2.room);
-  const entries2 = frames.map((f) => idOf2(f.entry_id ?? rec2(f.line).entry_id));
+  const room = rec3(first2.room);
+  const entries2 = frames.map((f) => idOf2(f.entry_id ?? rec3(f.line).entry_id));
   if (entries2.some((e) => !e || !Number.isSafeInteger(Number(e)) || Number(e) < 1)) return null;
   return {
     realm: c.realm,
@@ -5836,10 +5974,15 @@ function batchPointer(frames) {
 // js/shared/stalebatch.ts
 var STALE_BURST_KEEP = 20;
 var BODY_CAP = 800;
-var shownOf = (frames, body) => body.shown.map((i) => frames[i]).filter((f) => !!f);
+var shownOf = (frames, body) => body.shown.filter((i) => Number.isSafeInteger(i) && i >= 0).map((i) => frames[i]).filter((f) => f?.type === "message");
 function batchBodyText(frames, body, riding = []) {
   const shown = shownOf(frames, body);
-  const bodies = underCounts([...riding, ...shown], textShown(shown, BODY_CAP), body.incomplete);
+  const bodies = underCounts(
+    [...riding, ...shown],
+    textShown(shown, BODY_CAP),
+    body.incomplete,
+    frames
+  );
   return `${body.head}
 
 ${bodies.join("\n\n")}`;
@@ -6067,14 +6210,14 @@ function checkRetirements(entries2) {
   if (keys > SEEN_KEEP) throw new Error("graph retirement key limit reached");
 }
 function readRetirements(path) {
-  let text5;
+  let text6;
   try {
-    text5 = readFileSync12(path, "utf8");
+    text6 = readFileSync12(path, "utf8");
   } catch (e) {
     if (e.code === "ENOENT") return [];
     throw e;
   }
-  const data = JSON.parse(text5);
+  const data = JSON.parse(text6);
   if (!data || data.version !== 1 || !Array.isArray(data.entries))
     throw new Error("unsupported graph retirement schema");
   const entries2 = data.entries;
@@ -6158,8 +6301,8 @@ var holdFilePathFor = (key3) => holdFilePathOf(CFG.authDir, key3);
 function keyOf(realm, karta, name2) {
   return `${name2 || "_"}--${karta}--${realm}`.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
 }
-function formerKeysIn(rec5, key3 = "") {
-  const f = rec5?.formerKey;
+function formerKeysIn(rec6, key3 = "") {
+  const f = rec6?.formerKey;
   const all2 = Array.isArray(f) ? f : f ? [f] : [];
   return [...new Set(all2.filter((k) => typeof k === "string" && k && k !== key3))];
 }
@@ -6206,22 +6349,22 @@ function seatBaseOf(key3) {
   if (base) B.set(key3, base);
   return base ?? null;
 }
-function writeHoldRecord(key3, rec5, paused = false, at3 = Date.now()) {
+function writeHoldRecord(key3, rec6, paused = false, at3 = Date.now()) {
   if (CFG.satellite && !paused) return;
   try {
     const was = onDisk(key3);
-    const session = H.session ?? rec5.session ?? (was?.url === rec5.url ? was.session : void 0);
-    const left2 = rec5.left ?? was?.left === true;
+    const session = H.session ?? rec6.session ?? (was?.url === rec6.url ? was.session : void 0);
+    const left2 = rec6.left ?? was?.left === true;
     writeOwned(
       holdFilePathFor(key3),
       JSON.stringify({
-        ...rec5,
+        ...rec6,
         session: session ?? void 0,
         left: left2 || void 0,
-        provisional: rec5.provisional ?? (was?.url === rec5.url && was.session === session ? was.provisional : void 0),
-        base: B.get(key3) ?? rec5.base ?? was?.base ?? baseOnDisk(key3) ?? void 0,
-        stoodAt: S2.get(key3) ?? rec5.stoodAt ?? was?.stoodAt,
-        formerKey: rec5.formerKey ?? was?.formerKey,
+        provisional: rec6.provisional ?? (was?.url === rec6.url && was.session === session ? was.provisional : void 0),
+        base: B.get(key3) ?? rec6.base ?? was?.base ?? baseOnDisk(key3) ?? void 0,
+        stoodAt: S2.get(key3) ?? rec6.stoodAt ?? was?.stoodAt,
+        formerKey: rec6.formerKey ?? was?.formerKey,
         at: at3
       }) + "\n"
     );
@@ -6229,10 +6372,10 @@ function writeHoldRecord(key3, rec5, paused = false, at3 = Date.now()) {
     log(`hold record not written: ${e.message}`);
   }
 }
-function restoreHoldRecord(key3, rec5) {
+function restoreHoldRecord(key3, rec6) {
   if (CFG.satellite) return;
   try {
-    writeOwned(holdFilePathFor(key3), JSON.stringify(rec5) + "\n");
+    writeOwned(holdFilePathFor(key3), JSON.stringify(rec6) + "\n");
   } catch (e) {
     log(`hold record not restored: ${e.message}`);
   }
@@ -6286,14 +6429,14 @@ function dropHoldRecord(key3) {
 
 // js/bridge/humanwords.ts
 var HUMAN_WORDS_KEEP = 200;
-var rec3 = (v) => v && typeof v === "object" ? v : {};
+var rec4 = (v) => v && typeof v === "object" ? v : {};
 var idOf3 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var entryOf = (frame2) => {
-  const f = rec3(frame2);
-  return idOf3(rec3(f.line).entry_id ?? f.entry_id);
+  const f = rec4(frame2);
+  return idOf3(rec4(f.line).entry_id ?? f.entry_id);
 };
 var caseOf2 = (frame2) => {
-  const room = rec3(rec3(frame2).room);
+  const room = rec4(rec4(frame2).room);
   return idOf3(room.id) || idOf3(room.seq);
 };
 var wordKey = (frame2, entry) => entry ? numberedKey(frame2, `${caseOf2(frame2)}|${entry}`) : "";
@@ -6318,7 +6461,7 @@ var HumanWords = class {
 // js/bridge/roomstack.ts
 var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 var ROOM_BATCH_CAP = 20;
-var rec4 = (v) => v && typeof v === "object" ? v : {};
+var rec5 = (v) => v && typeof v === "object" ? v : {};
 var RoomBatch = class {
   held = [];
   timer = null;
@@ -6420,12 +6563,12 @@ function batchForWatchdogs(d, raw, frame2, emit2) {
     return true;
   }
   const rk = roomKind(frame2);
-  const f = rec4(frame2);
+  const f = rec5(frame2);
   let human = (frame2.origin ?? classifyOrigin(frame2)) === "human" && !askFromPerson(frame2);
   if (rk?.kind === "said" && rk.phase === "pending" && human)
     d.roomBatch.humanWords.remember(frame2);
   if (rk?.kind === "body") {
-    const word3 = idOf3(rec4(f.line).refers_to ?? f.in_reply_to);
+    const word3 = idOf3(rec5(f.line).refers_to ?? f.in_reply_to);
     if (d.roomBatch.humanWords.forget(frame2, word3) && rk.phase !== "aborted") {
       human = true;
       frame2.origin = "human";
@@ -6462,9 +6605,9 @@ var StaleBurst = class {
       this.timer = null;
       const all2 = this.burst.splice(0);
       if (!all2.length) return;
-      const { text: text5, keys, body } = staleBatch(all2, this.has);
-      if (!text5) return;
-      flush({ kind: "stale", frames: all2, marks: keys, text: text5, body });
+      const { text: text6, keys, body } = staleBatch(all2, this.has);
+      if (!text6) return;
+      flush({ kind: "stale", frames: all2, marks: keys, text: text6, body });
     }, STALE_BURST_MS).unref();
   }
   /** The frames the window holds (pulse.ts pending). */
@@ -6541,8 +6684,8 @@ function sweepStale(authDir, mine) {
   for (const f of readdirSync3(dir2).filter((x) => x.endsWith(".hold"))) {
     if (existsSync(join11(dir2, `${basename3(f, ".hold")}.key`))) continue;
     try {
-      const rec5 = JSON.parse(readFileSync14(join11(dir2, f), "utf8"));
-      if (typeof rec5.at !== "number" || Date.now() - rec5.at > HOLD_RECORD_MAX_AGE_MS)
+      const rec6 = JSON.parse(readFileSync14(join11(dir2, f), "utf8"));
+      if (typeof rec6.at !== "number" || Date.now() - rec6.at > HOLD_RECORD_MAX_AGE_MS)
         unlinkSync10(join11(dir2, f));
     } catch {
       try {
@@ -7483,7 +7626,7 @@ function createMux(url, onSocket) {
     onOpen: () => active().forEach(subscribe4),
     onMessage: (raw) => routeFrame(raw, routes),
     onDrop,
-    onHung: (text5) => active().forEach((s2) => (s2.o.onHung ?? s2.o.onNote)?.(text5)),
+    onHung: (text6) => active().forEach((s2) => (s2.o.onHung ?? s2.o.onNote)?.(text6)),
     onFallback: () => [...subs].forEach(toSocket)
   });
   const ticker = createTicker((tick) => link.send(tick));
@@ -7601,11 +7744,11 @@ function muxOf(url) {
   if (!m) muxes.set(url, m = createMux(url, fell));
   return m;
 }
-function pulseFrom(m, s2, text5, sent) {
+function pulseFrom(m, s2, text6, sent) {
   if (!s2.live || !s2.channel) return false;
   let f;
   try {
-    f = JSON.parse(text5);
+    f = JSON.parse(text6);
   } catch {
     return false;
   }
@@ -7628,7 +7771,7 @@ function holdChannel(o) {
       m.release(s2);
       onGone(0);
     },
-    send: (text5, sent) => s2.fallback ? s2.fallback.send(text5, sent) : pulseFrom(m, s2, text5, sent),
+    send: (text6, sent) => s2.fallback ? s2.fallback.send(text6, sent) : pulseFrom(m, s2, text6, sent),
     get alive() {
       return s2.fallback ? s2.fallback.alive : !s2.closed;
     },
@@ -7692,9 +7835,9 @@ function learnRealm(alias, canonical) {
   if (t && !t.startsWith("@") && CANON_RE.test(canonical)) aliases.set(t, canonical);
 }
 var LIST_LINE_RE = /^ {4}(@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+) {2}(r\d+) {2}.* · /;
-function learnRealmList(text5) {
+function learnRealmList(text6) {
   const slugs = /* @__PURE__ */ new Map();
-  for (const line of text5.split("\n")) {
+  for (const line of text6.split("\n")) {
     const m = LIST_LINE_RE.exec(line);
     if (!m) continue;
     const [, c, short2] = m;
@@ -7719,9 +7862,9 @@ async function resolveRealms(names2, list3) {
   const open = names2.map(trimmed).filter((t) => t && !resolvedRealm(t));
   if (!open.length) return true;
   R.listing ??= list3().then(
-    (text5) => {
-      if (text5) learnRealmList(text5);
-      return !!text5;
+    (text6) => {
+      if (text6) learnRealmList(text6);
+      return !!text6;
     },
     () => false
   ).finally(() => {
@@ -7789,9 +7932,9 @@ var besideWord = (data) => emit({
 function repointExtras(ch) {
   for (const p of extraPlaces()) writeRecord(p, ch);
 }
-function rememberExtraStatus(key3, ch, text5) {
+function rememberExtraStatus(key3, ch, text6) {
   const p = extras.get(key3);
-  if (p) writeRecord(p, ch, text5 || "");
+  if (p) writeRecord(p, ch, text6 || "");
 }
 function dropExtra(key3, reason, forget, as) {
   const p = extras.get(key3);
@@ -7912,13 +8055,13 @@ function parseFrame(raw) {
   }
 }
 function entries(path) {
-  let text5;
+  let text6;
   try {
-    text5 = readFileSync15(path, "utf8");
+    text6 = readFileSync15(path, "utf8");
   } catch {
     return null;
   }
-  return text5.slice(0, text5.lastIndexOf("\n") + 1).split("\n").filter(Boolean).map((line) => {
+  return text6.slice(0, text6.lastIndexOf("\n") + 1).split("\n").filter(Boolean).map((line) => {
     try {
       return JSON.parse(line);
     } catch {
@@ -7993,8 +8136,8 @@ function inTurnWithin(url, ms2, fn, late2) {
 var TRIMMED = "trimmed_to_limit";
 var LIMIT = 64;
 var obj3 = (v) => v && typeof v === "object" ? v : {};
-function trimToWord(text5, max) {
-  const chars = [...text5];
+function trimToWord(text6, max) {
+  const chars = [...text6];
   const head = chars.slice(0, max - 1).join("");
   const cut = chars[max - 1] === " " ? head.length : head.lastIndexOf(" ");
   return (cut > 0 ? head.slice(0, cut) : head).trimEnd() + "…";
@@ -8017,14 +8160,14 @@ function trimNudge(t) {
   if (t.message) return words(STATUS_POST).trimmedBy(t.message);
   return words(STATUS_POST).trimmed();
 }
-function byTick(url, text5, scope) {
-  if (!tickFor(url, scope, { status: text5 })) return null;
-  if ([...text5].length <= LIMIT) return { ok: true, body: "", doing: text5 };
-  const doing = trimToWord(text5, LIMIT);
+function byTick(url, text6, scope) {
+  if (!tickFor(url, scope, { status: text6 })) return null;
+  if ([...text6].length <= LIMIT) return { ok: true, body: "", doing: text6 };
+  const doing = trimToWord(text6, LIMIT);
   return { ok: true, body: "", doing, trimmed: { doing, message: "" } };
 }
-async function publishStatusTo(url, text5, timeoutMs = 5e3, standingId = null) {
-  const ticked = byTick(url, text5, standingId);
+async function publishStatusTo(url, text6, timeoutMs = 5e3, standingId = null) {
+  const ticked = byTick(url, text6, standingId);
   if (ticked) return ticked;
   const w11 = words(STATUS_POST);
   if (onDispatcher(url))
@@ -8032,12 +8175,12 @@ async function publishStatusTo(url, text5, timeoutMs = 5e3, standingId = null) {
   return inTurnWithin(
     url,
     timeoutMs,
-    (until) => postStatus(url, text5, until, standingId),
+    (until) => postStatus(url, text6, until, standingId),
     () => ({ ok: false, body: late() })
   );
 }
 var late = () => words(STATUS_POST).noAnswer(words(STATUS_POST).late());
-async function postStatus(url, text5, until, standingId) {
+async function postStatus(url, text6, until, standingId) {
   const left2 = until - Date.now();
   if (left2 <= 0) return { ok: false, body: late() };
   const signal = AbortSignal.timeout(left2);
@@ -8045,7 +8188,7 @@ async function postStatus(url, text5, until, standingId) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(
-      typeof standingId === "string" ? { text: text5, standing_id: standingId } : { text: text5 }
+      typeof standingId === "string" ? { text: text6, standing_id: standingId } : { text: text6 }
     ),
     signal
   });
@@ -8062,10 +8205,10 @@ async function postStatus(url, text5, until, standingId) {
   if (res.status === 404) return { ok: false, code: 404, body: words(STATUS_POST).gone(body) };
   if (!res.ok)
     return { ok: false, code: res.status, body: words(STATUS_POST).refused(res.status, body) };
-  return { ok: true, body, ...acceptedIn(body, text5) };
+  return { ok: true, body, ...acceptedIn(body, text6) };
 }
 onFellBack(
-  (url, text5, standingId) => inTurn(url, () => postStatus(url, text5, Date.now() + 5e3, standingId), true).then((st) => {
+  (url, text6, standingId) => inTurn(url, () => postStatus(url, text6, Date.now() + 5e3, standingId), true).then((st) => {
     if (!st.ok) log(`busy line held for the dispatcher not posted: ${st.body}`);
   })
 );
@@ -8126,9 +8269,9 @@ function takeSpool(key3, primary, feed) {
 function sayStray(raw, frame2, p) {
   const to = strayOf(frame2, p);
   if (!to) return false;
-  const text5 = words(HANDOFF).strayFrame(String(frame2?.id ?? "?"), to, p.door.key, raw);
-  log(text5);
-  const ev = { kind: "note", text: text5 };
+  const text6 = words(HANDOFF).strayFrame(String(frame2?.id ?? "?"), to, p.door.key, raw);
+  log(text6);
+  const ev = { kind: "note", text: text6 };
   p.door.broadcast(ev);
   emit({
     jsonrpc: "2.0",
@@ -8207,19 +8350,19 @@ function noteStandCwd(cwd) {
   return prev;
 }
 var channel = () => H2.currentUrl ? { url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cwd: H2.standCwd } : null;
-function rememberStatus(text5, realm) {
+function rememberStatus(text6, realm) {
   const s2 = state.standing;
   const ch = channel();
   if (!s2 || !H2.currentKey || !ch) return;
   const extra = realm ? extraIn(realm) : void 0;
-  if (extra) return rememberExtraStatus(extra.door.key, ch, text5);
+  if (extra) return rememberExtraStatus(extra.door.key, ch, text6);
   writeHoldRecord(H2.currentKey, {
     realm: s2.realm,
     karta: s2.karta,
     name: s2.name ?? "",
     url: ch.url,
     statusUrl: H2.currentStatusUrl,
-    status: text5 || void 0,
+    status: text6 || void 0,
     cwd: H2.standCwd ?? readHoldRecord(H2.currentKey)?.cwd,
     client: harnessName(),
     key: H2.currentKey
@@ -8234,9 +8377,9 @@ var doorHooks = {
     for (const fn of H2.attachHooks) fn();
   },
   lateEvent: () => H2.evictedKey ? H2.evictedEvent : null,
-  onError: (text5) => {
-    log(text5);
-    notify("error", { kind: "note", text: text5 });
+  onError: (text6) => {
+    log(text6);
+    notify("error", { kind: "note", text: text6 });
   }
 };
 var doors = () => [
@@ -8371,8 +8514,8 @@ function parkStanding(reason) {
   H2.holder = null;
   Object.assign(H2, { parked: true, unheard: false });
   standingLog(`parked ${H2.currentKey}: ${reason}`);
-  const text5 = holdWords().parked(reason);
-  broadcast({ kind: "note", text: text5 });
+  const text6 = holdWords().parked(reason);
+  broadcast({ kind: "note", text: text6 });
   return H2.currentKey;
 }
 function expectHello() {
@@ -8401,16 +8544,16 @@ function deliverTo(d, raw, frame2, full) {
       d.broadcast(ev2);
       notify("info", keyed(d, ev2));
     });
-  const text5 = full === frame2 && full?.addressed === void 0 ? raw : JSON.stringify(full);
+  const text6 = full === frame2 && full?.addressed === void 0 ? raw : JSON.stringify(full);
   const hello = full?.type === "hello";
-  for (const x of hello ? doors() : [d]) x.push(text5, full);
+  for (const x of hello ? doors() : [d]) x.push(text6, full);
   if (hello) Object.assign(H2, { unheard: false, deafKey: null });
   if (hello) for (const w11 of [...H2.helloWaiters]) w11(full);
-  const ev = frameEvent(text5, full, seenPath);
+  const ev = frameEvent(text6, full, seenPath);
   const msg = full?.type === "message" && !again ? full : null;
   if (msg) noteRoomKind(msg);
   const toBatch = (b) => (d.broadcast(b), notify("info", keyed(d, b)));
-  if (msg && !notifiedClient() && batchForWatchdogs(d, text5, msg, toBatch)) return;
+  if (msg && !notifiedClient() && batchForWatchdogs(d, text6, msg, toBatch)) return;
   if (!again) for (const x of hello ? doors() : [d]) x.broadcast(ev);
   if (full?.type === "status") return;
   if (again) return log(`frame ${id} came again — already delivered, not raised`);
@@ -8489,31 +8632,31 @@ function openHolder(url, key3) {
           releaseStanding(holdWords().resumeFailed(), true);
           return;
         }
-        const text5 = deadWord(code2);
-        log(text5);
+        const text6 = deadWord(code2);
+        log(text6);
         standingLog(`dead ${key3}: close ${code2}`);
-        const ev = { kind: "dead", code: code2, text: text5 };
+        const ev = { kind: "dead", code: code2, text: text6 };
         broadcast(ev);
         notify("error", ev);
         Object.assign(H2, { deafKey: key3, deadPlaces: [...state.places] });
         releaseStanding(holdWords().tokenDead(), true);
       },
       onServiceAlive: (version) => {
-        const text5 = holdWords().alive(version);
-        log(text5);
-        const ev = { kind: "alive", version, text: text5 };
+        const text6 = holdWords().alive(version);
+        log(text6);
+        const ev = { kind: "alive", version, text: text6 };
         broadcast(ev);
         notify("warning", ev);
       },
-      onNote: (text5) => {
-        log(text5);
-        broadcast({ kind: "note", text: text5 });
+      onNote: (text6) => {
+        log(text6);
+        broadcast({ kind: "note", text: text6 });
       },
       // Hang: a line waking the agent for the Monitor watchdog; pi and OpenCode show the human a notification that does not wake the agent (#5380).
-      onHung: (text5) => {
-        log(text5);
-        broadcast({ kind: "note", text: text5 });
-        notify("warning", { kind: "note", text: text5 });
+      onHung: (text6) => {
+        log(text6);
+        broadcast({ kind: "note", text: text6 });
+        notify("warning", { kind: "note", text: text6 });
       }
     })
   );
@@ -8629,9 +8772,9 @@ function readBoard(a) {
     declared: header?.[1] != null ? Number(header[1]) : null
   };
 }
-function parseBoard(text5) {
+function parseBoard(text6) {
   const out7 = [];
-  for (const line of text5.split("\n")) {
+  for (const line of text6.split("\n")) {
     const m = /^\s*#(\d+)\s.*?·\s(@\S+)\s—\s(.*)$/.exec(line);
     if (m) {
       out7.push({ karta: m[1], address: m[2], rest: m[3], incoming: null, id: null });
@@ -8740,9 +8883,9 @@ function noteCaseEntry(name2, args, reply2) {
 function keepRecordCases() {
   const key3 = H2.currentKey;
   if (!CFG.satellite || !key3 || !H2.currentUrl) return;
-  const rec5 = readHoldRecord(key3, true);
-  if (!rec5 || rec5.left || rec5.url !== H2.currentUrl || !rec5.cases) return;
-  writeHoldRecord(key3, { ...rec5, cases: joinedCases() }, true);
+  const rec6 = readHoldRecord(key3, true);
+  if (!rec6 || rec6.left || rec6.url !== H2.currentUrl || !rec6.cases) return;
+  writeHoldRecord(key3, { ...rec6, cases: joinedCases() }, true);
 }
 var joinedCases = () => [...joined.values()];
 function seedJoined(cases) {
@@ -9054,8 +9197,8 @@ function signHeldRecord() {
   const key3 = H2.currentKey;
   if (!key3 || !H2.holder?.alive || !sessionOfBridge()) return;
   for (const k of [key3, ...extraPlaces().map((p) => p.door.key)]) {
-    const rec5 = readHoldRecord(k);
-    if (rec5 && !rec5.session && rec5.url === H2.currentUrl) writeHoldRecord(k, rec5);
+    const rec6 = readHoldRecord(k);
+    if (rec6 && !rec6.session && rec6.url === H2.currentUrl) writeHoldRecord(k, rec6);
   }
 }
 function freshenHeldRecords() {
@@ -9072,10 +9215,10 @@ function freshenHeldRecords() {
 function refreshHeldRecord() {
   const key3 = H2.currentKey;
   if (!key3 || !H2.holder?.alive || !H2.currentUrl) return;
-  const rec5 = readHoldRecord(key3, true);
-  if (!rec5 || rec5.left || rec5.url !== H2.currentUrl) return;
-  if (typeof rec5.at === "number" && Date.now() - rec5.at < HOLD_RECORD_MAX_AGE_MS / 2) return;
-  writeHoldRecord(key3, { ...rec5, cases: CFG.satellite ? joinedCases() : rec5.cases }, CFG.satellite);
+  const rec6 = readHoldRecord(key3, true);
+  if (!rec6 || rec6.left || rec6.url !== H2.currentUrl) return;
+  if (typeof rec6.at === "number" && Date.now() - rec6.at < HOLD_RECORD_MAX_AGE_MS / 2) return;
+  writeHoldRecord(key3, { ...rec6, cases: CFG.satellite ? joinedCases() : rec6.cases }, CFG.satellite);
 }
 
 // js/bridge/pauserecord.ts
@@ -9100,7 +9243,7 @@ function pauseForHandover(why) {
       `satellite paused for the daemon handover (${why}): ${key3}, cases ${P.answer?.cases ?? 0} — place and cases kept`
     );
 }
-function pauseRecord(kind) {
+function pauseRecord(kind2) {
   const s2 = state.standing;
   const { currentKey: key3, currentUrl: url, currentStatusUrl: statusUrl2 } = H2;
   if (!CFG.satellite || !s2?.name || !key3 || !url) return null;
@@ -9127,7 +9270,7 @@ function pauseRecord(kind) {
   };
   P.write = write;
   write();
-  P.kind = kind;
+  P.kind = kind2;
   return key3;
 }
 
@@ -9496,12 +9639,12 @@ function placeFields(place = {}, freshSkills = false, move2 = "register") {
   };
 }
 var PLACE_ACTIONS = /* @__PURE__ */ new Set(["connect", "mint", "register"]);
-function noteLocaleEcho(args, text5, structured) {
+function noteLocaleEcho(args, text6, structured) {
   const asked = args.locale;
   if (typeof asked !== "string" || P2.localeWarned) return;
   const action = String(args.action);
   const field = PLACE_ACTIONS.has(action) ? seatField(structured, action)?.locale : void 0;
-  const echo = (field ?? /\blocale\b["']?\s*[:=]\s*["']?([a-z]{2})\b/i.exec(text5)?.[1])?.toLowerCase();
+  const echo = (field ?? /\blocale\b["']?\s*[:=]\s*["']?([a-z]{2})\b/i.exec(text6)?.[1])?.toLowerCase();
   if (!echo || echo === asked) return;
   P2.localeWarned = true;
   log(`locale: asked ${asked}, the server answered ${echo} — its prose stays in ${echo}`);
@@ -9526,13 +9669,13 @@ function parseSpawn(value) {
     return invalid();
   return { invite: a.invite, room: a.room.toLowerCase() };
 }
-function spawnJson(text5) {
+function spawnJson(text6) {
   try {
-    const keys = [...text5.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
+    const keys = [...text6.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
       (m) => JSON.parse(m[1])
     );
     if (keys.length !== new Set(keys).size) return invalid();
-    return parseSpawn(JSON.parse(text5));
+    return parseSpawn(JSON.parse(text6));
   } catch {
     return invalid();
   }
@@ -9604,8 +9747,8 @@ var S4 = scoped(() => ({
   pair: void 0,
   refused: null
 }));
-var refuseClaim = (text5) => {
-  S4.refused = text5;
+var refuseClaim = (text6) => {
+  S4.refused = text6;
 };
 var claimRefusal = () => S4.refused;
 var targetOf = (a) => `${canonRealm(a.realm)}#${String(a.karta).replace(/^#/, "")}`;
@@ -9632,10 +9775,10 @@ function registeredBasis(a) {
 }
 
 // js/bridge/claimdelivery.ts
-var refused = (id, text5) => ({
+var refused = (id, text6) => ({
   jsonrpc: "2.0",
   id,
-  result: { isError: true, content: [{ type: "text", text: text5 }] }
+  result: { isError: true, content: [{ type: "text", text: text6 }] }
 });
 function launchAdmission(msg) {
   if (msg.method !== "tools/call") return null;
@@ -9726,13 +9869,13 @@ var bare = (r) => {
   return !!t && !t.startsWith("@") && t !== OWN_REALM;
 };
 var hashOf2 = (key3) => basename5(holdFilePathOf(CFG.authDir, key3), ".hold");
-var live = (rec5) => !!rec5 && typeof rec5.url === "string" && !!rec5.realm && rec5.karta != null && typeof rec5.at === "number" && Date.now() - rec5.at <= HOLD_RECORD_MAX_AGE_MS;
+var live = (rec6) => !!rec6 && typeof rec6.url === "string" && !!rec6.realm && rec6.karta != null && typeof rec6.at === "number" && Date.now() - rec6.at <= HOLD_RECORD_MAX_AGE_MS;
 function readAll(dir2) {
   const out7 = [];
   for (const f of readdirSync6(dir2).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec5 = JSON.parse(readFileSync18(join15(dir2, f), "utf8"));
-      if (live(rec5) && bare(rec5.realm)) out7.push({ file: join15(dir2, f), rec: rec5 });
+      const rec6 = JSON.parse(readFileSync18(join15(dir2, f), "utf8"));
+      if (live(rec6) && bare(rec6.realm)) out7.push({ file: join15(dir2, f), rec: rec6 });
     } catch {
     }
   }
@@ -9749,18 +9892,18 @@ function moveMemory(dir2, from, to) {
     }
   }
 }
-function move(dir2, file2, rec5, canon2) {
-  const from = keyOf(rec5.realm, rec5.karta, rec5.name);
-  const to = keyOf(canon2, rec5.karta, rec5.name);
+function move(dir2, file2, rec6, canon2) {
+  const from = keyOf(rec6.realm, rec6.karta, rec6.name);
+  const to = keyOf(canon2, rec6.karta, rec6.name);
   const dest = holdFilePathOf(CFG.authDir, to);
   const formerKey = (kept3) => {
-    const all2 = [.../* @__PURE__ */ new Set([...formerKeysIn(kept3, to), from, ...formerKeysIn(rec5, to)])];
+    const all2 = [.../* @__PURE__ */ new Set([...formerKeysIn(kept3, to), from, ...formerKeysIn(rec6, to)])];
     return all2.length === 1 ? all2[0] : all2;
   };
   try {
     if (!existsSync4(file2)) return true;
     const there = existsSync4(dest) ? JSON.parse(readFileSync18(dest, "utf8")) : null;
-    const next = there ? { ...there, formerKey: formerKey(there) } : { ...rec5, realm: canon2, key: to, formerKey: formerKey(null) };
+    const next = there ? { ...there, formerKey: formerKey(there) } : { ...rec6, realm: canon2, key: to, formerKey: formerKey(null) };
     writeOwned(dest, JSON.stringify(next) + "\n");
     try {
       unlinkSync13(file2);
@@ -9769,7 +9912,7 @@ function move(dir2, file2, rec5, canon2) {
       return true;
     }
     moveMemory(dir2, from, to);
-    log(`hold record ${from}: the graph ${rec5.realm} is ${canon2} — moved to ${to}`);
+    log(`hold record ${from}: the graph ${rec6.realm} is ${canon2} — moved to ${to}`);
     return true;
   } catch (e) {
     log(`hold record ${from} not moved to ${to}: ${e.message}`);
@@ -9796,18 +9939,18 @@ async function moveAll() {
   if (!open.length) return;
   const ask3 = open.map((x) => x.rec.realm).filter((r) => !unsaid.has(r) && !canonRealm(r).startsWith("@"));
   const answered2 = ask3.length ? await resolveRealms(ask3, realmList) : true;
-  for (const { file: file2, rec: rec5 } of open) {
-    const canon2 = canonRealm(rec5.realm);
-    if (canon2.startsWith("@")) move(dir2, file2, rec5, canon2);
-    else if (unsaid.has(rec5.realm)) continue;
+  for (const { file: file2, rec: rec6 } of open) {
+    const canon2 = canonRealm(rec6.realm);
+    if (canon2.startsWith("@")) move(dir2, file2, rec6, canon2);
+    else if (unsaid.has(rec6.realm)) continue;
     else if (answered2) {
-      unsaid.add(rec5.realm);
+      unsaid.add(rec6.realm);
       log(
-        `hold record ${keyOf(rec5.realm, rec5.karta, rec5.name)}: the graph ${rec5.realm} is not in the graph list — left as it is; a bare name reaches only the own graph`
+        `hold record ${keyOf(rec6.realm, rec6.karta, rec6.name)}: the graph ${rec6.realm} is not in the graph list — left as it is; a bare name reaches only the own graph`
       );
     } else
       log(
-        `hold record ${keyOf(rec5.realm, rec5.karta, rec5.name)}: the graph list did not answer — ${rec5.realm} left as it is, asked again at the next stand or return`
+        `hold record ${keyOf(rec6.realm, rec6.karta, rec6.name)}: the graph list did not answer — ${rec6.realm} left as it is, asked again at the next stand or return`
       );
   }
 }
@@ -9822,8 +9965,8 @@ function seatKarta(realm, karta, name2 = "") {
   const led = [state.standing, ...state.places].find((p) => p && here(p.realm));
   if (led) return String(led.karta);
   const me = sessionOfBridge();
-  const rec5 = me && name2 ? holdRecordsNamed(name2).find((x) => x.session === me && here(x.realm)) : null;
-  return rec5 ? normKarta(rec5.karta) : k;
+  const rec6 = me && name2 ? holdRecordsNamed(name2).find((x) => x.session === me && here(x.realm)) : null;
+  return rec6 ? normKarta(rec6.karta) : k;
 }
 var unresolvedAgent = (karta, what) => karta !== "agent" ? null : words(HEARING).unresolvedAgent(what);
 async function seatRealm(given) {
@@ -9852,14 +9995,14 @@ function keysNamed(realm, name2) {
     return [];
   }
 }
-var unsignedHere = (rec5, cwd) => !rec5.session && !rec5.left && rec5.client === harnessName() && sameDir(rec5.cwd, cwd);
+var unsignedHere = (rec6, cwd) => !rec6.session && !rec6.left && rec6.client === harnessName() && sameDir(rec6.cwd, cwd);
 async function localHolder(key3, cwd) {
   if (!await localSocketAlive(localSocketPathOf(key3))) return null;
   if (doors().some((d) => d.key === key3 && d.ownsSocket)) return "self";
   const me = sessionOfBridge();
-  const rec5 = me ? readHoldRecord(key3, true) : null;
-  if (!rec5) return "other";
-  return rec5.session === me || cwd != null && unsignedHere(rec5, cwd) ? "session" : "other";
+  const rec6 = me ? readHoldRecord(key3, true) : null;
+  if (!rec6) return "other";
+  return rec6.session === me || cwd != null && unsignedHere(rec6, cwd) ? "session" : "other";
 }
 async function heldLocally(realm, karta, name2, cwd) {
   let own = false;
@@ -10209,8 +10352,8 @@ async function leaveSatellite(reason) {
 function returnToStanding(how2) {
   if (!resumeStanding()) return false;
   for (const p of heldPlaces()) markLeft(p.key, false);
-  const text5 = words(LEAVE).returned(how2, K.status);
-  log(text5);
+  const text6 = words(LEAVE).returned(how2, K.status);
+  log(text6);
   if (K.status) {
     const line = K.status;
     K.status = "";
@@ -10225,7 +10368,7 @@ function returnToStanding(how2) {
   emit({
     jsonrpc: "2.0",
     method: "notifications/message",
-    params: { level: "info", logger: LOGGERS.channel, data: { kind: "note", text: text5 } }
+    params: { level: "info", logger: LOGGERS.channel, data: { kind: "note", text: text6 } }
   });
   return true;
 }
@@ -10264,10 +10407,10 @@ function localLeave(msg) {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
   if (msg.params?.arguments?.action !== "leave") return null;
   const realm = msg.params.arguments.realm;
-  const answer2 = (text5, isError = false) => ({
+  const answer2 = (text6, isError = false) => ({
     jsonrpc: "2.0",
     id: msg.id,
-    result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text5 }] }
+    result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text6 }] }
   });
   return (async () => {
     const W4 = words(LEAVE);
@@ -10298,41 +10441,41 @@ function besideRecords(url, primary) {
       const raw = JSON.parse(readFileSync21(join18(dir2, f), "utf8"));
       if (!raw || raw.url !== url || raw.client !== harnessName()) continue;
       if (sameRealm(primary.realm, raw.realm)) continue;
-      const rec5 = readHoldRecord(keyOf(raw.realm, raw.karta, raw.name));
-      if (rec5 && !rec5.left) out7.push(rec5);
+      const rec6 = readHoldRecord(keyOf(raw.realm, raw.karta, raw.name));
+      if (rec6 && !rec6.left) out7.push(rec6);
     } catch {
     }
   }
   return out7;
 }
-async function resolveRecord(hello, rec5, primary) {
-  if (resolvedRealm(rec5.realm)) return;
+async function resolveRecord(hello, rec6, primary) {
+  if (resolvedRealm(rec6.realm)) return;
   const listed = Array.isArray(hello?.standings) ? hello.standings : [];
   const fits = listed.filter(
-    (e) => typeof e.realm === "string" && !sameRealm(e.realm, primary.realm) && String(e.standing ?? "").replace(/^.*:/, "") === rec5.name && (e.karta_seq == null || String(e.karta_seq) === String(rec5.karta))
+    (e) => typeof e.realm === "string" && !sameRealm(e.realm, primary.realm) && String(e.standing ?? "").replace(/^.*:/, "") === rec6.name && (e.karta_seq == null || String(e.karta_seq) === String(rec6.karta))
   );
   if (fits.length === 1 && resolvedRealm(primary.realm))
-    learnRealm(rec5.realm, String(fits[0].realm));
-  else await resolveAgainstLed(rec5.realm);
+    learnRealm(rec6.realm, String(fits[0].realm));
+  else await resolveAgainstLed(rec6.realm);
 }
 async function besideBack(url, primary) {
   if (CFG.satellite) return;
   const recs = besideRecords(url, primary);
   if (!recs.length) return;
   const hello = await awaitHello(0);
-  for (const rec5 of recs) {
-    const key3 = keyOf(rec5.realm, rec5.karta, rec5.name);
-    await resolveRecord(hello, rec5, primary);
-    if (!otherRealm(primary.realm, rec5.realm)) {
+  for (const rec6 of recs) {
+    const key3 = keyOf(rec6.realm, rec6.karta, rec6.name);
+    await resolveRecord(hello, rec6, primary);
+    if (!otherRealm(primary.realm, rec6.realm)) {
       log(`seat beside ${key3}: its graph is not known as another one — not registered`);
       continue;
     }
     const r = await callTool(tool("channel"), {
       action: "register",
-      realm: rec5.realm,
-      karta: rec5.karta,
-      name: rec5.name,
-      ...placeFields(rec5)
+      realm: rec6.realm,
+      karta: rec6.karta,
+      name: rec6.name,
+      ...placeFields(rec6)
     });
     standingLog(r.isError ? `beside not resumed ${key3}` : `resumed-from-disk beside ${key3}`);
     log(
@@ -10379,17 +10522,17 @@ function lostPlaces(say3, log3) {
     },
     /** `stopped` — the owner took the seat off (#7439): `why` is the stop word, no retake advice. */
     lose(k, realm, why, satellite, stopped = false) {
-      const text5 = stopped ? why : satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
-      lost.set(k, { realm, satellite, text: text5 });
+      const text6 = stopped ? why : satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
+      lost.set(k, { realm, satellite, text: text6 });
       live2.delete(k);
-      log3(text5);
+      log3(text6);
       say3({
         jsonrpc: "2.0",
         method: "notifications/message",
         params: {
           level: "warning",
           logger: LOGGERS.channel,
-          data: { kind: stopped ? "stopped" : "lost", key: k, text: text5 }
+          data: { kind: stopped ? "stopped" : "lost", key: k, text: text6 }
         }
       });
     },
@@ -10456,12 +10599,12 @@ function realmListAsk() {
       if (msg.method !== void 0 || msg.id === void 0 || msg.id === null) return false;
       if (!asked.delete(JSON.stringify(msg.id))) return false;
       const content = msg.result?.content;
-      const text5 = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
+      const text6 = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
       if (msg.error || msg.result?.isError)
         log3(
-          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text5 || msg.error?.message || "?"}`
+          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text6 || msg.error?.message || "?"}`
         );
-      learnRealmList(text5);
+      learnRealmList(text6);
       return true;
     },
     /** No answer will come (link broke) — allow asking again. */
@@ -10488,12 +10631,12 @@ function recordsFor(sel) {
   const neighbour = [];
   for (const f of readdirSync9(dir2).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec5 = JSON.parse(readFileSync22(join19(dir2, f), "utf8"));
-      if (!rec5 || rec5.client !== mine) continue;
-      const key3 = keyOf(rec5.realm, rec5.karta, rec5.name);
-      const keyed3 = !!sel.key && (key3 === sel.key || formerKeysIn(rec5).includes(sel.key));
-      const inDir = sameDir(rec5.cwd, sel.cwd);
-      const stoodBy = !!sel.session && rec5.session === sel.session;
+      const rec6 = JSON.parse(readFileSync22(join19(dir2, f), "utf8"));
+      if (!rec6 || rec6.client !== mine) continue;
+      const key3 = keyOf(rec6.realm, rec6.karta, rec6.name);
+      const keyed3 = !!sel.key && (key3 === sel.key || formerKeysIn(rec6).includes(sel.key));
+      const inDir = sameDir(rec6.cwd, sel.cwd);
+      const stoodBy = !!sel.session && rec6.session === sel.session;
       if (!keyed3 && !inDir && !stoodBy) continue;
       const fresh2 = readHoldRecord(key3);
       if (!fresh2) continue;
@@ -10608,12 +10751,12 @@ async function pauseSettled() {
 }
 function afterResume(key3) {
   if (!CFG.satellite || !key3) return;
-  const rec5 = readHoldRecord(key3);
-  seedJoined(rec5?.cases);
-  if (rec5 && H2.currentKey === key3 && H2.currentUrl)
+  const rec6 = readHoldRecord(key3);
+  seedJoined(rec6?.cases);
+  if (rec6 && H2.currentKey === key3 && H2.currentUrl)
     writeHoldRecord(
       key3,
-      { ...rec5, url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cases: joinedCases() },
+      { ...rec6, url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cases: joinedCases() },
       true
     );
 }
@@ -10625,37 +10768,37 @@ function takeLapsed() {
   RJ.lapsed = false;
   return was;
 }
-async function busyBack(rec5) {
-  if (!rec5.status) return "";
+async function busyBack(rec6) {
+  if (!rec6.status) return "";
   const me = sessionOfBridge();
-  if (!me || rec5.session !== me) {
+  if (!me || rec6.session !== me) {
     rememberStatus("");
     return resumeWords.busyForeign();
   }
-  const st = await publishStatus(rec5.status);
-  const kept3 = st.doing ?? rec5.status;
+  const st = await publishStatus(rec6.status);
+  const kept3 = st.doing ?? rec6.status;
   return st.ok ? resumeWords.busyRestored(kept3) : resumeWords.busyNotRestored(short(st.body));
 }
 async function resumeFromDisk(realm, karta, name2) {
   const key3 = keyOf(realm, karta, name2);
-  const rec5 = readHoldRecord(key3);
-  if (!rec5) return null;
+  const rec6 = readHoldRecord(key3);
+  if (!rec6) return null;
   if (holdsKey(key3)) return null;
   const led = ledKey();
   if (led && led !== key3) return null;
   if (await localSocketAlive(localSocketPathOf(key3))) return null;
   const prev = state.standing;
   state.standing = { realm, karta, name: name2 };
-  const prevCwd = rec5.cwd ? noteStandCwd(rec5.cwd) : null;
-  if (rec5.base) noteSeatBase(key3, rec5.base);
-  noteStoodAt(key3, rec5.stoodAt ?? rec5.at);
+  const prevCwd = rec6.cwd ? noteStandCwd(rec6.cwd) : null;
+  if (rec6.base) noteSeatBase(key3, rec6.base);
+  noteStoodAt(key3, rec6.stoodAt ?? rec6.at);
   noteResuming(1);
   try {
-    holdStanding(rec5.url, rec5.statusUrl);
+    holdStanding(rec6.url, rec6.statusUrl);
     const hello = await awaitHello(4e3);
     if (hello && holdsKey(key3)) {
       const pending2 = Number(hello.pending) || 0;
-      const busy = await busyBack(rec5);
+      const busy = await busyBack(rec6);
       log(`standing resumed from disk (${key3}), pending ${pending2}`);
       standingLog(`resumed-from-disk ${key3}: pending ${pending2}`);
       return { word: resumeWords.fromDisk(pending2, busy), pending: pending2 };
@@ -10669,21 +10812,21 @@ async function resumeFromDisk(realm, karta, name2) {
     kept3 ? `hold record for ${key3}: no hello in time — record kept as it was, the place is not taken` : `hold record for ${key3} is stale — dropped, the place is taken anew`
   );
   releaseStanding(holdWords().resumeFailed());
-  if (onDisk2?.url === rec5.url) restoreHoldRecord(key3, rec5);
+  if (onDisk2?.url === rec6.url) restoreHoldRecord(key3, rec6);
   state.standing = prev;
-  if (rec5.cwd) noteStandCwd(prevCwd);
+  if (rec6.cwd) noteStandCwd(prevCwd);
   return null;
 }
-async function registerBack(rec5) {
+async function registerBack(rec6) {
   const r = await callTool(tool("channel"), {
     action: "register",
-    realm: rec5.realm,
-    karta: rec5.karta,
-    name: rec5.name,
-    ...placeFields(rec5)
+    realm: rec6.realm,
+    karta: rec6.karta,
+    name: rec6.name,
+    ...placeFields(rec6)
   });
   if (r.isError) return resumeWords.registerRefused(short(r.text));
-  await besideBack(rec5.url, rec5);
+  await besideBack(rec6.url, rec6);
   return "register";
 }
 var T3 = { takeOwn: null };
@@ -10745,25 +10888,25 @@ async function resumeBy(sel, register = true, takeOwn = false) {
   const led = ledKey();
   const skipped = [];
   const elsewhere = [];
-  for (const rec5 of recs) {
-    const key3 = keyOf(rec5.realm, rec5.karta, rec5.name);
+  for (const rec6 of recs) {
+    const key3 = keyOf(rec6.realm, rec6.karta, rec6.name);
     const before = stopsNow();
     if (holdsKey(key3))
       return { resumed: true, key: key3, pending: 0, word: resumeWords.alreadyHolding(), own: true };
-    if (isParked(rec5.realm, rec5.karta, rec5.name)) return backToParked(key3, resumeWords.byRecord());
+    if (isParked(rec6.realm, rec6.karta, rec6.name)) return backToParked(key3, resumeWords.byRecord());
     if (led && led !== key3) {
       skipped.push(resumeWords.otherSeat(key3, led));
       continue;
     }
     const holder = await localHolder(key3, sel.cwd ?? sessionCwd());
     if (holder === "session" && takeOwn && !CFG.satellite && T3.takeOwn) {
-      const said2 = await T3.takeOwn(rec5, sel.cwd);
+      const said2 = await T3.takeOwn(rec6, sel.cwd);
       const stop = stoppedOutcome(before, key3);
       if (stop) return stop;
       const now2 = ledKey();
       if (now2 && holdsKey(now2)) {
         const hello = await awaitHello(4e3);
-        const busy = now2 === key3 ? await busyBack(rec5) : "";
+        const busy = now2 === key3 ? await busyBack(rec6) : "";
         return {
           resumed: true,
           key: now2,
@@ -10781,10 +10924,10 @@ async function resumeBy(sel, register = true, takeOwn = false) {
       continue;
     }
     const me = sel.session ?? sessionOfBridge();
-    const proven = !!me && rec5.session === me || key3 === led && !rec5.session;
+    const proven = !!me && rec6.session === me || key3 === led && !rec6.session;
     const { back, registered } = await withSpoolHeld(async () => {
-      const b = await resumeFromDisk(rec5.realm, rec5.karta, rec5.name);
-      return { back: b, registered: b && register ? await registerBack(rec5) : null };
+      const b = await resumeFromDisk(rec6.realm, rec6.karta, rec6.name);
+      return { back: b, registered: b && register ? await registerBack(rec6) : null };
     });
     if (!back) {
       const stop = stoppedOutcome(before, key3);
@@ -10892,14 +11035,14 @@ async function runCheck(msg) {
     return reply(msg, { holding: true, key: key3, listening: listening2, pending: pending2, word: resumeWords.listening() });
   }
   if (D.reopens >= REOPEN_LIMIT) {
-    const text5 = resumeWords.gaveUp(key3, REOPEN_LIMIT);
+    const text6 = resumeWords.gaveUp(key3, REOPEN_LIMIT);
     if (!D.said) {
       D.said = true;
       standingLog(`reopen ${key3}: gave up after ${REOPEN_LIMIT} — board still reads deaf`);
       emit({
         jsonrpc: "2.0",
         method: "notifications/message",
-        params: { level: "warning", logger: LOGGERS.channel, data: { kind: "lost", text: text5 } }
+        params: { level: "warning", logger: LOGGERS.channel, data: { kind: "lost", text: text6 } }
       });
     }
     return reply(msg, {
@@ -10909,7 +11052,7 @@ async function runCheck(msg) {
       pending: pending2,
       reopened: false,
       stuck: true,
-      word: text5
+      word: text6
     });
   }
   D.reopens++;
@@ -10938,10 +11081,10 @@ var baseOf2 = (realm, karta, name2) => seatBaseOf(keyOf(realm, karta, name2)) ??
 var suffixed = (base, n) => base.slice(0, NAME_MAX - `.${n}`.length).replace(/[-._]+$/, "") + `.${n}`;
 async function ownByRecord(realm, karta, name2, cwd) {
   const key3 = keyOf(realm, karta, name2);
-  const rec5 = readHoldRecord(key3);
+  const rec6 = readHoldRecord(key3);
   const me = sessionOfBridge();
-  if (!rec5) return false;
-  const mine = me ? rec5.session === me || unsignedHere(rec5, cwd) : !rec5.session && rec5.client === harnessName() && sameDir(rec5.cwd, cwd);
+  if (!rec6) return false;
+  const mine = me ? rec6.session === me || unsignedHere(rec6, cwd) : !rec6.session && rec6.client === harnessName() && sameDir(rec6.cwd, cwd);
   return mine && !await localSocketAlive(localSocketPathOf(key3));
 }
 var isTaken = (h) => h === "live" || h === "record" || h === "board" || h === "taken";
@@ -10959,8 +11102,8 @@ async function holderOf(realm, karta, name2, hearing, cwd) {
   return h === "other" && !await ownByRecord(realm, karta, name2, cwd) ? "board" : "free";
 }
 function theirsByRecord(key3) {
-  const rec5 = readHoldRecord(key3);
-  return !!rec5?.session && !rec5.left && rec5.session !== sessionOfBridge();
+  const rec6 = readHoldRecord(key3);
+  return !!rec6?.session && !rec6.left && rec6.session !== sessionOfBridge();
 }
 async function placeFor(realm, karta, base, hearing, cwd, taken2 = /* @__PURE__ */ new Set(), root = base) {
   const holder = async (name2) => taken2.has(name2) ? "taken" : await holderOf(realm, karta, name2, hearing, cwd);
@@ -11074,9 +11217,9 @@ async function takingSeat(args, fn) {
 // js/bridge/evicted.ts
 var LOOK_MS = 100;
 var RETRY_MS = 2e3;
-function announceEvicted(code2, text5) {
-  log(text5);
-  const ev = { kind: "evicted", code: code2, text: text5 };
+function announceEvicted(code2, text6) {
+  log(text6);
+  const ev = { kind: "evicted", code: code2, text: text6 };
   H2.evictedEvent = ev;
   broadcast(ev);
   notify("warning", ev);
@@ -11159,13 +11302,13 @@ async function besideAndSay(key3, s2, name2, base, beside2, extras3, once = fals
       );
     }
   F.failed = r.ok ? null : { key: key3, s: s2, name: name2, base, extras: extras3 };
-  const text5 = [
+  const text6 = [
     r.ok ? holdWords().besideDone(name2, r.text) : holdWords().besideFailed(name2, base, r.text),
     ...others2
   ].join("\n");
-  log(text5);
+  log(text6);
   standingLog(`evicted ${key3}: ${r.ok ? "stood beside" : "could not stand beside"}`);
-  notify("warning", { kind: "resumed", text: text5 });
+  notify("warning", { kind: "resumed", text: text6 });
 }
 var F = scoped(() => ({
   failed: null,
@@ -11349,9 +11492,9 @@ var isUnattributed = (reply2) => {
   if (!reply2) return false;
   const rule = refusalOf(reply2)?.rule;
   if (rule) return UNATTRIBUTED_CODE.test(rule);
-  const text5 = replyText(reply2);
-  if (UNATTRIBUTED_CODE.test(text5)) return true;
-  return !!reply2.result?.isError && UNATTRIBUTED_REFUSAL.test(text5);
+  const text6 = replyText(reply2);
+  if (UNATTRIBUTED_CODE.test(text6)) return true;
+  return !!reply2.result?.isError && UNATTRIBUTED_REFUSAL.test(text6);
 };
 
 // js/bridge/usagefields.ts
@@ -11615,17 +11758,17 @@ function localEnd(msg) {
 var SOCKET_RE = /wss:\/\/[^\s"'`<>)\]]+|ws:\/\/(?:127\.0\.0\.1|\[?::1\]?|localhost)(?::\d+)?\/[^\s"'`<>)\]]+/;
 var STATUS_RE = /https?:\/\/[^\s"'`<>)\]]+\/channel\/status\/[^\s"'`<>)\]]+/;
 var trim2 = (s2) => s2.replace(/[.,;:!?»"')\]]+$/, "");
-var hideAddresses = (text5) => text5.replace(new RegExp(SOCKET_RE.source, "g"), words(ABSORB).socketHidden()).replace(new RegExp(STATUS_RE.source, "g"), words(ABSORB).statusHidden());
+var hideAddresses = (text6) => text6.replace(new RegExp(SOCKET_RE.source, "g"), words(ABSORB).socketHidden()).replace(new RegExp(STATUS_RE.source, "g"), words(ABSORB).statusHidden());
 function absorbChannelReply(msg, reply2) {
   const a = msg?.params?.arguments;
   if (msg?.params?.name !== tool("channel")) return reply2;
   if (a?.action !== "connect" && a?.action !== "mint") return reply2;
   if (reply2?.error || reply2?.result?.isError) return reply2;
   if (stoppedInMove()) return reply2;
-  const text5 = replyText(reply2);
-  const socket = SOCKET_RE.exec(text5)?.[0];
+  const text6 = replyText(reply2);
+  const socket = SOCKET_RE.exec(text6)?.[0];
   if (!socket) return reply2;
-  const status = STATUS_RE.exec(text5)?.[0];
+  const status = STATUS_RE.exec(text6)?.[0];
   if (a.realm && a.karta != null) {
     state.standing = rememberedPlace(a.realm, a.karta, a.name);
   }
@@ -11785,10 +11928,10 @@ function besideRefusal(realm, how2) {
   if (how2 === "stand" && holdsChannel()) return null;
   return how2 === "connect" ? words(CALL).besideConnect(led) : words(CALL).besideStand(led);
 }
-var refusal = (msg, text5) => ({
+var refusal = (msg, text6) => ({
   jsonrpc: "2.0",
   id: msg.id,
-  result: { isError: true, content: [{ type: "text", text: text5 }] }
+  result: { isError: true, content: [{ type: "text", text: text6 }] }
 });
 function crossPlaceRefusal(msg) {
   if (msg?.method !== "tools/call" || msg.params?.name !== tool("channel")) return null;
@@ -11834,9 +11977,9 @@ var callTool = async (name2, args) => {
     return await (name2 === tool("channel") ? takingSeat(args, () => answer(name2, args)) : answer(name2, args));
   } catch (e) {
     if (name2 === tool("channel") && args.action === "register" && args.spawned_for) {
-      const text5 = `${words(SPAWNED_FOR).echo()} ${errorMessage(e)}`;
-      refuseClaim(text5);
-      return { text: text5, isError: true };
+      const text6 = `${words(SPAWNED_FOR).echo()} ${errorMessage(e)}`;
+      refuseClaim(text6);
+      return { text: text6, isError: true };
     }
     throw e;
   }
@@ -11889,17 +12032,17 @@ var replyTo = (msg) => (body, isError = false) => ({
   id: msg.id,
   result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: body }] }
 });
-async function statusWord(text5, realm) {
-  const st = await publishStatus(text5, realm);
+async function statusWord(text6, realm) {
+  const st = await publishStatus(text6, realm);
   if (!st.ok && !statusAddress()) return [await notHeldHere(realm), true];
   if (st.code === 404) return [`${st.body} ${TURNED_GUIDANCE()}`, true];
-  if (st.ok) return [busyLine(text5, realm), false];
+  if (st.ok) return [busyLine(text6, realm), false];
   return [st.body, true];
 }
-function busyLine(text5, realm) {
+function busyLine(text6, realm) {
   const a = S5.accepted.get(statusAddress(realm)?.key ?? "");
-  const line = a?.sent === text5 ? a.doing : text5;
-  const nudge = a?.sent === text5 && a.trimmed ? `; ${trimNudge(a.trimmed)}` : "";
+  const line = a?.sent === text6 ? a.doing : text6;
+  const nudge = a?.sent === text6 && a.trimmed ? `; ${trimNudge(a.trimmed)}` : "";
   return words(STATUS).busyLine(placeLabel(realm), line, nudge);
 }
 function placeLabel(realm) {
@@ -11911,12 +12054,12 @@ function localStatus(msg) {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
   const a = msg.params?.arguments;
   if (a?.action !== "status") return null;
-  const text5 = typeof a.text === "string" ? a.text : "";
+  const text6 = typeof a.text === "string" ? a.text : "";
   const reply2 = replyTo(msg);
   const realm = typeof a.realm === "string" ? a.realm : "";
   return (async () => {
     await resolveAgainstLed(realm);
-    return reply2(...await statusWord(text5, realm));
+    return reply2(...await statusWord(text6, realm));
   })();
 }
 async function standStatusOnly(msg) {
@@ -11964,17 +12107,17 @@ var S5 = scoped(() => ({
   accepted: /* @__PURE__ */ new Map()
 }));
 var publishedStatus = () => S5.lastPublished;
-async function publishStatus(text5, realm, everyPlace = false) {
+async function publishStatus(text6, realm, everyPlace = false) {
   const addr = statusAddress(realm);
   if (!addr) {
     return { ok: false, body: words(STATUS).notHeld() };
   }
   if (!everyPlace && !addr.standingId && heldPlaces().length > 1)
     return { ok: false, body: words(STATUS).noSeatId(addr.key) };
-  const st = await publishStatusTo(addr.url, text5, 5e3, everyPlace ? EVERY : addr.standingId);
+  const st = await publishStatusTo(addr.url, text6, 5e3, everyPlace ? EVERY : addr.standingId);
   if (st.ok) {
-    const kept3 = st.doing ?? text5;
-    S5.accepted.set(addr.key, { sent: text5, doing: kept3, trimmed: st.trimmed });
+    const kept3 = st.doing ?? text6;
+    S5.accepted.set(addr.key, { sent: text6, doing: kept3, trimmed: st.trimmed });
     if (addr.key === statusAddress()?.key) S5.lastPublished = kept3;
     rememberStatus(kept3, realm);
   }
@@ -11990,11 +12133,11 @@ async function heldElsewhere(realm) {
   const out7 = [];
   for (const f of readdirSync10(dir2).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec5 = JSON.parse(readFileSync24(join20(dir2, f), "utf8"));
-      if (!rec5?.realm || rec5.karta == null) continue;
-      if (!anyRealm && slugOf(String(rec5.realm)) !== slugOf(realm)) continue;
-      const key3 = keyOf(rec5.realm, rec5.karta, rec5.name ?? "");
-      if (await localSocketAlive(socketPathOf(CFG.authDir, key3))) out7.push({ ...rec5, key: key3 });
+      const rec6 = JSON.parse(readFileSync24(join20(dir2, f), "utf8"));
+      if (!rec6?.realm || rec6.karta == null) continue;
+      if (!anyRealm && slugOf(String(rec6.realm)) !== slugOf(realm)) continue;
+      const key3 = keyOf(rec6.realm, rec6.karta, rec6.name ?? "");
+      if (await localSocketAlive(socketPathOf(CFG.authDir, key3))) out7.push({ ...rec6, key: key3 });
     } catch {
     }
   }
@@ -12471,8 +12614,8 @@ function markFallback(authDir, f) {
   try {
     mkdirSync13(fallbackDir(authDir), { recursive: true, mode: 448 });
     pruneFallbacks(authDir);
-    const rec5 = { pid: process.pid, since: (/* @__PURE__ */ new Date()).toISOString(), ...f };
-    writeFileSync15(file2, JSON.stringify(rec5), { mode: 384 });
+    const rec6 = { pid: process.pid, since: (/* @__PURE__ */ new Date()).toISOString(), ...f };
+    writeFileSync15(file2, JSON.stringify(rec6), { mode: 384 });
     process.once("exit", () => {
       try {
         unlinkSync16(file2);
@@ -12505,11 +12648,11 @@ function object(v) {
   if (!v || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid_object");
   return v;
 }
-function text2(v) {
+function text3(v) {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
 function required(v) {
-  const s2 = text2(v);
+  const s2 = text3(v);
   if (!s2) throw new Error("missing_identifier");
   return s2;
 }
@@ -12529,11 +12672,11 @@ function startRow(v, realm) {
     invite: seq2(x.entry_id),
     karta: seq2(x.karta_seq),
     holon: typeof h.seq === "number" ? h.seq : null,
-    repository: text2(h.repository),
-    model: text2(a.model),
-    harness: text2(a.harness),
-    launcher: text2(a.launcher),
-    author: text2(x.author)
+    repository: text3(h.repository),
+    model: text3(a.model),
+    harness: text3(a.harness),
+    launcher: text3(a.launcher),
+    author: text3(x.author)
   };
 }
 function openOrder(v) {
@@ -12550,11 +12693,11 @@ function stopRow(v, realms) {
     standing_id: required(x.standing_id),
     realm,
     karta: seq2(x.karta_seq),
-    standing: text2(x.standing),
-    repository: text2(x.repository),
+    standing: text3(x.standing),
+    repository: text3(x.repository),
     state: x.state,
-    reason_code: text2(x.reason_code),
-    answer_by: text2(x.answer_by)
+    reason_code: text3(x.reason_code),
+    answer_by: text3(x.answer_by)
   };
 }
 
@@ -12684,8 +12827,8 @@ async function readDemands(base, token, requested, boundary, gone, owned) {
 // js/shared/mcpsession.ts
 var TIMEOUT_MS = 8e3;
 var PROTOCOL = "2025-06-18";
-function answers(text5) {
-  const t = text5.trim();
+function answers(text6) {
+  const t = text6.trim();
   if (t.startsWith("{")) return [JSON.parse(t)];
   return t.split(/\r?\n/).filter((l) => l.startsWith("data:")).flatMap((l) => {
     try {
@@ -13526,14 +13669,14 @@ var CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
 var bare2 = (v) => unquote(
   /^['"]/.test(v.trim()) ? v.trim().replace(/^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*")\s+#.*$/, "$1") : v.replace(/\s+#.*$/, "")
 );
-function fences(text5) {
-  const lines = text5.replace(/^\uFEFF/, "").split(/\r?\n/);
+function fences(text6) {
+  const lines = text6.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
   return end < 0 ? null : { lines, end };
 }
-function frontMatter(text5) {
-  const f = fences(text5);
+function frontMatter(text6) {
+  const f = fences(text6);
   if (!f) return null;
   const raw = /* @__PURE__ */ new Map();
   let last = null;
@@ -13546,9 +13689,9 @@ ${line.trim()}`);
   }
   return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
-function coverBlocks(text5) {
+function coverBlocks(text6) {
   const blocks = /* @__PURE__ */ new Map();
-  const f = fences(text5);
+  const f = fences(text6);
   let open = null;
   for (const line of f ? f.lines.slice(1, f.end) : []) {
     if (/^\s*(#|$)/.test(line)) continue;
@@ -13560,8 +13703,8 @@ function coverBlocks(text5) {
   }
   return blocks;
 }
-function repeatedKeys(text5) {
-  const f = fences(text5);
+function repeatedKeys(text6) {
+  const f = fences(text6);
   const [seen, twice] = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
   let block = null;
   for (const line of f ? f.lines.slice(1, f.end) : []) {
@@ -13577,9 +13720,9 @@ function repeatedKeys(text5) {
   }
   return [...twice];
 }
-var coverBlock = (text5, root) => coverBlocks(text5).get(root) ?? null;
+var coverBlock = (text6, root) => coverBlocks(text6).get(root) ?? null;
 var stamped = (block) => /^\d+$/.test(block.get("contract") ?? "") && !!block.get("stamp");
-var foreignBlock = (text5, root) => [...coverBlocks(text5)].some(([k, b]) => k !== root && b.has("contract"));
+var foreignBlock = (text6, root) => [...coverBlocks(text6)].some(([k, b]) => k !== root && b.has("contract"));
 var RITUALS2 = ["start", "push", "merge", "guard", "turn"];
 function ritualsOf(block) {
   const field = block?.get("rituals");
@@ -13623,16 +13766,16 @@ function graphOfSlot(value, joins) {
 
 // js/shared/cover.ts
 var formsIn = (pairs, cover) => Object.entries(cover.forms).filter(([, f]) => pairs.has(f.graph) || pairs.has(f.role));
-function stampOf2(text5, cover = COVER) {
-  const block = coverBlock(text5, cover.root);
-  if (block && stamped(block) || Object.values(cover.forms).some((f) => f.stamp.test(text5)))
+function stampOf2(text6, cover = COVER) {
+  const block = coverBlock(text6, cover.root);
+  if (block && stamped(block) || Object.values(cover.forms).some((f) => f.stamp.test(text6)))
     return "own";
   if (block) return null;
-  return foreignBlock(text5, cover.root) || cover.stampShape.test(text5) ? "foreign" : null;
+  return foreignBlock(text6, cover.root) || cover.stampShape.test(text6) ? "foreign" : null;
 }
-function hasCover(text5, cover = COVER) {
-  if (coverBlock(text5, cover.root)) return true;
-  const pairs = frontMatter(text5);
+function hasCover(text6, cover = COVER) {
+  if (coverBlock(text6, cover.root)) return true;
+  const pairs = frontMatter(text6);
   return !!pairs && formsIn(pairs, cover).length > 0;
 }
 function formOf2(pairs, cover = COVER) {
@@ -13691,16 +13834,16 @@ function seatOfPairs(pairs, cover = COVER) {
   return { realm: g.realm, karta: first2[1] };
 }
 function readCover(dir2, cover = COVER) {
-  let text5;
+  let text6;
   try {
-    text5 = readFileSync31(join28(dir2, cover.file), "utf8");
+    text6 = readFileSync31(join28(dir2, cover.file), "utf8");
   } catch {
     return null;
   }
-  if (stampOf2(text5, cover) === "foreign") return { foreign: true };
-  const block = coverBlock(text5, cover.root);
+  if (stampOf2(text6, cover) === "foreign") return { foreign: true };
+  const block = coverBlock(text6, cover.root);
   if (block) return seatOfBlock(block, cover);
-  const pairs = frontMatter(text5);
+  const pairs = frontMatter(text6);
   if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(cover.file) };
   return seatOfPairs(pairs, cover);
 }
@@ -13711,26 +13854,67 @@ import { createHash as createHash9 } from "node:crypto";
 import { mkdirSync as mkdirSync17, realpathSync as realpathSync4 } from "node:fs";
 var CLONE_MS = Number(process.env[envName("ORCHESTRA_CLONE_MS")]) || 6e5;
 var specOf = (launcher) => createHash9("sha256").update(JSON.stringify(launcher)).digest("hex").slice(0, 16);
+var TAIL = 64 * 1024;
+var DRAIN_MS2 = 2e3;
+function answerCode(out7) {
+  for (let at3 = out7.length; at3 > 0; ) {
+    at3 = out7.lastIndexOf("\n{", at3 - 1);
+    const from = at3 < 0 ? 0 : at3 + 1;
+    try {
+      const code2 = JSON.parse(out7.slice(from)).error?.code;
+      return typeof code2 === "string" ? code2 : null;
+    } catch {
+      if (from === 0) return null;
+    }
+  }
+  return null;
+}
 function cloneRun(argv2, ms2) {
   return new Promise((resolve12) => {
-    const child = spawn3("orca", argv2, { stdio: "ignore", windowsHide: true });
+    const child = spawn3("orca", argv2, {
+      stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true
+    });
+    let out7 = "";
+    const keep = (c) => {
+      out7 = (out7 + c.toString("utf8")).slice(-TAIL);
+    };
+    child.stdout.on("data", keep);
     let timedOut = false;
+    let drain;
     const timer = setTimeout(() => {
       timedOut = true;
       child.kill("SIGKILL");
     }, ms2);
+    let ended = false;
     const done = (code2) => {
+      if (ended) return;
+      ended = true;
       clearTimeout(timer);
-      resolve12(timedOut ? "timeout" : code2);
+      clearTimeout(drain);
+      child.stdout.off("data", keep).resume();
+      if (timedOut) return resolve12("timeout");
+      resolve12(code2 !== 0 && answerCode(out7) === "runtime_timeout" ? "runtime_timeout" : code2);
     };
     child.once("error", (e) => done(e.code ?? 1));
-    child.once("exit", (code2, signal) => done(code2 ?? signal ?? 1));
+    child.once("close", (code2, signal) => done(code2 ?? signal ?? 1));
+    child.once("exit", (code2, signal) => {
+      if (timedOut) return done(code2 ?? signal ?? 1);
+      clearTimeout(timer);
+      drain = setTimeout(() => done(code2 ?? signal ?? 1), DRAIN_MS2);
+    });
   });
 }
+var runtimeOver = (row) => row.state === "cloning" && row.runtime === true && Date.now() - Date.parse(row.at) >= CLONE_MS;
 var inflight = /* @__PURE__ */ new Set();
 async function cloneTurn(authDir, policy, spec, repository, gone) {
   let row = readClones(authDir)[repository];
-  if (row?.state === "cloning" && inflight.has(repository)) return "cloning";
+  if (inflight.has(repository)) return "cloning";
+  if (row?.state === "cloning" && row.runtime) {
+    if (!runtimeOver(row)) return "cloning";
+    row = { state: "failed", at: (/* @__PURE__ */ new Date()).toISOString(), spec: row.spec, why: "clone_timeout" };
+    writeClone(authDir, repository, row);
+  }
   if (row?.state === "cloning") {
     row = { ...row, state: "failed", why: "clone_interrupted" };
     writeClone(authDir, repository, row);
@@ -13754,21 +13938,26 @@ async function cloneTurn(authDir, policy, spec, repository, gone) {
   }
   if (gone?.gone) return "gone";
   inflight.add(repository);
-  writeClone(authDir, repository, { state: "cloning", at: (/* @__PURE__ */ new Date()).toISOString(), spec });
+  const started = (/* @__PURE__ */ new Date()).toISOString();
+  writeClone(authDir, repository, { state: "cloning", at: started, spec });
   void cloneRun(cloneArgv(target.project, target.url, parent), CLONE_MS).then((code2) => {
     inflight.delete(repository);
     const why = code2 === 0 ? void 0 : code2 === "timeout" ? "clone_timeout" : `clone_exit_${code2}`;
     const at3 = (/* @__PURE__ */ new Date()).toISOString();
+    if (!readClones(authDir)[repository]) return;
     try {
       writeClone(
         authDir,
         repository,
-        why ? { state: "failed", at: at3, spec, why } : { state: "cloned", at: at3, spec }
+        code2 === "runtime_timeout" ? { state: "cloning", at: started, spec, runtime: true } : why ? { state: "failed", at: at3, spec, why } : { state: "cloned", at: at3, spec }
       );
     } catch {
     }
   });
   return "cloning";
+}
+function cloneFound(authDir, repository) {
+  if (readClones(authDir)[repository]) writeClone(authDir, repository, null);
 }
 function cloneTaken(authDir, repository, spec, found) {
   if (found) {
@@ -13784,9 +13973,9 @@ function cloneTaken(authDir, repository, spec, found) {
 // js/bridge/orchestra-raise.ts
 var w5 = () => words(ORCHESTRA);
 var ADAPTER_HARNESSES = /* @__PURE__ */ new Set(["opencode"]);
-var text3 = (v) => typeof v === "string" && v.trim() ? v.trim() : null;
+var text4 = (v) => typeof v === "string" && v.trim() ? v.trim() : null;
 function refusal2(row, ls, runs) {
-  const launcher = text3(row.launcher);
+  const launcher = text4(row.launcher);
   if (!launcher) return "launcher_missing";
   const own = ls.own.get(launcher);
   if (!own) {
@@ -13798,15 +13987,15 @@ function refusal2(row, ls, runs) {
   const caller = accountOf(row.author);
   if (!caller) return "caller_unknown";
   if (caller !== ls.account && !own.callers.includes(caller)) return "caller_not_allowed";
-  const harness = text3(row.harness);
+  const harness = text4(row.harness);
   if (!harness) return "harness_missing";
   const offer = own.harnesses[harness];
   if (!offer) return "harness_not_offered";
   if (!ADAPTER_HARNESSES.has(harness)) return "harness_unsupported";
-  const model = text3(row.model);
+  const model = text4(row.model);
   if (!model) return "model_missing";
   if (!offer.models.includes(model)) return "model_not_offered";
-  if (!text3(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
+  if (!text4(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
   const live2 = Object.values(runs).filter(
     (r) => r.launcher === launcher && LIVE.includes(r.state)
   ).length;
@@ -13877,6 +14066,7 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
       said2.push(w5().leadRow(realm, room, invite, worktree.code));
       continue;
     }
+    cloneFound(authDir, repository);
     const uncovered = await coverRefusal(worktree, realm, Number(row.karta), canon2);
     if (uncovered) {
       said2.push(w5().leadRow(realm, room, invite, uncovered));
@@ -14180,7 +14370,8 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary) {
       if (own.clone) {
         const kept3 = clones[repository];
         const c = cloneTarget(own.clone, repository);
-        if (kept3?.state === "cloning") say3(w8().planNoClone("cloning"));
+        if (kept3 && runtimeOver(kept3)) say3(w8().planNoClone("clone_failed (clone_timeout)"));
+        else if (kept3?.state === "cloning") say3(w8().planNoClone("cloning"));
         else if (kept3?.state === "failed" && kept3.spec === specOf(own))
           say3(w8().planNoClone(`clone_failed_before (${kept3.why})`));
         else if ("code" in c) say3(w8().planNoClone(c.code));
@@ -14447,19 +14638,19 @@ var takesProvisional = (msg) => msg.params?.arguments?.provisional === true && t
 function replacesProvisional(realm, own) {
   const led = ledIn2(realm);
   if (own || !led?.name) return false;
-  const rec5 = readHoldRecord(keyOf(led.realm, led.karta, led.name), true);
-  return rec5?.provisional === true && !!sessionOfBridge() && rec5.session === sessionOfBridge();
+  const rec6 = readHoldRecord(keyOf(led.realm, led.karta, led.name), true);
+  return rec6?.provisional === true && !!sessionOfBridge() && rec6.session === sessionOfBridge();
 }
 function noteStood(own, realm, karta, name2) {
   const key3 = keyOf(realm, karta, name2);
-  const rec5 = readHoldRecord(key3, true);
-  if (rec5) writeHoldRecord(key3, { ...rec5, provisional: own });
+  const rec6 = readHoldRecord(key3, true);
+  if (rec6) writeHoldRecord(key3, { ...rec6, provisional: own });
 }
-function restore(rec5) {
-  if (rec5.provisional !== true || !rec5.session || rec5.session !== sessionOfBridge()) return;
-  const led = ledIn2(rec5.realm);
-  if (led?.name === rec5.name && String(led.karta) === String(rec5.karta))
-    noteStood(true, led.realm, String(led.karta), rec5.name);
+function restore(rec6) {
+  if (rec6.provisional !== true || !rec6.session || rec6.session !== sessionOfBridge()) return;
+  const led = ledIn2(rec6.realm);
+  if (led?.name === rec6.name && String(led.karta) === String(rec6.karta))
+    noteStood(true, led.realm, String(led.karta), rec6.name);
 }
 var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
 
@@ -14815,15 +15006,22 @@ var brief = (s2) => {
   const t = s2.replace(/\s+/g, " ").trim();
   return t.length > 120 ? `${t.slice(0, 119)}…` : t || "-";
 };
-async function mindSlice(call) {
+async function mindSlice(call, options = {}) {
   const W4 = words(MIND_SLICE);
+  const unread = (text6) => {
+    if (options.strict) throw new Error(brief(text6));
+    return W4.unread(brief(text6));
+  };
   try {
     const ready = await call(tool("me"), { action: "readiness" });
-    if (ready.isError) return W4.unread(brief(ready.text));
+    if (ready.isError) return unread(ready.text);
     if (MIND_MISSING.test(ready.text)) return W4.absent();
-    if (!MIND_PRESENT.test(ready.text)) return W4.unknown();
+    if (!MIND_PRESENT.test(ready.text)) {
+      if (options.strict) throw new Error("mind readiness unknown");
+      return W4.unknown();
+    }
     const got = await call(tool("search"), SLICE_ARGS);
-    if (got.isError) return W4.unread(brief(got.text));
+    if (got.isError) return unread(got.text);
     const listed = got.text.split("\n").filter((l) => NODE_ROW.test(l)).length;
     const rows = got.text.split("\n").flatMap((l) => {
       const [, name2, seq4, line] = MIND_ROW.exec(l) ?? [];
@@ -14833,7 +15031,8 @@ async function mindSlice(call) {
 ${W4.foot(true, LIMIT6)}` : W4.empty();
     return [W4.head(rows.length), ...rows, W4.foot(listed >= LIMIT6, LIMIT6)].join("\n");
   } catch (e) {
-    return W4.unread(brief(e.message));
+    if (options.strict) throw e;
+    return unread(e.message);
   }
 }
 
@@ -14887,24 +15086,24 @@ async function stopGuard(msg, run3) {
     if (word3) left2.push(word3);
   }
   forgetSeat(stop);
-  const text5 = [stop, ...left2].join("\n");
+  const text6 = [stop, ...left2].join("\n");
   return {
     jsonrpc: "2.0",
     id: msg.id,
-    result: { isError: true, content: [{ type: "text", text: text5 }] }
+    result: { isError: true, content: [{ type: "text", text: text6 }] }
   };
 }
 async function registerRefused(r, realm, taken2, prior, addr, cleanupFresh = false, claimFailed = false) {
-  const text5 = short(r.text);
-  if (!taken2) return refusedWord("register", r, realm, sw2().takenButRegister(text5));
+  const text6 = short(r.text);
+  if (!taken2) return refusedWord("register", r, realm, sw2().takenButRegister(text6));
   if (!prior && cleanupFresh) {
     const refusal4 = refusedWord("register", r, realm);
     const left3 = await dropTaken(taken2);
     return left3 ? `${refusal4}
 ${left3}` : refusal4;
   }
-  if (!prior) return refusedWord("register", r, realm, sw2().takenButRegister(text5));
-  const refusal3 = refusedWord("register", r, realm, sw2().refused("register", text5));
+  if (!prior) return refusedWord("register", r, realm, sw2().takenButRegister(text6));
+  const refusal3 = refusedWord("register", r, realm, sw2().refused("register", text6));
   if (stoppedInMove()) return refusal3;
   const left2 = await dropTaken(taken2);
   if (left2) return `${refusal3}
@@ -15263,8 +15462,8 @@ async function standAs(id, place, cwd) {
       params: { name: tool("stand"), arguments: { realm, karta: String(karta), name: name2, ...where } }
     })
   );
-  const text5 = (r.result?.content ?? []).map((c) => c.text ?? "");
-  return { ok: !r.result?.isError, text: text5.join("\n") };
+  const text6 = (r.result?.content ?? []).map((c) => c.text ?? "");
+  return { ok: !r.result?.isError, text: text6.join("\n") };
 }
 wireEviction(
   (place, cwd) => serialized(
@@ -15276,9 +15475,9 @@ wireEviction(
     )
   )
 );
-wireTakeOwn(async (rec5, cwd) => {
-  const r = await standAs(`${ID_PREFIX}bridge-resume`, rec5, cwd);
-  if (r.ok) restore(rec5);
+wireTakeOwn(async (rec6, cwd) => {
+  const r = await standAs(`${ID_PREFIX}bridge-resume`, rec6, cwd);
+  if (r.ok) restore(rec6);
   return r.text.split("\n")[0];
 });
 
@@ -15295,27 +15494,27 @@ function dropUnsent(key3, doors2) {
   if (n) standingLog(`stopped ${key3}: ${n} undelivered frame(s) dropped, not given`);
 }
 function stopAgent(key3, how2, reason, order2) {
-  const text5 = stopWord(state.standing?.name ?? "", reason);
-  log(text5);
+  const text6 = stopWord(state.standing?.name ?? "", reason);
+  log(text6);
   standingLog(`stopped ${key3}: ${how2}${reason ? ` (${reason})` : ""}`);
   dropUnsent(key3, [H2.door, ...extraPlaces().map((p) => p.door)]);
-  H2.stopped = { n: H2.stopped.n + 1, key: key3, text: text5 };
+  H2.stopped = { n: H2.stopped.n + 1, key: key3, text: text6 };
   const ev = {
     kind: "stopped",
     key: key3,
-    text: text5,
+    text: text6,
     ...reason ? { reason } : {},
     ...order2 ? { order: order2 } : {}
   };
   broadcast(ev);
   notify("error", ev);
-  forgetSeat(text5);
+  forgetSeat(text6);
 }
 function stopBeside(beside2, reason) {
-  const text5 = stopWord(beside2.standing.name ?? "", reason);
-  log(`${text5} — that seat beside is forgotten, the rest are held`);
+  const text6 = stopWord(beside2.standing.name ?? "", reason);
+  log(`${text6} — that seat beside is forgotten, the rest are held`);
   dropUnsent(beside2.door.key, [beside2.door]);
-  dropExtra(beside2.door.key, text5, true, "beside");
+  dropExtra(beside2.door.key, text6, true, "beside");
 }
 function stopSeatByOrder(id, by, order2, to = {}) {
   const reason = by ? `revoked:${by}` : "";
@@ -15458,10 +15657,10 @@ function orderOf(frame2) {
   };
 }
 function journalRefused(id, outcome) {
-  const text5 = words(STOP).orderJournalRefused(id, outcome);
-  log(text5);
-  broadcast({ kind: "note", text: text5 });
-  notify("warning", { kind: "note", text: text5 });
+  const text6 = words(STOP).orderJournalRefused(id, outcome);
+  log(text6);
+  broadcast({ kind: "note", text: text6 });
+  notify("warning", { kind: "note", text: text6 });
 }
 async function stopOf(o, entry) {
   const confirms = confirmsHalts();
@@ -15607,15 +15806,15 @@ function outsideSetRefusal(msg) {
   const name2 = String(msg.params?.name ?? "");
   if (!set || set.has(name2)) return null;
   const list3 = [...set].sort().join(", ");
-  const text5 = words(NARROW).outsideSet(name2, list3);
+  const text6 = words(NARROW).outsideSet(name2, list3);
   return {
     jsonrpc: "2.0",
     id: msg.id,
-    result: { isError: true, content: [{ type: "text", text: text5 }] }
+    result: { isError: true, content: [{ type: "text", text: text6 }] }
   };
 }
-function withoutPlaceMoves(text5) {
-  return text5.replace(
+function withoutPlaceMoves(text6) {
+  return text6.replace(
     ACTION_LIST_RE,
     (_, head, list3) => head + list3.split("|").map((s2) => s2.trim()).filter((s2) => !PLACE_MOVES.has(s2)).join(" | ")
   );
@@ -15847,19 +16046,19 @@ var resumeByOrigin = (msg) => serialized(
 
 // js/bridge/deliver.ts
 function syntheticError(id, message, outcome = UpstreamError.UNKNOWN, holdOff = false) {
-  const kind = holdOff === true ? "wait" : holdOff;
-  const verdict = outcome === UpstreamError.NOT_SENT ? kind === "wait" ? (
+  const kind2 = holdOff === true ? "wait" : holdOff;
+  const verdict = outcome === UpstreamError.NOT_SENT ? kind2 === "wait" ? (
     // Safe and not-yet are different axes, and an agent told only "safe" reads
     // it as "now": it retries into the same wall, then goes looking for a
     // defect in what only time repairs. The interval itself stays where it was
     // measured — in the reason above — so one refusal never carries two.
     "Nothing was applied and the grant is whole — this clears itself by waiting, not by fixing: wait out the interval named above before retrying."
-  ) : kind === "knock" ? "Nothing was applied and the grant is whole — a benign transition, not a broken authorization: retry the call now. Only a refusal that returns means the hour is real — that one names its own wait." : kind === "dead" ? "Nothing was applied, and no retry and no wait will change that — only a human with a new token can." : kind === "human" ? (
+  ) : kind2 === "knock" ? "Nothing was applied and the grant is whole — a benign transition, not a broken authorization: retry the call now. Only a refusal that returns means the hour is real — that one names its own wait." : kind2 === "dead" ? "Nothing was applied, and no retry and no wait will change that — only a human with a new token can." : kind2 === "human" ? (
     // The agent reads this; the human does not. A retry buys nothing
     // and a wait shortens nothing — only handing the link over does.
     "Nothing was applied, and only the human can move this: hand them the link above — the local one opens only on this machine; from another, the sign-in page with the code, where one is named — the login is already waiting for their click. Once they finish, retry the call."
   ) : "The call never reached the server, so nothing was applied — retry freely." : "The call went out and its answer was lost, so THE OUTCOME IS UNKNOWN — re-read the target before retrying: a blind retry can apply a second time, and a write with no version guard duplicates silently.";
-  const tail2 = kind ? "The bridge stays up." : "The bridge stays up; if this repeats, the server side needs attention.";
+  const tail2 = kind2 ? "The bridge stays up." : "The bridge stays up; if this repeats, the server side needs attention.";
   return {
     jsonrpc: "2.0",
     id,
@@ -16338,10 +16537,10 @@ async function daemonMain(argv2) {
     try {
       mkdirSync20(run3, { recursive: true, mode: 448 });
       rotateJournal(journalPath, JOURNAL_MAX);
-      const text5 = line.trimEnd().replace(LOG_MARK, "");
+      const text6 = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync5(
         journalPath,
-        `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${text5}
+        `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${text6}
 `,
         { mode: 384 }
       );
@@ -17161,7 +17360,7 @@ import { join as join32 } from "node:path";
 
 // js/watchdog/words.ts
 var wd = () => words(WATCHDOG);
-var doer = (text5) => wd().doer(text5);
+var doer = (text6) => wd().doer(text6);
 
 // js/watchdog/client.ts
 var ATTACH_WINDOW_MS = Number(process.env[envName("WATCHDOG_ATTACH_MS")]) || 6e4;
@@ -17451,22 +17650,22 @@ function runWatchdogCodex(argv2) {
     return ready;
   }
   const inFlight = /* @__PURE__ */ new Set();
-  function deliver3(text5, ids = []) {
+  function deliver3(text6, ids = []) {
     if (forgotten) return Promise.resolve();
     const reqId = nextId++;
     waiting2.set(reqId, ids);
-    const p = put(reqId, text5).finally(() => inFlight.delete(p));
+    const p = put(reqId, text6).finally(() => inFlight.delete(p));
     inFlight.add(p);
     return p;
   }
-  async function put(reqId, text5) {
+  async function put(reqId, text6) {
     try {
       const d = door ?? await open();
       if (forgotten) return void waiting2.delete(reqId);
       d.send({
         method: "turn/start",
         id: reqId,
-        params: { threadId, input: [{ type: "text", text: text5 }], turnTrigger: LOGGERS.channel }
+        params: { threadId, input: [{ type: "text", text: text6 }], turnTrigger: LOGGERS.channel }
       });
       note2(wd().frameSent(threadId));
     } catch (e) {
@@ -17526,7 +17725,10 @@ function runWatchdogCodex(argv2) {
           const fromRing = replay2 > 0;
           if (fromRing) replay2--;
           const type = ev.frame?.type;
-          if (type !== "message") return note2(wd().notWakeup(type));
+          if (type !== "message") {
+            if (type === "hello" && ev.frame) note2(openCardsText(ev.frame));
+            return note2(wd().notWakeup(type));
+          }
           if (fromRing && typeof ev.frame?.id !== "string") return note2(wd().noIdFromRing());
           if (typeof ev.frame?.id === "string" && seen.has(ev.frame.id))
             return note2(wd().alreadyPut(ev.frame.id));
@@ -17631,9 +17833,9 @@ var RingReplay = class {
 
 // js/watchdog/watchdog.ts
 var LINE_MAX = 400;
-function wrapLines(text5, max = LINE_MAX) {
+function wrapLines(text6, max = LINE_MAX) {
   const out7 = [];
-  for (const line of text5.split("\n")) {
+  for (const line of text6.split("\n")) {
     let rest2 = line;
     while ([...rest2].length > max) {
       const head = [...rest2].slice(0, max).join("");
@@ -17657,10 +17859,10 @@ var out2 = (lines, alone = false, after2, ready) => {
     await ready;
     const wait = lastAt && (alone || lastAlone) ? lastAt + ALONE_GAP_MS - Date.now() : 0;
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-    const text5 = typeof lines === "function" ? lines() : lines;
-    if (!text5.length) return after2?.();
+    const text6 = typeof lines === "function" ? lines() : lines;
+    if (!text6.length) return after2?.();
     const failed = await new Promise(
-      (r) => process.stdout.write(text5.join("\n") + "\n", (e) => r(!!e))
+      (r) => process.stdout.write(text6.join("\n") + "\n", (e) => r(!!e))
     );
     lastAt = Date.now();
     lastAlone = alone;
@@ -17751,6 +17953,7 @@ function runWatchdog(argv2) {
           }
           if (f?.type !== "message") {
             log2(ev.raw ?? "");
+            if (f?.type === "hello") log2(openCardsText(f));
             break;
           }
           const id = typeof f.id === "string" ? f.id : "";
@@ -17781,8 +17984,8 @@ function runWatchdog(argv2) {
                 cases.add(caseKey(f));
                 if (fromRing) ring.printed++;
                 const fold = ev.batch.fold;
-                const text5 = (w11) => wrapLines(batchLine(f, fold, first2, w11)).join("\n");
-                block.shown.push({ frame: f, text: text5 });
+                const text6 = (w11) => wrapLines(batchLine(f, fold, first2, w11)).join("\n");
+                block.shown.push({ frame: f, text: text6 });
                 block.marks.push(all2);
               }
             }
@@ -17801,8 +18004,8 @@ function runWatchdog(argv2) {
             if (fromRing) ring.printed++;
             const raw = ev.raw ?? "";
             if (heldCase(f)) {
-              const text5 = (w11) => wrapLines(frameToText(f, raw, w11)).join("\n");
-              const r = take3([{ frame: f, text: text5 }]);
+              const text6 = (w11) => wrapLines(frameToText(f, raw, w11)).join("\n");
+              const r = take3([{ frame: f, text: text6 }]);
               out2(r.lines, true, () => [...r.marks, mark].forEach((m) => m()));
             } else {
               const r = take3([], [f]);
@@ -17895,7 +18098,10 @@ function runWatchdogExit(argv2) {
       switch (ev.kind) {
         case "frame": {
           const type = ev.frame?.type;
-          if (type !== "message") return note3(wd().notWakeup(type));
+          if (type !== "message") {
+            if (type === "hello" && ev.frame) note3(openCardsText(ev.frame));
+            return note3(wd().notWakeup(type));
+          }
           const id = frameId(ev);
           const f = ev.frame ?? null;
           const has = (k) => seen.has(k);
@@ -18016,14 +18222,14 @@ function repoRoot(dir2) {
 }
 
 // js/shared/covercontract.ts
-function contractOf(text5, cover = COVER) {
-  if (stampOf2(text5, cover) === "foreign") return { kind: "foreign" };
-  if (repeatedKeys(text5).length) return { kind: "ambiguous" };
-  const block = coverBlock(text5, cover.root);
-  const pairs = frontMatter(text5);
+function contractOf(text6, cover = COVER) {
+  if (stampOf2(text6, cover) === "foreign") return { kind: "foreign" };
+  if (repeatedKeys(text6).length) return { kind: "ambiguous" };
+  const block = coverBlock(text6, cover.root);
+  const pairs = frontMatter(text6);
   const stamps = Object.values(cover.forms).flatMap((f) => {
     const re = f.contractStamp ?? f.stamp;
-    return [...text5.matchAll(new RegExp(re.source, `${re.flags.replace("g", "")}g`))].map(
+    return [...text6.matchAll(new RegExp(re.source, `${re.flags.replace("g", "")}g`))].map(
       (m) => m[1]
     );
   });
@@ -18156,9 +18362,9 @@ function splitFlow(body) {
 var KEY2 = /^("[^"]*"|'[^']*'|[^\s"'#{[-][^:]*?|-[^\s:][^:]*?)\s*:(?:\s+(.*))?$/;
 var BLOCK_SCALAR = /^[|>][-+0-9]*$/;
 var unquoteKey = (k) => k.startsWith('"') && k.endsWith('"') || k.startsWith("'") && k.endsWith("'") ? k.slice(1, -1) : k;
-function parseFrontmatter(text5) {
+function parseFrontmatter(text6) {
   const lines = [];
-  for (const raw of text5.split(/\r?\n/)) {
+  for (const raw of text6.split(/\r?\n/)) {
     if (!raw.trim() || /^\s*#/.test(raw)) continue;
     const indent = raw.length - raw.trimStart().length;
     lines.push({ indent, text: raw.trim() });
@@ -18460,8 +18666,8 @@ function agentFiles(dir2, scope) {
     const path = join37(dir2, f);
     let fm = {};
     try {
-      const text5 = frontmatterText(readFileSync39(path, "utf8"));
-      if (text5 !== null) fm = parseFrontmatter(text5);
+      const text6 = frontmatterText(readFileSync39(path, "utf8"));
+      if (text6 !== null) fm = parseFrontmatter(text6);
     } catch {
     }
     return { path, agent: str5(fm.name) || basename7(f, ".md"), scope, fm };
@@ -18784,10 +18990,10 @@ function claudeCode(out7) {
   for (const c of ever.map(String).filter((c2) => CONNECTOR_RE.test(c2)))
     out7(hw2().connector(c, file2));
 }
-function codexHttp(text5) {
+function codexHttp(text6) {
   const found = [];
   let section = null;
-  for (const line of text5.split("\n")) {
+  for (const line of text6.split("\n")) {
     const head = /^\s*\[mcp_servers\.(?:"([^"]+)"|([^\]\s.]+))\]\s*$/.exec(line);
     if (head) section = head[1] ?? head[2] ?? null;
     else if (/^\s*\[/.test(line)) section = null;
@@ -18801,13 +19007,13 @@ function secondPathReport(out7, codexHomes2) {
   for (const home of codexHomes2) {
     const file2 = join38(home, "config.toml");
     if (!existsSync15(file2)) continue;
-    let text5;
+    let text6;
     try {
-      text5 = readFileSync40(file2, "utf8");
+      text6 = readFileSync40(file2, "utf8");
     } catch {
       continue;
     }
-    for (const [n, url] of codexHttp(text5))
+    for (const [n, url] of codexHttp(text6))
       say(out7, `Codex (${file2})`, n, url, `codex mcp remove "${n}"`);
   }
 }
@@ -18844,11 +19050,11 @@ function sets(codexHomes2) {
     return true;
   });
 }
-var how = (kind) => {
+var how = (kind2) => {
   const m = skillMoves();
-  if (kind === "claude") return `Claude Code — ${m.claude}`;
-  if (kind === "codex") return `Codex — ${m.codex}`;
-  if (kind === "flat") return m.flat;
+  if (kind2 === "claude") return `Claude Code — ${m.claude}`;
+  if (kind2 === "codex") return `Codex — ${m.codex}`;
+  if (kind2 === "flat") return m.flat;
   return hw3().skillsOtherChannel(m.pi);
 };
 function skillsReport(out7, codexHomes2) {
@@ -18856,7 +19062,7 @@ function skillsReport(out7, codexHomes2) {
   const target = latest && compareVersions(latest, VERSION) > 0 ? latest : VERSION;
   const found = sets(codexHomes2);
   if (!found.length) out7(hw3().skillsNone());
-  for (const [root, kind] of found) {
+  for (const [root, kind2] of found) {
     let v = null;
     try {
       v = versionIn(readFileSync41(join39(root, IN_SET), "utf8"));
@@ -18867,7 +19073,7 @@ function skillsReport(out7, codexHomes2) {
     else {
       const below = compareVersions(v, VERSION) < 0;
       const why = below ? hw3().skillsBelowBridge(VERSION) : hw3().skillsBelowRelease(target);
-      out7(`${todo()} ${hw3().skillsBehind(root, v, why, how(kind))}`);
+      out7(`${todo()} ${hw3().skillsBehind(root, v, why, how(kind2))}`);
     }
   }
 }
@@ -18912,9 +19118,9 @@ function openCodeMcpEntries(out7) {
     if (e.url && isProductionServer(e.url)) return "http";
     return null;
   };
-  const parse2 = (text5) => {
+  const parse2 = (text6) => {
     const STRING = '"(?:[^"\\\\]|\\\\.)*"';
-    const noComments = text5.replace(
+    const noComments = text6.replace(
       new RegExp(`${STRING}|/\\*[\\s\\S]*?\\*/|//[^\\n]*`, "g"),
       (m) => m.startsWith('"') ? m : ""
     );
@@ -18946,18 +19152,18 @@ function openCodeMcpEntries(out7) {
   if (process.env.OPENCODE_CONFIG_CONTENT)
     sources.unshift(["OPENCODE_CONFIG_CONTENT", process.env.OPENCODE_CONFIG_CONTENT]);
   let found = 0;
-  for (const [file2, text5] of sources) {
+  for (const [file2, text6] of sources) {
     try {
-      const cfg = parse2(text5);
+      const cfg = parse2(text6);
       for (const [name2, v] of Object.entries(cfg.mcp ?? {})) {
-        const kind = kindOf3(v);
-        if (!kind) continue;
+        const kind2 = kindOf3(v);
+        if (!kind2) continue;
         found++;
         if (v.enabled === false) {
           out7(hw4().ocDisabled(name2, file2));
           continue;
         }
-        out7(kind === "bridge" ? hw4().ocBridge(name2, file2, bridgePath(v)) : hw4().ocHttp(name2, file2));
+        out7(kind2 === "bridge" ? hw4().ocBridge(name2, file2, bridgePath(v)) : hw4().ocHttp(name2, file2));
       }
     } catch {
       unreadable++;
@@ -19263,8 +19469,8 @@ function harnessReport() {
     else out3(dw().codexDoorNone(door));
     const codex = join41(codexHome, "config.toml");
     if (existsSync18(codex)) {
-      const text5 = readFileSync43(codex, "utf8");
-      out3(dw().codexManual(CODEX_ENTRY_RE.test(text5)));
+      const text6 = readFileSync43(codex, "utf8");
+      out3(dw().codexManual(CODEX_ENTRY_RE.test(text6)));
     }
   }
   launchReport(out3, launches);
@@ -19343,8 +19549,8 @@ async function runOrchestra(argv2) {
   const dry = args.indexOf("--dry-run");
   if (dry >= 0) args.splice(dry, 1);
   const named2 = args.find((a) => !a.startsWith("--"));
-  const fail2 = (text5) => {
-    process.stderr.write(`${text5}
+  const fail2 = (text6) => {
+    process.stderr.write(`${text6}
 `);
     process.exitCode = 1;
   };
@@ -19397,12 +19603,12 @@ var renderCover = (root, data) => [
     (k) => `  ${k}: ${scalar(data[k])}`
   )
 ];
-function writeCover(text5, root, data) {
-  const eol = text5?.includes("\r\n") ? "\r\n" : "\n";
-  const bom = text5?.startsWith("\uFEFF") ? "\uFEFF" : "";
+function writeCover(text6, root, data) {
+  const eol = text6?.includes("\r\n") ? "\r\n" : "\n";
+  const bom = text6?.startsWith("\uFEFF") ? "\uFEFF" : "";
   const block = renderCover(root, data);
-  const f = text5 ? fences(text5) : null;
-  if (!f) return bom + ["---", ...block, "---", ""].join(eol) + (text5 ?? "").slice(bom.length);
+  const f = text6 ? fences(text6) : null;
+  if (!f) return bom + ["---", ...block, "---", ""].join(eol) + (text6 ?? "").slice(bom.length);
   const inner = f.lines.slice(1, f.end);
   const at3 = inner.findIndex((l) => TOP.test(l) && unquote(TOP.exec(l)?.[1] ?? "") === root);
   const end = at3 < 0 ? at3 : blockEnd(inner, at3);
@@ -19468,7 +19674,7 @@ function isFile(path) {
     return false;
   }
 }
-function text4(path) {
+function text5(path) {
   try {
     return isFile(path) ? readFileSync45(path, "utf8") : "";
   } catch {
@@ -19476,7 +19682,7 @@ function text4(path) {
   }
 }
 function knownHook(root, command, known2) {
-  return known2(command) || scriptsOf(root, command).some((p) => known2(text4(p)));
+  return known2(command) || scriptsOf(root, command).some((p) => known2(text5(p)));
 }
 function runsOn(matcher, tool2) {
   try {
@@ -19514,8 +19720,8 @@ var KNOWN = {
 };
 var hooksOf = (s2, event, on = () => true) => (s2.hooks?.[event] ?? []).filter((e) => on(e.matcher)).flatMap((e) => e.hooks ?? []);
 var cmd = (h) => h.command ?? "";
-var knownOf = (root, s2, kind, target) => {
-  const k = KNOWN[kind];
+var knownOf = (root, s2, kind2, target) => {
+  const k = KNOWN[kind2];
   const on = target === void 0 ? k.on : onAny(target);
   return hooksOf(s2, k.event, on).filter((h) => knownHook(root, cmd(h), k.known));
 };
@@ -19572,8 +19778,8 @@ function prepareHooks(root, addr, out7, on, preserve = false) {
   const s2 = load2(path);
   if (!s2) return path;
   const changed = on.has("guard") && guard(root, s2, addr, out7, preserve);
-  const carried = CARRIED.filter((kind) => on.has(kind.slice("hook.".length)));
-  for (const kind of carried) if (knownOf(root, s2, kind).length) out7.left.push(kind);
+  const carried = CARRIED.filter((kind2) => on.has(kind2.slice("hook.".length)));
+  for (const kind2 of carried) if (knownOf(root, s2, kind2).length) out7.left.push(kind2);
   const start = KNOWN["hook.start"];
   const unread = hooksOf(s2, start.event, start.on).find((h) => opaque(root, cmd(h)));
   if (on.has("start") && !out7.left.includes("hook.start") && unread) {
@@ -19613,13 +19819,13 @@ function coverText(root, given) {
     const v = given[k] ?? (twice.includes(`${COVER.root}.${k}`) ? void 0 : had?.get(k));
     if (v !== void 0 && v !== "") data[k] = v;
   }
-  const text5 = writeCover(before, COVER.root, data);
-  const repeated = [.../* @__PURE__ */ new Set([...twice, ...repeatedKeys(text5)])];
-  if (repeated.length) return { file: file2, before, text: before ?? text5, data, repeated };
-  const read = coverBlock(text5, COVER.root);
+  const text6 = writeCover(before, COVER.root, data);
+  const repeated = [.../* @__PURE__ */ new Set([...twice, ...repeatedKeys(text6)])];
+  if (repeated.length) return { file: file2, before, text: before ?? text6, data, repeated };
+  const read = coverBlock(text6, COVER.root);
   if (!read || FIELDS.some((k) => (read.get(k) ?? "") !== String(data[k] ?? "")))
     return { why: W4.unparsed(COVER.file) };
-  return { file: file2, before, text: text5, data, repeated };
+  return { file: file2, before, text: text6, data, repeated };
 }
 function writeAgents(c, out7) {
   if (c.repeated.length) {
@@ -19759,9 +19965,9 @@ async function stopSeat(p, id, base, token) {
 }
 
 // js/cli/preparegraph.ts
-var single = (text5, type) => {
+var single = (text6, type) => {
   const ids = [
-    ...new Set([...text5.matchAll(new RegExp(`\\(#(\\d+), ${type}\\b`, "g"))].map((m) => m[1]))
+    ...new Set([...text6.matchAll(new RegExp(`\\(#(\\d+), ${type}\\b`, "g"))].map((m) => m[1]))
   ];
   return ids.length === 1 ? ids[0] : null;
 };
@@ -19918,7 +20124,7 @@ import { join as join46 } from "node:path";
 var memoryPath = join46(homedir17(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
 var pushed = "To github.com:o/r.git\n   1234567..89abcde  feat/x -> feat/x";
 var seq3 = 0;
-var fresh = (kind) => `${kind}-${++seq3}`;
+var fresh = (kind2) => `${kind2}-${++seq3}`;
 var isPlain = (id) => id.startsWith("plain-");
 var calls = (sessionID) => ({
   before: ["write", "edit"].map((tool2) => ({
@@ -20341,10 +20547,10 @@ function pick2(sessions, target, realm) {
 function apiOf({ place: p, session }) {
   if (session.api) return session.api;
   try {
-    const rec5 = JSON.parse(
+    const rec6 = JSON.parse(
       readFileSync49(holdFilePathOf(CFG.authDir, keyOf(p.realm, p.karta, p.name)), "utf8")
     );
-    return typeof rec5.url === "string" && rec5.url ? apiBase(rec5.url) : null;
+    return typeof rec6.url === "string" && rec6.url ? apiBase(rec6.url) : null;
   } catch {
     return null;
   }
@@ -20360,8 +20566,8 @@ async function runStop(argv2) {
   const realm = take2(args, "--realm");
   const authDir = take2(args, "--auth-dir") || process.env[envName("BRIDGE_AUTH_DIR")] || defaultAuthDir();
   const target = args.find((a) => !a.startsWith("--"));
-  const fail2 = (text5) => {
-    process.stderr.write(`${text5}
+  const fail2 = (text6) => {
+    process.stderr.write(`${text6}
 `);
     process.exitCode = 1;
   };
