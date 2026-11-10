@@ -65,7 +65,7 @@ test("a frame's turn ending with text and no word laid: our wake word, once", ()
   const out = stop(turn);
   assert.equal(out?.decision, "block", JSON.stringify(out));
   assert.equal(out.reason, TURN.en.wake());
-  assert.ok(out.reason.includes(`${tool("case")} ask/say`));
+  assert.ok(out.reason.includes(`${tool("case")} line`));
   assert.doesNotMatch(out.reason, FOREIGN);
   assert.equal(stop(turn, { stop_hook_active: true }), null, "the turn it woke is not woken again");
 });

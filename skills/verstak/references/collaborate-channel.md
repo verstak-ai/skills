@@ -88,7 +88,7 @@ Others' rows:
 - **A busy line is a frozen claim** — "PR merged" there is not work state; the graph carries that, and you note when you checked. It freezes at an old time on purpose when the channel expires.
 - **A live line naming something in your holon** is a neighbour waiting on you without asking.
 - **Several rows on one role** are its seats; find the one that reaches the person (the bridge into their chat), not a seat that takes mail nobody watches.
-- **A sibling's line naming the node you meant to take is a declared take.** With siblings on your role, start at the board, not the work: step back or offer help, never a second copy. Also check the node's cases (`verstak_case(action="at", node=<node>)`). Declare your own take the same way: busy line for the board, "taking: …" in the node's case.
+- **A sibling's line naming the node you meant to take is a declared take.** With siblings on your role, start at the board, not the work: step back or offer help, never a second copy. Also check the node's cases (`verstak_case(action="at", node=<node>)`). Declare your own take the same way: busy line for the board, a `partial` line on the work's key in the node's case.
 
 **Naming a seat in a send: copy the board row.** Whether `standing` takes the whole `@handle:name` or only the name is stated by the channel tool's description. A refusal with no format or candidates goes to the surface's owner. `standing=""` is a real address: the role's undivided seat.
 

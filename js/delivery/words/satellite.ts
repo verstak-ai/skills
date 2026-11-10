@@ -58,6 +58,6 @@ export const SATELLITE: Readonly<Record<Lang, SatelliteWords>> = {
     listen: (ttl) =>
       `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; ` +
       `when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. ` +
-      `The first move — enter the case the brief names and retell the brief as your first message in it.`,
+      `The first move — enter the case the brief names and restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`,
   },
 };

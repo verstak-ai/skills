@@ -16,6 +16,7 @@ import { CHANNEL } from "../delivery/words/channel.ts";
 import { COMPACTION } from "../delivery/words/compaction.ts";
 import { FRAME_TEXT } from "../delivery/words/frame-text.ts";
 import { HOLD } from "../delivery/words/hold.ts";
+import { LAUNCH } from "../delivery/words/launch.ts";
 import { LEAD } from "../delivery/words/leads.ts";
 import { OPENCODE } from "../delivery/words/opencode.ts";
 import { OPENCODE_KEEP } from "../delivery/words/opencode-keep.ts";
@@ -24,11 +25,13 @@ import { PLUGIN } from "../delivery/words/plugin.ts";
 import { REALMS } from "../delivery/words/realms.ts";
 import { RESUME } from "../delivery/words/resume.ts";
 import { ROOT_SEAT } from "../delivery/words/rootseat.ts";
+import { SATELLITE } from "../delivery/words/satellite.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
 import { STALE } from "../delivery/words/stalebatch.ts";
 import { STAND_TOOL } from "../delivery/words/standtool.ts";
 import { STATUS } from "../delivery/words/status.ts";
 import { STOP } from "../delivery/words/stop.ts";
+import { TURN } from "../delivery/words/turn.ts";
 import { REPO } from "./built.mjs";
 
 const DIR = join(REPO, "js", "delivery", "words");
@@ -402,4 +405,21 @@ test("the mind patterns read the readiness sign and a search row", async () => {
   );
   assert.deepEqual(seen?.slice(1, 3), ["🗺️ A short plan before starting a task", "3"]);
   assert.equal(MIND_ROW.exec("Found 1 nodes:"), null);
+});
+
+// The ledger rule (case #4238): movement goes as a line on the work's key, a say only to a named
+// doer; the case server is to refuse a say with neither to nor in_reply_to where a person sits.
+test("the launch and wake words send movement to a line, a word only addressed", () => {
+  const entered = LAUNCH.en.entered("@a:b", "5");
+  assert.match(entered, /partial/);
+  assert.match(entered, /`to` the assigner/);
+  assert.doesNotMatch(entered, /first message/);
+  const listen = SATELLITE.en.listen(60);
+  assert.match(listen, /partial line/);
+  assert.match(listen, /`to` the assigner/);
+  assert.doesNotMatch(listen, /first message/);
+  const wake = TURN.en.wake();
+  assert.match(wake, /line on its key/);
+  assert.match(wake, /say `to`/);
+  assert.doesNotMatch(wake, /ask\/say/);
 });

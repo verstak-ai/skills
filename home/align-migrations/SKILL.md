@@ -5,17 +5,20 @@ description: "Reference for the align skill: the support boundary and legacy con
 
 # Migrations: the support boundary and legacy content
 
-Read whole before the first mutation of a repository whose cover's `contract` is below `12`, missing, invalid or ambiguous, whose cover has an older form, or whose files show legacy content named below — at `12` too: the number doesn't replace the check of content (**align**, `Contract`). Name the starting contract in the report, or that it is unknown — never substitute `11`. Another delivery's cover does not become ours by this file; a contract above `12` is never lowered nor called unsupported — update the delivery. The live rules the content lands on — Step 4's transition, Step 5's hygiene, Step 6's roles, Step 7's cover — are the method's; this file carries only what the old form was and where its content goes. Content transfers before anything is deleted.
+Read whole before the first mutation of a repository whose cover's `contract` is below `13`, missing, invalid or ambiguous, whose cover has an older form, or whose files show legacy content named below — at `13` too: the number doesn't replace the check of content (**align**, `Contract`). Name the starting contract in the report, or that it is unknown — never substitute `11`. Another delivery's cover does not become ours by this file; a contract above `13` is never lowered nor called unsupported — update the delivery. The live rules the content lands on — Step 4's transition, Step 5's hygiene, Step 6's roles, Step 7's cover — are the method's; this file carries only what the old form was and where its content goes. Content transfers before anything is deleted.
 
 ## 10 and below — a full run by current sources
 The chain of moves from older contracts no longer applies. Run both rounds and every step of the current method against their sources; a full run is not "wipe it and start over". Before an edit, read the old config, the authored constraints, the role file tails and the hooks; re-project what is derived, keep the authored judgment, resolve a contradiction by Step 1. Others' hooks stay byte for byte; your own old ones and the memory guard: Step 4, `The transition`.
 
-At start, in `doctor` or in `prepare` the delivery warns once at that entry, not on every command or frame: "Contract N is no longer supported; old hooks have not been removed. Run a full verstak align to contract 12; rituals will be accepted after verification". Codex and pi have no shipped start hook: there the warning comes through `doctor` and `prepare`. A missing or ambiguous number is unknown, not proof of an unsupported contract. Step 7 writes `12` only after the run's checks, never to silence the warning.
+At start, in `doctor` or in `prepare` the delivery warns once at that entry, not on every command or frame: "Contract N is no longer supported; old hooks have not been removed. Run a full verstak align to contract 13; rituals will be accepted after verification". Codex and pi have no shipped start hook: there the warning comes through `doctor` and `prepare`. A missing or ambiguous number is unknown, not proof of an unsupported contract. Step 7 writes `13` only after the run's checks, never to silence the warning.
 
 ## 11 → 12
 **align**, `From contract 11`. The move does not replace the passes over the whole artifact (Step 7).
 
-## Legacy content — at 12 too
+## 12 → 13
+**align**, `From contract 12`: the delegation role files re-projected, their tails kept.
+
+## Legacy content — at 13 too
 Found old content → check it by the current steps; never run a retired chain:
 - Own rituals (start, push or merge hooks, a `*ritual*` plugin, a `Stop` guard, a writing-moment pointer on write tools) → **align**, `Own rituals`, and Step 4, `The transition`; others' entries and other kinds stay.
 - Flat cover slots, a `Cover` section or table, the stamp line at the file's end → **align**, `An older cover`. Unknown addresses are not guessed; what the bridge leaves in `left` is the model's work, not a reason to raise the number.
