@@ -27,7 +27,7 @@ For the user, at their own terminal. The bridge is `~/.verstak-bridge/verstak-br
    `--launcher` is the launcher's name, at most 64 characters (longer is refused): roles will call agents by it. No description of that name in mind → the command writes one under the holon of working with agents (the one holding the `slice:agents` cards; not exactly one found → at mind's root, and the answer says so) (`--model` any number of times, `--limit` agents at once, 1 by default, `--host` the machine's name, without it any machine of the account answers); one there → taken as it lies, edited in mind. Without `--launcher` — only the flag and the boundary.
 4. Check: `… orchestra status` — "on" and the boundary; the tact runs by itself once a minute, `… orchestra step` runs one now.
 5. Stop one agent — `node ~/.verstak-bridge/verstak-bridge.mjs stop <seat> --realm @owner/slug`: the orchestrator sees the order, closes the Orca tab and frees the slot in `limit`.
-6. Switch off — `… orchestra off`: clears the flag and a terminal's consent (the consent of `VERSTAK_ORCHESTRA=1` lives while the variable is in the daemon's environment); raised agents live out their own path. The next switch-on is again from a terminal.
+6. Switch off — `… orchestra off`: clears the flag and a terminal's consent (the consent of `VERSTAK_ORCHESTRA=1` lives while the variable is in the daemon's environment); raised agents live out their own path. The next switch-on is again from a terminal if a terminal gave the consent; with `VERSTAK_ORCHESTRA=1` in the daemon's environment it passes without one.
 
 ## The bound of the check
 

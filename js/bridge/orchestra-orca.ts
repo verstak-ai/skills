@@ -8,7 +8,10 @@ import { execFile } from "node:child_process";
 export const ORCA_VERSION = "1.4.242";
 const FLAGS = ["agent", "worktree", "model", "prompt", "json"];
 
-function run(args: string[], timeoutMs: number): Promise<{ code: number | string; out: string }> {
+export function run(
+  args: string[],
+  timeoutMs: number,
+): Promise<{ code: number | string; out: string }> {
   return new Promise((resolve) => {
     execFile(
       "orca",
@@ -56,6 +59,12 @@ export function remoteKey(url: string): string {
   return u.replace(/\/+$/, "").replace(/\.git$/, "");
 }
 
+/** host/org/repo with the host in lower case — a host has no case, as the clone's url says. */
+const hostFolded = (repository: string): string => {
+  const i = repository.indexOf("/");
+  return i < 0 ? repository : repository.slice(0, i).toLowerCase() + repository.slice(i);
+};
+
 /** The checkout of a repository by Orca's own projects: exactly one ready local setup. */
 export type CheckoutOf = (repository: string) => { path: string } | { code: string };
 
@@ -79,13 +88,14 @@ export async function orcaCheckouts(): Promise<CheckoutOf | string> {
     return "orca_projects_unreadable";
   }
   return (repository) => {
+    const want = hostFolded(repository);
     const ids = new Set(
       projects
         .filter((p) => {
           const g = p.gitRemoteIdentity ?? {};
           return (
-            g.canonicalKey === repository ||
-            (typeof g.remoteUrl === "string" && remoteKey(g.remoteUrl) === repository)
+            (typeof g.canonicalKey === "string" && hostFolded(g.canonicalKey) === want) ||
+            (typeof g.remoteUrl === "string" && hostFolded(remoteKey(g.remoteUrl)) === want)
           );
         })
         .map((p) => p.id),

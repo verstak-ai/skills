@@ -7,12 +7,14 @@
 // needed: it is the look before switching on.
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { cloneTarget } from "./orchestra-clone.ts";
+import { specOf } from "./orchestra-cloning.ts";
 import { readDemands } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
 import { type Launchers, readLaunchers } from "./orchestra-launchers.ts";
 import { launchArgv } from "./orchestra-orca.ts";
 import { checkoutFor, coverRefusal, refusal } from "./orchestra-raise.ts";
-import { readRuns, runKey } from "./orchestra-runs.ts";
+import { readClones, readRuns, runKey } from "./orchestra-runs.ts";
 import { realmCanon } from "./orchestra-tact.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
@@ -49,6 +51,7 @@ export async function planTact(
   }
   // A copy: the launches judged here take their limit slots in it, never on disk.
   const runs = structuredClone(readRuns(authDir));
+  const clones = readClones(authDir);
   const rows = ls.refused.map((r) => w().leadDescription(r.what, r.code));
   for (const row of demands.start) {
     const realm = String(row.realm);
@@ -77,8 +80,22 @@ export async function planTact(
         continue;
       }
       worktree = got;
-    } else if (got.code === ORCA) worktree = w().planCheckout(repository);
-    else {
+    } else if (got.code === ORCA) {
+      worktree = w().planCheckout(repository);
+      // Whether Orca knows the repository is not asked. One rule: the checkout Orca would name
+      // is judged as there — the only case the tact launches in (it looks for a checkout before
+      // any clone, even after a failed one), so the call takes its limit slot; what comes
+      // without that checkout — clone, refusal, the clone in flight — is said as conditional.
+      if (own.clone) {
+        const kept = clones[repository];
+        const c = cloneTarget(own.clone, repository);
+        if (kept?.state === "cloning") say(w().planNoClone("cloning"));
+        else if (kept?.state === "failed" && kept.spec === specOf(own))
+          say(w().planNoClone(`clone_failed_before (${kept.why})`));
+        else if ("code" in c) say(w().planNoClone(c.code));
+        else say(w().planClone(c.url, c.destination));
+      }
+    } else {
       say(w().planRefuse(got.code));
       continue;
     }

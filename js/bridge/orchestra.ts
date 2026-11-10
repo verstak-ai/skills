@@ -25,6 +25,7 @@ import {
 } from "./orchestra-flag.ts";
 import { leadAct } from "./orchestra-lead.ts";
 import { planTact } from "./orchestra-plan.ts";
+import { readClones } from "./orchestra-runs.ts";
 import { stepTact, tactStateOf } from "./orchestra-tact.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
@@ -59,12 +60,17 @@ export async function openOrchestra(
   say: (line: string) => void,
 ): Promise<Server> {
   const door = await listenOrchestraDoor(authDir, serve);
+  // A tact still running skips the timer's next one: no chain of tacts behind a slow one.
+  let busy = false;
   setInterval(() => {
-    if (paused() || !orchestraLeading(authDir)) return;
-    void serve("step", []).then(
-      (a) => say(`orchestra tact: ${a.said.replace(/\n/g, " · ")}`),
-      (e: Error) => say(`orchestra tact failed: ${e.message}`),
-    );
+    if (busy || paused() || !orchestraLeading(authDir)) return;
+    busy = true;
+    void serve("step", [])
+      .then(
+        (a) => say(`orchestra tact: ${a.said.replace(/\n/g, " · ")}`),
+        (e: Error) => say(`orchestra tact failed: ${e.message}`),
+      )
+      .finally(() => (busy = false));
   }, TACT_MS).unref();
   return door;
 }
@@ -168,6 +174,9 @@ export function orchestraServe(authDir: string, net?: OrchestraNet): OrchestraSe
     const lines = Object.entries(tact.realms).map(([realm, t]) =>
       w().tactOut(realm, t.invites, t.signals, t.cursor ?? "", t.at),
     );
+    // A clone runs in the daemon's background — said here, never hidden (#10078, #8202).
+    for (const [repo, c] of Object.entries(readClones(authDir)))
+      lines.push(w().cloneOut(repo, c.state, c.why ?? "", c.at));
     if (tact.lead) lines.push(w().lead(tact.lead));
     // Both halves of the boundary are said aloud (#8202): the named one from the flag and
     // the discovered one — the graphs this machine's live places stand on.
