@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.41.0](https://github.com/verstak-ai/skills/compare/v3.40.0...v3.41.0) (2026-11-10)
+
+
+### Features
+
+* deputy post and the quiet tact's step (move contract points 6 and 7); align contract 14 ([#405](https://github.com/verstak-ai/skills/issues/405)) ([38b8189](https://github.com/verstak-ai/skills/commit/38b81894d39143eec21e6b74e419df969f6733ed))
+
 ## [3.40.0](https://github.com/verstak-ai/skills/compare/v3.39.1...v3.40.0) (2026-11-10)
 
 

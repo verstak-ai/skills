@@ -114,7 +114,7 @@ var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.40.0";
+var VERSION = "3.41.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts

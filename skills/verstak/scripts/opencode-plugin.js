@@ -94,7 +94,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 13 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 14 };
 
 // js/delivery/patterns/cover.ts
 var COVER = {
@@ -200,7 +200,7 @@ var serverProtocol = {
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.40.0";
+var VERSION = "3.41.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
