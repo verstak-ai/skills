@@ -53,9 +53,29 @@ const COMPACT = new RegExp(
   `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact).join("|")})$`,
 );
 
+// A server card snapshot is context, not another wake-up (#10167).
+const CARDS = new RegExp(
+  `(?:${LANGS.flatMap((lang) => {
+    const T = FRAME_TEXT[lang];
+    return [
+      esc(flat(T.openCards(null, null))),
+      esc(flat(T.openCards(null, null, true))),
+      esc(flat(T.openCards(N, null))).replace(NUM, String.raw`\d+`),
+      esc(flat(T.openCards(N, ARGS)))
+        .replace(NUM, String.raw`\d+`)
+        .replace(ARGS, String.raw`[0-9T:.+Z-]+`),
+    ];
+  }).join("|")})$`,
+);
+
 /** A frame's text (under the delivery's mark or not) that addresses nothing to the seat. */
 export function quiet(text: string): boolean {
   const t = flat(text);
   const body = t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t;
-  return QUIET.test(body) || COMPACT.test(body);
+  const withoutCards = body.replace(CARDS, "");
+  return (
+    (withoutCards !== body && !withoutCards) ||
+    QUIET.test(withoutCards) ||
+    COMPACT.test(withoutCards)
+  );
 }

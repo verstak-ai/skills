@@ -10,6 +10,7 @@ import { type ChannelEvent } from "../bridge/hold.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
 import { batchLine, caseKey, frameToText, type Shown } from "../shared/frame-text.ts";
+import { openCardsText } from "../shared/open-cards.ts";
 import { deliveryKeys, noteSeen, seenIds } from "../shared/seen.ts";
 import { seenFilePathOf } from "../shared/standings.ts";
 import { adoptSeenPath, attach, heldText, resolveStanding, staleOf } from "./client.ts";
@@ -69,7 +70,10 @@ export function runWatchdogExit(argv: string[]): void {
       switch (ev.kind) {
         case "frame": {
           const type = ev.frame?.type;
-          if (type !== "message") return note(wd().notWakeup(type));
+          if (type !== "message") {
+            if (type === "hello" && ev.frame) note(openCardsText(ev.frame));
+            return note(wd().notWakeup(type));
+          }
           const id = frameId(ev);
           const f = ev.frame ?? null;
           const has = (k: string): boolean => seen.has(k);

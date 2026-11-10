@@ -9,6 +9,7 @@ import { envName } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
 import { type Frame } from "../shared/channel.ts";
 import { batchLine, caseKey, frameToText, type Shown } from "../shared/frame-text.ts";
+import { openCardsText } from "../shared/open-cards.ts";
 import { deliveryKeys, noteSeen, seenIds } from "../shared/seen.ts";
 import { seenFilePathOf } from "../shared/standings.ts";
 import { adoptSeenPath, attach, heldText, resolveStanding, staleOf } from "./client.ts";
@@ -177,7 +178,8 @@ export function runWatchdog(argv: string[]): void {
             break;
           }
           if (f?.type !== "message") {
-            log(ev.raw ?? ""); // a service frame (hello, status) is short and printed as is
+            log(ev.raw ?? ""); // service proof stays separate from delivery
+            if (f?.type === "hello") log(openCardsText(f));
             break;
           }
           // A repeat of a printed or queued frame (same id) is not printed (#5831).

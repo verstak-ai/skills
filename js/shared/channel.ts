@@ -153,6 +153,8 @@ export interface HelloStanding {
 }
 
 export interface Frame {
+  /** Server snapshot (#10167); read through openCards, never trusted as raw text. */
+  my_open_cards?: unknown;
   type?: string;
   body?: unknown;
   id?: string;

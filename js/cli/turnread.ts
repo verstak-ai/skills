@@ -44,7 +44,7 @@ const ownEvent = (event: string): boolean =>
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)
-    .every((l) => OWN.some((p) => l.startsWith(p)) || /^\{.*"type":"hello"/.test(l));
+    .every((l) => OWN.some((p) => l.startsWith(p)) || /^\{.*"type":"hello"/.test(l) || quiet(l));
 
 const blocks = (e: Entry): Block[] => {
   const c = e.message?.content;

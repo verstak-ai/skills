@@ -61,6 +61,9 @@ export interface CloneRow {
   why?: string;
   /** The failure was said once by a tact; later tacts say clone_failed_before. */
   told?: boolean;
+  /** cloning: the client gave up (runtime_timeout), git goes on in Orca's runtime — no clone
+   * of any daemon's, so no clone_interrupted; it is awaited until at + the clone's window. */
+  runtime?: boolean;
 }
 
 const file = (authDir: string): string => join(seamRunDir(authDir), "orchestra-runs.json");

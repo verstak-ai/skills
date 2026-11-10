@@ -25,6 +25,7 @@ import {
 import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { carryGraphReceipt, receiptGraph } from "../shared/graph-receipt.ts";
 import { words } from "../shared/lang.ts";
+import { cardFrame } from "../shared/open-cards.ts";
 import { byKind, roomKind, stackOf } from "../shared/room-kinds.ts";
 import {
   carryGraphMarks,
@@ -77,6 +78,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
   // Case records not addressed to the seat (#6574) gather in a short window and leave as one
   // entry for the next turn (nextTurn: no interrupt, no raise): counts per case with addressed lines.
   const aside: Frame[] = [];
+  const contextOnly = (f: Frame): boolean => isGraphInbox(f) || f.type === "hello";
   let graphHandoff: { token: string; unit: Frame[]; kept: Frame[]; keys: string[] } | null = null;
   let asideTimer: ReturnType<typeof setTimeout> | null = null;
   /** Marks of what entered the turn as text (seen.ts deliveryKeys): the fold's count skips them. */
@@ -91,8 +93,8 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     asideTimer = null;
     const unit = aside.splice(0);
     const out = splitBatch(unit, Infinity, (k) => marks.has(k));
-    aside.push(...unit.filter(isGraphInbox));
-    return out.kept.filter((f) => !isGraphInbox(f));
+    aside.push(...unit.filter(contextOnly));
+    return out.kept.filter((f) => !contextOnly(f));
   }
   function flushAsides(): void {
     const got = takeAsides();
@@ -110,7 +112,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
 
   // The harness admits a new turn here: graph updates stay foldable until this boundary.
   pi.on("before_agent_start", async () => {
-    if (halted || !aside.some(isGraphInbox)) return;
+    if (halted || !aside.some(contextOnly)) return;
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     const unit = [...aside];
@@ -152,7 +154,9 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
       {
         customType: LOGGERS.channel,
         content: markFrame(
-          ev.body && got.length ? batchBodyText(frames, ev.body, got) : (ev.text ?? ""),
+          Array.isArray(ev.frames) && ev.body
+            ? batchBodyText(frames, ev.body, got)
+            : (ev.text ?? ""),
         ),
         display: true,
         details: ev.kind === "stale" ? { stale: true } : { backlog: true },
@@ -222,18 +226,24 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     if (halted && ev.kind !== "stopped") return;
     switch (ev.kind) {
       case "frame": {
-        const frame = ev.frame ?? null;
+        const frame = cardFrame(ev.frame ?? null);
         carryGraphMarks(frame, ev.marks);
         carryGraphReceipt(frame, ev.seen, authDirFromEnv());
         const raw = ev.raw ?? "";
         // Service frames wake nothing: hello proves the socket is held, and only that.
         if (frame?.type === "hello") {
+          for (let i = aside.length - 1; i >= 0; i--)
+            if (aside[i].type === "hello") aside.splice(i, 1);
+          aside.push(frame); // context only: the server snapshot never raises a turn
           // setStatus is a (key, text) pair; one argument leaves the line without text, invisible.
           if (ctxRef?.hasUI) ctxRef.ui.setStatus?.(PRODUCT, P.listening());
           return;
         }
         if (frame?.type === "status") return;
         if (frame && eventIn(frame, (k) => marks.has(k))) return;
+        if (frame?.type === "message")
+          for (let i = aside.length - 1; i >= 0; i--)
+            if (aside[i].type === "hello") aside.splice(i, 1);
         if (isGraphInbox(frame)) {
           aside.push(frame as Frame);
           return;

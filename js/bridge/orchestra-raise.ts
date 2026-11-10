@@ -16,7 +16,7 @@ import { existsSync, statSync } from "node:fs";
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { readCover } from "../shared/cover.ts";
 import { words } from "../shared/lang.ts";
-import { cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
+import { cloneFound, cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
 import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
 import {
   type CheckoutOf,
@@ -158,6 +158,8 @@ export async function raiseRows(
       said.push(w().leadRow(realm, room, invite, worktree.code));
       continue;
     }
+    // Orca's runtime may finish a clone its client gave up on: the checkout lifts the row.
+    cloneFound(authDir, repository);
     const uncovered = await coverRefusal(worktree, realm, Number(row.karta), canon);
     if (uncovered) {
       said.push(w().leadRow(realm, room, invite, uncovered));

@@ -100,3 +100,56 @@ test("queued count-only frames in the words they were written with stay quiet", 
   assert(quiet(OLD_LINE), OLD_LINE);
   assert(quiet(`${OLD_HEAD}\n${OLD_LINE}`), OLD_HEAD);
 });
+
+// The server's snapshot of the seat's unanswered cards rides every case frame (graph
+// @nks/nks-dev, node #10167); quietframe.ts strips it back out of OUR words, so a count-only
+// wake-up with the snapshot stays quiet, and an addressed record under it never does.
+test("the unanswered-cards snapshot in our words leaves a count-only frame quiet", () => {
+  setLang("en");
+  for (const cards of [
+    { count: 0, oldest_at: null },
+    { count: 3, oldest_at: "2026-11-10T12:00:00Z" },
+    { count: "bad" },
+    undefined,
+  ]) {
+    const a = frame("progress", { entry_id: 4, envelope: { my_open_cards: cards } });
+    const text = frameToText(a, "");
+    assert.match(text, /your unanswered cards: /);
+    assert(quiet(text), text);
+    assert(quiet(batchHead([a])), batchHead([a]));
+    const r = { ...reply(), my_open_cards: cards };
+    assert(!quiet(frameToText(r, "")), frameToText(r, ""));
+  }
+});
+
+test("a server clock notice reads as one English line of facts, unknowns named", () => {
+  setLang("en");
+  const notice = (kind, data) => ({
+    type: "message",
+    id: "n-1",
+    body: "SECRET",
+    provenance: { via: "platform", auth: "none", notice: kind, notice_data: data },
+  });
+  const card = frameToText(
+    notice("card_unanswered", {
+      room: { id: "r-1", number: 7, realm: "nks-dev" },
+      entry_id: 12,
+      key: "t1",
+      to: { standing_id: "s-1", standing: "@tester:proba", karta_seq: 48 },
+      listening: false,
+      role_called: true,
+    }),
+    "",
+  );
+  assert.match(card, /^card unanswered: case #7 \(id: r-1, graph: nks-dev\) \[12\], key: t1; /);
+  assert.match(
+    card,
+    /addressee: @tester:proba \(id: s-1, role: 48\); listening: no; last move: unknown; role called: yes/,
+  );
+  const due = frameToText(notice("line_due", { holder: {}, escalated: "x" }), "");
+  assert.match(
+    due,
+    /^line due: case #unknown .*holder: unknown .*due: unknown; passed to the assigner: unknown/,
+  );
+  for (const t of [card, due]) assert.doesNotMatch(t, /SECRET/);
+});
