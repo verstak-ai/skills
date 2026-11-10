@@ -109,7 +109,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 12 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 13 };
 
 // js/delivery/patterns/board.ts
 var BOARD_HEADER = { en: "Channels" };
@@ -224,7 +224,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.39.0";
+var VERSION = "3.39.1";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -999,7 +999,7 @@ var SATELLITE = {
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
     bypass: (action) => `Refused (satellite bridge): ${action} bypassing ${tool("stand")} — only ${tool("stand")} with satellite_of gives this bridge a seat; a satellite neither takes nor releases another's seat.`,
     onlyOwn: (action, own, karta, realm) => `Refused (satellite bridge): ${action} — only its own seat ${own} (role #${karta}, graph ${realm}); a satellite neither takes nor releases the caller's seat or any other.`,
-    listen: (ttl) => `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. The first move — enter the case the brief names and retell the brief as your first message in it.`
+    listen: (ttl) => `[verstak-bridge] Satellite seat: do not arm a watchdog — the seat lives by the subagent's run and signs its records; when the run ends the bridge leaves the seat itself, the channel dies after the ${ttl} s idle window. The first move — enter the case the brief names and restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
   }
 };
 
