@@ -19,6 +19,6 @@ export const LAUNCH: Readonly<Record<Lang, LaunchWords>> = {
     notEntered: (place, no, why) =>
       `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
     entered: (place, no) =>
-      `Verstak: seated ${place}, entered case #${no} — restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`,
+      `Verstak: seated ${place}, entered case #${no} — a take card to you → answer it, no restatement beside it; another assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`,
   },
 };
