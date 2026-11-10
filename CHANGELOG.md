@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.40.0](https://github.com/verstak-ai/skills/compare/v3.39.1...v3.40.0) (2026-11-10)
+
+
+### Features
+
+* parity with the sibling — connector fallback, quota stop, addressing the person, telos review, recall and twenty-odd inner contradictions ([#403](https://github.com/verstak-ai/skills/issues/403)) ([ec0d21b](https://github.com/verstak-ai/skills/commit/ec0d21b771e312ce32f9e247a398943d8680a817))
+
 ## [3.39.1](https://github.com/verstak-ai/skills/compare/v3.39.0...v3.39.1) (2026-11-10)
 
 

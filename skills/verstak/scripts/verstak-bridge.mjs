@@ -224,7 +224,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.39.1";
+var VERSION = "3.40.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
