@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.43.0](https://github.com/verstak-ai/skills/compare/v3.42.0...v3.43.0) (2026-11-10)
+
+
+### Features
+
+* bridge core from the sibling delivery v7.38.1 — open-cards snapshot, clock notices, a timed-out clone still running ([#413](https://github.com/verstak-ai/skills/issues/413)) ([1b531b9](https://github.com/verstak-ai/skills/commit/1b531b9790a562e91dc78c64260b1687d963fd0e))
+
+
+### Bug Fixes
+
+* a repeated card is a reminder, not a duplicate; a one-off ask is a card ([#415](https://github.com/verstak-ai/skills/issues/415)) ([743df6a](https://github.com/verstak-ai/skills/commit/743df6a53a1d70cf56dc57f7468c6ad9857f92d3))
+
 ## [3.42.0](https://github.com/verstak-ai/skills/compare/v3.41.0...v3.42.0) (2026-11-10)
 
 
