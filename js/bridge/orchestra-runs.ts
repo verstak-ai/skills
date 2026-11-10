@@ -51,21 +51,59 @@ export const LIVE: readonly RunState[] = ["launched", "raised", "stopping"];
 export const runKey = (realm: string, room: string, invite: number): string =>
   `${realm}|${room}|${invite}`;
 
-const file = (authDir: string): string => join(seamRunDir(authDir), "orchestra-runs.json");
-
-export function readRuns(authDir: string): Record<string, Run> {
-  try {
-    const f = JSON.parse(readFileSync(file(authDir), "utf8")) as { runs?: unknown };
-    if (f.runs && typeof f.runs === "object") return f.runs as Record<string, Run>;
-  } catch {
-    /* none yet */
-  }
-  return {};
+/** A clone of a repository Orca did not know (#10078), one row per repository: a failure
+ * stands until the launcher description it ran under changes. */
+export interface CloneRow {
+  state: "cloning" | "cloned" | "failed";
+  at: string;
+  /** The description's fingerprint (orchestra-clone.ts specOf). */
+  spec: string;
+  why?: string;
+  /** The failure was said once by a tact; later tacts say clone_failed_before. */
+  told?: boolean;
 }
 
-export function writeRuns(authDir: string, runs: Record<string, Run>): void {
+const file = (authDir: string): string => join(seamRunDir(authDir), "orchestra-runs.json");
+
+function readFile(authDir: string): {
+  runs: Record<string, Run>;
+  clones: Record<string, CloneRow>;
+} {
+  try {
+    const f = JSON.parse(readFileSync(file(authDir), "utf8")) as {
+      runs?: unknown;
+      clones?: unknown;
+    };
+    const obj = <T>(v: unknown): Record<string, T> =>
+      v && typeof v === "object" ? (v as Record<string, T>) : {};
+    return { runs: obj<Run>(f.runs), clones: obj<CloneRow>(f.clones) };
+  } catch {
+    return { runs: {}, clones: {} };
+  }
+}
+
+function writeFile(
+  authDir: string,
+  f: { runs: Record<string, Run>; clones: Record<string, CloneRow> },
+): void {
   mkdirSync(seamRunDir(authDir), { recursive: true, mode: 0o700 });
   const tmp = `${file(authDir)}.${process.pid}.tmp`;
-  writeFileSync(tmp, JSON.stringify({ runs }) + "\n", { mode: 0o600 });
+  writeFileSync(tmp, JSON.stringify(f) + "\n", { mode: 0o600 });
   renameSync(tmp, file(authDir));
+}
+
+export const readRuns = (authDir: string): Record<string, Run> => readFile(authDir).runs;
+
+export function writeRuns(authDir: string, runs: Record<string, Run>): void {
+  writeFile(authDir, { runs, clones: readFile(authDir).clones });
+}
+
+export const readClones = (authDir: string): Record<string, CloneRow> => readFile(authDir).clones;
+
+/** One clone row set, or dropped with null; the runs on disk stay as they lie. */
+export function writeClone(authDir: string, repository: string, row: CloneRow | null): void {
+  const f = readFile(authDir);
+  if (row) f.clones[repository] = row;
+  else delete f.clones[repository];
+  writeFile(authDir, f);
 }

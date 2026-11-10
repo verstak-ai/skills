@@ -40,6 +40,8 @@ export interface OrchestraWords {
   stepGone: () => string;
   /** The status line of a graph's last tact: outcome, cursor and when. */
   tactOut: (realm: string, invites: number, signals: number, cursor: string, at: string) => string;
+  /** The status line of a repository's clone: cloning (running in the daemon's background), cloned or failed with its reason, and since when. */
+  cloneOut: (repository: string, state: string, why: string, at: string) => string;
   /** lines — the tact's leading outcomes (raising and extinguishing) joined by "; ". */
   lead: (lines: string) => string;
   /** The outcome for one invitation: graph, case (id), the invitation's number in it and the outcome code (the api's and the bridge's words). */
@@ -66,6 +68,10 @@ export interface OrchestraWords {
   planAlready: (state: string) => string;
   /** Dry run: the checkout Orca would name at launch — not asked now. */
   planCheckout: (repository: string) => string;
+  /** Dry run: had Orca no checkout, this address would be cloned into this directory. */
+  planClone: (url: string, destination: string) => string;
+  /** Dry run: had Orca no checkout, the clone would be refused with this code. */
+  planNoClone: (code: string) => string;
   /** Dry run: the brief's place in argv. */
   planBrief: () => string;
   /** on --launcher: the description written in mind (seq — its node number, may be empty; holon — the holon of the work with agents, empty — the root). */
@@ -122,6 +128,8 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
       "the tact commits nothing: the caller left before its end — the refusal has already been spoken, no cursor moved",
     tactOut: (realm, invites, signals, cursor, at) =>
       `${realm}: invites ${invites}, signals ${signals}, cursor ${cursor || "—"} (${at})`,
+    cloneOut: (repository, state, why, at) =>
+      `clone of ${repository}: ${state}${why ? ` (${why})` : ""} (${at})`,
     lead: (lines) => `leading: ${lines}`,
     leadRow: (realm, room, invite, code) => `${realm} case ${room} invite ${invite}: ${code}`,
     leadNotAdmitted: () =>
@@ -144,6 +152,9 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
     planRefuse: (code) => `would refuse: ${code}`,
     planAlready: (state) => `already in the registry: ${state}`,
     planCheckout: (repository) => `<orca checkout of ${repository}>`,
+    planClone: (url, destination) =>
+      `if Orca has no checkout — would clone ${url} into ${destination}`,
+    planNoClone: (code) => `if Orca has no checkout — would not clone: ${code}`,
     planBrief: () => "<brief>",
     describeWritten: (launcher, seq, holon) =>
       `the description of launcher ${launcher} written in mind${seq ? ` (#${seq})` : ""}` +

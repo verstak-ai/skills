@@ -5,8 +5,10 @@
 // adapter knows (its name is Orca's --agent), and a model the launcher allows; the checkout is
 // the description's own for that repository, else exactly one ready local Orca setup of the
 // project whose remote is the invite's repository (#4518), and its cover names the call's graph
-// and role — the raised root seats itself by it (№4050 [56]). Anything else is an outcome said
-// aloud, nothing launched. The invite is taken by the raised agent's own registration with
+// and role — the raised root seats itself by it (№4050 [56]); no checkout and a description
+// that allows it — Orca clones the repository in the background, a later tact raises it
+// (orchestra-clone.ts, #10078). Anything
+// else is an outcome said aloud, nothing launched. The invite is taken by the raised agent's own registration with
 // spawned_for (its first brief line) — not here; the registry row is written before the launch,
 // so a crash never launches twice.
 import { existsSync, statSync } from "node:fs";
@@ -14,6 +16,7 @@ import { existsSync, statSync } from "node:fs";
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { readCover } from "../shared/cover.ts";
 import { words } from "../shared/lang.ts";
+import { cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
 import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
 import {
   type CheckoutOf,
@@ -54,7 +57,7 @@ export function refusal(row: Row, ls: Launchers, runs: Record<string, Run>): str
   const model = text(row.model);
   if (!model) return "model_missing";
   if (!offer.models.includes(model)) return "model_not_offered";
-  if (!text(row.repository)) return "no_checkout";
+  if (!text(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
   const live = Object.values(runs).filter(
     (r) => r.launcher === launcher && LIVE.includes(r.state),
   ).length;
@@ -126,11 +129,31 @@ export async function raiseRows(
     const own = ls.own.get(String(row.launcher).trim())!;
     const repository = String(row.repository).trim();
     orca = orca === undefined ? await orcaCheckouts() : orca;
-    const worktree = checkoutFor(
-      own,
-      repository,
-      typeof orca === "string" ? () => ({ code: orca as string }) : orca,
-    );
+    const find = (): ReturnType<typeof checkoutFor> =>
+      checkoutFor(
+        own,
+        repository,
+        typeof orca === "string" ? () => ({ code: orca as string }) : orca!,
+      );
+    let worktree = find();
+    if (typeof worktree !== "string" && worktree.code === "no_checkout" && own.clone) {
+      const spec = specOf(own);
+      const turn = await cloneTurn(authDir, own.clone, spec, repository, gone);
+      if (turn === "gone") break;
+      if (turn !== "cloned") {
+        said.push(w().leadRow(realm, room, invite, turn));
+        continue;
+      }
+      // Orca's projects changed: read again; a clone it did not register, or Orca unreadable
+      // now, is said and kept as clone_unregistered.
+      orca = await orcaCheckouts();
+      worktree = find();
+      const lost =
+        typeof orca === "string" ||
+        (typeof worktree !== "string" && worktree.code === "no_checkout");
+      const why = cloneTaken(authDir, repository, spec, !lost);
+      if (why) worktree = { code: why };
+    }
     if (typeof worktree !== "string") {
       said.push(w().leadRow(realm, room, invite, worktree.code));
       continue;

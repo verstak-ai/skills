@@ -253,3 +253,24 @@ test("orchestra: the raised agent's brief sends it into its case by our case too
   assert.match(brief, /role #42/, brief);
   assert.match(brief, /Do not register again/, brief);
 });
+
+// A clone of a repository Orca does not know runs in the daemon's background and is said in
+// status and in the dry run, never hidden (the core's bridge/orchestra-clone.ts,
+// orchestra-cloning.ts; the clone itself is the sibling's suite, against its fake orca).
+test("orchestra: a clone is said in our words — its status line and both dry-run outcomes", () => {
+  const line = ORCHESTRA.en.cloneOut(
+    "github.com/o/r",
+    "failed",
+    "exit 128",
+    "2026-11-10T10:00:00Z",
+  );
+  assert.equal(line, "clone of github.com/o/r: failed (exit 128) (2026-11-10T10:00:00Z)");
+  assert.equal(
+    ORCHESTRA.en.cloneOut("github.com/o/r", "cloning", "", "t"),
+    "clone of github.com/o/r: cloning (t)",
+  );
+  const would = ORCHESTRA.en.planClone("https://github.com/o/r", "/src/o/r");
+  assert.match(would, /would clone https:\/\/github\.com\/o\/r into \/src\/o\/r/, would);
+  const refused = ORCHESTRA.en.planNoClone("clone_refused (not_allowed)");
+  assert.match(refused, /would not clone: clone_refused \(not_allowed\)/, refused);
+});

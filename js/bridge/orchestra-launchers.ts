@@ -10,6 +10,7 @@ import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
+import { type ClonePolicy, parseClone } from "./orchestra-clone.ts";
 
 /** The harness's name is Orca's --agent value itself (case №4050 [8]). */
 export interface HarnessOffer {
@@ -26,6 +27,8 @@ export interface Launcher {
   checkouts: Record<string, string>;
   /** Optional: other accounts (handles, lower case, no @) whose calls this launcher answers. */
   callers: string[];
+  /** Optional: clone a repository Orca does not know (orchestra-clone.ts); null — never. */
+  clone: ClonePolicy | null;
 }
 export interface Launchers {
   /** The account the daemon's key belongs to (handle, lower case, no @) — its calls are own. */
@@ -84,6 +87,8 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
   const callers = d.callers ?? [];
   if (!Array.isArray(callers) || !callers.every((h) => str(h) && HANDLE.test(h.trim())))
     return { code: "callers_invalid", launcher };
+  const clone = parseClone(d);
+  if (clone && "code" in clone) return { code: clone.code, launcher };
   return {
     launcher,
     host: str(d.host) ? d.host.trim() : null,
@@ -92,6 +97,7 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
     harnesses,
     checkouts,
     callers: (callers as string[]).map((h) => h.trim().slice(1).toLowerCase()),
+    clone,
   };
 }
 

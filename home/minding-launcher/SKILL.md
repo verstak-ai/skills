@@ -17,4 +17,4 @@ The values are the user's answers, never a guess; ask in one message: what to ca
 
 What of it leaves mind: only the chosen `launcher`, `harness` and `model`, into a role invitation (**minding**, `Privacy`); `callers`, `checkouts`, `limit` and `host` stay here.
 
-Written → lead on to switching on: **establish-mcp**, `The bridge orchestrator`. To the user in one line: an agent will be raised on a role's invitation into a case; what the invitation must be — `verstak`, `Case laws`, a role called in.
+Written → lead on to switching on: **establish-mcp**, `The bridge orchestrator`. To the user in one line: an agent will be raised on a role's invitation into a case whose holon carries the `repository` attribute (without it no agent is raised); what the invitation must be — `verstak`, `Case laws`, a role called in.
