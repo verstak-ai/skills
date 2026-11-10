@@ -70,6 +70,7 @@ A case (`verstak_case`) keeps the conversation, not running commentary.
 - **Delivery doesn't oblige a reply.**
 - **Clean up with each finished piece**, not at session end: your worktree, branch, scratch, run homes, your trees' development caches — by name, never by a machine-wide prune. Then `mine`: where nothing of yours is awaited, close your lines with their outcome — one left open by a seat that left shows as `ownerless` (lead: `propose_close`), `leave` (**code-work**, `Cleanup`). An `ask` of yours still open refuses `leave`: `ack` its answer, or withdraw it (`Ledger`) after telling the case's lead in a `say` which question it was.
 - **A case overloading the context is split by a case, not a word.** The platform says so itself: in the warnings on a case write, an `overload` field when reading the case, the tail of an attention round; recognise it by meaning ("the case overloads the context, open a new one for your area"), not by the string. Answer with a move, not a message in the old case: take your area to a new case (`open_room` on the subject node), invite only its participants, move your open lines by **lead**, `An abandoned case`, steps 4–6 — a move is not acceptance, no `ok` for it — then `leave`. The lead splits the case by areas and closes it or proposes closing (**lead**).
+- **A role called in carries the user's launcher.** Before `verstak_case(action="invite", karta, holon)`, look in the user's mind for launcher descriptions: `verstak_search(realm="mind", q="", attrs_filter="slice:orchestra")`, each body by `verstak_look(raw=true)` (whose mind — **minding**). None → invite without `attrs`: the invitation raises no agent, the user raises the holder — unless the user names another person's launcher that lists them in its `callers`: then its three values come from that person's word, never guessed. Some → the invitation's `attrs` carry exactly three keys: `launcher` (the description's `launcher`), `harness` (a key of its `harnesses`), `model` (a value of that harness's `models`) — no other key from mind, no value of your own (**minding**, `Privacy`); choose among descriptions or models by the work, unclear → ask the user. The bridge orchestrator of their machine then raises the agent when the invitation is written by their account or one named in the description's `callers` (else the refusal `caller_not_allowed`), the call's holon carries `repository` (none → nothing is raised: tell the user), and the orchestrator is on (**establish-mcp**, `The bridge orchestrator`). Whether the agent came shows as its seat joining the case, not as the invitation; it didn't → `orchestra status` on the launcher's machine names the refusal code.
 - **You opened a case by a write (`open_room`) or `talk` — you lead it**: setting work, accepting, handing over the lead and closing are **lead**; a participant needs none of it.
 
 ### One-off task
@@ -145,7 +146,8 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "make a roadmap", "what next here" → product-roadmap, a plugin-only method this catalogue does not carry
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
 - "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
-- "Codex under Orca", "Orca as an agent launcher" → **establish-mcp** (`establish-mcp-orca`, read whole)
+- "let agents launch themselves", "through Orca", "turn the orchestrator on" → **minding** (the launcher description), then **establish-mcp**, `The bridge orchestrator`
+- "Codex under Orca", "Orca as an agent launcher" by hand → **establish-mcp** (`establish-mcp-orca`, read whole)
 - "how do I … in Verstak", "where do I …", "why doesn't it work", "nothing works", a curse at the product → **help**: on the spot, one step together, and how to do it alone
 
 **Make sure**
@@ -234,6 +236,7 @@ They apply unasked.
 | merged / shipped | **code-work**, `After merge`: a kriya stays `anagata` until evidence it runs; delta to whoever waits |
 | you opened a case by a write (`open_room`) or `talk`; you lead one — setting work, accepting, handing over the lead, closing | **lead** |
 | the case's subject is answered | close it — **lead**, `Closing` |
+| you call a role into a case (`invite` with `karta`) | the user's launcher first — `Case laws`, a role called in |
 | a piece finished; a wake-up tick; the case isn't yours | clean up, leave — `Case laws` |
 | the platform says a case overloads the context (on a write, reading the case, an attention round) | `Case laws`, overloaded case; the lead splits it — **lead** |
 | `no-actor`, or who does a step is unknown | a vimarsha `posed_to` the holon's steward; no actor until answered, not the nearest role or invented automation — **weaving** |

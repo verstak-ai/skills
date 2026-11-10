@@ -22,7 +22,7 @@ import {
 import { createChildren } from "./children.ts";
 import { answerHalt } from "./cuts.ts";
 import { listInBackground, waitListed } from "./firstlist.ts";
-import { idleHalf, type ToolsHalf } from "./half.ts";
+import { type Halted, idleHalf, type SpawnBasis, type ToolsHalf } from "./half.ts";
 import { createHandoff } from "./handoff.ts";
 import { hostEnvOf } from "./host.ts";
 import { createKeeper } from "./keep.ts";
@@ -59,9 +59,8 @@ export async function setupTools(
   rootOf: (sessionID: string) => Promise<string>,
   flushUsage: (session: string) => Promise<void> = async () => {},
   closed: Closed = () => false,
-  halted: (session: string | null, signal?: AbortSignal) => Promise<string | null> = async () =>
-    null,
-  launchBasis: (session: string, name: string, args: Record<string, unknown>) => void = () => {},
+  halted: Halted = async () => null,
+  launchBasis: SpawnBasis = () => undefined,
   claiming: (session: string) => boolean = () => false,
   verifyClaim: (session: string, args: Record<string, unknown>, result: unknown) => void = () => {},
 ): Promise<ToolsHalf> {
@@ -371,7 +370,8 @@ export async function setupTools(
     seats.guard(sessionID, service);
     // No ceiling: the v2 execute context carries no abort signal.
     const args: Record<string, unknown> = { ...(input ?? {}) };
-    launchBasis(sessionID, name, args);
+    const held = launchBasis(sessionID, name, args, !!slot.holding);
+    if (held) return { content: held };
     // One seat per bridge: a child standing by its own call gets its own bridge (#5154).
     if (standsBy(name, args) && slot.session !== sessionID) {
       // The parent's seat is unknown — a refusal (#6550 item 2).

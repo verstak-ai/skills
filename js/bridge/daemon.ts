@@ -47,8 +47,7 @@ import { pruneFallbacks } from "./fallback.ts";
 import { handoffsSettled } from "./handoff.ts";
 import { eraOf, HOLD_RECORD_MAX_AGE_MS, holdRecordsWhere } from "./holdrecord.ts";
 import { beginHandover, beginSessionHandover, H } from "./holdstate.ts";
-import { orchestraServe } from "./orchestra.ts";
-import { listenOrchestraDoor } from "./orchestra-door.ts";
+import { openOrchestra, orchestraLeading, orchestraServe } from "./orchestra.ts";
 import { pauseForHandover } from "./pauserecord.ts";
 import { extraPlaces } from "./places.ts";
 import { endDeadRun, endUnreturnedPause } from "./runend.ts";
@@ -162,7 +161,7 @@ export async function daemonMain(argv: string[]): Promise<void> {
 
   const idle = idleWatch(
     IDLE_MS,
-    () => draining || sessions.size > 0 || dying.size > 0,
+    () => draining || sessions.size > 0 || dying.size > 0 || orchestraLeading(authDir),
     () => {
       server?.close();
       process.exit(0);
@@ -384,48 +383,49 @@ export async function daemonMain(argv: string[]): Promise<void> {
   // does not).
   let door: Server | null = null;
   try {
-    door = await listenOrchestraDoor(
-      authDir,
-      orchestraServe(authDir, {
-        base: (): string => {
-          for (const e of engines.values()) {
-            const url = e.scope ? runIn(e.scope, (): string | null => H.currentUrl) : H.currentUrl;
-            if (url) return apiBase(url);
-          }
-          const records = holdRecordsWhere(() => true);
-          const freshest = records.reduce<(typeof records)[number] | null>(
-            (best, r) => (!best || eraOf(r) > eraOf(best) ? r : best),
-            null,
-          );
-          return freshest?.url ? apiBase(freshest.url) : "";
-        },
-        token: bearer,
-        // The discovered half of the boundary (#8202): realms of live sessions' places plus hold records
-        // live by age or departure, spelled as written (rN resolves downstream); a dead record leaves by liveness.
-        realms: (): string[] => {
-          const found = new Set<string>();
-          const ofSession = (): string[] => {
-            const own = new Set<string>();
-            if (state.standing?.realm) own.add(state.standing.realm);
-            for (const x of extraPlaces()) if (x.standing?.realm) own.add(x.standing.realm);
-            return [...own];
-          };
-          for (const e of engines.values()) {
-            for (const r of e.scope ? runIn(e.scope, ofSession) : ofSession()) if (r) found.add(r);
-          }
-          // Liveness is the record's heartbeat r.at, as readHoldRecord reads it (not stoodAt); none — not live.
-          for (const r of holdRecordsWhere(() => true))
-            if (
-              r.realm &&
-              r.at !== undefined &&
-              r.left !== true &&
-              Date.now() - r.at < HOLD_RECORD_MAX_AGE_MS
-            )
-              found.add(r.realm);
-          return [...found];
-        },
-      }),
-    );
+    const serve = orchestraServe(authDir, {
+      mcp: (): string => cfg.serverUrl,
+      // The flag moved: off with no session lets the idle window run again.
+      changed: armIdle,
+      base: (): string => {
+        for (const e of engines.values()) {
+          const url = e.scope ? runIn(e.scope, (): string | null => H.currentUrl) : H.currentUrl;
+          if (url) return apiBase(url);
+        }
+        const records = holdRecordsWhere(() => true);
+        const freshest = records.reduce<(typeof records)[number] | null>(
+          (best, r) => (!best || eraOf(r) > eraOf(best) ? r : best),
+          null,
+        );
+        return freshest?.url ? apiBase(freshest.url) : "";
+      },
+      token: bearer,
+      // The discovered half of the boundary (#8202): realms of live sessions' places plus hold records
+      // live by age or departure, spelled as written (rN resolves downstream); a dead record leaves by liveness.
+      realms: (): string[] => {
+        const found = new Set<string>();
+        const ofSession = (): string[] => {
+          const own = new Set<string>();
+          if (state.standing?.realm) own.add(state.standing.realm);
+          for (const x of extraPlaces()) if (x.standing?.realm) own.add(x.standing.realm);
+          return [...own];
+        };
+        for (const e of engines.values()) {
+          for (const r of e.scope ? runIn(e.scope, ofSession) : ofSession()) if (r) found.add(r);
+        }
+        // Liveness is the record's heartbeat r.at, as readHoldRecord reads it (not stoodAt); none — not live.
+        for (const r of holdRecordsWhere(() => true))
+          if (
+            r.realm &&
+            r.at !== undefined &&
+            r.left !== true &&
+            Date.now() - r.at < HOLD_RECORD_MAX_AGE_MS
+          )
+            found.add(r.realm);
+        return [...found];
+      },
+    });
+    door = await openOrchestra(authDir, serve, () => draining, log);
   } catch (e) {
     log(`the orchestration door does not open: ${errorMessage(e)}`);
   }

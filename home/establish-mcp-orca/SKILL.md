@@ -5,13 +5,37 @@ description: "Reference for the establish-mcp skill: teaching your own Orca to r
 
 # Teaching your own Orca to raise an agent by invitation
 
+## Switching on automatic raising without an agent
+
+For the user, at their own terminal. The bridge is `~/.verstak-bridge/verstak-bridge.mjs`; its daemon is already alive while any harness session with the bridge is open. It needs Orca with the repository's project set up, and the invitation's subject holon carrying the `repository` attribute.
+
+1. See what lies: `node ~/.verstak-bridge/verstak-bridge.mjs orchestra status`.
+2. A dry tact — what would be raised now, launching nothing and not asking Orca:
+
+   ```sh
+   node ~/.verstak-bridge/verstak-bridge.mjs orchestra step --dry-run --realm @owner/slug
+   ```
+
+   Per invitation, "would launch: orca agent launch …" or "would refuse: code" (the codes — **establish-mcp**, `The bridge orchestrator`). The copy Orca would name is shown as a placeholder. The graph must lie inside the machine's boundary: named by an earlier `on`, or the graph of an agent alive on the machine now; otherwise the refusal `outside_boundary`.
+3. Switch on — one command; typed at a terminal, it is the machine's consent itself (no variable, no restart):
+
+   ```sh
+   node ~/.verstak-bridge/verstak-bridge.mjs orchestra on --realm @owner/slug \
+     --launcher mac --model anthropic/claude-opus-5-5 --limit 2
+   ```
+
+   `--launcher` is the launcher's name, at most 64 characters (longer is refused): roles will call agents by it. No description of that name in mind → the command writes one under the holon of working with agents (the one holding the `slice:agents` cards; not exactly one found → at mind's root, and the answer says so) (`--model` any number of times, `--limit` agents at once, 1 by default, `--host` the machine's name, without it any machine of the account answers); one there → taken as it lies, edited in mind. Without `--launcher` — only the flag and the boundary.
+4. Check: `… orchestra status` — "on" and the boundary; the tact runs by itself once a minute, `… orchestra step` runs one now.
+5. Stop one agent — `node ~/.verstak-bridge/verstak-bridge.mjs stop <seat> --realm @owner/slug`: the orchestrator sees the order, closes the Orca tab and frees the slot in `limit`.
+6. Switch off — `… orchestra off`: clears the flag and a terminal's consent (the consent of `VERSTAK_ORCHESTRA=1` lives while the variable is in the daemon's environment); raised agents live out their own path. The next switch-on is again from a terminal.
+
 ## The bound of the check
 
-The recipe describes the CLI of **Orca 1.4.242**. Its version and command schema were observed; a dry plan is no check of a launch. Until a separate live cycle is accepted, the plan's outcome stays `launch_verified=false`. A bridge and plugin that pass `spawned_for` must arrive together: a line in a brief claims no invitation on its own, and an older bridge does not become a new one because this reference exists.
+The recipe describes the CLI of **Orca 1.4.242**. This is the manual path: a launcher of your own, or Orca step by step. The automatic one is the bridge orchestrator (**establish-mcp**, `The bridge orchestrator`): it checks Orca's version and schema itself before a launch. A dry plan is no check of a launch. A line in a brief claims no invitation on its own: only a bridge that knows the `spawned_for` pair takes it — its field is named by the description of the `verstak_stand` tool in this session. No field → the bridge is old: tell the user an `update` is needed, don't update it yourself.
 
-The project mapping is set by the Orca's owner. The agent changes no settings, registers or clones no project itself, updates no home delivery and restarts no one else's session for a probe. The first launch takes a separate test case and a permitted checkout; an automatic cycle is a later, separate choice.
+The project mapping is set by the Orca's owner. The agent changes no settings, registers or clones no project itself, updates no home delivery and restarts no one else's session for a probe. The first launch takes a separate test case and a permitted checkout.
 
-**The Orca/Codex limit on macOS.** By an operator's report, with `CODEX_HOME` inside `~/Library/Application Support/orca/codex-runtime-home/home` the `app-server-control` socket path reached 114 bytes against the Unix socket limit of 104: the app-server control does not work. The sign: an error naming `socketPath` on `codex app-server daemon stop`. A short symlink did not help: Codex resolves the path. In the same report Codex outside Orca with `~/.codex` works; MCP, skills and frames through `watchdog-exit` working proves nothing about the app-server control. This is an Orca/Codex limit, not the bridge's debt and no reason to change the user's configuration. It was not repeated here.
+**Codex under Orca on macOS** may fail to control its app-server (the sign: an error naming `socketPath` on `codex app-server daemon stop`): an Orca and Codex limit, not the bridge's; don't change the user's configuration for it.
 
 ## 1. Read your own surface
 
@@ -50,7 +74,7 @@ spawned_for: {"invite":7,"room":"11111111-1111-4111-8111-111111111111"}
 
 This shows the form, not a real invitation: put the pair from a fresh demand. Then name the graph, the role and the case, the subject's references, the bound of permitted actions and the observable outcome. The agent must have register confirm this pair and join the case **before work**; refused → it does not work and does not get round the refusal with another name or `take`.
 
-A launcher of your own that passes a separate session's environment passes the same JSON as `VERSTAK_SPAWNED_FOR`. Never set it in the environment of a server shared by all agents. The explicit field of `verstak_stand` is an object `{invite, room}`, not a JSON string; the bridge connects without it, then passes the pair at register. A raw channel connect carrying the pair is refused: use `verstak_stand`, never a way around the check. A bare invitation number, a printed case number in place of the UUID, a partial pair or conflicting sources are refused before any seat is taken. This Orca's CLI has no flag passing environment: don't invent one.
+A launcher of your own that passes a separate session's environment passes the same JSON as `VERSTAK_SPAWNED_FOR`. Never set it in the environment of a server shared by all agents. The explicit way is the `verstak_stand` field, by its description; a raw channel connect carrying the pair is refused — never a way around the check. A bare invitation number, a printed case number in place of the UUID, a partial pair or conflicting sources are refused before any seat is taken. This Orca's CLI has no flag passing environment: don't invent one.
 
 The first line counts only for a truly new session. The plugin reads the prior context before admitting the input; a nonempty or unavailable context admits no new launch basis. Reloading the plugin does not make the current input initial. For an existing session, don't try to swap its basis with a new brief. Two different bases submitted at once are never chosen between at random: work is refused. If the first attempt's connect has already gone out, it may have created a seat; only a seat proven to be this attempt's own and fresh is taken off. Uncertainty or a failed removal is reported as such, never passed off as a clean-up.
 
@@ -60,7 +84,7 @@ Secrets go into neither the brief nor argv, the environment, a URL or the output
 
 ## 3. One permitted launch — a move of its own
 
-Only after the pair's support by the bridge, the plugin and the server is checked, the dry plan checked and the owner's permission given, call `orca agent launch` with the chosen `--agent`, `--worktree path:…`, `--model`, `--prompt` and `--json`. Never the main checkout with someone else's work in it. Don't start a second agent on an answer timeout: Orca's schema describes `--retry-launch` to continue the same operation after an ambiguous outcome.
+Only after the pair's support is checked (the `spawned_for` field in the `verstak_stand` description, `The bound of the check`), the dry plan checked and the owner's permission given, call `orca agent launch` with the chosen `--agent`, `--worktree path:…`, `--model`, `--prompt` and `--json`. Never the main checkout with someone else's work in it. Don't start a second agent on an answer timeout: Orca's schema describes `--retry-launch` to continue the same operation after an ambiguous outcome.
 
 The Orca command's success is only the harness's launch. A raise by invitation succeeded on three witnesses: the server confirmed `spawned_for` with the same pair, the seat listens, the agent joined the right case. On `spawned_for_claimed`, `spawned_for_held` or an unknown invitation, don't repeat register without a basis and don't stand in for the claim with an attribute or a separate `taken`. Don't stop a competing holder so the probe wins.
 
@@ -68,4 +92,4 @@ The Orca command's success is only the harness's launch. A raise by invitation s
 
 Send the regular stop order to the test seat's exact id: `verstak_channel(action="stop")` or `node BRIDGE stop <seat id> --realm rN`. Take the address from the observed seat, never derive it from the repository. Keep the `order_id` and check the order's outcome: a word sent is not a confirmed stop of the harness. Never replace the order with killing a PID, closing every terminal or taking off neighbouring seats.
 
-After the cycle name the exact Orca version, the invitation pair, the project and checkout, the register receipt, the join and the stop's outcome. A cold check repeats the named way on the kept carrier; only its result lifts `launch_verified=false`. One successful launch does not attest automatic repetition, every harness, or a crossing between graphs.
+After the cycle name the exact Orca version, the invitation pair, the project and checkout, the register receipt, the join and the stop's outcome. A cold check repeats the named way on the kept carrier; only its result counts as a check of the launch. One successful launch does not attest automatic repetition, every harness, or a crossing between graphs.

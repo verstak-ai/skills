@@ -41,3 +41,16 @@ test("the stand tool offers spawned_for with our description and the strict pair
   assert.deepEqual(f.required, ["invite", "room"]);
   assert.equal(f.additionalProperties, false);
 });
+
+// A seat taken or already held by the pair is told to join its case before any work, through
+// our case tool; the seat words carry the pair as given.
+test("a taken or held seat is sent into its case by our case tool", () => {
+  const join = `${tool("case")}(action="join", realm="@x/g", room="${ROOM}")`;
+  const taken = SPAWNED_FOR.en.taken("@x/g", ROOM, 7);
+  assert.ok(taken.includes(join), taken);
+  assert.match(taken, /invitation 7 of case /, taken);
+  const held = SPAWNED_FOR.en.held("@x:seat", "@x/g", ROOM, 7);
+  assert.ok(held.includes(join), held);
+  assert.match(held, /seat @x:seat for invitation 7/, held);
+  assert.match(held, /no second seat/, held);
+});

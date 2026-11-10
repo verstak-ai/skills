@@ -218,6 +218,11 @@ const SKILLS = {
     description:
       "Reference for the establish-mcp skill: teaching your own Orca to raise an agent by invitation — the mapping the owner sets, reading the bridge's demands, the dry plan, the spawned_for pair, one permitted launch and its stop. Load when establish-mcp points here; not a task of its own.",
   },
+  "minding-launcher": {
+    source: "references",
+    description:
+      "Reference for the minding skill: the user's launcher description in personal mind — its card, slice and JSON body, the questions that fill it, what of it may leave mind. Load when minding points here; not a task of its own.",
+  },
   "collaborate-channel": {
     source: "references",
     description:

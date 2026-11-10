@@ -5,7 +5,7 @@ description: "Connecting and maintaining the bridge to the graph: no verstak_* t
 
 # establish-mcp — connecting and maintaining the bridge
 
-**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge". **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`) — or Codex under Orca ("Codex under Orca", "Orca as a launcher", the app-server door missing): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
+**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge", "turn the orchestrator on"; agents should raise themselves through the user's Orca — turning the bridge orchestrator on and checking it. **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`), the orchestrator (`The bridge orchestrator`) — or Codex under Orca ("Codex under Orca", "Orca as a launcher", the app-server door missing): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
 
 **Grounding:** a record's author is attested by the seat that wrote it, not by a name in the text; the bridge holds that seat binding and the grant, so without it writes go out without an author. The rest of transport is product mechanics.
 
@@ -19,7 +19,7 @@ Plugins bring it up themselves (Claude Code as the plugin's MCP entry `verstak`,
 
 ## First move — `doctor`
 
-**Your own Orca as an agent launcher:** before setting it up or launching, read `establish-mcp-orca` whole. A separate recipe: reading the demands and the dry plan launch no agent and turn on no automatic cycle.
+**Your own Orca as an agent launcher:** the automatic path is `The bridge orchestrator` below; the manual recipe — read `establish-mcp-orca` whole before setting it up or launching.
 
 ```sh
 node ~/.verstak-bridge/verstak-bridge.mjs doctor      # or: node BRIDGE doctor
@@ -60,6 +60,35 @@ Default: `https://mcp.verstak.ai/`. Another instance: `node ~/.verstak-bridge/ve
 ## Updating
 
 On `mcp.verstak.ai` the bridge updates itself and reports a newer release as a `DELIVERY BEHIND` line in tool responses — pass it on. After `use URL` it checks only on demand: `node ~/.verstak-bridge/verstak-bridge.mjs update` — fresh bridge, OpenCode plugin (if installed) and `SETUP.md` into the home, plus next steps: skills update through the harness channel per `SETUP.md`; then **restart sessions** (an old bridge lives until its session ends). Installed build: `node BRIDGE --version`.
+
+## The bridge orchestrator — agents raised by themselves
+
+The machine's bridge daemon raises an agent through the user's Orca on a role's invitation into a case and extinguishes it once the case empties. The live cycle (invitation → raise → join → stop) is observed in the sibling delivery's runs, not yet in this delivery's: say so when you rely on it (`REALITY.md`). It needs three things, each the user's choice:
+
+1. **A launcher description** in their personal mind (`slice:orchestra`) — written by **minding** (`Agents raised by themselves`), or by the user with the same switch-on command carrying `--launcher <name> --model <id>` (item 3; a description of that name already there is taken as it lies). Without one the daemon raises nothing.
+2. **The machine's consent** — the user's alone: `orchestra on` typed by them at a terminal, or `VERSTAK_ORCHESTRA=1` in the daemon process's environment. An agent's shell (no terminal) gives none — never get round it: don't fake a terminal, don't write to the daemon's socket, don't set the variable in a profile. `orchestra off` clears the flag and a terminal's consent; the variable's consent lives while it is in the daemon's environment.
+3. **Switching on**: `node BRIDGE orchestra on --realm @owner/slug` — the boundary of their graphs by full address (the short `rN` is refused); without `--realm` the boundary is the graphs of the machine's live agents; a new graph in the boundary needs the same consent as switching on (item 2). The refusal "the machine has not admitted the orchestrator" is item 2: name the command to the user, never get round it yourself. Off — `orchestra off`; it extinguishes none it raised.
+
+Switching on for a user without an agent: `establish-mcp-orca`, `Switching on automatic raising without an agent`. From then the daemon runs its tact itself. **Checking** — `node BRIDGE orchestra status` (the flag, the boundary, the last tact's outcome and its lines "<graph> case <id> invite N: code"); `orchestra step --dry-run` — what a tact would raise (the launch argv) or with which code it would refuse, doing nothing and not asking Orca; `orchestra step` — one tact now. What the invitation must be to raise anyone — `verstak`, `Case laws`, a role called in. The main codes and what they mean (the list is not the surface: a code not here → quote the status line to the user as printed, never guess its meaning):
+
+- `launcher_missing`, `launcher_unknown`, `harness_missing`, `harness_not_offered`, `model_missing`, `model_not_offered` — the caller put what the description doesn't offer: correct the invitation (`verstak`, `Case laws`, a role called in);
+- `caller_not_allowed`, `caller_unknown` — the invitation was written by another account not named in the description's `callers`, or its author can't be established: only the machine bridge's own account raises; the user adds another to `callers` themselves (**minding**);
+- `account_unknown` — the bridge did not recognise its own account: the tact raises nothing;
+- `outside_boundary` — the invitation's graph is not in the orchestrator's boundary: the user widens it (item 3, with consent);
+- `host_elsewhere (<machine>)` — the launcher is described for another machine: the invitation waits for its orchestrator, or correct `host` in the description;
+- `harness_unsupported` — the harness isn't raised this way (only `opencode` for now);
+- `no_checkout`, `ambiguous_checkout`, `checkout_absent` — the holon has no `repository`, or Orca knows not exactly one ready local copy of the project, or the directory is missing: Orca's owner sets the project up or puts a `checkouts` map into the description;
+- `checkout_uncovered`, `checkout_other_seat`, `checkout_cover_unresolved` — the copy has no `AGENTS.md` cover, the cover names another graph or role than the invitation, or its `rN` isn't in the list of graphs: a raised agent seats only by the cover, so nothing launches. **align** aligns the copy;
+- `limit_reached` — as many launched as allowed; the invitation waits for the next tact;
+- `orca_version_unverified`, `orca_schema_unverified` — Orca's version or its commands aren't the ones the bridge knows: the tact launches nothing;
+- `launch_exit_N` — Orca refused the launch; no retry, a new invitation is needed;
+- `no_join` — the raised agent didn't join the case within 15 minutes: the daemon extinguishes it by a stop order; a new invitation is needed;
+- `no_seat (cause_unseen), terminal_closed` — no seat stood within 15 minutes: the daemon closes the terminal it opened itself; only the harness's log knows the cause. In place of `terminal_closed` may come `no_terminal_handle` (Orca returned no terminal), `terminal_close_failed_N` (closing failed) or `terminal_runtime_unknown` (Orca named no runtime at launch) — then close the terminal in Orca yourself;
+- `ended, terminal_closed` — the agent was stopped in order and the daemon closed its terminal; the variants after the comma are the same, plus `terminal_runtime_changed` (Orca restarted, the handle is stale — the daemon leaves it) or `terminal_show_failed_N`; closing is tried once, and terminals of launches whose Orca runtime the registry didn't keep are left alone — close them in Orca yourself;
+- `stop_ordered_elsewhere`, `stopped_elsewhere` — the raised agent was stopped on demand (a person or an agent by a stop order, `verstak_channel` or `BRIDGE stop`), not by the orchestrator: the line waits for the order or ends at once, then `ended, terminal_closed`, and the `limit` slot is free;
+- "the launcher description … in mind: code" — the description is broken, or two describe one launcher: correct it by **minding**.
+
+The manual recipe (a launcher of your own, Orca step by step) — `establish-mcp-orca`, read whole before the move.
 
 ## When the bridge can't run
 

@@ -9,6 +9,11 @@ export interface SpawnStart {
   error?: Error;
   conflict?: boolean;
   claimed?: boolean;
+  /** The graph register confirmed the pair in; the taken word is told once (#10043). */
+  realm?: string;
+  /** The seat register confirmed the pair for: a stand again with it is answered by this seat. */
+  place?: string;
+  told?: boolean;
   pending?: Promise<void>;
   ids?: Set<string>;
   start?: Promise<string[]>;

@@ -8,6 +8,17 @@ import type { Home, LostEntry } from "./records.ts";
 import type { Seating } from "./rootseat-by.ts";
 import type { Slot } from "./slot.ts";
 
+/** The order's stop of a session: the word it was refused with, or null (cuts.ts). */
+export type Halted = (session: string | null, signal?: AbortSignal) => Promise<string | null>;
+/** The pair onto a taking call; a word instead of the call when the session's held seat
+ * already claimed that pair (spawned-for.ts, №4050 [55]). */
+export type SpawnBasis = (
+  session: string,
+  name: string,
+  args: Record<string, unknown>,
+  holding: boolean,
+) => string | undefined;
+
 export interface ToolsHalf {
   /** The session died — its bridge is released together with its standing. */
   forget(session: string): void;
