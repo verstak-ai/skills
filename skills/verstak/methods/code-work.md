@@ -31,7 +31,7 @@ Per stage (gate green, PR opened or updated, touching more nodes) re-read the di
 - **Model families.** On code a second family is the user's choice: you may offer a pair, nothing obliges one, and the user names the models. Where the repository ships agent skills, their bodies are read once on the final candidate by reviewers of different model families — mandatory: skills are executed by different models and an error is costly. They look for bloat, contradictions between texts (one norm, one home) and drift from the canon and the tool surface, and number each finding by the repository's skill-body criteria. Executable role-file pins follow `references/align-delegation.md`.
 - Each `reviewer` runs in a separate worktree: the spawner's isolation where it offers one (Claude Code: `isolation`); where it doesn't (OpenCode), lay a detached tree yourself (`git worktree add --detach .worktrees/<name> <head>`), the brief says "work only there", the edit ban is the second line, the report says "isolation manual"; neither → say there was no cold review. The hook fires only on push: a finished batch never pushed gets no reminder — decide its review tier yourself.
 - After a fix: check the changed delta and the findings it touches. A new SHA, a version bump, a micro-branch, pulling trunk or a rebase with no content change is no reason for another round; the same step runs again whole only on a changed shared contract or a new substantial counterexample.
-- The record in the case names head and base, model, scope checked, verdict, usage where available, and which step it was: light pre-merge, post-merge, full tag-candidate or skill-body reading.
+- The record in the case, a line on the batch's key, names head and base, model, scope checked, verdict, usage where available, and which step it was: light pre-merge, post-merge, full tag-candidate or skill-body reading.
 - Brief with references, not your retelling: diff, repository, focus holon and steward, the nodes the diff embodies. It runs `methods/integrity.md` Mode 1 read-only and returns findings plus an integration report: what is touched, relays, open questions, neighbours' readiness, whom to wake (`methods/collaborate.md`); unknown → `unknown`.
 - `NEEDS_CONTEXT` is a graph defect: finish design, weave, pose vimarshas, review again. Reject a finding by recording why.
 - A behavioural claim closes on a cold `verifier` briefed with claim, carrier and falsifier from `REALITY.md`; wait for its verdict (`methods/reality-audit.md`). No such role → observe the carrier yourself, never the source. CI, tests, this acceptance and an immediate targeted check of a security or data-loss threat stay at every step; the review tiers spare only review.
@@ -58,6 +58,7 @@ A push shipped nothing; these acts hang on the merge, all mandatory, in the same
 5. **Reconcile** (`methods/reconcile.md`): nodes against code, code against graph; the remainder as vimarshas.
 6. **Feedback reflection** unless `AGENTS.md` sets `Feedback reflection` to `no`, and at session end without a merge: experience about the method, as a concrete instance (`methods/feedback.md`); zero entries is valid.
 7. **Vocabulary pass** over what landed.
+8. **The case gets lines, not prose**: the merge, the release, the rollout — each a line on the work's key as it lands (`done` what landed where and the checks it passed, `note` the ceiling); a step another holder takes — tagging, deploying, accepting — a `say` `to` their seat (the door, `Case laws`).
 
 Then cleanup; next task → `Before code`.
 
@@ -78,5 +79,5 @@ With each finished piece — merged, delivered, answered, released — not at se
 6. **Execute from the goal**: a bug → a failing test first; multi-step → `step → check` pairs; runtime → the real environment; falsifier before looking.
 7. **Meaning lives in the graph; code references it**: rationale, rejections ("not cached: #N"), how an integration works → a node, `(graph <name>, node #N)` in code; mechanics stay in words (`methods/reconcile.md`, pass 3).
 8. **Speak the project's language** until the user speaks the graph's.
-9. **Declining and leaving**: an assignment by a message, a vimarsha by editing it; leave a transformation seed and a message in the case; the lead passes by agreement (`methods/lead.md`).
+9. **Declining and leaving**: an assignment by a message, a vimarsha by editing it; leave a transformation seed and a `say` `to` the case's lead; the lead passes by agreement (`methods/lead.md`).
 10. **Fresh toolchain**: take delivery updates; an unpacked copy → check its version. A pin is a local override.

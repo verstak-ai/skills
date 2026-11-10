@@ -89,7 +89,7 @@ Quote, don't restate — restating shifts meaning unnoticed:
 
 > case #12 · the graph's name · [340] · who said it · when — "the entry's words as written"
 
-Entry numbers are shared across cases: never give one without the case. Cut a long entry in place, marking the gap. Your part — why it matters, what's expected — is one line after the quote. Don't retell a question addressed to someone else (the door, `Communication`), but do name the blockage (A waits on B). Forwarding an entry into a case: `say` with the quote and one line on why it belongs.
+Entry numbers are shared across cases: never give one without the case. Cut a long entry in place, marking the gap. Your part — why it matters, what's expected — is one line after the quote. Don't retell a question addressed to someone else (the door, `Communication`), but do name the blockage (A waits on B). Forwarding an entry into a case: `say` `to` the seat that must answer or act on it, with the quote and one line on why it belongs.
 
 ## From the user into cases: as messages
 
