@@ -16,7 +16,7 @@ From contract 12: refresh the delegation role files — each body re-projected f
 
 From contract 13: project the `deputy` role file in both harnesses from `references/align-delegation.md`, add it to `.gitignore` by name with the other eight, and give it a `Role file tails` entry where the repository's lines apply to it: a foreman hands a new case of an area to a deputy (`methods/foreman.md`, `Deputies`), and a repository aligned at `13` has no file to raise one from.
 
-From contract 14: re-project the `deputy` role file's body in both harnesses from `references/align-delegation.md`, keeping its model and `Role file tails` lines: its case now comes by a take card, its return is the subject table, and it sets no outcome for another role; a body projected at `14` leads by a word.
+From contract 14: re-project all nine role files' bodies in both harnesses from `references/align-delegation.md`, keeping each one's model and `Role file tails` lines: a take card to a subagent is answered, not restated; the `deputy`'s case comes by a take card, its return is the subject table, and it sets no outcome for another role. A body projected at `14` restates a card by a word.
 
 **Own rituals**, found by content at any contract: the session rituals are the delivery's (Step 4, `The transition`). The repository's own start, push and merge hooks in `.claude/settings.json` and its rituals plugin in `.opencode/plugins/` silence the delivery; `prepare` names each in `left`; when each comes off, and what stays: Step 4, `The transition`. The cover gains `rituals:` only when the person narrows the rituals; the run never writes it (Step 7, `Cover`).
 

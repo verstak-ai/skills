@@ -48,7 +48,7 @@ The execution of a project passes to you — by a card handing it over, or the u
 3. **One line once the cards are out**: key `control: <project>`, `partial`, the cards set, and in `note` on you, the receipts. No count line: how many cards are open is read from the case's summary and the server's count where its output prints one — a summary of states is no line (the door, `Ledger`). Your next line on that key comes when the launch is done: every card answered and acked, or what stands without a holder and on whom.
 4. **"I take it" after the fan, not before**: control that came to you by a card is answered in the same move, once the fan in it is out.
 5. **Receipts**: `ack` each answer in your next move; "diverges" or "whose it is" → decide within your mandate or carry it up (`Up`). No answer → recheck your open cards on your next tact or wake (`read`) and nudge the seat, naming what is open (`Sweep: who has stalled`). From the receipt the work runs on the doer's own key.
-6. **Three doers or more** → the fan and its receipts go to a deputy (`Deputies`), where the deputy outlives the receipts; otherwise you run it yourself.
+6. **Three doers or more** → the fan and its receipts go to a deputy (`Deputies`), where the deputy outlives the receipts; otherwise you run it yourself. This step is the foreman's: a deputy taking control runs the fan itself.
 
 ## When the work splits into units
 
