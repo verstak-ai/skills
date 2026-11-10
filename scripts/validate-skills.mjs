@@ -181,7 +181,7 @@ const HOME_SKILLS = [
   "agents-template", "align", "align-delegation", "align-harness-surfaces", "align-hooks",
   "align-migrations", "align-superpowers-interop", "architect", "assembly", "assistant", "autonomous", "code-work",
   "collaborate", "collaborate-channel", "design", "door-menu", "door-phrasebook", "door-start", "entry",
-  "establish-mcp", "establish-mcp-orca", "feedback", "foreman", "forgetting", "help", "inquiry", "intake", "integrity", "lead", "minding",
+  "establish-mcp", "establish-mcp-orca", "feedback", "foreman", "forgetting", "help", "inquiry", "intake", "integrity", "lead", "minding", "minding-launcher",
   "onboarding", "reality-audit", "reality-template", "reconcile", "verstak", "weaving", "writing",
   "writing-batch", "writing-given-as", "writing-modes",
 ];
