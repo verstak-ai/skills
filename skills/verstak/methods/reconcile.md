@@ -6,7 +6,7 @@ The graph is a derived description of reality, most often of code, and a gap alw
 
 ## Protocol — passes 0–5
 
-**0 · Stand in your holon and check the method.** `verstak_orient(realm=…, focus=<your holon>)` — boundary, kriyas, phenomena, calling vimarshas. Check which rules this graph follows (its canon, or ask the steward): tidying by invented rules is worse than dust. Other areas aren't yours: what you notice there goes to their steward as a vimarsha with `posed_to`, not an edit.
+**0 · Stand in your holon and check the method.** `verstak_orient(realm=…, focus=<your holon>)` — boundary, kriyas, phenomena, calling vimarshas. Check which rules this graph follows (its canon, or ask the steward): tidying by invented rules is worse than dust. Other areas aren't yours: what you notice there goes to their steward as a vimarsha with `posed_to`; an edit only on firm knowledge (the door, `Across a holon's boundary — by firmness of knowledge`).
 
 **1 · Forward pass: nodes against code.** Four questions per node:
 

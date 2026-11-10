@@ -98,7 +98,7 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 **Tool surfaces** too — which harness runs where, which browser is paired where, which host has no GUI; not this session's own, which is derivable.
 
-**Dated facts as attributes**: an expiry, a renewal, a review cycle is a `sachverhalt` with its timestamp in `attrs` (`methods/writing.md`, Decision 4), or a kriya when it recurs. "Needed, but not now" is `upeksha` (`methods/inquiry.md`): woken by a change at its anchor, not a date.
+**Dated facts as attributes**: an expiry, a renewal, a review cycle is a `sachverhalt` with its timestamp in `attrs` (`methods/writing.md`, Decision 4), or a kriya when it recurs. "Needed, but not now" as a question is `upeksha`, accepted as is (`methods/inquiry.md`); as a deed or fact ahead, `anagata` with the will it really has (`methods/writing.md`, Volitive) — both woken by a change at its anchor, not a date.
 
 ## 7b · Working preferences — the agents slice
 

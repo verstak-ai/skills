@@ -114,9 +114,9 @@ For manual installation:
 unzip verstak.skill -d ~/.claude/skills/
 ```
 
-Use a local agent harness that can run the stdio bridge; the browser app cannot. The
-bridge is the only path to the graph: connecting the server directly as a harness
-connector does not work and is not supported.
+Use a local agent harness that can run the stdio bridge; the browser app cannot. There,
+as a fallback only, the client's own MCP connector can reach the server directly — without
+the bridge it gets no seat, no channel and no self-update (`SETUP.md`).
 
 ## Layout & build
 

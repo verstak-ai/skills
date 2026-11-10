@@ -114,7 +114,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## foreman — "spread this across the agents"
 
 **Gets:** one dispatcher that hands out work, notices who's stuck, brings up only what needs their word. "take the post" · "who's stuck?" · "task the agents by the graph, not by text" · "accept the work" · "plan the transformation in waves"
-**Elsewhere:** a one-time handoff → collaborate · "just do this small thing" → code-work · "an agenda" → assembly. Launched without the user's word → ask whether you coordinate.
+**Elsewhere:** one assignment on the user's word → assistant; a handoff between agents → collaborate · "just do this small thing" → code-work · "an agenda" → assembly. Launched without the user's word → ask whether you coordinate.
 
 ## assistant — "how are things"
 
@@ -124,7 +124,7 @@ Still unresolved → ask the user in one line, naming both readings and what you
 ## feedback — "the tool let me down"
 
 **Gets:** a concrete instance, recorded where whoever fixes it acts. "this skill is broken, log it" · "I lost an hour because this isn't written anywhere"
-**Elsewhere:** the product broken → code-work · an opinion with no instance → doesn't start · "my skill is old" → establish-mcp, `Updating`.
+**Elsewhere:** the person says the product is broken → help · a defect in code you work on → code-work · an opinion with no instance → doesn't start · "my skill is old" → establish-mcp, `Updating`.
 
 ## establish-mcp — "connect the graph"
 

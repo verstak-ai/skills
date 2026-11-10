@@ -145,10 +145,13 @@ is installed and whether it works: the bridge's `doctor` subcommand, on the path
 `claude mcp list` prints.
 
 **A harness without stdio MCP servers** (the claude.ai web app and the like) cannot raise
-the bridge, and there is no other path to the graph: connecting the server directly as a
-harness connector does not work and is not supported. Tell the user plainly: the graph
-needs a harness that runs local stdio MCP servers — Claude Code, Claude Desktop, Codex,
-OpenCode, pi, Cursor.
+the bridge. The fallback, for that case only, is the client's own MCP connector straight to
+the server: the root `https://mcp.verstak.ai/`, OAuth fields left empty (the client finds
+the authorization server itself); in claude.ai and Claude Desktop press Connect on the
+Connectors tab after Install. It is a fallback because the bridge is what carries the
+work: without it there is no seat and no authorship by seat, no channel or watchdog, no
+self-update and no personal slice at the start. For work, use a harness that runs local
+stdio MCP servers — Claude Code, Claude Desktop, Codex, OpenCode, pi, Cursor.
 
 ### Codex
 
@@ -311,8 +314,8 @@ the like, put the absolute node path in `command`. Put the entry in the harness'
 
 With no URL argument the bridge picks its delivery's server itself, or the address in
 `~/.verstak-bridge/server` (`node ~/.verstak-bridge/verstak-bridge.mjs use URL`);
-`VERSTAK_BRIDGE_URL` or a URL argument beats both. Connecting to the server past the
-bridge, as a harness connector, is not possible. On the first call the bridge runs the OAuth
+`VERSTAK_BRIDGE_URL` or a URL argument beats both. A connector to the server past the
+bridge is only a browser client's fallback (section 2, `Claude Code with the plugin`). On the first call the bridge runs the OAuth
 flow, keeps the grant fresh in `~/.verstak-bridge/` (idle too), and turns any upstream
 failure into a visible error instead of a hang. Many agents on one machine share one grant:
 one click signs in the whole machine. Needs Node 22+. Diagnosis and the decision ladder:
@@ -410,7 +413,9 @@ shows. Nothing offers it unasked.
   gets 401 is wrong or expired: ask for a fresh one.
 - **The bridge cannot run here at all** → name what is missing instead of "doesn't work":
   Node 22+ (`node --version`; OpenCode needs none), a harness that runs stdio MCP servers,
-  a browser for sign-in or a personal token. Once fixed, walk this file again.
+  a browser for sign-in or a personal token. A browser client with connectors may meanwhile
+  use one straight to the server — a fallback with its price (section 2, `Claude Code with the plugin`). Once
+  fixed, walk this file again.
 - **An error names `verstak-bridge` and a verdict** → do what it says; quote the build from
   `node BRIDGE --version` when reporting a breakage.
 - **The bridge refuses the owner's role** → the user's own seat (`karta="me"`) is taken only

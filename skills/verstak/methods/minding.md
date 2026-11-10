@@ -171,7 +171,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 - **No arrows between graphs**: what mind says about another graph is prose and attributes — no edges, no `anga` across graphs.
 - **Not a hub**: §4's unity is iteration, not structure; keep the graph thin.
-- **Recall is only as accurate as the last §2.**
+- **Freshness doesn't replace grounds:** a recall is only as accurate as the last §2, and a fresh §2 is no pass for every answer — the addressed read still checks conditions, what superseded it and objections.
 
 ## Acceptance
 

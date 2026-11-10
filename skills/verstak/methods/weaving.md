@@ -102,7 +102,7 @@ Re-trace; still broken → loop.
 
 ## Rhythm
 
-- About 7 navigation calls per turn when not batching; re-orient every 5–10 nodes.
+- The wandering guard holds when not batching (`methods/entry.md`, `Reading hygiene`); re-orient every 5–10 nodes.
 - After `reconnect`/`update`, `verstak_look` the node and read `CHECKS:`.
 - After weaving into a node, re-read its **body**: still true? No detector catches false prose — costliest on contract nodes.
 - Before calling it done: what else did this touch? `methods/integrity.md` runs the wave.

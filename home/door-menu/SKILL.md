@@ -13,7 +13,7 @@ Top down. A rung passes → say nothing. A rung fails → name it and stop there
 
 **1 · Transport.** Do the `verstak_*` tools answer (the first graph read shows it)? No → **establish-mcp**, and stop. They answer but there's no project graph → offer `verstak`'s Survey row "no project graph".
 
-**2 · Repository.** `verstak`'s Survey rows on alignment decide: no cover of ours → nothing about the repository unless they ask to set it up — then **onboarding**; our cover present but align's part missing, `AGENTS.md` missing or its cover's `contract` below the contract → **align**.
+**2 · Repository.** `verstak`'s Survey rows on alignment decide: no cover of ours → nothing about the repository unless they ask to set it up — then **onboarding**; our cover present but align's part missing, or its `contract` below the contract → **align**.
 
 **3 · Channel.** Two different things:
 - **the role's seat** — exists, and held? (`verstak_channel(action="list")`, or the `CHANNEL` line on the role);
