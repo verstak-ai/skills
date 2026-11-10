@@ -58,7 +58,7 @@ A push shipped nothing; these acts hang on the merge, all mandatory, in the same
 5. **Reconcile** (`methods/reconcile.md`): nodes against code, code against graph; the remainder as vimarshas.
 6. **Feedback reflection** unless `AGENTS.md` sets `Feedback reflection` to `no`, and at session end without a merge: experience about the method, as a concrete instance (`methods/feedback.md`); zero entries is valid.
 7. **Vocabulary pass** over what landed.
-8. **The case gets lines, not prose**: the merge, the release, the rollout — each a line on the work's key as it lands (`done` what landed where and the checks it passed, `note` the ceiling); a step another holder takes — tagging, deploying, accepting — a `say` `to` their seat (the door, `Case laws`).
+8. **The case gets lines, not prose**: the merge, the release, the rollout — each a line on the work's key as it lands (`done` what landed where and the checks it passed, `note` the ceiling); a step another holder takes — tagging, deploying, accepting — a take card to their role and seat (the door, `One-off task`).
 
 Then cleanup; next task → `Before code`.
 
@@ -79,5 +79,5 @@ With each finished piece — merged, delivered, answered, released — not at se
 6. **Execute from the goal**: a bug → a failing test first; multi-step → `step → check` pairs; runtime → the real environment; falsifier before looking.
 7. **Meaning lives in the graph; code references it**: rationale, rejections ("not cached: #N"), how an integration works → a node, `(graph <name>, node #N)` in code; mechanics stay in words (`methods/reconcile.md`, pass 3).
 8. **Speak the project's language** until the user speaks the graph's.
-9. **Declining and leaving**: an assignment by a `say` `to` its setter, a vimarsha by editing it; leave a transformation seed and a `say` `to` the case's lead; the lead passes by agreement (`methods/lead.md`).
+9. **Declining and leaving**: an assignment by the answer to its take card (none: a `say` `to` its setter), a vimarsha by editing it; leave a transformation seed and a `say` `to` the case's lead; the lead passes by agreement (`methods/lead.md`).
 10. **Fresh toolchain**: take delivery updates; an unpacked copy → check its version. A pin is a local override.

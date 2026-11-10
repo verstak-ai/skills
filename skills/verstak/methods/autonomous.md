@@ -87,13 +87,13 @@ Check tasking (§2a), then the table. **One work per round, brought to handover.
 
 **A start is made, not announced**: a turn ending in a plan without a change failed. "If you don't mind" is only for the irreversible — then a recorded question **plus** work on what it doesn't touch.
 
-**Record every refusal**: an assignment's in a `say` `to` its setter with the reason, a vimarsha's by an edit. Several bounces → the escalation role (§5).
+**Record every refusal**: an assignment's in the answer to its take card with the reason (no card: a `say` `to` its setter), a vimarsha's by an edit. Several bounces → the escalation role (§5).
 
 ## 2a · Grasp before you take
 
 **Read the task by its references, not the brief's text**: the reference standard, "Answered when", touched phenomena and kriyas, the transformation and its telos. Strike the text — do you still know what to build, how to check it, whom it touches? No → ask which nodes should stand. Text and nodes disagree → nodes win. **The tasking names how reality checks it** — carrier and probe, a negative one included; if not, ask.
 
-A one-off task gets marked. **Restate** where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: `methods/lead.md`, `Closing`).
+A one-off task gets marked. **Answer its take card** in the same move (the door, `One-off task`); a task that came as a word, with no card → restate where it came from (no case → `talk` to whoever set it); two took it → the lead decides. An unfinished or unattested close proposal → `object` on its [N] (reasons, and what silence consents to: `methods/lead.md`, `Closing`).
 
 **Taking a vimarsha means a case on it.** Before taking, look for cases on its node (`verstak_case(action="at", node=<vimarsha>)`): one exists → `join` it or wait for its outcome; none → open one on it (`verstak_update(node_id=<vimarsha>, basis_version, open_room=<what you take>)`) and take it there. Other holders of the role join that case or wait, so two seats don't do the same work.
 
