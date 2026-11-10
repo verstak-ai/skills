@@ -199,6 +199,11 @@ test("after a compaction the personal slice comes back with the seat's answer, a
   // No seat is known for `bare`: no seat's answer will bring the slice, so it is read here.
   assert.match(COMPACTION.en.bare(), /With no seat, read the user's personal slice yourself/);
   assert.doesNotMatch(COMPACTION.en.bare(), /seat's answer/);
+  // The core spends the role word only once the whole system block is in place (sibling 7.38.1).
+  assert.match(
+    COMPACTION.en.returned("s1"),
+    /into the system of the current request of session s1/,
+  );
   for (const w of [COMPACTION.en.back("#931", "s.dev", "@x/dev"), COMPACTION.en.bare()]) {
     assert.match(w, /the methods its door names for the role \(only those\) and writing/);
     assert.match(w, /a standing word of theirs on how agents work that only the summary holds/);

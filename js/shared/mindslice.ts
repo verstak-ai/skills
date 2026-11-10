@@ -36,16 +36,28 @@ const brief = (s: string): string => {
   return t.length > 120 ? `${t.slice(0, 119)}\u2026` : t || "-";
 };
 
-/** The slice as a block of lines; never throws — an unread mind is one line. */
-export async function mindSlice(call: MindCall): Promise<string> {
+/** Recovery must retry a failed read; ordinary starts retain the soft diagnostic (#9817). */
+export interface MindSliceOptions {
+  strict?: boolean;
+}
+
+/** The slice as a block of lines; strict recovery propagates failures instead of rendering them. */
+export async function mindSlice(call: MindCall, options: MindSliceOptions = {}): Promise<string> {
   const W = words(MIND_SLICE);
+  const unread = (text: string): string => {
+    if (options.strict) throw new Error(brief(text));
+    return W.unread(brief(text));
+  };
   try {
     const ready = await call(tool("me"), { action: "readiness" });
-    if (ready.isError) return W.unread(brief(ready.text));
+    if (ready.isError) return unread(ready.text);
     if (MIND_MISSING.test(ready.text)) return W.absent();
-    if (!MIND_PRESENT.test(ready.text)) return W.unknown();
+    if (!MIND_PRESENT.test(ready.text)) {
+      if (options.strict) throw new Error("mind readiness unknown");
+      return W.unknown();
+    }
     const got = await call(tool("search"), SLICE_ARGS);
-    if (got.isError) return W.unread(brief(got.text));
+    if (got.isError) return unread(got.text);
     // A rule's line: its name, number and the description's fragment — the badges stay in the graph.
     const listed = got.text.split("\n").filter((l) => NODE_ROW.test(l)).length;
     const rows = got.text.split("\n").flatMap((l) => {
@@ -55,7 +67,8 @@ export async function mindSlice(call: MindCall): Promise<string> {
     if (!rows.length) return listed >= LIMIT ? `${W.empty()}\n${W.foot(true, LIMIT)}` : W.empty();
     return [W.head(rows.length), ...rows, W.foot(listed >= LIMIT, LIMIT)].join("\n");
   } catch (e) {
-    return W.unread(brief((e as Error).message));
+    if (options.strict) throw e;
+    return unread((e as Error).message);
   }
 }
 

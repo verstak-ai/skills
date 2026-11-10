@@ -8,7 +8,7 @@
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { cloneTarget } from "./orchestra-clone.ts";
-import { specOf } from "./orchestra-cloning.ts";
+import { runtimeOver, specOf } from "./orchestra-cloning.ts";
 import { readDemands } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
 import { type Launchers, readLaunchers } from "./orchestra-launchers.ts";
@@ -89,7 +89,8 @@ export async function planTact(
       if (own.clone) {
         const kept = clones[repository];
         const c = cloneTarget(own.clone, repository);
-        if (kept?.state === "cloning") say(w().planNoClone("cloning"));
+        if (kept && runtimeOver(kept)) say(w().planNoClone("clone_failed (clone_timeout)"));
+        else if (kept?.state === "cloning") say(w().planNoClone("cloning"));
         else if (kept?.state === "failed" && kept.spec === specOf(own))
           say(w().planNoClone(`clone_failed_before (${kept.why})`));
         else if ("code" in c) say(w().planNoClone(c.code));

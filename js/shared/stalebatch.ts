@@ -18,7 +18,10 @@ export interface BatchBody {
 }
 
 const shownOf = (frames: readonly Frame[], body: BatchBody): Frame[] =>
-  body.shown.map((i) => frames[i]).filter((f): f is Frame => !!f);
+  body.shown
+    .filter((i) => Number.isSafeInteger(i) && i >= 0)
+    .map((i) => frames[i])
+    .filter((f): f is Frame => f?.type === "message");
 
 /**
  * Batch text from its parts (stale and wake-up batches): addressed to the seat as text,
@@ -31,7 +34,12 @@ export function batchBodyText(
   riding: Frame[] = [],
 ): string {
   const shown = shownOf(frames, body);
-  const bodies = underCounts([...riding, ...shown], textShown(shown, BODY_CAP), body.incomplete);
+  const bodies = underCounts(
+    [...riding, ...shown],
+    textShown(shown, BODY_CAP),
+    body.incomplete,
+    frames,
+  );
   return `${body.head}\n\n${bodies.join("\n\n")}`;
 }
 

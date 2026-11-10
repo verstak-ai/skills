@@ -3,7 +3,42 @@
 import type { Lang } from "../lang.ts";
 import { tool } from "../protocol.ts";
 
+/** A server clock notice's facts, already checked by the core; null — absent or malformed. */
+export interface ClockNoticeFacts {
+  room: number | null;
+  roomId: string | null;
+  realm: string | null;
+  entry: number | null;
+  key: string | null;
+  standing: string | null;
+  standingId: string | null;
+  karta: number | null;
+  listening: boolean | null;
+  lastAct: string | null;
+  roleCalled: boolean | null;
+  due: string | null;
+  escalated: boolean | null;
+}
+
+function clockNotice(kind: "card_unanswered" | "line_due", f: ClockNoticeFacts): string {
+  const unknown = "unknown";
+  const flag = (v: boolean | null) => (v === null ? unknown : v ? "yes" : "no");
+  const card = kind === "card_unanswered";
+  const ref = `case #${f.room ?? unknown} (id: ${f.roomId ?? unknown}, graph: ${f.realm ?? unknown}) [${f.entry ?? unknown}], key: ${f.key ?? unknown}`;
+  const who = `${card ? "addressee" : "holder"}: ${f.standing ?? unknown} (id: ${f.standingId ?? unknown}, role: ${f.karta ?? unknown})`;
+  const facts = card
+    ? `listening: ${flag(f.listening)}; last move: ${f.lastAct ?? unknown}; role called: ${flag(f.roleCalled)}`
+    : `due: ${f.due ?? unknown}; passed to the assigner: ${flag(f.escalated)}`;
+  return `${card ? "card unanswered" : "line due"}: ${ref}; ${who}; ${facts}`;
+}
+
 export interface FrameTextWords {
+  /** A server clock notice (an unanswered card, a line past due) as one line of facts. */
+  clockNotice: (kind: "card_unanswered" | "line_due", facts: ClockNoticeFacts) => string;
+  /** The server marked the card a repeat; n — its repeat number, null — not given. */
+  cardRepeat: (n: number | null) => string;
+  /** The server's snapshot of the seat's unanswered cards; malformed — the field was unreadable. */
+  openCards: (count: number | null, oldest: string | null, malformed?: boolean) => string;
   myCases: () => string;
   frame: (id: string) => string;
   yoursBelow: () => string;
@@ -37,6 +72,10 @@ export interface FrameTextWords {
 
 export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
   en: {
+    clockNotice: (kind, facts) => clockNotice(kind, facts),
+    cardRepeat: (n) => `card repeated: ${n ?? "repeat number unknown"}`,
+    openCards: (count, oldest, malformed = false) =>
+      `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,

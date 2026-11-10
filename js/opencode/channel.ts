@@ -23,7 +23,8 @@ import { batchText, markFrame } from "../shared/frame-text.ts";
 import { isGraphInbox } from "../shared/graph-inbox.ts";
 import { carryGraphReceipt } from "../shared/graph-receipt.ts";
 import { words } from "../shared/lang.ts";
-import { carryGraphMarks, deliveryKeys, eventIn, isLifeCheck } from "../shared/seen.ts";
+import { cardFrame } from "../shared/open-cards.ts";
+import { carryGraphMarks, deliveryKeys, isLifeCheck } from "../shared/seen.ts";
 import { separateGraphBatch } from "../shared/softbatch.ts";
 import { authDir } from "./bridge-io.ts";
 import { createCuts } from "./cuts.ts";
@@ -32,7 +33,16 @@ import { createHalts, descendantsOf } from "./halts.ts";
 import { archiver } from "./host.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
-import { freshRiders, handRiders, ridersInBatch, rideWith, takeRiders, toPile } from "./piles.ts";
+import {
+  carryContextFrame,
+  freshRiders,
+  handRiders,
+  type Pile,
+  ridersInBatch,
+  rideWith,
+  takeRiders,
+  toPile,
+} from "./piles.ts";
 import type { Context } from "./plugin.ts";
 import { setupTacts } from "./tacts.ts";
 import { type Say } from "./tools.ts";
@@ -71,19 +81,6 @@ const CASE_BATCH_CAP = 20;
 const PENDING_MAX_MS = Number(process.env[envName("OPENCODE_PENDING_MS")]) || 120_000;
 /** How many unaddressed records wait for a passing prompt at most; older ones go. */
 const RIDERS_MAX = 500;
-
-interface Pile {
-  session: string | null;
-  child: boolean;
-  held: Frame[];
-  /** Piles of counts only (#6574): they wake no turn and ride the next prompt into the session. */
-  riders: Frame[];
-  timer: ReturnType<typeof setTimeout> | null;
-  /** The pile's prompt in the session's queue, not taken yet; inbox null — still in flight. */
-  pending: { session: string; inbox: string | null; at: number } | null;
-  /** Marks of what entered this session as text (seen.ts deliveryKeys): the pile's count skips them. */
-  marks: Set<string>;
-}
 
 const MARKS_KEPT = 500;
 
@@ -238,10 +235,7 @@ export function setupChannel(
         }),
       );
     if (frame.id && p.held.some((f) => f.id === frame.id)) return; // a repeat of a waiting one
-    if (isGraphInbox(frame)) {
-      if (!eventIn(frame, (k) => p.marks.has(k))) p.riders.push(frame);
-      return; // only context admission takes graph text, never the pile timer
-    }
+    if (carryContextFrame(p, frame)) return;
     p.held.push(frame);
     if (!p.pending && p.held.length >= CASE_BATCH_CAP) return flush(p);
     if (!p.timer) schedule(p);
@@ -422,11 +416,14 @@ export function setupChannel(
       if (!ev || typeof ev !== "object") return;
       switch (ev.kind) {
         case "frame": {
-          const frame = ev.frame ?? null;
+          const frame = cardFrame(ev.frame ?? null);
           carryGraphMarks(frame, ev.marks);
           carryGraphReceipt(frame, ev.seen, authDir());
           // Service frames wake nothing: hello proves the socket is held, and only that.
-          if (frame?.type === "hello") return say(P.listening(), "info");
+          if (frame?.type === "hello") {
+            pile(session, child, frame);
+            return say(P.listening(), "info");
+          }
           if (frame?.type === "status") return;
           // The frame's path (#5851): with event_kind — the kind's rule, without — its own stack (#4957).
           // The launcher's word to its working lead steers its turn whatever its stack (#7505).

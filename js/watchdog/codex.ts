@@ -15,6 +15,7 @@ import { addressedToMine } from "../shared/addressed.ts";
 import { type Door, openDoor } from "../shared/appserver.ts";
 import { type Frame } from "../shared/channel.ts";
 import { caseKey, frameToText } from "../shared/frame-text.ts";
+import { openCardsText } from "../shared/open-cards.ts";
 import { deliveryKeys, eventIn, noteSeen, seenIds } from "../shared/seen.ts";
 import { seenFilePathOf } from "../shared/standings.ts";
 import {
@@ -215,7 +216,10 @@ export function runWatchdogCodex(argv: string[]): void {
           const fromRing = replay > 0;
           if (fromRing) replay--;
           const type = ev.frame?.type;
-          if (type !== "message") return note(wd().notWakeup(type));
+          if (type !== "message") {
+            if (type === "hello" && ev.frame) note(openCardsText(ev.frame));
+            return note(wd().notWakeup(type));
+          }
           if (fromRing && typeof ev.frame?.id !== "string") return note(wd().noIdFromRing());
           // A repeat of an already put frame (same id), the second line behind the bridge (#5831).
           if (typeof ev.frame?.id === "string" && seen.has(ev.frame.id))

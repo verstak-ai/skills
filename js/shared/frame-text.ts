@@ -1,9 +1,11 @@
 import { FRAME_MARK, FRAME_TEXT, ROOM } from "../delivery/index.ts";
 import { addressedToMine, closedQuestion } from "./addressed.ts";
 import { classifyOrigin, type Frame, type FrameOrigin } from "./channel.ts";
+import { clockNoticeText } from "./clock-notices.ts";
 import { compactCounts } from "./frame-format.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
+import { cardRepeatText, cardsIn, openCardsText } from "./open-cards.ts";
 import { addresseeOf, need, opt } from "./room-fields.ts";
 import { roomKind } from "./room-kinds.ts";
 import { isLifeCheck } from "./seen.ts";
@@ -90,6 +92,8 @@ function tail(frame: Frame, withReply: boolean): string {
   const to = idOf(f.in_reply_to) || idOf(frame.provenance?.in_reply_to);
   if (withReply && to) parts.push(W().replyTo(need(to)));
   if (frame.stale === true) parts.push(W().stale());
+  const repeat = cardRepeatText(frame);
+  if (repeat) parts.push(repeat);
   if (typeof frame.body_read === "string" && frame.body_read !== "history")
     parts.push(W().bodyRead(need(frame.body_read)));
   return parts.length ? `, ${parts.join(", ")}` : "";
@@ -133,7 +137,16 @@ function humanWordReply(frame: Frame, origin: FrameOrigin): string {
  * which names the case (underCounts, #9654).
  */
 export function frameToText(frame: Frame | null | undefined, raw: string, withCase = true): string {
+  const text = frameText(frame, raw, withCase);
+  if (!frame || !withCase) return text;
+  const cards = openCardsText(frame);
+  return text.split("\n").includes(cards) ? text : `${text}\n${cards}`;
+}
+
+function frameText(frame: Frame | null | undefined, raw: string, withCase: boolean): string {
   if (!frame) return raw;
+  const notice = clockNoticeText(frame);
+  if (notice) return notice;
   const f = frame as Rec;
   const origin = frame.origin ?? classifyOrigin(frame);
   const text = textOf(frame);
@@ -181,6 +194,8 @@ export const warnedSeat = (frame: Frame): string =>
  * withCase false — under its case's count, which names the case (underCounts, #9654).
  */
 export function batchLine(frame: Frame, run?: number, withZachin = true, withCase = true): string {
+  const notice = clockNoticeText(frame);
+  if (notice) return notice;
   const f = frame as Rec;
   const rk = roomKind(frame);
   const head = withCase ? caseHead(frame, withZachin) : "";
@@ -229,7 +244,7 @@ export interface Shown {
 export function batchShown(frames: Frame[]): Shown[] {
   const seen = new Set<string>();
   return frames.flatMap((f) => {
-    if (!addressedToMine(f)) return [];
+    if (f.type === "hello" || !addressedToMine(f)) return [];
     const key = caseKey(f);
     const first = !seen.has(key);
     seen.add(key);
@@ -237,14 +252,14 @@ export function batchShown(frames: Frame[]): Shown[] {
   });
 }
 
-/** Addressed records as their whole text (frameToText), cut at `cap` characters: stale and wake-up batches. */
+/** Addressed bodies without per-envelope card context, cut at `cap`: stale and wake-up batches. */
 export const textShown = (frames: Frame[], cap: number): Shown[] =>
   frames
     .filter((f) => addressedToMine(f))
     .map((f) => ({
       frame: f,
       text: (withCase: boolean) => {
-        const t = [...frameToText(f, JSON.stringify(f), withCase)];
+        const t = [...frameText(f, JSON.stringify(f), withCase)];
         return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
       },
     }));
@@ -257,8 +272,25 @@ export const batchText = (counted: Frame[], frames: Frame[] = counted): string =
  * Count lines with the shown records under their case's count (#9654): a case is named
  * once, in its count — its records carry no number or opening. A shown record whose case
  * is not counted keeps its label and follows the counts.
+ * `cardFrames` selects snapshot context independently of the counted or shown records.
  */
-export function underCounts(counted: Frame[], shown: Shown[], incomplete = false): string[] {
+export function underCounts(
+  counted: Frame[],
+  shown: Shown[],
+  incomplete = false,
+  cardFrames: readonly Frame[] = [
+    ...counted,
+    ...shown.map((s) => s.frame).filter((f) => !counted.includes(f)),
+  ],
+): string[] {
+  const lines = groupedCounts(counted, shown, incomplete);
+  const cards = cardsIn(cardFrames);
+  return cards && !lines.some((line) => line.split("\n").includes(cards))
+    ? [...lines, cards]
+    : lines;
+}
+
+function groupedCounts(counted: Frame[], shown: Shown[], incomplete: boolean): string[] {
   const groups = casesOf(counted).filter((group) => caseOf(group[0]));
   const placed = new Set<Shown>();
   const under = (group: Frame[]): string[] => {

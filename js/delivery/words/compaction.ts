@@ -37,6 +37,6 @@ export const COMPACTION: Readonly<Record<Lang, CompactionWords>> = {
     restand: (karta, name, realm) =>
       ` As the first move call ${tool("stand")}(realm="${realm}", karta="${role(karta, "<role>")}", name="${name}") without take: the seat stays, and its answer carries the human's rules.`,
     returned: (sessionID) =>
-      `Verstak: the role word after the compaction went into the first request of session ${sessionID}`,
+      `Verstak: the role word after the compaction went into the system of the current request of session ${sessionID}`,
   },
 };

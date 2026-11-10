@@ -9,9 +9,9 @@ import type { Ritual } from "./coverblock.ts";
 
 export const TURN_RITE: Ritual = "turn";
 
-/** The calls that lay a word where the human sees it: by tool, the actions that do. */
+/** Calls that answer the turn in its shared place, including a ledger result (#10107). */
 const SPEAKING: ReadonlyMap<string, ReadonlySet<string>> = new Map([
-  [tool("case"), new Set(["ask", "say", "answer", "talk"])],
+  [tool("case"), new Set(["ask", "say", "answer", "talk", "line"])],
   [tool("channel"), new Set(["send"])],
 ]);
 
