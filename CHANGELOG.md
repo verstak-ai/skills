@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.42.0](https://github.com/verstak-ai/skills/compare/v3.41.0...v3.42.0) (2026-11-10)
+
+
+### Features
+
+* a handover is a take card; taking control by a fan of cards; standard deputy; align contract 15 ([#408](https://github.com/verstak-ai/skills/issues/408)) ([0fac0e7](https://github.com/verstak-ai/skills/commit/0fac0e79f42f32fe47b303b06163a21e64be8351))
+* bridge core from the sibling delivery v7.38.0 — the orchestrator clones an unknown repository ([#409](https://github.com/verstak-ai/skills/issues/409)) ([f888134](https://github.com/verstak-ai/skills/commit/f8881342777b8cb2349d53a827eee2e32134d2da))
+
+
+### Bug Fixes
+
+* a take card is answered by every role and the watch; contract 15 re-projects all nine role files ([#411](https://github.com/verstak-ai/skills/issues/411)) ([b97f682](https://github.com/verstak-ai/skills/commit/b97f682e5e581dd11ffbbdabf4d8508ef2efbb80))
+
 ## [3.41.0](https://github.com/verstak-ai/skills/compare/v3.40.0...v3.41.0) (2026-11-10)
 
 
