@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.39.0](https://github.com/verstak-ai/skills/compare/v3.38.1...v3.39.0) (2026-11-10)
+
+
+### Features
+
+* bridge core v7.37.0 — orchestrator raises by launcher attrs; spawned-for taken/held ([#398](https://github.com/verstak-ai/skills/issues/398)) ([ca79735](https://github.com/verstak-ai/skills/commit/ca79735ea53885e8799e817c74cee5c5b2904758))
+
 ## [3.38.1](https://github.com/verstak-ai/skills/compare/v3.38.0...v3.38.1) (2026-11-09)
 
 
