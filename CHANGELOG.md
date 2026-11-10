@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.39.1](https://github.com/verstak-ai/skills/compare/v3.39.0...v3.39.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* progress goes as a ledger line; say only addressed for an answer or act; the person gets a card ([#400](https://github.com/verstak-ai/skills/issues/400)) ([61b9de7](https://github.com/verstak-ai/skills/commit/61b9de7210821f0657af7ec90213373d072af492))
+
 ## [3.39.0](https://github.com/verstak-ai/skills/compare/v3.38.1...v3.39.0) (2026-11-10)
 
 
