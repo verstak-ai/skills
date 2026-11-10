@@ -94,7 +94,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 12 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 13 };
 
 // js/delivery/patterns/cover.ts
 var COVER = {
@@ -200,7 +200,7 @@ var serverProtocol = {
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.39.0";
+var VERSION = "3.39.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -300,7 +300,7 @@ var LAUNCH = {
     notSeated: (why, no, join18) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join18}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
-    entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — retell the brief as your first message in the case.`
+    entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
   }
 };
 
@@ -707,7 +707,7 @@ var STATUS_POST = {
 // js/delivery/words/turn.ts
 var TURN = {
   en: {
-    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; a report — the case or the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say — the turn ends, no text.`,
+    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; progress or an outcome — a line on its key (${tool("case")} line); an answer or act you need from a doer — say \`to\` their seat; a report to the person — a short word to their seat (${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`
   }
 };

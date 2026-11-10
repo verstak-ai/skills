@@ -96,7 +96,7 @@ var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 12 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 13 };
 
 // js/delivery/patterns/cover.ts
 var COVER = {
@@ -355,7 +355,7 @@ var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 // js/delivery/words/turn.ts
 var TURN = {
   en: {
-    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; a report — the case or the channel to their seat (${tool("case")} ask/say, ${tool("channel")} send). Nothing to say — the turn ends, no text.`,
+    wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; progress or an outcome — a line on its key (${tool("case")} line); an answer or act you need from a doer — say \`to\` their seat; a report to the person — a short word to their seat (${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`
   }
 };
