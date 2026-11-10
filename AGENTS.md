@@ -3,7 +3,7 @@ verstak:
   graph: r5
   holon: 844
   agent_role: 8498
-  contract: 14
+  contract: 15
   stamp: 2026-11-10
 ---
 # `verstak-ai/skills`
