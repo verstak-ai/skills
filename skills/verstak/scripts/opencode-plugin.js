@@ -200,7 +200,7 @@ var serverProtocol = {
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.38.1";
+var VERSION = "3.39.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -672,7 +672,9 @@ var SPAWNED_FOR = {
     kept: (seat) => `spawned_for: this attempt did not prove seat ${seat} fresh; the previous seat is not revoked. The seat may remain.`,
     connect: () => `Raw channel connect does not accept spawned_for. Use ${tool("stand")}: connect without the field, then register with the pair. No seat was taken.`,
     unbound: () => "spawned_for: the taken seat is not yet bound to this session again after a passing refusal; the bridge retries before the next call. This call did not run; another seat or a call without the pair does not replace it.",
-    schema: () => "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take."
+    schema: () => "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take.",
+    taken: (realm, room, invite) => `You were taken for invitation ${invite} of case ${room} in graph ${realm}: register confirmed the pair. Before any work, join that case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — and read its assignment; not joined — do not work, and say why.`,
+    held: (place, realm, room, invite) => `This session already stands on seat ${place} for invitation ${invite} of case ${room}: the pair is confirmed, no second seat is registered. Join the case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — before any work.`
   }
 };
 
@@ -3726,16 +3728,16 @@ function createKeeper(doors) {
     const key = slot.key ?? (slot.session ? hints.get(slot.session) : void 0);
     return { ...key ? { key } : {}, ...slot.dir ? { cwd: slot.dir } : {}, ...session };
   }
-  async function resume(slot, root, quiet2 = false, patience = PATIENCE_MS) {
+  async function resume(slot, root, quiet3 = false, patience = PATIENCE_MS) {
     const until = Date.now() + patience;
     for (; ; ) {
       const final = Date.now() + STEP_MS > until;
-      const r = await once2(slot, root, quiet2, final);
+      const r = await once2(slot, root, quiet3, final);
       if (r !== "elsewhere" || final || stopped) return r;
       await sleep(STEP_MS);
     }
   }
-  async function once2(slot, root, quiet2, final) {
+  async function once2(slot, root, quiet3, final) {
     const mark = slot.child ? void 0 : marked2.get(root);
     try {
       await doors.ready(slot);
@@ -3757,7 +3759,7 @@ function createKeeper(doors) {
       if (!r?.resumed) {
         if (mark) notBack(root, mark, typeof r?.word === "string" ? r.word : W5.noAnswer());
         else if (elsewhere2) {
-          if (!quiet2) doors.tell(root, elsewhereWord(elsewhere2), slot.child);
+          if (!quiet3) doors.tell(root, elsewhereWord(elsewhere2), slot.child);
         } else if (Array.isArray(r?.legacy) && r.legacy.length && typeof r.word === "string")
           doors.tell(root, W5.legacy(r.word), slot.child);
         return elsewhere2 ? "elsewhere" : "none";
@@ -3768,7 +3770,7 @@ function createKeeper(doors) {
       if (typeof r.key === "string") slot.key = r.key;
       roots.add(root);
       doors.say(W5.sessionResumed(root, r.word), "info");
-      if (typeof r.key === "string" && !quiet2)
+      if (typeof r.key === "string" && !quiet3)
         doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
       return "held";
     } catch (e) {
@@ -5218,8 +5220,7 @@ function statusLines(path, builds, login, state2, sessions, spare) {
 
 // js/opencode/tools.ts
 async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => {
-}, closed = () => false, halted = async () => null, launchBasis = () => {
-}, claiming = () => false, verifyClaim = () => {
+}, closed = () => false, halted = async () => null, launchBasis = () => void 0, claiming = () => false, verifyClaim = () => {
 }) {
   const W5 = words(OPENCODE);
   const P = words(PLUGIN);
@@ -5472,7 +5473,8 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     if (slot.resume) await slot.resume;
     seats.guard(sessionID, service);
     const args = { ...input ?? {} };
-    launchBasis(sessionID, name, args);
+    const held = launchBasis(sessionID, name, args, !!slot.holding);
+    if (held) return { content: held };
     if (standsBy(name, args) && slot.session !== sessionID) {
       if (!slot.place)
         throw new Error(
@@ -6755,6 +6757,40 @@ function createPulseFeed(opts) {
   };
 }
 
+// js/opencode/quiet-calls.ts
+var lineOf2 = (f) => f.line && typeof f.line === "object" ? f.line : {};
+var kindOf2 = (f) => typeof f.event_kind === "string" && f.event_kind.startsWith("room.") ? f.event_kind.slice(5) : String(lineOf2(f).kind ?? "");
+var callKey = (f) => `${caseKey(f)}|${String(lineOf2(f).key ?? "")}`;
+var entryOf3 = (f) => Number(lineOf2(f).entry_id ?? f.entry_id) || 0;
+var callsMySeat = (f) => {
+  const seat = obj(lineOf2(f).fields).standing;
+  if (Object.keys(obj(seat)).length > 0 || str(seat)) return seatIs(f, seat) !== false;
+  return mineOf(f).includes(after(str(lineOf2(f).key), "invite:"));
+};
+function quiet(frames, spawned) {
+  const withdrawn = /* @__PURE__ */ new Map();
+  for (const f of frames)
+    if (kindOf2(f) === "withdraw")
+      withdrawn.set(callKey(f), Math.max(withdrawn.get(callKey(f)) ?? 0, entryOf3(f)));
+  return new Set(
+    frames.filter((f) => {
+      const kind = kindOf2(f);
+      if (kind === "withdraw") return true;
+      if (kind !== "invite") return false;
+      if (entryOf3(f) < (withdrawn.get(callKey(f)) ?? 0)) return true;
+      return spawned && !callsMySeat(f);
+    })
+  );
+}
+function quietCalls(ev, spawned) {
+  if (ev.kind !== "stale" || !ev.frames?.length) return ev;
+  const drop2 = quiet(ev.frames, spawned);
+  if (!drop2.size) return ev;
+  const kept2 = ev.frames.filter((f) => !drop2.has(f));
+  const text2 = kept2.length ? staleBatch(kept2, () => false).text : "";
+  return { ...ev, frames: kept2, text: text2, body: void 0 };
+}
+
 // js/shared/covercontract.ts
 import { readFileSync as readFileSync15 } from "node:fs";
 import { join as join14 } from "node:path";
@@ -6953,11 +6989,11 @@ function targets(args) {
 }
 var isTrunk = (branch) => TRUNK.test(branch);
 var namesTrunk = (runs) => runs.some((args) => (targets(args) ?? []).some((r) => TRUNK.test(r)));
-function toTrunk(runs, output, cwd, quiet2 = false) {
+function toTrunk(runs, output, cwd, quiet3 = false) {
   const printed = [...output.matchAll(REF_LINE)].map((m) => m[1] ?? "");
   if (printed.length) return printed.some((r) => TRUNK.test(r));
   const branch = () => cwd ? git(cwd, "symbolic-ref", "--short", "-q", "HEAD") : "";
-  if (quiet2) return namesTrunk(runs) ? true : isTrunk(branch()) ? null : false;
+  if (quiet3) return namesTrunk(runs) ? true : isTrunk(branch()) ? null : false;
   return runs.some(
     (args) => (targets(args) ?? []).some((r) => TRUNK.test(r === "HEAD" ? branch() : r))
   );
@@ -7554,6 +7590,9 @@ function spawnAdmission(starts, readContext) {
 }
 
 // js/opencode/spawned-for.ts
+var targetOf = (args) => `${String(args.realm)}#${String(args.karta).replace(/^#/, "")}`;
+var STAND_ACTS = ["status", "room", "room_karta", "take", "mute_siblings", "repeat_knock"];
+var takenWord = (e) => e?.pair && e.claimed && e.realm && !e.told ? words(SPAWNED_FOR).taken(e.realm, e.pair.room, e.pair.invite) : null;
 function createSpawnStarts(readContext) {
   const starts = /* @__PURE__ */ new Map();
   return {
@@ -7581,27 +7620,56 @@ function createSpawnStarts(readContext) {
       const r = result;
       const entry = starts.get(session);
       const name = r?.structuredContent?.place?.name ?? (typeof args.name === "string" ? args.name : void 0);
-      if (r?.isError || !spawnReceipt(r?.structuredContent, parseSpawn(args.spawned_for), { name })) {
+      const receipt2 = r?.isError ? null : spawnReceipt(r?.structuredContent, parseSpawn(args.spawned_for), { name });
+      if (!receipt2) {
         const error = new Error(words(SPAWNED_FOR).echo());
-        if (entry) entry.error = error;
+        if (entry && !entry.claimed) entry.error = error;
         throw error;
       }
-      if (entry) entry.claimed = true;
+      if (entry && !entry.claimed) {
+        entry.claimed = true;
+        entry.place = receipt2.standing;
+        entry.target ??= targetOf(args);
+        entry.realm = typeof args.realm === "string" && args.realm ? args.realm : void 0;
+      }
+    },
+    /** After the confirmed claim, until delivered: the case the seat was taken for — join it before work. */
+    taken(session) {
+      return takenWord(starts.get(session));
+    },
+    /** The word went into a model request: told, not before — a lost request leaves it for the next. */
+    delivered(session, sent) {
+      const e = starts.get(session);
+      const word2 = takenWord(e);
+      if (e && word2 && sent.includes(word2)) e.told = true;
     },
     prompt: spawnAdmission(starts, readContext),
-    apply(session, name, args) {
+    /**
+     * The pair onto a taking call; a word instead of the call when this session's seat already
+     * holds that pair (`holding` — its bridge still holds a seat): no second registration.
+     */
+    apply(session, name, args, holding = true) {
       const entry = starts.get(session);
       if (entry?.error) throw entry.error;
       if (!(name === tool("stand") || name === tool("channel") && ["connect", "register", "mint"].includes(String(args.action))))
         return;
       if (entry?.pending) throw new Error(words(SPAWNED_FOR).initial());
-      const target = `${String(args.realm)}#${String(args.karta).replace(/^#/, "")}`;
+      const target = targetOf(args);
       const explicit = Object.hasOwn(args, "spawned_for") ? parseSpawn(args.spawned_for) : void 0;
       const pair = mergeSpawn(
         explicit,
         !entry?.target || entry.target === target ? entry?.pair : void 0
       );
       if (!pair) return;
+      if (holding && entry?.claimed && entry.place && entry.pair && sameSpawn(pair, entry.pair)) {
+        if (name === tool("stand") && STAND_ACTS.some((k) => Object.hasOwn(args, k))) return;
+        return words(SPAWNED_FOR).held(
+          entry.place,
+          entry.realm ?? String(args.realm),
+          pair.room,
+          pair.invite
+        );
+      }
       if (entry && !entry.target) entry.target = target;
       args.spawned_for = pair;
     },
@@ -7643,7 +7711,7 @@ function compact2(lang2) {
 var COMPACT = new RegExp(
   `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact2).join("|")})$`
 );
-function quiet(text2) {
+function quiet2(text2) {
   const t = flat(text2);
   const body = t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t;
   return QUIET2.test(body) || COMPACT.test(body);
@@ -7685,7 +7753,7 @@ function createTurnEnds(ctx, opts) {
   }
   return {
     laid(session, inbox, text2) {
-      if (quiet(text2)) return;
+      if (quiet2(text2)) return;
       if (!inbox || frames.prompted(session, inbox)) turn(session).framed = true;
     },
     prompt(session, text2) {
@@ -7992,7 +8060,7 @@ async function setup(ctx) {
       }
     );
     ch = c0;
-    onChannel = (s, p, c) => c0.onEvent(s, p, c);
+    onChannel = (s, p, c) => c0.onEvent(s, p?.data ? { ...p, data: quietCalls(p.data, !!s && spawnStarts.has(s)) } : p, c);
   } catch (e) {
     say(W5.channelDown(e.message), "error");
   }
@@ -8016,7 +8084,7 @@ async function setup(ctx) {
       closed,
       // No channel half — no interrupt: the order's stop is refused, not reported executed.
       (s, signal) => ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN),
-      (s, name, args) => spawnStarts.apply(s, name, args),
+      (s, name, args, holding) => spawnStarts.apply(s, name, args, holding),
       (s) => spawnStarts.has(s),
       (s, args, result) => spawnStarts.verify(s, args, result)
     );
@@ -8070,6 +8138,7 @@ async function setup(ctx) {
         const start = root ? await spawnStarts.start(sid, () => started(sid)) : [];
         spawnStarts.guard(sid);
         for (const w of start) prepared.put(w);
+        prepared.put(spawnStarts.taken(sid));
         if (start.length) prepared.put(await (rulesOf(sid) ?? null));
         spawnStarts.guard(sid);
         if (root) prepared.ride();
@@ -8106,7 +8175,8 @@ async function setup(ctx) {
           }
           if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
-          for (const text2 of ready.words) req.system.push({ type: "text", text: text2 });
+          for (const text2 of new Set(ready.words)) req.system.push({ type: "text", text: text2 });
+          spawnStarts.delivered(sid, ready.words);
           if (ready.ride)
             ch?.ride(sid, (counts) => req.system.push({ type: "text", text: markFrame(counts) }));
         }
