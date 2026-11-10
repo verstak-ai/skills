@@ -114,7 +114,7 @@ var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.41.0";
+var VERSION = "3.42.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -192,7 +192,7 @@ var LAUNCH = {
     notSeated: (why, no, join5) => `Verstak: launch line — not seated: ${why}. A subagent stands only as a satellite of its launcher's seat: if the launcher holds one, repeat ${tool("stand")} and enter case #${no}: ${join5}; if not, the launcher takes a seat and relaunches you; until then work without the graph, the result as a word to the launcher.`,
     ownSeat: () => "in a seat of its own",
     notEntered: (place, no, why) => `Verstak: seated ${place}; did not enter case #${no} — ${why}. The seat stays.`,
-    entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — restate the brief: an assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
+    entered: (place, no) => `Verstak: seated ${place}, entered case #${no} — a take card to you → answer it, no restatement beside it; another assignment entry in the case → say \`to\` the assigner, in_reply_to it; none → your partial line under your key.`
   }
 };
 
