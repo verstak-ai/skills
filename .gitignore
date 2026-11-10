@@ -4,6 +4,7 @@
 dist/
 node_modules
 .worktrees/
+.claude/agents/deputy.md
 .claude/agents/designer.md
 .claude/agents/ingester.md
 .claude/agents/reader.md
@@ -12,6 +13,7 @@ node_modules
 .claude/agents/verifier.md
 .claude/agents/weaver.md
 .claude/agents/worker.md
+.opencode/agents/deputy.md
 .opencode/agents/designer.md
 .opencode/agents/ingester.md
 .opencode/agents/reader.md

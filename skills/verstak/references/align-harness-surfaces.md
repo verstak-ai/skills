@@ -16,6 +16,14 @@ Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.open
 
 Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`references/align-delegation.md`).
 
+### When a subagent's entry fails
+
+The entry itself and its rules: `references/align-delegation.md`, `Claude Code`.
+
+- **Where the entry doesn't come up at all**: an agent of a plugin, an untrusted folder (the trust dialog not accepted), `--strict-mcp-config`, `--bare` or `--safe-mode`, remote mode, a corporate MCP config — the subagent has no graph tools there.
+
+**Bridge didn't come up: run `doctor` first.** A subagent reports no graph tools, or its run failed with an API 400 about `input_schema` → run `node ~/.verstak-bridge/verstak-bridge.mjs doctor` from the project directory and do the `TODO:` lines of its "subagents" section. It checks: a uniquely named own entry; the command runs on this OS; the bridge exists; `disallowedTools` strips the caller's bridges; the folder is trusted; the machine is logged in; a probe satellite answered; the API accepts the tools' schemas (a top-level `anyOf`/`oneOf`/`allOf` is named; the MCP server's operator fixes it). Repeat until no `TODO:` remains, then relaunch. Involve the user only where `doctor` says to (login, trust dialog, waiting for the server).
+
 ## Codex CLI
 
 **Reads `AGENTS.md` natively; no pointer file.** It merges every `AGENTS.md` from the project root to the cwd over `~/.codex/AGENTS.md` (which does not configure agent behaviour, Step 1). `AGENTS.override.md` beats `AGENTS.md` in its directory: for machine-local notes, never committed.
@@ -209,3 +217,7 @@ export default {
 - **Scope.** The event stream carries every directory in the machine's OpenCode service: unfiltered, the start message would seat foreign sessions under this repo's role, hence the sample's checks. `mine` re-checks tool hooks, whose own-directory scope the types don't promise.
 - Unobserved, so never reported as working: the merge reminder, `edit`, the guard on `patch`. On an OpenCode upgrade, check the sample against the types and the `REALITY.md` row.
 - No TUI: messages go as a session prompt or to stderr. 2.x drops `slash: true`; register `/` commands via `ctx.command.transform`. Role files: `.opencode/agents/` (`references/align-delegation.md`).
+
+### A child's lifetime
+
+A child that stood lives until the assignment's outcome: seat and bridge survive between turns, and a frame from its case wakes its own session. It ends when it has left its last case — `verstak_case(action="leave")` per case, or all with no `room`; the platform's `verstak_case(action="mine")` decides, not the plugin's count — or by `verstak_channel(action="leave")`; by the launching agent's `verstak_channel(action="revoke", standing=<child's seat>)` (final: the child can't stand again); by the platform removing its satellite seat; or by deleting the session. The plugin then removes the seat and hands the launching agent the child's last message, marked as the end (earlier finished turns are marked as turns); after the end the child's writes never go through the root's bridge. Esc or a cancelled turn — the child's own, or the launcher's cascading into it — only interrupts the turn: assignment, seat and cases stay alive. No idle limit: a child waiting on a person waits as long as it takes; remove a forgotten one from the board with `revoke`. The plugin's word about an end by revoke or seat removal, or about a turn cut by cascade, does not wake the launching agent; a plugin reload restores seat and cases by key.

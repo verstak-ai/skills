@@ -191,12 +191,12 @@ const SKILLS = {
   "align-delegation": {
     source: "references",
     description:
-      "Reference for the align, code-work and autonomous skills: the delegation doctrine and the subagent role files — the roles, their bodies and satellite entries, the brief and return contracts, the bridge checks. Load when one of those skills points here; not a task of its own.",
+      "Reference for the align, code-work, autonomous and foreman skills: the delegation doctrine and the subagent role files — the roles, their bodies and satellite entries, the brief and return contracts, the bridge checks. Load when one of those skills points here; not a task of its own.",
   },
   "align-harness-surfaces": {
     source: "references",
     description:
-      "Reference for the align skill: where each harness reads instructions and fires automation — Claude Code, Codex, OpenCode, pi — and the ritual plugin template. Load when one of those skills points here; not a task of its own.",
+      "Reference for align, autonomous and the delegation roles: where each harness reads instructions and fires automation — Claude Code, Codex, OpenCode, pi — the ritual plugin template, and what to do when a subagent's entry or the bridge does not come up. Load when one of those points here; not a task of its own.",
   },
   "align-hooks": {
     source: "references",

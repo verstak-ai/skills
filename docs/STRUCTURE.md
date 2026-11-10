@@ -21,5 +21,5 @@ The code map: what the directory tree does not show by itself. Outside `skills/`
 
 ## Docs and the machine
 - `CLAUDE.md` is a **symlink** to `AGENTS.md`: one file answers every harness; keep it a symlink. `SETUP.md` is read, not fetched to execute.
-- `.claude/agents/` and `.opencode/agents/` — the eight delegation roles in each harness, a projection on the machine out of git: each Claude Code file has its own satellite entry and a trigger-shaped `description`; each OpenCode file is pinned to the model the user chose. Their repository lines live in `AGENTS.md`, Role file tails, projected under `## This repo`. `.claude/settings.json` is committed; `settings.local.json` is ignored.
+- `.claude/agents/` and `.opencode/agents/` — the nine delegation roles in each harness, a projection on the machine out of git: each Claude Code file has its own satellite entry and a trigger-shaped `description`; each OpenCode file is pinned to the model the user chose. Their repository lines live in `AGENTS.md`, Role file tails, projected under `## This repo`. `.claude/settings.json` is committed; `settings.local.json` is ignored.
 - Scratch is **not** ignored: keep working files out of the tree.
