@@ -15,7 +15,9 @@ import type { Demands } from "./orchestra-demands.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
 
-export type OrchestraOp = "on" | "off" | "status" | "step" | "demands";
+export type OrchestraOp = "on" | "off" | "status" | "step" | "plan" | "demands";
+const OPS: readonly string[] = ["on", "off", "status", "step", "plan", "demands"];
+export const isOrchestraOp = (op: string): op is OrchestraOp => OPS.includes(op);
 export interface OrchestraAnswer {
   ok: boolean;
   said: string;
@@ -27,7 +29,14 @@ export type OrchestraServe = (
   op: OrchestraOp,
   realms: string[],
   gone?: { gone: boolean },
+  extra?: OrchestraExtra,
 ) => Promise<OrchestraAnswer>;
+/** What `on` may carry beside the realms: the launcher to describe (orchestra-describe.ts) and
+ * the consent of a human at a terminal (orchestra-flag.ts). */
+export interface OrchestraExtra {
+  launcher?: unknown;
+  consent?: boolean;
+}
 
 /**
  * The daemon's local entrance. A connection is one request line `{op, realms}` and one answer
@@ -49,7 +58,7 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       if (nl < 0) return;
       const line = buf.slice(0, nl);
       buf = "";
-      let msg: { op?: unknown; realms?: unknown } = {};
+      let msg: { op?: unknown; realms?: unknown; launcher?: unknown; consent?: unknown } = {};
       try {
         msg = JSON.parse(line) as typeof msg;
       } catch {
@@ -59,7 +68,7 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       const realms = Array.isArray(msg.realms)
         ? msg.realms.filter((x): x is string => typeof x === "string")
         : [];
-      if (op !== "on" && op !== "off" && op !== "status" && op !== "step" && op !== "demands") {
+      if (!isOrchestraOp(op)) {
         socket.end(JSON.stringify({ ok: false, said: w().unknownOp(op) }) + "\n");
         return;
       }
@@ -69,7 +78,7 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       socket.on("close", () => {
         gone.gone = true;
       });
-      void serve(op, realms, gone)
+      void serve(op, realms, gone, { launcher: msg.launcher, consent: msg.consent === true })
         .then((a) => socket.end(JSON.stringify(a) + "\n"))
         .catch((e: Error) =>
           socket.end(JSON.stringify({ ok: false, said: w().doorError(e.message) }) + "\n"),
@@ -90,6 +99,7 @@ export function orchestraAsk(
   op: OrchestraOp,
   realms: string[],
   timeoutMs = 5_000,
+  extra: OrchestraExtra = {},
 ): Promise<OrchestraAnswer> {
   return new Promise((resolve) => {
     let settled = false;
@@ -102,7 +112,7 @@ export function orchestraAsk(
     const socket = connect(orchestraDoorPath(authDir, false));
     socket.setTimeout(timeoutMs, () => done({ ok: false, said: w().doorSilent() }));
     socket.on("error", () => done({ ok: false, said: w().noDaemon() }));
-    socket.on("connect", () => socket.write(JSON.stringify({ op, realms }) + "\n"));
+    socket.on("connect", () => socket.write(JSON.stringify({ op, realms, ...extra }) + "\n"));
     let buf = "";
     socket.on("data", (c) => {
       buf += c;

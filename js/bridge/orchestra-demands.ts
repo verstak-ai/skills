@@ -1,6 +1,6 @@
 // Read-only local demands (graph @nks/nks-dev, nodes #9957, #9958, #8202).
 import { namedFetch } from "../shared/http.ts";
-import { object, startRow, stopRow } from "./demand-rows.ts";
+import { object, type OpenOrder, openOrder, startRow, stopRow } from "./demand-rows.ts";
 import { canonIn, realmIndexOf } from "./realmindex.ts";
 
 export interface Demands {
@@ -40,6 +40,8 @@ export async function readDemands(
   requested: string[],
   boundary: string[],
   gone?: { gone: boolean },
+  /** Every open order of the account, any graph — the projection keeps the boundary's only. */
+  owned?: OpenOrder[],
 ): Promise<Demands> {
   const realms = [...new Set(requested.map((s) => s.trim()))];
   const result: Demands = {
@@ -110,6 +112,7 @@ export async function readDemands(
       const rows = items(body);
       if (!rows.length) return result;
       const projected = rows.map((v) => stopRow(v, realms)).filter((v) => v !== null);
+      owned?.push(...rows.map(openOrder));
       result.stop.push(...projected);
       const next = body.next_since;
       if (typeof next !== "number" || !Number.isSafeInteger(next) || next <= since)

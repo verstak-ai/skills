@@ -28,6 +28,7 @@ import { sliceBy } from "./mindslice.ts";
 import { annotate } from "./notice.ts";
 import { createOnboardStart } from "./onboardstart.ts";
 import { createPulseFeed } from "./pulse.ts";
+import { quietCalls } from "./quiet-calls.ts";
 import { createRites } from "./rites.ts";
 import { createRootSeats } from "./rootseat.ts";
 import { startWords, watchCover } from "./rootseat-start.ts";
@@ -137,7 +138,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       },
     );
     ch = c0;
-    onChannel = (s, p, c) => c0.onEvent(s, p, c);
+    // A stale call that asks nothing of the session wakes no turn (quiet-calls.ts).
+    onChannel = (s, p: any, c) =>
+      c0.onEvent(s, p?.data ? { ...p, data: quietCalls(p.data, !!s && spawnStarts.has(s)) } : p, c);
   } catch (e) {
     say(W.channelDown((e as Error).message), "error");
   }
@@ -173,7 +176,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
       closed,
       // No channel half — no interrupt: the order's stop is refused, not reported executed.
       (s, signal) => (ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN)),
-      (s, name, args) => spawnStarts.apply(s, name, args),
+      (s, name, args, holding) => spawnStarts.apply(s, name, args, holding),
       (s) => spawnStarts.has(s),
       (s, args, result) => spawnStarts.verify(s, args, result),
     );
@@ -234,6 +237,8 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
         const start = root ? await spawnStarts.start(sid, () => started(sid)) : [];
         spawnStarts.guard(sid);
         for (const w of start) prepared.put(w);
+        // Raised for an invite: the case it was taken for, by the delivery, not the brief (#10043).
+        prepared.put(spawnStarts.taken(sid));
         // A service seating's stand was not read by the model; its rules go beside it.
         if (start.length) prepared.put(await (rulesOf(sid) ?? null));
         spawnStarts.guard(sid);
@@ -275,7 +280,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
           }
           if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
-          for (const text of ready.words) req.system.push({ type: "text", text });
+          // A word laid by two prompts of one request goes into it once (#9654).
+          for (const text of new Set(ready.words)) req.system.push({ type: "text", text });
+          spawnStarts.delivered(sid, ready.words);
           // Counts wake no turn; take them only when their own root actually requests a model.
           if (ready.ride)
             ch?.ride(sid, (counts) => req.system.push({ type: "text", text: markFrame(counts) }));

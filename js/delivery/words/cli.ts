@@ -36,7 +36,7 @@ export const CLI: Readonly<Record<Lang, CliWords>> = {
   node verstak-bridge.mjs doctor [server-url] [--auth-dir <dir>]
   node verstak-bridge.mjs status [--json] [--auth-dir <dir>] [--lang en]
   node verstak-bridge.mjs stop <seat|session id> [--realm <graph>] [--auth-dir <dir>] [--lang en]   (a stop order to the seat; an older api — a revoke)
-  node verstak-bridge.mjs orchestra <on|off|status|step|demands> [--realm <graph>]… [--auth-dir <dir>] [--lang en]   (on — machine consent; step — one tact; demands — queue JSON without execution)
+  node verstak-bridge.mjs orchestra <on|off|status|step|demands> [--realm <graph>]… [--auth-dir <dir>] [--lang en]   (on — machine consent, with --launcher <name> --model <id> also the launcher's description in mind; step — one tact, step --dry-run — what it would raise, acting on nothing; demands — queue JSON without execution)
   node verstak-bridge.mjs prepare [--dir <repo>] [--graph rN] [--holon N] [--agent-role N] [--contract N] [--stamp YYYY-MM-DD] [--case N] [--json]   (the repository made ready without a model: cover, stubs, start and memory-guard hooks; exit 0 — all stands, 3 — left to the model, 1 — refused)
   node verstak-bridge.mjs update [--auth-dir <dir>]
   node verstak-bridge.mjs use <en|url> [--auth-dir <dir>]   (en — mcp.verstak.ai)

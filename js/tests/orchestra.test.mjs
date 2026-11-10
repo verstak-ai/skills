@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-import { envName } from "../delivery/index.ts";
+import { envName, ORCHESTRA, tool } from "../delivery/index.ts";
 import { BUILT_BRIDGE } from "./built.mjs";
 
 const BRIDGE = process.env.VERSTAK_BRIDGE_PATH || BUILT_BRIDGE;
@@ -91,6 +91,8 @@ test("orchestra: on without the machine's consent — refused naming our variabl
     assert.equal(r.code, 1, r.err);
     assert.match(r.err, /has not admitted the orchestrator/, r.err);
     assert.ok(r.err.includes(`${envName("ORCHESTRA")}=1`), r.err);
+    // Run on pipes, as an agent's shell runs it: a terminal's consent is named, none is given.
+    assert.match(r.err, /typed at a terminal/, r.err);
     assert.ok(!existsSync(flagAt(dir)), "the refusal wrote no flag");
   } finally {
     await stop();
@@ -199,7 +201,55 @@ test("orchestra: a line that is no known op is answered in our words, and the do
   }
 });
 
-test("orchestra: the usage names the subcommand in our CLI help", async () => {
+test("orchestra: the usage names the subcommand, the dry run and the launcher in our CLI help", async () => {
   const r = await cli([]);
-  assert.match(`${r.out}${r.err}`, /usage: orchestra <on\|off\|status\|step\|demands>/);
+  const said = `${r.out}${r.err}`;
+  assert.match(said, /usage: orchestra <on\|off\|status\|step \[--dry-run\]\|demands>/, said);
+  assert.match(said, /orchestra on --launcher <name> \[--model <id>\]…/, said);
+  // A launcher's attributes without --launcher, or a dry run of anything but step, is no command.
+  for (const args of [
+    ["on", "--model", "m"],
+    ["on", "--dry-run"],
+  ]) {
+    const bad = await cli(args);
+    assert.equal(bad.code, 1, args.join(" "));
+    assert.match(bad.err, /^usage: orchestra/, `${args.join(" ")}: ${bad.err}`);
+  }
+});
+
+// on --launcher describes the launcher in mind before the flag moves (the core's
+// bridge/orchestra-describe.ts); against no server the description cannot be read, and a name
+// the description reading would not take is refused before any read — both leave no flag.
+test("orchestra: on --launcher that cannot describe the launcher is refused in our words, no flag", async (t) => {
+  const dir = authDir(t);
+  const stop = raiseDaemon(dir, CONSENT);
+  try {
+    await untilDoor(dir);
+    const long = "a".repeat(80);
+    const tooLong = await cli(["on", "--launcher", long, "--model", "m", "--auth-dir", dir]);
+    assert.equal(tooLong.code, 1, tooLong.out);
+    assert.match(
+      tooLong.err,
+      new RegExp(`launcher name ${long} is longer than \\d+ characters`),
+      tooLong.err,
+    );
+    assert.match(tooLong.err, /the flag is not moved/, tooLong.err);
+    const unread = await cli(["on", "--launcher", "orca", "--auth-dir", dir]);
+    assert.equal(unread.code, 1, unread.out);
+    assert.match(unread.err, /the description of launcher orca did not read or write/, unread.err);
+    assert.ok(!existsSync(flagAt(dir)), "no flag without the description");
+  } finally {
+    await stop();
+  }
+});
+
+// The raised agent's brief follows the spawned_for line: no second register, the case joined
+// by our case tool first (the core's bridge/orchestra-raise.ts; the raise itself is the
+// sibling's suite).
+test("orchestra: the raised agent's brief sends it into its case by our case tool", () => {
+  const room = "1035d984-7313-4699-9090-2baa2ae7cb49";
+  const brief = ORCHESTRA.en.brief("@x/g", 42, room, 3);
+  assert.ok(brief.includes(`${tool("case")}(action="join", realm="@x/g", room="${room}")`), brief);
+  assert.match(brief, /role #42/, brief);
+  assert.match(brief, /Do not register again/, brief);
 });
