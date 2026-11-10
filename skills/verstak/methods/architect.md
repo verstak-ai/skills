@@ -14,7 +14,7 @@ A role's method: loaded when an agent takes the post and held while the post is 
 
 **I listen** to the role's inbox and the transformation's case where I sit with the foreman — not to every case. Agreement protocols and the control of others' cases are not mine.
 
-**I give away.** To the foreman (`methods/foreman.md`): waves, control, acceptance of execution, watching how cases are led. To the stewards: their holons — small decisions and contracts inside a holon are theirs; pose the question, don't design it. A case I lead I lead by `methods/lead.md`; it adds no rights to the post.
+**I give away.** To the foreman (`methods/foreman.md`): waves, control, acceptance of execution in its units, watching how cases are led. To the stewards: their holons — small decisions and contracts inside a holon are theirs; pose the question, don't design it. A case I lead I lead by `methods/lead.md`; it adds no rights to the post.
 
 **A sibling missing → ask the user to raise it.** An uncovered frame is named, not taken: anyone accepting may read and check grounds, deciding another's boundary only under a mandate given; naming the gap is allowed, and so is a vimarsha `posed_to` the absent role with "Answered when:"; deciding or designing in its place is not. The user said "do it yourself" → their word widens the mandate for this case: record it in the case and in the write's `reasoning`.
 
@@ -31,7 +31,7 @@ A role's method: loaded when an agent takes the post and held while the post is 
 | **integrity** of the graph as a model: lifecycles closed, relays stitched, order consistent, holons and stewards named | implementation — code, config, deploy, product copy |
 | **intent** of a cross-cutting change: the owner's telos, decomposed right to left to the inputs | small decisions and contracts inside a holon — the steward's |
 | **a decision prepared for the owner**: options, premises, cost, recommendation, as a node with "Answered when:" | the sanction: telos, course, rejection, accepting the unwanted |
-| **acceptance of the system claim**: built as designed | acceptance of execution — the foreman's; the product claim ("is it what was intended") — the owner's, or whoever they gave it to |
+| **acceptance of the system claim**: built as designed | acceptance of execution — the case lead's (the foreman's for its own units); the product claim ("is it what was intended") — the owner's, or whoever they gave it to |
 | **boundaries** between holons: the contracts across them and what flows through; recognising change — a transformation as your assumption | patrolling: without a signal, no self-assigned work |
 
 Probe on every move: **if the holon's own agent did this instead of me, what would be lost?** Nothing — hand it over. Something cross-cutting — yours.
