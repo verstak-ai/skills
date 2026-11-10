@@ -231,6 +231,10 @@ export default {
 - Unobserved, so never reported as working: the merge reminder, `edit`, the guard on `patch`. On an OpenCode upgrade, check the sample against the types and the `REALITY.md` row.
 - No TUI: messages go as a session prompt or to stderr. 2.x drops `slash: true`; register `/` commands via `ctx.command.transform`. Role files: `.opencode/agents/` (`align-delegation`).
 
+### A child's bridge
+
+**No `tools`, no `mcpServers`** (unverified in OpenCode). The delivered plugin gives each child its own bridge when it stands: a satellite of the root's seat (`<root's seat>.sub-N`, `satellite_of` filled in); a root without a seat gets the child's `verstak_stand` refused, so the root stands first. Before standing, the child reads through the root's bridge and its writes are refused. The plugin runs the launch line itself; the seat-taking bodies read it as already run.
+
 ### A child's lifetime
 
 A child that stood lives until the assignment's outcome: seat and bridge survive between turns, and a frame from its case wakes its own session. It ends when it has left its last case — `verstak_case(action="leave")` per case, or all with no `room`; the platform's `verstak_case(action="mine")` decides, not the plugin's count — or by `verstak_channel(action="leave")`; by the launching agent's `verstak_channel(action="revoke", standing=<child's seat>)` (final: the child can't stand again); by the platform removing its satellite seat; or by deleting the session. The plugin then removes the seat and hands the launching agent the child's last message, marked as the end (earlier finished turns are marked as turns); after the end the child's writes never go through the root's bridge. Esc or a cancelled turn — the child's own, or the launcher's cascading into it — only interrupts the turn: assignment, seat and cases stay alive. No idle limit: a child waiting on a person waits as long as it takes; remove a forgotten one from the board with `revoke`. The plugin's word about an end by revoke or seat removal, or about a turn cut by cascade, does not wake the launching agent; a plugin reload restores seat and cases by key.
