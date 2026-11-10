@@ -25,7 +25,7 @@ Read the triad as a sentence: "We [epistemic] this, it [ontic], and we [volitive
 | intent | An | Ag | Ch | ahead · wanted |
 | decided intent | An | Ag | Ad | ahead · held — resolve, not age, separates it from intent |
 | planned end | Kl/An | Ag | by the actual relation | ahead — the will as it stands, not a placeholder `upeksha`; an undecided end keeps its question open |
-| attested | Pm | Va | Up | confirmed many times |
+| attested | Pm | Va | Up | confirmed on independent grounds |
 | historical layer | Pt | At | Up | past — it was, recorded |
 | refuted | Ba | At or Vk | Vs | stopped being so → `atita`; never was → `vikalpa` |
 | theoretical construct | An | Vk | Ad | a construct we work with |
@@ -95,14 +95,14 @@ Forward along the carrier and rising confidence (Kl → An → Pt → Pm) are le
 8. **Unwanted → accepted:** Vi → Up, ontic untouched — the owner's act. A kriya consuming the defect moves it to At instead.
 9. **Vimarsha → accepted as is:** Ch/Ad → Up; when its anchor changes, back to the will it is held in while open — Ch for a doubt, counter-thesis or hint, Vi for a risk, counterexample, grounding defect or drift (`methods/inquiry.md`, §2).
 10. **Proposed → in force (principle) or accepted (transformation):** Ch → Ad — the owner's act.
-11. **Stub → intent:** Up → Ch or Ad.
+11. **Placeholder → intent:** a node written in `upeksha` before anyone wanted it (a stub) → Ch or Ad, once someone does.
 12. **Loss:** Va → Na, At → Na — ontically carried kinds only.
 
 **Suspicious** (flagged; fix by the mode, not by restructuring): resurrection (`atita` → `vartamana`, `nashta` → anything) without grounds; Pm → An/Kl without a reverify event; `anagata` → `atita`/`nashta` skipping `vartamana` (for a risk, Ag → At is realisation); `atita` → `vikalpa` and out of `vikalpa` — always shown, legitimate with grounds ("was it ever so?" above). `visarjana` → `chanda` is a legitimate, logged reopening.
 
 ## Three fates of a record no longer held
 
-Probe: *will a future reader learn from this node standing refuted?* Yes — the record carried a false thesis → **refute and keep** (`badhita`, `vikalpa` if being is refuted): it teaches how not to think. Nothing to learn — there was no distinction (empty concept, question about nothing, duplicate, stray) → **delete**, reason in `reasoning`; history keeps the deleted node, restorable, its arrows each on its own. A duplicate by two doers: whoever posed first leads and checks the outcome by reading; the second names what must move over from its node, reads it in the live one and only then closes its own — mutual yielding erases both records. True but no longer held → **release** (`visarjana`), by the holder. Rejected because "we never do it this way" → crystallize the rule with `arose_from` to the rejected question.
+Probe: *will a future reader learn from this node standing refuted?* Yes — the record carried a false thesis → **refute and keep** (`badhita`, `vikalpa` if being is refuted): it teaches how not to think. Nothing to learn — there was no distinction (empty concept, question about nothing, duplicate, stray) → **delete**, reason in `reasoning`; history keeps the deleted node, restorable, its arrows each on its own. A duplicate by two doers: whoever posed first leads and checks the outcome by reading; the second names what must move over from its node, reads it in the live one and only then closes its own — mutual yielding erases both records. True but no longer held → **release** (`visarjana`), by the holder. Rejected because "we never do it this way" → fix the deed that rule governs, with `arose_from` to the rejected question; a new principle only as its last resort (`methods/writing.md`, Decision 2).
 
 **Keep the meaning before letting the form go** (得意忘象, "the meaning grasped, the image is forgotten"). An exposition, a working schema, a seed, a draft is the form a meaning was held in. Once the meaning stands as its own node that a kriya applies, the form is released (`visarjana`), not deleted: it was needed, and history keeps it. Releasing is its own act after the meaning is caught; no such node yet → too early. A schema rescued by ever finer exceptions has lost its meaning — go back to the meaning, don't mend the schema.
 

@@ -176,7 +176,7 @@ Do **rely** on it: the line is *acting on* versus *passing on*; shared text gets
 
 - **No arrows between graphs**: what mind says about another graph is prose and attributes — no edges, no `anga` across graphs.
 - **Not a hub**: §4's unity is iteration, not structure; keep the graph thin.
-- **Recall is only as accurate as the last §2.**
+- **Freshness doesn't replace grounds:** a recall is only as accurate as the last §2, and a fresh §2 is no pass for every answer — the addressed read still checks conditions, what superseded it and objections.
 
 ## Acceptance
 
@@ -287,7 +287,7 @@ Record only what doesn't survive a machine change and can't be read off the curr
 
 **Tool surfaces** too — which harness runs where, which browser is paired where, which host has no GUI; not this session's own, which is derivable.
 
-**Dated facts as attributes**: an expiry, a renewal, a review cycle is a `sachverhalt` with its timestamp in `attrs` (**writing**, Decision 4), or a kriya when it recurs. "Needed, but not now" is `upeksha` (**inquiry**): woken by a change at its anchor, not a date.
+**Dated facts as attributes**: an expiry, a renewal, a review cycle is a `sachverhalt` with its timestamp in `attrs` (**writing**, Decision 4), or a kriya when it recurs. "Needed, but not now" as a question is `upeksha`, accepted as is (**inquiry**); as a deed or fact ahead, `anagata` with the will it really has (**writing**, Volitive) — both woken by a change at its anchor, not a date.
 
 ### A7b · Working preferences — the agents slice
 

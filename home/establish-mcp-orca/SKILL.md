@@ -59,7 +59,7 @@ Equal project names do not tell repositories apart. An SSH host alias and the re
 ## 2. Read the demands, build the plan
 
 ```sh
-node BRIDGE orchestra demands --realm rN
+node BRIDGE orchestra demands --realm @owner/slug
 ```
 
 BRIDGE is the installed bridge's path (**establish-mcp**, `What lives on the machine`); the graph is the one explicitly chosen. It needs a successful exit and `complete=true` with no errors. Reading takes no invitation, carries out no stop and moves no cursor; `raised` is no stop order. An incomplete answer is never an empty queue.
@@ -90,6 +90,6 @@ The Orca command's success is only the harness's launch. A raise by invitation s
 
 ## 4. Stop exactly the test agent
 
-Send the regular stop order to the test seat's exact id: `verstak_channel(action="stop")` or `node BRIDGE stop <seat id> --realm rN`. Take the address from the observed seat, never derive it from the repository. Keep the `order_id` and check the order's outcome: a word sent is not a confirmed stop of the harness. Never replace the order with killing a PID, closing every terminal or taking off neighbouring seats.
+Send the regular stop order to the test seat's exact id: `verstak_channel(action="stop")` or `node BRIDGE stop <seat id> --realm @owner/slug`. Take the address from the observed seat, never derive it from the repository. Keep the `order_id` and check the order's outcome: a word sent is not a confirmed stop of the harness. Never replace the order with killing a PID, closing every terminal or taking off neighbouring seats.
 
 After the cycle name the exact Orca version, the invitation pair, the project and checkout, the register receipt, the join and the stop's outcome. A cold check repeats the named way on the kept carrier; only its result counts as a check of the launch. One successful launch does not attest automatic repetition, every harness, or a crossing between graphs.

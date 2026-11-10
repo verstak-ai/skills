@@ -87,7 +87,7 @@ Every call carries `realm`; take each fork by the response. Where direction shou
    - **What is here.** Vimarshas and dead ends (`lens="vimarshas"`, `include_closed=true`), decisions in bodies, relays (`lens="trace"`). Check a queue item against the node's current version and the world.
    - **Ownership.** `verstak_look(realm=<graph>, node_id=<node>, breadcrumb=true)` up to the holon, then `verstak_search(realm=<graph>, q="", node_type="karta", steward_of=<holon>)`; posing a vimarsha with `posed_to="steward"` does the same walk.
 
-   **Yours** → act; **someone else's** → a vimarsha to the steward (`methods/writing.md`) or a message to the live holder (`methods/collaborate.md`, `Exchange`). No role of your own → "yours" is the mandate of whoever's keys you run on. **Sign:** "mine, because…" or the exit, after the reading.
+   Ownership bounds editing, not reading: an answer in a readable graph of someone else's you look for yourself first (`Recalling — a ladder`), never handing the steward your reading. **Yours** → act; **someone else's**, without firm knowledge → a vimarsha to the steward (`methods/writing.md`) or a message to the live holder (`methods/collaborate.md`, `Exchange`). No role of your own → "yours" is the mandate of whoever's keys you run on. **Sign:** "mine, because…" or the exit, after the reading.
 
 5. **Recognise your motivation** — same nodes, different figure and ground:
    - **Orienter** — where am I (this method); **Asserter** — a thesis → `writing`; **Questioner** — a vimarsha → `writing`, its life → `inquiry`.
@@ -114,8 +114,8 @@ Then say in one line where you stand: graph, holon, transformations, seed, role.
 
 ## Recalling — a ladder
 
-The knowledge you need is not in your context. Your own memory — training, earlier context, a summary after compaction, a subagent's retelling — is a reason to look, never the answer about what is recorded: answer from reading, naming what you read and its modes; what a record says about the world is its author's testimony, with that author's reach. Climb; each rung costs more than the last:
-1. **Search by the task's meaning**, several passes (above).
+The knowledge you need is not in your context. Your own memory — training, earlier context, a summary after compaction, a subagent's retelling — is a reason to look, never the answer about what is recorded: answer from reading, naming what you read and its modes; what a record says about the world is its author's testimony, with that author's reach. First name in one line what you seek and **what counts as its answer** — a decision, a rule, an owner, a trap, the user's permission, the work's state; two concepts are two searches; without it a find has nothing to be measured by. Climb; each rung costs more than the last:
+1. **Search by the task's meaning**, several passes (above): the names the subject may go by — the project's term, the everyday word, a tool's, file's or role's name — and two or three phrasings from different sides (what it is, where it's done, what would break without it); the subject's cases too (`verstak_case(action="at", node=<subject>)`, then `read`). One instrument and one phrasing give "I don't see it", not "none".
 2. **Walk the links** from what you found — its neighbourhood first, `verstak_orient(focus=<hit>)`, then the arrow the question needs (`From a card to evidence`).
 3. **Orient on where it should lie** — the holon the subject belongs to (`verstak_orient(focus=<holon>)`).
 4. **Ask that holon's steward to recall** (`methods/collaborate.md`, `Exchange`, "Asking to recall").
@@ -134,7 +134,7 @@ Nodes contradicting each other or the world are a find: name it; the fix is a qu
 
 Rungs 1–3 may go to a `recaller` subagent by a setting: what is sought, what counts as an answer, where you already searched (the door, `Work goes to subagents`). Its find is reported, not established: open the node yourself before leaning on it; rungs 4–5 and the answer in the case stay yours.
 
-**A hard recall ends in a trodden path**: it shows the thing should have been recorded so as to be found. Lay a link from where you looked to what you found, a name it will be found by, the sense on the arrow; write a holder's or the user's answer where it will be looked for (`methods/writing.md`). Tread it when the question recurs by kind, the miss was in the record's place or name, and what you found is alive. Don't tread a one-off question of a case (its place is the journal), a difficulty a broken tool made, your own odd phrasing, a doubtful or stale find, or something personal (its place is personal memory, `methods/minding.md`). Across a holon's boundary — by firmness (the door, `Cross-cutting norms`).
+**A hard recall ends in a trodden path**: it shows the thing should have been recorded so as to be found. Lay a link from where you looked to what you found, a name it will be found by, the sense on the arrow; write a holder's or the user's answer where it will be looked for (`methods/writing.md`). Tread it when the question recurs by kind, the miss was in the record's place or name, and what you found is alive. Don't tread a one-off question of a case (its place is the journal), a difficulty a broken tool made, your own odd phrasing, a doubtful or stale find, or something personal (its place is personal memory, `methods/minding.md`). Across a holon's boundary — by firmness (the door, `Cross-cutting norms`). **Sign:** ending a request to recall, you name the path trodden, or why none was needed.
 
 ## Re-entering during work
 
@@ -156,7 +156,7 @@ Rungs 1–3 may go to a `recaller` subagent by a setting: what is sought, what c
 - **Search is silent** → semantic search; silent too → the rest of the ladder (`Recalling — a ladder`): links, where it should lie, the holon's steward, the user. General knowledge is no answer about what is recorded — offered at all, it is named as such.
 - **The result looks complete** (a round row count, a truncated tail, several holders of a name) → it's a page: narrow with `verstak_search(q="", node_type=…)`.
 - **A node you stand on says something you no longer see** → your own: confirm at a named level (`attrs.breaks_if` makes it one move), release with `visarjana` and a reason, or pose a doubt; false, even someone else's → refute with grounds by "was it ever so?" (`methods/writing.md`, modes); releasing someone else's is its holder's — a word to them.
-- **A write has no author, or returns 409** → `methods/collaborate.md`, `Repair tree`.
+- **A write has no author, or a channel write is refused for want of one** → `methods/collaborate.md`, `Repair tree`, a write without an author; **a bare 409 on a node** is a version conflict too → `verstak_look` it again: someone else is on it (`Re-entering during work`).
 - **The door's description doesn't match a method's body** → the delivery is behind: `methods/establish-mcp.md`, `Updating`.
 
 ## Reading hygiene
@@ -167,7 +167,7 @@ Rungs 1–3 may go to a `recaller` subagent by a setting: what is sought, what c
 - **A mode is the writer's claim**; the commonest miss is marking as proven what you were told. `vartamana`/`pratyakshita` without named evidence are unverified however old; on a load-bearing path, check against reality (`reality-audit`). Time matters to evidence, not to questions: an observation of a surface that has since moved may no longer ground the claim.
 - **Read the call from the printed mark**, not the volitive mode: `virodha` on a risk stands while the defect lives. Orient's active sections pre-filter; raw search doesn't.
 - **Emoji are the author's voice.**
-- **Light writes while reading.** An obvious small fix (a missing arrow, a stale wording) → do it by `methods/writing.md` (`verstak_update`, `verstak_arrow(action="link")`); ending a vimarsha by `methods/inquiry.md`; say so, `verstak_look` again, show `CHECKS:`. New phenomena and kriyas, substantive vimarshas, deletes, renames, re-links — only with agreement.
+- **Light writes while reading.** An obvious small fix (a missing arrow, a stale wording) → do it by `methods/writing.md` (`verstak_update`, `verstak_arrow(action="link")`); ending a vimarsha by `methods/inquiry.md`; say so, `verstak_look` again, show `CHECKS:`. A new distinction, a delete, a rename or a re-link needs grounds and a mandate, never guessed from reading: a rightful decision or mandate already given needs no second agreement; where none is, ask. A question of substance you meet is written as you learn (the door, `Write as you learn`).
 
 ## When not to enter
 

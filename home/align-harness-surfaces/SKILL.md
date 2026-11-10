@@ -188,7 +188,7 @@ export default {
     // message goes only to a session whose directory matches this instance's (ctx.location), and only to a
     // root session (no parentID); child sessions (subagents, service sessions) are skipped. A failed prompt
     // for one session is caught in place; a loop failure goes to the service's stderr.
-    // Same message as the SessionStart hook prepare writes (references/align-hooks.md), from the AGENTS.md
+    // Same message as the SessionStart hook sample (references/align-hooks.md), from the AGENTS.md
     // cover: the align run fills <Graph> (its rN) and the two seqs (digits only); no angle brackets or quotes remain.
     const START =
       "Load the verstak skill (/verstak) and run its Start section before anything else. " +

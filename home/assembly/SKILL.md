@@ -86,12 +86,12 @@ Say in one line what quality the telos promised, and what stands today on what g
 
 ### 2. Facts to the steward, the decision to the owner
 
-A missing fact about a holon's state goes to its steward (**architect**, step 2). Need, acceptance of the quality and limits are the owner's: an `ask` card in the transformation's case (none → open one on it, `verstak`, `One-off task`), form `choice`, each option's cost in its `context`, a recommendation with its ground (**collaborate**, `Asking the user`). The options:
+A missing fact about a holon's state goes to its steward (**architect**, step 2). Need, acceptance of the quality and limits are the owner's: an `ask` card in the transformation's case (none → open one on it, `verstak`, `One-off task`), form `choice`, each option's cost in its `context`, a recommendation with its ground (**collaborate**, `Asking the user`). One card, one transformation — a batch is several cards on their own keys. The text stands alone: the telos verbatim; what works — the `anga` kriyas and what was observed on the carrier; the substantial gap, if any; what is not attested, named. The options:
 
 | Outcome | The graph after `ack` |
 |---|---|
 | reached | the transformation `atita`, then 4–5 below |
-| absorbed by a named successor | live parts move by `anga` to the successor; this one `visarjana`, the successor named in `reasoning` — `supersedes` joins only vimarshas |
+| absorbed by a named successor | this one becomes the successor's part — `anga` from it to the successor — and `visarjana`; never `atita`: it is the successor's composition, not this telos reached; live parts move to the successor with their addressees and senses; `supersedes` joins only vimarshas |
 | no longer needed | `visarjana`, the owner's reason in `reasoning` |
 | continues to an end sign | stays under way; the end sign is the answer condition of a driving vimarsha |
 | deferred with a return condition | modes unchanged (not `upeksha`, above); the condition in its seed (**writing**, Decision 5) |
@@ -102,7 +102,7 @@ The answer counts once you `ack` it and the graph changes (`verstak`, `Waiting o
 
 Weaving a decision into many parts and seeds goes to a `weaver` on its own satellite bridge and case (`verstak`, `Work goes to subagents`); reading them for the decision, the decision and the acceptance stay yours — take back short fates, versions and grounds, not bodies.
 
-**Type and genre before a body.** Before reading an unfamiliar number, establish its type and genre from a list without bodies — `verstak_search(realm, q="", anga_of=<bianhua>, include_description=false)`; an unknown type is no licence to read. A `hint` goes to the reading subagent. Compose single and batch reads from metadata you already hold, never from numbers in someone's report: every number's type and genre checked before the batch runs. A title such as "contract", "spec" or "door" doesn't tell the genre; the guard written in a brief doesn't show it was kept.
+**Type and genre before a body.** Before reading an unfamiliar number, establish its type and genre from a list without bodies — `verstak_search(realm, q="", anga_of=<bianhua>, include_description=false)`; an unknown type is no licence to read. A `hint` you read yourself — the decision rests on it; a `weaver` gets references to it, not its reading. Compose single and batch reads from metadata you already hold, never from numbers in someone's report: every number's type and genre checked before the batch runs. A title such as "contract", "spec" or "door" doesn't tell the genre; the guard written in a brief doesn't show it was kept.
 
 **Seeds.** A served seed is released with its historical links kept (**inquiry**, §3, `hint`) — who releases it, by that row; a subagent's report doesn't replace the acceptor's own reading of the seed and its links; a fragment is not saved as a new vimarsha each. A substantial remainder is kept after a duplicate search (**writing**); an idea explicitly deferred is not a served seed to throw away.
 

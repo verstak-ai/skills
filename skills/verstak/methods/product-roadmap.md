@@ -106,7 +106,7 @@ Raise for engagement and `accepted`/`roadmap` labels; lower duplicates, `wontfix
 
 Run `methods/assembly.md` over the seeded graph; the directions' names and teloses go as its step 5 says — playing the maintainer is no act of acceptance. Risks stay risks.
 
-- **Refresh reconciles:** update directions that hold; add one only for a new theme; release (`visarjana`) shipped ones. Never a twin.
+- **Refresh reconciles:** update directions that hold; add one only for a new theme; a shipped one goes to the telos check and the owner's card (`methods/assembly.md`, `Telos check and re-assembly`) — shipping releases (`visarjana`) nothing by itself. Never a twin.
 - **Figure on ground as a real arrow:** the leading kriya reaches a ground capability via `upadhi` / `context` — never `ahara` from the bianhua (forbidden). No ground touched → new ground (say so) or an under-modelled Step 2.
 - **Structural risks from tensions** (`verstak_orient(lens="tensions")`): a capability with no producing flow, a relay gap, an action without a role. **Multi-repo: a cross-repo dead recipe or relay gap is the top finding.** Fix pure modelling artifacts in place.
 - **Two axes per direction:** **driver** (maintainer-led and committed / contributor-led awaiting review / community-requested, no owner) and **runtime target** (consumer 客 or operator 能). Don't collapse them; on a solo product directions differ by target. Ownership is a graph fact: `anga` kriyas carry `actor` → the driver, else "inferred".

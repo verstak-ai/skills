@@ -8,7 +8,7 @@ Top down. A rung passes → say nothing. A rung fails → name it and stop there
 
 **1 · Transport.** Do the `verstak_*` tools answer (the first graph read shows it)? No → `methods/establish-mcp.md`, and stop. They answer but there's no project graph → offer the door's Survey row "no project graph".
 
-**2 · Repository.** The door's Survey rows on alignment decide: no cover of ours → nothing about the repository unless they ask to set it up — then `methods/onboarding.md`; our cover present but align's part missing, `AGENTS.md` missing or its cover's `contract` below the contract → `methods/align.md`.
+**2 · Repository.** The door's Survey rows on alignment decide: no cover of ours → nothing about the repository unless they ask to set it up — then `methods/onboarding.md`; our cover present but align's part missing, or its `contract` below the contract → `methods/align.md`.
 
 **3 · Channel.** Two different things:
 - **the role's seat** — exists, and held? (`verstak_channel(action="list")`, or the `CHANNEL` line on the role);

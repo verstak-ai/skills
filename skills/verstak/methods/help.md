@@ -2,7 +2,7 @@
 
 **Use when:** the person asks how to do something with Verstak — "how do I invite someone to my graph?", "where do I connect a repository?", "how do I share this?", "can it do X?" — or says it doesn't work: "why doesn't it …", "nothing works", "this is broken", a curse at the product. Their signal is an invitation to help on the spot and to teach: do the step with them and show how it's done, so next time they can do it alone. Not for: "I don't know where to start" while a lasting readiness sign is missing (**onboarding**); your own trouble with a method or a tool (**feedback**); a question about their recorded work (**entry**).
 
-**Help records no complaint** — help, don't file. Your own experience of a method or a tool while helping still goes to **feedback**.
+**Help records no complaint** — help, don't file; never promise "I passed it to the team". Your own experience of a method or a tool while helping still goes to **feedback**.
 
 ## Read the signal
 
@@ -26,6 +26,8 @@ Not found in any of them → say so plainly ("I don't know how Verstak does that
 1. **One step, in plain words.** What to do, in a sentence, and where — readiness's next step, the tool move that does it, or the exact place a source names. One step, not the tour; the next one after they've done it.
 2. **Do it with them where you can.** A step you can take with the tools on their word (creating a graph, binding their role, inviting by email) — take it, then say what now exists.
 3. **Teach the way.** One sentence on how they'd do it themselves next time: where it lives and what to look for.
+
+Say what happened, not what was hoped (the door, `Report the receipt, not the hope`): an invitation by email is "I offered access" — the platform's answer doesn't mean the letter went; the letter only when its outcome comes.
 
 ## It doesn't work
 
