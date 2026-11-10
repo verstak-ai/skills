@@ -74,6 +74,7 @@ The architect lives **by signal**: an inbox vimarsha (orient on your role); a me
 
 ## What comes next
 
+- A deputy's news of cases left without a lead, no foreman's seat listening (`references/align-delegation.md`, the `deputy` body) → name the gap and the case's holder; you take no lead.
 - A share returned and checked → back to the foreman by its seam; a case you lead with its subject answered → `methods/lead.md`, `Closing`.
 - A new signal → step 1, from the graph. No signal → the silence occupations.
 - You're designing an agent's small decision or writing its code → hand it back by references (step 5).
