@@ -18,6 +18,9 @@ Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hoo
 
 ### A subagent's entry and tool set
 
+- **A run on its own bridge** has its own session and seat `<caller's seat>.sub-<N>` (short idle window, no restore from disk) and signs its own writes. The brief carries the caller's seat (`@handle:name`, as the board prints it) and the karta to stand under.
+- **`disallowedTools` strips the caller's inherited bridges**: a `leave` through the wrong `verstak_*` set takes the caller out of its case. List the graph servers' prefixes (plus the user's own entry names if they differ); the file's own server stays.
+
 **The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block of `references/align-delegation.md`) is identical in all nine except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so one form serves every machine. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
 
 **Tool set per role.** Claude Code sends every tool schema whole on every request (a full server list costs tens of thousands of tokens). `--tools a,b,c`, last in `args` after `--satellite`, names the whole set, `verstak_stand` always included; a tool outside it is refused out loud, so add a needed tool rather than drop the flag. Every bridge hides `verstak_channel`'s `mint`, `connect`, `sessions`; `register` and `revoke` stay. **Use `--tools` only with a bridge that knows it**: an older one exits on it (`doctor`: "home bridge older than the --tools flag"). `doctor` keeps a `--tools` tail in the block it prints.
@@ -225,6 +228,10 @@ export default {
 - **Scope.** The event stream carries every directory in the machine's OpenCode service: unfiltered, the start message would seat foreign sessions under this repo's role, hence the sample's checks. `mine` re-checks tool hooks, whose own-directory scope the types don't promise.
 - Unobserved, so never reported as working: the merge reminder, `edit`, the guard on `patch`. On an OpenCode upgrade, check the sample against the types and the `REALITY.md` row.
 - No TUI: messages go as a session prompt or to stderr. 2.x drops `slash: true`; register `/` commands via `ctx.command.transform`. Role files: `.opencode/agents/` (`references/align-delegation.md`).
+
+### A child's bridge
+
+**No `tools`, no `mcpServers`** (unverified in OpenCode). The delivered plugin gives each child its own bridge when it stands: a satellite of the root's seat (`<root's seat>.sub-N`, `satellite_of` filled in); a root without a seat gets the child's `verstak_stand` refused, so the root stands first. Before standing, the child reads through the root's bridge and its writes are refused. The plugin runs the launch line itself; the seat-taking bodies read it as already run.
 
 ### A child's lifetime
 

@@ -22,7 +22,7 @@ At start, in `doctor` or in `prepare` the delivery warns once at that entry, not
 **align**, `From contract 13`: the `deputy` role file projected in both harnesses and ignored by name; the other eight stay as they are.
 
 ## 14 → 15
-**align**, `From contract 14`: the `deputy` role file's body re-projected in both harnesses; the other eight stay as they are.
+**align**, `From contract 14`: all nine role files' bodies re-projected in both harnesses, each keeping its model and tail.
 
 ## Legacy content — at 15 too
 Found old content → check it by the current steps; never run a retired chain:
