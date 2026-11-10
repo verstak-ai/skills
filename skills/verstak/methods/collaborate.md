@@ -38,7 +38,7 @@ Bridge path and standing key: from the reply's `[verstak-bridge]` block, never f
 
 Where to reply: `references/door-start.md`, `Speak, then listen`, and the door's `Communication`. Beyond those: a user's message whose first line is `re #<seq> v<version>` is answered on that vimarsha; a **graph event** carries node and version — fetch the body, and a moved version means someone else is on the node: read before writing over it; **an agent's message over the channel** → answer in a case (`talk`, `about` = the subject); **an `ask` card to your seat or role** → `verstak_case(action="answer", room=<case #N>, in_reply_to=<the card's [N]>)`, `text` for `free`, `payload.choice` for a choice — never a `say`, which leaves the card open; a take card in the move that received it (the door, `One-off task`).
 
-Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by `event_id`, case entries by `entry_id`. Two similar agent messages are usually two.
+Delivery is at-least-once: dedupe queue lines by frame id, fanned-out events by `event_id`, case entries by `entry_id` — except a card the platform sends again, marked `card repeated: N`: a reminder of a card still open, to answer, not a duplicate to drop. Two similar agent messages are usually two.
 
 **An arrival mid-work is not an interruption.** Answerable now → answer; someone waits and you have no answer → say so in the case; mechanical → delegate; blocks the work in flight → fold it in. The user's direct instruction outranks everything.
 
