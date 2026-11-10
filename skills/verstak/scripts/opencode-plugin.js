@@ -200,7 +200,7 @@ var serverProtocol = {
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.39.1";
+var VERSION = "3.40.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
