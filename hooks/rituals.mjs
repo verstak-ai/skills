@@ -181,8 +181,20 @@ var TAKE = {
 };
 
 // js/delivery/words/frame-text.ts
+function clockNotice(kind, f) {
+  const unknown = "unknown";
+  const flag = (v) => v === null ? unknown : v ? "yes" : "no";
+  const card = kind === "card_unanswered";
+  const ref = `case #${f.room ?? unknown} (id: ${f.roomId ?? unknown}, graph: ${f.realm ?? unknown}) [${f.entry ?? unknown}], key: ${f.key ?? unknown}`;
+  const who = `${card ? "addressee" : "holder"}: ${f.standing ?? unknown} (id: ${f.standingId ?? unknown}, role: ${f.karta ?? unknown})`;
+  const facts = card ? `listening: ${flag(f.listening)}; last move: ${f.lastAct ?? unknown}; role called: ${flag(f.roleCalled)}` : `due: ${f.due ?? unknown}; passed to the assigner: ${flag(f.escalated)}`;
+  return `${card ? "card unanswered" : "line due"}: ${ref}; ${who}; ${facts}`;
+}
 var FRAME_TEXT = {
   en: {
+    clockNotice: (kind, facts) => clockNotice(kind, facts),
+    cardRepeat: (n) => `card repeated: ${n ?? "repeat number unknown"}`,
+    openCards: (count, oldest, malformed = false) => `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
@@ -847,7 +859,7 @@ function merged(c) {
 // js/shared/turnend.ts
 var TURN_RITE = "turn";
 var SPEAKING = /* @__PURE__ */ new Map([
-  [tool("case"), /* @__PURE__ */ new Set(["ask", "say", "answer", "talk"])],
+  [tool("case"), /* @__PURE__ */ new Set(["ask", "say", "answer", "talk", "line"])],
   [tool("channel"), /* @__PURE__ */ new Set(["send"])]
 ]);
 function speaks(name, input) {
@@ -991,10 +1003,22 @@ function compact(lang2) {
 var COMPACT = new RegExp(
   `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact).join("|")})$`
 );
+var CARDS = new RegExp(
+  `(?:${LANGS.flatMap((lang2) => {
+    const T = FRAME_TEXT[lang2];
+    return [
+      esc(flat(T.openCards(null, null))),
+      esc(flat(T.openCards(null, null, true))),
+      esc(flat(T.openCards(N, null))).replace(NUM, String.raw`\d+`),
+      esc(flat(T.openCards(N, ARGS))).replace(NUM, String.raw`\d+`).replace(ARGS, String.raw`[0-9T:.+Z-]+`)
+    ];
+  }).join("|")})$`
+);
 function quiet(text2) {
   const t = flat(text2);
   const body = t.startsWith(FRAME_MARK) ? t.slice(FRAME_MARK.length) : t;
-  return QUIET2.test(body) || COMPACT.test(body);
+  const withoutCards = body.replace(CARDS, "");
+  return withoutCards !== body && !withoutCards || QUIET2.test(withoutCards) || COMPACT.test(withoutCards);
 }
 
 // js/cli/turnread.ts
@@ -1002,7 +1026,7 @@ var WATCH = /\bwatchdog(?:-exit)?\b/;
 var EXITS = /\bwatchdog-exit\b/;
 var NOTICE = /^\s*<task-notification>/;
 var OWN = [...LANGS.map((l) => WATCHDOG[l].listening("").trim()), "[Monitor "];
-var ownEvent = (event) => event.split("\n").map((l) => l.trim()).filter(Boolean).every((l) => OWN.some((p) => l.startsWith(p)) || /^\{.*"type":"hello"/.test(l));
+var ownEvent = (event) => event.split("\n").map((l) => l.trim()).filter(Boolean).every((l) => OWN.some((p) => l.startsWith(p)) || /^\{.*"type":"hello"/.test(l) || quiet(l));
 var blocks = (e) => {
   const c = e.message?.content;
   return typeof c === "string" ? [{ type: "text", text: c }] : Array.isArray(c) ? c : [];
