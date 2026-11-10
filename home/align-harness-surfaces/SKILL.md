@@ -21,6 +21,14 @@ Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.open
 
 Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `align-hooks`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`align-delegation`).
 
+### When a subagent's entry fails
+
+The entry itself and its rules: `align-delegation`, `Claude Code`.
+
+- **Where the entry doesn't come up at all**: an agent of a plugin, an untrusted folder (the trust dialog not accepted), `--strict-mcp-config`, `--bare` or `--safe-mode`, remote mode, a corporate MCP config — the subagent has no graph tools there.
+
+**Bridge didn't come up: run `doctor` first.** A subagent reports no graph tools, or its run failed with an API 400 about `input_schema` → run `node ~/.verstak-bridge/verstak-bridge.mjs doctor` from the project directory and do the `TODO:` lines of its "subagents" section. It checks: a uniquely named own entry; the command runs on this OS; the bridge exists; `disallowedTools` strips the caller's bridges; the folder is trusted; the machine is logged in; a probe satellite answered; the API accepts the tools' schemas (a top-level `anyOf`/`oneOf`/`allOf` is named; the MCP server's operator fixes it). Repeat until no `TODO:` remains, then relaunch. Involve the user only where `doctor` says to (login, trust dialog, waiting for the server).
+
 ## Codex CLI
 
 **Reads `AGENTS.md` natively; no pointer file.** It merges every `AGENTS.md` from the project root to the cwd over `~/.codex/AGENTS.md` (which does not configure agent behaviour, Step 1). `AGENTS.override.md` beats `AGENTS.md` in its directory: for machine-local notes, never committed.

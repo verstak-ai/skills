@@ -4,7 +4,7 @@ What the align method (`methods/align.md`) projects so that heavy reading and me
 
 ## Doctrine (platform-neutral)
 
-Split work by **role**, not by size. Eight roles, two model tiers: the top tier carries execution, judgment, the volume edit of the graph and both cold roles; the middle tier reconnaissance, search and a story's intake, where the caller catches a miss — the intake's by reading the written nodes. Only `weaver` and `ingester` write the graph, each within rule 6 on its own satellite bridge; the other roles are read-only.
+Split work by **role**, not by size. Nine roles, two model tiers: the top tier carries execution, judgment, the volume edit of the graph and both cold roles; the middle tier reconnaissance, search, a story's intake and leading assigned cases, where the caller catches a miss — the intake's by reading the written nodes. Only `weaver` and `ingester` write the graph, each within rule 6 on its own satellite bridge; `deputy` writes only the opening of its cases; the other roles are read-only.
 
 | Role | Tier | Good for | Returns to the orchestrator (main session) |
 |---|---|---|---|
@@ -16,6 +16,7 @@ Split work by **role**, not by size. Eight roles, two model tiers: the top tier 
 | `designer` | top | volume work with judgment on a decision already made: projecting align files, checking slots against code; no graph writes, design in the graph is not its | result + nodes `#N` + open items as questions; ≤16 lines |
 | `weaver` | top | finding and editing many nodes touched by a decision or correction already made, on its own satellite bridge; what to weave and how is the caller's | the nodes changed `#N` + mismatches and open items as questions; ≤16 lines |
 | `ingester` | middle | intake of a story with many doers by `methods/intake.md`: from the whole text and the decider's sketch, tells the transitions apart and weaves the story's nodes and their joints with the neighbourhood, on its own satellite bridge; the sketch, acts of will and acceptance are the decider's | the nodes written `#N` + divergences from the sketch and questions of substance; ≤16 lines |
+| `deputy` | middle | leads only the cases the foreman assigned it, to their outcome; up only to the foreman; no weaving, no acceptance | per case, its outcome line or where it stands; ≤16 lines |
 
 The orchestrator keeps the dialogue with the user, decisions, the graph craft (reading for a decision, weaving, design, integration, acceptance), orchestration and edits that need the conversation; what `weaver`, `ingester` and `recaller` return, it reads and checks itself (→ door, `Work goes to subagents`). `designer` asks the user nothing, even in a run started on the user's word: its question goes into the case and the return, and the orchestrator asks it.
 
@@ -38,7 +39,7 @@ Role files per platform in use: Claude Code always; OpenCode when the repo shows
 
 The fenced blocks are deployable once each `model:` placeholder is filled with the person's choice, or the line dropped where no pin is set yet (`methods/align.md`, Step 6); the prose is guidance. **The repository tail — lines of the repo in a role file; their home is `AGENTS.md`.** A role file is a projection on the machine, not in git; its body comes from the block below, and the lines the role needs only in this repo (gate command, review canon, edit bans) stand in the `AGENTS.md` section `Role file tails`, by role. The projection puts them at the end of the body under a final `## This repo` heading, and the frontmatter keys beyond the block (tool rights, harness edit bans) beside the block's keys. The tail doesn't override the body: a tail line contradicting it is named in the report, never fixed silently. A tail line in a machine file or an earlier committed projection that `AGENTS.md` lacks → move it into the section before re-projecting. No tail → neither the section nor the heading. Keep each `description` trigger-shaped (it is the routing surface), under ~500 characters, double-quoted, inner `"` escaped: unquoted, a `: ` breaks the YAML.
 
-### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `recaller.md`, `designer.md`, `weaver.md`, `ingester.md`
+### Claude Code: `.claude/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `recaller.md`, `designer.md`, `weaver.md`, `ingester.md`, `deputy.md`
 
 `model` is the person's choice from their preferences (`methods/align.md`, Step 6): a platform alias or an id, as they named it; nothing of the cheap tier for any role (rule 1). Bare role names may collide with user-level agents (the project file wins); rename per repo if it bites.
 
@@ -47,16 +48,15 @@ The fenced blocks are deployable once each `model:` placeholder is filled with t
 - **Every role file carries its own entry**, `reader` included, under its own name (`verstak-sub-reader` … `verstak-sub-ingester`): Claude Code keeps one connection per entry name, so a shared name means a shared bridge process. The sign of an own bridge in any harness: `verstak_stand` with `satellite_of` seats the subagent as a satellite. OpenCode has no entry (its plugin raises the satellite), so a missing entry is not by itself a refusal.
 - **A run on its own bridge** has its own session and seat `<caller's seat>.sub-<N>` (short idle window, no restore from disk) and signs its own writes. The brief carries the caller's seat (`@handle:name`, as the board prints it) and the karta to stand under.
 - **`disallowedTools` strips the caller's inherited bridges**: a `leave` through the wrong `verstak_*` set takes the caller out of its case. List the graph servers' prefixes (plus the user's own entry names if they differ); the file's own server stays.
-- **Parallel runs of the same file share one bridge and one seat, and the first to finish kills it**: the others continue on a fresh bridge with no seat and no case. Run writers and acceptance roles one per file at a time; `reader` and `recaller` run in parallel freely.
+- **Parallel runs of the same file share one bridge and one seat, and the first to finish kills it**: the others continue on a fresh bridge with no seat and no case. Run writers, acceptance roles and `deputy` one per file at a time; `reader` and `recaller` run in parallel freely.
+- **A `deputy` lives only as long as its run**: a finished run hears no frame of its cases.
 - **The entry needs a home bridge that knows `--satellite`**: an older one exits on the flag, leaving no graph tools. Update first (`node ~/.verstak-bridge/verstak-bridge.mjs update`). A flag, not an environment variable, so an old bridge fails loudly instead of silently taking the session's seat.
-- **Where the entry doesn't come up at all**: an agent of a plugin, an untrusted folder (the trust dialog not accepted), `--strict-mcp-config`, `--bare` or `--safe-mode`, remote mode, a corporate MCP config — the subagent has no graph tools there.
-- **Entry didn't come up = launch didn't happen**: the subagent says so first and writes nothing; the launching agent writes to the graph and the case and runs `doctor` (below). Same if the bridge answers `satellite_of` that it is a session bridge: no `verstak_stand`, `join` or `leave`.
+- **Where the entry doesn't come up at all, and `doctor`**: `references/align-harness-surfaces.md`, `Claude Code`, `When a subagent's entry fails`.
+- **Entry didn't come up = launch didn't happen**: the subagent says so first and writes nothing; the launching agent writes to the graph and the case and runs `doctor` (`references/align-harness-surfaces.md`, `When a subagent's entry fails`). Same if the bridge answers `satellite_of` that it is a session bridge: no `verstak_stand`, `join` or `leave`.
 
-**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all eight except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so one form serves every machine. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
+**The entry** (`mcpServers` + `disallowedTools`, after `model` in each role block below) is identical in all nine except the name `verstak-sub-<role>`. One form for every OS (no variable expansion in `args`, no `sh` on Windows): `node` builds the path from `os.homedir()`, so one form serves every machine. It works only whole: `--` keeps `--satellite` from `node`, and `process.argv.splice(1,0,p)` puts the bridge in `argv[1]` so it sees the flag. `node` must be on `PATH`. Unverified on Windows: report whether the first Windows run came up. `doctor` names older forms (`sh -c`, an absolute path) and prints the entry under `TODO:` in its "subagents" section, indented six spaces; unindent it and replace the old `mcpServers` and `disallowedTools`.
 
 **Tool set per role.** Claude Code sends every tool schema whole on every request (a full server list costs tens of thousands of tokens). `--tools a,b,c`, last in `args` after `--satellite`, names the whole set, `verstak_stand` always included; a tool outside it is refused out loud, so add a needed tool rather than drop the flag. Every bridge hides `verstak_channel`'s `mint`, `connect`, `sessions`; `register` and `revoke` stay. **Use `--tools` only with a bridge that knows it**: an older one exits on it (`doctor`: "home bridge older than the --tools flag"). `doctor` keeps a `--tools` tail in the block it prints.
-
-**Bridge didn't come up: run `doctor` first.** A subagent reports no graph tools, or its run failed with an API 400 about `input_schema` → run `node ~/.verstak-bridge/verstak-bridge.mjs doctor` from the project directory and do the `TODO:` lines of its "subagents" section. It checks: a uniquely named own entry; the command runs on this OS; the bridge exists; `disallowedTools` strips the caller's bridges; the folder is trusted; the machine is logged in; a probe satellite answered; the API accepts the tools' schemas (a top-level `anyOf`/`oneOf`/`allOf` is named; the MCP server's operator fixes it). Repeat until no `TODO:` remains, then relaunch. Involve the user only where `doctor` says to (login, trust dialog, waiting for the server).
 
 ```markdown
 ---
@@ -253,7 +253,33 @@ Intake agent for a story with many doers (`methods/intake.md`, "A story with man
 - Don't touch code, files or git; don't spawn subagents. If the brief disagrees with reality, follow reality and say so in the return.
 ```
 
-### OpenCode: `.opencode/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `recaller.md`, `designer.md`, `weaver.md`, `ingester.md`
+```markdown
+---
+name: deputy
+description: "The foreman's deputy: leads only the cases the foreman assigned it, to their outcome. Give it a launch line with its assignment case; per case the subject node, the definition of done, the deadline. Reports only to the foreman. Not for talking to the user, choices of substance, weaving or acceptance."
+model: <middle tier — the person's choice>
+mcpServers:
+  - verstak-sub-deputy:
+      type: stdio
+      command: node
+      args: ["-e", "const p=require('path').join(require('os').homedir(),'.verstak-bridge','verstak-bridge.mjs');process.argv.splice(1,0,p);import(require('url').pathToFileURL(p).href)", "--", "--satellite"]
+disallowedTools: mcp__verstak-bridge, mcp__plugin_verstak_verstak, mcp__verstak
+---
+
+The foreman's deputy (`methods/foreman.md`, `Deputies`): you lead the cases assigned to you to their outcome and take no other work. Your final message is your only output.
+- First line: `STATUS: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED`; second: `NODES: #N, #M…`; then ≤16 lines: per case its number and outcome, or where it stands and on whom.
+- Seat and bridge as `worker`'s; the launch line names your assignment case. No `verstak_*` tools, or `satellite_of` refused → write nothing anywhere; say so in place of `NODES:`.
+- Each assignment is a `say` `to` you there: subject node, definition of done, deadline. Restate it `in_reply_to` it; your `partial` line on its key is the receipt. No subject or no definition → an `ask` card to the foreman.
+- A new case you open on its subject node — `verstak_update(node_id=<subject>, basis_version=<from a fresh look>, open_room=…, parent_room=<the assignment case>)`, nothing else changed — and lead it; a running one you take by its handover card. Its number goes as a line on its key in the assignment case.
+- Lead by `methods/lead.md`, read whole first: work by a `say` `to` the doer's seat with node references; the taking checked; past the deadline a nudge naming what is open, promised, arrived; the outcome as their line with evidence on its carrier and the nodes; then `propose_close`. A behavioural claim is accepted by the witness the assignment names, never by you.
+- A question to the user is asked by the role answering for its subject, by its own card; you only see it asked and acked.
+- Above your mandate (a choice between cases, a missing role, a structural dispute, an owner's act) → an `ask` card to the foreman in the assignment case; no foreman's seat listens → the architect's (`references/door-start.md`, the escalation role). Never a word to the user.
+- No graph writes beyond opening your cases; what the graph needs goes to the foreman as a question. Progress is lines; a `say` only `to` whoever must answer or act. Each case's outcome is your line on its key in the assignment case — `ok` or `bad`, the evidence, the nodes; the foreman accepts it.
+- Ending with a case unfinished → hand its lead back to the foreman by card, close or hand over your lines, name which in your outcome line; then `leave` every case.
+- Don't spawn subagents. If the brief disagrees with reality, follow reality and say so in the return.
+```
+
+### OpenCode: `.opencode/agents/reader.md`, `worker.md`, `verifier.md`, `reviewer.md`, `recaller.md`, `designer.md`, `weaver.md`, `ingester.md`, `deputy.md`
 
 The same bodies verbatim; only the frontmatter differs. **The pin is needed, but it lives on the machine**: an unpinned OpenCode subagent inherits the caller's model, so each file carries a pin, and the file is a local projection out of git (`methods/align.md`, Step 6); the launcher may pass a model at the call where the harness's call tool allows it. Each tier's `provider/model-id` and the norm of the choice: Step 6; the named model missing from the machine's providers → set no pin below: a question to the person through the launcher; meanwhile the unpinned role runs only where the call passes a top-tier model (Step 6).
 
@@ -266,7 +292,7 @@ model: <provider/tier-id — the person's choice>
 <same body>
 ```
 
-- **Models.** Each tier's model and the norm of the choice: `methods/align.md`, Step 6 (the middle tier for `reader`, `recaller` and `ingester`; a faster variant of the same family only where a run on the project graph returns correct node numbers). An inherited cheap model turns acceptance into guessing and review into proofreading that reads as approval.
+- **Models.** Each tier's model and the norm of the choice: `methods/align.md`, Step 6 (the middle tier for `reader`, `recaller`, `ingester` and `deputy`; a faster variant of the same family only where a run on the project graph returns correct node numbers). An inherited cheap model turns acceptance into guessing and review into proofreading that reads as approval.
 - **No `tools`, no `mcpServers`** (unverified in OpenCode). The delivered plugin gives each child its own bridge when it stands: a satellite of the root's seat (`<root's seat>.sub-N`, `satellite_of` filled in); a root without a seat gets the child's `verstak_stand` refused, so the root stands first. Before standing, the child reads through the root's bridge and its writes are refused. The plugin runs the launch line itself; the seat-taking bodies read it as already run.
 - **Lifetime.** A child that stood lives until the assignment's outcome: seat and bridge survive between turns, and a frame from its case wakes its own session. It ends when it has left its last case — `verstak_case(action="leave")` per case, or all with no `room`; the platform's `verstak_case(action="mine")` decides, not the plugin's count — or by `verstak_channel(action="leave")`; by the launching agent's `verstak_channel(action="revoke", standing=<child's seat>)` (final: the child can't stand again); by the platform removing its satellite seat; or by deleting the session. The plugin then removes the seat and hands the launching agent the child's last message, marked as the end (earlier finished turns are marked as turns); after the end the child's writes never go through the root's bridge. Esc or a cancelled turn — the child's own, or the launcher's cascading into it — only interrupts the turn: assignment, seat and cases stay alive. No idle limit: a child waiting on a person waits as long as it takes; remove a forgotten one from the board with `revoke`. The plugin's word about an end by revoke or seat removal, or about a turn cut by cascade, does not wake the launching agent; a plugin reload restores seat and cases by key.
 - The calling agent invokes them through the task tool; `@reader` … `@ingester` are the user's affordance. `reader` and `recaller` carry no launch line: they enter no case.
