@@ -482,3 +482,8 @@ test("the catch-up words send the agent to reread the role's methods", () => {
     assert.doesNotMatch(w, /the role's skills/);
   }
 });
+
+test("a blocked catch-up points at the recovery by hand", () => {
+  const w = SKILL_CATCHUP.en.gate("/r", "1.0.0", "2.0.0", "/r/../.skill-catchup.lock", "");
+  assert.match(w, /SETUP\.md, section 3, SKILLS DELIVERY BLOCKED/);
+});

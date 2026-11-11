@@ -49,7 +49,8 @@ export const SKILL_CATCHUP: Readonly<Record<Lang, SkillCatchupWords>> = {
       `${reason ? `${JSON.stringify(reason)}; ` : ""}the update is not confirmed. ` +
       "First confirm that the updater's process group for this HOME has stopped and that the gate is this catch-up's own. " +
       "Remove the gate only after a complete pinned reread (ref, source, stamp and the bytes of every file) — never on a fresh bridge version or exit 0 alone. " +
-      "npx can outlive a bridge daemon killed with SIGKILL; repeating the seat-taking does not clear the gate. Never delete or bypass it automatically.",
+      "npx can outlive a bridge daemon killed with SIGKILL; repeating the seat-taking does not clear the gate. Never delete or bypass it automatically. " +
+      "The recovery by hand: the installer SETUP.md, section 3, SKILLS DELIVERY BLOCKED.",
     notice: (root, source, installed, target, reason, command) =>
       `SKILLS BEHIND: ${JSON.stringify(root)} (${JSON.stringify(source)}) v${installed} < bridge v${target}; ${WHY[reason]}; not updated. ` +
       `Next command: ${command}. After the update reread the verstak skill and the role's methods: a set on disk is not a loaded context.`,
