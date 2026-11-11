@@ -63,7 +63,7 @@ On `mcp.verstak.ai` the bridge updates itself and reports a newer release as a `
 
 The skill set can lag the bridge on its own; the seat's answer, on taking a seat and on its return, says so in its first line:
 - `SKILLS UPDATED` — the bridge brought the set up itself: reread `verstak` and the role's methods now; a set on disk is not a loaded context.
-- `SKILLS BEHIND` — not updated; the line says why. A `doctor` command you run yourself (`First move`): it updates nothing, so the set stays stale until the user acts on what it reports. Any other command goes to the user; reread once the set is updated.
+- `SKILLS BEHIND` — not updated; the line says why. Two commands are yours to run: `doctor` (`First move` — do what it says; it updates nothing by itself) and a `verstak_stand` retry. Any other command goes to the user; reread once the set is updated.
 - `SKILLS DELIVERY BLOCKED` — an earlier catch-up left its writer gate unconfirmed. Never delete the gate or retry the seat to clear it; tell the user what the line asks them to confirm first.
 
 ## The bridge orchestrator — agents raised by themselves

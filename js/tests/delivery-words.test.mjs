@@ -466,3 +466,19 @@ test("the write gate's refusal sends a role with no skills line to the explicit 
   assert.match(w, /no `skills:` line/);
   assert.doesNotMatch(w, /If the loads are not observable/);
 });
+
+test("the catch-up words send the agent to reread the role's methods", () => {
+  const behind = SKILL_CATCHUP.en.notice(
+    "/r",
+    "verstak-ai/skills",
+    "1.0.0",
+    "2.0.0",
+    "manifest",
+    "c",
+  );
+  const updated = SKILL_CATCHUP.en.updated("/r", "1.0.0", "2.0.0", "abc", "s", []);
+  for (const w of [behind, updated]) {
+    assert.match(w, /the role's methods/);
+    assert.doesNotMatch(w, /the role's skills/);
+  }
+});

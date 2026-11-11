@@ -52,12 +52,12 @@ export const SKILL_CATCHUP: Readonly<Record<Lang, SkillCatchupWords>> = {
       "npx can outlive a bridge daemon killed with SIGKILL; repeating the seat-taking does not clear the gate. Never delete or bypass it automatically.",
     notice: (root, source, installed, target, reason, command) =>
       `SKILLS BEHIND: ${JSON.stringify(root)} (${JSON.stringify(source)}) v${installed} < bridge v${target}; ${WHY[reason]}; not updated. ` +
-      `Next command: ${command}. After the update reread the verstak skill and the role's skills: a set on disk is not a loaded context.`,
+      `Next command: ${command}. After the update reread the verstak skill and the role's methods: a set on disk is not a loaded context.`,
     failed: (root, installed, target, error, command) =>
       `SKILLS BEHIND: ${JSON.stringify(root)} v${installed} < bridge v${target}; ${JSON.stringify(error)}; the update is not confirmed (if it got as far as writing, own files may be partly written). ` +
       `Next command: ${command}.`,
     updated: (root, installed, target, sha, stamp, removed) =>
-      `SKILLS UPDATED: ${JSON.stringify(root)} v${installed} → v${target}, source SHA ${sha}, stamp ${stamp}; reread the verstak skill and the role's skills now. ` +
+      `SKILLS UPDATED: ${JSON.stringify(root)} v${installed} → v${target}, source SHA ${sha}, stamp ${stamp}; reread the verstak skill and the role's methods now. ` +
       `Names this release dropped (left on disk): ${JSON.stringify(removed)}. A set on disk is not a loaded context.`,
   },
 };
