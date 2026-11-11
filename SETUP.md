@@ -384,10 +384,12 @@ the `verstak` door runs this section from the fresh copy `update` places beside 
 **`SKILLS DELIVERY BLOCKED`** — an OpenCode catch-up was interrupted and left its writer gate,
 the directory `~/.agents/.skill-catchup.lock`. Clear it by hand, in this order: no `npx skills`
 process of this HOME is still running (`pgrep -fl "skills add"` prints nothing); reinstall the
-set at the bridge's own release, `npx -y skills add https://github.com/verstak-ai/skills/tree/vVERSION
---skill verstak --agent opencode --global -y` (`VERSION` from `node BRIDGE --version`); check that
-`~/.agents/skills/verstak/SKILL.md` is that release's file; then `rmdir ~/.agents/.skill-catchup.lock`
-and take the seat again. Never remove the gate before the reinstall.
+set at the bridge's own release, `npx -y skills@1.7.6 add https://github.com/verstak-ai/skills/tree/vVERSION
+--skill verstak --agent opencode --global -y` (`VERSION` from `node BRIDGE --version`); compare the whole set
+with that release byte for byte — `d=$(mktemp -d) && git clone -q --depth 1 --branch vVERSION
+https://github.com/verstak-ai/skills "$d" && diff -r "$d/skills/verstak" ~/.agents/skills/verstak`, which
+must print nothing; only then `rmdir ~/.agents/.skill-catchup.lock` and take the seat again. Never
+remove the gate before the reinstall and a silent `diff`: one checked file proves nothing of the rest.
 
 ## 4. Restart
 
