@@ -463,7 +463,8 @@ test("a failed catch-up says partial files only where the update got as far as w
 test("the write gate's refusal sends a role with no skills line to the explicit confirmation", async () => {
   const { CONTEXT_GATE } = await import("../delivery/context-gate.ts");
   const w = CONTEXT_GATE.en.refused;
-  assert.match(w, /no `skills:` line/);
+  assert.match(w, /then confirm the reread explicitly/);
+  assert.doesNotMatch(w, /skills:/);
   assert.doesNotMatch(w, /If the loads are not observable/);
 });
 
@@ -481,4 +482,9 @@ test("the catch-up words send the agent to reread the role's methods", () => {
     assert.match(w, /the role's methods/);
     assert.doesNotMatch(w, /the role's skills/);
   }
+});
+
+test("a blocked catch-up points at the recovery by hand", () => {
+  const w = SKILL_CATCHUP.en.gate("/r", "1.0.0", "2.0.0", "/r/../.skill-catchup.lock", "");
+  assert.match(w, /SETUP\.md, section 3, SKILLS DELIVERY BLOCKED/);
 });

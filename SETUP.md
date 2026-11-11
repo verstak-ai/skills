@@ -381,6 +381,21 @@ then restart the session: a bridge of the
 previous build lives until its session ends. The person can just say "update" to the agent:
 the `verstak` door runs this section from the fresh copy `update` places beside the grant.
 
+**`SKILLS DELIVERY BLOCKED`** — an OpenCode catch-up was interrupted and left its writer gate,
+the directory `~/.agents/.skill-catchup.lock`. Clear it by hand, in this order, with `VERSION` from
+`node BRIDGE --version`: no `npx skills` process of this HOME is still running; the set reinstalled
+at the bridge's own release; the whole set compared with that release byte for byte — `diff` must
+print nothing; only then the gate removed and the seat taken again.
+
+```sh
+pgrep -fl "skills add"      # must print nothing
+npx -y skills@1.7.6 add https://github.com/verstak-ai/skills/tree/vVERSION --skill verstak --agent opencode --global -y
+d=$(mktemp -d) && git clone -q --depth 1 --branch vVERSION https://github.com/verstak-ai/skills "$d" && diff -r "$d/skills/verstak" ~/.agents/skills/verstak
+rmdir ~/.agents/.skill-catchup.lock   # only after a silent diff
+```
+
+Never remove the gate before the reinstall and a silent `diff`: one checked file proves nothing of the rest.
+
 ## 4. Restart
 
 Tell the user installation is done and ask them to restart the session so the skill and
