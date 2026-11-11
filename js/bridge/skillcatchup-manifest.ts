@@ -63,7 +63,7 @@ export async function pinnedSkillManifest(): Promise<SkillManifest> {
     }
     if (/^skills\/[^/]+$/.test(path) && entry.type === "tree" && sha(entry.sha))
       hashes[path.slice(7)] = entry.sha;
-    if (!path.endsWith("/SKILL.md") && path !== "SKILL.md") continue;
+    if (!path.startsWith("skills/") || !path.endsWith("/SKILL.md")) continue;
     const m = /^skills\/([^/]+)\/SKILL\.md$/.exec(path);
     const name = m?.[1];
     if (!name || !safeSkillName(name) || entry.type !== "blob" || entry.mode !== "100644")

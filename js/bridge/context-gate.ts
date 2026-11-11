@@ -2,7 +2,7 @@
 import { CONTEXT_DOOR, CONTEXT_GATE, ROLE_SKILLS, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
-import { READ_ACTIONS, readsOnly } from "../shared/toolreads.ts";
+import { readsOnly } from "../shared/toolreads.ts";
 import { callTool } from "./call.ts";
 import {
   beginRecovery,
@@ -14,6 +14,7 @@ import {
 } from "./context-state.ts";
 import { seatRealm } from "./hearing.ts";
 import { emit } from "./streams.ts";
+import { toolDeclaresAction } from "./toolsync.ts";
 import type { JsonRpcMessage } from "./types.ts";
 import { usagePlace } from "./usage.ts";
 
@@ -126,7 +127,7 @@ export function contextCall(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null
       return answer(msg, words(CONTEXT_GATE).confirmed);
     })();
   }
-  if (!r || readsOnly(name, args, Object.hasOwn(READ_ACTIONS, name))) return null;
+  if (!r || readsOnly(name, args, toolDeclaresAction(name))) return null;
   return Promise.resolve(answer(msg, refusalReason(), true));
 }
 

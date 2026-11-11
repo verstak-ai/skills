@@ -128,10 +128,15 @@ export function createUsageFeed(opts: {
       switch (ev?.type) {
         case "session.step.started": {
           const m = ev.data?.model;
-          if (m?.id) {
-            u.ref = `${m.providerID ?? ""}/${m.id}`;
-            u.model = String(m.id);
-          }
+          const ref =
+            typeof m?.providerID === "string" && m.providerID && typeof m?.id === "string" && m.id
+              ? `${m.providerID}/${m.id}`
+              : undefined;
+          // A previous step's fill must not become the new model's baseline.
+          if (u.ref !== ref) delete u.context;
+          delete u.window;
+          u.ref = ref;
+          u.model = ref;
           void loadWindows();
           break;
         }

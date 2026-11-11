@@ -1,6 +1,5 @@
 import { BRIDGE_NAME, envName, ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
 import { OWN_CLIENTS } from "../shared/clients.ts";
-import { negotiateCounts } from "../shared/frame-format.ts";
 import { parseSpawn } from "../shared/spawned-for.ts";
 import {
   absorbChannelReply,
@@ -29,6 +28,7 @@ import {
 import { evictedRefusal } from "./evicted.ts";
 import { forHarness, structuredOf } from "./fields.ts";
 import { rawSeatRefusal, seatRealm } from "./hearing.ts";
+import { initializeSession } from "./initialize.ts";
 import { localLeave } from "./leave.ts";
 import { annotateToolList } from "./moment.ts";
 import { narrowToolList, outsideSetRefusal } from "./narrow.ts";
@@ -208,7 +208,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
     return;
   }
   const isInit = msg?.method === "initialize";
-  if (isInit) state.initParams = negotiateCounts(msg.params);
+  if (isInit) initializeSession(msg.params);
   const harness = !ownClient();
   const hasId = msg?.id !== undefined && msg?.id !== null;
   let authRetried = false;
@@ -237,7 +237,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
     if (m.id === msg.id) noteStanding(msg, m);
     if (m.id === msg.id && m.result && isInit) saveServerCache({ init: m.result });
     if (m.id === msg.id && msg.method === "tools/list") {
-      annotateToolList(m); // the cache keeps the full annotated list
+      annotateToolList(m, !!msg.params?.cursor); // the cache keeps the full annotated list
       if (m.result && !msg.params?.cursor) saveServerCache({ tools: m.result });
       m = narrowToolList(m); // the harness gets the narrowed copy, fingerprinted as served
       if (!msg.params?.cursor) noteServedTools(m.result, msg);

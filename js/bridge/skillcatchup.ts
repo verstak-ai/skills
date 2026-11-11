@@ -46,9 +46,10 @@ export async function skillCatchupNotice(): Promise<string | null> {
   const client = harnessName();
   const moves = skillMoves();
   const plugin =
-    !!envOf("CLAUDE_PLUGIN_ROOT") ||
-    existsSync(join(root, "..", ".claude-plugin", "plugin.json")) ||
-    existsSync(join(root, "..", ".codex-plugin", "plugin.json"));
+    client !== PI_CLIENT &&
+    (!!envOf("CLAUDE_PLUGIN_ROOT") ||
+      existsSync(join(root, "..", ".claude-plugin", "plugin.json")) ||
+      existsSync(join(root, "..", ".codex-plugin", "plugin.json")));
   const item = skillLock(root, envOf("XDG_STATE_HOME"))?.[BRIDGE_SKILL];
   const source = item?.source;
   const conflict = installed.name !== SKILL_SET || conflictingSkillSource(item);
