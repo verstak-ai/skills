@@ -48,7 +48,7 @@ export const SKILL_CATCHUP: Readonly<Record<Lang, SkillCatchupWords>> = {
       `SKILLS DELIVERY BLOCKED: ${JSON.stringify(root)} is v${installed}, the bridge v${target}; a writer gate stands at ${JSON.stringify(path)}; ` +
       `${reason ? `${JSON.stringify(reason)}; ` : ""}the update is not confirmed. ` +
       "First confirm that the updater's process group for this HOME has stopped and that the gate is this catch-up's own. " +
-      "Remove the gate only after a complete pinned reread (ref, source, stamp and the bytes of every file) — never on a fresh bridge version or exit 0 alone. " +
+      "Remove the gate only after the set was reinstalled at this release and every file compared with it byte for byte — never on a fresh bridge version or exit 0 alone. " +
       "npx can outlive a bridge daemon killed with SIGKILL; repeating the seat-taking does not clear the gate. Never delete or bypass it automatically. " +
       "The recovery by hand: the installer SETUP.md, section 3, SKILLS DELIVERY BLOCKED.",
     notice: (root, source, installed, target, reason, command) =>

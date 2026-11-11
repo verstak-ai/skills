@@ -33,7 +33,7 @@ export const CONTEXT_GATE: Readonly<Record<Lang, ContextGateWords>> = {
     confirmed:
       "The reread is confirmed for this seat and this recovery generation; writes are allowed again.",
     field:
-      "Confirm explicitly that the verstak skill and every skill of the role were reread after a context collapse. " +
+      "Confirm explicitly that the verstak skill and the role's methods were reread after a context collapse. " +
       "Only on the seat you already hold; local to the bridge — no register, no new seat.",
     storage: (why) =>
       `The context recovery mark could not be saved or read: ${why}. The write was not sent; reads stay available. A storage failure does not confirm the reread.`,
