@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "verstak",
-    "version": "0.129.0"
+    "version": "0.142.0"
   },
   "protocolVersion": "2025-06-18",
   "resource": "https://mcp.verstak.ai",
@@ -168,6 +168,7 @@
       "attrs",
       "continues_room",
       "epistemic_mode",
+      "expects",
       "in_room",
       "name",
       "ontic_mode",
@@ -176,6 +177,7 @@
       "realm",
       "reasoning",
       "telos",
+      "to",
       "volitive_mode"
     ],
     "verstak_add_holon": [
@@ -184,6 +186,7 @@
       "continues_room",
       "description",
       "epistemic_mode",
+      "expects",
       "in_room",
       "name",
       "ontic_mode",
@@ -192,6 +195,7 @@
       "parent_room",
       "realm",
       "reasoning",
+      "to",
       "volitive_mode"
     ],
     "verstak_add_karta": [
@@ -199,6 +203,7 @@
       "attrs",
       "continues_room",
       "epistemic_mode",
+      "expects",
       "group_of",
       "in_room",
       "manifested_as",
@@ -209,6 +214,7 @@
       "parent_room",
       "realm",
       "reasoning",
+      "to",
       "user",
       "volitive_mode"
     ],
@@ -219,6 +225,7 @@
       "description",
       "epistemic_mode",
       "essence",
+      "expects",
       "in_room",
       "name",
       "ontic_mode",
@@ -227,6 +234,7 @@
       "parent_room",
       "realm",
       "reasoning",
+      "to",
       "volitive_mode"
     ],
     "verstak_add_phenomenon": [
@@ -235,6 +243,7 @@
       "continues_room",
       "description",
       "epistemic_mode",
+      "expects",
       "given_as",
       "in_room",
       "name",
@@ -244,6 +253,7 @@
       "parent_room",
       "realm",
       "reasoning",
+      "to",
       "volitive_mode"
     ],
     "verstak_add_vimarsha": [
@@ -252,6 +262,7 @@
       "continues_room",
       "description",
       "epistemic_mode",
+      "expects",
       "genre",
       "in_room",
       "name",
@@ -262,6 +273,7 @@
       "posed_to",
       "realm",
       "reasoning",
+      "to",
       "vimarsha_of",
       "volitive_mode"
     ],
@@ -270,9 +282,8 @@
       "active",
       "channel",
       "email",
-      "limit",
+      "handle",
       "node_id",
-      "offset",
       "one_shot",
       "org",
       "payload",
@@ -306,20 +317,24 @@
     "verstak_batch": [
       "compensates",
       "continues_room",
+      "expects",
       "in_room",
       "open_room",
       "operations",
       "parent_room",
       "realm",
-      "reasoning"
+      "reasoning",
+      "to"
     ],
     "verstak_case": [
       "about",
       "action",
       "as_of",
       "attrs",
+      "cites",
       "client_id",
       "done",
+      "due",
       "evidence",
       "from_standing",
       "from_start",
@@ -331,7 +346,9 @@
       "key",
       "limit",
       "moved_to",
+      "no_node",
       "node",
+      "nodes",
       "note",
       "offset",
       "payload",
@@ -362,6 +379,7 @@
       "name",
       "realm",
       "satellite_of",
+      "spawned_for",
       "standing",
       "text"
     ],
@@ -396,6 +414,7 @@
     "verstak_me": [
       "action",
       "handle",
+      "invitation_id",
       "key",
       "realm",
       "since",
@@ -409,6 +428,7 @@
       "base_role",
       "confirm",
       "email",
+      "graph_role",
       "handle",
       "limit",
       "name",
@@ -484,6 +504,7 @@
       "genre",
       "given_as",
       "hybrid",
+      "include_description",
       "limit",
       "node_type",
       "ontic_mode",
@@ -503,6 +524,7 @@
       "room",
       "room_karta",
       "satellite_of",
+      "spawned_for",
       "status",
       "take"
     ],
@@ -511,8 +533,10 @@
       "basis_version",
       "continues_room",
       "description",
+      "description_replace",
       "epistemic_mode",
       "essence",
+      "expects",
       "genre",
       "given_as",
       "in_room",
@@ -526,6 +550,7 @@
       "realm",
       "reasoning",
       "telos",
+      "to",
       "user",
       "volitive_mode"
     ]
