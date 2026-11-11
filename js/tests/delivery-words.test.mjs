@@ -27,11 +27,13 @@ import { RESUME } from "../delivery/words/resume.ts";
 import { ROOT_SEAT } from "../delivery/words/rootseat.ts";
 import { SATELLITE } from "../delivery/words/satellite.ts";
 import { SEPARATE } from "../delivery/words/separate.ts";
+import { SKILL_CATCHUP } from "../delivery/words/skillcatchup.ts";
 import { STALE } from "../delivery/words/stalebatch.ts";
 import { STAND_TOOL } from "../delivery/words/standtool.ts";
 import { STATUS } from "../delivery/words/status.ts";
 import { STOP } from "../delivery/words/stop.ts";
 import { TURN } from "../delivery/words/turn.ts";
+import { UPDATE } from "../delivery/words/update.ts";
 import { REPO } from "./built.mjs";
 
 const DIR = join(REPO, "js", "delivery", "words");
@@ -429,4 +431,26 @@ test("the launch and wake words send movement to a line, a word only addressed",
   assert.match(wake, /line on its key/);
   assert.match(wake, /say `to`/);
   assert.doesNotMatch(wake, /ask\/say/);
+});
+
+// The marketplace is verstak-ai (.claude-plugin/marketplace.json, SETUP.md); SKILLS BEHIND and
+// DELIVERY BEHIND print these as the next command (case #4475).
+test("the plugin update commands name the verstak-ai marketplace, as SETUP.md does", () => {
+  assert.equal(
+    UPDATE.en.moveClaude(),
+    "/plugin marketplace update verstak-ai, then /reload-plugins",
+  );
+  assert.equal(
+    UPDATE.en.moveCodex(),
+    "codex plugin marketplace upgrade verstak-ai, then codex plugin remove verstak@verstak-ai and codex plugin add verstak@verstak-ai",
+  );
+});
+
+// The core passes "manifest" for every own set it does not update itself: another harness,
+// Windows, updates disabled, a dev build, another server (js/bridge/skillcatchup.ts).
+test("the catch-up notice gives the conditions of the automatic update, not an unproven manifest", () => {
+  const w = SKILL_CATCHUP.en.notice("/r", "verstak-ai/skills", "1.0.0", "2.0.0", "manifest", "c");
+  assert.doesNotMatch(w, /pinned file list|ownership/);
+  for (const sign of [/OpenCode/, /Windows/, /release build/, /production server/, /disabled/])
+    assert.match(w, sign);
 });

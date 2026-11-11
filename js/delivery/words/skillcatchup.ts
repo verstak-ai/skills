@@ -36,7 +36,10 @@ const WHY: Readonly<Record<Reason, string>> = {
   patch: "behind by a patch only: a notice, no update",
   plugin: "the harness delivers its plugin itself",
   ownership: "that this delivery owns the set is not proven",
-  manifest: "a complete pinned file list and ownership of every destination are not proven",
+  // The core passes this one code for every own set it leaves alone: another harness, Windows,
+  // updates disabled, a dev build, another server — so the word names the conditions, not one.
+  manifest:
+    "the bridge updates a set itself only for OpenCode, not on Windows, with updates not disabled, from a release build against the production server — one of these does not hold here",
 };
 
 export const SKILL_CATCHUP: Readonly<Record<Lang, SkillCatchupWords>> = {

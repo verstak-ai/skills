@@ -50,11 +50,11 @@ export const UPDATE: Readonly<Record<Lang, UpdateWords>> = {
       `The harness channel updates the skills, and this must be TOLD TO THE USER: Claude Code — ${claude}; ` +
       `flat install — ${flat}; pi — ${pi}; Codex — ${codex}. ` +
       `The full order — the fresh installer ${setup} (update puts it); on the user's word "update" run it.`,
-    moveClaude: () => "/plugin marketplace update verstak, then /reload-plugins",
+    moveClaude: () => "/plugin marketplace update verstak-ai, then /reload-plugins",
     moveFlat: () =>
       "repeat npx skills add verstak-ai/skills --all --global (it brings new skills and refreshes standing ones: npx skills update --global walks only the lock file and brings none, a dropped skill is removed by hand — npx skills remove <name> --global)",
     movePi: () => "pi update git:github.com/verstak-ai/skills",
     moveCodex: () =>
-      "codex plugin marketplace upgrade verstak, then codex plugin remove verstak@verstak and codex plugin add verstak@verstak",
+      "codex plugin marketplace upgrade verstak-ai, then codex plugin remove verstak@verstak-ai and codex plugin add verstak@verstak-ai",
   },
 };
