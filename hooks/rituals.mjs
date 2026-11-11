@@ -95,6 +95,24 @@ var CONFIG_SERVER = CONFIG.server ?? null;
 var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
+// js/delivery/protocol.ts
+var tool = (name) => `${TOOL_PREFIX}${name}`;
+var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
+var ID_PREFIX = `${PRODUCT}-`;
+var FRAME_MARK = `[${PRODUCT}]`;
+var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var HALTS_CAPABILITY = `${PRODUCT}/halts`;
+
+// js/delivery/context-gate.ts
+var CONTEXT_GATE = {
+  en: {
+    refused: `Context may have been compacted (the context fill dropped by half or more). The write was not sent; reads stay available. Reread the verstak skill and the role's methods, then confirm the reread explicitly: ${tool("stand")}(realm=<your graph>, context_restored=true). Then repeat the write.`,
+    confirmed: "The reread is confirmed for this seat and this recovery generation; writes are allowed again.",
+    field: "Confirm explicitly that the verstak skill and the role's methods were reread after a context collapse. Only on the seat you already hold; local to the bridge — no register, no new seat.",
+    storage: (why) => `The context recovery mark could not be saved or read: ${why}. The write was not sent; reads stay available. A storage failure does not confirm the reread.`
+  }
+};
+
 // js/delivery/contract.ts
 var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
 
@@ -161,14 +179,6 @@ var SECTIONS = {
   /** The persistence rules — the memory guard's refusal. */
   persist: (h) => /persistence/i.test(h)
 };
-
-// js/delivery/protocol.ts
-var tool = (name) => `${TOOL_PREFIX}${name}`;
-var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
-var ID_PREFIX = `${PRODUCT}-`;
-var FRAME_MARK = `[${PRODUCT}]`;
-var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
-var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/spawned-for.ts
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
