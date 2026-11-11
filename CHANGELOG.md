@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.44.0](https://github.com/verstak-ai/skills/compare/v3.43.0...v3.44.0) (2026-11-11)
+
+
+### Features
+
+* bridge core from the sibling delivery v7.39.0 — compaction write gate and stale-skill catch-up ([#418](https://github.com/verstak-ai/skills/issues/418)) ([33175c3](https://github.com/verstak-ai/skills/commit/33175c3b8cba562ac804259910eaf4839bc813d3))
+
+
+### Bug Fixes
+
+* recovery from a blocked skill catch-up; the context confirmation takes no other argument ([#420](https://github.com/verstak-ai/skills/issues/420)) ([8aa0b9c](https://github.com/verstak-ai/skills/commit/8aa0b9c8a60459d607700c2de64d76e479106b58))
+
 ## [3.43.0](https://github.com/verstak-ai/skills/compare/v3.42.0...v3.43.0) (2026-11-10)
 
 
