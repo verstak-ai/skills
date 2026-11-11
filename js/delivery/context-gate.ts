@@ -28,8 +28,8 @@ export const CONTEXT_GATE: Readonly<Record<Lang, ContextGateWords>> = {
   en: {
     refused:
       "Context may have been compacted (the context fill dropped by half or more). The write was not sent; reads stay available. " +
-      "Load the verstak skill and every skill the role names, then repeat the write. " +
-      `If the loads are not observable, confirm the reread explicitly: ${tool("stand")}(realm=<your graph>, context_restored=true).`,
+      "Load the verstak skill and the role's methods. Where the role's ATTRS carry a `skills:` line, loading those skills lifts this; with no `skills:` line, confirm the reread explicitly: " +
+      `${tool("stand")}(realm=<your graph>, context_restored=true). Then repeat the write.`,
     confirmed:
       "The reread is confirmed for this seat and this recovery generation; writes are allowed again.",
     field:

@@ -459,3 +459,10 @@ test("a failed catch-up says partial files only where the update got as far as w
   const w = SKILL_CATCHUP.en.failed("/r", "1.0.0", "2.0.0", "manifest", "c");
   assert.match(w, /if it got as far as writing/);
 });
+
+test("the write gate's refusal sends a role with no skills line to the explicit confirmation", async () => {
+  const { CONTEXT_GATE } = await import("../delivery/context-gate.ts");
+  const w = CONTEXT_GATE.en.refused;
+  assert.match(w, /no `skills:` line/);
+  assert.doesNotMatch(w, /If the loads are not observable/);
+});
