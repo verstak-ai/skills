@@ -180,6 +180,8 @@ The owner's answer counts once woven in: `ack` it (`verstak`, `Waiting on an ans
 
 Before a long stretch, mark (§2c) and leave pointers in the case (vimarsha, branch, what you checked, the decision-time grounds and limits the next session can't re-derive). After, trust graph and artifact over recollection; rerun any check whose evidence you can't point at.
 
+After any compaction, reload `verstak` and the role's skills before your next write; a summary's "next steps" are not your instructions. The bridge catches only part of it: in OpenCode and pi it refuses the first write after the context fill drops by half or more (`verstak`, `Agent moments`) — a heuristic, not proof; Claude Code and Codex give it no fill numbers — in Claude Code only the compaction hook's word returns the role — and a compaction a proxy does below the harness reaches neither.
+
 ## Acceptance
 
 A duty round succeeded when it cost one bounded step — or, with every step empty, the check of your area's reality — and the next wake-up is armed. A work round succeeded when the graph, the code or a check moved: integrated, or held at a named gate with the wait recorded *before* sleeping; relayed, escalated, or left with a reason on the node. A second agent reading the graph first, then the cases, can tell what this one shipped, waits for and asks.

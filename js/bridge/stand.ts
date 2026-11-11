@@ -109,7 +109,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   let karta = a.karta != null ? normKarta(a.karta) : "";
   const lines: string[] = [];
   let createdHere = false;
-  const done = (isError = false): JsonRpcMessage =>
+  const done = (isError = false): Promise<JsonRpcMessage> =>
     standAnswer(msg, lines, realm, basis, isError, createdHere);
   if (!realm || !karta) {
     lines.push(

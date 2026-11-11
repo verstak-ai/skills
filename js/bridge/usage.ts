@@ -6,10 +6,11 @@
 // tact instead (#8617), register only for the skill set. The last snapshot bypasses the
 // threshold before the seat is left or closed: a closed seat answers 404.
 import { envName, method, USAGE } from "../delivery/index.ts";
-import { HOSTED_CLIENTS } from "../shared/clients.ts";
+import { HOSTED_CLIENTS, OPENCODE_CLIENT } from "../shared/clients.ts";
 import { words } from "../shared/lang.ts";
 import { bindScope, scoped } from "../shared/scope.ts";
 import { harnessName } from "./client.ts";
+import { observeContext, observeSkill } from "./context-gate.ts";
 import { isParked } from "./hold.ts";
 import { onDispatcher, tickFor } from "./muxhold.ts";
 import { rememberUsage } from "./placefields.ts";
@@ -67,7 +68,13 @@ export async function runUsage(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
       usage: null,
       why: words(USAGE).notHosted(),
     });
-  const u = usageOf((msg.params ?? {}) as Record<string, unknown>);
+  const params = (msg.params ?? {}) as Record<string, unknown>;
+  if (harnessName() === OPENCODE_CLIENT) {
+    await observeContext(params);
+    await observeSkill(params.recovery);
+  }
+  if (params.recovery) return answer({ observed: true });
+  const u = usageOf(params);
   if (!u)
     return answer({
       pushed: false,

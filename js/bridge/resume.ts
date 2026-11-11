@@ -45,6 +45,7 @@ import { placeFields } from "./placefields.ts";
 import { recordsFor, type ResumeSelector } from "./resumepick.ts";
 import { resumeWords } from "./resumewords.ts";
 import { seatProof } from "./seatproof.ts";
+import { skillCatchupNotice } from "./skillcatchup.ts";
 import { publishStatus } from "./status.ts";
 import { standingLog } from "./store.ts";
 import { emit, log } from "./streams.ts";
@@ -344,12 +345,20 @@ export function holdFromEnv(): void {
   if (url) holdStanding(url, envOf(envName("CHANNEL_STATUS"))?.trim() || null);
 }
 
-const reply = (msg: JsonRpcMessage, result: unknown): JsonRpcMessage => {
-  const r = result as { resumed?: boolean; holding?: boolean } | null;
+const reply = async (msg: JsonRpcMessage, result: unknown): Promise<JsonRpcMessage> => {
+  const r = result as { resumed?: boolean; holding?: boolean; word?: string } | null;
+  const notice = r?.resumed ? await skillCatchupNotice() : null;
   return {
     jsonrpc: "2.0",
     id: msg.id,
-    result: r && (r.resumed || r.holding) ? { ...r, ...seatProof(ledKey()) } : result,
+    result:
+      r && (r.resumed || r.holding)
+        ? {
+            ...r,
+            ...seatProof(ledKey()),
+            ...(notice ? { word: `${notice}\n${r.word ?? ""}` } : {}),
+          }
+        : result,
   };
 };
 

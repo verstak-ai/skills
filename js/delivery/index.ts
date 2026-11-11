@@ -1,8 +1,9 @@
 // The delivery layer: the core (js/) takes everything that tells this delivery
-// apart through this one path. Order is by file path: the machine's config, the contract support,
+// apart through this one path. Order is by file path: the machine's config, the context gate, the contract support,
 // language, server prose forms (patterns/), product name, protocol, launch basis, version, words
 // (words/).
 export { DEFAULT_SERVER_URL } from "./config.ts";
+export { CONTEXT_DOOR, CONTEXT_GATE, type ContextGateWords, ROLE_SKILLS } from "./context-gate.ts";
 export { CONTRACT_SUPPORT } from "./contract.ts";
 export { DEFAULT_LANG, type Lang, langOfServer, LANGS } from "./lang.ts";
 export { BOARD_FORM, BOARD_HEADER } from "./patterns/board.ts";
@@ -122,6 +123,7 @@ export { RUN_END, type RunEndWords } from "./words/runend.ts";
 export { SATELLITE, type SatelliteWords } from "./words/satellite.ts";
 export { SAT_PROBE, type SatProbeWords } from "./words/satprobe.ts";
 export { type Kin, SEPARATE, type SeparateWords } from "./words/separate.ts";
+export { SKILL_CATCHUP, type SkillCatchupWords } from "./words/skillcatchup.ts";
 export { SPAWNED_FOR, type SpawnedForWords } from "./words/spawned-for.ts";
 export { STALE, type StaleWords } from "./words/stalebatch.ts";
 export { STAND, type StandWords } from "./words/stand.ts";

@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { BUILD_TOOL_PREFIX, parseConfig } from "../delivery/config.ts";
+import { CONTEXT_DOOR, ROLE_SKILLS } from "../delivery/context-gate.ts";
 import { DEFAULT_LANG, langOfServer, LANGS } from "../delivery/lang.ts";
 import {
   BRIDGE_FILE,
@@ -175,6 +176,32 @@ test("a lead's last case is read off the English server prose", async () => {
     "No case is held on #5.",
   ])
     await assert.rejects(left(unread), /unread answer/, unread);
+});
+
+// The context recovery gate (the core's bridge/context-gate.ts) reads the role's skills off a
+// node read: mcp.verstak.ai prints the attributes as a last `  ATTRS:` section (observed on a
+// karta, 2026-11-11). A list the gate cannot find stays unknown and only the explicit
+// confirmation lifts the mark; a `skills:` line elsewhere in the role must not pass for it.
+test("the role's skills are read off the English server's ATTRS section, and the door is our skill", () => {
+  const skillsOf = (text) => {
+    const attrs = ROLE_SKILLS.exec(text)?.[1];
+    return attrs === undefined ? undefined : /^ {2}skills:[ \t]*([^\r\n]*)$/m.exec(attrs)?.[1];
+  };
+  const karta = (attrs) =>
+    "🧭 Companion @bb (#6, karta 能, v1)\n  Modes: pratyakshita · vartamana · adhimoksha\n" +
+    "  Manifested as: 能 adhikarin — authorised karta\n\n  MOTIVATION:\n" +
+    "  The person's companion.\n  skills: not-the-list\n" +
+    (attrs ? `\n  ATTRS:\n${attrs}` : "");
+  assert.equal(
+    skillsOf(karta("  persona: companion\n  skills: writing, weaving")),
+    "writing, weaving",
+  );
+  assert.equal(skillsOf(karta("  persona: companion")), undefined);
+  assert.equal(skillsOf(karta("")), undefined);
+  const door = /^name:\s*(\S+)$/m.exec(
+    readFileSync(join(REPO, "skills", "verstak", "SKILL.md"), "utf8"),
+  )?.[1];
+  assert.equal(CONTEXT_DOOR, door);
 });
 
 // A lead child's end carries its last text as testimony, not acceptance, and a cut is said, not

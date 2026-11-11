@@ -16,6 +16,7 @@ import { BUILD } from "./build.ts";
 import { crossPlaceRefusal, resolveAgainstLed, serialized } from "./call.ts";
 import { noteCaseEntry } from "./caseexit.ts";
 import { claimReply, refuseLaunch, refuseUnbound } from "./claimdelivery.ts";
+import { contextCall, refuseContext } from "./context-gate.ts";
 import { deafRefusal } from "./deaf.ts";
 import {
   AuthPending,
@@ -198,11 +199,10 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
     if (msg.method === "tools/call") void refreshSkills();
   }
 }
-
 const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted, localRealm];
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   if (refuseLaunch(msg)) return;
-  const local = LOCAL.reduce<Promise<JsonRpcMessage> | null>((got, f) => got ?? f(msg), null);
+  const local = LOCAL.reduce((got, f) => got ?? f(msg), contextCall(msg));
   if (local) {
     emit(await local);
     return;
@@ -223,7 +223,6 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       outcome = UpstreamError.UNKNOWN;
     }
   };
-
   // A tool call's own reply is held back until it has been read for the
   // unattributed mark; everything else the server streams passes through.
   const isToolCall = msg?.method === "tools/call";
@@ -275,7 +274,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         await reinitialize();
       }
       if (!isInit) await ensureStanding(); // the session may have turned over under us
-      if (refuseLaunch(msg) || refuseUnbound(msg)) return; // replay may have failed its claim
+      if (refuseLaunch(msg) || refuseUnbound(msg) || (await refuseContext(msg))) return;
       // A taken or deaf seat signs no record (graph @nks/nks-dev, node #6706).
       const taken = hasId ? (evictedRefusal(msg) ?? (await deafRefusal(msg))) : null;
       if (taken) {
@@ -347,6 +346,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         });
         return;
       }
+      if (await refuseContext(msg)) return;
       expectOwnRevoke(msg); // close 4001 may outrun the reply: the bridge must know it revoked
       if (
         msg.method === "tools/call" &&

@@ -70,9 +70,24 @@ export function createUsageFeed(opts: {
 
   // Snapshots go one at a time: otherwise the last could overtake the previous and the seat keep old numbers.
   const inFlight = new Map<string, Promise<void>>();
-  const send = async (session: string, timeoutMs: number): Promise<void> => {
-    const u = bySession.get(session);
+  const send = async (
+    session: string,
+    timeoutMs: number,
+    snapshot?: UsagePayload & { ref?: string },
+  ): Promise<void> => {
+    const u = snapshot ?? bySession.get(session);
     if (!u) return;
+    if (snapshot) {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          loadWindows(),
+          new Promise<void>((r) => (timer = setTimeout(r, 3_000))),
+        ]);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
     const { ref, ...p } = u;
     if (ref && windows.has(ref)) p.window = windows.get(ref);
     await opts
@@ -80,11 +95,17 @@ export function createUsageFeed(opts: {
       ?.request(method("usage"), p, { timeoutMs })
       .catch(() => {});
   };
-  const flush = (session: string, timeoutMs = 10_000): Promise<void> => {
+  const flush = (
+    session: string,
+    timeoutMs = 10_000,
+    snapshot?: UsagePayload & { ref?: string },
+  ): Promise<void> => {
     clearTimeout(timers.get(session));
     timers.delete(session);
     // Numbers are taken when sent, not when queued: the last snapshot goes.
-    const p = (inFlight.get(session) ?? Promise.resolve()).then(() => send(session, timeoutMs));
+    const p = (inFlight.get(session) ?? Promise.resolve()).then(() =>
+      send(session, timeoutMs, snapshot),
+    );
     inFlight.set(session, p);
     void p.finally(() => {
       if (inFlight.get(session) === p) inFlight.delete(session);
@@ -126,7 +147,10 @@ export function createUsageFeed(opts: {
           return;
       }
       bySession.set(session, u);
-      schedule(session);
+      // Fill samples cannot be coalesced: a high and low step in one debounce window
+      // are the recovery signal (#10121). Calls await this ordered queue before writing.
+      if (ev.type === "session.step.ended") void flush(session, 3_000, { ...u });
+      else schedule(session);
     },
     // No pending snapshot — wait for the one in flight: the bridge does not leave the seat before its answer.
     flush: (session) =>

@@ -40,14 +40,13 @@ import { type PutDown } from "./putdown.ts";
 import { revokeAsLauncher } from "./release.ts";
 import { canonOf, type SeatAnswer } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
-import { childWriteRefusal, createRunEnds, declaresAction } from "./runends.ts";
+import { childWriteRefusal, createRunEnds, declaresAction, readsOnly } from "./runends.ts";
 import { asSatellite, STAND_TOOL, standsBy } from "./satellite.ts";
 import { inSlot } from "./service.ts";
 import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
 import { statusLines, statusTool } from "./status.ts";
 
 export type Say = (text: string, level: "info" | "warning" | "error") => void;
-
 /* eslint-disable @typescript-eslint/no-explicit-any -- bridge answers come without a schema */
 
 export type { Slot } from "./slot.ts";
@@ -308,6 +307,7 @@ export async function setupTools(
         description: String(t.description ?? ""),
         input: toParameters(t.inputSchema),
         async execute(input, tool) {
+          if (!readsOnly(name, input ?? {}, asks)) await flushUsage(String(tool.sessionID));
           return seats.explicit(String(tool.sessionID), name, input ?? {}, async () => {
             // The launcher's revoke of its lead's seat ends the child, then goes to the platform
             // by the launcher's bridge (#6625, #7505); a child ended by a move is answered here (adopt.ts).
@@ -386,7 +386,7 @@ export async function setupTools(
     const busy = name === STAND_TOOL && asSatellite(args, slot.satelliteOf, !!slot.place);
     if (name === STAND_TOOL) await models.name(args, sessionID, slot);
     // The bridge runs in OpenCode's cwd: the standing's repo comes from the session's directory (#5108).
-    if (name === STAND_TOOL && !args.cwd) {
+    if (name === STAND_TOOL && args.context_restored !== true && !args.cwd) {
       const dir = (slot.dir ??= await directoryOf(slot.session ?? sessionID));
       if (dir) args.cwd = dir;
     }

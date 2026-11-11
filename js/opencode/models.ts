@@ -56,7 +56,7 @@ export function createModels(ctx: Context): Models {
     },
     of,
     async name(args, session, bridge) {
-      if (!args.satellite_of) return;
+      if (!args.satellite_of || args.context_restored === true) return;
       const next = withHarnessModel(args, await of(session), seatsOf(bridge).realms());
       delete args.model;
       Object.assign(args, next);
