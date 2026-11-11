@@ -454,3 +454,8 @@ test("the catch-up notice gives the conditions of the automatic update, not an u
   for (const sign of [/OpenCode/, /Windows/, /release build/, /production server/, /disabled/])
     assert.match(w, sign);
 });
+
+test("a failed catch-up says partial files only where the update got as far as writing", () => {
+  const w = SKILL_CATCHUP.en.failed("/r", "1.0.0", "2.0.0", "manifest", "c");
+  assert.match(w, /if it got as far as writing/);
+});
