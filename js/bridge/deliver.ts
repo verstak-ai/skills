@@ -1,6 +1,5 @@
 import { BRIDGE_NAME, envName, ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
 import { OWN_CLIENTS } from "../shared/clients.ts";
-import { negotiateCounts } from "../shared/frame-format.ts";
 import { parseSpawn } from "../shared/spawned-for.ts";
 import {
   absorbChannelReply,
@@ -16,6 +15,7 @@ import { BUILD } from "./build.ts";
 import { crossPlaceRefusal, resolveAgainstLed, serialized } from "./call.ts";
 import { noteCaseEntry } from "./caseexit.ts";
 import { claimReply, refuseLaunch, refuseUnbound } from "./claimdelivery.ts";
+import { contextCall, refuseContext } from "./context-gate.ts";
 import { deafRefusal } from "./deaf.ts";
 import {
   AuthPending,
@@ -28,6 +28,7 @@ import {
 import { evictedRefusal } from "./evicted.ts";
 import { forHarness, structuredOf } from "./fields.ts";
 import { rawSeatRefusal, seatRealm } from "./hearing.ts";
+import { initializeSession } from "./initialize.ts";
 import { localLeave } from "./leave.ts";
 import { annotateToolList } from "./moment.ts";
 import { narrowToolList, outsideSetRefusal } from "./narrow.ts";
@@ -198,17 +199,16 @@ export async function deliver(msg: JsonRpcMessage): Promise<void> {
     if (msg.method === "tools/call") void refreshSkills();
   }
 }
-
 const LOCAL = [localStatus, localLeave, localSuspend, localAway, localEnd, localHalted, localRealm];
 async function deliverOne(msg: JsonRpcMessage): Promise<void> {
   if (refuseLaunch(msg)) return;
-  const local = LOCAL.reduce<Promise<JsonRpcMessage> | null>((got, f) => got ?? f(msg), null);
+  const local = LOCAL.reduce((got, f) => got ?? f(msg), contextCall(msg));
   if (local) {
     emit(await local);
     return;
   }
   const isInit = msg?.method === "initialize";
-  if (isInit) state.initParams = negotiateCounts(msg.params);
+  if (isInit) initializeSession(msg.params);
   const harness = !ownClient();
   const hasId = msg?.id !== undefined && msg?.id !== null;
   let authRetried = false;
@@ -223,7 +223,6 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       outcome = UpstreamError.UNKNOWN;
     }
   };
-
   // A tool call's own reply is held back until it has been read for the
   // unattributed mark; everything else the server streams passes through.
   const isToolCall = msg?.method === "tools/call";
@@ -238,7 +237,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
     if (m.id === msg.id) noteStanding(msg, m);
     if (m.id === msg.id && m.result && isInit) saveServerCache({ init: m.result });
     if (m.id === msg.id && msg.method === "tools/list") {
-      annotateToolList(m); // the cache keeps the full annotated list
+      annotateToolList(m, !!msg.params?.cursor); // the cache keeps the full annotated list
       if (m.result && !msg.params?.cursor) saveServerCache({ tools: m.result });
       m = narrowToolList(m); // the harness gets the narrowed copy, fingerprinted as served
       if (!msg.params?.cursor) noteServedTools(m.result, msg);
@@ -275,7 +274,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         await reinitialize();
       }
       if (!isInit) await ensureStanding(); // the session may have turned over under us
-      if (refuseLaunch(msg) || refuseUnbound(msg)) return; // replay may have failed its claim
+      if (refuseLaunch(msg) || refuseUnbound(msg) || (await refuseContext(msg))) return;
       // A taken or deaf seat signs no record (graph @nks/nks-dev, node #6706).
       const taken = hasId ? (evictedRefusal(msg) ?? (await deafRefusal(msg))) : null;
       if (taken) {
@@ -347,6 +346,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         });
         return;
       }
+      if (await refuseContext(msg)) return;
       expectOwnRevoke(msg); // close 4001 may outrun the reply: the bridge must know it revoked
       if (
         msg.method === "tools/call" &&

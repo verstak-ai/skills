@@ -10,6 +10,7 @@
 import { createHash } from "node:crypto";
 
 import { scoped } from "../shared/scope.ts";
+import { declaresAction } from "../shared/toolreads.ts";
 import { log } from "./streams.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
@@ -22,7 +23,22 @@ const T = scoped(() => ({
   listing: new WeakSet<JsonRpcMessage>(), // the harness's tools/list (first page) in flight
   heldBack: new WeakSet<JsonRpcMessage>(), // …in whose answer the server said list_changed
   live: new WeakSet<JsonRpcMessage>(), // …answered to the harness with the server's live list
+  actions: new Set<string>(), // known schemas in this session, never a process-wide help list
 }));
+
+/** An already received list (live or cached), before narrowing; later pages add to it. */
+export function noteToolSchemas(result: unknown, append = false): void {
+  const tools = (result as { tools?: { name?: unknown; inputSchema?: unknown }[] } | null)?.tools;
+  if (!Array.isArray(tools)) return;
+  if (!append) T.actions.clear();
+  for (const t of tools) {
+    if (typeof t?.name !== "string") continue;
+    if (declaresAction(t.inputSchema)) T.actions.add(t.name);
+    else T.actions.delete(t.name);
+  }
+}
+
+export const toolDeclaresAction = (name: string): boolean => T.actions.has(name);
 
 /** A print of names and schemas: the bridge rewrites descriptions itself, so they are left out. */
 export function toolsPrint(result: unknown): string | null {
@@ -86,6 +102,7 @@ function tell(emit: (m: JsonRpcMessage) => void, why: string, again = false): vo
  * itself — the word waits to see whether it got through (watchHarnessListing).
  */
 export function heardListChanged(sent: JsonRpcMessage, emit: (m: JsonRpcMessage) => void): void {
+  T.actions.clear(); // the old schemas are no longer authority until a list is received
   if (T.listing.has(sent)) return void T.heldBack.add(sent);
   tell(emit, `the server said its tool list changed (answering ${sent?.method})`);
 }

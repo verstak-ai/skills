@@ -6,6 +6,7 @@ import { MOMENT, tool, TOOL_PREFIX } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { escapeRe } from "../shared/regex.ts";
 import { STAND_TOOL_NAME, standTool } from "./standtool.ts";
+import { noteToolSchemas } from "./toolsync.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
 /** The bridge's own move on the channel tool: busyness (#6509). */
@@ -34,7 +35,7 @@ function withoutFormerMoment(d: string): string {
 }
 
 /** tools/list reply: the stand tool in, the channel tool's lines on. Idempotent. */
-export function annotateToolList(reply: JsonRpcMessage): void {
+export function annotateToolList(reply: JsonRpcMessage, append = false): void {
   const tools = reply?.result?.tools;
   if (!Array.isArray(tools)) return;
   // The stand tool exists only through the bridge, so its presence marks the transport.
@@ -50,4 +51,5 @@ export function annotateToolList(reply: JsonRpcMessage): void {
     if (!t.description.includes(leaveLine())) t.description = `${leaveLine()}\n\n${t.description}`;
     if (!t.description.includes(statusLine())) t.description = `${statusLine()}\n${t.description}`;
   }
+  noteToolSchemas(reply.result, append);
 }

@@ -4,49 +4,10 @@
 // launcher's seat, a case leave taking the launcher out. The mark lives in the plugin's memory
 // until a new stand call or the session's deletion.
 import { tool } from "../delivery/index.ts";
+import { READ_ACTIONS, READ_TOOLS, readsOnly } from "../shared/toolreads.ts";
+export { declaresAction, readsOnly } from "../shared/toolreads.ts";
 import { W } from "./leadwords.ts";
 import { type Place, STAND_TOOL } from "./satellite.ts";
-
-/** Tools an ended child runs by the root's bridge in full: they only read. */
-const READ_TOOLS = new Set(["look", "orient", "search", "semantic_search"].map(tool));
-
-/**
- * Reading actions of tools that also write: they sign nothing and go by the root's bridge.
- * The others, like graph and case writes, are refused. A history invert counts as writing.
- * Actions — by the surface's tool descriptions (fixtures/surface.json, action).
- */
-const CASE_READS = new Set(["read", "history", "mine", "at"]);
-const READ_ACTIONS: Record<string, Set<string>> = {
-  [tool("case")]: CASE_READS,
-  [tool("channel")]: new Set(["list", "sessions", "history"]),
-  [tool("realm")]: new Set(["list"]),
-  [tool("org")]: new Set(["list", "get", "realms", "list_members", "list_grants"]),
-  [tool("me")]: new Set(["whoami", "orgs", "kartas", "usage"]),
-  [tool("history")]: new Set(["realm", "node", "delta"]),
-  [tool("admin")]: new Set([
-    "list_members",
-    "access",
-    "search_users",
-    "list_webhooks",
-    "user_webhooks",
-    "version",
-  ]),
-};
-
-/** The tool declares an action argument in its schema (inputSchema from tools/list). */
-export const declaresAction = (inputSchema: unknown): boolean => {
-  const props = (inputSchema as { properties?: unknown } | null)?.properties;
-  return !!props && typeof props === "object" && Object.hasOwn(props, "action");
-};
-
-/**
- * The call only reads: it signs nothing and may go by the root's bridge. action="?" is help only
- * for a tool that declared action (asks): others drop the extra argument and run the call.
- */
-export const readsOnly = (name: string, args: Record<string, unknown>, asks: boolean): boolean => {
-  const action = String(args.action ?? "");
-  return READ_TOOLS.has(name) || (asks && action === "?") || !!READ_ACTIONS[name]?.has(action);
-};
 
 /** A child's read by the root's bridge: a case history with keep_cursor, or it would move the ROOT's cursor. */
 const asChildRead = (name: string, args: Record<string, unknown>): void => {

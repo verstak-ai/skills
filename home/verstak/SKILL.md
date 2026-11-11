@@ -145,7 +145,7 @@ Ask: **what will they be holding when you finish?** — "knows X", "Y isn't lost
 - "onboarding" or a redo → **onboarding**, whatever the signs; "help me get started", "I don't know where to start" → **onboarding** while a lasting readiness sign is missing; every one met → their task, **entry**; a thread's first word that is a bare readiness-sign key (one of the keys `verstak_me(action="readiness")` prints, e.g. `working_graph`) → **onboarding**, from that step
 - "make a roadmap", "what next here" → product-roadmap, a plugin-only method this catalogue does not carry
 - "work on your own", "take it to merge" → **autonomous**; going on watch is `Start`
-- "update the bridge", or `DELIVERY BEHIND` in a reply (offer unasked) → **establish-mcp**
+- "update the bridge", or `DELIVERY BEHIND` or a `SKILLS …` line in a reply (offer unasked) → **establish-mcp**, `Updating`
 - "let agents launch themselves", "through Orca", "turn the orchestrator on" → **minding** (the launcher description), then **establish-mcp**, `The bridge orchestrator`
 - "Codex under Orca", "Orca as an agent launcher" by hand → **establish-mcp** (`establish-mcp-orca`, read whole)
 - "how do I … in Verstak", "where do I …", "why doesn't it work", "nothing works", a curse at the product → **help**: on the spot, one step together, and how to do it alone
@@ -223,6 +223,7 @@ They apply unasked.
 | a search returned hits | open the node, follow the arrow the question needs, lens on that scope — **entry** |
 | a frame names a node, an answer comes from a card, or an edit feels like a reply in a case | the neighbourhood and the chain first, by `Relations before text`; a shared node — **integrity** before the edit, not after; the case's history doesn't replace the relations |
 | about to answer from what you remember (training, earlier context, a summary after compaction), or a search came back empty | climb the ladder — **entry**, `Recalling` |
+| a write refused with "Context may have been compacted" | reads still pass: load this skill and the role's methods, then, after the reread, `verstak_stand` on the seat you hold with `realm` and `context_restored=true`, and repeat the write; where the role's `ATTRS` carry a `skills:` line, loading those skills lifts the refusal without that call — a role's prose or a repository's role tail is no such line; the call confirms a reread done, never one promised — **autonomous**, `Surviving context compaction` |
 | about to ask the user something that may already be recorded ("what did we agree?", "why is it so?") | the ladder first; the user is its last rung — **entry**, `Recalling` |
 | mid-code, a choice needs its ground (why is it so, may I change it) | the code's graph reference, else the ladder from the holon — never the ground read off the code alone — **entry**, `Re-entering during work` |
 | the user's word may drop a direction, an artifact or a thesis; a record, branch or document looks outdated | **forgetting** |

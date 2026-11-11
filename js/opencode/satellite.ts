@@ -11,7 +11,7 @@ export const STAND_TOOL = tool("stand");
 
 /** A call whose success means the session stands (the bridge holds a seat or is bound to one). */
 export function standsBy(name: string, args: Record<string, unknown>): boolean {
-  if (name === STAND_TOOL) return true;
+  if (name === STAND_TOOL) return args.context_restored !== true;
   return name === tool("channel") && ["connect", "mint", "register"].includes(String(args.action));
 }
 
@@ -54,13 +54,14 @@ export function heldPlace(data: { place?: Partial<Place> } | undefined): Place |
 /**
  * A satellite's stand arguments: the root's seat, the role named by the agent, otherwise the
  * root's. A busy line alone (#6509) gets no root role, or a satellite in its own role would go
- * the full taking path. Returns whether this is a busy line alone: its success is not holding.
+ * the full taking path. True means a busy line or local recovery, not taking a seat.
  */
 export function asSatellite(
   args: Record<string, unknown>,
   of: Place | null | undefined,
   leads = false,
 ): boolean {
+  if (args.context_restored === true) return true; // local recovery, not a new seat (#10121)
   const busy = busyOnly(args);
   if (!of) return busy;
   args.satellite_of ??= of.name;

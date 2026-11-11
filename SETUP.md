@@ -368,7 +368,11 @@ Where a plugin brings the bridge (Claude Code, Codex, pi), there may be no home 
 the running bridge is printed in the `[verstak-bridge]` block of a `verstak_stand`
 response; call `update` and `doctor` by it.
 
-The bridge does not update the skill — the harness channel does. After `update` repeat
+The harness channel updates the skill. One exception: in OpenCode, a global flat set
+(`~/.agents/skills`, installed from this repository, not on Windows) a minor or major release
+behind the bridge is brought up by the bridge itself when a seat is taken or returns, through
+`npx skills` at the release's exact commit, and checked file by file after (`SKILLS UPDATED`);
+everywhere else the seat's answer only names the lag and the command (`SKILLS BEHIND`). After `update` repeat
 step 1 of your branch (`/plugin marketplace update verstak-ai` and `/reload-plugins` in
 Claude Code; your flat `npx skills add` command again;
 `pi update git:github.com/verstak-ai/skills`; `codex plugin marketplace upgrade verstak-ai`,

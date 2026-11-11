@@ -18,6 +18,7 @@ import { authDir } from "./bridge-io.ts";
 import { setupChannel } from "./channel.ts";
 import { setupCommands } from "./commands.ts";
 import { createCompaction } from "./compaction.ts";
+import { setupContextGate } from "./context-gate.ts";
 import { idleHalf } from "./half.ts";
 import { createHalts } from "./halts.ts";
 import { createHookContext } from "./hook-context.ts";
@@ -324,6 +325,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     bridgeOf: (s) => half.bridgeOf(s),
   });
   flushUsage = (s) => usage.flush(s);
+  await setupContextGate(ctx, { bridgeOf: (s) => half.bridgeOf(s), flush: flushUsage });
   // A directory unloads after 60 min without durable events — a held seat keeps it (keepalive.ts).
   const keepalive = createKeepAlive(ctx, {
     holders: () => half.holders(),

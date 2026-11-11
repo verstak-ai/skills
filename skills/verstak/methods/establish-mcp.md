@@ -1,6 +1,6 @@
 # establish-mcp — connecting and maintaining the bridge
 
-**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge", "turn the orchestrator on"; agents should raise themselves through the user's Orca — turning the bridge orchestrator on and checking it. **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`), the orchestrator (`The bridge orchestrator`) — or Codex under Orca ("Codex under Orca", "Orca as a launcher", the app-server door missing): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
+**Use when:** the session has no `verstak_*` tools, or they fail on transport (not connected, an OAuth sign-in link, a dead token, silence); a machine's first sign-in; switching server instance; `DELIVERY BEHIND` or a `SKILLS …` line appears in a reply; asked which bridge version is installed. Triggers: "connect the graph", "bring up the bridge", "verstak tools unavailable", "MCP won't connect", "OAuth isn't going through", "sign in with a token", "PAT instead of OAuth", "connect OpenCode", "update the bridge", "turn the orchestrator on"; agents should raise themselves through the user's Orca — turning the bridge orchestrator on and checking it. **Not when** any `verstak_*` call has answered on substance, unless the task is maintenance — an update, the installed version, switching instance (`Updating`, `Server: use`), the orchestrator (`The bridge orchestrator`) — or Codex under Orca ("Codex under Orca", "Orca as a launcher", the app-server door missing): a refusal from the graph itself (no such node, no permission, a 422) is not transport, and graph tools from another delivery don't need this method.
 
 **Grounding:** a record's author is attested by the seat that wrote it, not by a name in the text; the bridge holds that seat binding and the grant, so without it writes go out without an author. The rest of transport is product mechanics.
 
@@ -55,6 +55,11 @@ Default: `https://mcp.verstak.ai/`. Another instance: `node ~/.verstak-bridge/ve
 ## Updating
 
 On `mcp.verstak.ai` the bridge updates itself and reports a newer release as a `DELIVERY BEHIND` line in tool responses — pass it on. After `use URL` it checks only on demand: `node ~/.verstak-bridge/verstak-bridge.mjs update` — fresh bridge, OpenCode plugin (if installed) and `SETUP.md` into the home, plus next steps: skills update through the harness channel per `SETUP.md`; then **restart sessions** (an old bridge lives until its session ends). Installed build: `node BRIDGE --version`.
+
+The skill set can lag the bridge on its own; the seat's answer, on taking a seat and on its return, says so in its first line:
+- `SKILLS UPDATED` — the bridge brought the set up itself: reread the door and the role's methods now; a set on disk is not a loaded context.
+- `SKILLS BEHIND` — not updated; the line says why. Two commands are yours to run: `doctor` (`First move` — do what it says; it updates nothing by itself) and a `verstak_stand` retry. Any other command goes to the user; reread once the set is updated.
+- `SKILLS DELIVERY BLOCKED` — an earlier catch-up left its writer gate unconfirmed. Never delete the gate or retry the seat to clear it; tell the user what the line asks them to confirm first.
 
 ## The bridge orchestrator — agents raised by themselves
 
