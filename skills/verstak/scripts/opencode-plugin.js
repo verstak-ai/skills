@@ -93,6 +93,28 @@ var CONFIG_SERVER = CONFIG.server ?? null;
 var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
+// js/delivery/protocol.ts
+var tool = (name) => `${TOOL_PREFIX}${name}`;
+var method = (name) => `${PRODUCT}/${name}`;
+var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
+var ID_PREFIX = `${PRODUCT}-`;
+var FRAME_MARK = `[${PRODUCT}]`;
+var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var HALTS_CAPABILITY = `${PRODUCT}/halts`;
+var serverProtocol = {
+  refusal: "verstak/refusal"
+};
+
+// js/delivery/context-gate.ts
+var CONTEXT_GATE = {
+  en: {
+    refused: `Context may have been compacted (the context fill dropped by half or more). The write was not sent; reads stay available. Reread the verstak skill and the role's methods, then confirm the reread explicitly: ${tool("stand")}(realm=<your graph>, context_restored=true). Then repeat the write.`,
+    confirmed: "The reread is confirmed for this seat and this recovery generation; writes are allowed again.",
+    field: "Confirm explicitly that the verstak skill and the role's methods were reread after a context collapse. Only on the seat you already hold; local to the bridge — no register, no new seat.",
+    storage: (why) => `The context recovery mark could not be saved or read: ${why}. The write was not sent; reads stay available. A storage failure does not confirm the reread.`
+  }
+};
+
 // js/delivery/contract.ts
 var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
 
@@ -184,23 +206,11 @@ var SECTIONS = {
   persist: (h) => /persistence/i.test(h)
 };
 
-// js/delivery/protocol.ts
-var tool = (name) => `${TOOL_PREFIX}${name}`;
-var method = (name) => `${PRODUCT}/${name}`;
-var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
-var ID_PREFIX = `${PRODUCT}-`;
-var FRAME_MARK = `[${PRODUCT}]`;
-var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
-var HALTS_CAPABILITY = `${PRODUCT}/halts`;
-var serverProtocol = {
-  refusal: "verstak/refusal"
-};
-
 // js/delivery/spawned-for.ts
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.43.0";
+var VERSION = "3.44.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -2376,6 +2386,33 @@ var SAFE_ACTIONS = {
 var CLOSE_MS = Number(process.env[envName("BRIDGE_SESSION_CLOSE_MS")]) || 3e3;
 var flying = scoped(() => /* @__PURE__ */ new Set());
 
+// js/shared/toolreads.ts
+var READ_TOOLS2 = new Set(["look", "orient", "search", "semantic_search"].map(tool));
+var READ_ACTIONS = {
+  [tool("case")]: /* @__PURE__ */ new Set(["read", "history", "mine", "at"]),
+  [tool("channel")]: /* @__PURE__ */ new Set(["list", "sessions", "history"]),
+  [tool("realm")]: /* @__PURE__ */ new Set(["list"]),
+  [tool("org")]: /* @__PURE__ */ new Set(["list", "get", "realms", "list_members", "list_grants"]),
+  [tool("me")]: /* @__PURE__ */ new Set(["whoami", "orgs", "kartas", "usage", "readiness"]),
+  [tool("history")]: /* @__PURE__ */ new Set(["realm", "node", "delta"]),
+  [tool("admin")]: /* @__PURE__ */ new Set([
+    "list_members",
+    "access",
+    "search_users",
+    "list_webhooks",
+    "user_webhooks",
+    "version"
+  ])
+};
+var declaresAction = (schema) => {
+  const props = schema?.properties;
+  return !!props && typeof props === "object" && Object.hasOwn(props, "action");
+};
+var readsOnly = (name, args, asks) => {
+  const action = String(args.action ?? "");
+  return READ_TOOLS2.has(name) || asks && action === "?" || !!READ_ACTIONS[name]?.has(action);
+};
+
 // js/bridge/toolsync.ts
 var T2 = scoped(() => ({
   served: null,
@@ -2388,8 +2425,10 @@ var T2 = scoped(() => ({
   // the harness's tools/list (first page) in flight
   heldBack: /* @__PURE__ */ new WeakSet(),
   // …in whose answer the server said list_changed
-  live: /* @__PURE__ */ new WeakSet()
+  live: /* @__PURE__ */ new WeakSet(),
   // …answered to the harness with the server's live list
+  actions: /* @__PURE__ */ new Set()
+  // known schemas in this session, never a process-wide help list
 }));
 
 // js/shared/satname.ts
@@ -3318,7 +3357,7 @@ var takingArgs = (args) => Object.keys(args).filter((k) => !STATUS_ONLY_ARGS.has
 // js/opencode/satellite.ts
 var STAND_TOOL2 = tool("stand");
 function standsBy(name, args) {
-  if (name === STAND_TOOL2) return true;
+  if (name === STAND_TOOL2) return args.context_restored !== true;
   return name === tool("channel") && ["connect", "mint", "register"].includes(String(args.action));
 }
 var busyOnly = (args) => typeof args.status === "string" && takingArgs(args).length === 0;
@@ -3334,6 +3373,7 @@ function heldPlace(data) {
   return { realm: String(p.realm), karta: String(p.karta), name: p.name };
 }
 function asSatellite(args, of, leads = false) {
+  if (args.context_restored === true) return true;
   const busy = busyOnly(args);
   if (!of) return busy;
   args.satellite_of ??= of.name;
@@ -4793,7 +4833,7 @@ function createModels(ctx) {
     },
     of,
     async name(args, session, bridge) {
-      if (!args.satellite_of) return;
+      if (!args.satellite_of || args.context_restored === true) return;
       const next = withHarnessModel(args, await of(session), seatsOf2(bridge).realms());
       delete args.model;
       Object.assign(args, next);
@@ -5252,32 +5292,6 @@ function createSeatLife(d) {
 }
 
 // js/opencode/runends.ts
-var READ_TOOLS2 = new Set(["look", "orient", "search", "semantic_search"].map(tool));
-var CASE_READS = /* @__PURE__ */ new Set(["read", "history", "mine", "at"]);
-var READ_ACTIONS = {
-  [tool("case")]: CASE_READS,
-  [tool("channel")]: /* @__PURE__ */ new Set(["list", "sessions", "history"]),
-  [tool("realm")]: /* @__PURE__ */ new Set(["list"]),
-  [tool("org")]: /* @__PURE__ */ new Set(["list", "get", "realms", "list_members", "list_grants"]),
-  [tool("me")]: /* @__PURE__ */ new Set(["whoami", "orgs", "kartas", "usage"]),
-  [tool("history")]: /* @__PURE__ */ new Set(["realm", "node", "delta"]),
-  [tool("admin")]: /* @__PURE__ */ new Set([
-    "list_members",
-    "access",
-    "search_users",
-    "list_webhooks",
-    "user_webhooks",
-    "version"
-  ])
-};
-var declaresAction = (inputSchema) => {
-  const props = inputSchema?.properties;
-  return !!props && typeof props === "object" && Object.hasOwn(props, "action");
-};
-var readsOnly = (name, args, asks) => {
-  const action = String(args.action ?? "");
-  return READ_TOOLS2.has(name) || asks && action === "?" || !!READ_ACTIONS[name]?.has(action);
-};
 var asChildRead = (name, args) => {
   if (name === tool("case") && args.action === "history") args.keep_cursor = true;
 };
@@ -5583,6 +5597,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
         description: String(t.description ?? ""),
         input: toParameters(t.inputSchema),
         async execute(input, tool2) {
+          if (!readsOnly(name, input ?? {}, asks)) await flushUsage(String(tool2.sessionID));
           return seats.explicit(String(tool2.sessionID), name, input ?? {}, async () => {
             const caller = String(tool2.sessionID);
             const freed = await leads.release(
@@ -5646,7 +5661,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     }
     const busy = name === STAND_TOOL2 && asSatellite(args, slot.satelliteOf, !!slot.place);
     if (name === STAND_TOOL2) await models.name(args, sessionID, slot);
-    if (name === STAND_TOOL2 && !args.cwd) {
+    if (name === STAND_TOOL2 && args.context_restored !== true && !args.cwd) {
       const dir = slot.dir ??= await directoryOf(slot.session ?? sessionID);
       if (dir) args.cwd = dir;
     }
@@ -6319,6 +6334,46 @@ function createCompaction(doors) {
       for (const s of pending.keys()) if (doors.closed(s)) pending.delete(s);
     }
   };
+}
+
+// js/opencode/context-gate.ts
+async function setupContextGate(ctx, opts) {
+  const calls = /* @__PURE__ */ new Map();
+  await ctx.tool.hook("execute.before", async (t) => {
+    if (t.tool !== "skill") return;
+    const session = String(t.sessionID);
+    await opts.flush(session);
+    const skill = t.input?.id;
+    const bridge = opts.bridgeOf(session);
+    if (!bridge || typeof skill !== "string") return;
+    const id = `${session}:${t.id}`;
+    if (calls.size >= 128 || calls.has(id)) return;
+    try {
+      await bridge.request(
+        method("usage"),
+        { recovery: { phase: "begin", id, skill } },
+        { timeoutMs: 3e3 }
+      );
+      calls.set(id, { bridge, session, skill });
+    } catch {
+    }
+  });
+  await ctx.tool.hook("execute.after", async (t) => {
+    if (t.tool !== "skill") return;
+    const id = `${t.sessionID}:${t.id}`;
+    const call = calls.get(id);
+    calls.delete(id);
+    if (!call || opts.bridgeOf(call.session) !== call.bridge) return;
+    const ok = t.status === "completed" && !t.result?.isError;
+    await call.bridge.request(
+      method("usage"),
+      {
+        recovery: { phase: "end", id, skill: call.skill, ok }
+      },
+      { timeoutMs: 3e3 }
+    ).catch(() => {
+    });
+  });
 }
 
 // js/opencode/hook-context.ts
@@ -8042,18 +8097,31 @@ function createUsageFeed(opts) {
     }
   })();
   const inFlight = /* @__PURE__ */ new Map();
-  const send = async (session, timeoutMs) => {
-    const u = bySession.get(session);
+  const send = async (session, timeoutMs, snapshot) => {
+    const u = snapshot ?? bySession.get(session);
     if (!u) return;
+    if (snapshot) {
+      let timer;
+      try {
+        await Promise.race([
+          loadWindows(),
+          new Promise((r) => timer = setTimeout(r, 3e3))
+        ]);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
     const { ref, ...p } = u;
     if (ref && windows.has(ref)) p.window = windows.get(ref);
     await opts.bridgeOf(session)?.request(method("usage"), p, { timeoutMs }).catch(() => {
     });
   };
-  const flush = (session, timeoutMs = 1e4) => {
+  const flush = (session, timeoutMs = 1e4, snapshot) => {
     clearTimeout(timers.get(session));
     timers.delete(session);
-    const p = (inFlight.get(session) ?? Promise.resolve()).then(() => send(session, timeoutMs));
+    const p = (inFlight.get(session) ?? Promise.resolve()).then(
+      () => send(session, timeoutMs, snapshot)
+    );
     inFlight.set(session, p);
     void p.finally(() => {
       if (inFlight.get(session) === p) inFlight.delete(session);
@@ -8075,10 +8143,11 @@ function createUsageFeed(opts) {
       switch (ev?.type) {
         case "session.step.started": {
           const m = ev.data?.model;
-          if (m?.id) {
-            u.ref = `${m.providerID ?? ""}/${m.id}`;
-            u.model = String(m.id);
-          }
+          const ref = typeof m?.providerID === "string" && m.providerID && typeof m?.id === "string" && m.id ? `${m.providerID}/${m.id}` : void 0;
+          if (u.ref !== ref) delete u.context;
+          delete u.window;
+          u.ref = ref;
+          u.model = ref;
           void loadWindows();
           break;
         }
@@ -8094,7 +8163,8 @@ function createUsageFeed(opts) {
           return;
       }
       bySession.set(session, u);
-      schedule(session);
+      if (ev.type === "session.step.ended") void flush(session, 3e3, { ...u });
+      else schedule(session);
     },
     // No pending snapshot — wait for the one in flight: the bridge does not leave the seat before its answer.
     flush: (session) => timers.has(session) ? flush(session, 3e3) : inFlight.get(session) ?? Promise.resolve(),
@@ -8423,6 +8493,7 @@ async function setup(ctx) {
     bridgeOf: (s) => half.bridgeOf(s)
   });
   flushUsage = (s) => usage.flush(s);
+  await setupContextGate(ctx, { bridgeOf: (s) => half.bridgeOf(s), flush: flushUsage });
   const keepalive = createKeepAlive(ctx, {
     holders: () => half.holders(),
     owns: (s) => half.owns(s),

@@ -93,14 +93,6 @@ var CONFIG_SERVER = CONFIG.server ?? null;
 var DEFAULT_SERVER_URL = CONFIG.server ?? BUILD_SERVER_URL;
 var TOOL_PREFIX = CONFIG.tool_prefix ?? BUILD_TOOL_PREFIX;
 
-// js/delivery/patterns/launch.ts
-var LAUNCH_WORD = "verstak";
-var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
-  "mu"
-);
-
 // js/delivery/protocol.ts
 var tool = (name) => `${TOOL_PREFIX}${name}`;
 var method = (name) => `${PRODUCT}/${name}`;
@@ -110,11 +102,29 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
+// js/delivery/context-gate.ts
+var CONTEXT_GATE = {
+  en: {
+    refused: `Context may have been compacted (the context fill dropped by half or more). The write was not sent; reads stay available. Reread the verstak skill and the role's methods, then confirm the reread explicitly: ${tool("stand")}(realm=<your graph>, context_restored=true). Then repeat the write.`,
+    confirmed: "The reread is confirmed for this seat and this recovery generation; writes are allowed again.",
+    field: "Confirm explicitly that the verstak skill and the role's methods were reread after a context collapse. Only on the seat you already hold; local to the bridge — no register, no new seat.",
+    storage: (why) => `The context recovery mark could not be saved or read: ${why}. The write was not sent; reads stay available. A storage failure does not confirm the reread.`
+  }
+};
+
+// js/delivery/patterns/launch.ts
+var LAUNCH_WORD = "verstak";
+var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var LAUNCH_LINE = new RegExp(
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  "mu"
+);
+
 // js/delivery/spawned-for.ts
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.43.0";
+var VERSION = "3.44.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1218,6 +1228,25 @@ var SAFE_ACTIONS = {
 var CLOSE_MS = Number(process.env[envName("BRIDGE_SESSION_CLOSE_MS")]) || 3e3;
 var flying = scoped(() => /* @__PURE__ */ new Set());
 
+// js/shared/toolreads.ts
+var READ_TOOLS2 = new Set(["look", "orient", "search", "semantic_search"].map(tool));
+var READ_ACTIONS = {
+  [tool("case")]: /* @__PURE__ */ new Set(["read", "history", "mine", "at"]),
+  [tool("channel")]: /* @__PURE__ */ new Set(["list", "sessions", "history"]),
+  [tool("realm")]: /* @__PURE__ */ new Set(["list"]),
+  [tool("org")]: /* @__PURE__ */ new Set(["list", "get", "realms", "list_members", "list_grants"]),
+  [tool("me")]: /* @__PURE__ */ new Set(["whoami", "orgs", "kartas", "usage", "readiness"]),
+  [tool("history")]: /* @__PURE__ */ new Set(["realm", "node", "delta"]),
+  [tool("admin")]: /* @__PURE__ */ new Set([
+    "list_members",
+    "access",
+    "search_users",
+    "list_webhooks",
+    "user_webhooks",
+    "version"
+  ])
+};
+
 // js/bridge/toolsync.ts
 var T = scoped(() => ({
   served: null,
@@ -1230,8 +1259,10 @@ var T = scoped(() => ({
   // the harness's tools/list (first page) in flight
   heldBack: /* @__PURE__ */ new WeakSet(),
   // …in whose answer the server said list_changed
-  live: /* @__PURE__ */ new WeakSet()
+  live: /* @__PURE__ */ new WeakSet(),
   // …answered to the harness with the server's live list
+  actions: /* @__PURE__ */ new Set()
+  // known schemas in this session, never a process-wide help list
 }));
 
 // js/bridge/transport.ts
