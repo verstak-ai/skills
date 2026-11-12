@@ -92,6 +92,7 @@ surface:
 # The dev build of the shipped JS, then the verstak.skill bundle and home/ from
 # skills/verstak/ (the bundle carries the committed — release — outputs).
 build: build-js
+	@node scripts/build-question-hook.mjs
 	@bash scripts/build-skills.sh
 
 # Enable the repo's pre-commit hook (lint-staged, dev build, verstak.skill and home/).

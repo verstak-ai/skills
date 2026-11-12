@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # On every commit: lint and format the staged js/ sources, rebuild the dev build of
-# the shipped JS into dist/dev (outside the index — tests run it), and keep the
-# committed verstak.skill bundle and home/ in sync with skills/verstak/. The committed
+# the shipped JS into dist/dev (outside the index — tests run it), write the question hook's
+# command into hooks/hooks.json from its source, and keep the committed verstak.skill bundle
+# and home/ in sync with skills/verstak/. The committed
 # JS outputs are a release build written by make build-release; this hook never touches them.
 # Enable once with: make hooks   (sets core.hooksPath -> .githooks)
 set -euo pipefail
@@ -16,6 +17,18 @@ if [[ -n "$(git diff --cached --name-only -- js/)" ]]; then
   fi
   (cd js && npx --no-install lint-staged)
   node js/build.mjs >/dev/null
+fi
+# The question hook's command: staged only when the generator changed it in a file with no other
+# unstaged edits; a stale command beside unstaged edits stops the commit rather than stage them.
+hooks_json="hooks/hooks.json"
+if ! git diff --quiet -- "$hooks_json"; then
+  if ! node "$root/scripts/build-question-hook.mjs" --check; then
+    echo "pre-commit: $hooks_json has unstaged edits and a stale question command; run make build, review and stage it" >&2
+    exit 1
+  fi
+else
+  node "$root/scripts/build-question-hook.mjs"
+  git diff --quiet -- "$hooks_json" || git add -- "$hooks_json"
 fi
 bash "$root/scripts/build-skills.sh" >/dev/null
 git add -- "$root/verstak.skill" "$root/home"

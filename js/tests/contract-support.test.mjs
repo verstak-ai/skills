@@ -1,6 +1,6 @@
 // The alignment support boundary in our words and numbers (the core's shared/covercontract.ts;
 // graph @nks/nks-dev, node #9786): a cover below contract 11 gets one warning naming a full
-// verstak align to 15 at each explicit entry — the Claude Code start ritual, doctor, prepare —
+// verstak align to 16 at each explicit entry — the Claude Code start ritual, doctor, prepare —
 // and nothing in the repository is touched: the old hooks stay, the stamp is not bumped.
 // Supported and future covers hear nothing; our older stamp lines count on the same counter, a
 // date there is no number. The target is pinned to the contract the door and align write
@@ -22,7 +22,7 @@ import { COVER, repo, start } from "./rites-kit.mjs";
 
 const BRIDGE = process.env.VERSTAK_BRIDGE_PATH || BUILT_BRIDGE;
 const WARNING =
-  "Contract 10 is no longer supported; old hooks have not been removed. Run a full verstak align to contract 15; rituals will be accepted after verification";
+  "Contract 10 is no longer supported; old hooks have not been removed. Run a full verstak align to contract 16; rituals will be accepted after verification";
 const OLD = COVER.replace("contract: 11", "contract: 10");
 const OWN_START = {
   hooks: {
@@ -86,7 +86,7 @@ test("the Claude Code start ritual warns once in our words, keeping the reposito
 });
 
 test("supported and future covers are not called unsupported", () => {
-  for (const c of [11, 12, 13, 14, 15, 16]) {
+  for (const c of [11, 12, 13, 14, 15, 16, 17]) {
     const dir = repo({ agents: COVER.replace("contract: 11", `contract: ${c}`) });
     assert.ok(!start(dir)?.additionalContext.includes("no longer supported"), String(c));
   }

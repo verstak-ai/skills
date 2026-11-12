@@ -4,17 +4,17 @@ The **rituals** (start, push, merge, memory guard) are carried by the delivery f
 
 | Harness | Reads | Pointer file needed | Automation surface |
 |---|---|---|---|
-| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard — `.claude/settings.json` |
+| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard and the `AskUserQuestion` deny — `.claude/settings.json`; the plugin's hook refuses `AskUserQuestion` too, in a repository of ours (`methods/align.md`, Step 4, `The blocking question tool`) |
 | Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align; the rituals are `AGENTS.md` prose |
-| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard |
+| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard; `question` — the project policy in `.opencode/opencode.json` or `.jsonc`, written by align where OpenCode is used; the plugin's own refusal is not shipped yet |
 
-Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Take every one present through the table.
+Detect — the one rule for which harness is used here (the blocking question tool's layers follow it too, `methods/align.md`, Step 4): `.claude/` or the plugin cache → Claude Code; `.opencode/` or a root `opencode.json` / `opencode.jsonc` → OpenCode; `.codex/` or `~/.codex/` → Codex; or the person says they run it. Take every one present through the table.
 
 **The start ritual everywhere:** one message, word for word the same in every harness (the delivery's start word; a hand-written hook of an older delivery copies it), whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; no person's role is in it — the agent asks the human who launched the session. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
 ## Claude Code
 
-Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`references/align-delegation.md`).
+Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. `AskUserQuestion` has two refusal layers (who is ours, and where each applies: Step 4, `The blocking question tool`): the plugin's `PreToolUse` hook, which answers `deny` in a repository of ours whatever its `rituals:`, and in any other says nothing; and the `deny` in `.claude/settings.json` `permissions`. Neither is observed live yet: the sign that accepts them is a live session with the tool refused while an `ask` card in the case still lands. Role files: `.claude/agents/` (`references/align-delegation.md`).
 
 ### A subagent's entry and tool set
 

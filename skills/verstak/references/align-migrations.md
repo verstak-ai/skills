@@ -1,11 +1,11 @@
 # Migrations: the support boundary and legacy content
 
-Read whole before the first mutation of a repository whose cover's `contract` is below `15`, missing, invalid or ambiguous, whose cover has an older form, or whose files show legacy content named below — at `15` too: the number doesn't replace the check of content (`methods/align.md`, `Contract`). Name the starting contract in the report, or that it is unknown — never substitute `11`. Another delivery's cover does not become ours by this file; a contract above `15` is never lowered nor called unsupported — update the delivery. The live rules the content lands on — Step 4's transition, Step 5's hygiene, Step 6's roles, Step 7's cover — are the method's; this file carries only what the old form was and where its content goes. Content transfers before anything is deleted.
+Read whole before the first mutation of a repository whose cover's `contract` is below `16`, missing, invalid or ambiguous, whose cover has an older form, or whose files show legacy content named below — at `16` too: the number doesn't replace the check of content (`methods/align.md`, `Contract`). Name the starting contract in the report, or that it is unknown — never substitute `11`. Another delivery's cover does not become ours by this file; a contract above `16` is never lowered nor called unsupported — update the delivery. The live rules the content lands on — Step 4's transition, Step 5's hygiene, Step 6's roles, Step 7's cover — are the method's; this file carries only what the old form was and where its content goes. Content transfers before anything is deleted.
 
 ## 10 and below — a full run by current sources
 The chain of moves from older contracts no longer applies. Run both rounds and every step of the current method against their sources; a full run is not "wipe it and start over". Before an edit, read the old config, the authored constraints, the role file tails and the hooks; re-project what is derived, keep the authored judgment, resolve a contradiction by Step 1. Others' hooks stay byte for byte; your own old ones and the memory guard: Step 4, `The transition`.
 
-At start, in `doctor` or in `prepare` the delivery warns once at that entry, not on every command or frame: "Contract N is no longer supported; old hooks have not been removed. Run a full verstak align to contract 15; rituals will be accepted after verification". Codex and pi have no shipped start hook: there the warning comes through `doctor` and `prepare`. A missing or ambiguous number is unknown, not proof of an unsupported contract. Step 7 writes `15` only after the run's checks, never to silence the warning.
+At start, in `doctor` or in `prepare` the delivery warns once at that entry, not on every command or frame: "Contract N is no longer supported; old hooks have not been removed. Run a full verstak align to contract 16; rituals will be accepted after verification". Codex and pi have no shipped start hook: there the warning comes through `doctor` and `prepare`. A missing or ambiguous number is unknown, not proof of an unsupported contract. Step 7 writes `16` only after the run's checks, never to silence the warning.
 
 ## 11 → 12
 `methods/align.md`, `From contract 11`. The move does not replace the passes over the whole artifact (Step 7).
@@ -19,7 +19,10 @@ At start, in `doctor` or in `prepare` the delivery warns once at that entry, not
 ## 14 → 15
 `methods/align.md`, `From contract 14`: all nine role files' bodies re-projected in both harnesses, each keeping its model and tail.
 
-## Legacy content — at 15 too
+## 15 → 16
+`methods/align.md`, `From contract 15`: the `Refused tools` line, the `permissions.deny` entry for `AskUserQuestion` and the `question` policy in `.opencode/opencode.json` or `.jsonc`, beside others' entries, each only where its harness applies; when the cover is raised: Step 4, `The blocking question tool`. A `deny` that isn't a list of strings, `permissions` that isn't a map, or `policies` that isn't a list, is never rewritten: name it in the case and leave it to the person.
+
+## Legacy content — at 16 too
 Found old content → check it by the current steps; never run a retired chain:
 - Own rituals (start, push or merge hooks, a `*ritual*` plugin, a `Stop` guard, a writing-moment pointer on write tools) → `methods/align.md`, `Own rituals`, and Step 4, `The transition`; others' entries and other kinds stay.
 - Flat cover slots, a `Cover` section or table, the stamp line at the file's end → `methods/align.md`, `An older cover`. Unknown addresses are not guessed; what the bridge leaves in `left` is the model's work, not a reason to raise the number.
