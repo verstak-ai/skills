@@ -66,6 +66,8 @@ Then build the map:
 - **Order** with `anantara` (B only after A) — the critical path.
 - **Record an emerging pattern** you actually told apart: a phenomenon with `given_as=bildung`, `arose_from` its source. An accurately kept whole or an open question is a legitimate result too (**inquiry**, §6).
 
+Showing the assembled structure to the user: `verstak`, `Step 6 · Answer`.
+
 ### 6. Impulse for the navigator
 
 The navigator — whoever reads the map to pick where to put effort now — takes the bianhua not blocked by `anantara` (`lens="bianhua"` sorts ready / blocked / done): that *is* the impulse.
