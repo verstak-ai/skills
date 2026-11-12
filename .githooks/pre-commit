@@ -18,6 +18,17 @@ if [[ -n "$(git diff --cached --name-only -- js/)" ]]; then
   (cd js && npx --no-install lint-staged)
   node js/build.mjs >/dev/null
 fi
-node "$root/scripts/build-question-hook.mjs"
+# The question hook's command: staged only when the generator changed it in a file with no other
+# unstaged edits; a stale command beside unstaged edits stops the commit rather than stage them.
+hooks_json="hooks/hooks.json"
+if ! git diff --quiet -- "$hooks_json"; then
+  if ! node "$root/scripts/build-question-hook.mjs" --check; then
+    echo "pre-commit: $hooks_json has unstaged edits and a stale question command; run make build, review and stage it" >&2
+    exit 1
+  fi
+else
+  node "$root/scripts/build-question-hook.mjs"
+  git diff --quiet -- "$hooks_json" || git add -- "$hooks_json"
+fi
 bash "$root/scripts/build-skills.sh" >/dev/null
-git add -- "$root/hooks/hooks.json" "$root/verstak.skill" "$root/home"
+git add -- "$root/verstak.skill" "$root/home"
