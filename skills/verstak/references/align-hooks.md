@@ -75,7 +75,7 @@ Not a hook of the repository: a permission. Merge the one string into `permissio
 ```json
 { "permissions": { "deny": ["AskUserQuestion"] } }
 ```
-A `permissions` that isn't a map, or a `deny` that isn't a list of strings, is someone's shape: leave it and name it in the alignment case. The delivery's own layer is the plugin's `PreToolUse` entry on `AskUserQuestion` in its `hooks/hooks.json`, answering `permissionDecision` `deny` with a reason that sends the question to an `ask` card — only in a repository whose `AGENTS.md` carries our cover; elsewhere it prints nothing. Nothing of it is copied into the repository. Skill installed without the plugin → this `deny` and the `AGENTS.md` line are the only layers: say so in the report.
+A `permissions` that isn't a map, or a `deny` that isn't a list of strings, is someone's shape: leave it and name it in the alignment case. The delivery's own layer is the plugin's `PreToolUse` entry on `AskUserQuestion` in its `hooks/hooks.json`, answering `permissionDecision` `deny` with a reason that sends the question to an `ask` card — only in a repository that is ours as the door counts it — our `verstak:` cover, its older flat keys or stamp line, or our own start hook, never another delivery's cover (`references/door-start.md`, `Alignment`); elsewhere it prints nothing. Nothing of it is copied into the repository. Skill installed without the plugin → this `deny` and the `AGENTS.md` line are the only layers: say so in the report.
 
 OpenCode: a project policy in `.opencode/opencode.json`, merged into `policies` (created if absent), every other field and policy kept, `$schema` added only if missing:
 ```json

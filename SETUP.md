@@ -413,11 +413,14 @@ shows. Nothing offers it unasked.
 
 ## 6. Optional: refuse the blocking question tool outside covered repositories
 
-Under the verstak cover the delivery refuses the harness's blocking question tool
-(`AskUserQuestion` in Claude Code, `question` in OpenCode) and the agent asks by an `ask` card
-in the case. Outside the cover it leaves the tool alone. A person who wants it refused
-everywhere does it in their own config: offer this, and change it only on their word —
-neither the plugin nor `align` ever writes it.
+Not part of the install or its report: for the person reading this page, or when they ask
+about the harness's picker or question tool. In a repository under the verstak cover, Claude
+Code's `AskUserQuestion` is refused by the plugin's hook, and by `.claude/settings.json` once
+`align` brings the repository to contract 16; OpenCode's `question` only by the project policy
+`align` writes at 16 — the OpenCode plugin's own refusal is not shipped. The agent asks by an
+`ask` card in the case. Outside the cover the tool is left alone. To refuse it everywhere, the
+person changes their own config — offered, changed only on their word, never by the plugin or
+`align`:
 
 - **Claude Code** — `"AskUserQuestion"` added to `permissions.deny` in `~/.claude/settings.json`,
   every other entry kept.
