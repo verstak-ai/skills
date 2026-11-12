@@ -46,7 +46,7 @@ const SKILLS = {
       [" (the door, `Communication`)", ""],
       [" (the door, `One-off task`)", ""],
       [" (the door, `Ledger`)", ""],
-      ["none → your post's role in the working graph: the role with `attrs` `post=assistant` (`verstak_search(realm=<graph>, q=\"\", node_type=\"karta\", attrs_filter=\"post:assistant\")`), else one named `🗂 Assistant` that carries no other `post`; none → create it unasked — your own seat, not an outward change of the user's work — by `methods/writing.md`: that name, `adhikarin`, `attrs` `{\"post\":\"assistant\"}`, no `user` binding and no `group` to a person's role — tell the user in a line, then `verstak_stand(realm=<graph>, karta=<that role>)`, never a bare `register` (it opens no seat)", "none → say so: the runtime gives the companion its seat; never a bare `register` (it opens no seat)"],
+      ["none → your post's role in the working graph: the role with `attrs` `post=assistant` (`verstak_search(realm=<graph>, q=\"\", node_type=\"karta\", attrs_filter=\"post:assistant\")`), else one named `🗂 Assistant` that carries no other `post`; none → create it unasked — your own seat, not a step in the user's work — by `methods/writing.md`: that name, `adhikarin`, `attrs` `{\"post\":\"assistant\"}`, no `user` binding and no `group` to a person's role — tell the user in a line, then `verstak_stand(realm=<graph>, karta=<that role>)`, never a bare `register` (it opens no seat)", "none → say so: the runtime gives the companion its seat; never a bare `register` (it opens no seat)"],
       ["that's the graph: `methods/entry.md`.", `that's the graph: ${READ_THE_GRAPH}.`],
     ],
   },
