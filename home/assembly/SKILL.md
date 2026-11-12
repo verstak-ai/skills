@@ -68,6 +68,8 @@ Then build the map:
 
 ### 6. Impulse for the navigator
 
+Showing the assembled structure to the user: `verstak`, `Step 6 · Answer`.
+
 The navigator — whoever reads the map to pick where to put effort now — takes the bianhua not blocked by `anantara` (`lens="bianhua"` sorts ready / blocked / done): that *is* the impulse.
 
 Read progress truthfully: parts accepted as is are unanswered — a transformation of only those stands still. `upeksha` on the transformation itself is a kind error — release it or restore its will. "It has arrived" is a behavioural claim: check it on the canonical carrier before proposing to end it (**reality-audit**), not by the map agreeing with itself. Next moment: the user accepted a telos → **integrity**; a transformation may have reached its telos → `Telos check and re-assembly`.
