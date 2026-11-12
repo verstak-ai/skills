@@ -121,7 +121,8 @@ export async function raiseRows(
       said.push(w().leadRow(realm, room, invite, why));
       continue;
     }
-    ready = ready === undefined ? await orcaReady() : ready;
+    ready =
+      ready === undefined ? await orcaReady((version) => said.push(`Orca ${version}`)) : ready;
     if (ready) {
       said.push(w().leadRow(realm, room, invite, ready));
       continue;
