@@ -236,7 +236,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.44.1";
+var VERSION = "3.44.2";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -13557,7 +13557,6 @@ import { isAbsolute as isAbsolute3, join as join27 } from "node:path";
 
 // js/bridge/orchestra-orca.ts
 import { execFile } from "node:child_process";
-var ORCA_VERSION = "1.4.242";
 var FLAGS = ["agent", "worktree", "model", "prompt", "json"];
 function run2(args, timeoutMs) {
   return new Promise((resolve14) => {
@@ -13573,11 +13572,11 @@ function run2(args, timeoutMs) {
     );
   });
 }
-async function orcaReady() {
+async function orcaReady(onVersion) {
   const v = await run2(["--version"], 1e4);
-  if (v.code !== 0) return v.code === "ENOENT" ? "orca_missing" : "orca_unreadable";
-  if (v.out.trim() !== ORCA_VERSION) return "orca_version_unverified";
+  if (v.code === 0) onVersion?.(v.out.trim().replace(/\s+/g, " ").slice(0, 128));
   const ctx = await run2(["agent-context", "--json"], 1e4);
+  if (ctx.code === "ENOENT") return "orca_missing";
   try {
     const schema = JSON.parse(ctx.out);
     const launch = schema.commands?.find((c) => c.command === "agent launch");
@@ -14696,7 +14695,7 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
       said2.push(w5().leadRow(realm, room, invite, why));
       continue;
     }
-    ready = ready === void 0 ? await orcaReady() : ready;
+    ready = ready === void 0 ? await orcaReady((version) => said2.push(`Orca ${version}`)) : ready;
     if (ready) {
       said2.push(w5().leadRow(realm, room, invite, ready));
       continue;
