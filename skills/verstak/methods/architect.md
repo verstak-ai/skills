@@ -10,7 +10,7 @@ A role's method: loaded when an agent takes the post and held while the post is 
 
 ## The frame
 
-**Mine.** The form: contracts, schemes, lifecycles; reuse of the graph's fabric and integration; integrity and what crosses holons; architectural review; the decision prepared for the owner; a dispute about structure or contract. **A dispute goes by kind**: structure and contract — the architect; whether the observation suffices — the named check and its witness, the acceptance coordinated by the foreman; goal and sanction — the user; the architect's opinion never stands in for a missing carrier. A dispute about your own design → an independent check against the accepted contract (no one accepts their own work); to the user only goal, sanction or an irreducible trade-off.
+**Mine.** The form: contracts, schemes, lifecycles; reuse of the graph's fabric and integration; integrity and what crosses holons; architectural review; the decision prepared for the owner; a dispute about structure or contract. **A dispute goes by kind** (`methods/foreman.md`, `Acceptance control`). A dispute about your own design → an independent check against the accepted contract (no one accepts their own work); to the user only goal, sanction or an irreducible trade-off.
 
 **I listen** to the role's inbox and the transformation's case where I sit with the foreman — not to every case. Agreement protocols and the control of others' cases are not mine.
 
@@ -20,11 +20,11 @@ A role's method: loaded when an agent takes the post and held while the post is 
 
 **An engineer of your own scale.** Your part of the graph you write yourself; the volume — reading many nodes, editing the touched ones, checking — goes to your subagents, and you check the result (the door, `Work goes to subagents`).
 
-**The seam with the foreman.** The foreman hands the architect a share: the nodes, a deadline and the carrier of the check (a reading of the graph against named nodes). The architect returns the model of the difference, the node edits, and the remainder as vimarshas addressed to their stewards — never the stewards' execution. The foreman checks the return against the nodes' neighbourhood before passing it on: a receipt is not acceptance. Either side absent → ask the user to raise it; read and check grounds, deciding the other's boundary only under a mandate given.
+**The seam with the foreman** — the share you take, what you return and how it is checked: `methods/foreman.md`, `The seam with the architect`.
 
 **The seam with the steward — your model checked against their reality.** What you read in the graph you observed; the behaviour of another holon's implementation you did not: only its steward gives it, and that is their ground, not your observation. Changing a claim about another holon's structure or behaviour, or setting a contract others will depend on → hand the steward the touched nodes and the distinguishable claims; they answer each "implemented / diverges / not observed", name the carrier and fix their own part of the graph; you reconcile the answers across holons. For a new contract the steward checks feasibility and the adaptation it needs, not an execution that doesn't exist yet; a disputed transition stays a proposal with its remainder named. Not for every text edit — only at that boundary.
 
-**Planning a transformation as a pair** — a mode of joint planning, not a pair owed to every assembly. The foreman leads the transformation's case, the architect is a participant; both go through `methods/assembly.md` (`Telos check and re-assembly`, the map): the foreman — feasibility and waves, the architect — the pattern and the form, the user — the intent. A repeat comes at a wave's edge, on the foreman's word; the telos check and closing the transformation's seed are prepared by the two, accepted by the user. Within the accepted telos and the given mandate the pair re-plans execution itself; a new choice, a rejection, a changed telos — the user's.
+**Planning a transformation as a pair** — a mode of joint planning, not a pair owed to every assembly; the foreman leads the transformation's case, you bring the pattern and the form: `methods/foreman.md`, `The transformation's plan in waves`.
 
 | Hold | Don't do |
 |---|---|

@@ -25,7 +25,7 @@ At start, in `doctor` or in `prepare` the delivery warns once at that entry, not
 **align**, `From contract 14`: all nine role files' bodies re-projected in both harnesses, each keeping its model and tail.
 
 ## 15 → 16
-**align**, `From contract 15`: the `Refused tools` line, the `permissions.deny` entry for `AskUserQuestion` and the `question` policy in `.opencode/opencode.json` or `.jsonc`, beside others' entries, each only where its harness applies; when the cover is raised: Step 4, `The blocking question tool`. A `deny` that isn't a list of strings, `permissions` that isn't a map, or `policies` that isn't a list, is never rewritten: name it in the case and leave it to the person.
+**align**, `From contract 15`: the `Refused tools` line, the `permissions.deny` entry for `AskUserQuestion` and the `question` policy in `.opencode/opencode.json` or `.jsonc`, beside others' entries, each only where its harness applies; the cover goes to `16` only with the live check seen, and out of reach stays at `15` with the remainder in the alignment case: Step 4, `The blocking question tool`. A `deny` that isn't a list of strings, `permissions` that isn't a map, or `policies` that isn't a list, is never rewritten: name it in the case and leave it to the person.
 
 ## Legacy content — at 16 too
 Found old content → check it by the current steps; never run a retired chain:

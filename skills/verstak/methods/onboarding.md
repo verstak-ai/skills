@@ -55,7 +55,7 @@ Already present → reused, shown with its current value, never created again. T
 
 ## Accompany the chosen step
 
-1. **Do it with the person** — their words for names, their choice where there is one, asked in words, never through the harness's option picker: it puts an answer in place of the question; search before every create.
+1. **Do it with the person** — their words for names, their choice where there is one, asked in words, never by the blocking question tool (`methods/collaborate.md`, `Asking the user`); search before every create.
 2. **Say the result and what it means**, explicitly: "Created the graph *X* — your place of work; what we learn about this area goes there." A step that ended in a refusal or an unmet condition says what did not happen and why — no confirmation the data doesn't show. Structural existence is already the structural sign; only a knowledge step needing a receipt uses `understood` after the person shows they understood (`Signs, read from data`).
 3. Nodes you write on the person's word are written by you, never as the person. That you wrote the node doesn't make the step theirs — their move and the result you told them do.
 4. **Read again** before the next choice: the reads above, not the previous answer. Switched graphs → every graph-scope sign is read afresh there.
