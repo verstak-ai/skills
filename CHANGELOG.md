@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.44.2](https://github.com/verstak-ai/skills/compare/v3.44.1...v3.44.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* bridge core from the sibling delivery v7.39.1 — Orca admitted by its declared commands ([#423](https://github.com/verstak-ai/skills/issues/423)) ([0170e18](https://github.com/verstak-ai/skills/commit/0170e18f76be2e5c6957dc927baa1928536c2f76))
+
 ## [3.44.1](https://github.com/verstak-ai/skills/compare/v3.44.0...v3.44.1) (2026-11-12)
 
 
