@@ -77,6 +77,12 @@ Not a hook of the repository: a permission. Merge the one string into `permissio
 ```
 A `permissions` that isn't a map, or a `deny` that isn't a list of strings, is someone's shape: leave it and name it in the alignment case. The delivery's own layer is the plugin's `PreToolUse` entry on `AskUserQuestion` in its `hooks/hooks.json`, answering `permissionDecision` `deny` with a reason that sends the question to an `ask` card; nothing of it is copied into the repository. Skill installed without the plugin → this `deny` and the `AGENTS.md` line are the only layers: say so in the report.
 
+OpenCode: a project policy in `.opencode/opencode.json`, merged into `policies` (created if absent), every other field and policy kept, `$schema` added only if missing:
+```json
+{ "$schema": "https://opencode.ai/config.json", "policies": [{ "action": "tool.use", "resource": "question:*", "effect": "deny" }] }
+```
+A `.opencode/opencode.jsonc` beside it, or a `policies` that isn't a list: leave both files, name the path in the alignment case and add the policy by hand without losing comments. Never the user's global config. The live check: in an OpenCode session in the repository, the `question` tool is refused while an `ask` card still lands.
+
 ## Spec-write (full interop only)
 A sibling in the same `PostToolUse` array; false positives are harmless; never a work gate:
 ```json
