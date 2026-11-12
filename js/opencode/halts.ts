@@ -22,7 +22,9 @@ export interface Halts {
    * `word` — what the session's turns read while it stays stopped; null — none (a child).
    * `alone` — the stop is the session's only, not its descendants' (a seat put out for silence).
    */
-  stop(session: string, word: string | null, alone?: boolean): void;
+  stop(session: string, word: string | null, alone?: boolean, full?: boolean): void;
+  /** Only an order asks to archive the session and end its bound client (#9256). */
+  full(session: string): boolean;
   held(session: string | null): void;
   /** The session or any of its ancestors is stopped (an ancestor's stop `alone` does not count). */
   halted(session: string): boolean;
@@ -56,6 +58,7 @@ const words = (): Map<string, string | null> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}StopWords`] ??= new Map<string, string | null>());
 /** The stops in the registry that are their session's only (case #1046). */
 const alones = (): Set<string> => ((globalThis as any)[`${GLOBAL_PREFIX}StopAlone`] ??= new Set());
+const fulls = (): Set<string> => ((globalThis as any)[`${GLOBAL_PREFIX}StopFull`] ??= new Set());
 
 const code = (e: unknown): string | undefined => (e as NodeJS.ErrnoException).code;
 
@@ -64,6 +67,7 @@ interface Mark {
   id: string;
   word?: string | null;
   alone?: boolean;
+  full?: boolean;
 }
 
 /**
@@ -78,9 +82,15 @@ function recorded(file: string, since: number | undefined): Mark | null {
       id?: string;
       word?: string | null;
       alone?: boolean;
+      full?: boolean;
     };
     if (r.lifted || (since !== undefined && Date.parse(r.at ?? "") <= since)) return null;
-    return { id: r.id ?? r.at ?? "?", word: r.word, alone: r.alone === true };
+    return {
+      id: r.id ?? r.at ?? "?",
+      word: r.word,
+      alone: r.alone === true,
+      full: r.full === true,
+    };
   } catch (e) {
     return code(e) === "ENOENT" ? null : { id: "?" };
   }
@@ -99,13 +109,19 @@ export function createHalts(
 ): Halts {
   const marked = (s: string): Mark | null =>
     stops().has(s)
-      ? { id: ids().get(s) ?? "?", word: words().get(s), alone: alones().has(s) }
+      ? {
+          id: ids().get(s) ?? "?",
+          word: words().get(s),
+          alone: alones().has(s),
+          full: fulls().has(s),
+        }
       : recorded(fileOf(dir(), s), lifted().get(s));
   const drop = (s: string): void => {
     stops().delete(s);
     ids().delete(s);
     words().delete(s);
     alones().delete(s);
+    fulls().delete(s);
     lifted().set(s, Date.now());
     const file = fileOf(dir(), s);
     try {
@@ -122,29 +138,35 @@ export function createHalts(
       unlifted(s, (e as Error).message, kept);
     }
   };
-  function stopOf(session: string): string | null {
-    const found: string[] = [];
+  function chain(session: string): Mark[] {
+    const found: Mark[] = [];
     const seen = new Set<string>();
     for (let s: string | undefined = session; s && !seen.has(s); s = parentOf(s)) {
       const m = marked(s);
-      if (m && (s === session || !m.alone)) found.push(m.id);
+      if (m && (s === session || !m.alone)) found.push(m);
       seen.add(s);
     }
-    return found.length ? found.join(" ") : null;
+    return found;
   }
+  const stopOf = (session: string): string | null =>
+    chain(session)
+      .map((m) => m.id)
+      .join(" ") || null;
   return {
-    stop(session, word, alone = false) {
+    stop(session, word, alone = false, full = false) {
       const id = randomUUID();
       stops().add(session);
       ids().set(session, id);
       words().set(session, word);
       if (alone) alones().add(session);
       else alones().delete(session);
+      if (full) fulls().add(session);
+      else fulls().delete(session);
       lifted().delete(session);
       try {
         mkdirSync(dir(), { recursive: true, mode: 0o700 });
         const at = new Date().toISOString();
-        const record = JSON.stringify({ session, at, id, word, ...(alone ? { alone } : {}) });
+        const record = JSON.stringify({ session, at, id, word, ...(alone ? { alone } : {}), full });
         writeFileSync(fileOf(dir(), session), record, { mode: 0o600 });
       } catch (e) {
         unwritten(session, (e as Error).message);
@@ -154,6 +176,7 @@ export function createHalts(
     gone: drop,
     halted: (session) => stopOf(session) !== null,
     stopOf,
+    full: (session) => chain(session).some((m) => m.full === true),
     wordOf(session, general) {
       const m = marked(session);
       return m ? (m.word === undefined ? general : m.word) : null;

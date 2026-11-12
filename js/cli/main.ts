@@ -4,6 +4,7 @@
 import { BUILD } from "../bridge/build.ts";
 import { parseArgs } from "../bridge/config.ts";
 import { daemonMain } from "../bridge/daemon.ts";
+import { runExecPrepare } from "../bridge/exec-prepare.ts";
 import { bridgeMain } from "../bridge/main.ts";
 import { versionLines } from "../bridge/probe.ts";
 import { reexec, syncHome, updatesDisabled } from "../bridge/update.ts";
@@ -50,6 +51,7 @@ const longLived =
       "stop",
       "orchestra",
       "prepare",
+      "exec-prepare",
       "update",
       "use",
       "check-rituals",
@@ -77,6 +79,9 @@ if (longLived && !updatesDisabled() && !process.env[envName("BRIDGE_REEXEC")]) {
 
 function dispatch(): void {
   switch (first) {
+    case "exec-prepare":
+      void runExecPrepare(rest);
+      break;
     case "status":
       void runStatus(rest);
       break;

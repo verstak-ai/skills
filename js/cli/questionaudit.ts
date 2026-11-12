@@ -1,0 +1,130 @@
+// Three independent questionnaire guard layers, for aligned repos (#10397).
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+
+import { SELF } from "../bridge/raise.ts";
+import { envName, PLUGIN_COPY_FILE, PLUGIN_FILE } from "../delivery/index.ts";
+import { ritualCover } from "../shared/ritualcover.ts";
+import { object } from "./preparequestions.ts";
+import { probeScope } from "./ritualprobe.ts";
+import type { Verdict } from "./rituals.ts";
+
+function json(path: string): Record<string, unknown> | null {
+  try {
+    const v: unknown = JSON.parse(readFileSync(path, "utf8"));
+    return object(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function manifest(): string | null {
+  if (process.env.CLAUDE_PLUGIN_ROOT)
+    return join(process.env.CLAUDE_PLUGIN_ROOT, "hooks/hooks.json");
+  for (let dir = dirname(SELF); ;) {
+    const path = join(dir, "hooks/hooks.json");
+    if (existsSync(path)) return path;
+    const up = dirname(dir);
+    if (up === dir) return null;
+    dir = up;
+  }
+}
+
+export async function auditQuestions(root: string): Promise<Verdict[]> {
+  if (!ritualCover(root)) return [];
+  const rows: Verdict[] = [];
+  const row = (layer: string, file: string, pass: boolean, error: string): void => {
+    const basis =
+      layer === "question.plugin"
+        ? "manifest / stand-in context, not live harness"
+        : "file contents, not live harness";
+    rows.push({ layer, basis, file, hole: !pass, ...(pass ? {} : { error }) });
+  };
+  const text = readFileSync(join(root, "AGENTS.md"), "utf8");
+  row(
+    "question.instructions",
+    join(root, "AGENTS.md"),
+    /question/.test(text) && /AskUserQuestion/.test(text) && /\bask\b/.test(text),
+    "Missing explicit question / AskUserQuestion prohibition and case ask route (content check only)",
+  );
+  const cc = join(root, ".claude/settings.json");
+  const permissions = json(cc)?.permissions;
+  const denied =
+    object(permissions) &&
+    Array.isArray(permissions.deny) &&
+    permissions.deny.includes("AskUserQuestion");
+  const oc = join(root, ".opencode/opencode.json");
+  const policies = json(oc)?.policies;
+  const blocked =
+    !existsSync(join(root, ".opencode/opencode.jsonc")) &&
+    Array.isArray(policies) &&
+    policies.some(
+      (p) =>
+        object(p) && p.action === "tool.use" && p.resource === "question:*" && p.effect === "deny",
+    );
+  row("question.project", cc, !!denied, "Missing project permissions.deny AskUserQuestion");
+  row(
+    "question.project",
+    oc,
+    blocked,
+    "Missing project policy tool.use question:* deny; JSONC requires manual verification",
+  );
+  const path = manifest();
+  const hooks = path ? json(path)?.hooks : null;
+  const entries = object(hooks) ? hooks.PreToolUse : null;
+  const hook =
+    Array.isArray(entries) &&
+    entries.some(
+      (e) =>
+        object(e) &&
+        e.matcher === "AskUserQuestion" &&
+        Array.isArray(e.hooks) &&
+        e.hooks.some(
+          (h) =>
+            object(h) &&
+            typeof h.command === "string" &&
+            /permissionDecision:'deny'/.test(h.command),
+        ),
+    );
+  row(
+    "question.plugin",
+    path ?? "Claude plugin hooks/hooks.json",
+    hook,
+    "Claude plugin denial unavailable (manifest check, not live harness enforcement)",
+  );
+  const file = [
+    process.env.OPENCODE_CONFIG_DIR &&
+      join(process.env.OPENCODE_CONFIG_DIR, "plugins", PLUGIN_COPY_FILE),
+    join(dirname(SELF), PLUGIN_FILE),
+    join(homedir(), ".config/opencode/plugins", PLUGIN_COPY_FILE),
+  ].find((p): p is string => !!p && existsSync(p));
+  let pass = false;
+  let error = "OpenCode plugin unavailable";
+  if (file) {
+    const foreign = mkdtempSync(join(tmpdir(), "question-audit-"));
+    const keys = ["HOME", envName("BRIDGE_AUTH_DIR"), envName("BRIDGE_PATH"), envName("ROOT_SEAT")];
+    const before = keys.map((k) => process.env[k]);
+    try {
+      // The plugin under audit must never connect using the invoking agent's home or grant.
+      for (const [i, value] of [foreign, foreign, join(foreign, "absent.mjs"), "0"].entries()) {
+        const key = keys[i];
+        if (key) process.env[key] = value;
+      }
+      const q = (await probeScope(file, root, foreign)).questions;
+      pass = q.removed && q.denied && q.caseAllowed;
+      error =
+        "OpenCode plugin did not remove/deny question or denied unrelated case action (stand-in context)";
+    } catch (e) {
+      error = String(e);
+    } finally {
+      keys.forEach((k, i) => {
+        if (before[i] === undefined) delete process.env[k];
+        else process.env[k] = before[i];
+      });
+      rmSync(foreign, { recursive: true, force: true });
+    }
+  }
+  row("question.plugin", file ?? "OpenCode plugin", pass, error);
+  return rows;
+}

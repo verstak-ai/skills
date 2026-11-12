@@ -9,6 +9,7 @@ import { join, resolve } from "node:path";
 
 import { HOOKS_SECTION, RITUALS, type RitualWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { auditQuestions } from "./questionaudit.ts";
 import { probeScope, type Scope } from "./ritualprobe.ts";
 
 const out = (s: string): void => {
@@ -18,6 +19,8 @@ const out = (s: string): void => {
 const rw = (): RitualWords => words(RITUALS);
 
 export interface Verdict {
+  layer?: string;
+  basis?: string;
   file: string;
   hole: boolean;
   scope?: Scope;
@@ -26,12 +29,13 @@ export interface Verdict {
 
 export async function auditRepo(repo: string): Promise<Verdict[]> {
   const own = realpathSync(repo);
+  const layers = await auditQuestions(own);
   const dir = join(own, ".opencode", "plugins");
   let names: string[];
   try {
     names = readdirSync(dir).filter((n) => /\.(m?js|ts)$/.test(n));
   } catch {
-    return [];
+    return layers;
   }
   const foreign = realpathSync(mkdtempSync(join(tmpdir(), "ritual-scope-foreign-")));
   const verdicts: Verdict[] = [];
@@ -50,7 +54,7 @@ export async function auditRepo(repo: string): Promise<Verdict[]> {
   } finally {
     rmSync(foreign, { recursive: true, force: true });
   }
-  return verdicts;
+  return [...verdicts, ...layers];
 }
 
 /** Its own session greeted under one spelling of the directory and lost under the other. */
@@ -60,6 +64,10 @@ const lostSpelling = (s: Scope): boolean => s.writes.mine > 0 !== s.writes.twin 
 const mute = (s: Scope): boolean => s.subscribed && s.writes.mine + s.writes.twin === 0;
 
 function verdictLines(v: Verdict): string[] {
+  if (v.layer)
+    return [
+      `${v.hole ? "FAIL" : "ok"}  ${v.layer} ${v.file} [${v.basis ?? "unknown"}]${v.error ? `: ${v.error}` : ""}`,
+    ];
   const s = v.scope;
   if (v.error || !s) return [rw().notChecked(v.file, v.error)];
   if (!v.hole) {

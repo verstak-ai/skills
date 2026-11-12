@@ -30,7 +30,7 @@ import { authDir } from "./bridge-io.ts";
 import { createCuts } from "./cuts.ts";
 import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
-import { archiver } from "./host.ts";
+import { accepting as accepts, archiver } from "./host.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
 import {
@@ -106,15 +106,7 @@ export function setupChannel(
     (id, message) => say(W.haltUnwritten(id, message), "warning"),
     (id, message, kept) => say(W.haltUnlifted(id, message, kept), "warning"),
   );
-  /** The session still takes a word: exists and is not archived. */
-  async function accepting(id: string): Promise<boolean> {
-    try {
-      const info: any = await ctx.session.get({ sessionID: id } as any);
-      return !(info?.time?.archived ?? info?.data?.time?.archived);
-    } catch {
-      return false;
-    }
-  }
+  const accepting = (id: string): Promise<boolean> => accepts(ctx, id);
 
   // Every delivery is a log line with the address and the frame, a refusal is loud (#4355).
   async function deliver(
@@ -311,6 +303,7 @@ export function setupChannel(
   const cuts = createCuts({
     stopOf: (id) => halts.stopOf(id),
     halted: (id) => halts.halted(id),
+    full: (id) => halts.full(id),
     canInterrupt: () => typeof session().interrupt === "function",
     interrupt: (id) => session().interrupt({ sessionID: id, resume: false }),
     dropped: (id) => {
@@ -331,12 +324,14 @@ export function setupChannel(
    * reaches them afterwards until it stands again by an explicit call (halts.ts). The
    * descendants' seats go down in their own instances (onStop).
    */
-  function stopped(session: string | null, text: string, child: boolean, alone: boolean): void {
+  function stopped(session: string | null, text: string, child: boolean, ev: ChannelEvent): void {
     say(text, "error");
     dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
     if (!session) return;
     // A child's end goes to its parent (leads.ts): no word is laid into the child.
-    halts.stop(session, child ? null : text, alone);
+    const alone = ev.reason === "revoked:silent";
+    const full = typeof ev.order === "string";
+    halts.stop(session, child ? null : text, alone, full);
     cut(session);
     cutBelow(session);
     onStop(session);
@@ -362,12 +357,14 @@ export function setupChannel(
     },
     // Each reading cuts the descendants this instance serves, a child born during the wait too;
     // other instances cut theirs by the same stops (plugin.ts sweep).
-    halted(session, signal) {
-      return cuts.outcome(() => {
+    async halted(session, signal) {
+      const gen = session ? halts.stopOf(session) : null;
+      const outcome = await cuts.outcome(() => {
         if (!session) return [];
         this.halt(session);
         return [session, ...covered(processDescendants(session))];
       }, signal);
+      return session && halts.stopOf(session) !== gen ? "stop_superseded" : outcome;
     },
     halt(session) {
       if (!halts.halted(session)) return false;
@@ -447,7 +444,7 @@ export function setupChannel(
           return;
         case "stopped":
           // A seat put out for silence ends alone: a live descendant answers for itself (#1046).
-          stopped(session, P.stopped(ev.text ?? ""), child, ev.reason === "revoked:silent");
+          stopped(session, P.stopped(ev.text ?? ""), child, ev);
           return;
         case "stale":
           return batch(session, child, ev, W.staleBatch());
@@ -471,7 +468,7 @@ export function setupChannel(
             // only an attributed explicit transition lifts the stop
             halts.held(session);
             for (const s of session ? [session, ...descendantsOf(session, parents)] : [])
-              cuts.forget(s, true);
+              if (!halts.halted(s)) cuts.forget(s, true);
           }
           say(W.held(ev.key ?? ""), "info");
           return;

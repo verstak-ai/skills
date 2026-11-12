@@ -2,52 +2,33 @@
 // row per invite it raised, keyed graph|case|invite, beside the flag. The orchestrator's right
 // ends at its own launches — only a row here is ever extinguished. A key once written is never
 // raised again: a new raising takes a new invite.
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import {
+  closeSync,
+  fsyncSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 import { seamRunDir } from "../shared/seam-entrance.ts";
+import type { Run, RunState } from "./orchestra-run-types.ts";
+import { mergeRuns, rememberRuns, runIdentity } from "./orchestra-runs-delta.ts";
 
-export type RunState =
-  | "launched" // the adapter ran; no seat seen yet
-  | "raised" // a raised signal carries our spawned_for: the seat is ours
-  | "stopping" // a stop order went out for the empty composition
-  | "ended" // the seat is gone (stop answered 410, or the order closed)
-  | "refused" // the launch itself failed — nothing was raised
-  | "no_seat"; // no seat within the window: the claim went elsewhere or never came
+export type { Run, RunState } from "./orchestra-run-types.ts";
+export { runIdentity } from "./orchestra-runs-delta.ts";
 
-export interface Run {
-  realm: string;
-  room: string;
-  invite: number;
-  karta: number;
-  launcher: string;
-  harness: string;
-  model: string;
-  repository: string;
-  worktree: string;
-  /** Orca's handle of the terminal the launch opened — closed on no_seat and on ended. */
-  terminal?: string;
-  /** The Orca runtime that issued the handle; none (a launch before it was kept) — never closed. */
-  runtime?: string;
-  /** The outcome of closing that terminal: it is closed once. */
-  closed?: string;
-  state: RunState;
-  at: string;
-  why?: string;
-  standing_id?: string;
-  /** The seat's composition at its greatest n (#6010). */
-  n?: number;
-  rooms?: number;
-  /** The seat sat in a case once — an empty composition before that is not the moment. */
-  sat?: boolean;
-  order_id?: string;
-  /** When the run became stopping — its window to end runs from here (#7522). */
-  stopping_at?: string;
-  /** The closed stop order's state as the account's orders read it: only `stopped` ends it. */
-  stop_outcome?: string;
-}
-
-export const LIVE: readonly RunState[] = ["launched", "raised", "stopping"];
+export const LIVE: readonly RunState[] = [
+  "preparing",
+  "ambiguity",
+  "launched",
+  "raised",
+  "stopping",
+];
 export const runKey = (realm: string, room: string, invite: number): string =>
   `${realm}|${room}|${invite}`;
 
@@ -77,11 +58,21 @@ function readFile(authDir: string): {
       runs?: unknown;
       clones?: unknown;
     };
+    if (
+      !f ||
+      !f.runs ||
+      typeof f.runs !== "object" ||
+      Array.isArray(f.runs) ||
+      (f.clones !== undefined &&
+        (!f.clones || typeof f.clones !== "object" || Array.isArray(f.clones)))
+    )
+      throw new Error("registry_schema_invalid");
     const obj = <T>(v: unknown): Record<string, T> =>
       v && typeof v === "object" ? (v as Record<string, T>) : {};
     return { runs: obj<Run>(f.runs), clones: obj<CloneRow>(f.clones) };
-  } catch {
-    return { runs: {}, clones: {} };
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return { runs: {}, clones: {} };
+    throw new Error("orchestra_registry_unreadable", { cause: e });
   }
 }
 
@@ -90,15 +81,57 @@ function writeFile(
   f: { runs: Record<string, Run>; clones: Record<string, CloneRow> },
 ): void {
   mkdirSync(seamRunDir(authDir), { recursive: true, mode: 0o700 });
-  const tmp = `${file(authDir)}.${process.pid}.tmp`;
-  writeFileSync(tmp, JSON.stringify(f) + "\n", { mode: 0o600 });
-  renameSync(tmp, file(authDir));
+  const tmp = `${file(authDir)}.${randomUUID()}.tmp`;
+  const fd = openSync(tmp, "wx", 0o600);
+  try {
+    writeFileSync(fd, JSON.stringify(f) + "\n");
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  try {
+    renameSync(tmp, file(authDir));
+  } catch (e) {
+    unlinkSync(tmp);
+    throw e;
+  }
+  if (process.platform !== "win32") {
+    const directory = openSync(seamRunDir(authDir), "r");
+    try {
+      fsyncSync(directory);
+    } finally {
+      closeSync(directory);
+    }
+  }
 }
 
-export const readRuns = (authDir: string): Record<string, Run> => readFile(authDir).runs;
+export const readRuns = (authDir: string): Record<string, Run> =>
+  rememberRuns(authDir, readFile(authDir).runs);
+
+/** The local stop may finish while a tact awaits the API: its observed close is monotonic. */
+export function syncClosed(runs: Record<string, Run>, latest: Record<string, Run>): void {
+  for (const [key, r] of Object.entries(runs)) {
+    const stored = latest[key];
+    if (stored?.closed && runIdentity(stored) === runIdentity(r)) r.closed = stored.closed;
+  }
+}
+
+/** Patch only this still-current Run, synchronously against the latest registry, before ack. */
+export function recordRunClosed(authDir: string, key: string, expected: Run): boolean {
+  const f = readFile(authDir);
+  const r = f.runs[key];
+  if (!r || !LIVE.includes(r.state) || runIdentity(r) !== runIdentity(expected)) return false;
+  r.closed = "client_exited";
+  if (r.exec) r.exec.exit = new Date().toISOString();
+  writeFile(authDir, f);
+  return true;
+}
 
 export function writeRuns(authDir: string, runs: Record<string, Run>): void {
-  writeFile(authDir, { runs, clones: readFile(authDir).clones });
+  const f = readFile(authDir);
+  syncClosed(runs, f.runs);
+  writeFile(authDir, { runs: mergeRuns(authDir, runs, f.runs), clones: f.clones });
+  rememberRuns(authDir, runs, true);
 }
 
 export const readClones = (authDir: string): Record<string, CloneRow> => readFile(authDir).clones;
