@@ -4,8 +4,6 @@
 // `orca` is found on the daemon's PATH.
 import { execFile } from "node:child_process";
 
-/** The version whose surface was observed (#9966); any other — nothing is launched. */
-export const ORCA_VERSION = "1.4.242";
 const FLAGS = ["agent", "worktree", "model", "prompt", "json"];
 
 export function run(
@@ -32,12 +30,12 @@ export function run(
   });
 }
 
-/** The installed surface is the observed one; a code when it is not. */
-export async function orcaReady(): Promise<string | null> {
+/** Capabilities admit a launch; the version is diagnostic metadata only (#9971). */
+export async function orcaReady(onVersion?: (version: string) => void): Promise<string | null> {
   const v = await run(["--version"], 10_000);
-  if (v.code !== 0) return v.code === "ENOENT" ? "orca_missing" : "orca_unreadable";
-  if (v.out.trim() !== ORCA_VERSION) return "orca_version_unverified";
+  if (v.code === 0) onVersion?.(v.out.trim().replace(/\s+/g, " ").slice(0, 128));
   const ctx = await run(["agent-context", "--json"], 10_000);
+  if (ctx.code === "ENOENT") return "orca_missing";
   try {
     const schema = JSON.parse(ctx.out) as {
       commands?: { command?: string; flags?: string[] }[];

@@ -31,7 +31,7 @@ For the user, at their own terminal. The bridge is `~/.verstak-bridge/verstak-br
 
 ## The bound of the check
 
-The recipe describes the CLI of **Orca 1.4.242**. This is the manual path: a launcher of your own, or Orca step by step. The automatic one is the bridge orchestrator (**establish-mcp**, `The bridge orchestrator`): it checks Orca's version and schema itself before a launch. A dry plan is no check of a launch. A line in a brief claims no invitation on its own: only a bridge that knows the `spawned_for` pair takes it — its field is named by the description of the `verstak_stand` tool in this session. No field → the bridge is old: tell the user an `update` is needed, don't update it yourself.
+The recipe describes the CLI of **Orca 1.4.242**. This is the manual path: a launcher of your own, or Orca step by step. The automatic one is the bridge orchestrator (**establish-mcp**, `The bridge orchestrator`): it checks the commands and flags Orca declares before a launch (its version only printed). A dry plan is no check of a launch. A line in a brief claims no invitation on its own: only a bridge that knows the `spawned_for` pair takes it — its field is named by the description of the `verstak_stand` tool in this session. No field → the bridge is old: tell the user an `update` is needed, don't update it yourself.
 
 The project mapping is set by the Orca's owner. The agent changes no settings, registers or clones no project itself, updates no home delivery and restarts no one else's session for a probe. The first launch takes a separate test case and a permitted checkout.
 
