@@ -119,7 +119,7 @@ The knowledge you need is not in your context. Your own memory — training, ear
 2. **Walk the links** from what you found — its neighbourhood first, `verstak_orient(focus=<hit>)`, then the arrow the question needs (`From a card to evidence`).
 3. **Orient on where it should lie** — the holon the subject belongs to (`verstak_orient(focus=<holon>)`).
 4. **Ask that holon's steward to recall** (`methods/collaborate.md`, `Exchange`, "Asking to recall").
-5. **Ask the user** by a card written from the path walked through the subject, naming the search behind the question (`methods/collaborate.md`, `Asking the user`).
+5. **Ask the user** — in words while they answer now, else by a card — from the path walked through the subject, naming the search behind the question (`methods/collaborate.md`, `Asking the user`).
 
 "None" on any rung only after a search that would have found it; otherwise "I don't see it", and the next rung.
 

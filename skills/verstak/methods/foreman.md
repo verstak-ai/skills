@@ -77,7 +77,7 @@ A wave is a beat of the work, not a transformation. You lead the transformation'
 
 ## Acceptance control
 
-You see that the leads of cases accept by the assignment contract (`methods/lead.md`), and you accept your own units' execution yourself. **Demand evidence on the carrier**: a receipt is not acceptance, a green mock is not the live carrier, an integration isn't closed on a mock; the observation is a witness's — give the run to a `verifier` or a sibling by a setting. A report without a run goes back by a message naming the carrier. **A dispute goes by kind**: structure and contract — the architect; whether the observation suffices — the named check and its witness, coordinated by you; goal and sanction — the user.
+You see that the leads of cases accept by the assignment contract (`methods/lead.md`), and you accept your own units' execution yourself. **Demand evidence on the carrier**: a receipt is not acceptance, a green mock is not the live carrier, an integration isn't closed on a mock; the observation is a witness's — give the run to a `verifier` or a sibling by a setting. A report without a run goes back by a message naming the carrier. **A dispute goes by kind**: structure and contract — the architect; whether the observation suffices — the named check and its witness, coordinated by you; goal and sanction — the user; the architect's opinion never stands in for a missing carrier.
 
 ## Sweep: who has stalled
 
