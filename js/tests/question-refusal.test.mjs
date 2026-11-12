@@ -1,11 +1,12 @@
 // The harness's blocking question tool refused by the delivery and alignment (graph @nks/nks-dev,
 // node #10397): the Claude Code plugin's PreToolUse entry denies AskUserQuestion by itself — no
 // rituals: field, no release build behind it — in the delivery's words, which send the question to
-// a case's ask card, and only in a repository that is ours as the door counts it — the core's
-// repoSigns verdict aligned or partial: our cover block, the older flat keys, our stamp lines, our
-// start hook; another delivery's cover excluded. Elsewhere it says nothing (quiet by default,
-// #10020, #10397). Every fixture is held against that core function. The template's AGENTS.md line names each harness's carriers,
-// in the form the rituals check reads; align targets the contract that carries it.
+// a case's ask card, and only in a repository that is ours as the door counts it — a mark in
+// AGENTS.md: our cover block, its older flat keys or our stamp line, never another delivery's
+// cover; a start hook or rituals plugin alone marks nothing. Elsewhere it says nothing (quiet by
+// default, #10020, #10397). Every fixture is held against the core's readers of that mark,
+// repoSigns' cover and stamp. The template's AGENTS.md line names each harness's carriers, in the
+// form the rituals check reads; align targets the contract that carries it.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -63,7 +64,8 @@ function run({ git = true, agents, settings, plugin = false, sub = "", inputCwd 
     delete env.CLAUDE_PLUGIN_ROOT;
     const command = refusals[0]?.hooks[0].command ?? "true";
     const r = spawnSync(command, { shell: true, cwd, env, encoding: "utf8", input });
-    const ours = ["aligned", "partial"].includes(repoSigns(cwd, "claude-code").verdict);
+    const signs = repoSigns(cwd, "claude-code");
+    const ours = signs.cover || signs.stamp;
     return { ...r, ours };
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -96,10 +98,7 @@ const OURS = [
   { agents: OUR_STAMP },
   { agents: OLD_STAMP },
   { agents: THEIR_STAMP + OUR_STAMP },
-  { agents: THEIR_STAMP.replace("# x", FLAT.trimEnd()), settings: START },
-  { settings: START },
-  { plugin: true },
-  { agents: THEIR_BLOCK, settings: START },
+  { agents: FLAT, settings: START, plugin: true },
 ];
 /** Not ours: no refusal, no verstak word. */
 const NOT_OURS = [
@@ -112,6 +111,11 @@ const NOT_OURS = [
   { agents: THEIR_STAMP.replace("# x", FLAT.trimEnd()) },
   { agents: THEIR_BLOCK.replace("---\n# x", "Graph: r7\n---\n# x") },
   { settings: startHook("echo call verstak_orient first") },
+  { settings: START },
+  { plugin: true },
+  { settings: START, plugin: true },
+  { agents: THEIR_BLOCK, settings: START },
+  { agents: THEIR_STAMP.replace("# x", FLAT.trimEnd()), settings: START },
   { git: false, agents: COVER },
 ];
 
@@ -120,6 +124,8 @@ test("hooks.json: one PreToolUse entry on the exact name AskUserQuestion", () =>
   assert.equal(refusals[0].hooks.length, 1);
   // The rituals check reads the plugin's denial by this mark in the command.
   assert.match(refusals[0].hooks[0].command, /permissionDecision:'deny'/);
+  // Shell-neutral, as the other entries: no character a shell reads inside double quotes.
+  assert.doesNotMatch(refusals[0].hooks[0].command.slice('node -e "'.length, -1), /["$`]/);
 });
 
 test("hooks.json's command is the one its readable source makes (js/delivery/question-hook.mjs)", () => {

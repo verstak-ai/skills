@@ -1,15 +1,18 @@
 // The Claude Code plugin's refusal of AskUserQuestion (graph @nks/nks-dev, nodes #10397, #10020):
 // the readable source of the PreToolUse command in hooks/hooks.json. Never imported: it runs as
 // the script of `node -e`, self-standing, so a plugin without its built files still refuses.
-// scripts/build-question-hook.mjs joins it into that command and puts the answer in for DENY -
-// the deny object with QUESTIONS.claude; js/tests/question-refusal.test.mjs holds the two equal.
-// Full-line comments only (the generator drops them); every statement ends in a semicolon.
+// scripts/build-question-hook.mjs makes the command: it defines the globals below from
+// js/delivery (DENY, the deny answer with QUESTIONS.claude; the rest from COVER) and carries
+// this text as an escaped string, so the command holds no character a shell reads inside double
+// quotes; js/tests/question-refusal.test.mjs holds the command equal to what it makes.
+// Line comments and the globals line are dropped from the command.
 //
-// It refuses only in a repository that is ours as the door counts it: the core's repoSigns
-// verdict aligned or partial (shared/reposigns.ts, shared/cover.ts, shared/coverblock.ts): our
-// cover block, the older flat keys, our stamp lines, our start hook or rituals plugin; another
-// delivery's cover without our hook is not ours. Elsewhere it prints nothing. The test holds
-// this copy to repoSigns on every fixture.
+// It refuses only in a repository that is ours as the door counts it: a mark in AGENTS.md, as
+// the core's repoSigns reads its cover and stamp (shared/reposigns.ts, shared/cover.ts,
+// shared/coverblock.ts): our cover block, the older flat keys or our stamp line, never another
+// delivery's cover. A start hook or rituals plugin alone marks nothing. Elsewhere it prints
+// nothing. The test holds this copy to those readers on every fixture.
+/* global DENY, COVER_FILE, COVER_ROOT, FLAT_KEYS, OWN_STAMPS, OTHER_STAMP */
 let input = "";
 process.stdin
   .on("data", (chunk) => (input += chunk))
@@ -98,50 +101,25 @@ process.stdin
       }
       return out;
     };
-    // The cover and the stamp (shared/cover.ts: stampOf, hasCover; COVER of the delivery).
-    const text = read(path.join(root, "AGENTS.md"));
+    // The cover and the stamp (shared/cover.ts: stampOf, hasCover).
+    const text = read(path.join(root, COVER_FILE));
     let cover = false,
-      stamp = false,
-      foreign = false;
+      stamp = false;
     if (text !== null) {
       const all = blocks(text),
-        block = all.get("verstak");
+        block = all.get(COVER_ROOT);
       const own =
         (block && /^\d+$/.test(block.get("contract") ?? "") && !!block.get("stamp")) ||
-        /\((?:verstak align:\s*contract\s*`?(\d+)`?\s*,\s*stamped|verstakify:\s*contract\b)/.test(
-          text,
-        );
-      foreign =
+        OWN_STAMPS.some((re) => re.test(text));
+      const foreign =
         !own &&
         !block &&
-        ([...all].some(([k, b]) => k !== "verstak" && b.has("contract")) ||
-          /^[\s*_]*\((?!verstak align:|verstakify:)[^()\n]*?:\s*(?:contract|\u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442)\s*`?\d+/m.test(
-            text,
-          ));
+        ([...all].some(([k, b]) => k !== COVER_ROOT && b.has("contract")) ||
+          OTHER_STAMP.test(text));
       stamp = !!own;
       const flat = pairs(text);
-      cover = !foreign && (!!block || (!!flat && (flat.has("Graph") || flat.has("Agent role"))));
+      cover = !foreign && (!!block || (!!flat && FLAT_KEYS.some((k) => flat.has(k))));
     }
-    // Our start hook in .claude/settings.json, or the OpenCode rituals plugin (REPO_SIGNS).
-    let hooked = false;
-    try {
-      const starts = JSON.parse(read(path.join(root, ".claude/settings.json")) ?? "null")?.hooks
-        ?.SessionStart;
-      hooked =
-        Array.isArray(starts) &&
-        starts.some(
-          (e) =>
-            Array.isArray(e?.hooks) &&
-            e.hooks.some(
-              (h) =>
-                typeof h?.command === "string" &&
-                /\bverstak skill\b[^.]*\bStart section\b/.test(h.command),
-            ),
-        );
-    } catch {}
-    if (exists(path.join(root, ".opencode/plugins/verstak-rituals.js"))) hooked = true;
-    if (foreign && !hooked) return;
-    if (!(cover || stamp || hooked)) return;
-    // eslint-disable-next-line no-undef
+    if (!(cover || stamp)) return;
     process.stdout.write(JSON.stringify(DENY));
   });
