@@ -1,11 +1,12 @@
 // The harness's blocking question tool refused by the delivery and alignment (graph @nks/nks-dev,
 // node #10397): the Claude Code plugin's PreToolUse entry denies AskUserQuestion by itself — no
-// cover, no rituals: field, no release build behind it — in the delivery's words, which send the
-// question to a case's ask card; the template's AGENTS.md line names both harnesses' tools and the
-// card, in the form the rituals check reads; align targets the contract that carries it.
+// rituals: field, no release build behind it — in the delivery's words, which send the question to
+// a case's ask card, and only in a repository whose AGENTS.md carries our cover: elsewhere it says
+// nothing (quiet by default, #10020). The template's AGENTS.md line names each harness's carriers,
+// in the form the rituals check reads; align targets the contract that carries it.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -17,15 +18,37 @@ const FOREIGN = new RegExp("\\p{Script=Cyrillic}|is" + "kron", "iu");
 const hooks = JSON.parse(readFileSync(join(REPO, "hooks/hooks.json"), "utf8")).hooks;
 const refusals = (hooks.PreToolUse ?? []).filter((e) => e.matcher === "AskUserQuestion");
 
-function run(command, input) {
-  const cwd = mkdtempSync(join(tmpdir(), "verstak-question-"));
+const COVER =
+  "---\nverstak:\n  graph: r7\n  holon: 12\n  agent_role: 34\n  contract: 16\n  stamp: 2026-11-12\n---\n# x\n";
+const DENY = () => ({
+  hookSpecificOutput: {
+    hookEventName: "PreToolUse",
+    permissionDecision: "deny",
+    permissionDecisionReason: QUESTIONS.en.claude(),
+  },
+});
+
+/** The declared command over a scratch tree: `git` makes it a repository, `agents` its AGENTS.md. */
+function run({ git = true, agents, sub = "", inputCwd = true } = {}) {
+  const root = mkdtempSync(join(tmpdir(), "verstak-question-"));
   try {
+    if (git) mkdirSync(join(root, ".git"));
+    if (agents !== undefined) writeFileSync(join(root, "AGENTS.md"), agents);
+    const cwd = join(root, sub);
+    mkdirSync(cwd, { recursive: true });
+    const input = JSON.stringify({
+      hook_event_name: "PreToolUse",
+      tool_name: "AskUserQuestion",
+      tool_input: { questions: [] },
+      ...(inputCwd ? { cwd } : {}),
+    });
     // No CLAUDE_PLUGIN_ROOT: the refusal stands on its own command.
     const env = { ...process.env };
     delete env.CLAUDE_PLUGIN_ROOT;
+    const command = refusals[0]?.hooks[0].command ?? "true";
     return spawnSync(command, { shell: true, cwd, env, encoding: "utf8", input });
   } finally {
-    rmSync(cwd, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
@@ -36,21 +59,39 @@ test("hooks.json: one PreToolUse entry on the exact name AskUserQuestion", () =>
   assert.match(refusals[0].hooks[0].command, /permissionDecision:'deny'/);
 });
 
-test("the plugin's refusal denies the call in the delivery's words, with no cover around it", () => {
-  const input = JSON.stringify({
-    hook_event_name: "PreToolUse",
-    tool_name: "AskUserQuestion",
-    tool_input: { questions: [] },
-  });
-  const r = run(refusals[0].hooks[0].command, input);
-  assert.equal(r.status, 0, r.stderr);
-  assert.deepEqual(JSON.parse(r.stdout), {
-    hookSpecificOutput: {
-      hookEventName: "PreToolUse",
-      permissionDecision: "deny",
-      permissionDecisionReason: QUESTIONS.en.claude(),
+test("under our cover the plugin denies the call in the delivery's words", () => {
+  for (const opts of [
+    { agents: COVER },
+    { agents: COVER, sub: "src/deep" },
+    { agents: COVER, sub: "src", inputCwd: false },
+    {
+      agents: COVER.replace("  graph: r7", '  graph: "r7" # the project graph').replace(
+        /\n/g,
+        "\r\n",
+      ),
     },
-  });
+  ]) {
+    const r = run(opts);
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(JSON.parse(r.stdout), DENY(), JSON.stringify(opts));
+  }
+});
+
+test("without our cover the plugin says nothing: no refusal, no verstak words", () => {
+  for (const opts of [
+    { agents: undefined },
+    { agents: "# a repository of someone else's\n" },
+    { agents: COVER.replace("verstak:", "neighbour:") },
+    { agents: COVER.replace("  graph: r7\n", "") },
+    { agents: COVER.replace("  graph: r7", "  graph:") },
+    { agents: `# x\n\n${COVER}` },
+    { git: false, agents: COVER },
+  ]) {
+    const r = run(opts);
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(r.stdout, "", JSON.stringify(opts));
+    assert.equal(r.stderr, "", JSON.stringify(opts));
+  }
 });
 
 test("the refusal's words send the question to a case's ask card, in English", () => {
@@ -71,6 +112,8 @@ test("the template's AGENTS.md line names both tools and the case ask card", () 
   assert.match(line, /`AskUserQuestion` \(Claude Code\)/);
   assert.match(line, /`ask` card/);
   assert.match(line, /permissions\.deny/);
+  assert.match(line, /\.opencode\/opencode\.json/);
+  assert.match(line, /plugin/);
 });
 
 test("align targets contract 16, which carries the refusal; 11 stays the lowest", () => {

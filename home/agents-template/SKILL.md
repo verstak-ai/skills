@@ -29,7 +29,7 @@ verstak:
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
-**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — a blocking question stalls the session; ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case (`methods/collaborate.md`, `Asking the user`). Held by the delivery and `.claude/settings.json` `permissions.deny`, not by this line alone.
+**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — a blocking question stalls the session; ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case (`methods/collaborate.md`, `Asking the user`). Held, not by this line alone, in Claude Code by the delivery plugin's hook and `.claude/settings.json` `permissions.deny`; in OpenCode by the `question` policy in `.opencode/opencode.json`.
 
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; what a finished piece leaves behind — scratch, worktrees, caches, cases you no longer owe a move — is cleaned up with it (`methods/code-work.md`, `Cleanup`). Only committed files and the project graph configure agents.

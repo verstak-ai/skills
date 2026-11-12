@@ -411,6 +411,19 @@ by name ("/verstak align this repo"): the `align` method brings it to the versta
 (`AGENTS.md` + session rituals) and seeds the graph with the structure the codebase already
 shows. Nothing offers it unasked.
 
+## 6. Optional: refuse the blocking question tool outside covered repositories
+
+Under the verstak cover the delivery refuses the harness's blocking question tool
+(`AskUserQuestion` in Claude Code, `question` in OpenCode) and the agent asks by an `ask` card
+in the case. Outside the cover it leaves the tool alone. A person who wants it refused
+everywhere does it in their own config: offer this, and change it only on their word —
+neither the plugin nor `align` ever writes it.
+
+- **Claude Code** — `"AskUserQuestion"` added to `permissions.deny` in `~/.claude/settings.json`,
+  every other entry kept.
+- **OpenCode** — `{"action":"tool.use","resource":"question:*","effect":"deny"}` added to
+  `policies` in `~/.config/opencode/opencode.json`, every other field and policy kept.
+
 ## Troubleshooting
 
 - **A command was refused, or is waiting on approval** → a permission decision, not an

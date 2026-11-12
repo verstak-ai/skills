@@ -1,5 +1,5 @@
 {
-  "description": "The harness's blocking question tool refused, whatever the repository; onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction; the session rituals — start, push, merge — by the repository's cover; at a turn's end, a frame's turn that left its word in the console is woken once",
+  "description": "The harness's blocking question tool refused in a repository under the verstak cover; onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction; the session rituals — start, push, merge — by the repository's cover; at a turn's end, a frame's turn that left its word in the console is woken once",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'AskUserQuestion is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).'}}))\"",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const f=require('fs'),p=require('path');let c=process.cwd();try{const i=JSON.parse(d);if(typeof i.cwd==='string'&&i.cwd)c=i.cwd}catch{}for(c=p.resolve(c);!f.existsSync(p.join(c,'.git'));){const u=p.dirname(c);if(u===c)return;c=u}let t;try{t=f.readFileSync(p.join(c,'AGENTS.md'),'utf8')}catch{return}const L=t.split(String.fromCharCode(10)).map(s=>s.trimEnd());if(L[0].replace(String.fromCharCode(65279),'').trim()!=='---')return;const e=L.findIndex((s,n)=>n>0&&s.trim()==='---');if(e<0)return;const q=String.fromCharCode(34,39),u=v=>{v=v.trim();while(v&&q.includes(v[0]))v=v.slice(1);while(v&&q.includes(v.at(-1)))v=v.slice(0,-1);return v};let o=false,g=false;for(const s of L.slice(1,e)){const k=u(s.split(':')[0]);if(!s.trim()||s.trim()[0]==='#')continue;if(s[0]!==' '&&s[0]!==String.fromCharCode(9)){o=k==='verstak';continue}if(o&&k==='graph'&&u(s.slice(s.indexOf(':')+1).split(' #')[0]))g=true}if(g)process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'AskUserQuestion is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).'}}))})\"",
             "timeout": 10
           }
         ]

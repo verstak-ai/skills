@@ -1,5 +1,6 @@
 // The refusal of the harness's blocking question tool (QUESTIONS; graph @nks/nks-dev, node #10397):
-// the reason the Claude Code plugin's PreToolUse entry gives for denying AskUserQuestion. The entry
+// the reason the Claude Code plugin's PreToolUse entry gives for denying AskUserQuestion under our
+// cover (none outside it, graph @nks/nks-dev, node #10020). The entry
 // in hooks/hooks.json carries this text inline, a self-standing command; a test holds the two equal.
 // No quote, backtick, dollar or backslash: it sits inside a shell word and a JS string.
 import type { Lang } from "../lang.ts";
