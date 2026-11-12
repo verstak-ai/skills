@@ -98,6 +98,7 @@ Re-trace; still broken → loop.
 ## Ways into weaving
 
 - Design Phase 2 (`methods/design.md`); a trace gap → Op 1 or 5; a structural tension → the tree; intake exposed a distinction → Op 4.
+- A structural answer to the user: finish the links before showing them (the door, `Step 6 · Answer`); the shape of the whole — `methods/assembly.md`.
 - A work event (merge, rollout, decision, case close): the graph catches up in three named parts, each at least "none, because…". **Landed** — new transitions, phenomena, arrows. **Moved** — modes changed on evidence (a merge alone is none), questions ended. **Released** — bodies rewritten to the present, superseded nodes retired, stale arrows removed. Same move as the event, in the graph, not the case.
 
 ## Rhythm
