@@ -114,7 +114,7 @@ var CONTEXT_GATE = {
 };
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 16 };
 
 // js/delivery/patterns/cover.ts
 var COVER = {
