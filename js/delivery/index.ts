@@ -103,6 +103,7 @@ export { PI, type PiWords } from "./words/pi.ts";
 export { PLACES, type PlacesWords } from "./words/places.ts";
 export { PLUGIN, type PluginWords } from "./words/plugin.ts";
 export { PREPARE, type PrepareAddr, type PrepareLeft, type PrepareWords } from "./words/prepare.ts";
+export { QUESTIONS, type QuestionWords } from "./words/questions.ts";
 export { REALMS, type RealmsWords } from "./words/realms.ts";
 export { RELEASES, type ReleasesWords } from "./words/releases.ts";
 export { RESUME, type ResumeWords } from "./words/resume.ts";

@@ -4,9 +4,9 @@ The **rituals** (start, push, merge, memory guard) are carried by the delivery f
 
 | Harness | Reads | Pointer file needed | Automation surface |
 |---|---|---|---|
-| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard — `.claude/settings.json` |
+| Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard and the `AskUserQuestion` deny — `.claude/settings.json`; the plugin refuses `AskUserQuestion` too |
 | Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align; the rituals are `AGENTS.md` prose |
-| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard |
+| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard; `question` has no refusal from this delivery: the `AGENTS.md` line only |
 
 Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Take every one present through the table.
 
@@ -14,7 +14,7 @@ Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.open
 
 ## Claude Code
 
-Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. Role files: `.claude/agents/` (`references/align-delegation.md`).
+Reads `CLAUDE.md`, hence the `@AGENTS.md` pointer (Step 7). The plugin's own hooks speak the start (startup, resume, clear), push and merge (after Bash) and the turn's end on a watch (Stop); a hook of the repository's own on the same event and matcher silences that kind. The memory guard stays committed in `.claude/settings.json` (Step 4, shapes in `references/align-hooks.md`): a plugin hook's blocking exit is not yet observed. `AskUserQuestion` is refused twice over: the plugin's `PreToolUse` entry answers `deny` in every repository, independent of the cover and `rituals:`, and `.claude/settings.json` denies it in `permissions` (Step 4, `The blocking question tool`); neither stops an `ask` card in the case. Role files: `.claude/agents/` (`references/align-delegation.md`).
 
 ### A subagent's entry and tool set
 

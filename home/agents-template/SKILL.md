@@ -29,6 +29,8 @@ verstak:
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
+**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — a blocking question stalls the session; ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case (`methods/collaborate.md`, `Asking the user`). Held by the delivery and `.claude/settings.json` `permissions.deny`, not by this line alone.
+
 ## Persistence
 - State lives in the repo or the graph. The harness's built-in memory is forbidden entirely; what a finished piece leaves behind — scratch, worktrees, caches, cases you no longer owe a move — is cleaned up with it (`methods/code-work.md`, `Cleanup`). Only committed files and the project graph configure agents.
 - The memory directory is frozen by the `PreToolUse` memory guard (exit 2) — Claude Code: `.claude/settings.json`, OpenCode: the delivery; a harness without a hook surface carries none; `<the spec-write hook: .claude/settings.json; else drop>`; add beside other suites' entries. A cover whose `rituals:` leaves out `guard` turns it off; a guard already in `.claude/settings.json` stays until taken off by hand. The start, push and merge rituals are the delivery's, by the cover. Where a fact goes: the door, `Routes`, Keep.

@@ -1,6 +1,18 @@
 {
-  "description": "Onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction; the session rituals — start, push, merge — by the repository's cover; at a turn's end, a frame's turn that left its word in the console is woken once",
+  "description": "The harness's blocking question tool refused, whatever the repository; onboarding invitation at session start in a repository not yet aligned for the agent; the role's way back after a context compaction; the session rituals — start, push, merge — by the repository's cover; at a turn's end, a frame's turn that left its word in the console is woken once",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'AskUserQuestion is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).'}}))\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "startup",

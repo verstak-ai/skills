@@ -70,6 +70,13 @@ POSIX sh and flagless `readlink` only (`realpath`, `readlink -f` are unreliable 
   "command": "p=$(jq -r '(.tool_input.file_path // .tool_input.notebook_path // \"\") | split([92] | implode) | join(\"/\")'); [ -n \"$p\" ] || exit 0; case \"$p\" in /*) ;; *) p=\"$PWD/$p\" ;; esac; m=$(cd -P \"$HOME/.claude/projects\" 2>/dev/null && pwd -P | tr '[:upper:]' '[:lower:]'); mem() { k=$(printf '%s' \"$1\" | tr '[:upper:]' '[:lower:]'); case \"$k\" in */.claude/projects/*/memory|*/.claude/projects/*/memory/*) return 0 ;; esac; [ -n \"$m\" ] && case \"$k\" in \"$m\"/*/memory|\"$m\"/*/memory/*) true ;; *) false ;; esac; }; r=; s=$p; n=0; x=0; while [ -n \"$s\" ]; do c=${s%%/*}; s=${s#\"$c\"}; s=${s#/}; case \"$c\" in ''|.) continue ;; ..) r=${r%/*}; continue ;; esac; if [ -L \"$r/$c\" ]; then n=$((n+1)); l=$(readlink \"$r/$c\"); if [ $n -gt 40 ] || [ -z \"$l\" ] || mem \"$r/$c\"; then x=1; break; fi; case \"$l\" in /*) r= ;; esac; s=$l/$s; else r=$r/$c; fi; done; { [ $x = 1 ] || mem \"$p\" || mem \"$r\"; } && { echo 'BLOCKED: local agent memory is forbidden entirely, not by category (AGENTS.md, Persistence). Route the fact: repo conventions / code facts → AGENTS.md; project state, this repo'\\''s servers and dated duties → the project graph <Graph>; a user-scoped fact no project owns → personal mind through the minding method of the verstak skill. This dir stays frozen: nothing is written here.' >&2; exit 2; } || exit 0" } ] }
 ```
 
+## Blocking question tool
+Not a hook of the repository: a permission. Merge the one string into `permissions.deny`, keeping every other key of `permissions` and of the file; an absent `permissions` or `deny` is created, a present one never replaced:
+```json
+{ "permissions": { "deny": ["AskUserQuestion"] } }
+```
+A `permissions` that isn't a map, or a `deny` that isn't a list of strings, is someone's shape: leave it and name it in the alignment case. The delivery's own layer is the plugin's `PreToolUse` entry on `AskUserQuestion` in its `hooks/hooks.json`, answering `permissionDecision` `deny` with a reason that sends the question to an `ask` card; nothing of it is copied into the repository. Skill installed without the plugin → this `deny` and the `AGENTS.md` line are the only layers: say so in the report.
+
 ## Spec-write (full interop only)
 A sibling in the same `PostToolUse` array; false positives are harmless; never a work gate:
 ```json
