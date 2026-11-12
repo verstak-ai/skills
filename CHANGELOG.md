@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.44.1](https://github.com/verstak-ai/skills/compare/v3.44.0...v3.44.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* the assistant's permission boundary covers passing on the user's word; the Companion's own case is the house's ([#421](https://github.com/verstak-ai/skills/issues/421)) ([55a7c47](https://github.com/verstak-ai/skills/commit/55a7c47aa5d872c5910ebb58b55cd1157375ba79))
+
 ## [3.44.0](https://github.com/verstak-ai/skills/compare/v3.43.0...v3.44.0) (2026-11-11)
 
 
