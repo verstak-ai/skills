@@ -36,5 +36,10 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "deny": [
+      "AskUserQuestion"
+    ]
   }
 }

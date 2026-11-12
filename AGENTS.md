@@ -4,7 +4,7 @@ verstak:
   holon: 844
   agent_role: 8498
   contract: 15
-  stamp: 2026-11-10
+  stamp: 2026-11-12
 ---
 # `verstak-ai/skills`
 The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
@@ -20,6 +20,8 @@ The `verstak` skill — one door and its methods, `align` among them, which boot
 - **Workflow-suite interop**: none
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
+
+**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — the blocking question tool (why, and how to ask instead: `methods/collaborate.md`, `Asking the user`): ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case. Held, not by this line alone, by: where Claude Code is used — `.claude/settings.json` `permissions.deny`, and the verstak plugin's hook where the plugin is loaded; where OpenCode is used — the `question` policy in `.opencode/opencode.json`.
 
 Owned there, not restated here: start and the #8498 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
 
