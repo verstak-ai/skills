@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
+import { questionHookCommand } from "../../scripts/build-question-hook.mjs";
 import { CONTRACT_SUPPORT, QUESTIONS } from "../delivery/index.ts";
 import { repoSigns } from "../shared/reposigns.ts";
 import { REPO } from "./built.mjs";
@@ -119,6 +120,14 @@ test("hooks.json: one PreToolUse entry on the exact name AskUserQuestion", () =>
   assert.equal(refusals[0].hooks.length, 1);
   // The rituals check reads the plugin's denial by this mark in the command.
   assert.match(refusals[0].hooks[0].command, /permissionDecision:'deny'/);
+});
+
+test("hooks.json's command is the one its readable source makes (js/delivery/question-hook.mjs)", () => {
+  assert.equal(
+    refusals[0]?.hooks[0].command,
+    questionHookCommand(),
+    "hooks/hooks.json is stale against its source: run make build",
+  );
 });
 
 test("the hook refuses exactly where the core counts the repository ours", () => {
