@@ -134,7 +134,7 @@ var CONTEXT_GATE = {
 };
 
 // js/delivery/contract.ts
-var CONTRACT_SUPPORT = { minimum: 11, target: 15 };
+var CONTRACT_SUPPORT = { minimum: 11, target: 16 };
 
 // js/delivery/patterns/board.ts
 var BOARD_HEADER = { en: "Channels" };
@@ -236,7 +236,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.44.2";
+var VERSION = "3.45.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
