@@ -422,7 +422,7 @@ neither the plugin nor `align` ever writes it.
 - **Claude Code** — `"AskUserQuestion"` added to `permissions.deny` in `~/.claude/settings.json`,
   every other entry kept.
 - **OpenCode** — `{"action":"tool.use","resource":"question:*","effect":"deny"}` added to
-  `policies` in `~/.config/opencode/opencode.json`, every other field and policy kept.
+  `policies` in `~/.config/opencode/opencode.json` (or `opencode.jsonc`, comments kept), every other field and policy kept.
 
 ## Troubleshooting
 
