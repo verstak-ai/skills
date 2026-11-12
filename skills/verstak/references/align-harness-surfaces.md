@@ -8,7 +8,7 @@ The **rituals** (start, push, merge, memory guard) are carried by the delivery f
 | Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align; the rituals are `AGENTS.md` prose |
 | OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard; `question` — the project policy in `.opencode/opencode.json` or `.jsonc`, written by align where OpenCode is used; the plugin's own refusal is not shipped yet |
 
-Detect: `.claude/` or the plugin cache → Claude Code; `opencode.json` / `.opencode/` → OpenCode; `.codex/` or `~/.codex/` → Codex. Take every one present through the table.
+Detect — the one rule for which harness is used here (the blocking question tool's layers follow it too, `methods/align.md`, Step 4): `.claude/` or the plugin cache → Claude Code; `.opencode/` or a root `opencode.json` / `opencode.jsonc` → OpenCode; `.codex/` or `~/.codex/` → Codex; or the person says they run it. Take every one present through the table.
 
 **The start ritual everywhere:** one message, word for word the same in every harness (the delivery's start word; a hand-written hook of an older delivery copies it), whose first sentence asks for the verstak skill (`/verstak`) and its `Start` section before any other action, then the cover's addresses: `graph`, `holon` and `agent_role`; no person's role is in it — the agent asks the human who launched the session. Without a wireable start surface (Codex), the template's opening paragraph says it. Sign: a fresh session loads the door before its first graph call.
 
