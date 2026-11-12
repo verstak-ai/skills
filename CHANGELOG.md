@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.45.0](https://github.com/verstak-ai/skills/compare/v3.44.2...v3.45.0) (2026-11-12)
+
+
+### Features
+
+* tasking by graph references and cards to the user from the path walked ([#426](https://github.com/verstak-ai/skills/issues/426)) ([12047f0](https://github.com/verstak-ai/skills/commit/12047f00b4095e079a0530af5fceb82124abbba8))
+* the blocking question tool refused by the delivery and alignment; align contract 16 ([#427](https://github.com/verstak-ai/skills/issues/427)) ([0ec0132](https://github.com/verstak-ai/skills/commit/0ec0132c0b8a15831340b336f1f106c645dd8aef))
+
+
+### Bug Fixes
+
+* contract 16 waits for the live check; questions in words prepared from the path; one home for the refused picker ([#429](https://github.com/verstak-ai/skills/issues/429)) ([a317e75](https://github.com/verstak-ai/skills/commit/a317e75935f03ed446198ed191b37667b2c58472))
+
 ## [3.44.2](https://github.com/verstak-ai/skills/compare/v3.44.1...v3.44.2) (2026-11-12)
 
 
