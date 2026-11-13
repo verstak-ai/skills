@@ -416,9 +416,9 @@ shows. Nothing offers it unasked.
 Not part of the install or its report: for the person reading this page, or when they ask
 about the harness's picker or question tool. In a repository under the verstak cover, Claude
 Code's `AskUserQuestion` is refused by the plugin's hook, and by `.claude/settings.json` once
-`align` writes it on the way to contract 16; OpenCode's `question` only by the project policy
-`align` writes there — the OpenCode plugin's own refusal is not shipped. The agent asks by an
-`ask` card in the case. Outside the cover the tool is left alone. To refuse it everywhere, the
+`align` writes it on the way to contract 16; OpenCode's `question` by the delivered OpenCode
+plugin and by the project policy `align` writes there. The agent asks by an `ask` card in the
+case. Outside the cover neither plugin touches the tool or the harness's permission decision. To refuse it everywhere, the
 person changes their own config — offered, changed only on their word, never by the plugin or
 `align`:
 
