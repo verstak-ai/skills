@@ -59,10 +59,10 @@ var warn = (path, what) => {
   process.stderr.write(`${BRIDGE_NAME}: ${path}: ${what}
 `);
 };
-function parseConfig(text6, say3) {
+function parseConfig(text7, say3) {
   let raw;
   try {
-    raw = JSON.parse(text6);
+    raw = JSON.parse(text7);
   } catch (e) {
     say3(`not JSON (${e.message}) — build defaults are used`);
     return {};
@@ -95,13 +95,13 @@ function parseConfig(text6, say3) {
 }
 function readConfig() {
   const path = configPath();
-  let text6;
+  let text7;
   try {
-    text6 = readFileSync(path, "utf8");
+    text7 = readFileSync(path, "utf8");
   } catch {
     return {};
   }
-  return parseConfig(text6, (what) => warn(path, what));
+  return parseConfig(text7, (what) => warn(path, what));
 }
 var CONFIG = readConfig();
 var CONFIG_SERVER = CONFIG.server ?? null;
@@ -222,6 +222,20 @@ var MIND_ROW = /^\s+(\S[^\n]*?) \(#(\d+), [^\s,)]+[^)\n]*\)(?: — ([^\n]*))?$/;
 var SAT_LOGIN_RE = /\/login\b|oauth|authoriz|sign.?in|log.?in|\b401\b/i;
 var SAT_OLD_FLAG_RE = /satellite|unknown (flag|option)/i;
 
+// js/delivery/patterns/sections.ts
+var SECTIONS = {
+  /** The stage self-check — the push word. */
+  check: (h) => /self-check|self-review/i.test(h),
+  /** The session lifecycle — the merge word, beside the merge section. */
+  lifecycle: (h) => /lifecycle/i.test(h),
+  /** The after-merge acts — the merge word. */
+  merge: (h) => /merge/i.test(h) && /graph/i.test(h) || /every merge/i.test(h),
+  /** A push to the trunk — the merge word on a push to main or master, before the merge heading. */
+  trunk: (h) => /push/i.test(h) && /main|master|trunk/i.test(h),
+  /** The persistence rules — the memory guard's refusal. */
+  persist: (h) => /persistence/i.test(h)
+};
+
 // js/delivery/spawned-for.ts
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 var spawnedForSchema = (description) => ({
@@ -236,7 +250,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "3.45.0";
+var VERSION = "4.0.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -820,6 +834,31 @@ Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Unti
   }
 };
 
+// js/delivery/words/questions.ts
+var QUESTIONS = {
+  en: {
+    claude: () => "AskUserQuestion is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).",
+    guard: () => "question is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).",
+    permissions: () => ".claude/settings.json: permissions must be an object — repair it by hand",
+    denyArray: () => ".claude/settings.json: permissions.deny must be an array of strings — repair it by hand",
+    manual: (file2, reason) => `${file2}: ${{
+      both: "both opencode.json and opencode.jsonc exist — keep one, by hand",
+      parse: "does not parse — repair it by hand",
+      shape: "unsupported shape (an object with a policies array expected) — repair it by hand",
+      missing: 'no policy { "action": "tool.use", "resource": "question:*", "effect": "deny" } — add it by hand (a .jsonc is never rewritten)'
+    }[reason]}`,
+    fileBasis: () => "file contents, not a live harness",
+    pluginBasis: () => "manifest or stand-in context, not a live harness",
+    instructions: () => "AGENTS.md names no refusal of question / AskUserQuestion with the way through an ask card in the case (contents checked only)",
+    claudeProject: () => ".claude/settings.json has no permissions.deny entry AskUserQuestion",
+    claudePlugin: () => "the Claude Code plugin's PreToolUse refusal of AskUserQuestion is missing (manifest checked, not live enforcement)",
+    claudeFile: () => "the Claude Code plugin's hooks/hooks.json",
+    opencodeFile: () => "the OpenCode plugin",
+    opencodeMissing: () => "the OpenCode plugin is not installed",
+    opencodeGuard: () => "the OpenCode plugin did not remove and refuse question, or refused an unrelated action as well (stand-in context)"
+  }
+};
+
 // js/delivery/words/realms.ts
 var REALMS = {
   en: {
@@ -864,7 +903,7 @@ var RESUME = {
     ownNotTaken: (key3, why) => `${key3}: a former bridge of this session holds it, taking it failed — ${why}`,
     noHello: (key3) => `${key3}: hello did not come — the record is intact, the watchdog will repeat the return; if you do not wait — ${via}`,
     stale: (key3) => `${key3}: the record went stale — ${via} will take the seat`,
-    registerRefused: (text6) => `register refused — ${text6}`,
+    registerRefused: (text7) => `register refused — ${text7}`,
     othersInDir: (others2) => `the same directory holds records of other seats too: ${others2}`,
     notYours: () => `the seat is not yours — ${tool("channel")}(action="leave") will release it, the channel stays intact`,
     nothingToReturn: (skipped) => `nothing to return — ${skipped}`,
@@ -872,7 +911,7 @@ var RESUME = {
     noSeatNoKeyNoCwd: () => "no seat, and neither key nor cwd was passed",
     leftByWord: (key3) => `the seat ${key3} was released by the holder's word (leave) — the watchdog does not raise it; to bring it back: ${via} with the same name`,
     watchdogReason: () => "the hearing watchdog",
-    boardUnread: (text6) => `the board could not be read — ${text6}`,
+    boardUnread: (text7) => `the board could not be read — ${text7}`,
     noSeatOnBoard: () => "the own seat is not on the board",
     listening: () => "listening",
     gaveUp: (key3, limit) => `Verstak: after ${limit} socket reopenings the board still reads the seat ${key3} as not listening — I stop reopening; check the board and the server. To restore hearing — ${via} with the same name (stands beside, leaves another session's seat alone); take=true: ${TAKE.en.rule()}.`,
@@ -882,6 +921,16 @@ var RESUME = {
     busyNotRestored: (body) => `; busy line not restored: ${body}`,
     busyForeign: () => "; the former busy line is not restored — say your own",
     fromDisk: (pending2, busy) => `the seat returned from disk after the bridge restarted — the socket reopened at the same address (frames waiting — ${pending2})${busy}`
+  }
+};
+
+// js/delivery/words/rites.ts
+var RITES = {
+  en: {
+    lifecycle: () => "Persistence",
+    push: () => `${FRAME_MARK} Pushed, nothing shipped yet: self-review the diff, the vocabulary pass over the PR text; pick the review tier for the batch (verstak, methods/code-work.md, Cold review).`,
+    merge: () => `${FRAME_MARK} Merged: the after-merge acts (verstak, methods/code-work.md, After merge) — weave, the map, modes on evidence not on merge, end by axis, reconcile, feedback, vocabulary; work tasked by another agent: the seed and delivery modes only.`,
+    early: (graph) => `Load the verstak skill (/verstak) and run its Start section before anything else. Onboarding unfinished: graph ${graph}, no holon or roles yet — continue it from the first missing sign.`
   }
 };
 
@@ -989,7 +1038,7 @@ var ROOT_SEAT = {
     unproven: () => "the bridge did not prove this attempt took a provisional seat; revoke is not authorized",
     notSeated: (why) => `Verstak: the session is not seated — ${why}; a seat comes by the human's word or ${tool("stand")}.`,
     realign: (why, file2) => `Verstak: the session is not seated — ${why}. Align the repository by the verstak skill's align method; do not guess the graph or the role. Seating repeats by itself once the cover ${file2} is unambiguous.`,
-    refused: (text6) => `seating failed: ${text6}`,
+    refused: (text7) => `seating failed: ${text7}`,
     ownOther: (place, karta, realm) => `Verstak: the session holds seat ${place} — role #${karta} in ${realm}; its role or graph differs from the cover. To change seats: ${tool("stand")} with take, or revoke the held seat.`,
     /** The session holds a seat whose graph could not be compared with the cover's. */
     heldUncompared: (place, karta, held2, cover) => `Verstak: the session holds seat ${place} — role #${karta}, ${held2}; not compared with the cover's ${cover}. To change seats: ${tool("stand")} with take, or revoke the held seat.`,
@@ -1020,7 +1069,7 @@ var SATELLITE = {
     needSatelliteOf: () => "Refused (bridge): this is a satellite bridge — it takes only a subagent's satellite seat; pass satellite_of — the caller's seat (@handle:name) from the brief.",
     notSatellite: () => "Refused (bridge): satellite_of is for a satellite bridge only (a bridge entry with --satellite in the agent file); this is a session bridge, and a satellite seat on it would take the caller's voice. A subagent without a bridge of its own has a limit: it speaks as the caller's seat and names itself in its lines.",
     derivesName: () => "Refused (bridge): the bridge derives the satellite's name — name, take and room do not go with satellite_of.",
-    boardUnread: (text6) => `Refused: the board did not read — ${text6}`,
+    boardUnread: (text7) => `Refused: the board did not read — ${text7}`,
     claimsUnsure: (unsure, name2) => `satellite name claims on this machine did not hold the pick (${unsure}) — the name ${name2} was picked by the board: uniqueness is not guaranteed, a satellite bridge standing at the same moment may have taken the same name`,
     seat: (caller, karta, ttl) => `satellite seat of ${caller}: role #${karta}, channel idle window ${ttl} s, no holding record — the seat lives by the run`,
     noCallerId: (caller) => `the board did not print the id of ${caller} — the satellite sign (satellite_of) was not sent to the platform: the seat may inherit the role's undelivered mail`,
@@ -1117,12 +1166,12 @@ var STAND = {
     nameCut: (full, max, name2, what) => `the derived name ${full} is longer than the ${max}-sign limit — cut to ${name2} (dropped: ${what}); want another — pass name`,
     noModel: () => "model not passed — the name has no third part (host.repo): a second session of this machine over this repository lands on the same seat; pass model to tell them apart",
     legacy: (address, realm, karta) => `a seat of the former name ${address} is alive on the board — cases and hooks may hold its address; remove it: ${tool("channel")}(action="revoke", realm="${realm}", karta="${karta}", standing="${address}")`,
-    boardUnread: (text6) => `Refused: the board did not read — ${text6}`,
+    boardUnread: (text7) => `Refused: the board did not read — ${text7}`,
     boardUnknown: (start, own, others2) => `Refused: the board's form is not recognized — no "${own}" header${others2 ? ` ("${others2}")` : ""}, no word about an empty graph, no seat lines; no controlling moves (connect, knock) on a guess. The answer begins: ${start}`,
     boardAmbiguous: (n, name2, karta) => `Refused: the board has ${n} seats named ${name2} for role #${karta} — the form is ambiguous, the state cannot be told.`,
     boardCount: (declared, parsed) => `Refused: the board declares ${declared} seats, ${parsed} were read, and your own is not among them — the unread line may be it, or a seat another session listens on; connect would rotate it blind, and take=true would take it. Repeat when the board reads, or stand under another name.`,
     boardCountFound: (declared, parsed) => `The board declares ${declared} seats, ${parsed} were read — the parser missed a line; your own seat is found, going on.`,
-    refused: (what, text6) => `Refused: ${what} — ${text6}`,
+    refused: (what, text7) => `Refused: ${what} — ${text7}`,
     noIdInRegister: () => "register did not name the seat's id — the seat's frames are found by graph and address; the busy line waits for the id.",
     modelNotCleared: (why) => `The seat's earlier model is not cleared (${why}): the harness named no model, and the board may still show the earlier one.`,
     howBeside: (led) => `a seat of another graph — stands beside on the channel this bridge holds (${led}): register`,
@@ -1130,11 +1179,11 @@ var STAND = {
     howOwnSession: () => "this session's own seat — taken back: a former bridge of this same harness session held it, connect (the socket is now this bridge's, the former one got 4000) and register",
     otherHolder: (holder) => `Refused (bridge): another holder listens on the seat ${holder} — the bridge will not sign with it without hearing; stand on your own seat: ${tool("stand")} without name or with another name.`,
     howRegister: () => "this bridge already holds the socket — register",
-    ttlRefused: (ttl, text6) => `The contour refused the ${ttl} s idle window (${text6}) — the seat is taken with the contour's default window.`,
-    takenButRegister: (text6) => `The seat is taken, but register refused — ${text6}`,
+    ttlRefused: (ttl, text7) => `The contour refused the ${ttl} s idle window (${text7}) — the seat is taken with the contour's default window.`,
+    takenButRegister: (text7) => `The seat is taken, but register refused — ${text7}`,
     howConnect: (mine, listensElsewhere, take3) => mine ? listensElsewhere ? "another holder listened on the seat — connect by take (the socket is now this bridge's, the former holder got 4000) and register" : take3 ? "connect by take — a new entry cycle, the knock count reset — and register" : "the seat was there — connect (the socket is now this bridge's) and register" : "connect and register",
     head: (place, karta, realm, how2) => `[${tool("stand")}] standing ${place} — role #${karta}, graph ${realm}: ${how2}.`,
-    note: (text6) => `[${tool("stand")}] ${text6}`,
+    note: (text7) => `[${tool("stand")}] ${text7}`,
     noWatchdog: () => "No watchdog command: the bridge does not hold this seat's socket yet — this session takes no frames and no invitations until the seat is back.",
     noSocket: () => "The bridge holds no socket — nothing to listen with; check the connect answer.",
     besideNoDoor: () => "The seat is recorded, but it has no door — the bridge's channel socket is not alive; this graph's frames will not come here.",
@@ -1148,8 +1197,8 @@ var STAND = {
     knockSent: (room, waited, window) => `The user's seat ${room}: a knock went ${s(waited)} s ago — wait for the invitation; a deliberate repeat — the same call with repeat_knock=true, not before ${s(window)} s.`,
     knockEarly: (room, waited, window) => `The user's seat ${room}: too early to repeat — ${s(waited)} s since the first knock, the rule waits ${s(window)} s; repeat in ${left(window, waited)} s.`,
     knockNoRole: (room, realm) => `The user's seat ${room}: the board of graph ${realm} does not have it, and send needs its holder's role — no knock sent. The user's seat lives by their presence: either they have been away past the threshold (ask them to open the chat and repeat), or pass room_karta=<the user's role>.`,
-    knockRefused: (room, text6) => `The user's seat ${room}: the knock was refused — ${text6}`,
-    knockDone: (room, again, text6) => `The user's seat ${room}: ${again ? "repeated " : ""}knock sent — ${text6} Wait for the first message from the user's seat with its header; do not write there before it — you will stand beside the user when it comes.`,
+    knockRefused: (room, text7) => `The user's seat ${room}: the knock was refused — ${text7}`,
+    knockDone: (room, again, text7) => `The user's seat ${room}: ${again ? "repeated " : ""}knock sent — ${text7} Wait for the first message from the user's seat with its header; do not write there before it — you will stand beside the user when it comes.`,
     statusElsewhere: (takePath) => `The busy line is not published: the bridge has no status address for this standing — the socket's holder has it; ${takePath}.`,
     statusRefused: (body, guidance) => `The busy line was not accepted: ${body}${guidance}`
   }
@@ -1190,11 +1239,11 @@ var STAND_MOVES = {
     standAgain: (call) => `The bridge holds no seat for this session now — take it: ${call} (status may go in the same call).`,
     priorReleased: (prior) => `this session's former seat ${prior} is revoked: take moves the session to the taken seat, it does not add a second one`,
     provisionalReplaced: (prior) => `the auto-seating's seat ${prior} is replaced: it was provisional — the explicit call stood on the named one and revoked it`,
-    priorKept: (prior, text6, revoke) => `this session's former seat ${prior} is not revoked (${text6}); until it is, cases ask for from_standing. Revoke it: ${revoke}`,
+    priorKept: (prior, text7, revoke) => `this session's former seat ${prior} is not revoked (${text7}); until it is, cases ask for from_standing. Revoke it: ${revoke}`,
     besideHoldsMain: (prior, asked, beside2, revokes, keep) => `Refused: seats beside in other graphs stand on this session's main seat ${prior} — ${beside2}; moving to ${asked} opens a new channel, they would lose hearing and ${prior} could not be revoked. Nothing was touched. Revoke the seats beside first — ${revokes}, then repeat the call; or keep the former name: ${keep}.`,
     reissueWaited: (seconds2, own) => own ? `yours — returned: the bridge itself was reopening this seat's socket at that moment, the call waited for its outcome (${seconds2} s)` : `this seat's socket was just reopened — the call waited out the platform's threshold (${seconds2} s) and took the seat`,
     moveUndone: (asked, prior) => `The move did not happen: the seat ${asked} just taken is revoked, the session stays on its former seat ${prior} — its only one.`,
-    moveNotUndone: (asked, text6, revoke) => `The seat ${asked} just taken could not be revoked (${text6}) — revoke it: ${revoke}`
+    moveNotUndone: (asked, text7, revoke) => `The seat ${asked} just taken could not be revoked (${text7}) — revoke it: ${revoke}`
   }
 };
 
@@ -1396,7 +1445,7 @@ var USAGE = {
 // js/delivery/words/watchdog.ts
 var WATCHDOG = {
   en: {
-    doer: (text6) => `DOER: ${text6}`,
+    doer: (text7) => `DOER: ${text7}`,
     listening: (key3, tail2 = "") => `listening on standing ${key3}${tail2}`,
     listeningCodex: (key3, thread) => `listening on standing ${key3}; putting frames into thread ${thread}`,
     backfilled: (count) => ` (${count} back-dated)`,
@@ -1406,7 +1455,7 @@ var WATCHDOG = {
     bridgeLetGo: () => "the bridge released the standing or went away — did the session end?",
     seatNotBack: (s2, path) => `the seat did not return within ${s2}s of the daemon change (socket ${path} not up); bring it back with ${tool("stand")}`,
     noSocket: (path, s2) => `the bridge did not bring up the local socket ${path} within ${s2}s`,
-    bridgeReleasedSocket: (text6) => `the bridge released the socket: ${text6}`,
+    bridgeReleasedSocket: (text7) => `the bridge released the socket: ${text7}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
     seenEarlier: (id) => `frame ${id} was already delivered by an earlier arming — not a reason to wake`,
     unaddressed: () => "a batch with nothing addressed to the seat — the count waits for the next wake-up",
@@ -1431,7 +1480,7 @@ var WATCHDOG = {
 
 // js/shared/version.ts
 var releaseBuild = () => CHANNEL_MARK.endsWith(":release");
-var devBuildIn = (text6) => text6.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
+var devBuildIn = (text7) => text7.includes(`"${[BUILD_MARK, "dev"].join(":")}"`);
 function buildOf(selfUrl) {
   try {
     const src = readFileSync2(fileURLToPath(selfUrl));
@@ -1441,9 +1490,9 @@ function buildOf(selfUrl) {
   }
 }
 var MARK_LITERAL = /"([^"\s]+-build):(?:dev|release)"/g;
-function versionIn(text6) {
-  for (const [, name2] of text6.matchAll(MARK_LITERAL)) if (name2 !== BUILD_MARK) return null;
-  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text6);
+function versionIn(text7) {
+  for (const [, name2] of text7.matchAll(MARK_LITERAL)) if (name2 !== BUILD_MARK) return null;
+  const m = /^(?:const|let|var)\s+VERSION\s*=\s*"([^"]+)"/m.exec(text7);
   return m ? m[1] : null;
 }
 
@@ -1586,8 +1635,8 @@ function resolve2() {
   const fromEnv = envOf(envName("BRIDGE_URL"))?.trim();
   if (fromEnv) return langOfServer(fromEnv);
   try {
-    const text6 = readFileSync3(join3(authDirFromEnv(), "server"), "utf8").trim();
-    if (text6) return langOfServer(text6);
+    const text7 = readFileSync3(join3(authDirFromEnv(), "server"), "utf8").trim();
+    if (text7) return langOfServer(text7);
   } catch {
   }
   return DEFAULT_LANG;
@@ -1622,10 +1671,10 @@ function guardStream(s2) {
   if (s2) s2.on("error", () => deadStreams.add(s2));
 }
 var backlogged = /* @__PURE__ */ new WeakSet();
-function writeTo(s2, text6) {
+function writeTo(s2, text7) {
   if (!canWrite(s2)) return false;
   try {
-    const fit = s2.write(text6);
+    const fit = s2.write(text7);
     if (!fit && !backlogged.has(s2)) s2.once("drain", () => backlogged.delete(s2));
     if (fit) backlogged.delete(s2);
     else backlogged.add(s2);
@@ -1652,15 +1701,15 @@ function emit(msg) {
   writeTo(sessionStream(), JSON.stringify(msg) + "\n");
 }
 function flushStdout(out7 = sessionStream()) {
-  return new Promise((resolve14) => {
-    if (!canWrite(out7)) return resolve14();
+  return new Promise((resolve15) => {
+    if (!canWrite(out7)) return resolve15();
     let done = false;
     const finish2 = () => {
       if (done) return;
       done = true;
       out7.off("error", finish2);
       out7.off("close", finish2);
-      resolve14();
+      resolve15();
     };
     out7.once("error", finish2);
     out7.once("close", finish2);
@@ -1677,11 +1726,11 @@ function strip(url) {
 }
 var isProductionServer = (url) => PRODUCTION_URLS.has(strip(url));
 function resolveServerChoice(word3) {
-  const w11 = word3.trim();
-  const chosen = LANGS.find((l) => SERVER_CHOICE[l].test(w11));
+  const w12 = word3.trim();
+  const chosen = LANGS.find((l) => SERVER_CHOICE[l].test(w12));
   if (chosen) return SERVER_URLS[chosen];
   try {
-    return new URL(w11).href;
+    return new URL(w12).href;
   } catch {
     return null;
   }
@@ -1689,8 +1738,8 @@ function resolveServerChoice(word3) {
 var serverChoicePath = (authDir) => join4(authDir, "server");
 function readServerChoice(authDir) {
   try {
-    const text6 = readFileSync4(serverChoicePath(authDir), "utf8").trim();
-    return text6 ? new URL(text6).href : null;
+    const text7 = readFileSync4(serverChoicePath(authDir), "utf8").trim();
+    return text7 ? new URL(text7).href : null;
   } catch {
     return null;
   }
@@ -1799,9 +1848,9 @@ function readPat(cfg) {
   }
   const file2 = join4(cfg.authDir, "token");
   try {
-    const text6 = readFileSync4(file2, "utf8").trim();
-    if (text6) {
-      cfg.pat = text6;
+    const text7 = readFileSync4(file2, "utf8").trim();
+    if (text7) {
+      cfg.pat = text7;
       cfg.patSource = file2;
     }
   } catch {
@@ -1810,8 +1859,8 @@ function readPat(cfg) {
 
 // js/bridge/daemon.ts
 import { spawn as spawn5 } from "node:child_process";
-import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync22, readFileSync as readFileSync36, statSync as statSync10 } from "node:fs";
-import { join as join34 } from "node:path";
+import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync25, readFileSync as readFileSync38, statSync as statSync10 } from "node:fs";
+import { join as join38 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 
 // js/shared/channel.ts
@@ -2044,10 +2093,10 @@ function holdSocket(o) {
       stopWatch();
       handing = { onFrame, onGone };
     },
-    send(text6, sent) {
+    send(text7, sent) {
       if (stopped || handing || !ws || ws.readyState !== 1) return false;
       try {
-        ws.send(text6);
+        ws.send(text7);
       } catch {
         return false;
       }
@@ -3069,12 +3118,12 @@ function pidAlive(pid) {
   }
 }
 function portListening(port, timeoutMs = 700) {
-  return new Promise((resolve14) => {
-    if (!Number.isInteger(port)) return resolve14(false);
+  return new Promise((resolve15) => {
+    if (!Number.isInteger(port)) return resolve15(false);
     const sock = connect3({ host: "127.0.0.1", port });
     const done = (v) => {
       sock.destroy();
-      resolve14(v);
+      resolve15(v);
     };
     sock.setTimeout(timeoutMs, () => done(false));
     sock.once("connect", () => done(true));
@@ -3148,7 +3197,7 @@ function installAuthLockExitHook() {
 import { createServer as createServer2 } from "node:http";
 var PAGE_HOLD_MS = 2e4;
 function bindCallback(port) {
-  return new Promise((resolve14, reject) => {
+  return new Promise((resolve15, reject) => {
     let handOff = null;
     let received = null;
     let browser = null;
@@ -3203,7 +3252,7 @@ function bindCallback(port) {
     server.listen(port, "127.0.0.1", () => {
       server.removeListener("error", reject);
       server.on("error", (e) => log(`callback server: ${e.message}`));
-      resolve14({
+      resolve15({
         port,
         report: (failure) => tellBrowser(
           failure ? words(CALLBACK).failed(esc3(failure)) : words(CALLBACK).authenticated()
@@ -3707,12 +3756,12 @@ function published(l) {
 function older(l) {
   return !!l?.authorize_url && !l.state;
 }
-var firstCode = (first2) => new Promise((resolve14) => {
-  const t = setTimeout(() => resolve14(void 0), DEVICE_FIRST_WAIT_MS);
+var firstCode = (first2) => new Promise((resolve15) => {
+  const t = setTimeout(() => resolve15(void 0), DEVICE_FIRST_WAIT_MS);
   t.unref?.();
   void first2.then((c) => {
     clearTimeout(t);
-    resolve14(c ?? void 0);
+    resolve15(c ?? void 0);
   });
 });
 function loginPublished() {
@@ -4748,12 +4797,12 @@ function roomKind(frame2) {
   }
   const pending2 = kind2 === "said" && f.body_pending === true && !str(f.body) && !str(line.done);
   const aborted = kind2 === "body" && fields.aborted === true;
-  let text6 = kindText(kind2, values, f, pending2, aborted);
+  let text7 = kindText(kind2, values, f, pending2, aborted);
   if (kind2 === "closing") {
     const may = Array.isArray(fields.may_object) ? fields.may_object.map((m) => typeof m === "string" ? m : str(obj(m).id)) : [];
     const myId = str(f.to_standing_id);
     const mayI = !!myId && may.includes(myId);
-    text6 += "; " + (mayI ? W4.closingMay(need(values.entry_id)) : W4.closingNot());
+    text7 += "; " + (mayI ? W4.closingMay(need(values.entry_id)) : W4.closingNot());
   }
   const stack = rule === "stack" ? f.stack === "defer" ? "batch" : "interrupt" : rule === "mine" ? inviteMine(f) ? "interrupt" : "batch" : rule === "addressed" ? addressedMine(f) ? "interrupt" : "batch" : rule;
   const phase = pending2 ? "pending" : aborted ? "aborted" : null;
@@ -4761,7 +4810,7 @@ function roomKind(frame2) {
   return {
     kind: kind2,
     rule: phase ? "batch" : stack,
-    words: text6,
+    words: text7,
     author,
     bodyInWords,
     phase,
@@ -5307,10 +5356,10 @@ var PART_MIN = 3;
 var CUT_ORDER = ["repo", "host", "model"];
 function fitName(parts) {
   const p = { ...parts };
-  const join53 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
+  const join59 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
   const cut = [];
   for (const k of CUT_ORDER) {
-    const over = join53().length - NAME_MAX;
+    const over = join59().length - NAME_MAX;
     if (over <= 0) break;
     const keep = Math.max(k === "model" ? 1 : PART_MIN, p[k].length - over);
     if (keep >= p[k].length) continue;
@@ -5318,7 +5367,7 @@ function fitName(parts) {
     cut.push(k);
   }
   return {
-    name: join53().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
+    name: join59().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
     cut
   };
 }
@@ -5442,8 +5491,8 @@ async function* sseEvents(body) {
     while ((m = /\r?\n\r?\n/.exec(buf)) !== null) {
       const raw = buf.slice(0, m.index);
       buf = buf.slice(m.index + m[0].length);
-      const data = raw.split(/\r?\n/).filter((l) => l.startsWith("data:")).map((l) => l.slice(5).replace(/^ /, "")).join("\n");
-      if (data) yield data;
+      const data2 = raw.split(/\r?\n/).filter((l) => l.startsWith("data:")).map((l) => l.slice(5).replace(/^ /, "")).join("\n");
+      if (data2) yield data2;
     }
   }
 }
@@ -5550,9 +5599,9 @@ async function post2(msg, heard2) {
   }
   if (res.status === 202 || res.status === 204) return;
   if (!res.ok) {
-    const text7 = (await res.text().catch(() => "")).slice(0, 300);
+    const text8 = (await res.text().catch(() => "")).slice(0, 300);
     throw new UpstreamError(
-      `upstream HTTP ${res.status}: ${text7}`,
+      `upstream HTTP ${res.status}: ${text8}`,
       "http",
       null,
       res.status < 500 ? UpstreamError.NOT_SENT : UpstreamError.UNKNOWN
@@ -5562,11 +5611,11 @@ async function post2(msg, heard2) {
   if (ctype.includes("text/event-stream")) {
     try {
       if (!res.body) return;
-      for await (const data of sseEvents(res.body)) {
+      for await (const data2 of sseEvents(res.body)) {
         try {
-          onMessage(JSON.parse(data));
+          onMessage(JSON.parse(data2));
         } catch {
-          debug(`unparseable SSE data: ${data.slice(0, 120)}`);
+          debug(`unparseable SSE data: ${data2.slice(0, 120)}`);
         }
       }
     } catch (e) {
@@ -5580,12 +5629,12 @@ async function post2(msg, heard2) {
     }
     return;
   }
-  const text6 = await res.text();
-  if (!text6.trim()) return;
+  const text7 = await res.text();
+  if (!text7.trim()) return;
   try {
-    onMessage(JSON.parse(text6));
+    onMessage(JSON.parse(text7));
   } catch {
-    throw new UpstreamError(`upstream sent unparseable JSON: ${text6.slice(0, 200)}`, "http");
+    throw new UpstreamError(`upstream sent unparseable JSON: ${text7.slice(0, 200)}`, "http");
   }
 }
 var reinit = scoped(() => ({ inFlight: null }));
@@ -5875,10 +5924,10 @@ function humanWordReply(frame2, origin2) {
   return Object.values(missing).every((x) => !x) ? T2().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame2.id)) : T2().noReplyAddress(missing);
 }
 function frameToText(frame2, raw, withCase = true) {
-  const text6 = frameText(frame2, raw, withCase);
-  if (!frame2 || !withCase) return text6;
+  const text7 = frameText(frame2, raw, withCase);
+  if (!frame2 || !withCase) return text7;
   const cards = openCardsText(frame2);
-  return text6.split("\n").includes(cards) ? text6 : `${text6}
+  return text7.split("\n").includes(cards) ? text7 : `${text7}
 ${cards}`;
 }
 function frameText(frame2, raw, withCase) {
@@ -5887,7 +5936,7 @@ function frameText(frame2, raw, withCase) {
   if (notice) return notice;
   const f = frame2;
   const origin2 = frame2.origin ?? classifyOrigin(frame2);
-  const text6 = textOf(frame2);
+  const text7 = textOf(frame2);
   const c = caseOf(frame2);
   if (c) {
     if (!addressedToMine(frame2)) return caseCountLine([frame2]);
@@ -5902,11 +5951,11 @@ function frameText(frame2, raw, withCase) {
     const label = [withCase ? caseHead(frame2, true) : "", entry ? `[${entry}]` : ""];
     const head = `${[...label.filter(Boolean), words2].join(" ")}${by ? ` — ${by}` : ""}${tail(frame2, withReply)}`;
     const lines2 = [head];
-    if (text6 && !words2.includes(text6.trim())) lines2.push(text6);
+    if (text7 && !words2.includes(text7.trim())) lines2.push(text7);
     return lines2.join("\n");
   }
   const lines = [`${whoOf2(frame2, true) || "?"}${tail(frame2, true)}`];
-  if (text6) lines.push(text6);
+  if (text7) lines.push(text7);
   const reply2 = humanWordReply(frame2, origin2);
   if (reply2) lines.push(reply2);
   if (isLifeCheck(frame2)) lines.push(T2().lifeCheckSeat(warnedSeat(frame2)), T2().lifeCheckReply());
@@ -5926,9 +5975,9 @@ function batchLine(frame2, run3, withZachin = true, withCase = true) {
   const entry = typeof e === "number" || typeof e === "string" ? e : "?";
   const words2 = (rk?.words ?? T2().frame(typeof f.id === "string" ? f.id : "?")).replace(/\s+/g, " ").trim();
   const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
-  const text6 = textOf(frame2).replace(/\s+/g, " ").trim();
-  const dup = !!text6 && words2.includes(text6);
-  return `${pre}[${entry}] ${words2}${author}${tail(frame2, !rk || !CAPTION_REPLY.has(rk.kind))}${text6 && !dup ? `: ${text6}` : ""}`;
+  const text7 = textOf(frame2).replace(/\s+/g, " ").trim();
+  const dup = !!text7 && words2.includes(text7);
+  return `${pre}[${entry}] ${words2}${author}${tail(frame2, !rk || !CAPTION_REPLY.has(rk.kind))}${text7 && !dup ? `: ${text7}` : ""}`;
 }
 function foldAsides(frames) {
   const asides = frames.map((f) => roomKind(f)?.aside ?? null);
@@ -6283,17 +6332,17 @@ function checkRetirements(entries2) {
   if (keys > SEEN_KEEP) throw new Error("graph retirement key limit reached");
 }
 function readRetirements(path) {
-  let text6;
+  let text7;
   try {
-    text6 = readFileSync12(path, "utf8");
+    text7 = readFileSync12(path, "utf8");
   } catch (e) {
     if (e.code === "ENOENT") return [];
     throw e;
   }
-  const data = JSON.parse(text6);
-  if (!data || data.version !== 1 || !Array.isArray(data.entries))
+  const data2 = JSON.parse(text7);
+  if (!data2 || data2.version !== 1 || !Array.isArray(data2.entries))
     throw new Error("unsupported graph retirement schema");
-  const entries2 = data.entries;
+  const entries2 = data2.entries;
   checkRetirements(entries2);
   return entries2;
 }
@@ -6678,9 +6727,9 @@ var StaleBurst = class {
       this.timer = null;
       const all2 = this.burst.splice(0);
       if (!all2.length) return;
-      const { text: text6, keys, body } = staleBatch(all2, this.has);
-      if (!text6) return;
-      flush({ kind: "stale", frames: all2, marks: keys, text: text6, body });
+      const { text: text7, keys, body } = staleBatch(all2, this.has);
+      if (!text7) return;
+      flush({ kind: "stale", frames: all2, marks: keys, text: text7, body });
     }, STALE_BURST_MS).unref();
   }
   /** The frames the window holds (pulse.ts pending). */
@@ -6709,12 +6758,12 @@ import { existsSync, readdirSync as readdirSync3, readFileSync as readFileSync14
 import { connect as connectLocal } from "node:net";
 import { basename as basename3, join as join11 } from "node:path";
 function localSocketAlive(sock) {
-  return new Promise((resolve14) => {
-    if (process.platform !== "win32" && !existsSync(sock)) return resolve14(false);
+  return new Promise((resolve15) => {
+    if (process.platform !== "win32" && !existsSync(sock)) return resolve15(false);
     const probe = connectLocal(sock);
     const done = (v) => {
       probe.destroy();
-      resolve14(v);
+      resolve15(v);
     };
     probe.once("connect", () => done(true));
     probe.once("error", () => done(false));
@@ -7699,7 +7748,7 @@ function createMux(url, onSocket) {
     onOpen: () => active().forEach(subscribe4),
     onMessage: (raw) => routeFrame(raw, routes),
     onDrop,
-    onHung: (text6) => active().forEach((s2) => (s2.o.onHung ?? s2.o.onNote)?.(text6)),
+    onHung: (text7) => active().forEach((s2) => (s2.o.onHung ?? s2.o.onNote)?.(text7)),
     onFallback: () => [...subs].forEach(toSocket)
   });
   const ticker = createTicker((tick) => link.send(tick));
@@ -7817,11 +7866,11 @@ function muxOf(url) {
   if (!m) muxes.set(url, m = createMux(url, fell));
   return m;
 }
-function pulseFrom(m, s2, text6, sent) {
+function pulseFrom(m, s2, text7, sent) {
   if (!s2.live || !s2.channel) return false;
   let f;
   try {
-    f = JSON.parse(text6);
+    f = JSON.parse(text7);
   } catch {
     return false;
   }
@@ -7844,7 +7893,7 @@ function holdChannel(o) {
       m.release(s2);
       onGone(0);
     },
-    send: (text6, sent) => s2.fallback ? s2.fallback.send(text6, sent) : pulseFrom(m, s2, text6, sent),
+    send: (text7, sent) => s2.fallback ? s2.fallback.send(text7, sent) : pulseFrom(m, s2, text7, sent),
     get alive() {
       return s2.fallback ? s2.fallback.alive : !s2.closed;
     },
@@ -7908,9 +7957,9 @@ function learnRealm(alias, canonical) {
   if (t && !t.startsWith("@") && CANON_RE.test(canonical)) aliases.set(t, canonical);
 }
 var LIST_LINE_RE = /^ {4}(@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+) {2}(r\d+) {2}.* · /;
-function learnRealmList(text6) {
+function learnRealmList(text7) {
   const slugs = /* @__PURE__ */ new Map();
-  for (const line of text6.split("\n")) {
+  for (const line of text7.split("\n")) {
     const m = LIST_LINE_RE.exec(line);
     if (!m) continue;
     const [, c, short2] = m;
@@ -7935,9 +7984,9 @@ async function resolveRealms(names2, list3) {
   const open = names2.map(trimmed).filter((t) => t && !resolvedRealm(t));
   if (!open.length) return true;
   R.listing ??= list3().then(
-    (text6) => {
-      if (text6) learnRealmList(text6);
-      return !!text6;
+    (text7) => {
+      if (text7) learnRealmList(text7);
+      return !!text7;
     },
     () => false
   ).finally(() => {
@@ -7997,17 +8046,17 @@ function addExtra(s2, ch, hooks, primaryAddress = null) {
   for (const k of [key3, ...formerKeysOf(key3)]) besideWord({ kind: "beside", key: k, place: seat2 });
   return key3;
 }
-var besideWord = (data) => emit({
+var besideWord = (data2) => emit({
   jsonrpc: "2.0",
   method: "notifications/message",
-  params: { level: "info", logger: LOGGERS.channel, data }
+  params: { level: "info", logger: LOGGERS.channel, data: data2 }
 });
 function repointExtras(ch) {
   for (const p of extraPlaces()) writeRecord(p, ch);
 }
-function rememberExtraStatus(key3, ch, text6) {
+function rememberExtraStatus(key3, ch, text7) {
   const p = extras.get(key3);
-  if (p) writeRecord(p, ch, text6 || "");
+  if (p) writeRecord(p, ch, text7 || "");
 }
 function dropExtra(key3, reason, forget, as) {
   const p = extras.get(key3);
@@ -8128,13 +8177,13 @@ function parseFrame(raw) {
   }
 }
 function entries(path) {
-  let text6;
+  let text7;
   try {
-    text6 = readFileSync15(path, "utf8");
+    text7 = readFileSync15(path, "utf8");
   } catch {
     return null;
   }
-  return text6.slice(0, text6.lastIndexOf("\n") + 1).split("\n").filter(Boolean).map((line) => {
+  return text7.slice(0, text7.lastIndexOf("\n") + 1).split("\n").filter(Boolean).map((line) => {
     try {
       return JSON.parse(line);
     } catch {
@@ -8198,8 +8247,8 @@ function inTurn(url, fn, open = false) {
 function inTurnWithin(url, ms2, fn, late2) {
   const until = Date.now() + ms2;
   let timer;
-  const expired = new Promise((resolve14) => {
-    timer = setTimeout(() => resolve14(late2()), ms2);
+  const expired = new Promise((resolve15) => {
+    timer = setTimeout(() => resolve15(late2()), ms2);
     timer.unref?.();
   });
   return Promise.race([inTurn(url, () => fn(until)), expired]).finally(() => clearTimeout(timer));
@@ -8209,8 +8258,8 @@ function inTurnWithin(url, ms2, fn, late2) {
 var TRIMMED = "trimmed_to_limit";
 var LIMIT = 64;
 var obj3 = (v) => v && typeof v === "object" ? v : {};
-function trimToWord(text6, max) {
-  const chars = [...text6];
+function trimToWord(text7, max) {
+  const chars = [...text7];
   const head = chars.slice(0, max - 1).join("");
   const cut = chars[max - 1] === " " ? head.length : head.lastIndexOf(" ");
   return (cut > 0 ? head.slice(0, cut) : head).trimEnd() + "…";
@@ -8222,38 +8271,38 @@ function acceptedIn(body, sent) {
   } catch {
   }
   const warnings = Array.isArray(parsed.warnings) ? parsed.warnings : [];
-  const w11 = obj3(warnings.find((x) => obj3(x).code === TRIMMED));
+  const w12 = obj3(warnings.find((x) => obj3(x).code === TRIMMED));
   const told = typeof parsed.doing === "string" ? parsed.doing : null;
-  if (!w11.code) return told === null ? {} : { doing: told };
+  if (!w12.code) return told === null ? {} : { doing: told };
   const doing = told ?? trimToWord(sent, LIMIT);
-  const message = typeof w11.message === "string" ? w11.message.trim() : "";
+  const message = typeof w12.message === "string" ? w12.message.trim() : "";
   return { doing, trimmed: { doing, message } };
 }
 function trimNudge(t) {
   if (t.message) return words(STATUS_POST).trimmedBy(t.message);
   return words(STATUS_POST).trimmed();
 }
-function byTick(url, text6, scope) {
-  if (!tickFor(url, scope, { status: text6 })) return null;
-  if ([...text6].length <= LIMIT) return { ok: true, body: "", doing: text6 };
-  const doing = trimToWord(text6, LIMIT);
+function byTick(url, text7, scope) {
+  if (!tickFor(url, scope, { status: text7 })) return null;
+  if ([...text7].length <= LIMIT) return { ok: true, body: "", doing: text7 };
+  const doing = trimToWord(text7, LIMIT);
   return { ok: true, body: "", doing, trimmed: { doing, message: "" } };
 }
-async function publishStatusTo(url, text6, timeoutMs = 5e3, standingId = null) {
-  const ticked = byTick(url, text6, standingId);
+async function publishStatusTo(url, text7, timeoutMs = 5e3, standingId = null) {
+  const ticked = byTick(url, text7, standingId);
   if (ticked) return ticked;
-  const w11 = words(STATUS_POST);
+  const w12 = words(STATUS_POST);
   if (onDispatcher(url))
-    return { ok: false, body: liveOnDispatcher(url) ? w11.seatUnnamed() : w11.notSubscribed() };
+    return { ok: false, body: liveOnDispatcher(url) ? w12.seatUnnamed() : w12.notSubscribed() };
   return inTurnWithin(
     url,
     timeoutMs,
-    (until) => postStatus(url, text6, until, standingId),
+    (until) => postStatus(url, text7, until, standingId),
     () => ({ ok: false, body: late() })
   );
 }
 var late = () => words(STATUS_POST).noAnswer(words(STATUS_POST).late());
-async function postStatus(url, text6, until, standingId) {
+async function postStatus(url, text7, until, standingId) {
   const left2 = until - Date.now();
   if (left2 <= 0) return { ok: false, body: late() };
   const signal = AbortSignal.timeout(left2);
@@ -8261,7 +8310,7 @@ async function postStatus(url, text6, until, standingId) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(
-      typeof standingId === "string" ? { text: text6, standing_id: standingId } : { text: text6 }
+      typeof standingId === "string" ? { text: text7, standing_id: standingId } : { text: text7 }
     ),
     signal
   });
@@ -8278,10 +8327,10 @@ async function postStatus(url, text6, until, standingId) {
   if (res.status === 404) return { ok: false, code: 404, body: words(STATUS_POST).gone(body) };
   if (!res.ok)
     return { ok: false, code: res.status, body: words(STATUS_POST).refused(res.status, body) };
-  return { ok: true, body, ...acceptedIn(body, text6) };
+  return { ok: true, body, ...acceptedIn(body, text7) };
 }
 onFellBack(
-  (url, text6, standingId) => inTurn(url, () => postStatus(url, text6, Date.now() + 5e3, standingId), true).then((st) => {
+  (url, text7, standingId) => inTurn(url, () => postStatus(url, text7, Date.now() + 5e3, standingId), true).then((st) => {
     if (!st.ok) log(`busy line held for the dispatcher not posted: ${st.body}`);
   })
 );
@@ -8294,14 +8343,14 @@ function keepUntilEvicted(holder, key3, statusUrl2) {
   openSpool(path);
   let timer;
   let over = false;
-  const done = new Promise((resolve14) => {
+  const done = new Promise((resolve15) => {
     const end = (why, after2) => {
       if (over) return;
       over = true;
       clearTimeout(timer);
       closeSpool(path);
       log(`place ${key3} handed over: ${why}`);
-      void Promise.resolve(after2).then(() => resolve14());
+      void Promise.resolve(after2).then(() => resolve15());
     };
     timer = setTimeout(() => {
       const cleared = statusUrl2 ? clearBusy(key3, statusUrl2, door) : void 0;
@@ -8342,9 +8391,9 @@ function takeSpool(key3, primary, feed) {
 function sayStray(raw, frame2, p) {
   const to = strayOf(frame2, p);
   if (!to) return false;
-  const text6 = words(HANDOFF).strayFrame(String(frame2?.id ?? "?"), to, p.door.key, raw);
-  log(text6);
-  const ev = { kind: "note", text: text6 };
+  const text7 = words(HANDOFF).strayFrame(String(frame2?.id ?? "?"), to, p.door.key, raw);
+  log(text7);
+  const ev = { kind: "note", text: text7 };
   p.door.broadcast(ev);
   emit({
     jsonrpc: "2.0",
@@ -8423,19 +8472,19 @@ function noteStandCwd(cwd) {
   return prev;
 }
 var channel = () => H2.currentUrl ? { url: H2.currentUrl, statusUrl: H2.currentStatusUrl, cwd: H2.standCwd } : null;
-function rememberStatus(text6, realm) {
+function rememberStatus(text7, realm) {
   const s2 = state.standing;
   const ch = channel();
   if (!s2 || !H2.currentKey || !ch) return;
   const extra = realm ? extraIn(realm) : void 0;
-  if (extra) return rememberExtraStatus(extra.door.key, ch, text6);
+  if (extra) return rememberExtraStatus(extra.door.key, ch, text7);
   writeHoldRecord(H2.currentKey, {
     realm: s2.realm,
     karta: s2.karta,
     name: s2.name ?? "",
     url: ch.url,
     statusUrl: H2.currentStatusUrl,
-    status: text6 || void 0,
+    status: text7 || void 0,
     cwd: H2.standCwd ?? readHoldRecord(H2.currentKey)?.cwd,
     client: harnessName(),
     key: H2.currentKey
@@ -8450,9 +8499,9 @@ var doorHooks = {
     for (const fn of H2.attachHooks) fn();
   },
   lateEvent: () => H2.evictedKey ? H2.evictedEvent : null,
-  onError: (text6) => {
-    log(text6);
-    notify("error", { kind: "note", text: text6 });
+  onError: (text7) => {
+    log(text7);
+    notify("error", { kind: "note", text: text7 });
   }
 };
 var doors = () => [
@@ -8491,10 +8540,10 @@ var localListeners = () => doors().reduce((n, d) => n + d.clients.size, 0);
 function awaitHello(timeoutMs) {
   const seen = H2.door?.ring.find((r) => r.frame?.type === "hello")?.frame ?? null;
   if (seen) return Promise.resolve(seen);
-  return new Promise((resolve14) => {
+  return new Promise((resolve15) => {
     const done = (f) => {
       H2.helloWaiters.delete(done);
-      resolve14(f);
+      resolve15(f);
     };
     H2.helloWaiters.add(done);
     setTimeout(() => done(null), timeoutMs).unref();
@@ -8504,11 +8553,11 @@ var heldKey = (realm) => (realm ? besideKeyIn(realm) : null) ?? H2.currentKey;
 function broadcast(ev) {
   for (const d of doors()) d.broadcast(ev);
 }
-function notify(level, data) {
+function notify(level, data2) {
   emit({
     jsonrpc: "2.0",
     method: "notifications/message",
-    params: { level, logger: LOGGERS.channel, data }
+    params: { level, logger: LOGGERS.channel, data: data2 }
   });
 }
 function addPlace(s2) {
@@ -8542,7 +8591,7 @@ function releaseStanding(reason, forget = false, keepBeside = false, own = false
   const busy = keepBusy ? null : H2.currentStatusUrl;
   letGo2(H2.holder, handover && !forget ? key3 ?? null : null, reason, busy);
   H2.holder = null;
-  for (const w11 of [...H2.helloWaiters]) w11(null);
+  for (const w12 of [...H2.helloWaiters]) w12(null);
   H2.door?.close();
   H2.door = null;
   Object.assign(H2, { parked: false, unheard: false, currentKey: null, currentUrl: null });
@@ -8587,8 +8636,8 @@ function parkStanding(reason) {
   H2.holder = null;
   Object.assign(H2, { parked: true, unheard: false });
   standingLog(`parked ${H2.currentKey}: ${reason}`);
-  const text6 = holdWords().parked(reason);
-  broadcast({ kind: "note", text: text6 });
+  const text7 = holdWords().parked(reason);
+  broadcast({ kind: "note", text: text7 });
   return H2.currentKey;
 }
 function expectHello() {
@@ -8617,16 +8666,16 @@ function deliverTo(d, raw, frame2, full) {
       d.broadcast(ev2);
       notify("info", keyed(d, ev2));
     });
-  const text6 = full === frame2 && full?.addressed === void 0 ? raw : JSON.stringify(full);
+  const text7 = full === frame2 && full?.addressed === void 0 ? raw : JSON.stringify(full);
   const hello = full?.type === "hello";
-  for (const x of hello ? doors() : [d]) x.push(text6, full);
+  for (const x of hello ? doors() : [d]) x.push(text7, full);
   if (hello) Object.assign(H2, { unheard: false, deafKey: null });
-  if (hello) for (const w11 of [...H2.helloWaiters]) w11(full);
-  const ev = frameEvent(text6, full, seenPath);
+  if (hello) for (const w12 of [...H2.helloWaiters]) w12(full);
+  const ev = frameEvent(text7, full, seenPath);
   const msg = full?.type === "message" && !again ? full : null;
   if (msg) noteRoomKind(msg);
   const toBatch = (b) => (d.broadcast(b), notify("info", keyed(d, b)));
-  if (msg && !notifiedClient() && batchForWatchdogs(d, text6, msg, toBatch)) return;
+  if (msg && !notifiedClient() && batchForWatchdogs(d, text7, msg, toBatch)) return;
   if (!again) for (const x of hello ? doors() : [d]) x.broadcast(ev);
   if (full?.type === "status") return;
   if (again) return log(`frame ${id} came again — already delivered, not raised`);
@@ -8705,31 +8754,31 @@ function openHolder(url, key3) {
           releaseStanding(holdWords().resumeFailed(), true);
           return;
         }
-        const text6 = deadWord(code2);
-        log(text6);
+        const text7 = deadWord(code2);
+        log(text7);
         standingLog(`dead ${key3}: close ${code2}`);
-        const ev = { kind: "dead", code: code2, text: text6 };
+        const ev = { kind: "dead", code: code2, text: text7 };
         broadcast(ev);
         notify("error", ev);
         Object.assign(H2, { deafKey: key3, deadPlaces: [...state.places] });
         releaseStanding(holdWords().tokenDead(), true);
       },
       onServiceAlive: (version) => {
-        const text6 = holdWords().alive(version);
-        log(text6);
-        const ev = { kind: "alive", version, text: text6 };
+        const text7 = holdWords().alive(version);
+        log(text7);
+        const ev = { kind: "alive", version, text: text7 };
         broadcast(ev);
         notify("warning", ev);
       },
-      onNote: (text6) => {
-        log(text6);
-        broadcast({ kind: "note", text: text6 });
+      onNote: (text7) => {
+        log(text7);
+        broadcast({ kind: "note", text: text7 });
       },
       // Hang: a line waking the agent for the Monitor watchdog; pi and OpenCode show the human a notification that does not wake the agent (#5380).
-      onHung: (text6) => {
-        log(text6);
-        broadcast({ kind: "note", text: text6 });
-        notify("warning", { kind: "note", text: text6 });
+      onHung: (text7) => {
+        log(text7);
+        broadcast({ kind: "note", text: text7 });
+        notify("warning", { kind: "note", text: text7 });
       }
     })
   );
@@ -8737,7 +8786,7 @@ function openHolder(url, key3) {
 
 // js/bridge/status.ts
 import { existsSync as existsSync10, readdirSync as readdirSync11, readFileSync as readFileSync28, statSync as statSync7 } from "node:fs";
-import { isAbsolute as isAbsolute2, join as join25 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join26 } from "node:path";
 
 // js/shared/busyargs.ts
 var STATUS_ONLY_ARGS = /* @__PURE__ */ new Set([
@@ -8845,9 +8894,9 @@ function readBoard(a) {
     declared: header?.[1] != null ? Number(header[1]) : null
   };
 }
-function parseBoard(text6) {
+function parseBoard(text7) {
   const out7 = [];
-  for (const line of text6.split("\n")) {
+  for (const line of text7.split("\n")) {
     const m = /^\s*#(\d+)\s.*?·\s(@\S+)\s—\s(.*)$/.exec(line);
     if (m) {
       out7.push({ karta: m[1], address: m[2], rest: m[3], incoming: null, id: null });
@@ -9394,14 +9443,14 @@ import { mkdirSync as mkdirSync10, readFileSync as readFileSync16, unlinkSync as
 import { dirname as dirname7 } from "node:path";
 var pathOf = (seat2) => `${seenFilePathOf(CFG.authDir, seat2, CFG.serverUrl)}.context-gate.json`;
 function readMark(path, seat2) {
-  let text6;
+  let text7;
   try {
-    text6 = readFileSync16(path, "utf8");
+    text7 = readFileSync16(path, "utf8");
   } catch (e) {
     if (e.code === "ENOENT") return null;
     throw e;
   }
-  const r = JSON.parse(text6);
+  const r = JSON.parse(text7);
   if (!r || r.version !== 1 || r.seat !== seat2 || typeof r.generation !== "string" || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(r.generation) || typeof r.pending !== "boolean")
     throw new Error("invalid context recovery metadata");
   return r;
@@ -9695,9 +9744,9 @@ async function rawSeatRefusal(msg) {
   const hearing = await askedHearing(realm, karta, name2);
   if (hearing === "free") return null;
   const seat2 = keyOf(realm, karta, name2);
-  const w11 = words(HEARING);
-  const who = hearing === "other" ? w11.otherListens(seat2) : w11.unknownListens(seat2);
-  return w11.rawSeatRefusal(who, action);
+  const w12 = words(HEARING);
+  const who = hearing === "other" ? w12.otherListens(seat2) : w12.unknownListens(seat2);
+  return w12.rawSeatRefusal(who, action);
 }
 function ledHere(realm, karta, name2) {
   if (holdsStanding(realm, karta, name2)) return true;
@@ -9752,10 +9801,10 @@ async function observeSkill(p) {
   r.loaded.add(skill);
   if (r.required && [...r.required].every((s2) => r.loaded.has(s2))) finishRecovery(r);
 }
-var answer = (msg, text6, isError = false) => ({
+var answer = (msg, text7, isError = false) => ({
   jsonrpc: "2.0",
   id: msg.id,
-  result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text6 }] }
+  result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text7 }] }
 });
 var refusalReason = () => {
   const fault = recoveryFault();
@@ -9800,13 +9849,13 @@ var waiting = /* @__PURE__ */ new Map();
 var obj4 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
 var confirmsHalts = () => HALTS_CAPABILITY in obj4(obj4(obj4(state.initParams).capabilities).experimental);
 function awaitHalt(order2, ms2 = HALT_WAIT_MS) {
-  return new Promise((resolve14) => {
+  return new Promise((resolve15) => {
     const t = setTimeout(() => done(SILENT), ms2);
     t.unref?.();
     const done = (code2) => {
       clearTimeout(t);
       if (waiting.get(order2) === done) waiting.delete(order2);
-      resolve14(code2);
+      resolve15(code2);
     };
     waiting.set(order2, done);
   });
@@ -10116,12 +10165,12 @@ function placeFields(place = {}, freshSkills = false, move2 = "register") {
   };
 }
 var PLACE_ACTIONS = /* @__PURE__ */ new Set(["connect", "mint", "register"]);
-function noteLocaleEcho(args, text6, structured) {
+function noteLocaleEcho(args, text7, structured) {
   const asked = args.locale;
   if (typeof asked !== "string" || P2.localeWarned) return;
   const action = String(args.action);
   const field = PLACE_ACTIONS.has(action) ? seatField(structured, action)?.locale : void 0;
-  const echo = (field ?? /\blocale\b["']?\s*[:=]\s*["']?([a-z]{2})\b/i.exec(text6)?.[1])?.toLowerCase();
+  const echo = (field ?? /\blocale\b["']?\s*[:=]\s*["']?([a-z]{2})\b/i.exec(text7)?.[1])?.toLowerCase();
   if (!echo || echo === asked) return;
   P2.localeWarned = true;
   log(`locale: asked ${asked}, the server answered ${echo} — its prose stays in ${echo}`);
@@ -10146,13 +10195,13 @@ function parseSpawn(value) {
     return invalid();
   return { invite: a.invite, room: a.room.toLowerCase() };
 }
-function spawnJson(text6) {
+function spawnJson(text7) {
   try {
-    const keys = [...text6.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
+    const keys = [...text7.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
       (m) => JSON.parse(m[1])
     );
     if (keys.length !== new Set(keys).size) return invalid();
-    return parseSpawn(JSON.parse(text6));
+    return parseSpawn(JSON.parse(text7));
   } catch {
     return invalid();
   }
@@ -10224,8 +10273,8 @@ var S6 = scoped(() => ({
   pair: void 0,
   refused: null
 }));
-var refuseClaim = (text6) => {
-  S6.refused = text6;
+var refuseClaim = (text7) => {
+  S6.refused = text7;
 };
 var claimRefusal = () => S6.refused;
 var targetOf = (a) => `${canonRealm(a.realm)}#${String(a.karta).replace(/^#/, "")}`;
@@ -10252,10 +10301,10 @@ function registeredBasis(a) {
 }
 
 // js/bridge/claimdelivery.ts
-var refused = (id, text6) => ({
+var refused = (id, text7) => ({
   jsonrpc: "2.0",
   id,
-  result: { isError: true, content: [{ type: "text", text: text6 }] }
+  result: { isError: true, content: [{ type: "text", text: text7 }] }
 });
 function launchAdmission(msg) {
   if (msg.method !== "tools/call") return null;
@@ -10624,8 +10673,8 @@ async function leaveSatellite(reason) {
 function returnToStanding(how2) {
   if (!resumeStanding()) return false;
   for (const p of heldPlaces()) markLeft(p.key, false);
-  const text6 = words(LEAVE).returned(how2, K.status);
-  log(text6);
+  const text7 = words(LEAVE).returned(how2, K.status);
+  log(text7);
   if (K.status) {
     const line = K.status;
     K.status = "";
@@ -10640,7 +10689,7 @@ function returnToStanding(how2) {
   emit({
     jsonrpc: "2.0",
     method: "notifications/message",
-    params: { level: "info", logger: LOGGERS.channel, data: { kind: "note", text: text6 } }
+    params: { level: "info", logger: LOGGERS.channel, data: { kind: "note", text: text7 } }
   });
   return true;
 }
@@ -10679,10 +10728,10 @@ function localLeave(msg) {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
   if (msg.params?.arguments?.action !== "leave") return null;
   const realm = msg.params.arguments.realm;
-  const answer3 = (text6, isError = false) => ({
+  const answer3 = (text7, isError = false) => ({
     jsonrpc: "2.0",
     id: msg.id,
-    result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text6 }] }
+    result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: text7 }] }
   });
   return (async () => {
     const W4 = words(LEAVE);
@@ -10759,9 +10808,9 @@ async function besideBack(url, primary) {
 // js/bridge/lostplaces.ts
 function placeWord(msg) {
   if (msg.method !== "notifications/message" || msg.params?.logger !== LOGGERS.channel) return null;
-  const data = msg.params?.data;
-  const realm = typeof data?.place?.realm === "string" ? data.place.realm.trim() : "";
-  return typeof data?.kind === "string" ? { kind: data.kind, key: typeof data.key === "string" ? data.key : void 0, realm } : null;
+  const data2 = msg.params?.data;
+  const realm = typeof data2?.place?.realm === "string" ? data2.place.realm.trim() : "";
+  return typeof data2?.kind === "string" ? { kind: data2.kind, key: typeof data2.key === "string" ? data2.key : void 0, realm } : null;
 }
 var harnessSession = null;
 function seeSession(msg) {
@@ -10794,17 +10843,17 @@ function lostPlaces(say3, log3) {
     },
     /** `stopped` — the owner took the seat off (#7439): `why` is the stop word, no retake advice. */
     lose(k, realm, why, satellite, stopped = false) {
-      const text6 = stopped ? why : satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
-      lost.set(k, { realm, satellite, text: text6 });
+      const text7 = stopped ? why : satellite ? words(LOST).satellite(k) : words(LOST).seat(k, realm, why);
+      lost.set(k, { realm, satellite, text: text7 });
       live2.delete(k);
-      log3(text6);
+      log3(text7);
       say3({
         jsonrpc: "2.0",
         method: "notifications/message",
         params: {
           level: "warning",
           logger: LOGGERS.channel,
-          data: { kind: stopped ? "stopped" : "lost", key: k, text: text6 }
+          data: { kind: stopped ? "stopped" : "lost", key: k, text: text7 }
         }
       });
     },
@@ -10871,12 +10920,12 @@ function realmListAsk() {
       if (msg.method !== void 0 || msg.id === void 0 || msg.id === null) return false;
       if (!asked.delete(JSON.stringify(msg.id))) return false;
       const content = msg.result?.content;
-      const text6 = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
+      const text7 = (Array.isArray(content) ? content : []).map((c) => String(c?.text ?? "")).join("\n");
       if (msg.error || msg.result?.isError)
         log3(
-          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text6 || msg.error?.message || "?"}`
+          `the realm list came back refused instead of the list — rN and slugs stay unresolved: ${text7 || msg.error?.message || "?"}`
         );
-      learnRealmList(text6);
+      learnRealmList(text7);
       return true;
     },
     /** No answer will come (link broke) — allow asking again. */
@@ -10962,23 +11011,49 @@ var resumeWords = new Proxy({}, {
 
 // js/bridge/skillcatchup.ts
 import { existsSync as existsSync9, lstatSync as lstatSync5 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { join as join24, resolve as resolve8 } from "node:path";
+import { homedir as homedir11 } from "node:os";
+import { join as join25, resolve as resolve8 } from "node:path";
+
+// js/bridge/pi-source.ts
+import { spawnSync } from "node:child_process";
+import { realpathSync as realpathSync4 } from "node:fs";
+import { homedir as homedir7 } from "node:os";
+import { join as join20 } from "node:path";
+function ownPiGitSource(root) {
+  try {
+    const checkout = join20(realpathSync4(homedir7()), ".pi", "agent", "git", "github.com", SKILL_SET);
+    if (realpathSync4(root) !== join20(checkout, "skills")) return false;
+    const origin2 = spawnSync(
+      "git",
+      ["config", "--file", join20(checkout, ".git", "config"), "--get-all", "remote.origin.url"],
+      {
+        encoding: "utf8",
+        timeout: 1e3,
+        maxBuffer: 4096,
+        windowsHide: true,
+        stdio: ["ignore", "pipe", "ignore"]
+      }
+    );
+    return origin2.status === 0 && origin2.stdout.trim() === `https://github.com/${SKILL_SET}`;
+  } catch {
+    return false;
+  }
+}
 
 // js/bridge/skillcatchup-guard.ts
 import { createHash as createHash8 } from "node:crypto";
-import { existsSync as existsSync7, lstatSync as lstatSync3, readdirSync as readdirSync10, readFileSync as readFileSync25, realpathSync as realpathSync4 } from "node:fs";
-import { homedir as homedir7 } from "node:os";
-import { isAbsolute, join as join21, relative, resolve as resolve7, sep as sep2 } from "node:path";
+import { existsSync as existsSync7, lstatSync as lstatSync3, readdirSync as readdirSync10, readFileSync as readFileSync25, realpathSync as realpathSync5 } from "node:fs";
+import { homedir as homedir8 } from "node:os";
+import { isAbsolute, join as join22, relative, resolve as resolve7, sep as sep2 } from "node:path";
 
 // js/bridge/releases.ts
 import { mkdirSync as mkdirSync12, readFileSync as readFileSync24, renameSync as renameSync12, writeFileSync as writeFileSync13 } from "node:fs";
-import { dirname as dirname10, join as join20 } from "node:path";
+import { dirname as dirname10, join as join21 } from "node:path";
 var rw = () => words(RELEASES);
 var RELEASES_URL = process.env[envName("BRIDGE_RELEASES_URL")]?.trim() || `https://api.github.com/repos/${SKILL_SET}/releases/latest`;
 var RELEASES_PAGE_URL = process.env[envName("BRIDGE_RELEASES_PAGE_URL")]?.trim() || (process.env[envName("BRIDGE_RELEASES_URL")]?.trim() ? null : `https://github.com/${SKILL_SET}/releases/latest`);
 var TAG_TTL_MS = 60 * 60 * 1e3;
-var releaseTagPath = () => join20(dirname10(homeBridgePath()), "release-tag.json");
+var releaseTagPath = () => join21(dirname10(homeBridgePath()), "release-tag.json");
 function writeAtomic(path, bytes) {
   mkdirSync12(dirname10(path), { recursive: true, mode: 448 });
   const tmp = `${path}.tmp-${process.pid}`;
@@ -11163,12 +11238,12 @@ function conflictingSkillSource(value) {
   return item.source !== void 0 && item.source !== SKILL_SET || item.sourceType !== void 0 && item.sourceType !== "github" || item.sourceUrl !== void 0 && item.sourceUrl !== `https://github.com/${SKILL_SET}` && item.sourceUrl !== `https://github.com/${SKILL_SET}.git`;
 }
 function realHomePath(path) {
-  const home = homedir7(), rel = relative(home, resolve7(path));
+  const home = homedir8(), rel = relative(home, resolve7(path));
   if (isAbsolute(rel) || rel === ".." || rel.startsWith(`..${sep2}`))
     throw new Error("path_outside_home");
   let at3 = home;
   for (const part of rel.split(sep2).filter(Boolean)) {
-    at3 = join21(at3, part);
+    at3 = join22(at3, part);
     try {
       if (lstatSync3(at3).isSymbolicLink()) throw new Error("destination_symlink");
     } catch (e) {
@@ -11182,17 +11257,17 @@ function noLinks(path, budget) {
   const stat = lstatSync3(path);
   if (stat.isSymbolicLink()) throw new Error("destination_symlink");
   if (stat.isFile() && stat.nlink !== 1) throw new Error("destination_hardlink");
-  if (stat.isDirectory()) for (const name2 of readdirSync10(path)) noLinks(join21(path, name2), budget);
+  if (stat.isDirectory()) for (const name2 of readdirSync10(path)) noLinks(join22(path, name2), budget);
   else if (!stat.isFile()) throw new Error("destination_special_file");
 }
 function flatScope(root) {
-  if (resolve7(root) !== join21(homedir7(), ".agents", "skills"))
+  if (resolve7(root) !== join22(homedir8(), ".agents", "skills"))
     throw new Error("unsupported_flat_scope");
   realHomePath(root);
-  if (realpathSync4(root) !== join21(realpathSync4(homedir7()), ".agents", "skills"))
+  if (realpathSync5(root) !== join22(realpathSync5(homedir8()), ".agents", "skills"))
     throw new Error("destination_not_canonical");
   const state2 = envOf("XDG_STATE_HOME")?.trim();
-  const lockPath = state2 ? join21(state2, "skills", ".skill-lock.json") : join21(root, "..", ".skill-lock.json");
+  const lockPath = state2 ? join22(state2, "skills", ".skill-lock.json") : join22(root, "..", ".skill-lock.json");
   realHomePath(lockPath);
   if (!existsSync7(lockPath)) throw new Error("active_lock_missing");
   const lockStat = lstatSync3(lockPath);
@@ -11203,10 +11278,10 @@ function flatScope(root) {
     throw new Error("unowned_bridge_source");
   return lock;
 }
-function flatOwnership(root, manifest) {
+function flatOwnership(root, manifest2) {
   const lock = flatScope(root);
-  for (const name2 of manifest.names) {
-    const dest = join21(root, name2);
+  for (const name2 of manifest2.names) {
+    const dest = join22(root, name2);
     realHomePath(dest);
     if (lock[name2] && lock[name2]?.source !== SKILL_SET) throw new Error("foreign_skill_name");
     const source = lock[name2];
@@ -11221,23 +11296,23 @@ function flatOwnership(root, manifest) {
   }
   return {
     lock,
-    removed: Object.keys(lock).filter((n) => lock[n]?.source === SKILL_SET && !manifest.names.includes(n)).sort()
+    removed: Object.keys(lock).filter((n) => lock[n]?.source === SKILL_SET && !manifest2.names.includes(n)).sort()
   };
 }
-function confirmFlat(root, manifest) {
-  const { lock, removed } = flatOwnership(root, manifest);
-  for (const name2 of manifest.names) {
+function confirmFlat(root, manifest2) {
+  const { lock, removed } = flatOwnership(root, manifest2);
+  for (const name2 of manifest2.names) {
     const entry = lock[name2];
-    if (!entry || entry.ref !== manifest.sha || entry.skillPath !== `skills/${name2}/SKILL.md` || entry.skillFolderHash !== manifest.hashes[name2] || !existsSync7(join21(root, name2, "SKILL.md")))
+    if (!entry || entry.ref !== manifest2.sha || entry.skillPath !== `skills/${name2}/SKILL.md` || entry.skillFolderHash !== manifest2.hashes[name2] || !existsSync7(join22(root, name2, "SKILL.md")))
       throw new Error("post_read_not_pinned");
-    const expected = Object.keys(manifest.files).filter((p) => p.startsWith(`${name2}/`)).sort();
-    const actual = readdirSync10(join21(root, name2), { recursive: true, encoding: "utf8" }).filter((p) => lstatSync3(join21(root, name2, p)).isFile()).map((p) => `${name2}/${p.split(sep2).join("/")}`).sort();
+    const expected = Object.keys(manifest2.files).filter((p) => p.startsWith(`${name2}/`)).sort();
+    const actual = readdirSync10(join22(root, name2), { recursive: true, encoding: "utf8" }).filter((p) => lstatSync3(join22(root, name2, p)).isFile()).map((p) => `${name2}/${p.split(sep2).join("/")}`).sort();
     if (JSON.stringify(actual) !== JSON.stringify(expected))
       throw new Error("post_read_file_inventory");
     for (const path of expected) {
-      const bytes = readFileSync25(join21(root, path));
+      const bytes = readFileSync25(join22(root, path));
       const hash = createHash8("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
-      if (hash !== manifest.files[path]) throw new Error("post_read_file_bytes");
+      if (hash !== manifest2.files[path]) throw new Error("post_read_file_bytes");
     }
   }
   return removed;
@@ -11245,25 +11320,25 @@ function confirmFlat(root, manifest) {
 
 // js/bridge/skillcatchup-update.ts
 import { mkdirSync as mkdirSync13, rmdirSync } from "node:fs";
-import { join as join22 } from "node:path";
+import { join as join23 } from "node:path";
 
 // js/bridge/skillcatchup-run.ts
 import { spawn as spawn2 } from "node:child_process";
-import { homedir as homedir8 } from "node:os";
+import { homedir as homedir9 } from "node:os";
 function runSkillUpdater(args, timeout = 2e4, allowed = () => true) {
-  return new Promise((resolve14, reject) => {
+  return new Promise((resolve15, reject) => {
     const env2 = { ...process.env, ...currentScope().origin?.env };
     delete env2[TOKEN_ENV];
     const child = spawn2("npx", args, {
-      cwd: homedir8(),
+      cwd: homedir9(),
       env: env2,
       detached: true,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true
     });
     let output = "", expired = false;
-    const collect = (data) => {
-      output = (output + data.toString()).slice(-65536);
+    const collect = (data2) => {
+      output = (output + data2.toString()).slice(-65536);
     };
     child.stdout.on("data", collect);
     child.stderr.resume();
@@ -11298,7 +11373,7 @@ function runSkillUpdater(args, timeout = 2e4, allowed = () => true) {
       clearTimeout(timer);
       clearInterval(watch2);
       if (code2 !== 0) reject(new Error(`updater_exit_${code2 ?? "signal"}`));
-      else resolve14(output.trim());
+      else resolve15(output.trim());
     });
   });
 }
@@ -11355,7 +11430,7 @@ async function updateFlatSkills(root, before) {
   try {
     assertAllowed();
     flatScope(root);
-    const lock = join22(root, "..", ".skill-catchup.lock");
+    const lock = join23(root, "..", ".skill-catchup.lock");
     let mayHaveWritten = false;
     let confirmed = false;
     try {
@@ -11367,16 +11442,16 @@ async function updateFlatSkills(root, before) {
       throw e;
     }
     try {
-      const manifest = await pinnedSkillManifest();
+      const manifest2 = await pinnedSkillManifest();
       assertAllowed();
-      flatOwnership(root, manifest);
+      flatOwnership(root, manifest2);
       const args = [
         "--yes",
         "skills",
         "add",
-        `https://github.com/${SKILL_SET}/tree/${manifest.sha}`,
+        `https://github.com/${SKILL_SET}/tree/${manifest2.sha}`,
         "--skill",
-        ...manifest.names,
+        ...manifest2.names,
         "--agent",
         "opencode",
         "--global",
@@ -11387,7 +11462,7 @@ async function updateFlatSkills(root, before) {
       const surface = await runSkillUpdater(["--yes", "skills", "--version"], 5e3, allowed);
       if (surface !== "1.7.6") throw new Error("unobserved_updater_surface");
       assertAllowed();
-      flatOwnership(root, manifest);
+      flatOwnership(root, manifest2);
       const timeout = Math.min(
         2e4,
         Math.max(100, Number(process.env[envName("SKILLS_UPDATE_TIMEOUT_MS")]) || 2e4)
@@ -11395,7 +11470,7 @@ async function updateFlatSkills(root, before) {
       mayHaveWritten = true;
       await runSkillUpdater(args, timeout, allowed);
       assertAllowed();
-      const removed = confirmFlat(root, manifest);
+      const removed = confirmFlat(root, manifest2);
       const after2 = skillsAttr();
       if (after2.name !== SKILL_SET || after2.version !== VERSION || !after2.stamp)
         throw new Error("post_read_version_or_stamp");
@@ -11406,7 +11481,7 @@ async function updateFlatSkills(root, before) {
         root,
         before,
         VERSION,
-        manifest.sha,
+        manifest2.sha,
         after2.stamp,
         removed
       );
@@ -11426,8 +11501,8 @@ async function updateFlatSkills(root, before) {
 // js/bridge/update.ts
 import { spawn as spawn3 } from "node:child_process";
 import { existsSync as existsSync8, lstatSync as lstatSync4, readFileSync as readFileSync26 } from "node:fs";
-import { homedir as homedir9 } from "node:os";
-import { dirname as dirname11, join as join23 } from "node:path";
+import { homedir as homedir10 } from "node:os";
+import { dirname as dirname11, join as join24 } from "node:path";
 import { fileURLToPath as fileURLToPath4 } from "node:url";
 var uw = () => words(UPDATE);
 var RAW_URL = process.env[envName("BRIDGE_RAW_URL")]?.trim() || `https://raw.githubusercontent.com/${SKILL_SET}`;
@@ -11441,9 +11516,9 @@ var RETRY_FLOOR_MS = envMs(envName("BRIDGE_RETRY_FLOOR_MS"), 6e4);
 var RETRY_JITTER_MS = envMs(envName("BRIDGE_RETRY_JITTER_MS"), 6e4);
 var updatesDisabled = () => !!process.env[envName("BRIDGE_NO_UPDATE")];
 var selfPath = () => fileURLToPath4(import.meta.url);
-var opencodePluginPath = () => join23(homedir9(), ".config", "opencode", "plugins", PLUGIN_COPY_FILE);
-var setupPathOf = (authDir) => join23(authDir, "SETUP.md");
-var latestPathOf = (authDir) => join23(authDir, "latest.json");
+var opencodePluginPath = () => join24(homedir10(), ".config", "opencode", "plugins", PLUGIN_COPY_FILE);
+var setupPathOf = (authDir) => join24(authDir, "SETUP.md");
+var latestPathOf = (authDir) => join24(authDir, "latest.json");
 var isSymlink = (path) => {
   try {
     return lstatSync4(path).isSymbolicLink();
@@ -11479,7 +11554,7 @@ function syncHome(self = selfPath()) {
     writeAtomic(home, mine);
     out7.copied.push(home);
     const plugin = opencodePluginPath();
-    const packaged = join23(dirname11(self), PLUGIN_FILE);
+    const packaged = join24(dirname11(self), PLUGIN_FILE);
     if (existsSync8(plugin) && existsSync8(packaged)) {
       const fresh3 = readFileSync26(packaged);
       if (!readFileSync26(plugin).equals(fresh3)) {
@@ -11667,8 +11742,8 @@ async function skillCatchupNotice() {
   const root = skillsRoot();
   const installed = skillsAttr();
   const candidate = root || envOf(SKILLS_ROOT_ENV)?.trim();
-  const globalRoot = join24(homedir10(), ".agents", "skills");
-  const gate = join24(globalRoot, "..", ".skill-catchup.lock");
+  const globalRoot = join25(homedir11(), ".agents", "skills");
+  const gate = join25(globalRoot, "..", ".skill-catchup.lock");
   if (candidate && resolve8(candidate) === globalRoot) {
     try {
       lstatSync5(gate);
@@ -11689,16 +11764,17 @@ async function skillCatchupNotice() {
   if (!root || !before || !target || compareVersions(installed.version, VERSION) >= 0) return null;
   const client = harnessName();
   const moves = skillMoves();
-  const plugin = client !== PI_CLIENT && (!!envOf("CLAUDE_PLUGIN_ROOT") || existsSync9(join24(root, "..", ".claude-plugin", "plugin.json")) || existsSync9(join24(root, "..", ".codex-plugin", "plugin.json")));
+  const plugin = client !== PI_CLIENT && (!!envOf("CLAUDE_PLUGIN_ROOT") || existsSync9(join25(root, "..", ".claude-plugin", "plugin.json")) || existsSync9(join25(root, "..", ".codex-plugin", "plugin.json")));
   const item = skillLock(root, envOf("XDG_STATE_HOME"))?.[BRIDGE_SKILL];
   const source = item?.source;
   const conflict = installed.name !== SKILL_SET || conflictingSkillSource(item);
   const own = !conflict && source === SKILL_SET;
+  const pi = client === PI_CLIENT && !conflict && ownPiGitSource(root);
   const patchOnly = before[0] === target[0] && before[1] === target[1];
   const probe = !!process.env[envName("BRIDGE_RELEASES_URL")]?.trim();
   if (own && !plugin && !patchOnly && client === OPENCODE_CLIENT && process.platform !== "win32" && !updatesDisabled() && (releaseBuild() || probe) && (isProductionServer(CFG.serverUrl) || probe))
     return updateFlatSkills(root, installed.version);
-  const diagnostic = conflict || !own && !plugin;
+  const diagnostic = conflict || !own && !plugin && !pi;
   const command = diagnostic ? `node ${JSON.stringify(currentScope().origin?.path || process.argv[1])} doctor` : plugin ? client.includes("codex") ? moves.codex : moves.claude : client === PI_CLIENT ? moves.pi : client === OPENCODE_CLIENT ? `npx skills add https://github.com/${SKILL_SET}/tree/v${VERSION} --skill '*' --agent opencode --global` : moves.flat;
   const reason = diagnostic ? "ownership" : plugin ? "plugin" : patchOnly ? "patch" : "manifest";
   return words(SKILL_CATCHUP).notice(
@@ -11888,7 +11964,7 @@ async function resumeBy(sel, register = true, takeOwn = false) {
   await canonHoldRecords();
   const { own: recs, sameDir: sameDir2, legacy: legacyRecs, left: left2, neighbour, stale } = recordsFor(sel);
   const staleWords = stale.map((x) => resumeWords.staleKey(x.name, x.fresher));
-  for (const w11 of staleWords) log(`resume: ${w11}`);
+  for (const w12 of staleWords) log(`resume: ${w12}`);
   const refused2 = stale.length ? { refused: stale.map((x) => x.name) } : {};
   if (!recs.length) {
     const legacy = await freeLegacy(legacyRecs);
@@ -12064,14 +12140,14 @@ async function runCheck(msg) {
     return reply(msg, { holding: true, key: key3, listening: listening2, pending: pending2, word: resumeWords.listening() });
   }
   if (D.reopens >= REOPEN_LIMIT) {
-    const text6 = resumeWords.gaveUp(key3, REOPEN_LIMIT);
+    const text7 = resumeWords.gaveUp(key3, REOPEN_LIMIT);
     if (!D.said) {
       D.said = true;
       standingLog(`reopen ${key3}: gave up after ${REOPEN_LIMIT} — board still reads deaf`);
       emit({
         jsonrpc: "2.0",
         method: "notifications/message",
-        params: { level: "warning", logger: LOGGERS.channel, data: { kind: "lost", text: text6 } }
+        params: { level: "warning", logger: LOGGERS.channel, data: { kind: "lost", text: text7 } }
       });
     }
     return reply(msg, {
@@ -12081,7 +12157,7 @@ async function runCheck(msg) {
       pending: pending2,
       reopened: false,
       stuck: true,
-      word: text6
+      word: text7
     });
   }
   D.reopens++;
@@ -12246,9 +12322,9 @@ async function takingSeat(args, fn) {
 // js/bridge/evicted.ts
 var LOOK_MS = 100;
 var RETRY_MS = 2e3;
-function announceEvicted(code2, text6) {
-  log(text6);
-  const ev = { kind: "evicted", code: code2, text: text6 };
+function announceEvicted(code2, text7) {
+  log(text7);
+  const ev = { kind: "evicted", code: code2, text: text7 };
   H2.evictedEvent = ev;
   broadcast(ev);
   notify("warning", ev);
@@ -12331,13 +12407,13 @@ async function besideAndSay(key3, s2, name2, base, beside2, extras3, once = fals
       );
     }
   F.failed = r.ok ? null : { key: key3, s: s2, name: name2, base, extras: extras3 };
-  const text6 = [
+  const text7 = [
     r.ok ? holdWords().besideDone(name2, r.text) : holdWords().besideFailed(name2, base, r.text),
     ...others2
   ].join("\n");
-  log(text6);
+  log(text7);
   standingLog(`evicted ${key3}: ${r.ok ? "stood beside" : "could not stand beside"}`);
-  notify("warning", { kind: "resumed", text: text6 });
+  notify("warning", { kind: "resumed", text: text7 });
 }
 var F = scoped(() => ({
   failed: null,
@@ -12521,9 +12597,9 @@ var isUnattributed = (reply2) => {
   if (!reply2) return false;
   const rule = refusalOf(reply2)?.rule;
   if (rule) return UNATTRIBUTED_CODE.test(rule);
-  const text6 = replyText(reply2);
-  if (UNATTRIBUTED_CODE.test(text6)) return true;
-  return !!reply2.result?.isError && UNATTRIBUTED_REFUSAL.test(text6);
+  const text7 = replyText(reply2);
+  if (UNATTRIBUTED_CODE.test(text7)) return true;
+  return !!reply2.result?.isError && UNATTRIBUTED_REFUSAL.test(text7);
 };
 
 // js/bridge/usagefields.ts
@@ -12793,17 +12869,17 @@ function localEnd(msg) {
 var SOCKET_RE = /wss:\/\/[^\s"'`<>)\]]+|ws:\/\/(?:127\.0\.0\.1|\[?::1\]?|localhost)(?::\d+)?\/[^\s"'`<>)\]]+/;
 var STATUS_RE = /https?:\/\/[^\s"'`<>)\]]+\/channel\/status\/[^\s"'`<>)\]]+/;
 var trim2 = (s2) => s2.replace(/[.,;:!?»"')\]]+$/, "");
-var hideAddresses = (text6) => text6.replace(new RegExp(SOCKET_RE.source, "g"), words(ABSORB).socketHidden()).replace(new RegExp(STATUS_RE.source, "g"), words(ABSORB).statusHidden());
+var hideAddresses = (text7) => text7.replace(new RegExp(SOCKET_RE.source, "g"), words(ABSORB).socketHidden()).replace(new RegExp(STATUS_RE.source, "g"), words(ABSORB).statusHidden());
 function absorbChannelReply(msg, reply2) {
   const a = msg?.params?.arguments;
   if (msg?.params?.name !== tool("channel")) return reply2;
   if (a?.action !== "connect" && a?.action !== "mint") return reply2;
   if (reply2?.error || reply2?.result?.isError) return reply2;
   if (stoppedInMove()) return reply2;
-  const text6 = replyText(reply2);
-  const socket = SOCKET_RE.exec(text6)?.[0];
+  const text7 = replyText(reply2);
+  const socket = SOCKET_RE.exec(text7)?.[0];
   if (!socket) return reply2;
-  const status = STATUS_RE.exec(text6)?.[0];
+  const status = STATUS_RE.exec(text7)?.[0];
   if (a.realm && a.karta != null) {
     state.standing = rememberedPlace(a.realm, a.karta, a.name);
   }
@@ -12950,11 +13026,11 @@ function unresolvedRefusal(realm) {
   return held2.some((s2) => unknownRealm(realm, s2.realm)) ? unresolvedWord(realm, heldRealms()) : null;
 }
 function otherPlaceWord(led, asked, sameName = false, hearing = "free") {
-  const w11 = words(CALL);
-  const same2 = sameName ? w11.sameNamePrefix() : "";
-  const advice = hearing !== "free" ? same2 + w11.heardAdvice(hearing === "other", asked, led) : led === asked ? w11.sameKeysAdvice() : sameName ? w11.sameNameAdvice() : w11.takeOtherAdvice();
+  const w12 = words(CALL);
+  const same2 = sameName ? w12.sameNamePrefix() : "";
+  const advice = hearing !== "free" ? same2 + w12.heardAdvice(hearing === "other", asked, led) : led === asked ? w12.sameKeysAdvice() : sameName ? w12.sameNameAdvice() : w12.takeOtherAdvice();
   const Advice = `${advice.charAt(0).toUpperCase()}${advice.slice(1)}`;
-  return w11.otherPlace(led, asked, Advice);
+  return w12.otherPlace(led, asked, Advice);
 }
 function besideRefusal(realm, how2) {
   const prim = state.standing;
@@ -12963,10 +13039,10 @@ function besideRefusal(realm, how2) {
   if (how2 === "stand" && holdsChannel()) return null;
   return how2 === "connect" ? words(CALL).besideConnect(led) : words(CALL).besideStand(led);
 }
-var refusal = (msg, text6) => ({
+var refusal = (msg, text7) => ({
   jsonrpc: "2.0",
   id: msg.id,
-  result: { isError: true, content: [{ type: "text", text: text6 }] }
+  result: { isError: true, content: [{ type: "text", text: text7 }] }
 });
 function crossPlaceRefusal(msg) {
   if (msg?.method !== "tools/call" || msg.params?.name !== tool("channel")) return null;
@@ -13012,9 +13088,9 @@ var callTool = async (name2, args) => {
     return await (name2 === tool("channel") ? takingSeat(args, () => answer2(name2, args)) : answer2(name2, args));
   } catch (e) {
     if (name2 === tool("channel") && args.action === "register" && args.spawned_for) {
-      const text6 = `${words(SPAWNED_FOR).echo()} ${errorMessage(e)}`;
-      refuseClaim(text6);
-      return { text: text6, isError: true };
+      const text7 = `${words(SPAWNED_FOR).echo()} ${errorMessage(e)}`;
+      refuseClaim(text7);
+      return { text: text7, isError: true };
     }
     throw e;
   }
@@ -13067,17 +13143,17 @@ var replyTo = (msg) => (body, isError = false) => ({
   id: msg.id,
   result: { ...isError ? { isError: true } : {}, content: [{ type: "text", text: body }] }
 });
-async function statusWord(text6, realm) {
-  const st = await publishStatus(text6, realm);
+async function statusWord(text7, realm) {
+  const st = await publishStatus(text7, realm);
   if (!st.ok && !statusAddress()) return [await notHeldHere(realm), true];
   if (st.code === 404) return [`${st.body} ${TURNED_GUIDANCE()}`, true];
-  if (st.ok) return [busyLine(text6, realm), false];
+  if (st.ok) return [busyLine(text7, realm), false];
   return [st.body, true];
 }
-function busyLine(text6, realm) {
+function busyLine(text7, realm) {
   const a = S8.accepted.get(statusAddress(realm)?.key ?? "");
-  const line = a?.sent === text6 ? a.doing : text6;
-  const nudge = a?.sent === text6 && a.trimmed ? `; ${trimNudge(a.trimmed)}` : "";
+  const line = a?.sent === text7 ? a.doing : text7;
+  const nudge = a?.sent === text7 && a.trimmed ? `; ${trimNudge(a.trimmed)}` : "";
   return words(STATUS).busyLine(placeLabel(realm), line, nudge);
 }
 function placeLabel(realm) {
@@ -13089,12 +13165,12 @@ function localStatus(msg) {
   if (msg?.method !== "tools/call" || msg?.params?.name !== tool("channel")) return null;
   const a = msg.params?.arguments;
   if (a?.action !== "status") return null;
-  const text6 = typeof a.text === "string" ? a.text : "";
+  const text7 = typeof a.text === "string" ? a.text : "";
   const reply2 = replyTo(msg);
   const realm = typeof a.realm === "string" ? a.realm : "";
   return (async () => {
     await resolveAgainstLed(realm);
-    return reply2(...await statusWord(text6, realm));
+    return reply2(...await statusWord(text7, realm));
   })();
 }
 async function standStatusOnly(msg) {
@@ -13142,17 +13218,17 @@ var S8 = scoped(() => ({
   accepted: /* @__PURE__ */ new Map()
 }));
 var publishedStatus = () => S8.lastPublished;
-async function publishStatus(text6, realm, everyPlace = false) {
+async function publishStatus(text7, realm, everyPlace = false) {
   const addr = statusAddress(realm);
   if (!addr) {
     return { ok: false, body: words(STATUS).notHeld() };
   }
   if (!everyPlace && !addr.standingId && heldPlaces().length > 1)
     return { ok: false, body: words(STATUS).noSeatId(addr.key) };
-  const st = await publishStatusTo(addr.url, text6, 5e3, everyPlace ? EVERY : addr.standingId);
+  const st = await publishStatusTo(addr.url, text7, 5e3, everyPlace ? EVERY : addr.standingId);
   if (st.ok) {
-    const kept3 = st.doing ?? text6;
-    S8.accepted.set(addr.key, { sent: text6, doing: kept3, trimmed: st.trimmed });
+    const kept3 = st.doing ?? text7;
+    S8.accepted.set(addr.key, { sent: text7, doing: kept3, trimmed: st.trimmed });
     if (addr.key === statusAddress()?.key) S8.lastPublished = kept3;
     rememberStatus(kept3, realm);
   }
@@ -13168,7 +13244,7 @@ async function heldElsewhere(realm) {
   const out7 = [];
   for (const f of readdirSync11(dir2).filter((x) => x.endsWith(".hold"))) {
     try {
-      const rec6 = JSON.parse(readFileSync28(join25(dir2, f), "utf8"));
+      const rec6 = JSON.parse(readFileSync28(join26(dir2, f), "utf8"));
       if (!rec6?.realm || rec6.karta == null) continue;
       if (!anyRealm && slugOf(String(rec6.realm)) !== slugOf(realm)) continue;
       const key3 = keyOf(rec6.realm, rec6.karta, rec6.name ?? "");
@@ -13246,8 +13322,8 @@ function startEngine(cfg, opts = {}) {
 
 // js/bridge/fallback.ts
 import { mkdirSync as mkdirSync15, readdirSync as readdirSync12, readFileSync as readFileSync29, unlinkSync as unlinkSync17, writeFileSync as writeFileSync15 } from "node:fs";
-import { join as join26, resolve as resolve9 } from "node:path";
-var fallbackDir = (authDir) => join26(resolve9(authDir), "fallback");
+import { join as join27, resolve as resolve9 } from "node:path";
+var fallbackDir = (authDir) => join27(resolve9(authDir), "fallback");
 var alive4 = (pid) => {
   try {
     process.kill(pid, 0);
@@ -13266,13 +13342,13 @@ function pruneFallbacks(authDir) {
     const pid = parseInt(n, 10);
     if (Number.isInteger(pid) && !alive4(pid))
       try {
-        unlinkSync17(join26(fallbackDir(authDir), n));
+        unlinkSync17(join27(fallbackDir(authDir), n));
       } catch {
       }
   }
 }
 function markFallback(authDir, f) {
-  const file2 = join26(fallbackDir(authDir), `${process.pid}.json`);
+  const file2 = join27(fallbackDir(authDir), `${process.pid}.json`);
   try {
     mkdirSync15(fallbackDir(authDir), { recursive: true, mode: 448 });
     pruneFallbacks(authDir);
@@ -13297,7 +13373,7 @@ function readFallbacks(authDir) {
   const out7 = [];
   for (const n of names2) {
     try {
-      const f = JSON.parse(readFileSync29(join26(fallbackDir(authDir), n), "utf8"));
+      const f = JSON.parse(readFileSync29(join27(fallbackDir(authDir), n), "utf8"));
       if (Number.isInteger(f.pid) && alive4(f.pid)) out7.push(f);
     } catch {
     }
@@ -13305,261 +13381,14 @@ function readFallbacks(authDir) {
   return out7;
 }
 
-// js/bridge/demand-rows.ts
-function object(v) {
-  if (!v || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid_object");
-  return v;
-}
-function text3(v) {
-  return typeof v === "string" && v.trim() ? v.trim() : null;
-}
-function required(v) {
-  const s2 = text3(v);
-  if (!s2) throw new Error("missing_identifier");
-  return s2;
-}
-function seq2(v) {
-  if (typeof v !== "number" || !Number.isSafeInteger(v) || v <= 0)
-    throw new Error("invalid_sequence");
-  return v;
-}
-function startRow(v, realm) {
-  const x = object(v);
-  const p = x.payload === void 0 ? {} : object(x.payload);
-  const h = p.holon == null ? {} : object(p.holon);
-  const a = x.attrs == null ? {} : object(x.attrs);
-  return {
-    realm,
-    room: required(x.room_id),
-    invite: seq2(x.entry_id),
-    karta: seq2(x.karta_seq),
-    holon: typeof h.seq === "number" ? h.seq : null,
-    repository: text3(h.repository),
-    model: text3(a.model),
-    harness: text3(a.harness),
-    launcher: text3(a.launcher),
-    author: text3(x.author)
-  };
-}
-function openOrder(v) {
-  const x = object(v);
-  return { order_id: required(x.id), standing_id: required(x.standing_id) };
-}
-function stopRow(v, realms) {
-  const x = object(v);
-  const realm = required(x.realm);
-  if (!realms.includes(realm)) return null;
-  if (x.state !== "issued" && x.state !== "accepted") throw new Error("invalid_order_state");
-  return {
-    order_id: required(x.id),
-    standing_id: required(x.standing_id),
-    realm,
-    karta: seq2(x.karta_seq),
-    standing: text3(x.standing),
-    repository: text3(x.repository),
-    state: x.state,
-    reason_code: text3(x.reason_code),
-    answer_by: text3(x.answer_by)
-  };
-}
-
-// js/bridge/realmindex.ts
-function realmIndexOf(listed) {
-  const byShort = /* @__PURE__ */ new Map();
-  const bySlug = /* @__PURE__ */ new Map();
-  for (const it of listed) {
-    const x = it;
-    if (typeof x.slug !== "string" || typeof x.owner_handle !== "string") continue;
-    const canon2 = `@${x.owner_handle}/${x.slug}`;
-    if (typeof x.short_id === "number") byShort.set(x.short_id, canon2);
-    bySlug.set(x.slug, [...bySlug.get(x.slug) ?? [], canon2]);
-  }
-  return { byShort, bySlug };
-}
-function canonIn(index, name2) {
-  const t = name2.trim();
-  const n = /^r(\d+)$/i.exec(t);
-  if (n) return index.byShort.get(Number(n[1])) ?? null;
-  const hits = index.bySlug.get(t) ?? [];
-  return hits.length === 1 ? hits[0] : null;
-}
-
-// js/bridge/orchestra-demands.ts
-var LIMIT2 = 200;
-var MAX_PAGES = 50;
-async function get(base, token, path) {
-  const r = await namedFetch(`${base}${path}`, {
-    headers: { authorization: `Bearer ${token}` },
-    redirect: "error",
-    signal: AbortSignal.timeout(1e4)
-  });
-  if (!r.ok) throw new Error(`http_${r.status}`);
-  return object(await r.json());
-}
-function items(body) {
-  if (!Array.isArray(body.items)) throw new Error("invalid_items");
-  return body.items;
-}
-function code(e) {
-  const s2 = e instanceof Error ? e.message : "";
-  return /^(http_\d{3}|invalid_\w+|missing_identifier|pagination_\w+)$/.test(s2) ? s2 : "read_failed";
-}
-async function readDemands(base, token, requested, boundary, gone, owned) {
-  const realms = [...new Set(requested.map((s2) => s2.trim()))];
-  const result = {
-    schema_version: 1,
-    observed_at: (/* @__PURE__ */ new Date()).toISOString(),
-    scope: { realms, orders: "own_account" },
-    start: [],
-    stop: [],
-    complete: true,
-    errors: []
-  };
-  const error = (source, why, realm) => {
-    result.complete = false;
-    result.errors.push({ source, ...realm ? { realm } : {}, code: why });
-  };
-  if (realms.some((r) => !/^@[^/\s]+\/[^/\s]+$/.test(r))) {
-    error("scope", "invalid_realm");
-    return result;
-  }
-  let canonicalBoundary = boundary;
-  if (realms.some((r) => !boundary.includes(r)) && boundary.some((r) => /^r\d+$/i.test(r.trim()))) {
-    if (!base || !token) {
-      error("connection", "unavailable");
-      return result;
-    }
-    try {
-      const index = realmIndexOf(items(await get(base, token, `/realms?limit=${LIMIT2}`)));
-      canonicalBoundary = boundary.map((r) => {
-        if (!/^r\d+$/i.test(r.trim())) return r;
-        const canonical = canonIn(index, r);
-        if (!canonical) throw new Error("invalid_boundary");
-        return canonical;
-      });
-    } catch (e) {
-      error("scope", code(e));
-      return result;
-    }
-  }
-  if (!realms.length || realms.some((r) => !r || !canonicalBoundary.includes(r))) {
-    error("scope", "outside_boundary");
-    return result;
-  }
-  if (!base || !token) {
-    error("connection", "unavailable");
-    return result;
-  }
-  for (const realm of realms) {
-    if (gone?.gone) {
-      error("caller", "gone");
-      return result;
-    }
-    try {
-      const body = await get(base, token, `/realms/${encodeURIComponent(realm)}/invites`);
-      const rows = items(body).map((v) => startRow(v, realm));
-      result.start.push(...rows);
-    } catch (e) {
-      error("invites", code(e), realm);
-    }
-  }
-  let since = 0;
-  try {
-    for (let n = 0; n < MAX_PAGES; n++) {
-      if (gone?.gone) throw new Error("caller_gone");
-      const q = `open=true&limit=${LIMIT2}${since ? `&since=${since}` : ""}`;
-      const body = await get(base, token, `/me/orders?${q}`);
-      const rows = items(body);
-      if (!rows.length) return result;
-      const projected = rows.map((v) => stopRow(v, realms)).filter((v) => v !== null);
-      owned?.push(...rows.map(openOrder));
-      result.stop.push(...projected);
-      const next = body.next_since;
-      if (typeof next !== "number" || !Number.isSafeInteger(next) || next <= since)
-        throw new Error("pagination_stalled");
-      since = next;
-    }
-    throw new Error("pagination_limit");
-  } catch (e) {
-    error("orders", code(e));
-  }
-  return result;
-}
-
-// js/shared/mcpsession.ts
-var TIMEOUT_MS = 8e3;
-var PROTOCOL = "2025-06-18";
-function answers(text6) {
-  const t = text6.trim();
-  if (t.startsWith("{")) return [JSON.parse(t)];
-  return t.split(/\r?\n/).filter((l) => l.startsWith("data:")).flatMap((l) => {
-    try {
-      return [JSON.parse(l.slice(5))];
-    } catch {
-      return [];
-    }
-  });
-}
-function mcpSession(url, token, client = "bridge") {
-  let sid = null;
-  let n = 0;
-  const post3 = async (body) => {
-    const res = await namedFetch(url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json, text/event-stream",
-        authorization: `Bearer ${token}`,
-        "mcp-protocol-version": PROTOCOL,
-        ...sid ? { "mcp-session-id": sid } : {}
-      },
-      body: JSON.stringify({ jsonrpc: "2.0", ...body }),
-      signal: AbortSignal.timeout(TIMEOUT_MS)
-    });
-    if (!res.ok) throw new Error(String(res.status));
-    sid = res.headers.get("mcp-session-id") ?? sid;
-    if (!("id" in body)) return null;
-    return answers(await res.text()).find((a) => a.id === body.id) ?? null;
-  };
-  return {
-    open: async () => {
-      const info = { name: client, version: "1" };
-      await post3({
-        id: ++n,
-        method: "initialize",
-        params: { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: info }
-      });
-      await post3({ method: "notifications/initialized" });
-    },
-    call: async (name2, args) => {
-      const a = await post3({ id: ++n, method: "tools/call", params: { name: name2, arguments: args } });
-      if (!a?.result || a.error || a.result.isError) throw new Error("refused");
-      return (a.result.content ?? []).map((c) => c.text ?? "").join("\n");
-    },
-    /** The session ended on the server too (graph @nks/nks-dev, node #9174); a refusal — no matter. */
-    close: async () => {
-      if (!sid) return;
-      const headers2 = { authorization: `Bearer ${token}`, "mcp-session-id": sid };
-      await namedFetch(url, { method: "DELETE", headers: headers2, signal: AbortSignal.timeout(TIMEOUT_MS) }).then((r) => r.body?.cancel()).catch(() => {
-      });
-    }
-  };
-}
-
-// js/bridge/orchestra-launchers.ts
-import { hostname as hostname2 } from "node:os";
-import { isAbsolute as isAbsolute4 } from "node:path";
-
-// js/bridge/orchestra-clone.ts
-import { existsSync as existsSync11 } from "node:fs";
-import { homedir as homedir11 } from "node:os";
-import { isAbsolute as isAbsolute3, join as join27 } from "node:path";
+// js/bridge/exec-exit.ts
+import { createHash as createHash10 } from "node:crypto";
 
 // js/bridge/orchestra-orca.ts
 import { execFile } from "node:child_process";
 var FLAGS = ["agent", "worktree", "model", "prompt", "json"];
 function run2(args, timeoutMs) {
-  return new Promise((resolve14) => {
+  return new Promise((resolve15) => {
     execFile(
       "orca",
       args,
@@ -13567,7 +13396,7 @@ function run2(args, timeoutMs) {
       (err, stdout) => {
         const e = err;
         const code2 = !e ? 0 : e.killed ? "timeout" : typeof e.code === "number" ? e.code : e.code ?? 1;
-        resolve14({ code: code2, out: String(stdout ?? "") });
+        resolve15({ code: code2, out: String(stdout ?? "") });
       }
     );
   });
@@ -13680,7 +13509,1257 @@ async function orcaClose(handle, runtime) {
   return r.code === 0 ? "terminal_closed" : `terminal_close_failed_${r.code}`;
 }
 
+// js/bridge/exec-client-exit.ts
+var parse = (s2) => {
+  try {
+    return JSON.parse(s2);
+  } catch {
+    return {};
+  }
+};
+async function execExited(r) {
+  if (!r.exec?.session || !r.exec.incarnation || !r.terminal || !r.runtime) return false;
+  const show = async () => {
+    const got = await run2(["terminal", "show", "--terminal", r.terminal, "--json"], 5e3);
+    return got.code === 0 ? parse(got.out) : {};
+  };
+  const matches = (v2) => {
+    const terminal = v2.result?.terminal;
+    return !!terminal && v2.ok === true && v2._meta?.runtimeId === r.runtime && terminal.handle === r.terminal && terminal.incarnationId === r.exec?.incarnation && terminal.executionHostId === "local" && terminal.worktreePath === r.worktree;
+  };
+  if (!matches(await show())) return false;
+  const waited = await run2(
+    [
+      "terminal",
+      "wait",
+      "--terminal",
+      r.terminal,
+      "--for",
+      "exit",
+      "--timeout-ms",
+      "5000",
+      "--json"
+    ],
+    7e3
+  );
+  const v = parse(waited.out), w12 = v.result?.wait;
+  if (waited.code !== 0 || v.ok !== true || v._meta?.runtimeId !== r.runtime || w12?.handle !== r.terminal || w12.condition !== "exit" || w12.satisfied !== true || w12.status !== "exited")
+    return false;
+  const after2 = await show();
+  return matches(after2) && after2.result?.terminal?.connected === false && after2.result?.terminal?.writable === false;
+}
+
+// js/bridge/exec-launch.ts
+import { mkdirSync as mkdirSync18, realpathSync as realpathSync8 } from "node:fs";
+import { resolve as resolve10 } from "node:path";
+
+// js/bridge/exec-preflight.ts
+import { hostname as hostname2 } from "node:os";
+var execHost = (host) => !!host && host.toLowerCase() === hostname2().toLowerCase() && ["darwin", "linux"].includes(process.platform);
+function parseOrca(out7) {
+  try {
+    return JSON.parse(out7);
+  } catch {
+    return {};
+  }
+}
+async function execRuntime() {
+  const surface = await run2(["agent-context", "--json"], 1e4);
+  try {
+    const commands = JSON.parse(surface.out).commands;
+    const required2 = {
+      status: ["json"],
+      "host name": ["json"],
+      "terminal create": ["worktree", "command", "json"],
+      "terminal show": ["terminal", "json"],
+      "terminal wait": ["terminal", "for", "timeout-ms", "json"]
+    };
+    if (surface.code !== 0 || !Object.entries(required2).every(
+      ([command, flags]) => flags.every((flag) => commands?.find((c) => c.command === command)?.flags?.includes(flag))
+    ))
+      return null;
+  } catch {
+    return null;
+  }
+  const status = await run2(["status", "--json"], 1e4);
+  const host = await run2(["host", "name", "--json"], 1e4);
+  const s2 = parseOrca(status.out), h = parseOrca(host.out);
+  const t = s2.result?.target;
+  const r = s2.result?.runtime;
+  const id = s2._meta?.runtimeId;
+  if (status.code !== 0 || host.code !== 0 || s2.ok !== true || h.ok !== true || t?.kind !== "local" || r?.state !== "ready" || r.reachable !== true || r.connectionState !== "connected" || typeof id !== "string" || !id || id !== r.runtimeId || id !== h._meta?.runtimeId || !["darwin", "linux"].includes(String(h.result?.platform)) || h.result?.platform !== process.platform)
+    return null;
+  return id;
+}
+
+// js/bridge/exec-receipt.ts
+import { randomUUID as randomUUID3 } from "node:crypto";
+import { mkdirSync as mkdirSync16, realpathSync as realpathSync7 } from "node:fs";
+import { dirname as dirname14, join as join29 } from "node:path";
+
+// js/bridge/exec-attempt-io.ts
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  fsyncSync,
+  ftruncateSync,
+  lstatSync as lstatSync6,
+  openSync,
+  readFileSync as readFileSync30,
+  realpathSync as realpathSync6,
+  writeFileSync as writeFileSync16,
+  writeSync
+} from "node:fs";
+import { dirname as dirname13, join as join28 } from "node:path";
+function directory(path) {
+  const s2 = lstatSync6(path);
+  if (!s2.isDirectory() || s2.isSymbolicLink() || realpathSync6(path) !== path || s2.uid !== process.getuid?.() || (s2.mode & 511) !== 448)
+    throw new Error("attempt_directory_untrusted");
+}
+function fdOf(path, create = false) {
+  directory(dirname13(path));
+  if (path.slice(path.lastIndexOf("/") + 1) !== "receipt.json")
+    throw new Error("attempt_path_invalid");
+  const fd = openSync(
+    path,
+    constants.O_RDWR | constants.O_NOFOLLOW | (create ? constants.O_CREAT | constants.O_EXCL : 0),
+    384
+  );
+  const s2 = fstatSync(fd);
+  if (!s2.isFile() || s2.nlink !== 1 || s2.uid !== process.getuid?.() || (s2.mode & 511) !== 384 || s2.size > 128 * 1024) {
+    closeSync(fd);
+    throw new Error("attempt_file_untrusted");
+  }
+  return fd;
+}
+function syncDirectory(path) {
+  const fd = openSync(dirname13(path), constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
+function readAttemptFile(path) {
+  const fd = fdOf(path);
+  try {
+    return readFileSync30(fd, "utf8");
+  } finally {
+    closeSync(fd);
+  }
+}
+function writeAttemptFile(path, value, create, check) {
+  const fd = fdOf(path, create);
+  try {
+    if (!create) check(readFileSync30(fd, "utf8"));
+    const bytes = Buffer.from(value);
+    let offset = 0;
+    while (offset < bytes.length)
+      offset += writeSync(fd, bytes, offset, bytes.length - offset, offset);
+    ftruncateSync(fd, bytes.length);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  syncDirectory(path);
+}
+function claimAttempt(path) {
+  directory(dirname13(path));
+  const fd = openSync(
+    join28(dirname13(path), "prepare.lock"),
+    constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW,
+    384
+  );
+  try {
+    writeFileSync16(fd, "claimed\n");
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  syncDirectory(path);
+}
+
+// js/bridge/exec-receipt.ts
+var execIdentity = (r) => JSON.stringify([
+  r.realm,
+  r.room,
+  r.invite,
+  r.karta,
+  r.launcher,
+  r.harness,
+  r.model,
+  r.repository,
+  r.worktree,
+  r.at,
+  r.exec?.attempt,
+  r.exec?.server,
+  r.exec?.model
+]);
+var phases = ["planned", "create-sent", "session-created", "prompt-sent", "ready", "ambiguity"];
+function validate(v) {
+  if (!v || v.schema !== 1 || !/^[a-f0-9-]{36}$/.test(v.attempt) || typeof v.identity !== "string" || !phases.includes(v.phase) || typeof v.prompt !== "string" || typeof v.location !== "string" || typeof v.server !== "string" || !v.model || typeof v.model.id !== "string" || typeof v.model.providerID !== "string" || !["planned", "create-sent", "ambiguity"].includes(v.phase) && !/^ses_[A-Za-z0-9]+$/.test(v.session ?? "") || Object.keys(v).some(
+    (k) => ![
+      "schema",
+      "attempt",
+      "identity",
+      "phase",
+      "server",
+      "model",
+      "location",
+      "prompt",
+      "session"
+    ].includes(k)
+  ))
+    throw new Error("attempt_schema_invalid");
+}
+function readReceipt(path) {
+  const v = JSON.parse(readAttemptFile(path));
+  validate(v);
+  if (dirname14(path).split("/").at(-1) !== `exec-${v.attempt}`)
+    throw new Error("attempt_path_invalid");
+  return v;
+}
+function saveReceipt(path, v, create = false) {
+  validate(v);
+  writeAttemptFile(path, JSON.stringify(v), create, (raw) => {
+    const before = JSON.parse(raw);
+    validate(before);
+    if (["ready", "ambiguity"].includes(before.phase) || v.phase !== "ambiguity" && phases.indexOf(v.phase) !== phases.indexOf(before.phase) + 1 || before.attempt !== v.attempt || before.identity !== v.identity || before.server !== v.server || before.location !== v.location || before.prompt !== v.prompt || JSON.stringify(before.model) !== JSON.stringify(v.model) || before.session !== void 0 && before.session !== v.session)
+      throw new Error("attempt_transition_invalid");
+  });
+}
+function newAttempt(authDir, r, server, model, prompt) {
+  const parent = realpathSync7(seamRunDir(authDir));
+  const attempt2 = randomUUID3();
+  const dir2 = join29(parent, `exec-${attempt2}`);
+  mkdirSync16(dir2, { mode: 448 });
+  r.exec = { attempt: attempt2, receipt: join29(dir2, "receipt.json"), server, model };
+  saveReceipt(
+    r.exec.receipt,
+    {
+      schema: 1,
+      attempt: attempt2,
+      identity: execIdentity(r),
+      phase: "planned",
+      server,
+      model,
+      location: r.worktree,
+      prompt
+    },
+    true
+  );
+}
+function receiptFor(r, authDir) {
+  if (!r.exec || dirname14(r.exec.receipt).split("/").at(-1) !== `exec-${r.exec.attempt}`)
+    throw new Error("attempt_path_invalid");
+  if (dirname14(dirname14(r.exec.receipt)) !== realpathSync7(seamRunDir(authDir)))
+    throw new Error("attempt_path_outside_registry");
+  const v = readReceipt(r.exec.receipt);
+  if (v.attempt !== r.exec.attempt || v.identity !== execIdentity(r) || v.server !== r.exec.server || v.location !== r.worktree || JSON.stringify(v.model) !== JSON.stringify(r.exec.model))
+    throw new Error("attempt_identity_changed");
+  return v;
+}
+
+// js/bridge/orchestra-runs.ts
+import { randomUUID as randomUUID4 } from "node:crypto";
+import {
+  closeSync as closeSync2,
+  fsyncSync as fsyncSync2,
+  mkdirSync as mkdirSync17,
+  openSync as openSync2,
+  readFileSync as readFileSync31,
+  renameSync as renameSync13,
+  unlinkSync as unlinkSync18,
+  writeFileSync as writeFileSync17
+} from "node:fs";
+import { join as join30 } from "node:path";
+
+// js/bridge/orchestra-runs-delta.ts
+var snapshots = /* @__PURE__ */ new WeakMap();
+function rememberRuns(authDir, runs, existingOnly = false) {
+  if (existingOnly && snapshots.get(runs)?.authDir !== authDir) return runs;
+  snapshots.set(runs, { authDir, rows: structuredClone(runs) });
+  return runs;
+}
+var runIdentity = (r) => JSON.stringify([
+  r.realm,
+  r.room,
+  r.invite,
+  r.standing_id,
+  r.terminal,
+  r.runtime,
+  r.harness,
+  r.at,
+  r.exec?.attempt,
+  r.exec?.session,
+  r.exec?.incarnation,
+  r.exec ? [r.karta, r.launcher, r.model, r.repository, r.worktree, r.exec.server, r.exec.model] : void 0
+]);
+function mergeRuns(authDir, runs, latest) {
+  const snapshot = snapshots.get(runs);
+  if (!snapshot || snapshot.authDir !== authDir) return runs;
+  const base = snapshot.rows;
+  const merged = { ...latest };
+  for (const key3 of /* @__PURE__ */ new Set([...Object.keys(base), ...Object.keys(runs)])) {
+    const before = base[key3], after2 = runs[key3], current2 = latest[key3];
+    if (!before) {
+      if (after2 && !current2) merged[key3] = structuredClone(after2);
+      continue;
+    }
+    if (!current2 || runIdentity(current2) !== runIdentity(before)) continue;
+    if (!after2) {
+      delete merged[key3];
+      continue;
+    }
+    const row = { ...current2 };
+    for (const field of /* @__PURE__ */ new Set([...Object.keys(before), ...Object.keys(after2)])) {
+      const k = field;
+      if (JSON.stringify(before[k]) === JSON.stringify(after2[k])) continue;
+      if (k === "exec" && before.exec && after2.exec && current2.exec) {
+        const exec = { ...current2.exec };
+        for (const field2 of /* @__PURE__ */ new Set([...Object.keys(before.exec), ...Object.keys(after2.exec)])) {
+          const f = field2;
+          if (JSON.stringify(before.exec[f]) !== JSON.stringify(after2.exec[f])) {
+            if (after2.exec[f] === void 0) delete exec[f];
+            else Object.assign(exec, { [f]: after2.exec[f] });
+          }
+        }
+        row.exec = exec;
+        continue;
+      }
+      if (after2[k] === void 0) delete row[k];
+      else Object.assign(row, { [k]: after2[k] });
+    }
+    const firstSeat = !!before.exec && !!after2.exec && !before.standing_id && after2.standing_id && runIdentity({ ...after2, standing_id: void 0 }) === runIdentity(before);
+    if (!firstSeat && runIdentity(after2) !== runIdentity(before)) {
+      delete row.closed;
+      if (row.exec) delete row.exec.exit;
+    }
+    merged[key3] = row;
+  }
+  return merged;
+}
+
+// js/bridge/orchestra-runs.ts
+var LIVE = [
+  "preparing",
+  "ambiguity",
+  "launched",
+  "raised",
+  "stopping"
+];
+var runKey = (realm, room, invite) => `${realm}|${room}|${invite}`;
+var file = (authDir) => join30(seamRunDir(authDir), "orchestra-runs.json");
+function readFile(authDir) {
+  try {
+    const f = JSON.parse(readFileSync31(file(authDir), "utf8"));
+    if (!f || !f.runs || typeof f.runs !== "object" || Array.isArray(f.runs) || f.clones !== void 0 && (!f.clones || typeof f.clones !== "object" || Array.isArray(f.clones)))
+      throw new Error("registry_schema_invalid");
+    const obj5 = (v) => v && typeof v === "object" ? v : {};
+    return { runs: obj5(f.runs), clones: obj5(f.clones) };
+  } catch (e) {
+    if (e.code === "ENOENT") return { runs: {}, clones: {} };
+    throw new Error("orchestra_registry_unreadable", { cause: e });
+  }
+}
+function writeFile(authDir, f) {
+  mkdirSync17(seamRunDir(authDir), { recursive: true, mode: 448 });
+  const tmp = `${file(authDir)}.${randomUUID4()}.tmp`;
+  const fd = openSync2(tmp, "wx", 384);
+  try {
+    writeFileSync17(fd, JSON.stringify(f) + "\n");
+    fsyncSync2(fd);
+  } finally {
+    closeSync2(fd);
+  }
+  try {
+    renameSync13(tmp, file(authDir));
+  } catch (e) {
+    unlinkSync18(tmp);
+    throw e;
+  }
+  if (process.platform !== "win32") {
+    const directory2 = openSync2(seamRunDir(authDir), "r");
+    try {
+      fsyncSync2(directory2);
+    } finally {
+      closeSync2(directory2);
+    }
+  }
+}
+var readRuns = (authDir) => rememberRuns(authDir, readFile(authDir).runs);
+function syncClosed(runs, latest) {
+  for (const [key3, r] of Object.entries(runs)) {
+    const stored = latest[key3];
+    if (stored?.closed && runIdentity(stored) === runIdentity(r)) r.closed = stored.closed;
+  }
+}
+function recordRunClosed(authDir, key3, expected) {
+  const f = readFile(authDir);
+  const r = f.runs[key3];
+  if (!r || !LIVE.includes(r.state) || runIdentity(r) !== runIdentity(expected)) return false;
+  r.closed = "client_exited";
+  if (r.exec) r.exec.exit = (/* @__PURE__ */ new Date()).toISOString();
+  writeFile(authDir, f);
+  return true;
+}
+function writeRuns(authDir, runs) {
+  const f = readFile(authDir);
+  syncClosed(runs, f.runs);
+  writeFile(authDir, { runs: mergeRuns(authDir, runs, f.runs), clones: f.clones });
+  rememberRuns(authDir, runs, true);
+}
+var readClones = (authDir) => readFile(authDir).clones;
+function writeClone(authDir, repository, row) {
+  const f = readFile(authDir);
+  if (row) f.clones[repository] = row;
+  else delete f.clones[repository];
+  writeFile(authDir, f);
+}
+
+// js/bridge/exec-launch.ts
+function execBound(r, authDir) {
+  try {
+    const receipt = receiptFor(r, authDir);
+    return receipt.phase === "ready" && !!r.exec?.session && receipt.session === r.exec.session;
+  } catch {
+    return false;
+  }
+}
+function importAttempt(r, authDir) {
+  if (!r.exec || !["preparing", "ambiguity"].includes(r.state)) return;
+  try {
+    const v = receiptFor(r, authDir);
+    if (v.phase === "ambiguity") {
+      r.state = "ambiguity";
+      r.why = "exec_prepare_unknown";
+      return;
+    }
+    if (v.phase === "ready" && r.terminal && r.runtime && r.exec.incarnation && v.session) {
+      if (r.state === "ambiguity") return;
+      r.exec.session = v.session;
+      r.state = r.standing_id ? "raised" : "launched";
+    }
+  } catch {
+    r.state = "ambiguity";
+    r.why = "exec_receipt_untrusted_or_unreadable";
+  }
+}
+async function launchExec(authDir, runs, key3, host, spec, prompt, bridge = resolve10(process.argv[1]), gone) {
+  const r = runs[key3];
+  if (!execHost(host)) return "exec_host_unverified";
+  const runtime = await execRuntime();
+  if (!runtime) return "exec_runtime_unverified";
+  const checkouts = await orcaCheckouts();
+  const local = typeof checkouts === "string" ? null : checkouts(r.repository);
+  if (!local || "code" in local || realpathSync8(local.path) !== realpathSync8(r.worktree))
+    return "exec_checkout_unverified";
+  if (realpathSync8(r.worktree) !== r.worktree || !/^[A-Za-z0-9_./-]+$/.test(bridge) || !/^[A-Za-z0-9_./-]+$/.test(process.execPath))
+    return "exec_path_unsupported";
+  const model = spec.modelRefs[r.model];
+  if (!model) return "exec_model_unmapped";
+  if (await execRuntime() !== runtime) return "exec_runtime_changed";
+  if (gone?.gone) return "exec_caller_left";
+  mkdirSync18(seamRunDir(authDir), { recursive: true, mode: 448 });
+  newAttempt(authDir, r, spec.server, model, prompt);
+  r.state = "preparing";
+  writeRuns(authDir, runs);
+  const receipt = r.exec.receipt;
+  if (!/^[A-Za-z0-9_./-]+$/.test(receipt)) {
+    r.state = "refused";
+    return "exec_path_unsupported";
+  }
+  const inner = `cmd=$(env BUN_BE_BUN=1 ${process.execPath} ${bridge} exec-prepare --receipt ${receipt}) && exec /bin/sh -c "$cmd"`;
+  const args = [
+    "terminal",
+    "create",
+    "--worktree",
+    `path:${r.worktree}`,
+    "--command",
+    `exec /bin/sh -c '${inner}'`,
+    "--json"
+  ];
+  const made = await run2(args, 12e4);
+  const reply2 = parseOrca(made.out);
+  const terminal = reply2.result?.terminal;
+  if (made.code !== 0 || reply2.ok !== true || reply2._meta?.runtimeId !== runtime || typeof terminal?.handle !== "string" || !terminal.handle || typeof terminal.incarnationId !== "string" || !terminal.incarnationId || terminal.executionHostId !== "local" || terminal.hostPlatform !== process.platform) {
+    r.state = "ambiguity";
+    r.why = "exec_terminal_create_unknown";
+  } else {
+    r.terminal = terminal.handle;
+    r.runtime = runtime;
+    r.exec.incarnation = terminal.incarnationId;
+    importAttempt(r, authDir);
+  }
+  writeRuns(authDir, runs);
+  return `exec_${r.state}`;
+}
+
+// js/bridge/exec-raised.ts
+import { mkdirSync as mkdirSync19, readFileSync as readFileSync32 } from "node:fs";
+import { join as join31 } from "node:path";
+
+// js/bridge/orchestra-quench.ts
+import { createHash as createHash9 } from "node:crypto";
+
+// js/bridge/orchestra-window.ts
+var RAISE_WINDOW_MS = Number(process.env[envName("ORCHESTRA_RAISE_WINDOW_MS")]) || 15 * 6e4;
+var stopLapsed = (r, now2 = Date.now()) => now2 - Date.parse(r.stopping_at ?? r.at) > RAISE_WINDOW_MS;
+
+// js/bridge/orchestra-run-ends.ts
+var w = () => words(ORCHESTRA);
+async function expireLaunches(runs, gone, close = orcaClose, now2 = Date.now()) {
+  const said2 = [];
+  for (const r of Object.values(runs))
+    if (r.state === "launched" && now2 - Date.parse(r.at) > RAISE_WINDOW_MS) {
+      if (gone?.gone) break;
+      if (r.exec) {
+        r.state = "ambiguity";
+        r.why = "exec_no_seat_unverified";
+        said2.push(w().leadRow(r.realm, r.room, r.invite, r.why));
+        continue;
+      }
+      r.state = "no_seat";
+      const closed = !r.terminal ? "no_terminal_handle" : r.runtime ? await close(r.terminal, r.runtime) : "terminal_runtime_unknown";
+      if (r.terminal) r.closed = closed;
+      said2.push(w().leadRow(r.realm, r.room, r.invite, `no_seat (cause_unseen), ${closed}`));
+    }
+  return said2;
+}
+async function closeEnded(runs, gone, close = orcaClose) {
+  const said2 = [];
+  for (const r of Object.values(runs))
+    if (r.state === "ended" && r.terminal && r.runtime && !r.closed) {
+      if (gone?.gone) break;
+      if (r.exec) {
+        r.why = "exec_client_unverified";
+        continue;
+      }
+      r.closed = await close(r.terminal, r.runtime);
+      said2.push(w().leadRow(r.realm, r.room, r.invite, `ended, ${r.closed}`));
+    }
+  return said2;
+}
+function settleStops(runs, open, fresh3 = /* @__PURE__ */ new Set(), now2 = Date.now()) {
+  const said2 = [];
+  const orders = new Set(open.map((s2) => s2.order_id)), seats2 = new Set(open.map((s2) => s2.standing_id));
+  for (const r of Object.values(runs)) {
+    if (r.state !== "stopping" || fresh3.has(r)) continue;
+    const unanswered2 = r.order_id ? orders.has(r.order_id) : seats2.has(r.standing_id ?? "");
+    if (!unanswered2 && r.stop_outcome === "stopped" && (!r.exec || r.closed === "client_exited")) {
+      r.state = "ended";
+      continue;
+    }
+    if (r.exec || !stopLapsed(r, now2)) continue;
+    r.state = "ended";
+    r.closed = "terminal_left_open";
+    const outcome = unanswered2 ? "unanswered" : r.stop_outcome ?? "unknown";
+    said2.push(w().leadRow(r.realm, r.room, r.invite, `stop_${outcome}, ${r.closed}`));
+  }
+  return said2;
+}
+
+// js/bridge/orchestra-quench.ts
+var w2 = () => words(ORCHESTRA);
+var TIMEOUT_MS = 1e4;
+var idOf4 = (v) => {
+  if (typeof v === "string" && v) return v;
+  const id = v?.id;
+  return typeof id === "string" && id ? id : null;
+};
+function runOf(realm, s2, runs) {
+  const sf = s2.spawned_for ?? {};
+  const invite = Number(sf.invite);
+  const room = idOf4(sf.room) ?? idOf4(s2.room);
+  if (!Number.isSafeInteger(invite) || !room) return null;
+  return runs[runKey(realm, room.toLowerCase(), invite)] ?? runs[runKey(realm, room, invite)] ?? null;
+}
+function foldTape(realm, tape, runs) {
+  for (const s2 of tape) {
+    const run3 = runOf(realm, s2, runs);
+    if (!run3 || run3.state === "ended") continue;
+    const seat2 = idOf4(s2.standing) ?? idOf4(s2.standing_id);
+    if (seat2) run3.standing_id = seat2;
+    if (run3.state === "launched" || run3.state === "no_seat" || run3.state === "refused")
+      run3.state = "raised";
+    const n = Number(s2.n);
+    if (!Number.isFinite(n) || run3.n !== void 0 && n < run3.n) continue;
+    run3.n = n;
+    run3.rooms = Array.isArray(s2.rooms) ? s2.rooms.length : 0;
+    if (run3.rooms > 0) run3.sat = true;
+  }
+}
+async function order(base, token, r, key3) {
+  const res = await namedFetch(`${base}/standings/${encodeURIComponent(r.standing_id)}/stop`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "x-nks-realm": r.realm,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      reason_code: "composition_empty",
+      client_id: `orchestra-${createHash9("sha256").update(key3).digest("hex").slice(0, 32)}`
+    }),
+    signal: AbortSignal.timeout(TIMEOUT_MS)
+  });
+  const body = await res.json().catch(() => ({}));
+  return { status: res.status, id: typeof body.id === "string" ? body.id : "" };
+}
+async function quench(base, token, runs, reread, gone, now2 = Date.now()) {
+  const said2 = [];
+  const due = Object.entries(runs).filter(
+    ([, r]) => r.state === "raised" && !r.exec?.exit && r.rooms === 0 && r.standing_id && (r.sat || now2 - Date.parse(r.at) > RAISE_WINDOW_MS)
+  );
+  for (const [key3, r] of due) {
+    if (gone?.gone) break;
+    try {
+      foldTape(r.realm, await reread(r.realm), runs);
+      if (gone?.gone) break;
+      if (r.rooms !== 0) {
+        said2.push(w2().leadRow(r.realm, r.room, r.invite, "composition_changed"));
+        continue;
+      }
+      const got = await order(base, token, r, key3);
+      const why = r.sat ? "" : "no_join, ";
+      if (got.status >= 200 && got.status < 300) {
+        r.state = "stopping";
+        r.stopping_at = new Date(now2).toISOString();
+        if (got.id) r.order_id = got.id;
+        said2.push(w2().leadRow(r.realm, r.room, r.invite, `${why}stop_ordered`));
+      } else if (got.status === 410) {
+        if (!r.exec) r.state = "ended";
+        said2.push(w2().leadRow(r.realm, r.room, r.invite, `${why}seat_gone`));
+      } else said2.push(w2().leadRow(r.realm, r.room, r.invite, `${why}stop_refused_${got.status}`));
+    } catch (e) {
+      said2.push(w2().leadRow(r.realm, r.room, r.invite, `stop_unsent (${e.message})`));
+    }
+  }
+  return said2;
+}
+
+// js/bridge/exec-raised.ts
+async function bindExecRaised(authDir, base, token, realms) {
+  const path = join31(seamRunDir(authDir), "exec-raised-cursors.json");
+  let cursors = {};
+  try {
+    const value = JSON.parse(readFileSync32(path, "utf8"));
+    if (!value || typeof value !== "object" || Array.isArray(value) || Object.values(value).some((v) => v !== null && (typeof v !== "string" || !v)))
+      throw new Error("exec_cursor_invalid");
+    cursors = value;
+  } catch (e) {
+    if (e.code !== "ENOENT") throw e;
+  }
+  const reads = await Promise.all(
+    realms.map(async (realm) => {
+      const q = new URLSearchParams({ limit: "200" });
+      if (cursors[realm]) q.set("since", cursors[realm]);
+      const res = await namedFetch(`${base}/realms/${encodeURIComponent(realm)}/raised?${q}`, {
+        headers: { authorization: `Bearer ${token}` },
+        redirect: "error",
+        signal: AbortSignal.timeout(1e4)
+      });
+      if (!res.ok) throw new Error("exec_raised_unreadable");
+      const value = await res.json();
+      if (!Array.isArray(value?.items) || value.items.some((v) => !v || typeof v !== "object" || Array.isArray(v)) || value.cursor !== void 0 && value.cursor !== null && (typeof value.cursor !== "string" || !value.cursor))
+        throw new Error("exec_raised_invalid");
+      return {
+        realm,
+        items: value.items,
+        cursor: value.cursor
+      };
+    })
+  );
+  const runs = readRuns(authDir);
+  const owned = Object.fromEntries(Object.entries(runs).filter(([, run3]) => run3.exec));
+  for (const read of reads) foldTape(read.realm, read.items, owned);
+  writeRuns(authDir, runs);
+  for (const read of reads) if (read.cursor) cursors[read.realm] = read.cursor;
+  mkdirSync19(seamRunDir(authDir), { recursive: true, mode: 448 });
+  writeOwned(path, JSON.stringify(cursors) + "\n");
+}
+
+// js/bridge/orchestra-foreign.ts
+import { mkdirSync as mkdirSync20, readFileSync as readFileSync33, writeFileSync as writeFileSync18 } from "node:fs";
+import { join as join32 } from "node:path";
+var w3 = () => words(ORCHESTRA);
+var LIMIT2 = 200;
+var MAX_PAGES = 50;
+var OPEN = /* @__PURE__ */ new Set(["issued", "accepted"]);
+var SKEW_MS = 6e4;
+var sinceStop = (r, v) => Date.parse(String(v.issued_at ?? "")) >= Date.parse(r.stopping_at ?? r.at) - SKEW_MS;
+var cursorFile = (authDir) => join32(seamRunDir(authDir), "orchestra-orders.json");
+function readSince(authDir) {
+  try {
+    const n = JSON.parse(readFileSync33(cursorFile(authDir), "utf8")).since;
+    return typeof n === "number" && Number.isSafeInteger(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+function writeSince(authDir, since) {
+  mkdirSync20(seamRunDir(authDir), { recursive: true, mode: 448 });
+  writeFileSync18(cursorFile(authDir), JSON.stringify({ since }) + "\n", { mode: 384 });
+}
+async function foreignStops(authDir, base, token, runs) {
+  const said2 = [];
+  const fresh3 = /* @__PURE__ */ new Set();
+  const bySeat = /* @__PURE__ */ new Map();
+  const stopping = /* @__PURE__ */ new Map();
+  let unseated = false;
+  for (const r of Object.values(runs))
+    if (r.state === "launched" || r.state === "raised") {
+      if (r.standing_id) bySeat.set(r.standing_id, r);
+      else unseated = true;
+    } else if (r.state === "stopping" && !r.stop_outcome && (r.exec || !stopLapsed(r)))
+      stopping.set(r.order_id ? `o:${r.order_id}` : `s:${r.standing_id ?? ""}`, r);
+  const seen = new Set(Object.values(runs).map((r) => r.standing_id));
+  let since = readSince(authDir);
+  let held2;
+  try {
+    for (let n = 0; n < MAX_PAGES; n++) {
+      const res = await namedFetch(`${base}/me/orders?limit=${LIMIT2}&since=${since}`, {
+        headers: { authorization: `Bearer ${token}` },
+        redirect: "error",
+        signal: AbortSignal.timeout(1e4)
+      });
+      if (!res.ok) throw new Error(`http_${res.status}`);
+      const body = await res.json();
+      if (!Array.isArray(body.items)) throw new Error("invalid_items");
+      if (!body.items.length) break;
+      for (const v of body.items) {
+        const seat2 = String(v.standing_id ?? "");
+        const run3 = bySeat.get(seat2);
+        const id = typeof v.id === "string" ? v.id : "";
+        const state2 = String(v.state);
+        const open = OPEN.has(state2);
+        if (!run3 && unseated && seat2 && !seen.has(seat2)) held2 ??= since;
+        const bySeatOnly = stopping.get(`s:${seat2}`);
+        const own = stopping.get(`o:${id}`) ?? (bySeatOnly && sinceStop(bySeatOnly, v) ? bySeatOnly : void 0);
+        if (!run3 && own) {
+          if (open) held2 ??= since;
+          else {
+            own.order_id ??= id;
+            own.stop_outcome = state2;
+          }
+          continue;
+        }
+        if (!run3 || !id || id === run3.order_id) continue;
+        bySeat.delete(seat2);
+        run3.order_id = id;
+        const done = state2 === "stopped" && (!run3.exec || run3.closed === "client_exited");
+        run3.state = done ? "ended" : "stopping";
+        if (!done) run3.stopping_at = (/* @__PURE__ */ new Date()).toISOString();
+        if (!open && !done) run3.stop_outcome = state2;
+        if (open) {
+          fresh3.add(run3);
+          held2 ??= since;
+        }
+        said2.push(
+          w3().leadRow(
+            run3.realm,
+            run3.room,
+            run3.invite,
+            open ? "stop_ordered_elsewhere" : done ? "stopped_elsewhere" : `stop_${state2}_elsewhere`
+          )
+        );
+      }
+      const next = body.next_since;
+      if (typeof next !== "number" || !Number.isSafeInteger(next) || next <= since)
+        throw new Error("pagination_stalled");
+      since = next;
+    }
+  } catch (e) {
+    said2.push(w3().leadOrdersUnread(e.message));
+  }
+  writeSince(authDir, held2 ?? since);
+  return { said: said2, fresh: fresh3 };
+}
+
+// js/bridge/exec-exit.ts
+var exitClientId = (r) => `orchestra-${createHash10("sha256").update(`${runIdentity(r)}|client_exited`).digest("hex").slice(0, 32)}`;
+function execPending(authDir) {
+  try {
+    return Object.values(readRuns(authDir)).some((r) => !!r.exec && LIVE.includes(r.state));
+  } catch {
+    return true;
+  }
+}
+async function observeExec(authDir, base, token) {
+  let runs = readRuns(authDir);
+  for (const [key3, r] of Object.entries(runs)) {
+    if (!r.exec || !LIVE.includes(r.state)) continue;
+    importAttempt(r, authDir);
+    if (r.exec.session && !execBound(r, authDir)) {
+      r.state = "ambiguity";
+      r.why = "exec_receipt_binding_unverified";
+      writeRuns(authDir, runs);
+      continue;
+    }
+    writeRuns(authDir, runs);
+    const identity2 = runIdentity(r);
+    if (!r.exec.exit && r.exec.session && await execExited(r)) {
+      const latest = readRuns(authDir)[key3];
+      if (!latest || runIdentity(latest) !== identity2) continue;
+      r.exec.exit = (/* @__PURE__ */ new Date()).toISOString();
+      r.closed = "client_exited";
+      writeRuns(authDir, runs);
+    }
+  }
+  if (!base || !token) return;
+  runs = readRuns(authDir);
+  const realms = [
+    ...new Set(
+      Object.values(runs).filter((r) => r.exec && LIVE.includes(r.state)).map((r) => r.realm)
+    )
+  ];
+  try {
+    await bindExecRaised(authDir, base, token, realms);
+    const latest = readRuns(authDir);
+    await foreignStops(authDir, base, token, latest);
+    writeRuns(authDir, latest);
+    await finishExits(authDir, base, token);
+  } catch {
+    process.stderr.write("exec_observer_graph_unreadable\n");
+  }
+}
+async function finishExits(authDir, base, token) {
+  const runs = readRuns(authDir);
+  for (const [key3, r] of Object.entries(runs)) {
+    if (!r.exec?.exit || !r.standing_id || !LIVE.includes(r.state) || !execBound(r, authDir))
+      continue;
+    if (r.stop_outcome === "stopped") {
+      r.state = "ended";
+      writeRuns(authDir, runs);
+      continue;
+    }
+    const before = runIdentity(r);
+    if (r.order_id) continue;
+    try {
+      const latest = readRuns(authDir)[key3];
+      if (!latest || runIdentity(latest) !== before) continue;
+      const res = await namedFetch(`${base}/standings/${encodeURIComponent(r.standing_id)}/stop`, {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "x-nks-realm": r.realm,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ reason_code: "client_exited", client_id: exitClientId(r) }),
+        signal: AbortSignal.timeout(1e4)
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok && typeof body.id === "string" && body.id) {
+        r.order_id = body.id;
+        r.state = "stopping";
+        r.stopping_at = (/* @__PURE__ */ new Date()).toISOString();
+      } else r.why = res.status === 410 ? "exec_suppression_unverified" : "exec_stop_unconfirmed";
+    } catch {
+      r.why = "exec_stop_unknown";
+    }
+    writeRuns(authDir, runs);
+  }
+}
+
+// js/bridge/demand-rows.ts
+function object(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) throw new Error("invalid_object");
+  return v;
+}
+function text3(v) {
+  return typeof v === "string" && v.trim() ? v.trim() : null;
+}
+function required(v) {
+  const s2 = text3(v);
+  if (!s2) throw new Error("missing_identifier");
+  return s2;
+}
+function seq2(v) {
+  if (typeof v !== "number" || !Number.isSafeInteger(v) || v <= 0)
+    throw new Error("invalid_sequence");
+  return v;
+}
+function startRow(v, realm) {
+  const x = object(v);
+  const p = x.payload === void 0 ? {} : object(x.payload);
+  const h = p.holon == null ? {} : object(p.holon);
+  const a = x.attrs == null ? {} : object(x.attrs);
+  return {
+    realm,
+    room: required(x.room_id),
+    invite: seq2(x.entry_id),
+    karta: seq2(x.karta_seq),
+    holon: typeof h.seq === "number" ? h.seq : null,
+    repository: text3(h.repository),
+    model: text3(a.model),
+    harness: text3(a.harness),
+    launcher: text3(a.launcher),
+    author: text3(x.author)
+  };
+}
+function openOrder(v) {
+  const x = object(v);
+  return { order_id: required(x.id), standing_id: required(x.standing_id) };
+}
+function stopRow(v, realms) {
+  const x = object(v);
+  const realm = required(x.realm);
+  if (!realms.includes(realm)) return null;
+  if (x.state !== "issued" && x.state !== "accepted") throw new Error("invalid_order_state");
+  return {
+    order_id: required(x.id),
+    standing_id: required(x.standing_id),
+    realm,
+    karta: seq2(x.karta_seq),
+    standing: text3(x.standing),
+    repository: text3(x.repository),
+    state: x.state,
+    reason_code: text3(x.reason_code),
+    answer_by: text3(x.answer_by)
+  };
+}
+
+// js/bridge/realmindex.ts
+function realmIndexOf(listed) {
+  const byShort = /* @__PURE__ */ new Map();
+  const bySlug = /* @__PURE__ */ new Map();
+  for (const it of listed) {
+    const x = it;
+    if (typeof x.slug !== "string" || typeof x.owner_handle !== "string") continue;
+    const canon2 = `@${x.owner_handle}/${x.slug}`;
+    if (typeof x.short_id === "number") byShort.set(x.short_id, canon2);
+    bySlug.set(x.slug, [...bySlug.get(x.slug) ?? [], canon2]);
+  }
+  return { byShort, bySlug };
+}
+function canonIn(index, name2) {
+  const t = name2.trim();
+  const n = /^r(\d+)$/i.exec(t);
+  if (n) return index.byShort.get(Number(n[1])) ?? null;
+  const hits = index.bySlug.get(t) ?? [];
+  return hits.length === 1 ? hits[0] : null;
+}
+
+// js/bridge/orchestra-demands.ts
+var LIMIT3 = 200;
+var MAX_PAGES2 = 50;
+async function get(base, token, path) {
+  const r = await namedFetch(`${base}${path}`, {
+    headers: { authorization: `Bearer ${token}` },
+    redirect: "error",
+    signal: AbortSignal.timeout(1e4)
+  });
+  if (!r.ok) throw new Error(`http_${r.status}`);
+  return object(await r.json());
+}
+function items(body) {
+  if (!Array.isArray(body.items)) throw new Error("invalid_items");
+  return body.items;
+}
+function code(e) {
+  const s2 = e instanceof Error ? e.message : "";
+  return /^(http_\d{3}|invalid_\w+|missing_identifier|pagination_\w+)$/.test(s2) ? s2 : "read_failed";
+}
+async function readDemands(base, token, requested, boundary, gone, owned, invited) {
+  const realms = [...new Set(requested.map((s2) => s2.trim()))];
+  const result = {
+    schema_version: 1,
+    observed_at: (/* @__PURE__ */ new Date()).toISOString(),
+    scope: { realms, orders: "own_account" },
+    start: [],
+    stop: [],
+    complete: true,
+    errors: []
+  };
+  const error = (source, why, realm) => {
+    result.complete = false;
+    result.errors.push({ source, ...realm ? { realm } : {}, code: why });
+  };
+  if (realms.some((r) => !/^@[^/\s]+\/[^/\s]+$/.test(r))) {
+    error("scope", "invalid_realm");
+    return result;
+  }
+  let canonicalBoundary = boundary;
+  if (realms.some((r) => !boundary.includes(r)) && boundary.some((r) => /^r\d+$/i.test(r.trim()))) {
+    if (!base || !token) {
+      error("connection", "unavailable");
+      return result;
+    }
+    try {
+      const index = realmIndexOf(items(await get(base, token, `/realms?limit=${LIMIT3}`)));
+      canonicalBoundary = boundary.map((r) => {
+        if (!/^r\d+$/i.test(r.trim())) return r;
+        const canonical = canonIn(index, r);
+        if (!canonical) throw new Error("invalid_boundary");
+        return canonical;
+      });
+    } catch (e) {
+      error("scope", code(e));
+      return result;
+    }
+  }
+  if (!realms.length || realms.some((r) => !r || !canonicalBoundary.includes(r))) {
+    error("scope", "outside_boundary");
+    return result;
+  }
+  if (!base || !token) {
+    error("connection", "unavailable");
+    return result;
+  }
+  if (invited && (invited.base !== base || invited.token !== token || invited.responses.length !== realms.length || realms.some((realm) => invited.responses.filter((r) => r.realm === realm).length !== 1))) {
+    error("invites", "invalid_snapshot");
+    return result;
+  }
+  for (const realm of realms) {
+    if (gone?.gone) {
+      error("caller", "gone");
+      return result;
+    }
+    try {
+      const body = invited ? object(invited.responses.find((r) => r.realm === realm)?.body) : await get(base, token, `/realms/${encodeURIComponent(realm)}/invites`);
+      const rows = items(body).map((v) => startRow(v, realm));
+      result.start.push(...rows);
+    } catch (e) {
+      error("invites", code(e), realm);
+    }
+  }
+  let since = 0;
+  try {
+    for (let n = 0; n < MAX_PAGES2; n++) {
+      if (gone?.gone) throw new Error("caller_gone");
+      const q = `open=true&limit=${LIMIT3}${since ? `&since=${since}` : ""}`;
+      const body = await get(base, token, `/me/orders?${q}`);
+      const rows = items(body);
+      if (!rows.length) return result;
+      const projected = rows.map((v) => stopRow(v, realms)).filter((v) => v !== null);
+      owned?.push(...rows.map(openOrder));
+      result.stop.push(...projected);
+      const next = body.next_since;
+      if (typeof next !== "number" || !Number.isSafeInteger(next) || next <= since)
+        throw new Error("pagination_stalled");
+      since = next;
+    }
+    throw new Error("pagination_limit");
+  } catch (e) {
+    error("orders", code(e));
+  }
+  return result;
+}
+
+// js/bridge/orchestra-door.ts
+import { chmodSync as chmodSync3, unlinkSync as unlinkSync19 } from "node:fs";
+import { connect as connect4, createServer as createServer4 } from "node:net";
+var w4 = () => words(ORCHESTRA);
+var OPS = ["on", "off", "status", "step", "plan", "demands"];
+var isOrchestraOp = (op) => OPS.includes(op);
+async function listenOrchestraDoor(authDir, serve) {
+  const path = orchestraDoorPath(authDir);
+  if (process.platform !== "win32") {
+    try {
+      unlinkSync19(path);
+    } catch {
+    }
+  }
+  const server = createServer4((socket) => {
+    let buf = "";
+    socket.on("error", () => {
+    });
+    socket.on("data", (chunk) => {
+      buf += chunk;
+      const nl = buf.indexOf("\n");
+      if (nl < 0) return;
+      const line = buf.slice(0, nl);
+      buf = "";
+      let msg = {};
+      try {
+        msg = JSON.parse(line);
+      } catch {
+      }
+      const op = typeof msg.op === "string" ? msg.op : "";
+      const realms = Array.isArray(msg.realms) ? msg.realms.filter((x) => typeof x === "string") : [];
+      if (!isOrchestraOp(op)) {
+        socket.end(JSON.stringify({ ok: false, said: w4().unknownOp(op) }) + "\n");
+        return;
+      }
+      const gone = { gone: false };
+      socket.on("close", () => {
+        gone.gone = true;
+      });
+      void serve(op, realms, gone, { launcher: msg.launcher, consent: msg.consent === true }).then((a) => socket.end(JSON.stringify(a) + "\n")).catch(
+        (e) => socket.end(JSON.stringify({ ok: false, said: w4().doorError(e.message) }) + "\n")
+      );
+    });
+  });
+  await new Promise((resolve15, reject) => {
+    server.once("error", reject);
+    server.listen(path, () => resolve15());
+  });
+  if (process.platform !== "win32") chmodSync3(path, 384);
+  return server;
+}
+function orchestraAsk(authDir, op, realms, timeoutMs = 5e3, extra = {}) {
+  return new Promise((resolve15) => {
+    let settled2 = false;
+    const done = (a) => {
+      if (settled2) return;
+      settled2 = true;
+      socket.destroy();
+      resolve15(a);
+    };
+    const socket = connect4(orchestraDoorPath(authDir, false));
+    socket.setTimeout(timeoutMs, () => done({ ok: false, said: w4().doorSilent() }));
+    socket.on("error", () => done({ ok: false, said: w4().noDaemon() }));
+    socket.on("connect", () => socket.write(JSON.stringify({ op, realms, ...extra }) + "\n"));
+    let buf = "";
+    socket.on("data", (c) => {
+      buf += c;
+      const nl = buf.indexOf("\n");
+      if (nl < 0) return;
+      try {
+        done(JSON.parse(buf.slice(0, nl)));
+      } catch {
+        done({ ok: false, said: w4().doorSilent() });
+      }
+    });
+  });
+}
+
+// js/bridge/orchestra-flag.ts
+import { mkdirSync as mkdirSync21, readFileSync as readFileSync34, writeFileSync as writeFileSync19 } from "node:fs";
+import { join as join33 } from "node:path";
+var ORCHESTRA_ENV = envName("ORCHESTRA");
+var envAdmitted = () => {
+  const v = process.env[ORCHESTRA_ENV]?.trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+};
+var flagFile = (authDir) => join33(seamRunDir(authDir), "orchestra.json");
+function readOrchestraFlag(authDir) {
+  try {
+    const f = JSON.parse(readFileSync34(flagFile(authDir), "utf8"));
+    if (f.on !== true && f.on !== false) return null;
+    if (!Array.isArray(f.realms) || f.realms.some((x) => typeof x !== "string")) return null;
+    const c = f.consent;
+    const consent = f.on && c?.by === "terminal" && typeof c.at === "string" ? { by: "terminal", at: c.at } : void 0;
+    return { on: f.on, realms: f.realms, ...consent ? { consent } : {} };
+  } catch {
+    return null;
+  }
+}
+function writeOrchestraFlag(authDir, flag) {
+  mkdirSync21(seamRunDir(authDir), { recursive: true, mode: 448 });
+  const { on, realms, consent } = flag;
+  writeFileSync19(
+    flagFile(authDir),
+    JSON.stringify({ on, realms, ...consent ? { consent } : {} }) + "\n",
+    {
+      mode: 384
+    }
+  );
+}
+var orchestraAdmitted = (authDir) => envAdmitted() || !!readOrchestraFlag(authDir)?.consent;
+
+// js/bridge/orchestra-launchers.ts
+import { hostname as hostname3 } from "node:os";
+import { isAbsolute as isAbsolute4 } from "node:path";
+
+// js/shared/mcpsession.ts
+var TIMEOUT_MS2 = 8e3;
+var PROTOCOL = "2025-06-18";
+function answers(text7) {
+  const t = text7.trim();
+  if (t.startsWith("{")) return [JSON.parse(t)];
+  return t.split(/\r?\n/).filter((l) => l.startsWith("data:")).flatMap((l) => {
+    try {
+      return [JSON.parse(l.slice(5))];
+    } catch {
+      return [];
+    }
+  });
+}
+function mcpSession(url, token, client = "bridge") {
+  let sid = null;
+  let n = 0;
+  const post3 = async (body) => {
+    const res = await namedFetch(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+        authorization: `Bearer ${token}`,
+        "mcp-protocol-version": PROTOCOL,
+        ...sid ? { "mcp-session-id": sid } : {}
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", ...body }),
+      signal: AbortSignal.timeout(TIMEOUT_MS2)
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    sid = res.headers.get("mcp-session-id") ?? sid;
+    if (!("id" in body)) return null;
+    return answers(await res.text()).find((a) => a.id === body.id) ?? null;
+  };
+  return {
+    open: async () => {
+      const info = { name: client, version: "1" };
+      await post3({
+        id: ++n,
+        method: "initialize",
+        params: { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: info }
+      });
+      await post3({ method: "notifications/initialized" });
+    },
+    call: async (name2, args) => {
+      const a = await post3({ id: ++n, method: "tools/call", params: { name: name2, arguments: args } });
+      if (!a?.result || a.error || a.result.isError) throw new Error("refused");
+      return (a.result.content ?? []).map((c) => c.text ?? "").join("\n");
+    },
+    /** The session ended on the server too (graph @nks/nks-dev, node #9174); a refusal — no matter. */
+    close: async () => {
+      if (!sid) return;
+      const headers2 = { authorization: `Bearer ${token}`, "mcp-session-id": sid };
+      await namedFetch(url, { method: "DELETE", headers: headers2, signal: AbortSignal.timeout(TIMEOUT_MS2) }).then((r) => r.body?.cancel()).catch(() => {
+      });
+    }
+  };
+}
+
+// js/bridge/exec-spec.ts
+var object2 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+var text4 = (v) => typeof v === "string" && v.length > 0 && v === v.trim() && ![...v].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127);
+function parseExec(v, models) {
+  if (!object2(v) || Object.keys(v).some((k) => !["server", "modelRefs"].includes(k))) return null;
+  if (!text4(v.server) || !object2(v.modelRefs)) return null;
+  try {
+    const u = new URL(v.server);
+    if (u.protocol !== "http:" || !["127.0.0.1", "[::1]"].includes(u.hostname) || u.username || u.password || u.search || u.hash || u.pathname !== "/")
+      return null;
+  } catch {
+    return null;
+  }
+  const refs = {};
+  for (const [token, ref] of Object.entries(v.modelRefs)) {
+    if (!models.includes(token) || !object2(ref)) return null;
+    if (Object.keys(ref).some((k) => !["providerID", "id", "variant"].includes(k))) return null;
+    if (!text4(ref.providerID) || !text4(ref.id) || ref.variant !== void 0 && !text4(ref.variant))
+      return null;
+    Object.defineProperty(refs, token, {
+      enumerable: true,
+      value: {
+        providerID: ref.providerID,
+        id: ref.id,
+        ...ref.variant === void 0 ? {} : { variant: ref.variant }
+      }
+    });
+  }
+  if (!models.every((m) => Object.hasOwn(refs, m))) return null;
+  return { server: v.server, modelRefs: refs };
+}
+
 // js/bridge/orchestra-clone.ts
+import { existsSync as existsSync11 } from "node:fs";
+import { homedir as homedir12 } from "node:os";
+import { isAbsolute as isAbsolute3, join as join34 } from "node:path";
 var ALLOW = /^[^\s/:@]+\/[^\s/:@]+$/;
 var SEGMENT = /^[A-Za-z0-9._-]+$/;
 var hostLower = (hostOrg) => {
@@ -13691,7 +14770,7 @@ function parseClone(d) {
   if (d.clone === void 0 || d.clone === false) return null;
   if (d.clone !== true) return { code: "clone_invalid" };
   const raw = typeof d.clone_root === "string" ? d.clone_root.trim() : "";
-  const root = raw === "~" ? homedir11() : raw.startsWith("~/") ? join27(homedir11(), raw.slice(2)) : raw;
+  const root = raw === "~" ? homedir12() : raw.startsWith("~/") ? join34(homedir12(), raw.slice(2)) : raw;
   if (!root || !isAbsolute3(root)) return { code: "clone_root_invalid" };
   const allow = d.allow;
   if (!Array.isArray(allow) || !allow.length || !allow.every((a) => typeof a === "string" && ALLOW.test(a.trim())))
@@ -13705,8 +14784,8 @@ function cloneTarget(policy, repository) {
   const [rawHost, org, repo] = parts;
   const host = rawHost.toLowerCase();
   if (!policy.allow.includes(`${host}/${org}`)) return { code: "clone_refused (not_allowed)" };
-  const parent = join27(policy.root, org);
-  const destination = join27(parent, repo);
+  const parent = join34(policy.root, org);
+  const destination = join34(parent, repo);
   if (existsSync11(destination)) return { code: "clone_refused (destination_exists)" };
   return {
     url: `https://${host}/${org}/${repo}.git`,
@@ -13745,7 +14824,7 @@ function cloneArgv(project, url, parent) {
 
 // js/bridge/orchestra-launchers.ts
 var SLICE = "slice:orchestra";
-var LIMIT3 = 50;
+var LIMIT4 = 50;
 var HANDLE = /^@[^\s:@/]+$/;
 var LAUNCHER_MAX = 64;
 var str2 = (v) => typeof v === "string" && v.trim() !== "";
@@ -13774,6 +14853,11 @@ function parseLauncher(raw) {
     if (!Array.isArray(x.models) || !x.models.every(str2))
       return { code: "harness_invalid", launcher };
     harnesses[name2] = { models: x.models.map((m) => m.trim()) };
+    if (Object.hasOwn(x, "exec")) {
+      const exec = name2 === "opencode" ? parseExec(x.exec, harnesses[name2].models) : null;
+      if (!exec) return { code: "exec_invalid", launcher };
+      harnesses[name2].exec = exec;
+    }
   }
   const checkouts = {};
   const c = d.checkouts ?? {};
@@ -13806,7 +14890,7 @@ function accountOf(address) {
 async function readLaunchers(serverUrl, token) {
   const s2 = mcpSession(serverUrl, token, "orchestra");
   const out7 = { account: "", own: /* @__PURE__ */ new Map(), elsewhere: /* @__PURE__ */ new Map(), refused: [] };
-  const here = hostname2().toLowerCase();
+  const here = hostname3().toLowerCase();
   try {
     await s2.open();
     const me = await s2.call(tool("me"), { action: "whoami" });
@@ -13817,7 +14901,7 @@ async function readLaunchers(serverUrl, token) {
       realm: "mind",
       q: "",
       attrs_filter: SLICE,
-      limit: LIMIT3
+      limit: LIMIT4
     });
     const seqs = [...new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))];
     const mine = [];
@@ -13845,468 +14929,134 @@ async function readLaunchers(serverUrl, token) {
   }
 }
 
-// js/bridge/orchestra-describe.ts
-var w = () => words(ORCHESTRA);
-function launcherSpecOf(v) {
-  const x = v ?? null;
-  if (!x || typeof x !== "object" || typeof x.launcher !== "string" || !x.launcher.trim())
-    return null;
-  const models = Array.isArray(x.models) ? x.models.filter((m) => typeof m === "string" && m.trim() !== "") : [];
-  return {
-    launcher: x.launcher.trim(),
-    models: models.map((m) => m.trim()),
-    ...Number.isSafeInteger(x.limit) ? { limit: x.limit } : {},
-    ...typeof x.host === "string" && x.host.trim() ? { host: x.host.trim() } : {}
-  };
-}
-async function agentsHolon(s2) {
-  const holons = await s2.call(tool("search"), {
-    realm: "mind",
-    q: "",
-    node_type: "holon",
-    limit: 100
-  });
-  const found = [];
-  for (const seq4 of new Set([...holons.matchAll(/\(#(\d+), holon/g)].map((m) => m[1]))) {
-    const cards = await s2.call(tool("search"), {
-      realm: "mind",
-      q: "",
-      context_holon: `#${seq4}`,
-      transitive: false,
-      attrs_filter: "slice:agents",
-      limit: 1
-    });
-    if (/\(#\d+, /.test(cards)) found.push(`#${seq4}`);
-  }
-  return found.length === 1 ? found[0] : "";
-}
-async function ensureLauncher(serverUrl, token, spec) {
-  if (spec.launcher.length > LAUNCHER_MAX)
-    throw new Error(w().describeTooLong(spec.launcher, LAUNCHER_MAX));
-  if (!serverUrl || !token) throw new Error(w().describeFailed(spec.launcher, "no key"));
-  const s2 = mcpSession(serverUrl, token, "orchestra");
-  try {
-    await s2.open();
-    const found = await s2.call(tool("search"), {
-      realm: "mind",
-      q: "",
-      attrs_filter: "slice:orchestra",
-      limit: 50
-    });
-    for (const seq4 of new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))) {
-      const body = await s2.call(tool("look"), { realm: "mind", node_id: `#${seq4}`, raw: true });
-      if (parseLauncher(body).launcher === spec.launcher)
-        return w().describeTaken(spec.launcher, `#${seq4}`);
-    }
-    if (!spec.models.length) throw new Error(w().describeNoModel(spec.launcher));
-    if (spec.limit !== void 0 && spec.limit < 0)
-      throw new Error(w().describeFailed(spec.launcher, "limit"));
-    const holon = await agentsHolon(s2);
-    const description = JSON.stringify({
-      launcher: spec.launcher,
-      ...spec.host ? { host: spec.host } : {},
-      adapter: "orca",
-      limit: spec.limit ?? 1,
-      harnesses: { opencode: { models: spec.models } }
-    });
-    const made = await s2.call(tool("add_phenomenon"), {
-      realm: "mind",
-      name: w().describeName(spec.launcher),
-      given_as: "grundsatz",
-      description,
-      epistemic_mode: "pratyakshita",
-      ontic_mode: "vartamana",
-      volitive_mode: "adhimoksha",
-      attrs: { slice: "orchestra" },
-      ...holon ? { arrows: [{ arrow_type: "context", target: holon, volitive_mode: "adhimoksha" }] } : {},
-      reasoning: w().describeReason()
-    });
-    return w().describeWritten(spec.launcher, /\(#(\d+)/.exec(made)?.[1] ?? "", holon);
-  } catch (e) {
-    const m = e.message;
-    throw new Error(m.includes(spec.launcher) ? m : w().describeFailed(spec.launcher, m), {
-      cause: e
-    });
-  } finally {
-    await s2.close();
-  }
-}
-
-// js/bridge/orchestra-door.ts
-import { chmodSync as chmodSync3, unlinkSync as unlinkSync18 } from "node:fs";
-import { connect as connect4, createServer as createServer4 } from "node:net";
-var w2 = () => words(ORCHESTRA);
-var OPS = ["on", "off", "status", "step", "plan", "demands"];
-var isOrchestraOp = (op) => OPS.includes(op);
-async function listenOrchestraDoor(authDir, serve) {
-  const path = orchestraDoorPath(authDir);
-  if (process.platform !== "win32") {
+// js/bridge/orchestra-cloning.ts
+import { spawn as spawn4 } from "node:child_process";
+import { createHash as createHash11 } from "node:crypto";
+import { mkdirSync as mkdirSync22, realpathSync as realpathSync9 } from "node:fs";
+var CLONE_MS = Number(process.env[envName("ORCHESTRA_CLONE_MS")]) || 6e5;
+var specOf = (launcher) => createHash11("sha256").update(JSON.stringify(launcher)).digest("hex").slice(0, 16);
+var TAIL = 64 * 1024;
+var DRAIN_MS2 = 2e3;
+function answerCode(out7) {
+  for (let at3 = out7.length; at3 > 0; ) {
+    at3 = out7.lastIndexOf("\n{", at3 - 1);
+    const from = at3 < 0 ? 0 : at3 + 1;
     try {
-      unlinkSync18(path);
+      const code2 = JSON.parse(out7.slice(from)).error?.code;
+      return typeof code2 === "string" ? code2 : null;
+    } catch {
+      if (from === 0) return null;
+    }
+  }
+  return null;
+}
+function cloneRun(argv2, ms2) {
+  return new Promise((resolve15) => {
+    const child = spawn4("orca", argv2, {
+      stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true
+    });
+    let out7 = "";
+    const keep = (c) => {
+      out7 = (out7 + c.toString("utf8")).slice(-TAIL);
+    };
+    child.stdout.on("data", keep);
+    let timedOut = false;
+    let drain;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGKILL");
+    }, ms2);
+    let ended = false;
+    const done = (code2) => {
+      if (ended) return;
+      ended = true;
+      clearTimeout(timer);
+      clearTimeout(drain);
+      child.stdout.off("data", keep).resume();
+      if (timedOut) return resolve15("timeout");
+      resolve15(code2 !== 0 && answerCode(out7) === "runtime_timeout" ? "runtime_timeout" : code2);
+    };
+    child.once("error", (e) => done(e.code ?? 1));
+    child.once("close", (code2, signal) => done(code2 ?? signal ?? 1));
+    child.once("exit", (code2, signal) => {
+      if (timedOut) return done(code2 ?? signal ?? 1);
+      clearTimeout(timer);
+      drain = setTimeout(() => done(code2 ?? signal ?? 1), DRAIN_MS2);
+    });
+  });
+}
+var runtimeOver = (row) => row.state === "cloning" && row.runtime === true && Date.now() - Date.parse(row.at) >= CLONE_MS;
+var inflight = /* @__PURE__ */ new Set();
+async function cloneTurn(authDir, policy, spec, repository, gone) {
+  let row = readClones(authDir)[repository];
+  if (inflight.has(repository)) return "cloning";
+  if (row?.state === "cloning" && row.runtime) {
+    if (!runtimeOver(row)) return "cloning";
+    row = { state: "failed", at: (/* @__PURE__ */ new Date()).toISOString(), spec: row.spec, why: "clone_timeout" };
+    writeClone(authDir, repository, row);
+  }
+  if (row?.state === "cloning") {
+    row = { ...row, state: "failed", why: "clone_interrupted" };
+    writeClone(authDir, repository, row);
+  }
+  if (row?.state === "cloned") return "cloned";
+  if (row?.state === "failed" && row.spec === spec) {
+    if (row.told) return `clone_failed_before (${row.why})`;
+    writeClone(authDir, repository, { ...row, told: true });
+    return `clone_failed (${row.why})`;
+  }
+  if (row) writeClone(authDir, repository, null);
+  const target = cloneTarget(policy, repository);
+  if ("code" in target) return target.code;
+  if (!await cloneDeclared()) return "clone_failed (orca_schema_unverified)";
+  let parent;
+  try {
+    mkdirSync22(target.parent, { recursive: true });
+    parent = realpathSync9.native(target.parent);
+  } catch {
+    return "clone_failed (clone_root_unwritable)";
+  }
+  if (gone?.gone) return "gone";
+  inflight.add(repository);
+  const started = (/* @__PURE__ */ new Date()).toISOString();
+  writeClone(authDir, repository, { state: "cloning", at: started, spec });
+  void cloneRun(cloneArgv(target.project, target.url, parent), CLONE_MS).then((code2) => {
+    inflight.delete(repository);
+    const why = code2 === 0 ? void 0 : code2 === "timeout" ? "clone_timeout" : `clone_exit_${code2}`;
+    const at3 = (/* @__PURE__ */ new Date()).toISOString();
+    if (!readClones(authDir)[repository]) return;
+    try {
+      writeClone(
+        authDir,
+        repository,
+        code2 === "runtime_timeout" ? { state: "cloning", at: started, spec, runtime: true } : why ? { state: "failed", at: at3, spec, why } : { state: "cloned", at: at3, spec }
+      );
     } catch {
     }
-  }
-  const server = createServer4((socket) => {
-    let buf = "";
-    socket.on("error", () => {
-    });
-    socket.on("data", (chunk) => {
-      buf += chunk;
-      const nl = buf.indexOf("\n");
-      if (nl < 0) return;
-      const line = buf.slice(0, nl);
-      buf = "";
-      let msg = {};
-      try {
-        msg = JSON.parse(line);
-      } catch {
-      }
-      const op = typeof msg.op === "string" ? msg.op : "";
-      const realms = Array.isArray(msg.realms) ? msg.realms.filter((x) => typeof x === "string") : [];
-      if (!isOrchestraOp(op)) {
-        socket.end(JSON.stringify({ ok: false, said: w2().unknownOp(op) }) + "\n");
-        return;
-      }
-      const gone = { gone: false };
-      socket.on("close", () => {
-        gone.gone = true;
-      });
-      void serve(op, realms, gone, { launcher: msg.launcher, consent: msg.consent === true }).then((a) => socket.end(JSON.stringify(a) + "\n")).catch(
-        (e) => socket.end(JSON.stringify({ ok: false, said: w2().doorError(e.message) }) + "\n")
-      );
-    });
   });
-  await new Promise((resolve14, reject) => {
-    server.once("error", reject);
-    server.listen(path, () => resolve14());
-  });
-  if (process.platform !== "win32") chmodSync3(path, 384);
-  return server;
+  return "cloning";
 }
-function orchestraAsk(authDir, op, realms, timeoutMs = 5e3, extra = {}) {
-  return new Promise((resolve14) => {
-    let settled2 = false;
-    const done = (a) => {
-      if (settled2) return;
-      settled2 = true;
-      socket.destroy();
-      resolve14(a);
-    };
-    const socket = connect4(orchestraDoorPath(authDir, false));
-    socket.setTimeout(timeoutMs, () => done({ ok: false, said: w2().doorSilent() }));
-    socket.on("error", () => done({ ok: false, said: w2().noDaemon() }));
-    socket.on("connect", () => socket.write(JSON.stringify({ op, realms, ...extra }) + "\n"));
-    let buf = "";
-    socket.on("data", (c) => {
-      buf += c;
-      const nl = buf.indexOf("\n");
-      if (nl < 0) return;
-      try {
-        done(JSON.parse(buf.slice(0, nl)));
-      } catch {
-        done({ ok: false, said: w2().doorSilent() });
-      }
-    });
-  });
+function cloneFound(authDir, repository) {
+  if (readClones(authDir)[repository]) writeClone(authDir, repository, null);
 }
-
-// js/bridge/orchestra-flag.ts
-import { mkdirSync as mkdirSync16, readFileSync as readFileSync30, writeFileSync as writeFileSync16 } from "node:fs";
-import { join as join28 } from "node:path";
-var ORCHESTRA_ENV = envName("ORCHESTRA");
-var envAdmitted = () => {
-  const v = process.env[ORCHESTRA_ENV]?.trim().toLowerCase();
-  return v === "1" || v === "true" || v === "yes";
-};
-var flagFile = (authDir) => join28(seamRunDir(authDir), "orchestra.json");
-function readOrchestraFlag(authDir) {
-  try {
-    const f = JSON.parse(readFileSync30(flagFile(authDir), "utf8"));
-    if (f.on !== true && f.on !== false) return null;
-    if (!Array.isArray(f.realms) || f.realms.some((x) => typeof x !== "string")) return null;
-    const c = f.consent;
-    const consent = f.on && c?.by === "terminal" && typeof c.at === "string" ? { by: "terminal", at: c.at } : void 0;
-    return { on: f.on, realms: f.realms, ...consent ? { consent } : {} };
-  } catch {
+function cloneTaken(authDir, repository, spec, found) {
+  if (found) {
+    writeClone(authDir, repository, null);
     return null;
   }
-}
-function writeOrchestraFlag(authDir, flag) {
-  mkdirSync16(seamRunDir(authDir), { recursive: true, mode: 448 });
-  const { on, realms, consent } = flag;
-  writeFileSync16(
-    flagFile(authDir),
-    JSON.stringify({ on, realms, ...consent ? { consent } : {} }) + "\n",
-    {
-      mode: 384
-    }
-  );
-}
-var orchestraAdmitted = (authDir) => envAdmitted() || !!readOrchestraFlag(authDir)?.consent;
-
-// js/bridge/orchestra-foreign.ts
-import { mkdirSync as mkdirSync18, readFileSync as readFileSync32, writeFileSync as writeFileSync18 } from "node:fs";
-import { join as join30 } from "node:path";
-
-// js/bridge/orchestra-quench.ts
-import { createHash as createHash9 } from "node:crypto";
-
-// js/bridge/orchestra-runs.ts
-import { mkdirSync as mkdirSync17, readFileSync as readFileSync31, renameSync as renameSync13, writeFileSync as writeFileSync17 } from "node:fs";
-import { join as join29 } from "node:path";
-var LIVE = ["launched", "raised", "stopping"];
-var runKey = (realm, room, invite) => `${realm}|${room}|${invite}`;
-var file = (authDir) => join29(seamRunDir(authDir), "orchestra-runs.json");
-function readFile(authDir) {
-  try {
-    const f = JSON.parse(readFileSync31(file(authDir), "utf8"));
-    const obj5 = (v) => v && typeof v === "object" ? v : {};
-    return { runs: obj5(f.runs), clones: obj5(f.clones) };
-  } catch {
-    return { runs: {}, clones: {} };
-  }
-}
-function writeFile(authDir, f) {
-  mkdirSync17(seamRunDir(authDir), { recursive: true, mode: 448 });
-  const tmp = `${file(authDir)}.${process.pid}.tmp`;
-  writeFileSync17(tmp, JSON.stringify(f) + "\n", { mode: 384 });
-  renameSync13(tmp, file(authDir));
-}
-var readRuns = (authDir) => readFile(authDir).runs;
-function writeRuns(authDir, runs) {
-  writeFile(authDir, { runs, clones: readFile(authDir).clones });
-}
-var readClones = (authDir) => readFile(authDir).clones;
-function writeClone(authDir, repository, row) {
-  const f = readFile(authDir);
-  if (row) f.clones[repository] = row;
-  else delete f.clones[repository];
-  writeFile(authDir, f);
+  const at3 = (/* @__PURE__ */ new Date()).toISOString();
+  const why = "clone_unregistered";
+  writeClone(authDir, repository, { state: "failed", at: at3, spec, why, told: true });
+  return `clone_failed (${why})`;
 }
 
-// js/bridge/orchestra-quench.ts
-var w3 = () => words(ORCHESTRA);
-var TIMEOUT_MS2 = 1e4;
-var RAISE_WINDOW_MS = Number(process.env[envName("ORCHESTRA_RAISE_WINDOW_MS")]) || 15 * 6e4;
-var stopLapsed = (r, now2 = Date.now()) => now2 - Date.parse(r.stopping_at ?? r.at) > RAISE_WINDOW_MS;
-var idOf4 = (v) => {
-  if (typeof v === "string" && v) return v;
-  const id = v?.id;
-  return typeof id === "string" && id ? id : null;
-};
-function runOf(realm, s2, runs) {
-  const sf = s2.spawned_for ?? {};
-  const invite = Number(sf.invite);
-  const room = idOf4(sf.room) ?? idOf4(s2.room);
-  if (!Number.isSafeInteger(invite) || !room) return null;
-  return runs[runKey(realm, room.toLowerCase(), invite)] ?? runs[runKey(realm, room, invite)] ?? null;
-}
-function foldTape(realm, tape, runs) {
-  for (const s2 of tape) {
-    const run3 = runOf(realm, s2, runs);
-    if (!run3 || run3.state === "ended") continue;
-    const seat2 = idOf4(s2.standing) ?? idOf4(s2.standing_id);
-    if (seat2) run3.standing_id = seat2;
-    if (run3.state === "launched" || run3.state === "no_seat" || run3.state === "refused")
-      run3.state = "raised";
-    const n = Number(s2.n);
-    if (!Number.isFinite(n) || run3.n !== void 0 && n < run3.n) continue;
-    run3.n = n;
-    run3.rooms = Array.isArray(s2.rooms) ? s2.rooms.length : 0;
-    if (run3.rooms > 0) run3.sat = true;
-  }
-}
-async function expireLaunches(runs, gone, close = orcaClose, now2 = Date.now()) {
-  const said2 = [];
-  for (const r of Object.values(runs))
-    if (r.state === "launched" && now2 - Date.parse(r.at) > RAISE_WINDOW_MS) {
-      if (gone?.gone) break;
-      r.state = "no_seat";
-      const closed = !r.terminal ? "no_terminal_handle" : r.runtime ? await close(r.terminal, r.runtime) : "terminal_runtime_unknown";
-      if (r.terminal) r.closed = closed;
-      said2.push(w3().leadRow(r.realm, r.room, r.invite, `no_seat (cause_unseen), ${closed}`));
-    }
-  return said2;
-}
-async function closeEnded(runs, gone, close = orcaClose) {
-  const said2 = [];
-  for (const r of Object.values(runs))
-    if (r.state === "ended" && r.terminal && r.runtime && !r.closed) {
-      if (gone?.gone) break;
-      r.closed = await close(r.terminal, r.runtime);
-      said2.push(w3().leadRow(r.realm, r.room, r.invite, `ended, ${r.closed}`));
-    }
-  return said2;
-}
-function settleStops(runs, open, fresh3 = /* @__PURE__ */ new Set(), now2 = Date.now()) {
-  const said2 = [];
-  const orders = new Set(open.map((s2) => s2.order_id));
-  const seats2 = new Set(open.map((s2) => s2.standing_id));
-  for (const r of Object.values(runs)) {
-    if (r.state !== "stopping" || fresh3.has(r)) continue;
-    const unanswered2 = r.order_id ? orders.has(r.order_id) : seats2.has(r.standing_id ?? "");
-    if (!unanswered2 && r.stop_outcome === "stopped") {
-      r.state = "ended";
-      continue;
-    }
-    if (!stopLapsed(r, now2)) continue;
-    r.state = "ended";
-    r.closed = "terminal_left_open";
-    const outcome = unanswered2 ? "unanswered" : r.stop_outcome ?? "unknown";
-    said2.push(w3().leadRow(r.realm, r.room, r.invite, `stop_${outcome}, ${r.closed}`));
-  }
-  return said2;
-}
-async function order(base, token, r, key3) {
-  const res = await namedFetch(`${base}/standings/${encodeURIComponent(r.standing_id)}/stop`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "x-nks-realm": r.realm,
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({
-      reason_code: "composition_empty",
-      client_id: `orchestra-${createHash9("sha256").update(key3).digest("hex").slice(0, 32)}`
-    }),
-    signal: AbortSignal.timeout(TIMEOUT_MS2)
-  });
-  const body = await res.json().catch(() => ({}));
-  return { status: res.status, id: typeof body.id === "string" ? body.id : "" };
-}
-async function quench(base, token, runs, reread, gone, now2 = Date.now()) {
-  const said2 = [];
-  const due = Object.entries(runs).filter(
-    ([, r]) => r.state === "raised" && r.rooms === 0 && r.standing_id && (r.sat || now2 - Date.parse(r.at) > RAISE_WINDOW_MS)
-  );
-  for (const [key3, r] of due) {
-    if (gone?.gone) break;
-    try {
-      foldTape(r.realm, await reread(r.realm), runs);
-      if (gone?.gone) break;
-      if (r.rooms !== 0) {
-        said2.push(w3().leadRow(r.realm, r.room, r.invite, "composition_changed"));
-        continue;
-      }
-      const got = await order(base, token, r, key3);
-      const why = r.sat ? "" : "no_join, ";
-      if (got.status >= 200 && got.status < 300) {
-        r.state = "stopping";
-        r.stopping_at = new Date(now2).toISOString();
-        if (got.id) r.order_id = got.id;
-        said2.push(w3().leadRow(r.realm, r.room, r.invite, `${why}stop_ordered`));
-      } else if (got.status === 410) {
-        r.state = "ended";
-        said2.push(w3().leadRow(r.realm, r.room, r.invite, `${why}seat_gone`));
-      } else said2.push(w3().leadRow(r.realm, r.room, r.invite, `${why}stop_refused_${got.status}`));
-    } catch (e) {
-      said2.push(w3().leadRow(r.realm, r.room, r.invite, `stop_unsent (${e.message})`));
-    }
-  }
-  return said2;
-}
-
-// js/bridge/orchestra-foreign.ts
-var w4 = () => words(ORCHESTRA);
-var LIMIT4 = 200;
-var MAX_PAGES2 = 50;
-var OPEN = /* @__PURE__ */ new Set(["issued", "accepted"]);
-var SKEW_MS = 6e4;
-var sinceStop = (r, v) => Date.parse(String(v.issued_at ?? "")) >= Date.parse(r.stopping_at ?? r.at) - SKEW_MS;
-var cursorFile = (authDir) => join30(seamRunDir(authDir), "orchestra-orders.json");
-function readSince(authDir) {
-  try {
-    const n = JSON.parse(readFileSync32(cursorFile(authDir), "utf8")).since;
-    return typeof n === "number" && Number.isSafeInteger(n) && n > 0 ? n : 0;
-  } catch {
-    return 0;
-  }
-}
-function writeSince(authDir, since) {
-  mkdirSync18(seamRunDir(authDir), { recursive: true, mode: 448 });
-  writeFileSync18(cursorFile(authDir), JSON.stringify({ since }) + "\n", { mode: 384 });
-}
-async function foreignStops(authDir, base, token, runs) {
-  const said2 = [];
-  const fresh3 = /* @__PURE__ */ new Set();
-  const bySeat = /* @__PURE__ */ new Map();
-  const stopping = /* @__PURE__ */ new Map();
-  let unseated = false;
-  for (const r of Object.values(runs))
-    if (r.state === "launched" || r.state === "raised") {
-      if (r.standing_id) bySeat.set(r.standing_id, r);
-      else unseated = true;
-    } else if (r.state === "stopping" && !r.stop_outcome && !stopLapsed(r))
-      stopping.set(r.order_id ? `o:${r.order_id}` : `s:${r.standing_id ?? ""}`, r);
-  const seen = new Set(Object.values(runs).map((r) => r.standing_id));
-  let since = readSince(authDir);
-  let held2;
-  try {
-    for (let n = 0; n < MAX_PAGES2; n++) {
-      const res = await namedFetch(`${base}/me/orders?limit=${LIMIT4}&since=${since}`, {
-        headers: { authorization: `Bearer ${token}` },
-        redirect: "error",
-        signal: AbortSignal.timeout(1e4)
-      });
-      if (!res.ok) throw new Error(`http_${res.status}`);
-      const body = await res.json();
-      if (!Array.isArray(body.items)) throw new Error("invalid_items");
-      if (!body.items.length) break;
-      for (const v of body.items) {
-        const seat2 = String(v.standing_id ?? "");
-        const run3 = bySeat.get(seat2);
-        const id = typeof v.id === "string" ? v.id : "";
-        const state2 = String(v.state);
-        const open = OPEN.has(state2);
-        if (!run3 && unseated && seat2 && !seen.has(seat2)) held2 ??= since;
-        const bySeatOnly = stopping.get(`s:${seat2}`);
-        const own = stopping.get(`o:${id}`) ?? (bySeatOnly && sinceStop(bySeatOnly, v) ? bySeatOnly : void 0);
-        if (!run3 && own) {
-          if (open) held2 ??= since;
-          else {
-            own.order_id ??= id;
-            own.stop_outcome = state2;
-          }
-          continue;
-        }
-        if (!run3 || !id || id === run3.order_id) continue;
-        bySeat.delete(seat2);
-        run3.order_id = id;
-        const done = state2 === "stopped";
-        run3.state = done ? "ended" : "stopping";
-        if (!done) run3.stopping_at = (/* @__PURE__ */ new Date()).toISOString();
-        if (!open && !done) run3.stop_outcome = state2;
-        if (open) {
-          fresh3.add(run3);
-          held2 ??= since;
-        }
-        said2.push(
-          w4().leadRow(
-            run3.realm,
-            run3.room,
-            run3.invite,
-            open ? "stop_ordered_elsewhere" : done ? "stopped_elsewhere" : `stop_${state2}_elsewhere`
-          )
-        );
-      }
-      const next = body.next_since;
-      if (typeof next !== "number" || !Number.isSafeInteger(next) || next <= since)
-        throw new Error("pagination_stalled");
-      since = next;
-    }
-  } catch (e) {
-    said2.push(w4().leadOrdersUnread(e.message));
-  }
-  writeSince(authDir, held2 ?? since);
-  return { said: said2, fresh: fresh3 };
-}
-
-// js/bridge/orchestra-raise.ts
+// js/bridge/orchestra-raise-gates.ts
 import { existsSync as existsSync12, statSync as statSync8 } from "node:fs";
 
 // js/shared/cover.ts
-import { readFileSync as readFileSync33 } from "node:fs";
-import { join as join31 } from "node:path";
+import { readFileSync as readFileSync35 } from "node:fs";
+import { join as join35 } from "node:path";
 
 // js/shared/coverblock.ts
 var FIELDS = ["graph", "holon", "agent_role", "contract", "stamp"];
@@ -14330,14 +15080,14 @@ var CHILD = new RegExp(String.raw`^\s+${KEY}\s*:(?:\s+(.*))?$`);
 var bare2 = (v) => unquote(
   /^['"]/.test(v.trim()) ? v.trim().replace(/^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*")\s+#.*$/, "$1") : v.replace(/\s+#.*$/, "")
 );
-function fences(text6) {
-  const lines = text6.replace(/^\uFEFF/, "").split(/\r?\n/);
+function fences(text7) {
+  const lines = text7.replace(/^\uFEFF/, "").split(/\r?\n/);
   if (lines[0]?.trim() !== "---") return null;
   const end = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
   return end < 0 ? null : { lines, end };
 }
-function frontMatter(text6) {
-  const f = fences(text6);
+function frontMatter(text7) {
+  const f = fences(text7);
   if (!f) return null;
   const raw = /* @__PURE__ */ new Map();
   let last = null;
@@ -14350,9 +15100,9 @@ ${line.trim()}`);
   }
   return new Map([...raw].map(([k, v]) => [k, unquote(v)]));
 }
-function coverBlocks(text6) {
+function coverBlocks(text7) {
   const blocks = /* @__PURE__ */ new Map();
-  const f = fences(text6);
+  const f = fences(text7);
   let open = null;
   for (const line of f ? f.lines.slice(1, f.end) : []) {
     if (/^\s*(#|$)/.test(line)) continue;
@@ -14364,8 +15114,8 @@ function coverBlocks(text6) {
   }
   return blocks;
 }
-function repeatedKeys(text6) {
-  const f = fences(text6);
+function repeatedKeys(text7) {
+  const f = fences(text7);
   const [seen, twice] = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
   let block = null;
   for (const line of f ? f.lines.slice(1, f.end) : []) {
@@ -14381,9 +15131,9 @@ function repeatedKeys(text6) {
   }
   return [...twice];
 }
-var coverBlock = (text6, root) => coverBlocks(text6).get(root) ?? null;
+var coverBlock = (text7, root) => coverBlocks(text7).get(root) ?? null;
 var stamped = (block) => /^\d+$/.test(block.get("contract") ?? "") && !!block.get("stamp");
-var foreignBlock = (text6, root) => [...coverBlocks(text6)].some(([k, b]) => k !== root && b.has("contract"));
+var foreignBlock = (text7, root) => [...coverBlocks(text7)].some(([k, b]) => k !== root && b.has("contract"));
 var RITUALS2 = ["start", "push", "merge", "guard", "turn"];
 function ritualsOf(block) {
   const field = block?.get("rituals");
@@ -14427,16 +15177,16 @@ function graphOfSlot(value, joins) {
 
 // js/shared/cover.ts
 var formsIn = (pairs, cover) => Object.entries(cover.forms).filter(([, f]) => pairs.has(f.graph) || pairs.has(f.role));
-function stampOf2(text6, cover = COVER) {
-  const block = coverBlock(text6, cover.root);
-  if (block && stamped(block) || Object.values(cover.forms).some((f) => f.stamp.test(text6)))
+function stampOf2(text7, cover = COVER) {
+  const block = coverBlock(text7, cover.root);
+  if (block && stamped(block) || Object.values(cover.forms).some((f) => f.stamp.test(text7)))
     return "own";
   if (block) return null;
-  return foreignBlock(text6, cover.root) || cover.stampShape.test(text6) ? "foreign" : null;
+  return foreignBlock(text7, cover.root) || cover.stampShape.test(text7) ? "foreign" : null;
 }
-function hasCover(text6, cover = COVER) {
-  if (coverBlock(text6, cover.root)) return true;
-  const pairs = frontMatter(text6);
+function hasCover(text7, cover = COVER) {
+  if (coverBlock(text7, cover.root)) return true;
+  const pairs = frontMatter(text7);
   return !!pairs && formsIn(pairs, cover).length > 0;
 }
 function formOf2(pairs, cover = COVER) {
@@ -14495,148 +15245,25 @@ function seatOfPairs(pairs, cover = COVER) {
   return { realm: g.realm, karta: first2[1] };
 }
 function readCover(dir2, cover = COVER) {
-  let text6;
+  let text7;
   try {
-    text6 = readFileSync33(join31(dir2, cover.file), "utf8");
+    text7 = readFileSync35(join35(dir2, cover.file), "utf8");
   } catch {
     return null;
   }
-  if (stampOf2(text6, cover) === "foreign") return { foreign: true };
-  const block = coverBlock(text6, cover.root);
+  if (stampOf2(text7, cover) === "foreign") return { foreign: true };
+  const block = coverBlock(text7, cover.root);
   if (block) return seatOfBlock(block, cover);
-  const pairs = frontMatter(text6);
+  const pairs = frontMatter(text7);
   if (!pairs) return { why: words(ROOT_SEAT).noFrontmatter(cover.file) };
   return seatOfPairs(pairs, cover);
 }
 
-// js/bridge/orchestra-cloning.ts
-import { spawn as spawn4 } from "node:child_process";
-import { createHash as createHash10 } from "node:crypto";
-import { mkdirSync as mkdirSync19, realpathSync as realpathSync5 } from "node:fs";
-var CLONE_MS = Number(process.env[envName("ORCHESTRA_CLONE_MS")]) || 6e5;
-var specOf = (launcher) => createHash10("sha256").update(JSON.stringify(launcher)).digest("hex").slice(0, 16);
-var TAIL = 64 * 1024;
-var DRAIN_MS2 = 2e3;
-function answerCode(out7) {
-  for (let at3 = out7.length; at3 > 0; ) {
-    at3 = out7.lastIndexOf("\n{", at3 - 1);
-    const from = at3 < 0 ? 0 : at3 + 1;
-    try {
-      const code2 = JSON.parse(out7.slice(from)).error?.code;
-      return typeof code2 === "string" ? code2 : null;
-    } catch {
-      if (from === 0) return null;
-    }
-  }
-  return null;
-}
-function cloneRun(argv2, ms2) {
-  return new Promise((resolve14) => {
-    const child = spawn4("orca", argv2, {
-      stdio: ["ignore", "pipe", "ignore"],
-      windowsHide: true
-    });
-    let out7 = "";
-    const keep = (c) => {
-      out7 = (out7 + c.toString("utf8")).slice(-TAIL);
-    };
-    child.stdout.on("data", keep);
-    let timedOut = false;
-    let drain;
-    const timer = setTimeout(() => {
-      timedOut = true;
-      child.kill("SIGKILL");
-    }, ms2);
-    let ended = false;
-    const done = (code2) => {
-      if (ended) return;
-      ended = true;
-      clearTimeout(timer);
-      clearTimeout(drain);
-      child.stdout.off("data", keep).resume();
-      if (timedOut) return resolve14("timeout");
-      resolve14(code2 !== 0 && answerCode(out7) === "runtime_timeout" ? "runtime_timeout" : code2);
-    };
-    child.once("error", (e) => done(e.code ?? 1));
-    child.once("close", (code2, signal) => done(code2 ?? signal ?? 1));
-    child.once("exit", (code2, signal) => {
-      if (timedOut) return done(code2 ?? signal ?? 1);
-      clearTimeout(timer);
-      drain = setTimeout(() => done(code2 ?? signal ?? 1), DRAIN_MS2);
-    });
-  });
-}
-var runtimeOver = (row) => row.state === "cloning" && row.runtime === true && Date.now() - Date.parse(row.at) >= CLONE_MS;
-var inflight = /* @__PURE__ */ new Set();
-async function cloneTurn(authDir, policy, spec, repository, gone) {
-  let row = readClones(authDir)[repository];
-  if (inflight.has(repository)) return "cloning";
-  if (row?.state === "cloning" && row.runtime) {
-    if (!runtimeOver(row)) return "cloning";
-    row = { state: "failed", at: (/* @__PURE__ */ new Date()).toISOString(), spec: row.spec, why: "clone_timeout" };
-    writeClone(authDir, repository, row);
-  }
-  if (row?.state === "cloning") {
-    row = { ...row, state: "failed", why: "clone_interrupted" };
-    writeClone(authDir, repository, row);
-  }
-  if (row?.state === "cloned") return "cloned";
-  if (row?.state === "failed" && row.spec === spec) {
-    if (row.told) return `clone_failed_before (${row.why})`;
-    writeClone(authDir, repository, { ...row, told: true });
-    return `clone_failed (${row.why})`;
-  }
-  if (row) writeClone(authDir, repository, null);
-  const target = cloneTarget(policy, repository);
-  if ("code" in target) return target.code;
-  if (!await cloneDeclared()) return "clone_failed (orca_schema_unverified)";
-  let parent;
-  try {
-    mkdirSync19(target.parent, { recursive: true });
-    parent = realpathSync5.native(target.parent);
-  } catch {
-    return "clone_failed (clone_root_unwritable)";
-  }
-  if (gone?.gone) return "gone";
-  inflight.add(repository);
-  const started = (/* @__PURE__ */ new Date()).toISOString();
-  writeClone(authDir, repository, { state: "cloning", at: started, spec });
-  void cloneRun(cloneArgv(target.project, target.url, parent), CLONE_MS).then((code2) => {
-    inflight.delete(repository);
-    const why = code2 === 0 ? void 0 : code2 === "timeout" ? "clone_timeout" : `clone_exit_${code2}`;
-    const at3 = (/* @__PURE__ */ new Date()).toISOString();
-    if (!readClones(authDir)[repository]) return;
-    try {
-      writeClone(
-        authDir,
-        repository,
-        code2 === "runtime_timeout" ? { state: "cloning", at: started, spec, runtime: true } : why ? { state: "failed", at: at3, spec, why } : { state: "cloned", at: at3, spec }
-      );
-    } catch {
-    }
-  });
-  return "cloning";
-}
-function cloneFound(authDir, repository) {
-  if (readClones(authDir)[repository]) writeClone(authDir, repository, null);
-}
-function cloneTaken(authDir, repository, spec, found) {
-  if (found) {
-    writeClone(authDir, repository, null);
-    return null;
-  }
-  const at3 = (/* @__PURE__ */ new Date()).toISOString();
-  const why = "clone_unregistered";
-  writeClone(authDir, repository, { state: "failed", at: at3, spec, why, told: true });
-  return `clone_failed (${why})`;
-}
-
-// js/bridge/orchestra-raise.ts
-var w5 = () => words(ORCHESTRA);
+// js/bridge/orchestra-raise-gates.ts
+var text5 = (v) => typeof v === "string" && v.trim() ? v.trim() : null;
 var ADAPTER_HARNESSES = /* @__PURE__ */ new Set(["opencode"]);
-var text4 = (v) => typeof v === "string" && v.trim() ? v.trim() : null;
 function refusal2(row, ls, runs) {
-  const launcher = text4(row.launcher);
+  const launcher = text5(row.launcher);
   if (!launcher) return "launcher_missing";
   const own = ls.own.get(launcher);
   if (!own) {
@@ -14648,20 +15275,19 @@ function refusal2(row, ls, runs) {
   const caller = accountOf(row.author);
   if (!caller) return "caller_unknown";
   if (caller !== ls.account && !own.callers.includes(caller)) return "caller_not_allowed";
-  const harness = text4(row.harness);
+  const harness = text5(row.harness);
   if (!harness) return "harness_missing";
   const offer = own.harnesses[harness];
   if (!offer) return "harness_not_offered";
   if (!ADAPTER_HARNESSES.has(harness)) return "harness_unsupported";
-  const model = text4(row.model);
+  const model = text5(row.model);
   if (!model) return "model_missing";
   if (!offer.models.includes(model)) return "model_not_offered";
-  if (!text4(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
+  if (!text5(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
   const live2 = Object.values(runs).filter(
     (r) => r.launcher === launcher && LIVE.includes(r.state)
   ).length;
-  if (live2 >= own.limit) return "limit_reached";
-  return null;
+  return live2 >= own.limit ? "limit_reached" : null;
 }
 function checkoutFor(own, repository, orca) {
   const named2 = own.checkouts[repository];
@@ -14679,15 +15305,61 @@ async function coverRefusal(worktree, realm, karta, canon2) {
   if (!graph) return "checkout_cover_unresolved";
   return graph === realm ? null : "checkout_other_seat";
 }
+
+// js/bridge/orchestra-start.ts
+async function startRun(authDir, row, own, repository, worktree, runs, key3, gone) {
+  const run3 = {
+    realm: String(row.realm),
+    room: String(row.room),
+    invite: Number(row.invite),
+    karta: Number(row.karta),
+    launcher: own.launcher,
+    harness: String(row.harness).trim(),
+    model: String(row.model).trim(),
+    repository,
+    worktree,
+    state: "launched",
+    at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  const prompt = `spawned_for: ${JSON.stringify({ invite: run3.invite, room: run3.room })}
+` + words(ORCHESTRA).brief(run3.realm, run3.karta, run3.room, run3.invite);
+  const exec = own.harnesses[run3.harness].exec;
+  runs[key3] = run3;
+  if (exec) {
+    let outcome;
+    try {
+      outcome = await launchExec(authDir, runs, key3, own.host, exec, prompt, void 0, gone);
+    } catch {
+      outcome = "exec_preflight_or_prepare_failed";
+      if (run3.exec) {
+        run3.state = "ambiguity";
+        writeRuns(authDir, runs);
+      }
+    }
+    if (!run3.exec) delete runs[key3];
+    return outcome;
+  }
+  writeRuns(authDir, runs);
+  const got = await orcaLaunch(launchArgv(run3.harness, run3.worktree, run3.model, prompt));
+  if (got.handle) run3.terminal = got.handle;
+  if (got.runtime) run3.runtime = got.runtime;
+  if (got.outcome === "failed") {
+    run3.state = "refused";
+    run3.why = got.why;
+  } else if (got.why) run3.why = got.why;
+  writeRuns(authDir, runs);
+  return got.outcome === "failed" ? got.why : `launched${got.why ? ` (${got.why})` : ""}`;
+}
+
+// js/bridge/orchestra-raise.ts
+var w5 = () => words(ORCHESTRA);
 async function raiseRows(authDir, start, ls, runs, canon2, gone) {
   const said2 = [];
   let ready;
   let orca;
   for (const row of start) {
     if (gone?.gone) break;
-    const realm = String(row.realm);
-    const room = String(row.room);
-    const invite = Number(row.invite);
+    const realm = String(row.realm), room = String(row.room), invite = Number(row.invite);
     const key3 = runKey(realm, room, invite);
     if (runs[key3]) continue;
     const why = refusal2(row, ls, runs);
@@ -14701,6 +15373,14 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
       continue;
     }
     const own = ls.own.get(String(row.launcher).trim());
+    if (own.harnesses[String(row.harness).trim()].exec && !execHost(own.host)) {
+      said2.push(w5().leadRow(realm, room, invite, "exec_host_unverified"));
+      continue;
+    }
+    if (own.harnesses[String(row.harness).trim()].exec && !await execRuntime()) {
+      said2.push(w5().leadRow(realm, room, invite, "exec_runtime_unverified"));
+      continue;
+    }
     const repository = String(row.repository).trim();
     orca = orca === void 0 ? await orcaCheckouts() : orca;
     const find = () => checkoutFor(
@@ -14734,37 +15414,12 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
       continue;
     }
     if (gone?.gone) break;
-    const run3 = {
-      realm,
-      room,
-      invite,
-      karta: Number(row.karta),
-      launcher: own.launcher,
-      harness: String(row.harness).trim(),
-      model: String(row.model).trim(),
-      repository,
-      worktree,
-      state: "launched",
-      at: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    runs[key3] = run3;
-    writeRuns(authDir, runs);
-    const prompt = `spawned_for: ${JSON.stringify({ invite, room })}
-` + w5().brief(realm, run3.karta, room, invite);
-    const got = await orcaLaunch(launchArgv(run3.harness, run3.worktree, run3.model, prompt));
-    if (got.handle) run3.terminal = got.handle;
-    if (got.runtime) run3.runtime = got.runtime;
-    if (got.outcome === "failed") {
-      run3.state = "refused";
-      run3.why = got.why;
-    } else if (got.why) run3.why = got.why;
-    writeRuns(authDir, runs);
     said2.push(
       w5().leadRow(
         realm,
         room,
         invite,
-        got.outcome === "failed" ? got.why : `launched${got.why ? ` (${got.why})` : ""}`
+        await startRun(authDir, row, own, repository, worktree, runs, key3, gone)
       )
     );
   }
@@ -14772,15 +15427,15 @@ async function raiseRows(authDir, start, ls, runs, canon2, gone) {
 }
 
 // js/bridge/orchestra-tact.ts
-import { mkdirSync as mkdirSync20, readFileSync as readFileSync34, writeFileSync as writeFileSync19 } from "node:fs";
-import { join as join32 } from "node:path";
+import { mkdirSync as mkdirSync23, readFileSync as readFileSync36, writeFileSync as writeFileSync20 } from "node:fs";
+import { join as join36 } from "node:path";
 var w6 = () => words(ORCHESTRA);
 var LIMIT5 = 200;
 var TIMEOUT_MS3 = 1e4;
-var cursorsFile = (authDir) => join32(seamRunDir(authDir), "orchestra-cursors.json");
+var cursorsFile = (authDir) => join36(seamRunDir(authDir), "orchestra-cursors.json");
 function readTactState(authDir) {
   try {
-    const f = JSON.parse(readFileSync34(cursorsFile(authDir), "utf8"));
+    const f = JSON.parse(readFileSync36(cursorsFile(authDir), "utf8"));
     if (f && typeof f === "object" && f.realms && typeof f.realms === "object") return f;
   } catch {
   }
@@ -14789,9 +15444,10 @@ function readTactState(authDir) {
 function tactStateOf(authDir) {
   return readTactState(authDir);
 }
-async function getJson(base, token, path) {
+async function getJson(base, token, path, redirect) {
   const res = await namedFetch(`${base}${path}`, {
     headers: { authorization: `Bearer ${token}` },
+    redirect,
     signal: AbortSignal.timeout(TIMEOUT_MS3)
   });
   if (!res.ok) throw new Error(String(res.status));
@@ -14843,9 +15499,13 @@ async function readTape(base, token, realm, since) {
   return tape;
 }
 async function readRealm(base, token, realm, since) {
-  const invited = itemsOf(
-    await getJson(base, token, `/realms/${encodeURIComponent(realm)}/invites`)
+  const inviteResponse = await getJson(
+    base,
+    token,
+    `/realms/${encodeURIComponent(realm)}/invites`,
+    "error"
   );
+  const invited = itemsOf(inviteResponse);
   if (!invited) throw new Error("invites: not a list");
   const q = new URLSearchParams({ limit: String(LIMIT5) });
   if (since) q.set("since", since);
@@ -14857,7 +15517,13 @@ async function readRealm(base, token, realm, since) {
   const tape = itemsOf(raised);
   if (!tape) throw new Error("raised: not a list");
   const cursor = typeof raised.cursor === "string" && raised.cursor ? raised.cursor : since ?? null;
-  return { realm, invites: invited.length, signals: tape, cursor };
+  return {
+    realm,
+    invites: invited.length,
+    inviteResponse,
+    signals: tape,
+    cursor
+  };
 }
 function causesOf(signals) {
   const counts = /* @__PURE__ */ new Map();
@@ -14893,7 +15559,11 @@ async function stepTact(authDir, base, token, realms, gone, act) {
     }
   }
   if (gone?.gone) return { ok: false, said: w6().stepGone() };
-  const lead = act ? await act(reads, boundary, gone) : { said: [] };
+  const lead = act ? await act(reads, boundary, gone, {
+    base,
+    token: token ?? "",
+    responses: reads.map((r) => ({ realm: r.realm, body: r.inviteResponse }))
+  }) : { said: [] };
   state2.lead = lead.said.join("; ");
   const left2 = gone?.gone === true;
   const at3 = (/* @__PURE__ */ new Date()).toISOString();
@@ -14906,8 +15576,8 @@ async function stepTact(authDir, base, token, realms, gone, act) {
         signals: r.signals.length
       };
   try {
-    mkdirSync20(seamRunDir(authDir), { recursive: true, mode: 448 });
-    writeFileSync19(cursorsFile(authDir), JSON.stringify(state2) + "\n", { mode: 384 });
+    mkdirSync23(seamRunDir(authDir), { recursive: true, mode: 448 });
+    writeFileSync20(cursorsFile(authDir), JSON.stringify(state2) + "\n", { mode: 384 });
   } catch (e) {
     return { ok: false, said: w6().doorError(e.message) };
   }
@@ -14924,14 +15594,14 @@ ${w6().lead(state2.lead)}` : "")
 // js/bridge/orchestra-lead.ts
 var w7 = () => words(ORCHESTRA);
 function leadAct(authDir, base, token, mcpUrl, admitted) {
-  return async (reads, boundary, gone) => admitted ? { said: await lead(reads, boundary, gone) } : { said: [w7().leadNotAdmitted()], hold: true };
-  async function lead(reads, boundary, gone) {
+  return async (reads, boundary, gone, invited) => admitted ? { said: await lead(reads, boundary, gone, invited) } : { said: [w7().leadNotAdmitted()], hold: true };
+  async function lead(reads, boundary, gone, invited) {
     const runs = readRuns(authDir);
     for (const r of reads) foldTape(r.realm, r.signals, runs);
     const said2 = [];
     try {
       const owned = [];
-      const demands = await readDemands(base, token, boundary, boundary, void 0, owned);
+      const demands = await readDemands(base, token, boundary, boundary, void 0, owned, invited);
       if (!demands.complete) {
         said2.push(
           w7().leadIncomplete(demands.errors.map((e) => `${e.source}:${e.code}`).join(", "))
@@ -14952,6 +15622,7 @@ function leadAct(authDir, base, token, mcpUrl, admitted) {
           gone
         )
       );
+      syncClosed(runs, readRuns(authDir));
       said2.push(...await closeEnded(runs, gone));
       if (gone?.gone) return said2;
       let launchers;
@@ -15057,20 +15728,153 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary) {
       state: "launched",
       at: (/* @__PURE__ */ new Date()).toISOString()
     };
-    say3(w8().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w8().planBrief())].join(" ")));
+    if (own.harnesses[harness].exec) {
+      say3(
+        w8().planLaunch(
+          [
+            ORCA,
+            "terminal",
+            "create",
+            "--worktree",
+            `path:${worktree}`,
+            "--command",
+            "<runtime-local prepare; API create/prompt; exec opencode --server --session>",
+            "(exec_preflight_required)"
+          ].join(" ")
+        )
+      );
+    } else
+      say3(
+        w8().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w8().planBrief())].join(" "))
+      );
   }
   return { ok: true, said: w8().plan(rows.join("\n")) };
 }
 
-// js/bridge/orchestra.ts
+// js/bridge/orchestra-describe.ts
 var w9 = () => words(ORCHESTRA);
-var orchestraLeading = (authDir) => orchestraAdmitted(authDir) && readOrchestraFlag(authDir)?.on === true;
+function launcherSpecOf(v) {
+  const x = v ?? null;
+  if (!x || typeof x !== "object" || typeof x.launcher !== "string" || !x.launcher.trim())
+    return null;
+  const models = Array.isArray(x.models) ? x.models.filter((m) => typeof m === "string" && m.trim() !== "") : [];
+  return {
+    launcher: x.launcher.trim(),
+    models: models.map((m) => m.trim()),
+    ...Number.isSafeInteger(x.limit) ? { limit: x.limit } : {},
+    ...typeof x.host === "string" && x.host.trim() ? { host: x.host.trim() } : {}
+  };
+}
+async function agentsHolon(s2) {
+  const holons = await s2.call(tool("search"), {
+    realm: "mind",
+    q: "",
+    node_type: "holon",
+    limit: 100
+  });
+  const found = [];
+  for (const seq4 of new Set([...holons.matchAll(/\(#(\d+), holon/g)].map((m) => m[1]))) {
+    const cards = await s2.call(tool("search"), {
+      realm: "mind",
+      q: "",
+      context_holon: `#${seq4}`,
+      transitive: false,
+      attrs_filter: "slice:agents",
+      limit: 1
+    });
+    if (/\(#\d+, /.test(cards)) found.push(`#${seq4}`);
+  }
+  return found.length === 1 ? found[0] : "";
+}
+async function ensureLauncher(serverUrl, token, spec) {
+  if (spec.launcher.length > LAUNCHER_MAX)
+    throw new Error(w9().describeTooLong(spec.launcher, LAUNCHER_MAX));
+  if (!serverUrl || !token) throw new Error(w9().describeFailed(spec.launcher, "no key"));
+  const s2 = mcpSession(serverUrl, token, "orchestra");
+  try {
+    await s2.open();
+    const found = await s2.call(tool("search"), {
+      realm: "mind",
+      q: "",
+      attrs_filter: "slice:orchestra",
+      limit: 50
+    });
+    for (const seq4 of new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))) {
+      const body = await s2.call(tool("look"), { realm: "mind", node_id: `#${seq4}`, raw: true });
+      if (parseLauncher(body).launcher === spec.launcher)
+        return w9().describeTaken(spec.launcher, `#${seq4}`);
+    }
+    if (!spec.models.length) throw new Error(w9().describeNoModel(spec.launcher));
+    if (spec.limit !== void 0 && spec.limit < 0)
+      throw new Error(w9().describeFailed(spec.launcher, "limit"));
+    const holon = await agentsHolon(s2);
+    const description = JSON.stringify({
+      launcher: spec.launcher,
+      ...spec.host ? { host: spec.host } : {},
+      adapter: "orca",
+      limit: spec.limit ?? 1,
+      harnesses: { opencode: { models: spec.models } }
+    });
+    const made = await s2.call(tool("add_phenomenon"), {
+      realm: "mind",
+      name: w9().describeName(spec.launcher),
+      given_as: "grundsatz",
+      description,
+      epistemic_mode: "pratyakshita",
+      ontic_mode: "vartamana",
+      volitive_mode: "adhimoksha",
+      attrs: { slice: "orchestra" },
+      ...holon ? { arrows: [{ arrow_type: "context", target: holon, volitive_mode: "adhimoksha" }] } : {},
+      reasoning: w9().describeReason()
+    });
+    return w9().describeWritten(spec.launcher, /\(#(\d+)/.exec(made)?.[1] ?? "", holon);
+  } catch (e) {
+    const m = e.message;
+    throw new Error(m.includes(spec.launcher) ? m : w9().describeFailed(spec.launcher, m), {
+      cause: e
+    });
+  } finally {
+    await s2.close();
+  }
+}
+
+// js/bridge/orchestra-switch.ts
+async function switchOrchestra(authDir, net, op, realms, extra) {
+  const w12 = words(ORCHESTRA);
+  if (op === "off") {
+    writeOrchestraFlag(authDir, { on: false, realms: [] });
+    net?.changed?.();
+    return { ok: true, said: w12.off() };
+  }
+  const prior = readOrchestraFlag(authDir);
+  const terminal = extra?.consent === true;
+  const widens = realms.some((r) => !(prior?.on ? prior.realms : []).includes(r));
+  if (!envAdmitted() && !terminal && (!prior?.consent || widens))
+    return { ok: false, said: w12.notAdmitted() };
+  const short2 = realms.filter((r) => /^r\d+$/i.test(r.trim()));
+  if (short2.length) return { ok: false, said: w12.onShortRealm(short2.join(", ")) };
+  const spec = launcherSpecOf(extra?.launcher);
+  let described = "";
+  if (spec)
+    try {
+      described = await ensureLauncher(net?.mcp?.() ?? "", net?.token() ?? null, spec);
+    } catch (e) {
+      return { ok: false, said: e.message };
+    }
+  const named2 = [.../* @__PURE__ */ new Set([...prior?.on ? prior.realms : [], ...realms])];
+  const consent = terminal ? { by: "terminal", at: (/* @__PURE__ */ new Date()).toISOString() } : prior?.consent;
+  writeOrchestraFlag(authDir, { on: true, realms: named2, ...consent ? { consent } : {} });
+  net?.changed?.();
+  return { ok: true, said: [described, w12.on(named2.join(", "))].filter(Boolean).join("\n") };
+}
+
+// js/bridge/orchestra-watch.ts
 var TACT_MS = Number(process.env[envName("ORCHESTRA_TACT_MS")]) || 6e4;
-async function openOrchestra(authDir, serve, paused, say3) {
+async function openOrchestraWatch(authDir, serve, paused, say3, active) {
   const door = await listenOrchestraDoor(authDir, serve);
   let busy = false;
   setInterval(() => {
-    if (busy || paused() || !orchestraLeading(authDir)) return;
+    if (busy || paused() || !active()) return;
     busy = true;
     void serve("step", []).then(
       (a) => say3(`orchestra tact: ${a.said.replace(/\n/g, " · ")}`),
@@ -15079,8 +15883,26 @@ async function openOrchestra(authDir, serve, paused, say3) {
   }, TACT_MS).unref();
   return door;
 }
+
+// js/bridge/orchestra.ts
+var w10 = () => words(ORCHESTRA);
+var orchestraLeading = (authDir) => execPending(authDir) || orchestraAdmitted(authDir) && readOrchestraFlag(authDir)?.on === true;
+async function openOrchestra(authDir, serve, paused, say3) {
+  return openOrchestraWatch(authDir, serve, paused, say3, () => orchestraLeading(authDir));
+}
 function orchestraServe(authDir, net) {
   let tacting = Promise.resolve();
+  let observing = false;
+  setInterval(() => {
+    if (observing || !execPending(authDir)) return;
+    observing = true;
+    const next = tacting.then(() => observeExec(authDir, net?.base() ?? "", net?.token() ?? null));
+    tacting = next.catch(() => {
+    });
+    void next.catch(() => process.stderr.write("exec_observer_failed\n")).finally(() => {
+      observing = false;
+    });
+  }, 5e3).unref();
   const step = (gone) => {
     const next = tacting.then(() => stepOnce(gone));
     tacting = next.catch(() => {
@@ -15089,14 +15911,14 @@ function orchestraServe(authDir, net) {
   };
   const stepOnce = async (gone) => {
     const flag = readOrchestraFlag(authDir);
-    if (!flag?.on) return { ok: true, said: w9().stepEmpty() };
+    if (!flag?.on) return { ok: true, said: w10().stepEmpty() };
     const n = net ?? {
       base: () => "",
       token: () => null,
       realms: () => []
     };
     const boundary = [.../* @__PURE__ */ new Set([...flag.realms, ...n.realms?.() ?? []])];
-    if (!boundary.length) return { ok: true, said: w9().stepEmpty() };
+    if (!boundary.length) return { ok: true, said: w10().stepEmpty() };
     const base = n.base();
     const token = n.token();
     const act = base && token ? leadAct(authDir, base, token, n.mcp?.() ?? "", orchestraAdmitted(authDir)) : void 0;
@@ -15115,33 +15937,7 @@ function orchestraServe(authDir, net) {
       );
       return { ok: demands.complete, said: "", demands };
     }
-    if (op === "on") {
-      const prior = readOrchestraFlag(authDir);
-      const terminal = extra?.consent === true;
-      const widens = realms.some((r) => !(prior?.on ? prior.realms : []).includes(r));
-      if (!envAdmitted() && !terminal && (!prior?.consent || widens))
-        return { ok: false, said: w9().notAdmitted() };
-      const short2 = realms.filter((r) => /^r\d+$/i.test(r.trim()));
-      if (short2.length) return { ok: false, said: w9().onShortRealm(short2.join(", ")) };
-      const spec = launcherSpecOf(extra?.launcher);
-      let described = "";
-      if (spec)
-        try {
-          described = await ensureLauncher(net?.mcp?.() ?? "", net?.token() ?? null, spec);
-        } catch (e) {
-          return { ok: false, said: e.message };
-        }
-      const named3 = [.../* @__PURE__ */ new Set([...prior?.on ? prior.realms : [], ...realms])];
-      const consent = terminal ? { by: "terminal", at: (/* @__PURE__ */ new Date()).toISOString() } : prior?.consent;
-      writeOrchestraFlag(authDir, { on: true, realms: named3, ...consent ? { consent } : {} });
-      net?.changed?.();
-      return { ok: true, said: [described, w9().on(named3.join(", "))].filter(Boolean).join("\n") };
-    }
-    if (op === "off") {
-      writeOrchestraFlag(authDir, { on: false, realms: [] });
-      net?.changed?.();
-      return { ok: true, said: w9().off() };
-    }
+    if (op === "on" || op === "off") return switchOrchestra(authDir, net, op, realms, extra);
     if (op === "step") return step(gone);
     if (op === "plan") {
       const flag2 = readOrchestraFlag(authDir);
@@ -15158,16 +15954,16 @@ function orchestraServe(authDir, net) {
     const flag = readOrchestraFlag(authDir);
     const tact = tactStateOf(authDir);
     const lines = Object.entries(tact.realms).map(
-      ([realm, t]) => w9().tactOut(realm, t.invites, t.signals, t.cursor ?? "", t.at)
+      ([realm, t]) => w10().tactOut(realm, t.invites, t.signals, t.cursor ?? "", t.at)
     );
     for (const [repo, c] of Object.entries(readClones(authDir)))
-      lines.push(w9().cloneOut(repo, c.state, c.why ?? "", c.at));
-    if (tact.lead) lines.push(w9().lead(tact.lead));
+      lines.push(w10().cloneOut(repo, c.state, c.why ?? "", c.at));
+    if (tact.lead) lines.push(w10().lead(tact.lead));
     const named2 = flag?.realms ?? [];
     const found = [...new Set(net?.realms?.() ?? [])].filter((r) => !named2.includes(r));
     return {
       ok: true,
-      said: w9().status(!!flag?.on, named2.join(", "), found.join(", "), lines.join("; "))
+      said: w10().status(!!flag?.on, named2.join(", "), found.join(", "), lines.join("; "))
     };
   };
 }
@@ -15185,22 +15981,22 @@ function boardHeaders() {
   ];
 }
 function missWord(m, of) {
-  const w11 = words(STAND_MISS);
+  const w12 = words(STAND_MISS);
   switch (m.why) {
     case "none":
-      return w11.none();
+      return w12.none();
     case "args":
-      return w11.args(m.args.join(", "));
+      return w12.args(m.args.join(", "));
     case "name":
-      return w11.name(m.asked, m.held);
+      return w12.name(m.asked, m.held);
     case "satellite":
-      return w11.satellite(of ?? "?");
+      return w12.satellite(of ?? "?");
     case "cwd":
-      return w11.cwd(m.cwd);
+      return w12.cwd(m.cwd);
     case "parked":
-      return w11.parked();
+      return w12.parked();
     case "elsewhere":
-      return w11.elsewhere();
+      return w12.elsewhere();
   }
 }
 var needRealmKarta = (miss, of) => sw2().needRealmKarta(miss ? ` ${missWord(miss, of)}` : "");
@@ -15350,14 +16146,14 @@ async function knock(k) {
 
 // js/bridge/orderjournal.ts
 import {
-  mkdirSync as mkdirSync21,
+  mkdirSync as mkdirSync24,
   readdirSync as readdirSync13,
-  readFileSync as readFileSync35,
+  readFileSync as readFileSync37,
   renameSync as renameSync14,
-  unlinkSync as unlinkSync19,
-  writeFileSync as writeFileSync20
+  unlinkSync as unlinkSync20,
+  writeFileSync as writeFileSync21
 } from "node:fs";
-import { join as join33 } from "node:path";
+import { join as join37 } from "node:path";
 var ANSWER_WINDOW_MS = 6e4;
 var RESTARTED = "bridge_restarted";
 var alive5 = (pid) => {
@@ -15371,14 +16167,14 @@ var alive5 = (pid) => {
   }
 };
 var KEEP_MS = 24 * 36e5;
-var dir = () => join33(CFG.authDir, "orders");
+var dir = () => join37(CFG.authDir, "orders");
 var SAFE = /^[A-Za-z0-9_-]{1,80}$/;
-var fileOf = (id) => SAFE.test(id) ? join33(dir(), `${id}.json`) : null;
+var fileOf = (id) => SAFE.test(id) ? join37(dir(), `${id}.json`) : null;
 function readOrder(id) {
   const f = fileOf(id);
   if (!f) return null;
   try {
-    return JSON.parse(readFileSync35(f, "utf8"));
+    return JSON.parse(readFileSync37(f, "utf8"));
   } catch {
     return null;
   }
@@ -15387,9 +16183,9 @@ function writeOrder(e) {
   const f = fileOf(e.id);
   if (!f) return false;
   try {
-    mkdirSync21(dir(), { recursive: true, mode: 448 });
+    mkdirSync24(dir(), { recursive: true, mode: 448 });
     const tmp = `${f}.tmp-${process.pid}`;
-    writeFileSync20(tmp, JSON.stringify(e), { mode: 384 });
+    writeFileSync21(tmp, JSON.stringify(e), { mode: 384 });
     renameSync14(tmp, f);
     return true;
   } catch {
@@ -15401,10 +16197,10 @@ var settled = (id) => {
   const e = readOrder(id);
   return !!e && isTerminal(e.state);
 };
-var sincePath = () => join33(dir(), "since");
+var sincePath = () => join37(dir(), "since");
 function readSince2(base) {
   try {
-    const n = JSON.parse(readFileSync35(sincePath(), "utf8"))[base];
+    const n = JSON.parse(readFileSync37(sincePath(), "utf8"))[base];
     return typeof n === "number" && Number.isInteger(n) && n > 0 ? n : 0;
   } catch {
     return 0;
@@ -15413,13 +16209,13 @@ function readSince2(base) {
 function writeSince2(base, seq4) {
   let all2 = {};
   try {
-    all2 = JSON.parse(readFileSync35(sincePath(), "utf8"));
+    all2 = JSON.parse(readFileSync37(sincePath(), "utf8"));
   } catch {
   }
   try {
-    mkdirSync21(dir(), { recursive: true, mode: 448 });
+    mkdirSync24(dir(), { recursive: true, mode: 448 });
     const tmp = `${sincePath()}.tmp-${process.pid}`;
-    writeFileSync20(tmp, JSON.stringify({ ...all2, [base]: seq4 }), { mode: 384 });
+    writeFileSync21(tmp, JSON.stringify({ ...all2, [base]: seq4 }), { mode: 384 });
     renameSync14(tmp, sincePath());
   } catch {
   }
@@ -15438,7 +16234,7 @@ function unanswered(now2 = Date.now()) {
     if (!e) continue;
     if (e.acked && now2 - e.at > KEEP_MS) {
       try {
-        unlinkSync19(join33(dir(), n));
+        unlinkSync20(join37(dir(), n));
       } catch {
       }
       continue;
@@ -15670,9 +16466,9 @@ var brief = (s2) => {
 };
 async function mindSlice(call, options = {}) {
   const W4 = words(MIND_SLICE);
-  const unread = (text6) => {
-    if (options.strict) throw new Error(brief(text6));
-    return W4.unread(brief(text6));
+  const unread = (text7) => {
+    if (options.strict) throw new Error(brief(text7));
+    return W4.unread(brief(text7));
   };
   try {
     const ready = await call(tool("me"), { action: "readiness" });
@@ -15748,24 +16544,24 @@ async function stopGuard(msg, run3) {
     if (word3) left2.push(word3);
   }
   forgetSeat(stop);
-  const text6 = [stop, ...left2].join("\n");
+  const text7 = [stop, ...left2].join("\n");
   return {
     jsonrpc: "2.0",
     id: msg.id,
-    result: { isError: true, content: [{ type: "text", text: text6 }] }
+    result: { isError: true, content: [{ type: "text", text: text7 }] }
   };
 }
 async function registerRefused(r, realm, taken2, prior, addr, cleanupFresh = false, claimFailed = false) {
-  const text6 = short(r.text);
-  if (!taken2) return refusedWord("register", r, realm, sw2().takenButRegister(text6));
+  const text7 = short(r.text);
+  if (!taken2) return refusedWord("register", r, realm, sw2().takenButRegister(text7));
   if (!prior && cleanupFresh) {
     const refusal4 = refusedWord("register", r, realm);
     const left3 = await dropTaken(taken2);
     return left3 ? `${refusal4}
 ${left3}` : refusal4;
   }
-  if (!prior) return refusedWord("register", r, realm, sw2().takenButRegister(text6));
-  const refusal3 = refusedWord("register", r, realm, sw2().refused("register", text6));
+  if (!prior) return refusedWord("register", r, realm, sw2().takenButRegister(text7));
+  const refusal3 = refusedWord("register", r, realm, sw2().refused("register", text7));
   if (stoppedInMove()) return refusal3;
   const left2 = await dropTaken(taken2);
   if (left2) return `${refusal3}
@@ -15789,25 +16585,25 @@ ${back.isError ? `${word3} register: ${short(back.text, 160)}` : word3}`;
 var STAND_TOOL_NAME = tool("stand");
 var str3 = (description) => ({ type: "string", description });
 var standTool = () => {
-  const w11 = words(STAND_TOOL);
+  const w12 = words(STAND_TOOL);
   return {
     name: STAND_TOOL_NAME,
-    description: w11.description(),
+    description: w12.description(),
     inputSchema: {
       type: "object",
       properties: {
-        realm: str3(w11.realm()),
-        karta: str3(w11.karta()),
-        name: str3(w11.name()),
-        room: str3(w11.room()),
-        model: str3(w11.model()),
-        mute_siblings: { type: "boolean", description: w11.muteSiblings() },
-        take: { type: "boolean", description: w11.take() },
-        room_karta: str3(w11.roomKarta()),
-        repeat_knock: { type: "boolean", description: w11.repeatKnock() },
-        satellite_of: str3(w11.satelliteOf()),
-        status: str3(w11.status()),
-        cwd: str3(w11.cwd()),
+        realm: str3(w12.realm()),
+        karta: str3(w12.karta()),
+        name: str3(w12.name()),
+        room: str3(w12.room()),
+        model: str3(w12.model()),
+        mute_siblings: { type: "boolean", description: w12.muteSiblings() },
+        take: { type: "boolean", description: w12.take() },
+        room_karta: str3(w12.roomKarta()),
+        repeat_knock: { type: "boolean", description: w12.repeatKnock() },
+        satellite_of: str3(w12.satelliteOf()),
+        status: str3(w12.status()),
+        cwd: str3(w12.cwd()),
         spawned_for: spawnedForSchema(words(SPAWNED_FOR).schema()),
         context_restored: { type: "boolean", description: words(CONTEXT_GATE).field }
       },
@@ -16125,8 +16921,8 @@ async function standAs(id, place, cwd) {
       params: { name: tool("stand"), arguments: { realm, karta: String(karta), name: name2, ...where } }
     })
   );
-  const text6 = (r.result?.content ?? []).map((c) => c.text ?? "");
-  return { ok: !r.result?.isError, text: text6.join("\n") };
+  const text7 = (r.result?.content ?? []).map((c) => c.text ?? "");
+  return { ok: !r.result?.isError, text: text7.join("\n") };
 }
 wireEviction(
   (place, cwd) => serialized(
@@ -16157,27 +16953,27 @@ function dropUnsent(key3, doors2) {
   if (n) standingLog(`stopped ${key3}: ${n} undelivered frame(s) dropped, not given`);
 }
 function stopAgent(key3, how2, reason, order2) {
-  const text6 = stopWord(state.standing?.name ?? "", reason);
-  log(text6);
+  const text7 = stopWord(state.standing?.name ?? "", reason);
+  log(text7);
   standingLog(`stopped ${key3}: ${how2}${reason ? ` (${reason})` : ""}`);
   dropUnsent(key3, [H2.door, ...extraPlaces().map((p) => p.door)]);
-  H2.stopped = { n: H2.stopped.n + 1, key: key3, text: text6 };
+  H2.stopped = { n: H2.stopped.n + 1, key: key3, text: text7 };
   const ev = {
     kind: "stopped",
     key: key3,
-    text: text6,
+    text: text7,
     ...reason ? { reason } : {},
     ...order2 ? { order: order2 } : {}
   };
   broadcast(ev);
   notify("error", ev);
-  forgetSeat(text6);
+  forgetSeat(text7);
 }
 function stopBeside(beside2, reason) {
-  const text6 = stopWord(beside2.standing.name ?? "", reason);
-  log(`${text6} — that seat beside is forgotten, the rest are held`);
+  const text7 = stopWord(beside2.standing.name ?? "", reason);
+  log(`${text7} — that seat beside is forgotten, the rest are held`);
   dropUnsent(beside2.door.key, [beside2.door]);
-  dropExtra(beside2.door.key, text6, true, "beside");
+  dropExtra(beside2.door.key, text7, true, "beside");
 }
 function stopSeatByOrder(id, by, order2, to = {}) {
   const reason = by ? `revoked:${by}` : "";
@@ -16223,6 +17019,77 @@ function namesMain(id, to) {
 whenStopped(
   (key3, code2, reason, ended) => ended ? seatEnded(key3, ended) : stopAgent(key3, `close ${code2}`, reason)
 );
+
+// js/shared/halt-phase.ts
+var ARCHIVE_CODES = ["archive_missing", "archive_refused", "archive_unconfirmed"];
+var PHASES = /* @__PURE__ */ new Set(["client_unbound", ...ARCHIVE_CODES.map((c) => `interrupt_confirmed_${c}`)]);
+var isHaltPhase = (code2) => code2 !== null && PHASES.has(code2);
+
+// js/bridge/orca-stop.ts
+var parse2 = (out7) => {
+  try {
+    return JSON.parse(out7);
+  } catch {
+    return {};
+  }
+};
+async function orcaCloseObserved(handle, runtime, current2, expected) {
+  const show = async () => {
+    const r = await run2(["terminal", "show", "--terminal", handle, "--json"], 5e3);
+    return r.code === 0 ? parse2(r.out) : {};
+  };
+  const before = await show();
+  const t = before.result?.terminal;
+  if (!before.ok || before._meta?.runtimeId !== runtime || t?.handle !== handle || !t.incarnationId)
+    return "terminal_binding_unconfirmed";
+  if (expected && (t.incarnationId !== expected.incarnation || t.worktreePath !== expected.worktree))
+    return "terminal_binding_changed";
+  if (!current2()) return "stop_superseded";
+  const close = await run2(["terminal", "close", "--terminal", handle, "--json"], 5e3);
+  const closed = parse2(close.out);
+  if (close.code !== 0 || !closed.ok || closed._meta?.runtimeId !== runtime || closed.result?.close?.handle !== handle || closed.result.close.ptyKilled !== true)
+    return "terminal_close_unconfirmed";
+  const waited = await run2(
+    ["terminal", "wait", "--terminal", handle, "--for", "exit", "--timeout-ms", "5000", "--json"],
+    7e3
+  );
+  const observed = parse2(waited.out), w12 = observed.result?.wait;
+  if (waited.code !== 0 || !observed.ok || observed._meta?.runtimeId !== runtime || w12?.handle !== handle || w12.condition !== "exit" || w12.satisfied !== true || w12.status !== "exited")
+    return "client_exit_unconfirmed";
+  const after2 = await show(), a = after2.result?.terminal;
+  if (!after2.ok || after2._meta?.runtimeId !== runtime || a?.handle !== handle || a.incarnationId !== t.incarnationId || a.connected !== false || a.writable !== false)
+    return "terminal_exit_unconfirmed";
+  return null;
+}
+
+// js/bridge/order-client.ts
+function boundStop(standing) {
+  const realm = state.standing?.realm;
+  const runs = Object.entries(readRuns(CFG.authDir)).filter(
+    ([, r]) => sameRealm(r.realm, realm) && r.standing_id === standing && r.harness === "opencode" && !!r.terminal && !!r.runtime && LIVE.includes(r.state)
+  );
+  const found = runs.length === 1 ? runs[0] : void 0;
+  const expected = found ? runIdentity(found[1]) : null;
+  const generation = H2.stopped.n + 1;
+  return async (code2) => {
+    if (!isHaltPhase(code2) || !found) return code2;
+    const [key3, r] = found;
+    if (!r.terminal || !r.runtime) return "client_unbound";
+    const current2 = () => {
+      const latest2 = readRuns(CFG.authDir)[key3];
+      return H2.stopped.n === generation && state.standing === null && !!latest2 && LIVE.includes(latest2.state) && runIdentity(latest2) === expected;
+    };
+    if (!current2()) return "stop_superseded";
+    const latest = readRuns(CFG.authDir)[key3];
+    if (latest?.exec?.exit && latest.closed === "client_exited") return null;
+    if (r.exec && !r.exec.incarnation) return "client_unbound";
+    const expectedClient = r.exec?.incarnation ? { incarnation: r.exec.incarnation, worktree: r.worktree } : void 0;
+    const outcome = await orcaCloseObserved(r.terminal, r.runtime, current2, expectedClient);
+    if (outcome !== null) return outcome;
+    if (!recordRunClosed(CFG.authDir, key3, r)) return "stop_superseded";
+    return current2() ? null : "stop_superseded";
+  };
+}
 
 // js/bridge/orderflight.ts
 var WAIT_MS = Number(process.env[envName("BRIDGE_ORDER_WAIT_MS")]) || 4e3;
@@ -16320,13 +17187,14 @@ function orderOf(frame2) {
   };
 }
 function journalRefused(id, outcome) {
-  const text6 = words(STOP).orderJournalRefused(id, outcome);
-  log(text6);
-  broadcast({ kind: "note", text: text6 });
-  notify("warning", { kind: "note", text: text6 });
+  const text7 = words(STOP).orderJournalRefused(id, outcome);
+  log(text7);
+  broadcast({ kind: "note", text: text7 });
+  notify("warning", { kind: "note", text: text7 });
 }
 async function stopOf(o, entry) {
   const confirms = confirmsHalts();
+  const endClient = boundStop(o.standing_id);
   let seat2;
   try {
     seat2 = stopSeatByOrder(o.standing_id, o.by ?? "", o.id, o);
@@ -16337,8 +17205,12 @@ async function stopOf(o, entry) {
   if (seat2 === null) return { ...entry, state: "unknown", reason: "seat_gone_before_stop" };
   if (seat2 === "beside") return { ...entry, state: "stopped", reason: "seat_beside" };
   if (!confirms) return { ...entry, state: "stopped", reason: "word_given" };
-  const code2 = await awaitHalt(o.id);
-  if (code2 === null) return { ...entry, state: "stopped", reason: "halt_confirmed" };
+  const phase = await awaitHalt(o.id);
+  const code2 = await endClient(phase);
+  if (code2 === null) {
+    const reason = phase?.startsWith("interrupt_confirmed_") ? `client_exited_${phase.slice("interrupt_confirmed_".length)}` : phase === "client_unbound" ? "client_exited" : "halt_confirmed";
+    return { ...entry, state: "stopped", reason };
+  }
   log(`stop order ${o.id}: the harness's stop — ${code2}`);
   return code2 === SILENT ? { ...entry, state: "unknown", reason: SILENT } : { ...entry, state: "failed", reason: code2 };
 }
@@ -16415,7 +17287,7 @@ function refusedAudience(upstream) {
 var statusLine = () => words(MOMENT).status();
 var leaveLine = () => words(MOMENT).leave();
 var WRITE_TOOL = new RegExp(`^${escapeRe(TOOL_PREFIX)}(add_[a-z_]+|batch)$`);
-var FORMER_MOMENTS = Object.values(MOMENT).flatMap((w11) => w11.formerMoments());
+var FORMER_MOMENTS = Object.values(MOMENT).flatMap((w12) => w12.formerMoments());
 function withoutFormerMoment(d) {
   for (let changed = true; changed; ) {
     changed = false;
@@ -16470,15 +17342,15 @@ function outsideSetRefusal(msg) {
   const name2 = String(msg.params?.name ?? "");
   if (!set || set.has(name2)) return null;
   const list3 = [...set].sort().join(", ");
-  const text6 = words(NARROW).outsideSet(name2, list3);
+  const text7 = words(NARROW).outsideSet(name2, list3);
   return {
     jsonrpc: "2.0",
     id: msg.id,
-    result: { isError: true, content: [{ type: "text", text: text6 }] }
+    result: { isError: true, content: [{ type: "text", text: text7 }] }
   };
 }
-function withoutPlaceMoves(text6) {
-  return text6.replace(
+function withoutPlaceMoves(text7) {
+  return text7.replace(
     ACTION_LIST_RE,
     (_, head, list3) => head + list3.split("|").map((s2) => s2.trim()).filter((s2) => !PLACE_MOVES.has(s2)).join(" | ")
   );
@@ -17048,7 +17920,7 @@ function openIn(io, origin2, scope) {
   );
   let leaving = null;
   let markEnded;
-  const ended = new Promise((resolve14) => markEnded = resolve14);
+  const ended = new Promise((resolve15) => markEnded = resolve15);
   void ended.then(keepHeldRecordFresh());
   const leave = bindScope(
     (why) => leaving ??= windDown(why).finally(markEnded)
@@ -17158,7 +18030,7 @@ var SELF = (() => {
 })();
 var versionOfFile = (path) => {
   try {
-    return versionIn(readFileSync36(path, "utf8"));
+    return versionIn(readFileSync38(path, "utf8"));
   } catch {
     return null;
   }
@@ -17168,15 +18040,15 @@ async function daemonMain(argv2) {
   const cfg = parseArgs(argv2.filter((a) => a !== "--successor"));
   const authDir = cfg.authDir;
   const run3 = seamRunDir(authDir);
-  const journalPath = join34(run3, "daemon.log");
+  const journalPath = join38(run3, "daemon.log");
   const journal = (line) => {
     try {
-      mkdirSync22(run3, { recursive: true, mode: 448 });
+      mkdirSync25(run3, { recursive: true, mode: 448 });
       rotateJournal(journalPath, JOURNAL_MAX);
-      const text6 = line.trimEnd().replace(LOG_MARK, "");
+      const text7 = line.trimEnd().replace(LOG_MARK, "");
       appendFileSync5(
         journalPath,
-        `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${text6}
+        `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${text7}
 `,
         { mode: 384 }
       );
@@ -17501,13 +18373,109 @@ function spawnDaemon(file2, authDir, successor) {
   }
 }
 
+// js/bridge/exec-prepare.ts
+import { execFile as execFile2 } from "node:child_process";
+import { realpathSync as realpathSync10 } from "node:fs";
+import { hostname as hostname4 } from "node:os";
+var shellQuote = (s2) => `'${s2.replaceAll("'", "'\\''")}'`;
+var execApi = (server, method2, path, body) => new Promise((resolve15, reject) => {
+  execFile2(
+    "opencode",
+    [
+      "api",
+      "--server",
+      server,
+      method2,
+      path,
+      ...body === void 0 ? [] : ["--data", JSON.stringify(body)]
+    ],
+    { timeout: 3e4, maxBuffer: 1024 * 1024, windowsHide: true },
+    (err, stdout) => {
+      if (err) {
+        reject(new Error("exec_api_failed_or_unknown"));
+        return;
+      }
+      try {
+        resolve15(JSON.parse(stdout));
+      } catch {
+        reject(new Error("exec_api_unreadable"));
+      }
+    }
+  );
+});
+var data = (v) => v?.data ?? {};
+function checkSession(v, r) {
+  const s2 = data(v), model = s2.model, location = s2.location;
+  if (s2.id !== r.session || s2.parentID !== void 0 && s2.parentID !== null || model?.providerID !== r.model.providerID || model?.id !== r.model.id || model?.variant !== (r.model.variant ?? "default") || location?.directory !== r.location)
+    throw new Error("exec_session_mismatch");
+}
+async function prepareExec(path, api = execApi) {
+  const r = readReceipt(path);
+  if (r.phase !== "planned") throw new Error("attempt_already_started");
+  claimAttempt(path);
+  try {
+    if (!parseExec({ server: r.server, modelRefs: { own: r.model } }, ["own"]) || realpathSync10(r.location) !== r.location || !["darwin", "linux"].includes(process.platform))
+      throw new Error("exec_context_invalid");
+    const info = await api(r.server, "get", "/api/info");
+    if (info.version !== "2.2.7" || info.hostname?.toLowerCase() !== hostname4().toLowerCase())
+      throw new Error("exec_server_unverified");
+    r.phase = "create-sent";
+    saveReceipt(path, r);
+    const made = data(
+      await api(r.server, "post", "/api/session", {
+        model: r.model,
+        location: { directory: r.location }
+      })
+    );
+    if (typeof made.id !== "string" || !/^ses_[A-Za-z0-9]+$/.test(made.id))
+      throw new Error("exec_session_unreadable");
+    r.session = made.id;
+    r.phase = "session-created";
+    saveReceipt(path, r);
+    checkSession(await api(r.server, "get", `/api/session/${r.session}`), r);
+    const context2 = (await api(r.server, "get", `/api/session/${r.session}/context`)).data;
+    if (!Array.isArray(context2) || context2.length !== 0) throw new Error("exec_session_not_empty");
+    r.phase = "prompt-sent";
+    saveReceipt(path, r);
+    const accepted = data(
+      await api(r.server, "post", `/api/session/${r.session}/prompt`, { text: r.prompt })
+    );
+    if (accepted.sessionID !== r.session || typeof accepted.id !== "string")
+      throw new Error("exec_prompt_unconfirmed");
+    checkSession(await api(r.server, "get", `/api/session/${r.session}`), r);
+    r.phase = "ready";
+    saveReceipt(path, r);
+    return ["opencode", "--server", r.server, "--session", r.session, r.location];
+  } catch (e) {
+    r.phase = "ambiguity";
+    try {
+      saveReceipt(path, r);
+    } catch {
+    }
+    throw e;
+  }
+}
+async function runExecPrepare(args) {
+  delete process.env.BUN_BE_BUN;
+  if (args.length !== 2 || args[0] !== "--receipt") {
+    process.exitCode = 2;
+    return;
+  }
+  try {
+    process.stdout.write(`exec ${(await prepareExec(args[1])).map(shellQuote).join(" ")}`);
+  } catch {
+    process.stderr.write("exec_prepare_refused_or_ambiguous\n");
+    process.exitCode = 1;
+  }
+}
+
 // js/bridge/thin.ts
 import { createInterface as createInterface3 } from "node:readline";
 import { PassThrough as PassThrough2 } from "node:stream";
 
 // js/bridge/raise.ts
 import { spawn as spawn6 } from "node:child_process";
-import { readFileSync as readFileSync37 } from "node:fs";
+import { readFileSync as readFileSync39 } from "node:fs";
 import { fileURLToPath as fileURLToPath6 } from "node:url";
 var RAISE_STALE_MS = 15e3;
 var SELF2 = (() => {
@@ -17523,7 +18491,7 @@ function daemonEntry() {
   if (updatesDisabled()) return SELF2;
   const home = homeBridgePath();
   try {
-    const v = versionIn(readFileSync37(home, "utf8"));
+    const v = versionIn(readFileSync39(home, "utf8"));
     if (home !== SELF2 && compareVersions(v, VERSION) > 0) return home;
   } catch {
   }
@@ -17766,14 +18734,14 @@ function thinMain(argv2) {
   };
   const onWelcome = (l) => {
     if (leaving) return l.close();
-    const w11 = l.welcome;
-    const resumed = w11.resumed && !!sessionId && w11.session === sessionId;
-    sessionId = w11.session;
+    const w12 = l.welcome;
+    const resumed = w12.resumed && !!sessionId && w12.session === sessionId;
+    sessionId = w12.session;
     link = l;
     mode = "daemon";
     everAttached = true;
     log(
-      `through the machine's bridge daemon ${w11.build} (pid ${w11.pid}), session ${sessionId}` + (resumed ? " — resumed" : "")
+      `through the machine's bridge daemon ${w12.build} (pid ${w12.pid}), session ${sessionId}` + (resumed ? " — resumed" : "")
     );
     l.onFrame((f) => {
       if (f.t === "rpc") toHarness(f.msg);
@@ -17795,7 +18763,7 @@ function thinMain(argv2) {
       if (link !== l) return;
       link = null;
       if (leaving) return byeDone?.();
-      lost(!!w11.ack);
+      lost(!!w12.ack);
     });
     if (!resumed) replay2((m) => toDaemon(l, m));
     askRealms();
@@ -17904,9 +18872,9 @@ function thinMain(argv2) {
     } else if (link) {
       const l = link;
       acks = !!l.welcome.ack;
-      await new Promise((resolve14) => {
-        byeDone = resolve14;
-        setTimeout(resolve14, BYE_MS).unref?.();
+      await new Promise((resolve15) => {
+        byeDone = resolve15;
+        setTimeout(resolve15, BYE_MS).unref?.();
         l.send({ t: "bye", why });
       });
       l.close();
@@ -17982,21 +18950,21 @@ async function probeDaemon(args) {
       HELLO_MS2
     );
     l.close();
-    const w11 = l.welcome;
-    return { ok: true, socket, build: w11.build, pid: w11.pid, sessions: w11.sessions, path: w11.path };
+    const w12 = l.welcome;
+    return { ok: true, socket, build: w12.build, pid: w12.pid, sessions: w12.sessions, path: w12.path };
   } catch (e) {
     return { ok: false, socket, why: e.message };
   }
 }
 
 // js/watchdog/client.ts
-import { existsSync as existsSync13, readdirSync as readdirSync14, readFileSync as readFileSync38 } from "node:fs";
+import { existsSync as existsSync13, readdirSync as readdirSync14, readFileSync as readFileSync40 } from "node:fs";
 import { connect as connect5 } from "node:net";
-import { join as join35 } from "node:path";
+import { join as join39 } from "node:path";
 
 // js/watchdog/words.ts
 var wd = () => words(WATCHDOG);
-var doer = (text6) => wd().doer(text6);
+var doer = (text7) => wd().doer(text7);
 
 // js/watchdog/client.ts
 var ATTACH_WINDOW_MS = Number(process.env[envName("WATCHDOG_ATTACH_MS")]) || 6e4;
@@ -18029,7 +18997,7 @@ function resolveStanding(argv2) {
   if (key3) return { key: key3, path: pathFor(key3), authDir };
   const held2 = existsSync13(dir2) ? readdirSync14(dir2).filter((f) => f.endsWith(".key")).map((f) => {
     try {
-      return readFileSync38(join35(dir2, f), "utf8").trim();
+      return readFileSync40(join39(dir2, f), "utf8").trim();
     } catch {
       return "";
     }
@@ -18133,32 +19101,32 @@ function attach(path, o) {
 
 // js/watchdog/codex.ts
 import { existsSync as existsSync14 } from "node:fs";
-import { homedir as homedir12 } from "node:os";
-import { join as join36 } from "node:path";
+import { homedir as homedir13 } from "node:os";
+import { join as join40 } from "node:path";
 
 // js/shared/appserver.ts
 import { randomBytes as randomBytes5 } from "node:crypto";
 import { request } from "node:http";
-function frame(data) {
+function frame(data2) {
   const mask = randomBytes5(4);
   let head;
-  if (data.length < 126) head = Buffer.from([129, 128 | data.length]);
-  else if (data.length < 65536) {
+  if (data2.length < 126) head = Buffer.from([129, 128 | data2.length]);
+  else if (data2.length < 65536) {
     head = Buffer.alloc(4);
     head[0] = 129;
     head[1] = 128 | 126;
-    head.writeUInt16BE(data.length, 2);
+    head.writeUInt16BE(data2.length, 2);
   } else {
     head = Buffer.alloc(10);
     head[0] = 129;
     head[1] = 128 | 127;
-    head.writeBigUInt64BE(BigInt(data.length), 2);
+    head.writeBigUInt64BE(BigInt(data2.length), 2);
   }
-  const masked = Buffer.from(data.map((b, i) => b ^ mask[i % 4]));
+  const masked = Buffer.from(data2.map((b, i) => b ^ mask[i % 4]));
   return Buffer.concat([head, mask, masked]);
 }
 function openDoor(socketPath, onMessage, onClose) {
-  return new Promise((resolve14, reject) => {
+  return new Promise((resolve15, reject) => {
     const req = request({
       socketPath,
       path: "/",
@@ -18201,7 +19169,7 @@ function openDoor(socketPath, onMessage, onClose) {
       });
       socket.on("close", () => onClose(words(APPSERVER).socketClosed()));
       socket.on("error", (e) => onClose(e.message));
-      resolve14({
+      resolve15({
         send: (msg) => socket.write(frame(Buffer.from(JSON.stringify(msg)))),
         close: () => socket.end()
       });
@@ -18218,8 +19186,8 @@ var note2 = (s2) => {
   process.stderr.write(s2 + "\n");
 };
 function codexDoorPath() {
-  const home = process.env.CODEX_HOME?.trim() || join36(homedir12(), ".codex");
-  return join36(home, "app-server-control", "app-server-control.sock");
+  const home = process.env.CODEX_HOME?.trim() || join40(homedir13(), ".codex");
+  return join40(home, "app-server-control", "app-server-control.sock");
 }
 function runWatchdogCodex(argv2) {
   parseWatchdogArgs(argv2);
@@ -18286,22 +19254,22 @@ function runWatchdogCodex(argv2) {
     return ready;
   }
   const inFlight = /* @__PURE__ */ new Set();
-  function deliver3(text6, ids = []) {
+  function deliver3(text7, ids = []) {
     if (forgotten) return Promise.resolve();
     const reqId = nextId++;
     waiting2.set(reqId, ids);
-    const p = put(reqId, text6).finally(() => inFlight.delete(p));
+    const p = put(reqId, text7).finally(() => inFlight.delete(p));
     inFlight.add(p);
     return p;
   }
-  async function put(reqId, text6) {
+  async function put(reqId, text7) {
     try {
       const d = door ?? await open();
       if (forgotten) return void waiting2.delete(reqId);
       d.send({
         method: "turn/start",
         id: reqId,
-        params: { threadId, input: [{ type: "text", text: text6 }], turnTrigger: LOGGERS.channel }
+        params: { threadId, input: [{ type: "text", text: text7 }], turnTrigger: LOGGERS.channel }
       });
       note2(wd().frameSent(threadId));
     } catch (e) {
@@ -18348,7 +19316,7 @@ function runWatchdogCodex(argv2) {
   const withPend = (ids, carrier, raw = "") => {
     const got = holdOut(pend.map((p) => ({ ...p, stale: false })));
     pend = [];
-    const shown = carrier ? [{ frame: carrier, text: (w11) => frameToText(carrier, raw, w11) }] : [];
+    const shown = carrier ? [{ frame: carrier, text: (w12) => frameToText(carrier, raw, w12) }] : [];
     const keys = [...got.flatMap((g) => g.ids), ...ids];
     const lines = heldText([got.map((g) => g.frame)], (k) => seen.has(k), shown).filter(Boolean);
     if (!lines.length) return void keys.forEach((k) => noteSeen(seenPath, k, seen));
@@ -18426,7 +19394,7 @@ function runWatchdogCodex(argv2) {
 }
 
 // js/watchdog/watchdog.ts
-import { writeSync } from "node:fs";
+import { writeSync as writeSync2 } from "node:fs";
 
 // js/watchdog/replay.ts
 var RingReplay = class {
@@ -18469,9 +19437,9 @@ var RingReplay = class {
 
 // js/watchdog/watchdog.ts
 var LINE_MAX = 400;
-function wrapLines(text6, max = LINE_MAX) {
+function wrapLines(text7, max = LINE_MAX) {
   const out7 = [];
-  for (const line of text6.split("\n")) {
+  for (const line of text7.split("\n")) {
     let rest2 = line;
     while ([...rest2].length > max) {
       const head = [...rest2].slice(0, max).join("");
@@ -18495,10 +19463,10 @@ var out2 = (lines, alone = false, after2, ready) => {
     await ready;
     const wait = lastAt && (alone || lastAlone) ? lastAt + ALONE_GAP_MS - Date.now() : 0;
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-    const text6 = typeof lines === "function" ? lines() : lines;
-    if (!text6.length) return after2?.();
+    const text7 = typeof lines === "function" ? lines() : lines;
+    if (!text7.length) return after2?.();
     const failed = await new Promise(
-      (r) => process.stdout.write(text6.join("\n") + "\n", (e) => r(!!e))
+      (r) => process.stdout.write(text7.join("\n") + "\n", (e) => r(!!e))
     );
     lastAt = Date.now();
     lastAlone = alone;
@@ -18511,7 +19479,7 @@ var loudExit = (s2, code2) => {
 };
 var exitNow = (s2, code2) => {
   try {
-    writeSync(1, s2 + "\n");
+    writeSync2(1, s2 + "\n");
     process.exit(code2);
   } catch {
     process.stdout.write(s2 + "\n", () => process.exit(code2));
@@ -18521,7 +19489,7 @@ var exitNow = (s2, code2) => {
 function runWatchdog(argv2) {
   const target = resolveStanding(argv2);
   if ("error" in target) {
-    writeSync(2, `${doer(target.error)}
+    writeSync2(2, `${doer(target.error)}
 `);
     process.exit(2);
   }
@@ -18620,8 +19588,8 @@ function runWatchdog(argv2) {
                 cases.add(caseKey(f));
                 if (fromRing) ring.printed++;
                 const fold = ev.batch.fold;
-                const text6 = (w11) => wrapLines(batchLine(f, fold, first2, w11)).join("\n");
-                block.shown.push({ frame: f, text: text6 });
+                const text7 = (w12) => wrapLines(batchLine(f, fold, first2, w12)).join("\n");
+                block.shown.push({ frame: f, text: text7 });
                 block.marks.push(all2);
               }
             }
@@ -18640,8 +19608,8 @@ function runWatchdog(argv2) {
             if (fromRing) ring.printed++;
             const raw = ev.raw ?? "";
             if (heldCase(f)) {
-              const text6 = (w11) => wrapLines(frameToText(f, raw, w11)).join("\n");
-              const r = take3([{ frame: f, text: text6 }]);
+              const text7 = (w12) => wrapLines(frameToText(f, raw, w12)).join("\n");
+              const r = take3([{ frame: f, text: text7 }]);
               out2(r.lines, true, () => [...r.marks, mark].forEach((m) => m()));
             } else {
               const r = take3([], [f]);
@@ -18696,17 +19664,17 @@ function runWatchdog(argv2) {
 }
 
 // js/watchdog/watchdog-exit.ts
-import { createHash as createHash11 } from "node:crypto";
-import { writeSync as writeSync2 } from "node:fs";
+import { createHash as createHash12 } from "node:crypto";
+import { writeSync as writeSync3 } from "node:fs";
 function frameId(ev) {
   const id = ev.frame?.id;
-  return typeof id === "string" && id ? id : `raw:${createHash11("sha256").update(ev.raw ?? "").digest("hex").slice(0, 16)}`;
+  return typeof id === "string" && id ? id : `raw:${createHash12("sha256").update(ev.raw ?? "").digest("hex").slice(0, 16)}`;
 }
 var wake = (s2) => {
-  writeSync2(1, s2 + "\n");
+  writeSync3(1, s2 + "\n");
 };
 var note3 = (s2) => {
-  writeSync2(2, s2 + "\n");
+  writeSync3(2, s2 + "\n");
 };
 function runWatchdogExit(argv2) {
   const target = resolveStanding(argv2);
@@ -18755,7 +19723,7 @@ function runWatchdogExit(argv2) {
           if (!ev.batch) {
             if (seen.has(id)) return note3(wd().seenEarlier(id));
             const raw = ev.raw ?? "";
-            const one = f ? [{ frame: f, text: (w11) => frameToText(f, raw, w11) }] : [];
+            const one = f ? [{ frame: f, text: (w12) => frameToText(f, raw, w12) }] : [];
             return deliver3(riders.splice(0), one, [id], f ? null : raw);
           }
           if (ev.batch.at === 1) {
@@ -18774,7 +19742,7 @@ function runWatchdogExit(argv2) {
               const first2 = !cases.has(caseKey(f));
               cases.add(caseKey(f));
               const fold = ev.batch.fold;
-              block.shown.push({ frame: f, text: (w11) => batchLine(f, fold, first2, w11) });
+              block.shown.push({ frame: f, text: (w12) => batchLine(f, fold, first2, w12) });
               block.ids.push(id, ...folded.splice(0));
             }
           }
@@ -18826,19 +19794,19 @@ function runWatchdogExit(argv2) {
 }
 
 // js/cli/doctor.ts
-import { createHash as createHash12 } from "node:crypto";
-import { existsSync as existsSync20, readFileSync as readFileSync45 } from "node:fs";
-import { homedir as homedir19 } from "node:os";
-import { dirname as dirname17, join as join44 } from "node:path";
+import { createHash as createHash13 } from "node:crypto";
+import { existsSync as existsSync20, readFileSync as readFileSync47 } from "node:fs";
+import { homedir as homedir20 } from "node:os";
+import { dirname as dirname19, join as join48 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // js/shared/covercontract.ts
-import { readFileSync as readFileSync40 } from "node:fs";
-import { join as join38 } from "node:path";
+import { readFileSync as readFileSync42 } from "node:fs";
+import { join as join42 } from "node:path";
 
 // js/shared/reposigns.ts
-import { readFileSync as readFileSync39, statSync as statSync11 } from "node:fs";
-import { dirname as dirname13, join as join37, resolve as resolve10 } from "node:path";
+import { readFileSync as readFileSync41, statSync as statSync11 } from "node:fs";
+import { dirname as dirname15, join as join41, resolve as resolve11 } from "node:path";
 var exists = (path) => {
   try {
     statSync11(path);
@@ -18848,24 +19816,24 @@ var exists = (path) => {
   }
 };
 function repoRoot(dir2) {
-  let at3 = resolve10(dir2);
+  let at3 = resolve11(dir2);
   for (; ; ) {
-    if (exists(join37(at3, ".git"))) return at3;
-    const up = dirname13(at3);
+    if (exists(join41(at3, ".git"))) return at3;
+    const up = dirname15(at3);
     if (up === at3) return null;
     at3 = up;
   }
 }
 
 // js/shared/covercontract.ts
-function contractOf(text6, cover = COVER) {
-  if (stampOf2(text6, cover) === "foreign") return { kind: "foreign" };
-  if (repeatedKeys(text6).length) return { kind: "ambiguous" };
-  const block = coverBlock(text6, cover.root);
-  const pairs = frontMatter(text6);
+function contractOf(text7, cover = COVER) {
+  if (stampOf2(text7, cover) === "foreign") return { kind: "foreign" };
+  if (repeatedKeys(text7).length) return { kind: "ambiguous" };
+  const block = coverBlock(text7, cover.root);
+  const pairs = frontMatter(text7);
   const stamps = Object.values(cover.forms).flatMap((f) => {
     const re = f.contractStamp ?? f.stamp;
-    return [...text6.matchAll(new RegExp(re.source, `${re.flags.replace("g", "")}g`))].map(
+    return [...text7.matchAll(new RegExp(re.source, `${re.flags.replace("g", "")}g`))].map(
       (m) => m[1]
     );
   });
@@ -18890,7 +19858,7 @@ function repoContractWarning(dir2, lang2) {
   const root = repoRoot(dir2);
   if (!root) return null;
   try {
-    return contractWarning(contractOf(readFileSync40(join38(root, COVER.file), "utf8")), lang2);
+    return contractWarning(contractOf(readFileSync42(join42(root, COVER.file), "utf8")), lang2);
   } catch {
     return null;
   }
@@ -18898,7 +19866,7 @@ function repoContractWarning(dir2, lang2) {
 
 // js/cli/codexcache.ts
 import { existsSync as existsSync15, readdirSync as readdirSync15 } from "node:fs";
-import { join as join39 } from "node:path";
+import { join as join43 } from "node:path";
 
 // js/cli/installnames.ts
 var PRODUCT_PATTERN = escapeRe(PRODUCT);
@@ -18914,30 +19882,30 @@ var list2 = (d) => {
     return [];
   }
 };
-var isCopy = (d) => existsSync15(join39(d, ".codex-plugin", "plugin.json"));
+var isCopy = (d) => existsSync15(join43(d, ".codex-plugin", "plugin.json"));
 function codexCopies(home) {
-  const cache = join39(home, "plugins", "cache");
+  const cache = join43(home, "plugins", "cache");
   const out7 = [];
   for (const market of list2(cache))
-    for (const plugin of list2(join39(cache, market))) {
+    for (const plugin of list2(join43(cache, market))) {
       if (!PRODUCT_RE.test(plugin)) continue;
-      const dir2 = join39(cache, market, plugin);
-      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join39(dir2, v)));
+      const dir2 = join43(cache, market, plugin);
+      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join43(dir2, v)));
       if (!versions.length) out7.push({ market, plugin, dir: dir2 });
-      for (const v of versions) out7.push({ market, plugin, dir: join39(dir2, v) });
+      for (const v of versions) out7.push({ market, plugin, dir: join43(dir2, v) });
     }
   return out7;
 }
 
 // js/cli/doctornode.ts
-import { accessSync, constants } from "node:fs";
-import { homedir as homedir15 } from "node:os";
-import { basename as basename8, dirname as dirname15, isAbsolute as isAbsolute8 } from "node:path";
+import { accessSync, constants as constants2 } from "node:fs";
+import { homedir as homedir16 } from "node:os";
+import { basename as basename8, dirname as dirname17, isAbsolute as isAbsolute8 } from "node:path";
 
 // js/cli/subagents.ts
-import { existsSync as existsSync16, readdirSync as readdirSync16, readFileSync as readFileSync41, statSync as statSync12 } from "node:fs";
-import { homedir as homedir14 } from "node:os";
-import { basename as basename7, delimiter, dirname as dirname14, isAbsolute as isAbsolute7, join as join40, resolve as resolve11 } from "node:path";
+import { existsSync as existsSync16, readdirSync as readdirSync16, readFileSync as readFileSync43, statSync as statSync12 } from "node:fs";
+import { homedir as homedir15 } from "node:os";
+import { basename as basename7, delimiter, dirname as dirname16, isAbsolute as isAbsolute7, join as join44, resolve as resolve12 } from "node:path";
 
 // js/cli/frontmatter.ts
 function frontmatterText(file2) {
@@ -18998,9 +19966,9 @@ function splitFlow(body) {
 var KEY2 = /^("[^"]*"|'[^']*'|[^\s"'#{[-][^:]*?|-[^\s:][^:]*?)\s*:(?:\s+(.*))?$/;
 var BLOCK_SCALAR = /^[|>][-+0-9]*$/;
 var unquoteKey = (k) => k.startsWith('"') && k.endsWith('"') || k.startsWith("'") && k.endsWith("'") ? k.slice(1, -1) : k;
-function parseFrontmatter(text6) {
+function parseFrontmatter(text7) {
   const lines = [];
-  for (const raw of text6.split(/\r?\n/)) {
+  for (const raw of text7.split(/\r?\n/)) {
     if (!raw.trim() || /^\s*#/.test(raw)) continue;
     const indent = raw.length - raw.trimStart().length;
     lines.push({ indent, text: raw.trim() });
@@ -19062,14 +20030,14 @@ function parseFrontmatter(text6) {
 }
 
 // js/cli/satform.ts
-import { homedir as homedir13 } from "node:os";
+import { homedir as homedir14 } from "node:os";
 import { basename as basename6 } from "node:path";
 var SATELLITE_ARGS = ["-e", SATELLITE_CODE, "--", "--satellite"];
 var SHELLS = /* @__PURE__ */ new Set(["sh", "bash", "zsh", "dash"]);
 var cmdBase = (c) => basename6(c.replace(/\\/g, "/")).replace(/\.exe$/i, "").toLowerCase();
 var isToolList = (v) => !!v && v.split(",").some((s2) => s2.trim().length > 0);
 function toolsTail(e) {
-  const words2 = SHELLS.has(cmdBase(e.command)) ? (e.args[e.args.indexOf("-c") + 1] ?? "").split(/\s+/).map((w11) => w11.replace(/^["']|["']$/g, "")) : e.args;
+  const words2 = SHELLS.has(cmdBase(e.command)) ? (e.args[e.args.indexOf("-c") + 1] ?? "").split(/\s+/).map((w12) => w12.replace(/^["']|["']$/g, "")) : e.args;
   const at3 = words2.indexOf("--tools");
   const v = at3 >= 0 ? words2[at3 + 1] : void 0;
   return isToolList(v) ? ["--tools", v] : [];
@@ -19099,7 +20067,7 @@ var SHELL_PATH_RE = new RegExp(
   `"([^"]*${P5}[^"]*\\.mjs)"|'([^']*${P5}[^']*\\.mjs)'|(\\S*${P5}\\S*\\.mjs)`
 );
 var ARG_PATH_RE = new RegExp(`${P5}[^\\\\/]*\\.mjs$`, "i");
-var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir13()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir13());
+var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir14()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir14());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
   if (base === "node" && (e.args[0] === "-e" || e.args[0] === "--eval")) {
@@ -19299,25 +20267,25 @@ function agentFiles(dir2, scope) {
     return [];
   }
   return names2.sort().map((f) => {
-    const path = join40(dir2, f);
+    const path = join44(dir2, f);
     let fm = {};
     try {
-      const text6 = frontmatterText(readFileSync41(path, "utf8"));
-      if (text6 !== null) fm = parseFrontmatter(text6);
+      const text7 = frontmatterText(readFileSync43(path, "utf8"));
+      if (text7 !== null) fm = parseFrontmatter(text7);
     } catch {
     }
     return { path, agent: str5(fm.name) || basename7(f, ".md"), scope, fm };
   });
 }
 function projectRoot() {
-  const home = resolve11(homedir14());
+  const home = resolve12(homedir15());
   let gitRoot = null;
   for (let d = process.cwd(); ; ) {
-    if (resolve11(d) === home) break;
-    if (existsSync16(join40(d, ".claude", "agents")) || existsSync16(join40(d, ".opencode", "agents")))
+    if (resolve12(d) === home) break;
+    if (existsSync16(join44(d, ".claude", "agents")) || existsSync16(join44(d, ".opencode", "agents")))
       return d;
-    if (!gitRoot && existsSync16(join40(d, ".git"))) gitRoot = d;
-    const up = dirname14(d);
+    if (!gitRoot && existsSync16(join44(d, ".git"))) gitRoot = d;
+    const up = dirname16(d);
     if (up === d) break;
     d = up;
   }
@@ -19325,13 +20293,13 @@ function projectRoot() {
 }
 function which(cmd2, cwd) {
   if (isAbsolute7(cmd2) || /[\\/]/.test(cmd2)) {
-    const p = resolve11(cwd, cmd2);
+    const p = resolve12(cwd, cmd2);
     return existsSync16(p) ? p : null;
   }
   const exts = platform() === "win32" ? ["", ...(process.env.PATHEXT || ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
   for (const dir2 of (process.env.PATH || "").split(delimiter).filter(Boolean)) {
     for (const ext of exts) {
-      const p = join40(dir2, cmd2 + ext);
+      const p = join44(dir2, cmd2 + ext);
       try {
         if (statSync12(p).isFile()) return p;
       } catch {
@@ -19357,12 +20325,12 @@ function parentBridges(root) {
   };
   const readJson2 = (p) => {
     try {
-      return JSON.parse(readFileSync41(p, "utf8"));
+      return JSON.parse(readFileSync43(p, "utf8"));
     } catch {
       return null;
     }
   };
-  const user = readJson2(join40(homedir14(), ".claude.json"));
+  const user = readJson2(join44(homedir15(), ".claude.json"));
   if (user) {
     scan(user.mcpServers, (n) => `mcp__${n}`);
     const projects = user.projects ?? {};
@@ -19370,8 +20338,8 @@ function parentBridges(root) {
     for (const [k, p] of Object.entries(projects))
       if (k.replace(/\\/g, "/") === key3) scan(p.mcpServers, (n) => `mcp__${n}`);
   }
-  scan(readJson2(join40(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
-  const registry = readJson2(join40(homedir14(), ".claude", "plugins", "installed_plugins.json"));
+  scan(readJson2(join44(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
+  const registry = readJson2(join44(homedir15(), ".claude", "plugins", "installed_plugins.json"));
   const plugins = registry?.plugins ?? {};
   for (const [key3, installs] of Object.entries(plugins)) {
     const plugin = key3.split("@")[0];
@@ -19379,7 +20347,7 @@ function parentBridges(root) {
     for (const inst of installs)
       if (inst.installPath)
         scan(
-          readJson2(join40(inst.installPath, ".mcp.json"))?.mcpServers,
+          readJson2(join44(inst.installPath, ".mcp.json"))?.mcpServers,
           (n) => `mcp__plugin_${plugin}_${n}`
         );
   }
@@ -19388,7 +20356,7 @@ function parentBridges(root) {
 function trustLine(root) {
   let cfg;
   try {
-    cfg = JSON.parse(readFileSync41(join40(homedir14(), ".claude.json"), "utf8"));
+    cfg = JSON.parse(readFileSync43(join44(homedir15(), ".claude.json"), "utf8"));
   } catch {
     return null;
   }
@@ -19418,20 +20386,20 @@ function hasGrant() {
 }
 async function subagentsReport(out7) {
   const root = projectRoot();
-  const userDir = join40(homedir14(), ".claude", "agents");
-  const atHome = resolve11(root) === resolve11(homedir14());
-  const project = atHome ? [] : agentFiles(join40(root, ".claude", "agents"), "project");
+  const userDir = join44(homedir15(), ".claude", "agents");
+  const atHome = resolve12(root) === resolve12(homedir15());
+  const project = atHome ? [] : agentFiles(join44(root, ".claude", "agents"), "project");
   const shadowed = new Set(project.map((f) => f.agent));
   const user = agentFiles(userDir, "user");
   const claude = [...project, ...user.filter((f) => !shadowed.has(f.agent))];
   const opencode = [
-    ...agentFiles(join40(root, ".opencode", "agents"), "project"),
-    ...agentFiles(join40(root, ".opencode", "agent"), "project")
+    ...agentFiles(join44(root, ".opencode", "agents"), "project"),
+    ...agentFiles(join44(root, ".opencode", "agent"), "project")
   ];
   const osNote = process.env[PLATFORM_ENV] ? subWords().osJudged(platform()) : platform();
   out7(subWords().header(root, osNote));
   if (!claude.length && !opencode.length) {
-    const dirs = `${join40(root, ".claude", "agents")}, ${userDir}, ${join40(root, ".opencode", "agents")}`;
+    const dirs = `${join44(root, ".claude", "agents")}, ${userDir}, ${join44(root, ".opencode", "agents")}`;
     out7(subWords().noFiles(dirs));
     return;
   }
@@ -19485,7 +20453,7 @@ async function subagentsReport(out7) {
         continue;
       }
       const bridge = bridgePathOf(e);
-      if (bridge && !existsSync16(resolve11(root, bridge))) {
+      if (bridge && !existsSync16(resolve12(root, bridge))) {
         lines.push(subWords().noBridge(bridge, homeBridgePath()));
         continue;
       }
@@ -19555,13 +20523,13 @@ var SYSTEM_DIRS = {
 };
 var executable = (p) => {
   try {
-    accessSync(p, constants.X_OK);
+    accessSync(p, constants2.X_OK);
     return true;
   } catch {
     return false;
   }
 };
-var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir15(), "$HOME"));
+var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir16(), "$HOME"));
 function launchReport(out7, launches2) {
   for (const l of launches2) {
     const cmd2 = l.command || "node";
@@ -19576,7 +20544,7 @@ function launchReport(out7, launches2) {
       out7(hw().launchAbsolute(l.who, cmd2));
       continue;
     }
-    const dir2 = dirname15(found);
+    const dir2 = dirname17(found);
     const system = SYSTEM_DIRS[platform2()];
     if (!system || system.includes(dir2)) {
       out7(hw().launchFound(l.who, cmd2, found));
@@ -19589,13 +20557,13 @@ function launchReport(out7, launches2) {
 var openCodeRuntimeWord = () => hw().openCodeRuntime();
 
 // js/cli/doctorpaths.ts
-import { existsSync as existsSync17, readFileSync as readFileSync42 } from "node:fs";
-import { homedir as homedir16 } from "node:os";
-import { join as join41 } from "node:path";
+import { existsSync as existsSync17, readFileSync as readFileSync44 } from "node:fs";
+import { homedir as homedir17 } from "node:os";
+import { join as join45 } from "node:path";
 var hw2 = () => words(HARNESS);
 var readJson = (p) => {
   try {
-    return JSON.parse(readFileSync42(p, "utf8"));
+    return JSON.parse(readFileSync44(p, "utf8"));
   } catch {
     return null;
   }
@@ -19604,7 +20572,7 @@ var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => t
 var say = (out7, where, name2, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name2, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
-  const file2 = join41(homedir16(), ".claude.json");
+  const file2 = join45(homedir17(), ".claude.json");
   const cfg = readJson(file2);
   if (!cfg) return;
   for (const [n, url] of httpEntries(cfg.mcpServers))
@@ -19619,17 +20587,17 @@ function claudeCode(out7) {
         url,
         `cd "${dir2}" && claude mcp remove "${n}" --scope local`
       );
-  const mcp = join41(projectRoot(), ".mcp.json");
+  const mcp = join45(projectRoot(), ".mcp.json");
   for (const [n, url] of httpEntries(readJson(mcp)?.mcpServers))
     say(out7, `Claude Code (${mcp})`, n, url, hw2().deleteFrom(mcp));
   const ever = Array.isArray(cfg.claudeAiMcpEverConnected) ? cfg.claudeAiMcpEverConnected : [];
   for (const c of ever.map(String).filter((c2) => CONNECTOR_RE.test(c2)))
     out7(hw2().connector(c, file2));
 }
-function codexHttp(text6) {
+function codexHttp(text7) {
   const found = [];
   let section = null;
-  for (const line of text6.split("\n")) {
+  for (const line of text7.split("\n")) {
     const head = /^\s*\[mcp_servers\.(?:"([^"]+)"|([^\]\s.]+))\]\s*$/.exec(line);
     if (head) section = head[1] ?? head[2] ?? null;
     else if (/^\s*\[/.test(line)) section = null;
@@ -19641,47 +20609,47 @@ function codexHttp(text6) {
 function secondPathReport(out7, codexHomes2) {
   claudeCode(out7);
   for (const home of codexHomes2) {
-    const file2 = join41(home, "config.toml");
+    const file2 = join45(home, "config.toml");
     if (!existsSync17(file2)) continue;
-    let text6;
+    let text7;
     try {
-      text6 = readFileSync42(file2, "utf8");
+      text7 = readFileSync44(file2, "utf8");
     } catch {
       continue;
     }
-    for (const [n, url] of codexHttp(text6))
+    for (const [n, url] of codexHttp(text7))
       say(out7, `Codex (${file2})`, n, url, `codex mcp remove "${n}"`);
   }
 }
 
 // js/cli/doctorskills.ts
-import { existsSync as existsSync18, readFileSync as readFileSync43 } from "node:fs";
-import { homedir as homedir17 } from "node:os";
-import { join as join42, resolve as resolve12 } from "node:path";
+import { existsSync as existsSync18, readFileSync as readFileSync45 } from "node:fs";
+import { homedir as homedir18 } from "node:os";
+import { join as join46, resolve as resolve13 } from "node:path";
 var hw3 = () => words(HARNESS);
-var IN_SET = join42(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
+var IN_SET = join46(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
 function sets(codexHomes2) {
   const found = [];
   try {
     const reg = JSON.parse(
-      readFileSync43(join42(homedir17(), ".claude", "plugins", "installed_plugins.json"), "utf8")
+      readFileSync45(join46(homedir18(), ".claude", "plugins", "installed_plugins.json"), "utf8")
     );
     for (const [key3, installs] of Object.entries(reg.plugins ?? {}))
       if (PLUGIN_KEY_RE.test(key3)) {
         for (const i of installs)
-          if (i.installPath) found.push([join42(i.installPath, "skills"), "claude"]);
+          if (i.installPath) found.push([join46(i.installPath, "skills"), "claude"]);
       }
   } catch {
   }
   for (const home of codexHomes2)
-    for (const c of codexCopies(home)) found.push([join42(c.dir, "skills"), "codex"]);
-  found.push([join42(homedir17(), ".agents", "skills"), "flat"]);
+    for (const c of codexCopies(home)) found.push([join46(c.dir, "skills"), "codex"]);
+  found.push([join46(homedir18(), ".agents", "skills"), "flat"]);
   const own = skillsRoot();
   if (own) found.push([own, "other"]);
   const seen = /* @__PURE__ */ new Set();
   return found.filter(([root]) => {
-    const key3 = resolve12(root);
-    if (seen.has(key3) || !existsSync18(join42(root, IN_SET))) return false;
+    const key3 = resolve13(root);
+    if (seen.has(key3) || !existsSync18(join46(root, IN_SET))) return false;
     seen.add(key3);
     return true;
   });
@@ -19701,7 +20669,7 @@ function skillsReport(out7, codexHomes2) {
   for (const [root, kind2] of found) {
     let v = null;
     try {
-      v = versionIn(readFileSync43(join42(root, IN_SET), "utf8"));
+      v = versionIn(readFileSync45(join46(root, IN_SET), "utf8"));
     } catch {
     }
     if (!v) out7(hw3().skillsUnreadable(root));
@@ -19715,25 +20683,41 @@ function skillsReport(out7, codexHomes2) {
 }
 
 // js/cli/opencode-config.ts
-import { existsSync as existsSync19, readFileSync as readFileSync44 } from "node:fs";
-import { homedir as homedir18 } from "node:os";
-import { dirname as dirname16, join as join43 } from "node:path";
+import { existsSync as existsSync19, readFileSync as readFileSync46 } from "node:fs";
+import { homedir as homedir19 } from "node:os";
+import { dirname as dirname18, join as join47 } from "node:path";
+
+// js/shared/jsonc.ts
+function parseJsonc(text7) {
+  const STRING = '"(?:[^"\\\\]|\\\\.)*"';
+  const noComments = text7.replace(
+    new RegExp(`${STRING}|/\\*[\\s\\S]*?\\*/|//[^\\n]*`, "g"),
+    (m) => m.startsWith('"') ? m : ""
+  );
+  const noTrailing = noComments.replace(
+    new RegExp(`${STRING}|,(\\s*[}\\]])`, "g"),
+    (m, tail2) => m.startsWith('"') ? m : tail2 ?? ""
+  );
+  return JSON.parse(noTrailing);
+}
+
+// js/cli/opencode-config.ts
 var BRIDGE_PART_RE = new RegExp(
   `(^|[\\\\/])${PRODUCT_PATTERN}[^\\\\/]*\\.mjs$|${escapeRe(BRIDGE_NAME)}`
 );
 var hw4 = () => words(HARNESS);
 function openCodeMcpEntries(out7) {
   const dirFiles = (d) => [
-    join43(d, "opencode.json"),
-    join43(d, "opencode.jsonc"),
-    join43(d, ".opencode", "opencode.json"),
-    join43(d, ".opencode", "opencode.jsonc")
+    join47(d, "opencode.json"),
+    join47(d, "opencode.jsonc"),
+    join47(d, ".opencode", "opencode.json"),
+    join47(d, ".opencode", "opencode.jsonc")
   ];
   const upwards = [];
   if (!process.env.OPENCODE_CONFIG_PROJECT_DISABLE)
     for (let d = process.cwd(); ; ) {
       upwards.push(...dirFiles(d));
-      const up = dirname16(d);
+      const up = dirname18(d);
       if (up === d) break;
       d = up;
     }
@@ -19741,7 +20725,7 @@ function openCodeMcpEntries(out7) {
     ...process.env.OPENCODE_CONFIG ? [process.env.OPENCODE_CONFIG] : [],
     // Whether this directory belongs to the switchable project layer was not observed (#5559).
     ...process.env.OPENCODE_CONFIG_DIR ? dirFiles(process.env.OPENCODE_CONFIG_DIR) : [],
-    ...dirFiles(join43(homedir18(), ".config", "opencode")),
+    ...dirFiles(join47(homedir19(), ".config", "opencode")),
     ...upwards
   ];
   const kindOf3 = (v) => {
@@ -19753,18 +20737,6 @@ function openCodeMcpEntries(out7) {
     if (parts.some((p) => BRIDGE_PART_RE.test(String(p)))) return "bridge";
     if (e.url && isProductionServer(e.url)) return "http";
     return null;
-  };
-  const parse2 = (text6) => {
-    const STRING = '"(?:[^"\\\\]|\\\\.)*"';
-    const noComments = text6.replace(
-      new RegExp(`${STRING}|/\\*[\\s\\S]*?\\*/|//[^\\n]*`, "g"),
-      (m) => m.startsWith('"') ? m : ""
-    );
-    const noTrailing = noComments.replace(
-      new RegExp(`${STRING}|,(\\s*[}\\]])`, "g"),
-      (m, tail2) => m.startsWith('"') ? m : tail2 ?? ""
-    );
-    return JSON.parse(noTrailing);
   };
   const bridgePath = (v) => {
     const e = v ?? {};
@@ -19779,7 +20751,7 @@ function openCodeMcpEntries(out7) {
   for (const f of new Set(files)) {
     if (!existsSync19(f)) continue;
     try {
-      sources.push([f, readFileSync44(f, "utf8")]);
+      sources.push([f, readFileSync46(f, "utf8")]);
     } catch {
       unreadable++;
       out7(hw4().ocUnreadable(f));
@@ -19788,9 +20760,9 @@ function openCodeMcpEntries(out7) {
   if (process.env.OPENCODE_CONFIG_CONTENT)
     sources.unshift(["OPENCODE_CONFIG_CONTENT", process.env.OPENCODE_CONFIG_CONTENT]);
   let found = 0;
-  for (const [file2, text6] of sources) {
+  for (const [file2, text7] of sources) {
     try {
-      const cfg = parse2(text6);
+      const cfg = parseJsonc(text7);
       for (const [name2, v] of Object.entries(cfg.mcp ?? {})) {
         const kind2 = kindOf3(v);
         if (!kind2) continue;
@@ -19814,7 +20786,7 @@ var out3 = (s2) => {
   process.stdout.write(s2 + "\n");
 };
 var dw = () => words(DOCTOR);
-var hashOf3 = (buf) => createHash12("sha256").update(buf).digest("hex").slice(0, 8);
+var hashOf3 = (buf) => createHash13("sha256").update(buf).digest("hex").slice(0, 8);
 var seconds = (ms2) => `${Math.round(ms2 / 1e3)}s`;
 var ENTRY = escapeRe(PLUGIN_NAME);
 var CODEX_ENTRY_RE = new RegExp(
@@ -19825,14 +20797,14 @@ function homeCopyReport() {
   const home = homeBridgePath();
   let self = null;
   try {
-    self = readFileSync45(fileURLToPath8(import.meta.url));
+    self = readFileSync47(fileURLToPath8(import.meta.url));
   } catch {
   }
   if (!existsSync20(home)) {
     out3(dw().homeNone(home));
     return;
   }
-  const bytes = readFileSync45(home);
+  const bytes = readFileSync47(home);
   if (self && bytes.equals(self)) {
     out3(dw().homeSame(home));
     return;
@@ -19958,7 +20930,7 @@ function grantReport() {
   }
   const logPath = grantLogPath();
   if (existsSync20(logPath)) {
-    const lines = readFileSync45(logPath, "utf8").trim().split("\n").slice(-3);
+    const lines = readFileSync47(logPath, "utf8").trim().split("\n").slice(-3);
     out3(dw().grantLog());
     for (const l of lines) out3(`    ${l}`);
   }
@@ -19976,10 +20948,10 @@ function latestReport() {
   else out3(dw().latestCurrent(latest.version, ago));
 }
 function claudePluginReport() {
-  const registry = join44(homedir19(), ".claude", "plugins", "installed_plugins.json");
+  const registry = join48(homedir20(), ".claude", "plugins", "installed_plugins.json");
   if (!existsSync20(registry)) return;
   try {
-    const reg = JSON.parse(readFileSync45(registry, "utf8"));
+    const reg = JSON.parse(readFileSync47(registry, "utf8"));
     const mine = Object.entries(reg.plugins ?? {}).filter(([k]) => PLUGIN_KEY_RE.test(k));
     if (!mine.length) {
       out3(dw().pluginMissing(registry));
@@ -19987,11 +20959,11 @@ function claudePluginReport() {
     }
     for (const [key3, installs] of mine) {
       for (const inst of installs) {
-        const manifest = inst.installPath ? join44(inst.installPath, ".mcp.json") : "";
+        const manifest2 = inst.installPath ? join48(inst.installPath, ".mcp.json") : "";
         let entry = dw().entryNotFound();
-        if (manifest && existsSync20(manifest)) {
+        if (manifest2 && existsSync20(manifest2)) {
           try {
-            const m = JSON.parse(readFileSync45(manifest, "utf8"));
+            const m = JSON.parse(readFileSync47(manifest2, "utf8"));
             const hit = Object.entries(m.mcpServers ?? {}).find(
               ([, v]) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
             );
@@ -20004,7 +20976,7 @@ function claudePluginReport() {
               });
             }
           } catch {
-            entry = dw().unreadable(manifest);
+            entry = dw().unreadable(manifest2);
           }
         }
         out3(
@@ -20025,21 +20997,21 @@ function claudePluginReport() {
 function codexHomes() {
   const homes = [
     process.env.CODEX_HOME?.trim() || "",
-    join44(homedir19(), ".codex"),
-    ...process.platform === "darwin" ? [join44(homedir19(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
+    join48(homedir20(), ".codex"),
+    ...process.platform === "darwin" ? [join48(homedir20(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
   ].filter(Boolean);
   return [...new Set(homes)].filter((h) => existsSync20(h));
 }
 function codexPluginReport(home) {
-  const cache = join44(home, "plugins", "cache");
+  const cache = join48(home, "plugins", "cache");
   if (!existsSync20(cache)) return;
   let found = 0;
   for (const { market, plugin, dir: dir2 } of codexCopies(home)) {
-    const manifest = join44(dir2, ".codex-plugin", "plugin.json");
+    const manifest2 = join48(dir2, ".codex-plugin", "plugin.json");
     let word3 = dw().codexNoManifest();
-    if (existsSync20(manifest)) {
+    if (existsSync20(manifest2)) {
       try {
-        const m = JSON.parse(readFileSync45(manifest, "utf8"));
+        const m = JSON.parse(readFileSync47(manifest2, "utf8"));
         const hit = Object.values(m.mcpServers ?? {}).find(
           (v) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
         );
@@ -20051,7 +21023,7 @@ function codexPluginReport(home) {
             command: hit.command ?? ""
           });
       } catch {
-        word3 = dw().unreadable(manifest);
+        word3 = dw().unreadable(manifest2);
       }
     }
     found++;
@@ -20063,10 +21035,10 @@ var launches = [];
 function harnessReport() {
   launches.length = 0;
   claudePluginReport();
-  const claude = join44(homedir19(), ".claude.json");
+  const claude = join48(homedir20(), ".claude.json");
   if (existsSync20(claude)) {
     try {
-      const cfg = JSON.parse(readFileSync45(claude, "utf8"));
+      const cfg = JSON.parse(readFileSync47(claude, "utf8"));
       const entries2 = Object.entries(cfg.mcpServers ?? {}).filter(
         ([, v]) => (v.args ?? []).some((a) => PRODUCT_RE.test(a))
       );
@@ -20085,13 +21057,13 @@ function harnessReport() {
       out3(dw().claudeUnreadable(claude));
     }
   }
-  const opencodeDir = join44(homedir19(), ".config", "opencode");
+  const opencodeDir = join48(homedir20(), ".config", "opencode");
   if (existsSync20(opencodeDir)) {
-    const copy = join44(opencodeDir, "plugins", PLUGIN_COPY_FILE);
-    const packaged = join44(dirname17(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
+    const copy = join48(opencodeDir, "plugins", PLUGIN_COPY_FILE);
+    const packaged = join48(dirname19(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
     if (!existsSync20(copy)) out3(dw().ocNoPlugin(copy));
     else if (!existsSync20(packaged)) out3(dw().ocNoPackaged(copy));
-    else if (readFileSync45(copy).equals(readFileSync45(packaged))) out3(dw().ocSame(copy));
+    else if (readFileSync47(copy).equals(readFileSync47(packaged))) out3(dw().ocSame(copy));
     else out3(dw().ocDiffers(copy, packaged));
     if (existsSync20(copy)) out3(openCodeRuntimeWord());
   }
@@ -20099,14 +21071,14 @@ function harnessReport() {
   for (const codexHome of codexHomes()) {
     out3(dw().codexHome(codexHome));
     codexPluginReport(codexHome);
-    const door = join44(codexHome, "app-server-control", "app-server-control.sock");
+    const door = join48(codexHome, "app-server-control", "app-server-control.sock");
     if (existsSync20(door)) out3(dw().codexDoorOpen(door));
     else if (Buffer.byteLength(door) > 100) out3(dw().codexDoorNever());
     else out3(dw().codexDoorNone(door));
-    const codex = join44(codexHome, "config.toml");
+    const codex = join48(codexHome, "config.toml");
     if (existsSync20(codex)) {
-      const text6 = readFileSync45(codex, "utf8");
-      out3(dw().codexManual(CODEX_ENTRY_RE.test(text6)));
+      const text7 = readFileSync47(codex, "utf8");
+      out3(dw().codexManual(CODEX_ENTRY_RE.test(text7)));
     }
   }
   launchReport(out3, launches);
@@ -20160,7 +21132,7 @@ async function runDoctor(argv2) {
 }
 
 // js/cli/orchestra.ts
-var w10 = () => words(ORCHESTRA);
+var w11 = () => words(ORCHESTRA);
 var TACT_WAIT_MS = 15 * 6e4;
 function take(args, flag) {
   const i = args.indexOf(flag);
@@ -20185,15 +21157,15 @@ async function runOrchestra(argv2) {
   const dry = args.indexOf("--dry-run");
   if (dry >= 0) args.splice(dry, 1);
   const named2 = args.find((a) => !a.startsWith("--"));
-  const fail2 = (text6) => {
-    process.stderr.write(`${text6}
+  const fail2 = (text7) => {
+    process.stderr.write(`${text7}
 `);
     process.exitCode = 1;
   };
   const describes = launcher !== void 0;
   const loose2 = models.length || limit !== void 0 || host !== void 0;
   if (!named2 || named2 === "plan" || !isOrchestraOp(named2) || dry >= 0 && named2 !== "step" || (describes || loose2) && named2 !== "on" || loose2 && !describes || limit !== void 0 && !/^\d+$/.test(limit))
-    return fail2(w10().usage().trimEnd());
+    return fail2(w11().usage().trimEnd());
   const op = dry >= 0 ? "plan" : named2;
   parseArgs(["--auth-dir", authDir, ...args.filter((a) => a !== named2)]);
   const slow = op === "demands" || describes;
@@ -20217,34 +21189,34 @@ async function runOrchestra(argv2) {
 }
 
 // js/cli/preparefiles.ts
-import { spawnSync } from "node:child_process";
+import { spawnSync as spawnSync2 } from "node:child_process";
 import {
-  existsSync as existsSync22,
-  lstatSync as lstatSync6,
-  readFileSync as readFileSync49,
+  existsSync as existsSync23,
+  lstatSync as lstatSync7,
+  readFileSync as readFileSync52,
   readlinkSync,
   symlinkSync,
-  writeFileSync as writeFileSync22
+  writeFileSync as writeFileSync24
 } from "node:fs";
-import { join as join48 } from "node:path";
+import { join as join53 } from "node:path";
 
 // js/shared/coverwrite.ts
 var scalar = (v) => {
   const s2 = String(v);
   return /^\w[\w/.-]*$/.test(s2) ? s2 : `'${s2.replace(/'/g, "''")}'`;
 };
-var renderCover = (root, data) => [
+var renderCover = (root, data2) => [
   `${root}:`,
-  ...FIELDS.filter((k) => data[k] !== void 0 && data[k] !== "").map(
-    (k) => `  ${k}: ${scalar(data[k])}`
+  ...FIELDS.filter((k) => data2[k] !== void 0 && data2[k] !== "").map(
+    (k) => `  ${k}: ${scalar(data2[k])}`
   )
 ];
-function writeCover(text6, root, data) {
-  const eol = text6?.includes("\r\n") ? "\r\n" : "\n";
-  const bom = text6?.startsWith("\uFEFF") ? "\uFEFF" : "";
-  const block = renderCover(root, data);
-  const f = text6 ? fences(text6) : null;
-  if (!f) return bom + ["---", ...block, "---", ""].join(eol) + (text6 ?? "").slice(bom.length);
+function writeCover(text7, root, data2) {
+  const eol = text7?.includes("\r\n") ? "\r\n" : "\n";
+  const bom = text7?.startsWith("\uFEFF") ? "\uFEFF" : "";
+  const block = renderCover(root, data2);
+  const f = text7 ? fences(text7) : null;
+  if (!f) return bom + ["---", ...block, "---", ""].join(eol) + (text7 ?? "").slice(bom.length);
   const inner = f.lines.slice(1, f.end);
   const at3 = inner.findIndex((l) => TOP.test(l) && unquote(TOP.exec(l)?.[1] ?? "") === root);
   const end = at3 < 0 ? at3 : blockEnd(inner, at3);
@@ -20273,23 +21245,76 @@ function others(lines) {
 }
 
 // js/shared/ritualcover.ts
-import { readdirSync as readdirSync17, readFileSync as readFileSync46 } from "node:fs";
-import { join as join45 } from "node:path";
+import { readdirSync as readdirSync17, readFileSync as readFileSync48 } from "node:fs";
+import { join as join49 } from "node:path";
+function headings(text7) {
+  const lines = text7.split("\n");
+  let i = lines[0]?.trim() === "---" ? lines.findIndex((l, n) => n > 0 && l.trim() === "---") + 1 : 0;
+  let fenced = false;
+  const out7 = [];
+  for (; i < lines.length; i++) {
+    const l = lines[i] ?? "";
+    if (/^\s*(?:```|~~~)/.test(l)) fenced = !fenced;
+    else if (!fenced && /^#{1,6}\s/.test(l)) out7.push(l.replace(/^#+\s*|\s+#+\s*$/g, "").trim());
+  }
+  return out7;
+}
+function bodyLang(text7) {
+  const heads = headings(text7).map((h) => h.toLowerCase());
+  return LANGS.find((l) => heads.some((h) => h.startsWith(RITES[l].lifecycle().toLowerCase())));
+}
+function sectionsOf(text7) {
+  const heads = headings(text7);
+  const out7 = {};
+  for (const k of Object.keys(SECTIONS)) {
+    const h = heads.find(SECTIONS[k]);
+    if (h) out7[k] = h;
+  }
+  return out7;
+}
+function ritualCover(dir2, cover = COVER) {
+  const root = repoRoot(dir2);
+  if (!root) return null;
+  let text7;
+  try {
+    text7 = readFileSync48(join49(root, cover.file), "utf8");
+  } catch {
+    return null;
+  }
+  if (stampOf2(text7, cover) === "foreign") return null;
+  const block = coverBlock(text7, cover.root);
+  const graph = block?.get("graph");
+  if (!block || !graph) return null;
+  const holon = block.get("holon") || void 0;
+  const role = block.get("agent_role") || void 0;
+  const lang2 = bodyLang(text7);
+  const { on } = ritualsOf(block);
+  const sections = sectionsOf(text7);
+  return {
+    root,
+    graph,
+    ...holon ? { holon } : {},
+    ...role ? { role } : {},
+    lang: lang2,
+    on,
+    sections
+  };
+}
 function ownRitualsPlugin(root) {
   try {
-    return readdirSync17(join45(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
+    return readdirSync17(join49(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
   } catch {
     return false;
   }
 }
 
 // js/cli/preparehooks.ts
-import { existsSync as existsSync21, mkdirSync as mkdirSync23, readFileSync as readFileSync48, writeFileSync as writeFileSync21 } from "node:fs";
-import { join as join47 } from "node:path";
+import { existsSync as existsSync22, mkdirSync as mkdirSync27, readFileSync as readFileSync51, writeFileSync as writeFileSync23 } from "node:fs";
+import { join as join52 } from "node:path";
 
 // js/cli/preparescripts.ts
-import { readFileSync as readFileSync47, statSync as statSync13 } from "node:fs";
-import { isAbsolute as isAbsolute9, join as join46 } from "node:path";
+import { readFileSync as readFileSync49, statSync as statSync13 } from "node:fs";
+import { isAbsolute as isAbsolute9, join as join50 } from "node:path";
 var SCRIPT = /\.(sh|bash|zsh|js|cjs|mjs|ts|py|rb|pl)$/;
 var PROJECT = /\$\{?CLAUDE_PROJECT_DIR\}?/g;
 var INTERPRETER = /(^|\/)(sh|bash|zsh|dash|node|bun|deno|tsx|python3?|ruby|perl)$/;
@@ -20297,7 +21322,7 @@ function scriptsOf(root, command) {
   const words2 = command.split(/\s+/).map((t) => t.replace(/["']/g, ""));
   const at3 = (t) => {
     const p = t.replace(PROJECT, root);
-    return isAbsolute9(p) ? p : join46(root, p);
+    return isAbsolute9(p) ? p : join50(root, p);
   };
   return words2.filter(
     (t, i) => SCRIPT.test(t) || t.includes("CLAUDE_PROJECT_DIR") || i > 0 && INTERPRETER.test(words2[i - 1] ?? "") && /^[\w.~]/.test(t) || t.includes("/") && isFile(at3(t))
@@ -20310,15 +21335,15 @@ function isFile(path) {
     return false;
   }
 }
-function text5(path) {
+function text6(path) {
   try {
-    return isFile(path) ? readFileSync47(path, "utf8") : "";
+    return isFile(path) ? readFileSync49(path, "utf8") : "";
   } catch {
     return "";
   }
 }
 function knownHook(root, command, known2) {
-  return known2(command) || scriptsOf(root, command).some((p) => known2(text5(p)));
+  return known2(command) || scriptsOf(root, command).some((p) => known2(text6(p)));
 }
 function runsOn(matcher, tool2) {
   try {
@@ -20362,6 +21387,68 @@ var knownOf = (root, s2, kind2, target) => {
   return hooksOf(s2, k.event, on).filter((h) => knownHook(root, cmd(h), k.known));
 };
 
+// js/cli/preparequestions.ts
+import { existsSync as existsSync21, mkdirSync as mkdirSync26, readFileSync as readFileSync50, writeFileSync as writeFileSync22 } from "node:fs";
+import { dirname as dirname20, join as join51 } from "node:path";
+var QUESTION_POLICY = { action: "tool.use", resource: "question:*", effect: "deny" };
+function object3(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function denyClaudeQuestion(settings) {
+  if (settings.permissions !== void 0 && !object3(settings.permissions))
+    throw new Error(words(QUESTIONS).permissions());
+  const p = settings.permissions ?? {};
+  if (p.deny !== void 0 && (!Array.isArray(p.deny) || p.deny.some((v) => typeof v !== "string")))
+    throw new Error(words(QUESTIONS).denyArray());
+  const deny = p.deny ?? [];
+  if (deny.includes("AskUserQuestion")) return false;
+  settings.permissions = { ...p, deny: [...deny, "AskUserQuestion"] };
+  return true;
+}
+function hasQuestionDeny(policies) {
+  return Array.isArray(policies) && policies.some(
+    (p) => object3(p) && p.action === "tool.use" && p.resource === "question:*" && p.effect === "deny"
+  );
+}
+function questionConfig(root) {
+  const path = join51(root, ".opencode", "opencode.json");
+  const jsoncPath = `${path}c`;
+  const jsonc = existsSync21(jsoncPath);
+  const file2 = jsonc ? jsoncPath : path;
+  const fail2 = (reason) => ({
+    path: file2,
+    jsonc,
+    error: words(QUESTIONS).manual(file2, reason)
+  });
+  if (jsonc && existsSync21(path)) return fail2("both");
+  try {
+    const cfg = existsSync21(file2) ? parseJsonc(readFileSync50(file2, "utf8")) : {};
+    if (!object3(cfg) || cfg.policies !== void 0 && !Array.isArray(cfg.policies))
+      return fail2("shape");
+    if (jsonc && !hasQuestionDeny(cfg.policies)) return fail2("missing");
+    return { path: file2, cfg, jsonc };
+  } catch {
+    return fail2("parse");
+  }
+}
+function prepareQuestionPolicy(root, write = true) {
+  const { path, cfg, error, jsonc } = questionConfig(root);
+  if (error) return error;
+  if (!cfg || jsonc || hasQuestionDeny(cfg.policies)) return null;
+  try {
+    const policies = cfg.policies ?? [];
+    cfg.policies = [...policies, QUESTION_POLICY];
+    cfg.$schema ??= "https://opencode.ai/config.json";
+    if (!write) return null;
+    mkdirSync26(dirname20(path), { recursive: true });
+    writeFileSync22(path, `${JSON.stringify(cfg, null, 2)}
+`);
+    return null;
+  } catch {
+    return words(QUESTIONS).manual(path, "parse");
+  }
+}
+
 // js/cli/preparehooks.ts
 var GUARD_HEAD = `p=$(jq -r '(.tool_input.file_path // .tool_input.notebook_path // "") | split([92] | implode) | join("/")'); [ -n "$p" ] || exit 0; case "$p" in /*) ;; *) p="$PWD/$p" ;; esac; m=$(cd -P "$HOME/.claude/projects" 2>/dev/null && pwd -P | tr '[:upper:]' '[:lower:]'); mem() { k=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]'); case "$k" in */.claude/projects/*/memory|*/.claude/projects/*/memory/*) return 0 ;; esac; [ -n "$m" ] && case "$k" in "$m"/*/memory|"$m"/*/memory/*) true ;; *) false ;; esac; }; r=; s=$p; n=0; x=0; while [ -n "$s" ]; do c=\${s%%/*}; s=\${s#"$c"}; s=\${s#/}; case "$c" in ''|.) continue ;; ..) r=\${r%/*}; continue ;; esac; if [ -L "$r/$c" ]; then n=$((n+1)); l=$(readlink "$r/$c"); if [ $n -gt 40 ] || [ -z "$l" ] || mem "$r/$c"; then x=1; break; fi; case "$l" in /*) r= ;; esac; s=$l/$s; else r=$r/$c; fi; done; { [ $x = 1 ] || mem "$p" || mem "$r"; } && { `;
 var GUARD_TAIL = " >&2; exit 2; } || exit 0";
@@ -20377,9 +21464,9 @@ var written = (c) => {
 };
 var CARRIED = ["hook.start", "hook.push", "hook.merge"];
 function load2(path) {
-  if (!existsSync21(path)) return {};
+  if (!existsSync22(path)) return {};
   try {
-    const s2 = JSON.parse(readFileSync48(path, "utf8"));
+    const s2 = JSON.parse(readFileSync51(path, "utf8"));
     return s2 && typeof s2 === "object" && !Array.isArray(s2) ? s2 : null;
   } catch {
     return null;
@@ -20409,11 +21496,17 @@ function guard(root, s2, addr, out7, preserve) {
   return true;
 }
 function prepareHooks(root, addr, out7, on, preserve = false) {
-  const dir2 = join47(root, ".claude");
-  const path = join47(dir2, "settings.json");
+  const dir2 = join52(root, ".claude");
+  const path = join52(dir2, "settings.json");
   const s2 = load2(path);
   if (!s2) return path;
-  const changed = on.has("guard") && guard(root, s2, addr, out7, preserve);
+  let questionChanged;
+  try {
+    questionChanged = denyClaudeQuestion(s2);
+  } catch {
+    return path;
+  }
+  const changed = on.has("guard") && guard(root, s2, addr, out7, preserve) || questionChanged;
   const carried = CARRIED.filter((kind2) => on.has(kind2.slice("hook.".length)));
   for (const kind2 of carried) if (knownOf(root, s2, kind2).length) out7.left.push(kind2);
   const start = KNOWN["hook.start"];
@@ -20423,8 +21516,8 @@ function prepareHooks(root, addr, out7, on, preserve = false) {
     (out7.named ??= {})["hook.start"] = cmd(unread);
   }
   if (changed) {
-    mkdirSync23(dir2, { recursive: true });
-    writeFileSync21(path, `${JSON.stringify(s2, null, 2)}
+    mkdirSync27(dir2, { recursive: true });
+    writeFileSync23(path, `${JSON.stringify(s2, null, 2)}
 `);
   }
   return null;
@@ -20432,7 +21525,7 @@ function prepareHooks(root, addr, out7, on, preserve = false) {
 
 // js/cli/preparefiles.ts
 var git2 = (dir2, ...args) => {
-  const r = spawnSync("git", ["-C", dir2, ...args], { encoding: "utf8", windowsHide: true });
+  const r = spawnSync2("git", ["-C", dir2, ...args], { encoding: "utf8", windowsHide: true });
   return r.status === 0 ? r.stdout.trim() : null;
 };
 var repoRoot2 = (dir2) => git2(dir2, "rev-parse", "--show-toplevel");
@@ -20445,23 +21538,23 @@ function repositoryOf(root) {
 }
 function coverText(root, given) {
   const W4 = words(PREPARE);
-  const file2 = join48(root, COVER.file);
-  const before = existsSync22(file2) ? readFileSync49(file2, "utf8") : null;
+  const file2 = join53(root, COVER.file);
+  const before = existsSync23(file2) ? readFileSync52(file2, "utf8") : null;
   if (before !== null && stampOf2(before) === "foreign") return { why: W4.foreign(COVER.file) };
   const had = before === null ? null : coverBlock(before, COVER.root);
   const twice = before === null ? [] : repeatedKeys(before);
-  const data = {};
+  const data2 = {};
   for (const k of FIELDS) {
     const v = given[k] ?? (twice.includes(`${COVER.root}.${k}`) ? void 0 : had?.get(k));
-    if (v !== void 0 && v !== "") data[k] = v;
+    if (v !== void 0 && v !== "") data2[k] = v;
   }
-  const text6 = writeCover(before, COVER.root, data);
-  const repeated = [.../* @__PURE__ */ new Set([...twice, ...repeatedKeys(text6)])];
-  if (repeated.length) return { file: file2, before, text: before ?? text6, data, repeated };
-  const read = coverBlock(text6, COVER.root);
-  if (!read || FIELDS.some((k) => (read.get(k) ?? "") !== String(data[k] ?? "")))
+  const text7 = writeCover(before, COVER.root, data2);
+  const repeated = [.../* @__PURE__ */ new Set([...twice, ...repeatedKeys(text7)])];
+  if (repeated.length) return { file: file2, before, text: before ?? text7, data: data2, repeated };
+  const read = coverBlock(text7, COVER.root);
+  if (!read || FIELDS.some((k) => (read.get(k) ?? "") !== String(data2[k] ?? "")))
     return { why: W4.unparsed(COVER.file) };
-  return { file: file2, before, text: text6, data, repeated };
+  return { file: file2, before, text: text7, data: data2, repeated };
 }
 function writeAgents(c, out7) {
   if (c.repeated.length) {
@@ -20469,7 +21562,7 @@ function writeAgents(c, out7) {
     out7.repeated = c.repeated;
   } else if (c.text === c.before) out7.kept.push(COVER.file);
   else {
-    writeFileSync22(c.file, c.text);
+    writeFileSync24(c.file, c.text);
     out7.done.push(COVER.file);
   }
   for (const k of ["graph", "holon", "agent_role", "contract"])
@@ -20484,29 +21577,29 @@ function writeAgents(c, out7) {
     out7.left.push("cover.flat");
 }
 function writeReality(root, caseNo, out7) {
-  const file2 = join48(root, "REALITY.md");
+  const file2 = join53(root, "REALITY.md");
   const stub = words(PREPARE).reality(caseNo);
-  const had = existsSync22(file2) ? readFileSync49(file2, "utf8") : null;
+  const had = existsSync23(file2) ? readFileSync52(file2, "utf8") : null;
   if (had !== null && (had === stub || !caseNo || had !== words(PREPARE).reality()))
     return void out7.kept.push("REALITY.md");
-  writeFileSync22(file2, stub);
+  writeFileSync24(file2, stub);
   out7.done.push("REALITY.md");
 }
 function writeClaude(root, out7) {
-  const file2 = join48(root, "CLAUDE.md");
-  const st = lstatSync6(file2, { throwIfNoEntry: false });
+  const file2 = join53(root, "CLAUDE.md");
+  const st = lstatSync7(file2, { throwIfNoEntry: false });
   if (st?.isSymbolicLink()) {
     out7[readlinkSync(file2) === COVER.file ? "kept" : "left"].push("CLAUDE.md");
     return;
   }
   if (st) {
-    const lines = readFileSync49(file2, "utf8").split(/\r?\n/);
+    const lines = readFileSync52(file2, "utf8").split(/\r?\n/);
     out7[lines.includes(`@${COVER.file}`) ? "kept" : "left"].push("CLAUDE.md");
     return;
   }
   const links = process.platform !== "win32" && git2(root, "config", "core.symlinks") !== "false";
   if (links) symlinkSync(COVER.file, file2);
-  else writeFileSync22(file2, `@${COVER.file}
+  else writeFileSync24(file2, `@${COVER.file}
 `);
   out7.done.push("CLAUDE.md");
 }
@@ -20515,7 +21608,7 @@ function checkOpencode(root, out7) {
 }
 
 // js/cli/stopapi.ts
-import { randomUUID as randomUUID3 } from "node:crypto";
+import { randomUUID as randomUUID5 } from "node:crypto";
 var sw4 = () => words(STOP_CLI);
 var TIMEOUT_MS5 = 1e4;
 var sameServer = (a, b) => {
@@ -20575,7 +21668,7 @@ async function stopSeat(p, id, base, token) {
     if (realm === null) return { ok: false, said: sw4().unnamedGraph(seat2, p.realm) };
     const order2 = await ask2(`${at3}/stop`, "POST", realm, token, {
       reason_code: "person_request",
-      client_id: `stop-${randomUUID3()}`
+      client_id: `stop-${randomUUID5()}`
     });
     if (order2.status >= 200 && order2.status < 300) {
       let orderId = "";
@@ -20601,9 +21694,9 @@ async function stopSeat(p, id, base, token) {
 }
 
 // js/cli/preparegraph.ts
-var single = (text6, type) => {
+var single = (text7, type) => {
   const ids = [
-    ...new Set([...text6.matchAll(new RegExp(`\\(#(\\d+), ${type}\\b`, "g"))].map((m) => m[1]))
+    ...new Set([...text7.matchAll(new RegExp(`\\(#(\\d+), ${type}\\b`, "g"))].map((m) => m[1]))
   ];
   return ids.length === 1 ? ids[0] : null;
 };
@@ -20642,7 +21735,7 @@ var FORMS = {
   "--case": /^\d+$/,
   "--lang": /^(en|ru)$/
 };
-function parse(argv2) {
+function parse3(argv2) {
   const a = { json: false, help: false, flags: {} };
   for (let i = 0; i < argv2.length; i++) {
     const f = argv2[i];
@@ -20657,9 +21750,9 @@ function parse(argv2) {
   }
   return a;
 }
-function say2(json2, code2, body) {
+function say2(json3, code2, body) {
   const W4 = words(PREPARE);
-  if (json2) process.stdout.write(`${JSON.stringify(body)}
+  if (json3) process.stdout.write(`${JSON.stringify(body)}
 `);
   else if (typeof body.refused === "string") process.stderr.write(`${body.refused}
 `);
@@ -20680,18 +21773,18 @@ async function runPrepare(argv2) {
   const lang2 = argv2.indexOf("--lang");
   setLang(lang2 >= 0 ? argv2[lang2 + 1] : void 0);
   let W4 = words(PREPARE);
-  const json2 = argv2.includes("--json");
-  const a = parse(argv2);
+  const json3 = argv2.includes("--json");
+  const a = parse3(argv2);
   if ("bad" in a) {
     const i = argv2.indexOf(a.bad);
-    return say2(json2, 2, { refused: `${W4.badArg(a.bad, argv2[i + 1] ?? "")}
+    return say2(json3, 2, { refused: `${W4.badArg(a.bad, argv2[i + 1] ?? "")}
 ${W4.usage()}` });
   }
   if (a.help) return void process.stdout.write(W4.usage());
   const f = a.flags;
   const dir2 = f["--dir"] ?? process.cwd();
   const root = repoRoot2(dir2);
-  if (!root) return say2(json2, 1, { refused: W4.notRepo(dir2) });
+  if (!root) return say2(json3, 1, { refused: W4.notRepo(dir2) });
   const warning = repoContractWarning(root);
   const given = {
     graph: f["--graph"],
@@ -20701,7 +21794,7 @@ ${W4.usage()}` });
     stamp: f["--contract"] ? f["--stamp"] ?? (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) : f["--stamp"]
   };
   let cover = coverText(root, given);
-  if ("why" in cover) return say2(json2, 1, { refused: cover.why });
+  if ("why" in cover) return say2(json3, 1, { refused: cover.why });
   const repository = repositoryOf(root);
   const { graph, holon, agent_role } = cover.data;
   const derived = graph && repository && (!holon || !agent_role) && !cover.repeated.length ? await fromGraph(String(graph), repository, holon ? String(holon) : void 0) : {};
@@ -20709,7 +21802,7 @@ ${W4.usage()}` });
   W4 = words(PREPARE);
   if (derived.holon || derived.agent_role) {
     cover = coverText(root, { ...given, ...derived, ...agent_role ? { agent_role } : {} });
-    if ("why" in cover) return say2(json2, 1, { refused: cover.why });
+    if ("why" in cover) return say2(json3, 1, { refused: cover.why });
   }
   const out7 = { done: [], kept: [], left: [] };
   const d = cover.data;
@@ -20719,8 +21812,12 @@ ${W4.usage()}` });
     ...d.agent_role ? { role: String(d.agent_role) } : {}
   } : null;
   const { on } = ritualsOf(coverBlock(cover.text, COVER.root));
+  const policyError = prepareQuestionPolicy(root, false);
+  if (policyError) return say2(json3, 1, { refused: policyError });
   const unparsed = prepareHooks(root, addr, out7, on, !!warning);
-  if (unparsed) return say2(json2, 1, { refused: W4.unparsed(unparsed) });
+  if (unparsed) return say2(json3, 1, { refused: W4.unparsed(unparsed) });
+  const policyWriteError = prepareQuestionPolicy(root);
+  if (policyWriteError) return say2(json3, 1, { refused: policyWriteError });
   writeAgents(cover, out7);
   writeReality(root, f["--case"], out7);
   writeClaude(root, out7);
@@ -20731,7 +21828,7 @@ ${W4.usage()}` });
     const keys = listed(item === "cover.rituals" ? out7.rituals : out7.repeated);
     return { item, why: hook ? W4.unread(item, hook) : W4.left(item, keys) };
   });
-  say2(json2, left2.length ? 3 : 0, {
+  say2(json3, left2.length ? 3 : 0, {
     repo: root,
     repository,
     derived,
@@ -20744,20 +21841,25 @@ ${W4.usage()}` });
 }
 
 // js/cli/rituals.ts
-import { mkdtempSync as mkdtempSync2, readdirSync as readdirSync18, realpathSync as realpathSync6, rmSync as rmSync3, statSync as statSync14 } from "node:fs";
-import { tmpdir as tmpdir2 } from "node:os";
-import { join as join51, resolve as resolve13 } from "node:path";
+import { mkdtempSync as mkdtempSync3, readdirSync as readdirSync18, realpathSync as realpathSync11, rmSync as rmSync4, statSync as statSync14 } from "node:fs";
+import { tmpdir as tmpdir3 } from "node:os";
+import { join as join57, resolve as resolve14 } from "node:path";
+
+// js/cli/questionaudit.ts
+import { existsSync as existsSync24, mkdtempSync as mkdtempSync2, readFileSync as readFileSync53, rmSync as rmSync3 } from "node:fs";
+import { homedir as homedir22, tmpdir as tmpdir2 } from "node:os";
+import { dirname as dirname21, join as join56 } from "node:path";
 
 // js/cli/ritualprobe.ts
 import { mkdtempSync, rmSync as rmSync2, symlinkSync as symlinkSync2 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join50 } from "node:path";
+import { join as join55 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // js/cli/ritualcalls.ts
-import { homedir as homedir20 } from "node:os";
-import { join as join49 } from "node:path";
-var memoryPath = join49(homedir20(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
+import { homedir as homedir21 } from "node:os";
+import { join as join54 } from "node:path";
+var memoryPath = join54(homedir21(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
 var pushed = "To github.com:o/r.git\n   1234567..89abcde  feat/x -> feat/x";
 var seq3 = 0;
 var fresh2 = (kind2) => `${kind2}-${++seq3}`;
@@ -20845,8 +21947,8 @@ var dropPluginGlobals = () => {
   for (const k of Reflect.ownKeys(globalThis)) if (!baseline.has(k)) delete g[k];
 };
 var probes = 0;
-var created = (sessionID, directory) => {
-  const location = { directory };
+var created = (sessionID, directory2) => {
+  const location = { directory: directory2 };
   return {
     type: "session.created",
     location,
@@ -20855,9 +21957,9 @@ var created = (sessionID, directory) => {
 };
 var settle = (ms2 = SETTLE_MS) => new Promise((r) => setTimeout(r, ms2));
 async function probeScope(file2, own, foreign) {
-  const aliasRoot = mkdtempSync(join50(tmpdir(), "ritual-scope-alias-"));
+  const aliasRoot = mkdtempSync(join55(tmpdir(), "ritual-scope-alias-"));
   try {
-    const alias = join50(aliasRoot, "own");
+    const alias = join55(aliasRoot, "own");
     symlinkSync2(own, alias, "dir");
     return await probeWith(file2, own, alias, foreign);
   } finally {
@@ -20868,11 +21970,13 @@ async function probeWith(file2, own, alias, foreign) {
   dropPluginGlobals();
   const tag = ++probes;
   const who = ["mine", "twin", "theirs"];
-  const id = Object.fromEntries(who.map((w11) => [w11, `${w11}@${tag}`]));
-  const whoOf4 = (sessionID) => who.find((w11) => id[w11] === sessionID);
+  const id = Object.fromEntries(who.map((w12) => [w12, `${w12}@${tag}`]));
+  const whoOf4 = (sessionID) => who.find((w12) => id[w12] === sessionID);
   const dirs = { mine: own, twin: alias, theirs: foreign };
   const writes = { mine: 0, twin: 0, theirs: 0 };
   const hooks = {};
+  const permissionHooks = [];
+  const tools = /* @__PURE__ */ new Set(["question", "case_probe"]);
   const reads = /* @__PURE__ */ new Set(["get", "list", "messages", "children", "status"]);
   const session = new Proxy(
     {},
@@ -20896,12 +22000,29 @@ async function probeWith(file2, own, alias, foreign) {
   const ctx = context({
     location: { directory: alias },
     session,
-    tool: loose({ hook: async (name2, fn) => void (hooks[name2] ??= []).push(fn) }),
+    permission: loose({
+      hook: async (_name, fn) => {
+        permissionHooks.push(fn);
+      }
+    }),
+    tool: loose({
+      transform: async (fn) => fn({
+        remove: (name2) => tools.delete(name2),
+        add: (tool2) => tools.add(tool2.name),
+        list: () => [...tools].map((name2) => ({ id: name2, name: name2 })),
+        get: (name2) => tools.has(name2) ? { id: name2, name: name2 } : void 0,
+        update: () => {
+        },
+        namespace: () => {
+        }
+      }),
+      hook: async (name2, fn) => void (hooks[name2] ??= []).push(fn)
+    }),
     event: loose({
       subscribe: ({ signal } = {}) => {
         subscribed = true;
         return (async function* () {
-          for (const w11 of who) yield created(id[w11], dirs[w11]);
+          for (const w12 of who) yield created(id[w12], dirs[w12]);
           if (signal) await new Promise((r) => signal.addEventListener("abort", r));
         })();
       }
@@ -20920,20 +22041,118 @@ async function probeWith(file2, own, alias, foreign) {
       )
     )
   ]).finally(() => clearTimeout(timer));
-  await settle();
-  const onEvents = { ...writes };
-  const mine = await runHooks(hooks, id.mine);
-  await settle(50);
-  if (typeof cleanup === "function") await cleanup();
-  return {
-    writes: onEvents,
-    subscribed,
-    broken: mine.broken,
-    ownBefore: mine.hit.some(
-      (h) => h.startsWith("execute.before write: throw") && !mine.broken.includes(h)
-    ),
-    ownAfter: mine.hit.includes("execute.after bash: changed")
+  try {
+    await settle();
+    const onEvents = { ...writes };
+    const mine = await runHooks(hooks, id.mine);
+    const question = { action: "question", effect: "allow" };
+    const card = { action: "case_probe", effect: "allow" };
+    for (const fn of permissionHooks) {
+      await fn(question);
+      await fn(card);
+    }
+    await settle(50);
+    return {
+      writes: onEvents,
+      subscribed,
+      broken: mine.broken,
+      ownBefore: mine.hit.some(
+        (h) => h.startsWith("execute.before write: throw") && !mine.broken.includes(h)
+      ),
+      ownAfter: mine.hit.includes("execute.after bash: changed"),
+      questions: {
+        removed: !tools.has("question"),
+        denied: question.effect === "deny",
+        caseAllowed: card.effect === "allow"
+      }
+    };
+  } finally {
+    if (typeof cleanup === "function") await cleanup();
+  }
+}
+
+// js/cli/questionaudit.ts
+function json2(path) {
+  try {
+    const v = JSON.parse(readFileSync53(path, "utf8"));
+    return object3(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+function manifest() {
+  if (process.env.CLAUDE_PLUGIN_ROOT)
+    return join56(process.env.CLAUDE_PLUGIN_ROOT, "hooks/hooks.json");
+  for (let dir2 = dirname21(SELF2); ; ) {
+    const path = join56(dir2, "hooks/hooks.json");
+    if (existsSync24(path)) return path;
+    const up = dirname21(dir2);
+    if (up === dir2) return null;
+    dir2 = up;
+  }
+}
+async function auditQuestions(root) {
+  if (!ritualCover(root)) return [];
+  const W4 = words(QUESTIONS);
+  const rows = [];
+  const row = (layer, file3, pass2, error2) => {
+    const basis = layer === "question.plugin" ? W4.pluginBasis() : W4.fileBasis();
+    rows.push({ layer, basis, file: file3, hole: !pass2, ...pass2 ? {} : { error: error2 } });
   };
+  const text7 = readFileSync53(join56(root, "AGENTS.md"), "utf8");
+  row(
+    "question.instructions",
+    join56(root, "AGENTS.md"),
+    /question/.test(text7) && /AskUserQuestion/.test(text7) && /\bask\b/.test(text7),
+    W4.instructions()
+  );
+  const cc = join56(root, ".claude/settings.json");
+  const permissions = json2(cc)?.permissions;
+  const denied = object3(permissions) && Array.isArray(permissions.deny) && permissions.deny.includes("AskUserQuestion");
+  const oc = questionConfig(root);
+  const blocked = !oc.error && hasQuestionDeny(oc.cfg?.policies);
+  row("question.project", cc, !!denied, W4.claudeProject());
+  row("question.project", oc.path, blocked, oc.error ?? W4.manual(oc.path, "missing"));
+  const path = manifest();
+  const hooks = path ? json2(path)?.hooks : null;
+  const entries2 = object3(hooks) ? hooks.PreToolUse : null;
+  const hook = Array.isArray(entries2) && entries2.some(
+    (e) => object3(e) && e.matcher === "AskUserQuestion" && Array.isArray(e.hooks) && e.hooks.some(
+      (h) => object3(h) && typeof h.command === "string" && /permissionDecision:'deny'/.test(h.command)
+    )
+  );
+  row("question.plugin", path ?? W4.claudeFile(), hook, W4.claudePlugin());
+  const file2 = [
+    process.env.OPENCODE_CONFIG_DIR && join56(process.env.OPENCODE_CONFIG_DIR, "plugins", PLUGIN_COPY_FILE),
+    join56(dirname21(SELF2), PLUGIN_FILE),
+    join56(homedir22(), ".config/opencode/plugins", PLUGIN_COPY_FILE)
+  ].find((p) => !!p && existsSync24(p));
+  let pass = false;
+  let error = W4.opencodeMissing();
+  if (file2) {
+    const foreign = mkdtempSync2(join56(tmpdir2(), "question-audit-"));
+    const keys = ["HOME", envName("BRIDGE_AUTH_DIR"), envName("BRIDGE_PATH"), envName("ROOT_SEAT")];
+    const before = keys.map((k) => process.env[k]);
+    try {
+      for (const [i, value] of [foreign, foreign, join56(foreign, "absent.mjs"), "0"].entries()) {
+        const key3 = keys[i];
+        if (key3) process.env[key3] = value;
+      }
+      const q = (await probeScope(file2, root, foreign)).questions;
+      pass = q.removed && q.denied && q.caseAllowed;
+      error = W4.opencodeGuard();
+    } catch (e) {
+      error = String(e);
+    } finally {
+      keys.forEach((k, i) => {
+        if (before[i] === void 0) delete process.env[k];
+        else process.env[k] = before[i];
+      });
+      rmSync3(foreign, { recursive: true, force: true });
+    }
+  }
+  row("question.plugin", file2 ?? W4.opencodeFile(), pass, error);
+  return rows;
 }
 
 // js/cli/rituals.ts
@@ -20942,19 +22161,20 @@ var out4 = (s2) => {
 };
 var rw2 = () => words(RITUALS);
 async function auditRepo(repo) {
-  const own = realpathSync6(repo);
-  const dir2 = join51(own, ".opencode", "plugins");
+  const own = realpathSync11(repo);
+  const layers = await auditQuestions(own);
+  const dir2 = join57(own, ".opencode", "plugins");
   let names2;
   try {
     names2 = readdirSync18(dir2).filter((n) => /\.(m?js|ts)$/.test(n));
   } catch {
-    return [];
+    return layers;
   }
-  const foreign = realpathSync6(mkdtempSync2(join51(tmpdir2(), "ritual-scope-foreign-")));
+  const foreign = realpathSync11(mkdtempSync3(join57(tmpdir3(), "ritual-scope-foreign-")));
   const verdicts = [];
   try {
     for (const name2 of names2.sort()) {
-      const file2 = join51(dir2, name2);
+      const file2 = join57(dir2, name2);
       try {
         const scope = await probeScope(file2, own, foreign);
         const hole = scope.writes.theirs > 0 || lostSpelling(scope) || mute(scope) || scope.broken.length > 0;
@@ -20964,13 +22184,17 @@ async function auditRepo(repo) {
       }
     }
   } finally {
-    rmSync3(foreign, { recursive: true, force: true });
+    rmSync4(foreign, { recursive: true, force: true });
   }
-  return verdicts;
+  return [...verdicts, ...layers];
 }
 var lostSpelling = (s2) => s2.writes.mine > 0 !== s2.writes.twin > 0;
 var mute = (s2) => s2.subscribed && s2.writes.mine + s2.writes.twin === 0;
 function verdictLines(v) {
+  if (v.layer)
+    return [
+      `${v.hole ? "FAIL" : "ok"}  ${v.layer} ${v.file} [${v.basis ?? "unknown"}]${v.error ? `: ${v.error}` : ""}`
+    ];
   const s2 = v.scope;
   if (v.error || !s2) return [rw2().notChecked(v.file, v.error)];
   if (!v.hole) {
@@ -21008,14 +22232,14 @@ async function runCheckRituals(argv2) {
   if (head.includes("--help") || head.includes("-h")) return out4(RITUALS_USAGE());
   const flag = head.find((a) => a.startsWith("-") && a !== "--json");
   if (flag) return refuse(rw2().unknownFlag(flag));
-  const json2 = head.includes("--json");
-  const repos = [...head.filter((a) => a !== "--json"), ...tail2].map((a) => resolve13(a));
+  const json3 = head.includes("--json");
+  const repos = [...head.filter((a) => a !== "--json"), ...tail2].map((a) => resolve14(a));
   const missing = repos.find((r) => !isDir(r));
   if (missing) return refuse(rw2().noDir(missing));
   const verdicts = [];
-  for (const repo of repos.length ? repos : [resolve13(".")])
+  for (const repo of repos.length ? repos : [resolve14(".")])
     verdicts.push(...await auditRepo(repo));
-  if (json2) out4(JSON.stringify(verdicts));
+  if (json3) out4(JSON.stringify(verdicts));
   else if (verdicts.length === 0) out4(rw2().noPlugins());
   else for (const v of verdicts) for (const line of verdictLines(v)) out4(line);
   const code2 = verdicts.some((v) => v.hole) ? 1 : 0;
@@ -21023,13 +22247,13 @@ async function runCheckRituals(argv2) {
 }
 
 // js/cli/status.ts
-import { existsSync as existsSync23 } from "node:fs";
+import { existsSync as existsSync25 } from "node:fs";
 
 // js/cli/statusdisk.ts
-import { readdirSync as readdirSync19, readFileSync as readFileSync50 } from "node:fs";
-import { join as join52 } from "node:path";
+import { readdirSync as readdirSync19, readFileSync as readFileSync54 } from "node:fs";
+import { join as join58 } from "node:path";
 async function diskPlaces(authDir, sessions = []) {
-  const dir2 = join52(authDir, "standings");
+  const dir2 = join58(authDir, "standings");
   let names2;
   try {
     names2 = readdirSync19(dir2).filter((n) => n.endsWith(".hold")).sort();
@@ -21039,7 +22263,7 @@ async function diskPlaces(authDir, sessions = []) {
   const rows = await Promise.all(
     names2.map(async (n) => {
       try {
-        const p = record(JSON.parse(readFileSync50(join52(dir2, n), "utf8")));
+        const p = record(JSON.parse(readFileSync54(join58(dir2, n), "utf8")));
         if (!text(p.name) || !text(p.realm) || !["string", "number"].includes(typeof p.karta))
           return null;
         if (sessions.some(
@@ -21067,7 +22291,7 @@ var fallbackSnapshot = (authDir) => readFallbacks(authDir).map((f) => ({ pid: f.
 // js/cli/status.ts
 async function machine(authDir) {
   let daemon_error = "no answer";
-  if (!existsSync23(authDir)) daemon_error = "missing directory";
+  if (!existsSync25(authDir)) daemon_error = "missing directory";
   else if (!seamEntranceProblem(authDir, false)) {
     try {
       const link = await connectSeam(
@@ -21079,15 +22303,15 @@ async function machine(authDir) {
         },
         3e3
       );
-      const w11 = link.welcome;
+      const w12 = link.welcome;
       link.close();
-      if (w11.snapshot) return { ...safeSnapshot(w11.snapshot), snapshot_available: true };
+      if (w12.snapshot) return { ...safeSnapshot(w12.snapshot), snapshot_available: true };
       return {
-        daemon: safeSnapshot({ daemon: w11 }).daemon,
+        daemon: safeSnapshot({ daemon: w12 }).daemon,
         sessions: [],
         snapshot_available: false,
-        ...w11.snapshot_error === "snapshot failed" ? { snapshot_error: w11.snapshot_error } : {},
-        ...typeof w11.sessions === "number" && Number.isInteger(w11.sessions) && w11.sessions >= 0 ? { session_count: w11.sessions } : {}
+        ...w12.snapshot_error === "snapshot failed" ? { snapshot_error: w12.snapshot_error } : {},
+        ...typeof w12.sessions === "number" && Number.isInteger(w12.sessions) && w12.sessions >= 0 ? { session_count: w12.sessions } : {}
       };
     } catch (e) {
       if (e instanceof SeamError && e.kind === "refused")
@@ -21103,37 +22327,37 @@ function formatSkills(label, skills) {
   return skills ? ` · ${label}=${printable(skills.name)} ${printable(skills.version)}${skills.stamp ? `+${printable(skills.stamp)}` : ""}` : "";
 }
 function render(s2) {
-  const w11 = words(MACHINE_STATUS);
+  const w12 = words(MACHINE_STATUS);
   const d = s2.daemon;
   const lines = [
-    d ? `${w11.daemon()}: pid=${d.pid} ${printable(d.build)} ${printable(d.path)}` : s2.daemon_error === "missing directory" ? w11.missing() : s2.daemon_error === "different protocol" ? w11.protocol() : s2.daemon_error === "refused" ? w11.refused() : w11.absent()
+    d ? `${w12.daemon()}: pid=${d.pid} ${printable(d.build)} ${printable(d.path)}` : s2.daemon_error === "missing directory" ? w12.missing() : s2.daemon_error === "different protocol" ? w12.protocol() : s2.daemon_error === "refused" ? w12.refused() : w12.absent()
   ];
   if (d && !s2.snapshot_available)
-    lines.push(s2.snapshot_error ? w11.snapshotFailed() : w11.unavailable());
+    lines.push(s2.snapshot_error ? w12.snapshotFailed() : w12.unavailable());
   if (d && !s2.snapshot_available && s2.session_count !== void 0)
-    lines.push(`${w11.sessions()}: ${s2.session_count}`);
-  if (!d || s2.snapshot_available) lines.push(`${w11.sessions()}: ${s2.sessions.length}`);
+    lines.push(`${w12.sessions()}: ${s2.session_count}`);
+  if (!d || s2.snapshot_available) lines.push(`${w12.sessions()}: ${s2.sessions.length}`);
   for (const session of s2.sessions) {
     const stamp = formatSkills("skills", session.skills);
     const diskStamp = formatSkills("installed_skills", session.installed_skills);
     lines.push(
-      `  ${printable(session.local_id)} pid=${session.thin_pid} ${session.attached ? w11.attached() : w11.detached()} ${printable(session.harness)} ${printable(session.harness_session ?? "-")} ${printable(session.build)} ${printable(session.cwd)}${stamp}${diskStamp}${session.skills_mismatch ? " · skills_mismatch" : ""}`
+      `  ${printable(session.local_id)} pid=${session.thin_pid} ${session.attached ? w12.attached() : w12.detached()} ${printable(session.harness)} ${printable(session.harness_session ?? "-")} ${printable(session.build)} ${printable(session.cwd)}${stamp}${diskStamp}${session.skills_mismatch ? " · skills_mismatch" : ""}`
     );
     for (const p of session.places) {
       const declaration = formatSkills("skills", p.skills);
-      const mode = p.satellite_of ? `${w11.satellite()} ${printable(p.satellite_of)}` : p.primary ? w11.primary() : w11.beside();
+      const mode = p.satellite_of ? `${w12.satellite()} ${printable(p.satellite_of)}` : p.primary ? w12.primary() : w12.beside();
       lines.push(
-        `    ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} ${mode} · ${p.listening ? w11.listening() : w11.silent()} · ${w11.lastWork()}: ${printable(p.last_work_at ?? w11.unknown())}${p.usage ? ` · usage=${JSON.stringify(p.usage)}` : ""}${p.pulse ? ` · pulse=${JSON.stringify(p.pulse)}` : ""}${declaration}${p.skills_mismatch ? " · skills_mismatch" : ""}`
+        `    ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} ${mode} · ${p.listening ? w12.listening() : w12.silent()} · ${w12.lastWork()}: ${printable(p.last_work_at ?? w12.unknown())}${p.usage ? ` · usage=${JSON.stringify(p.usage)}` : ""}${p.pulse ? ` · pulse=${JSON.stringify(p.pulse)}` : ""}${declaration}${p.skills_mismatch ? " · skills_mismatch" : ""}`
       );
     }
   }
-  lines.push(`${w11.fallback()}: ${s2.fallback.length}`);
+  lines.push(`${w12.fallback()}: ${s2.fallback.length}`);
   for (const f of s2.fallback)
     lines.push(`  pid=${f.pid} ${printable(f.build)} ${printable(f.cwd)}`);
-  lines.push(`${w11.disk()}: ${s2.disk_only.length}`);
+  lines.push(`${w12.disk()}: ${s2.disk_only.length}`);
   for (const p of s2.disk_only)
     lines.push(
-      `  ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} — ${w11.record()} · ${w11.left(p.left)}`
+      `  ${printable(p.name)} ${printable(p.realm)} #${printable(p.karta)} — ${w12.record()} · ${w12.left(p.left)}`
     );
   return lines.join("\n") + "\n";
 }
@@ -21153,7 +22377,7 @@ async function runStatus(args) {
 }
 
 // js/cli/stop.ts
-import { readFileSync as readFileSync51 } from "node:fs";
+import { readFileSync as readFileSync55 } from "node:fs";
 var sw5 = () => words(STOP_CLI);
 function take2(args, flag) {
   const i = args.indexOf(flag);
@@ -21184,7 +22408,7 @@ function apiOf({ place: p, session }) {
   if (session.api) return session.api;
   try {
     const rec6 = JSON.parse(
-      readFileSync51(holdFilePathOf(CFG.authDir, keyOf(p.realm, p.karta, p.name)), "utf8")
+      readFileSync55(holdFilePathOf(CFG.authDir, keyOf(p.realm, p.karta, p.name)), "utf8")
     );
     return typeof rec6.url === "string" && rec6.url ? apiBase(rec6.url) : null;
   } catch {
@@ -21202,8 +22426,8 @@ async function runStop(argv2) {
   const realm = take2(args, "--realm");
   const authDir = take2(args, "--auth-dir") || process.env[envName("BRIDGE_AUTH_DIR")] || defaultAuthDir();
   const target = args.find((a) => !a.startsWith("--"));
-  const fail2 = (text6) => {
-    process.stderr.write(`${text6}
+  const fail2 = (text7) => {
+    process.stderr.write(`${text7}
 `);
     process.exitCode = 1;
   };
@@ -21311,6 +22535,7 @@ var longLived = LONG_LIVED.has(first) || first !== void 0 && !first.startsWith("
   "stop",
   "orchestra",
   "prepare",
+  "exec-prepare",
   "update",
   "use",
   "check-rituals",
@@ -21338,6 +22563,9 @@ if (longLived && !updatesDisabled() && !process.env[envName("BRIDGE_REEXEC")]) {
 } else dispatch();
 function dispatch() {
   switch (first) {
+    case "exec-prepare":
+      void runExecPrepare(rest);
+      break;
     case "status":
       void runStatus(rest);
       break;

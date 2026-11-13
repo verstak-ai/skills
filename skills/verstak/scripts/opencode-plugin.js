@@ -206,11 +206,14 @@ var SECTIONS = {
   persist: (h) => /persistence/i.test(h)
 };
 
+// js/delivery/questions.ts
+var QUESTION_SCOPE = "repo";
+
 // js/delivery/spawned-for.ts
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "3.45.0";
+var VERSION = "4.0.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -574,6 +577,31 @@ Carriers not yet established${caseNo ? `; alignment case #${caseNo}` : ""}. Unti
     })[item],
     unread: (item, hook) => item === "hook.guard" ? `"${hook}" stands, and prepare could not tell whether it is the memory guard — none of its own was put beside it: read the script; if it is, do nothing; if not, add it by align's Step 4 (references/align-hooks.md)` : `"${hook}" stands, and prepare could not tell whether it is the start hook: read the script; if it is, take it off once the delivery's replacement is verified (the delivery carries the start and keeps silent beside its own); if not, do nothing`,
     head: (kind2) => ({ done: "done", kept: "already there", left: "for the model" })[kind2]
+  }
+};
+
+// js/delivery/words/questions.ts
+var QUESTIONS = {
+  en: {
+    claude: () => "AskUserQuestion is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).",
+    guard: () => "question is refused by the verstak delivery: a blocking question stalls the session. Ask in words someone answering now; a question that outlives the turn goes into the case as an ask card (verstak_case, action ask).",
+    permissions: () => ".claude/settings.json: permissions must be an object — repair it by hand",
+    denyArray: () => ".claude/settings.json: permissions.deny must be an array of strings — repair it by hand",
+    manual: (file, reason2) => `${file}: ${{
+      both: "both opencode.json and opencode.jsonc exist — keep one, by hand",
+      parse: "does not parse — repair it by hand",
+      shape: "unsupported shape (an object with a policies array expected) — repair it by hand",
+      missing: 'no policy { "action": "tool.use", "resource": "question:*", "effect": "deny" } — add it by hand (a .jsonc is never rewritten)'
+    }[reason2]}`,
+    fileBasis: () => "file contents, not a live harness",
+    pluginBasis: () => "manifest or stand-in context, not a live harness",
+    instructions: () => "AGENTS.md names no refusal of question / AskUserQuestion with the way through an ask card in the case (contents checked only)",
+    claudeProject: () => ".claude/settings.json has no permissions.deny entry AskUserQuestion",
+    claudePlugin: () => "the Claude Code plugin's PreToolUse refusal of AskUserQuestion is missing (manifest checked, not live enforcement)",
+    claudeFile: () => "the Claude Code plugin's hooks/hooks.json",
+    opencodeFile: () => "the OpenCode plugin",
+    opencodeMissing: () => "the OpenCode plugin is not installed",
+    opencodeGuard: () => "the OpenCode plugin did not remove and refuse question, or refused an unrelated action as well (stand-in context)"
   }
 };
 
@@ -2224,7 +2252,7 @@ function loginUrlOf(message) {
 async function handshake(b, onLogin, onReady) {
   const deadline = Date.now() + HANDSHAKE_MS;
   for (; ; ) {
-    const stamp2 = grantStamp();
+    const stamp3 = grantStamp();
     try {
       await b.request(
         "initialize",
@@ -2248,7 +2276,7 @@ async function handshake(b, onLogin, onReady) {
       if (!AUTH_PENDING.test(message)) throw e;
       onLogin(loginUrlOf(message), deviceOf(message));
       const code2 = codeWatch(authDir(), message);
-      while (grantStamp() === stamp2) {
+      while (grantStamp() === stamp3) {
         if (Date.now() + AUTH_POLL_MS > deadline) throw e;
         await sleep(AUTH_POLL_MS);
         if (code2.moved()) break;
@@ -2735,6 +2763,12 @@ function separateGraphBatch(ev) {
   };
 }
 
+// js/shared/halt-phase.ts
+var ARCHIVE_CODES = ["archive_missing", "archive_refused", "archive_unconfirmed"];
+var PHASES = /* @__PURE__ */ new Set(["client_unbound", ...ARCHIVE_CODES.map((c) => `interrupt_confirmed_${c}`)]);
+var isHaltPhase = (code2) => code2 !== null && PHASES.has(code2);
+var archivePhase = (code2) => ARCHIVE_CODES.includes(code2) ? `interrupt_confirmed_${code2}` : code2;
+
 // js/opencode/halts.ts
 import { createHash as createHash3, randomUUID } from "node:crypto";
 import { mkdirSync as mkdirSync2, readFileSync as readFileSync6, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
@@ -2746,23 +2780,35 @@ var lifted = () => globalThis[`${GLOBAL_PREFIX}LiftedAt`] ??= /* @__PURE__ */ ne
 var ids = () => globalThis[`${GLOBAL_PREFIX}StopIds`] ??= /* @__PURE__ */ new Map();
 var words2 = () => globalThis[`${GLOBAL_PREFIX}StopWords`] ??= /* @__PURE__ */ new Map();
 var alones = () => globalThis[`${GLOBAL_PREFIX}StopAlone`] ??= /* @__PURE__ */ new Set();
+var fulls = () => globalThis[`${GLOBAL_PREFIX}StopFull`] ??= /* @__PURE__ */ new Set();
 var code = (e) => e.code;
 function recorded(file, since) {
   try {
     const r = JSON.parse(readFileSync6(file, "utf8"));
     if (r.lifted || since !== void 0 && Date.parse(r.at ?? "") <= since) return null;
-    return { id: r.id ?? r.at ?? "?", word: r.word, alone: r.alone === true };
+    return {
+      id: r.id ?? r.at ?? "?",
+      word: r.word,
+      alone: r.alone === true,
+      full: r.full === true
+    };
   } catch (e) {
     return code(e) === "ENOENT" ? null : { id: "?" };
   }
 }
 function createHalts(parentOf2, dir, unwritten, unlifted) {
-  const marked2 = (s) => stops().has(s) ? { id: ids().get(s) ?? "?", word: words2().get(s), alone: alones().has(s) } : recorded(fileOf(dir(), s), lifted().get(s));
+  const marked2 = (s) => stops().has(s) ? {
+    id: ids().get(s) ?? "?",
+    word: words2().get(s),
+    alone: alones().has(s),
+    full: fulls().has(s)
+  } : recorded(fileOf(dir(), s), lifted().get(s));
   const drop2 = (s) => {
     stops().delete(s);
     ids().delete(s);
     words2().delete(s);
     alones().delete(s);
+    fulls().delete(s);
     lifted().set(s, Date.now());
     const file = fileOf(dir(), s);
     try {
@@ -2779,29 +2825,32 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
       unlifted(s, e.message, kept2);
     }
   };
-  function stopOf(session) {
+  function chain(session) {
     const found = [];
     const seen = /* @__PURE__ */ new Set();
     for (let s = session; s && !seen.has(s); s = parentOf2(s)) {
       const m = marked2(s);
-      if (m && (s === session || !m.alone)) found.push(m.id);
+      if (m && (s === session || !m.alone)) found.push(m);
       seen.add(s);
     }
-    return found.length ? found.join(" ") : null;
+    return found;
   }
+  const stopOf = (session) => chain(session).map((m) => m.id).join(" ") || null;
   return {
-    stop(session, word2, alone = false) {
+    stop(session, word2, alone = false, full = false) {
       const id = randomUUID();
       stops().add(session);
       ids().set(session, id);
       words2().set(session, word2);
       if (alone) alones().add(session);
       else alones().delete(session);
+      if (full) fulls().add(session);
+      else fulls().delete(session);
       lifted().delete(session);
       try {
         mkdirSync2(dir(), { recursive: true, mode: 448 });
         const at2 = (/* @__PURE__ */ new Date()).toISOString();
-        const record2 = JSON.stringify({ session, at: at2, id, word: word2, ...alone ? { alone } : {} });
+        const record2 = JSON.stringify({ session, at: at2, id, word: word2, ...alone ? { alone } : {}, full });
         writeFileSync3(fileOf(dir(), session), record2, { mode: 384 });
       } catch (e) {
         unwritten(session, e.message);
@@ -2811,6 +2860,7 @@ function createHalts(parentOf2, dir, unwritten, unlifted) {
     gone: drop2,
     halted: (session) => stopOf(session) !== null,
     stopOf,
+    full: (session) => chain(session).some((m) => m.full === true),
     wordOf(session, general) {
       const m = marked2(session);
       return m ? m.word === void 0 ? general : m.word : null;
@@ -2835,17 +2885,25 @@ function descendantsOf(session, parents) {
 // js/opencode/cutwait.ts
 var outcomes = () => globalThis[`${GLOBAL_PREFIX}CutOutcomes`] ??= /* @__PURE__ */ new Map();
 var waiters = () => globalThis[`${GLOBAL_PREFIX}CutWaiters`] ??= /* @__PURE__ */ new Map();
+var executors = () => globalThis[`${GLOBAL_PREFIX}CutExecutors`] ??= /* @__PURE__ */ new Map();
 var lineages = () => globalThis[`${GLOBAL_PREFIX}Lineages`] ??= /* @__PURE__ */ new Set();
 function wake(id) {
   const set = waiters().get(id);
   waiters().delete(id);
   for (const w of set ?? []) w();
 }
+function claim(id) {
+  const token = /* @__PURE__ */ Symbol();
+  executors().set(id, token);
+  outcomes().delete(id);
+  return () => executors().get(id) === token;
+}
 function settle(id, gen, code2) {
   outcomes().set(id, [gen, code2]);
   wake(id);
 }
 function forget(id) {
+  executors().delete(id);
   outcomes().delete(id);
   wake(id);
 }
@@ -2924,30 +2982,38 @@ function createCuts(d) {
   const cutFails = /* @__PURE__ */ new Map();
   const retries = /* @__PURE__ */ new Set();
   const waits = /* @__PURE__ */ new Set();
-  const archived = /* @__PURE__ */ new Set();
+  const global = globalThis;
+  const archived = global[`${GLOBAL_PREFIX}ArchivedStops`] ??= /* @__PURE__ */ new Set();
   function cut(id) {
     const gen = d.stopOf(id);
     if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
     d.dropped(id);
     if (cutting.has(id)) return;
+    const owns = claim(id);
+    const current = () => owns() && d.stopOf(id) === gen;
     const settle2 = (code2) => {
       cutDone.set(id, gen);
-      settle(id, gen, code2);
+      if (current()) settle(id, gen, code2);
     };
     if (!d.canInterrupt()) return settle2("interrupt_missing");
     cutting.set(id, gen);
     void Promise.resolve().then(() => d.interrupt(id)).then(
-      () => {
-        if (d.stopOf(id) !== gen) return;
-        settle2(null);
+      async () => {
+        if (!current()) return;
         cutFails.delete(id);
-        if (!archived.has(id)) {
+        if (d.full(id)) {
           archived.add(id);
-          void d.archive(id, true);
+          try {
+            await d.archive(id, true, current);
+          } catch (e) {
+            if (current()) settle2(archivePhase(e.message));
+            return;
+          }
         }
+        if (current()) settle2(null);
       },
       (e) => {
-        if (d.stopOf(id) !== gen) return;
+        if (!current()) return;
         const was = cutFails.get(id);
         const n2 = (was?.[0] === gen ? was[1] : 0) + 1;
         cutFails.set(id, [gen, n2]);
@@ -2961,6 +3027,7 @@ function createCuts(d) {
         retries.add(t);
       }
     ).finally(() => {
+      if (!owns() && d.stopOf(id) === gen) cutDone.set(id, gen);
       cutting.delete(id);
       if (d.stopOf(id) !== gen) cut(id);
     });
@@ -2988,7 +3055,9 @@ function createCuts(d) {
         for (let next = ids2(); next.length; next = ids2().filter((id) => !asked.has(id))) {
           for (const id of next) asked.add(id);
           const all = await Promise.all(next.map((id) => outcomeOf(id, d.stopOf, own.signal)));
-          first ??= all.find((c) => c !== null) ?? null;
+          for (const code2 of all)
+            if (code2 !== null && (first === null || isHaltPhase(first) && !isHaltPhase(code2)))
+              first = code2;
         }
         return first;
       } finally {
@@ -3003,7 +3072,8 @@ function createCuts(d) {
     forget(id, stands = false) {
       cutDone.delete(id);
       cutFails.delete(id);
-      if (archived.delete(id) && stands) void d.archive(id, false);
+      if (archived.delete(id) && stands)
+        void d.archive(id, false).catch((e) => d.refused(id, e.message, true));
       forget(id);
     },
     stop() {
@@ -3038,25 +3108,51 @@ function standaloneClient() {
 }
 function clientOf(sessionID) {
   const own = standaloneClient();
-  if (own !== null) return own;
   const uid = process.getuid?.();
   if (uid === void 0) return null;
   const id = sessionID.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const opened = new RegExp(
     `(?:^|[\\s/\\\\])opencode(?:\\.exe)?\\s(?:.*\\s)?(?:--session|-s)(?:=|\\s+)${id}(?:\\s|$)`
   );
-  const hit = processes().find(
-    (p) => p.uid === uid && p.pid !== process.pid && opened.test(p.command)
+  const hits = processes().filter(
+    (p) => p.uid === uid && p.pid !== process.pid && (own !== null ? p.pid === own : opened.test(p.command))
   );
-  return hit?.pid ?? null;
+  const hit = hits.length === 1 ? hits[0] : void 0;
+  const born = hit ? stamp(hit.pid) : null;
+  return hit && born ? { ...hit, born } : null;
 }
-function closeClient(pid) {
+function stamp(pid) {
+  try {
+    return execFileSync("ps", ["-p", String(pid), "-o", "lstart="], {
+      encoding: "utf8",
+      timeout: 5e3,
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true
+    }).trim() || void 0;
+  } catch (e) {
+    const failure = e;
+    return failure.status === 1 && !failure.stdout?.trim() && !failure.stderr?.trim() ? null : void 0;
+  }
+}
+async function closeClient(client, current) {
+  const { pid, born } = client;
+  const now2 = processes().find((p) => p.pid === pid);
+  if (stamp(pid) !== born || now2?.uid !== client.uid || now2.command !== client.command || !current())
+    return false;
   try {
     process.kill(pid, "SIGTERM");
-    return true;
   } catch {
     return false;
   }
+  const until = Date.now() + 5e3;
+  while (Date.now() < until) {
+    const observed = stamp(pid);
+    if (observed === null || typeof observed === "string" && observed !== born) return true;
+    if (observed === void 0) return false;
+    if (!current()) return false;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return false;
 }
 
 // js/opencode/skillread.ts
@@ -3282,31 +3378,67 @@ function archives(ctx) {
   const m = typeof v === "string" ? /^(\d+)\.(\d+)/.exec(v) : null;
   return !!m && (Number(m[1]) > 2 || Number(m[1]) === 2 && Number(m[2]) >= 2);
 }
+async function accepting(ctx, id) {
+  try {
+    const info = await ctx.session.get({ sessionID: id });
+    const shape = info;
+    return !(shape?.time?.archived ?? shape?.data?.time?.archived);
+  } catch {
+    return false;
+  }
+}
 var CLOSE_AFTER_MS = 1e3;
 function archiver(ctx, tell) {
   const W5 = words(OPENCODE);
   const session = ctx.session;
-  const pending = /* @__PURE__ */ new Map();
-  const turns = /* @__PURE__ */ new Map();
-  return async (id, on) => {
+  const global = globalThis;
+  const { turns, updating } = global[`${GLOBAL_PREFIX}ArchiveQueue`] ??= {
+    turns: /* @__PURE__ */ new Map(),
+    updating: /* @__PURE__ */ new Map()
+  };
+  return async (id, on, active = () => true) => {
     const turn = (turns.get(id) ?? 0) + 1;
     turns.set(id, turn);
-    clearTimeout(pending.get(id));
-    pending.delete(id);
-    let why = null;
-    if (archives(ctx) && typeof session.update === "function")
-      await session.update({ sessionID: id, archived: on }).catch((e) => why = e.message);
-    if (!on) return;
-    const root = await Promise.resolve().then(() => session.get({ sessionID: id })).then((s) => !s?.parentID).catch(() => false);
-    if (turns.get(id) !== turn) return;
-    const pid = root ? clientOf(id) : null;
-    if (pid === null) return void ((root || why) && tell(W5.sessionLeftOpen(id, why)));
-    const t = setTimeout(() => {
-      pending.delete(id);
-      tell(closeClient(pid) ? W5.clientClosed(id, pid) : W5.sessionLeftOpen(id, null));
-    }, CLOSE_AFTER_MS);
-    t.unref?.();
-    pending.set(id, t);
+    const current = () => turns.get(id) === turn && active();
+    if (!archives(ctx) || typeof session.update !== "function") {
+      if (!on) return;
+      tell(W5.sessionLeftOpen(id, "archive_missing"));
+      throw new Error("archive_missing");
+    }
+    const update = (updating.get(id) ?? Promise.resolve()).catch(() => {
+    }).then(async () => {
+      if (!current()) return;
+      await session.update({ sessionID: id, archived: on });
+    });
+    updating.set(id, update);
+    try {
+      await update;
+    } catch {
+      tell(W5.sessionLeftOpen(id, "archive_refused"));
+      throw new Error("archive_refused");
+    } finally {
+      if (updating.get(id) === update) updating.delete(id);
+    }
+    if (!on || !current()) return;
+    const res = await session.get({ sessionID: id }).catch(() => null);
+    const info = res?.data ?? res;
+    if (!info?.time?.archived) throw new Error("archive_unconfirmed");
+    const root = !info.parentID;
+    if (!current()) return;
+    const client = root ? clientOf(id) : null;
+    if (!root) return;
+    if (client === null) {
+      tell(W5.sessionLeftOpen(id, null));
+      throw new Error("client_unbound");
+    }
+    await new Promise((r) => setTimeout(r, CLOSE_AFTER_MS));
+    if (!current()) return;
+    const closed = await closeClient(client, current);
+    if (!current()) return;
+    tell(
+      closed ? W5.clientClosed(id, client.pid) : W5.sessionLeftOpen(id, "client_exit_unconfirmed")
+    );
+    if (!closed) throw new Error("client_exit_unconfirmed");
   };
 }
 function homeOf(ctx) {
@@ -5202,11 +5334,11 @@ function createSeatLife(d) {
             callThrough: async (...args) => {
               attempt3.onWire = true;
               attempt3.fresh = true;
-              const claim = d.claiming?.(args[3]) === true;
+              const claim2 = d.claiming?.(args[3]) === true;
               try {
                 const out2 = await d.callThrough(...args);
                 if (out2.fresh === false) attempt3.returned = true;
-                const fresh = out2.fresh === true || out2.fresh === void 0 && !claim;
+                const fresh = out2.fresh === true || out2.fresh === void 0 && !claim2;
                 if (fresh && out2.provisional === true && out2.key && out2.place)
                   attempt3.owned = { key: out2.key, place: out2.place };
                 return out2;
@@ -5842,26 +5974,19 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     (id, message) => say(W5.haltUnwritten(id, message), "warning"),
     (id, message, kept2) => say(W5.haltUnlifted(id, message, kept2), "warning")
   );
-  async function accepting(id) {
-    try {
-      const info = await ctx.session.get({ sessionID: id });
-      return !(info?.time?.archived ?? info?.data?.time?.archived);
-    } catch {
-      return false;
-    }
-  }
+  const accepting2 = (id) => accepting(ctx, id);
   async function deliver2(session2, text3, frame = W5.frame(), delivery = "steer", child = false) {
     let id = session2;
-    if (child && (!id || !await accepting(id))) {
+    if (child && (!id || !await accepting2(id))) {
       say(W5.childGone(frame, id ?? "?", text3.slice(0, 120)), "error");
       return null;
     }
-    if (id && !await accepting(id)) {
+    if (id && !await accepting2(id)) {
       say(W5.sessionClosed(id, frame), "warning");
       id = null;
     }
     id ??= freshestRoot();
-    if (id && id !== session2 && !await accepting(id)) id = null;
+    if (id && id !== session2 && !await accepting2(id)) id = null;
     if (!id) {
       say(W5.nowhere(frame, text3.slice(0, 120)), "error");
       return null;
@@ -5997,6 +6122,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
   const cuts = createCuts({
     stopOf: (id) => halts.stopOf(id),
     halted: (id) => halts.halted(id),
+    full: (id) => halts.full(id),
     canInterrupt: () => typeof session().interrupt === "function",
     interrupt: (id) => session().interrupt({ sessionID: id, resume: false }),
     dropped: (id) => {
@@ -6007,11 +6133,13 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     archive: archiver(ctx, (text3) => say(text3, "warning"))
   });
   const cut = cuts.cut;
-  function stopped(session2, text3, child, alone) {
+  function stopped(session2, text3, child, ev) {
     say(text3, "error");
     dropPile(`${child ? "child" : "root"}:${session2 ?? ""}`);
     if (!session2) return;
-    halts.stop(session2, child ? null : text3, alone);
+    const alone = ev.reason === "revoked:silent";
+    const full = typeof ev.order === "string";
+    halts.stop(session2, child ? null : text3, alone, full);
     cut(session2);
     cutBelow(session2);
     onStop(session2);
@@ -6034,12 +6162,14 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     },
     // Each reading cuts the descendants this instance serves, a child born during the wait too;
     // other instances cut theirs by the same stops (plugin.ts sweep).
-    halted(session2, signal) {
-      return cuts.outcome(() => {
+    async halted(session2, signal) {
+      const gen = session2 ? halts.stopOf(session2) : null;
+      const outcome2 = await cuts.outcome(() => {
         if (!session2) return [];
         this.halt(session2);
         return [session2, ...covered(processDescendants(session2))];
       }, signal);
+      return session2 && halts.stopOf(session2) !== gen ? "stop_superseded" : outcome2;
     },
     halt(session2) {
       if (!halts.halted(session2)) return false;
@@ -6114,7 +6244,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           loud(session2, P.dead(String(ev.code)), child);
           return;
         case "stopped":
-          stopped(session2, P.stopped(ev.text ?? ""), child, ev.reason === "revoked:silent");
+          stopped(session2, P.stopped(ev.text ?? ""), child, ev);
           return;
         case "stale":
           return batch(session2, child, ev, W5.staleBatch());
@@ -6134,7 +6264,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
           if (params?.data?.automatic === false) {
             halts.held(session2);
             for (const s of session2 ? [session2, ...descendantsOf(session2, parents)] : [])
-              cuts.forget(s, true);
+              if (!halts.halted(s)) cuts.forget(s, true);
           }
           say(W5.held(ev.key ?? ""), "info");
           return;
@@ -7010,6 +7140,19 @@ function createPulseFeed(opts) {
   };
 }
 
+// js/opencode/questions.ts
+async function setupQuestionGuard(ctx) {
+  const selected = () => QUESTION_SCOPE === "all" || !!ctx.location?.directory && repoSigns(ctx.location.directory, "opencode").cover;
+  await ctx.tool.transform((editor) => {
+    if (selected()) editor.remove("question");
+  });
+  await ctx.permission.hook("evaluate", (event) => {
+    if (event.action !== "question" || !selected()) return;
+    event.effect = "deny";
+    event.message = words(QUESTIONS).guard();
+  });
+}
+
 // js/opencode/quiet-calls.ts
 var lineOf2 = (f) => f.line && typeof f.line === "object" ? f.line : {};
 var kindOf2 = (f) => typeof f.event_kind === "string" && f.event_kind.startsWith("room.") ? f.event_kind.slice(5) : String(lineOf2(f).kind ?? "");
@@ -7462,7 +7605,7 @@ function coverIn(where) {
   if ("foreign" in cover) return null;
   return "why" in cover ? { why: cover.why, align } : cover;
 }
-function stamp(where) {
+function stamp2(where) {
   try {
     const st = statSync5(join17(where, COVER.file));
     return `${st.mtimeMs}:${st.size}:${st.ino}`;
@@ -7510,7 +7653,7 @@ function createRealign(halted) {
         waiting.delete(session);
         return null;
       }
-      const sig = stamp(w.where);
+      const sig = stamp2(w.where);
       if (!always && sig === w.sig) return null;
       w.sig = sig;
       const cover = coverIn(w.where);
@@ -7569,7 +7712,7 @@ function attempt2(session, x, expect) {
   t.promise = (async () => {
     const where = await d.directoryOf(session);
     if (cancelled() || !where || expect !== void 0 && where !== expect) return no(null);
-    const sig = stamp(where);
+    const sig = stamp2(where);
     const cover = coverIn(where);
     if (cover === null) return no(null);
     if ("why" in cover) {
@@ -8265,6 +8408,7 @@ var CHANNEL_DOWN = "channel_down";
 var nothing = () => {
 };
 async function setup(ctx) {
+  await setupQuestionGuard(ctx);
   const W5 = words(OPENCODE);
   const say = (text3, level) => {
     process.stderr.write(`[${PRODUCT}${level === "info" ? "" : "/" + level}] ${text3}
