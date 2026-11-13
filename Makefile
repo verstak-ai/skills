@@ -1,4 +1,4 @@
-.PHONY: build validate check-bundles check-surface surface surface-asset check test hooks deps check-core lint format format-check typecheck build-js build-release check-js check-frozen
+.PHONY: build validate check-bundles check-surface surface surface-asset check test hooks deps check-core lint format format-check typecheck build-js build-release check-js check-frozen pack-opencode
 
 # Run the full CI gate locally: frontmatter contract + bundle sync + surface lint
 # + the JS ladder (core boundary → lint → format → types → shipped outputs are a
@@ -70,6 +70,12 @@ build-release:
 # and every embedded VERSION equals the release-please stamp in js/delivery/version.ts.
 check-js:
 	@node js/build.mjs --check
+
+# The OpenCode npm archive over the committed (release) outputs: package/ with package.json,
+# index.js and verstak-bridge.mjs, packed into dist/pack/verstak-opencode-<version>.tgz.
+# The release job attaches it to the GitHub release and publishes it to npm.
+pack-opencode:
+	@node scripts/pack-opencode.mjs
 
 # The lock on them: a branch other than the release job's leaves them as its base has them.
 BASE ?= origin/main
