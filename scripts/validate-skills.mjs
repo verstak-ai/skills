@@ -445,8 +445,20 @@ for (const file of new Set([...ls([]), ...ls(["--others", "--exclude-standard"])
 //    The door sends methods, references and templates through the read tool under the same cut:
 //    each line with a line-number prefix, plus a reserve for the wrapper. No exceptions: an
 //    overgrown file is recomposed — mechanics verbatim into references/ with a mandatory pointer
-//    in place, the core in the body.
+//    in place, the core in the body. The read tool also cuts each single line at 2000 characters
+//    (OpenCode marks it "line truncated to 2000 chars"; Claude Code's Read documents the same), so
+//    every line of the door, methods, references and templates is held to 2000 characters, not
+//    bytes; an overlong line is split into paragraphs at sentence boundaries, words unchanged.
 const CLIENT_OUTPUT_MAX = { lines: 2000, bytes: 51200 };
+const CLIENT_LINE_MAX_CHARS = 2000;
+const overLine = (where, file) =>
+  readFileSync(file, "utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      const chars = [...line].length;
+      if (chars > CLIENT_LINE_MAX_CHARS)
+        fail(`${where}:${i + 1}`, `the line is ${chars} characters: over the read tool's per-line cut (${CLIENT_LINE_MAX_CHARS}) — the tail will not reach the model; split it at sentence boundaries`);
+    });
 const READ_WRAPPER_RESERVE = { lines: 10, bytes: 1024 };
 function clientSkillOutput(name) {
   const dir = `/Users/${"x".repeat(32)}/.config/opencode/skills/${name}`;
@@ -490,11 +502,14 @@ const overClient = (where, tool, { lines, bytes }) => {
 for (const name of skillNames) {
   const out = clientSkillOutput(name);
   overClient(`skills/${name}/SKILL.md`, "skill", { lines: out.split("\n").length, bytes: Buffer.byteLength(out, "utf8") });
+  overLine(`skills/${name}/SKILL.md`, join(skillsDir, name, "SKILL.md"));
   for (const sub of ["methods", "references", "templates"]) {
     const d = join(skillsDir, name, sub);
     if (!existsSync(d)) continue;
-    for (const f of readdirSync(d).filter((n) => n.endsWith(".md")).sort())
+    for (const f of readdirSync(d).filter((n) => n.endsWith(".md")).sort()) {
       overClient(`skills/${name}/${sub}/${f}`, "read", clientReadSize(join(d, f)));
+      overLine(`skills/${name}/${sub}/${f}`, join(d, f));
+    }
   }
 }
 
