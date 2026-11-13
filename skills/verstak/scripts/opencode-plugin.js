@@ -213,7 +213,7 @@ var QUESTION_SCOPE = "repo";
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.0.0";
+var VERSION = "4.1.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -1936,6 +1936,7 @@ import {
 } from "node:fs";
 import { homedir as homedir4 } from "node:os";
 import { join as join6, resolve as resolve3 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // js/shared/bridge-client.ts
 import { spawn } from "node:child_process";
@@ -2202,10 +2203,12 @@ function findBridge() {
   const tried = [];
   const env = process.env[envName("BRIDGE_PATH")]?.trim();
   if (env) tried.push(resolve3(env));
+  tried.push(fileURLToPath2(new URL(`./${BRIDGE_FILE}`, import.meta.url)));
   tried.push(homeBridgePath());
   for (const candidate of tried) {
     try {
       accessSync(candidate, constants.R_OK);
+      if (!statSync2(candidate).isFile()) continue;
       return { path: candidate, tried };
     } catch {
     }

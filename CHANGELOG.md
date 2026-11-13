@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.1.0](https://github.com/verstak-ai/skills/compare/v4.0.0...v4.1.0) (2026-11-13)
+
+
+### Features
+
+* the OpenCode plugin as an npm archive on each GitHub release, npm by trusted publishing ([#436](https://github.com/verstak-ai/skills/issues/436)) ([45b26e5](https://github.com/verstak-ai/skills/commit/45b26e582aec8a62acde649edba7c82d49a51c45))
+
+
+### Bug Fixes
+
+* role files by harness in the migrations; the harnesses attr written apart from the repository attr ([#434](https://github.com/verstak-ai/skills/issues/434)) ([85ebe60](https://github.com/verstak-ai/skills/commit/85ebe60cde674576436f8ea01baeda04e5f29625))
+* the OpenCode package finds the bridge beside its plugin and is named by its release URL, as specified ([#439](https://github.com/verstak-ai/skills/issues/439)) ([ffccc5d](https://github.com/verstak-ai/skills/commit/ffccc5d0993f8b44b72743a99721ded7df616398))
+
 ## [4.0.0](https://github.com/verstak-ai/skills/compare/v3.45.0...v4.0.0) (2026-11-13)
 
 
