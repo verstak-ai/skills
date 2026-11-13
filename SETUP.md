@@ -260,13 +260,23 @@ of one build with the installed skill.
 **Or as a package**, for a headless machine whose versions the package manager picks. Each
 release carries the plugin and its bridge as one archive,
 `https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz`
-(a fixed version, never `/latest/`: OpenCode caches a plugin by its address); once
-`@verstak/opencode` is published on npm, its name works instead. Name it in OpenCode's
-plugin list (`opencode.json`):
+(a fixed version, never `/latest/`). OpenCode 2.2.7 does not install a plugin from that
+address: its loader takes registry and Git package specs only and refuses the URL
+("Package checks only support registry and Git package specs"). So download it, unpack it
+beside the project or under a directory of your own, and name the unpacked `package/`
+directory by its path in OpenCode's plugin list (`opencode.json`):
+
+```sh
+mkdir -p ~/.verstak-opencode && cd ~/.verstak-opencode
+curl -fsSLO https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz
+mkdir -p X.Y.Z && tar xzf verstak-opencode-X.Y.Z.tgz -C X.Y.Z
+```
 
 ```json
-{ "plugin": ["https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz"] }
+{ "plugin": ["/home/you/.verstak-opencode/X.Y.Z/package"] }
 ```
+
+Once `@verstak/opencode` is published on npm, its name in the list replaces both steps.
 
 and give the OpenCode service this environment: `VERSTAK_BRIDGE_URL` — the graph server's
 address; `VERSTAK_BRIDGE_NO_UPDATE=1` — the bridge does not replace itself, the version is
