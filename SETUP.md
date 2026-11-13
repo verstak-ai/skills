@@ -260,32 +260,22 @@ of one build with the installed skill.
 **Or as a package**, for a headless machine whose versions the package manager picks. Each
 release carries the plugin and its bridge as one archive,
 `https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz`
-(a fixed version, never `/latest/`). OpenCode 2.2.7 does not install a plugin from that
-address: its loader takes registry and Git package specs only and refuses the URL
-("Package checks only support registry and Git package specs"). So download it, unpack it
-beside the project or under a directory of your own, and name the unpacked `package/`
-directory by its path in OpenCode's plugin list (`opencode.json`):
-
-```sh
-mkdir -p ~/.verstak-opencode && cd ~/.verstak-opencode
-curl -fsSLO https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz
-mkdir -p X.Y.Z && tar xzf verstak-opencode-X.Y.Z.tgz -C X.Y.Z
-```
+(a fixed version, never `/latest/`, no query, fragment or sign-in). Name that address in
+OpenCode's plugin list (`opencode.json`), or the package's name `@verstak/opencode` once it is
+published on npm:
 
 ```json
-{ "plugin": ["/home/you/.verstak-opencode/X.Y.Z/package"] }
+{ "plugins": ["https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz"] }
 ```
 
-Once `@verstak/opencode` is published on npm, its name in the list replaces both steps.
-
-and give the OpenCode service this environment: `VERSTAK_BRIDGE_URL` — the graph server's
+What a given OpenCode does with the address: `REALITY.md`, OpenCode package delivery.
+Give the OpenCode service this environment: `VERSTAK_BRIDGE_URL` — the graph server's
 address; `VERSTAK_BRIDGE_NO_UPDATE=1` — the bridge does not replace itself, the version is
 the package's; `VERSTAK_BRIDGE_NO_BROWSER=1` — no sign-in page is opened; and the secret
 `VERSTAK_BRIDGE_TOKEN` — a personal token (A personal token, below). The skill itself is not
-in the archive: install it as in step 1, OpenCode. Until a release whose plugin looks for
-the bridge beside itself, the plugin takes it only from `VERSTAK_BRIDGE_PATH` or
-`~/.verstak-bridge/verstak-bridge.mjs`: point `VERSTAK_BRIDGE_PATH` at the archive's
-`verstak-bridge.mjs`, or place the home copy as above.
+in the archive: install it as in step 1, OpenCode. The plugin takes the bridge beside it, the
+archive's `verstak-bridge.mjs`; leave `VERSTAK_BRIDGE_PATH` unset, as it names another bridge
+first. Archives before 4.1.0 look only at `VERSTAK_BRIDGE_PATH` and the home copy.
 
 ### Bring up the bridge by hand
 

@@ -2,41 +2,8 @@
 import { existsSync, statSync } from "node:fs";
 
 import { readCover } from "../shared/cover.ts";
-import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
+import type { Launcher } from "./orchestra-launchers.ts";
 import type { CheckoutOf } from "./orchestra-orca.ts";
-import { LIVE, type Run } from "./orchestra-runs.ts";
-
-type Row = Record<string, unknown>;
-const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
-const ADAPTER_HARNESSES = new Set(["opencode"]);
-
-export function refusal(row: Row, ls: Launchers, runs: Record<string, Run>): string | null {
-  const launcher = text(row.launcher);
-  if (!launcher) return "launcher_missing";
-  const own = ls.own.get(launcher);
-  if (!own) {
-    const broken = ls.refused.find((r) => r.what === launcher);
-    if (broken) return broken.code;
-    const host = ls.elsewhere.get(launcher);
-    return host ? `host_elsewhere (${host})` : "launcher_unknown";
-  }
-  const caller = accountOf(row.author);
-  if (!caller) return "caller_unknown";
-  if (caller !== ls.account && !own.callers.includes(caller)) return "caller_not_allowed";
-  const harness = text(row.harness);
-  if (!harness) return "harness_missing";
-  const offer = own.harnesses[harness];
-  if (!offer) return "harness_not_offered";
-  if (!ADAPTER_HARNESSES.has(harness)) return "harness_unsupported";
-  const model = text(row.model);
-  if (!model) return "model_missing";
-  if (!offer.models.includes(model)) return "model_not_offered";
-  if (!text(row.repository)) return own.clone ? "clone_refused (no_repository)" : "no_checkout";
-  const live = Object.values(runs).filter(
-    (r) => r.launcher === launcher && LIVE.includes(r.state),
-  ).length;
-  return live >= own.limit ? "limit_reached" : null;
-}
 
 export function checkoutFor(
   own: Launcher,

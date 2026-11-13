@@ -51,9 +51,17 @@ typecheck:
 # rebuilt first — the committed outputs are the release build. The shipped file
 # claims Node 22 (it takes the global WebSocket); CI holds the run there.
 # VERSTAK_BRIDGE_NO_UPDATE: under tests the bridge never aligns a real home and
-# never asks for releases.
+# never asks for releases. VERSTAK_BRIDGE_NO_BROWSER, and `open`/`xdg-open` stubs first
+# on PATH that record the call and fail the run: no bridge of the suite opens a sign-in
+# page on the machine; reap-test-bridges then fails on any bridge left running.
 test: build-js
-	@VERSTAK_BRIDGE_NO_UPDATE=1 node --test --test-timeout=300000 js/tests/*.test.mjs
+	@stub=$$(mktemp -d); for b in open xdg-open; do \
+	  printf '#!/bin/sh\necho "$$0 $$*" >> "%s/opened"\nexit 1\n' "$$stub" > "$$stub/$$b"; chmod +x "$$stub/$$b"; \
+	done; \
+	PATH="$$stub:$$PATH" VERSTAK_BRIDGE_NO_UPDATE=1 VERSTAK_BRIDGE_NO_BROWSER=1 node --test --test-timeout=300000 js/tests/*.test.mjs; \
+	s=$$?; node scripts/reap-test-bridges.mjs || s=1; \
+	if [ -s "$$stub/opened" ]; then echo "make test: a browser was opened:" >&2; cat "$$stub/opened" >&2; s=1; fi; \
+	rm -rf "$$stub"; exit $$s
 
 # Build the shipped JS from js/ — the bridge (with daemon, watchdogs and doctor), the
 # OpenCode plugin and the pi extension — as the dev build, into dist/dev (outside

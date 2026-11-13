@@ -8,6 +8,7 @@ import { newAttempt, receiptFor } from "./exec-receipt.ts";
 import type { ExecSpec } from "./exec-spec.ts";
 import { orcaCheckouts, run } from "./orchestra-orca.ts";
 import { type Run, writeRuns } from "./orchestra-runs.ts";
+import { readyTree } from "./orchestra-tree-check.ts";
 export { execRuntime } from "./exec-preflight.ts";
 
 export function execBound(r: Run, authDir: string): boolean {
@@ -56,8 +57,9 @@ export async function launchExec(
   if (!runtime) return "exec_runtime_unverified";
   const checkouts = await orcaCheckouts();
   const local = typeof checkouts === "string" ? null : checkouts(r.repository);
-  if (!local || "code" in local || realpathSync(local.path) !== realpathSync(r.worktree))
-    return "exec_checkout_unverified";
+  if (!local || "code" in local) return "exec_checkout_unverified";
+  const source = realpathSync(local.path);
+  if (!r.tree && source !== realpathSync(r.worktree)) return "exec_checkout_unverified";
   if (
     realpathSync(r.worktree) !== r.worktree ||
     !/^[A-Za-z0-9_./-]+$/.test(bridge) ||
@@ -67,6 +69,8 @@ export async function launchExec(
   const model = spec.modelRefs[r.model];
   if (!model) return "exec_model_unmapped";
   if ((await execRuntime()) !== runtime) return "exec_runtime_changed";
+  if (gone?.gone) return "exec_caller_left";
+  if (r.tree && !(await readyTree(authDir, key, r, source))) return "exec_checkout_unverified";
   if (gone?.gone) return "exec_caller_left";
   mkdirSync(seamRunDir(authDir), { recursive: true, mode: 0o700 });
   newAttempt(authDir, r, spec.server, model, prompt);

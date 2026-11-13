@@ -1,5 +1,5 @@
 // Three independent questionnaire guard layers, for aligned repos (#10397).
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -93,7 +93,10 @@ export async function auditQuestions(root: string): Promise<Verdict[]> {
         const key = keys[i];
         if (key) process.env[key] = value;
       }
-      const q = (await probeScope(file, root, foreign)).questions;
+      // Audit the standalone bundle without its package's adjacent bridge.
+      const isolatedPlugin = join(foreign, PLUGIN_FILE);
+      copyFileSync(file, isolatedPlugin);
+      const q = (await probeScope(isolatedPlugin, root, foreign)).questions;
       pass = q.removed && q.denied && q.caseAllowed;
       error = W.opencodeGuard();
     } catch (e) {

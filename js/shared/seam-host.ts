@@ -89,8 +89,9 @@ export function serveSeam(socket: Socket, host: SeamHost, graceMs = SEAM_REATTAC
   }, HELLO_WAIT_MS);
   helloTimer.unref?.();
   socket.on("error", () => {}); // close reports the drop
-  const refuse = (reason: string) => {
-    say(`seam refused: ${reason}`);
+  // The asking bridge is named: a refused session leaves no other trace of who knocked.
+  const refuse = (reason: string, who?: SeamHello) => {
+    say(`seam refused: ${reason}` + (who ? ` (pid ${who.pid}, ${who.path}, cwd ${who.cwd})` : ""));
     writeFrame(socket, { t: "refuse", seam: SEAM_PROTOCOL, build: host.build, reason });
     socket.end();
   };
@@ -198,7 +199,7 @@ export function serveSeam(socket: Socket, host: SeamHost, graceMs = SEAM_REATTAC
     const resumed = !!s;
     if (!s) {
       const opened = await host.open(hello);
-      if (typeof opened === "string") return refuse(opened);
+      if (typeof opened === "string") return refuse(opened, hello);
       s = opened;
     }
     const grace = graceTimers.get(s);

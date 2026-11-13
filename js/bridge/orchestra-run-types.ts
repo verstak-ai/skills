@@ -1,8 +1,10 @@
 import type { ModelRef } from "./exec-spec.ts";
+import type { RunTree } from "./orchestra-tree-types.ts";
 
 export type RunState =
   "preparing" | "ambiguity" | "launched" | "raised" | "stopping" | "ended" | "refused" | "no_seat";
 export interface Run {
+  tree?: RunTree;
   exec?: {
     attempt: string;
     receipt: string;

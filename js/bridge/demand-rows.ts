@@ -29,9 +29,9 @@ export function startRow(v: unknown, realm: string): Row {
     karta: seq(x.karta_seq),
     holon: typeof h.seq === "number" ? h.seq : null,
     repository: text(h.repository),
-    model: text(a.model),
-    harness: text(a.harness),
-    launcher: text(a.launcher),
+    model: a.model == null ? null : (text(a.model) ?? ""),
+    harness: a.harness == null ? null : (text(a.harness) ?? ""),
+    launcher: a.launcher == null ? null : (text(a.launcher) ?? ""),
     author: text(x.author),
   };
 }

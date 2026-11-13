@@ -123,6 +123,7 @@ export function recordRunClosed(authDir: string, key: string, expected: Run): bo
   if (!r || !LIVE.includes(r.state) || runIdentity(r) !== runIdentity(expected)) return false;
   r.closed = "client_exited";
   if (r.exec) r.exec.exit = new Date().toISOString();
+  if (r.tree) r.tree.exit = new Date().toISOString();
   writeFile(authDir, f);
   return true;
 }

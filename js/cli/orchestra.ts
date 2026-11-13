@@ -8,6 +8,7 @@
 // `step --dry-run` judges one tact and acts on nothing (bridge/orchestra-plan.ts).
 import { parseArgs } from "../bridge/config.ts";
 import { isOrchestraOp, orchestraAsk, type OrchestraOp } from "../bridge/orchestra-door.ts";
+import { parseOnly } from "../bridge/orchestra-only.ts";
 import { envName, ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { setLang, words } from "../shared/lang.ts";
 import { defaultAuthDir } from "../shared/standings.ts";
@@ -34,6 +35,8 @@ export async function runOrchestra(argv: string[]): Promise<void> {
   const args = [...argv];
   const lang = take(args, "--lang");
   setLang(lang);
+  const onlyCount = args.filter((a) => a.startsWith("--only")).length;
+  const only = take(args, "--only");
   const realms = takeAll(args, "--realm");
   const authDir =
     take(args, "--auth-dir") || process.env[envName("BRIDGE_AUTH_DIR")] || defaultAuthDir();
@@ -60,7 +63,13 @@ export async function runOrchestra(argv: string[]): Promise<void> {
     (dry >= 0 && named !== "step") ||
     ((describes || loose) && named !== "on") ||
     (loose && !describes) ||
-    (limit !== undefined && !/^\d+$/.test(limit))
+    (limit !== undefined && !/^\d+$/.test(limit)) ||
+    (onlyCount > 0 &&
+      (onlyCount !== 1 ||
+        !parseOnly(only) ||
+        named !== "step" ||
+        realms.length !== 1 ||
+        args.length !== 1))
   )
     return fail(w().usage().trimEnd());
   const op: OrchestraOp = dry >= 0 ? "plan" : named;
@@ -76,8 +85,12 @@ export async function runOrchestra(argv: string[]): Promise<void> {
       : 5_000;
   // Typed at a terminal, `on` is the human's consent itself; an agent's shell runs it on pipes
   // and gives none (bridge/orchestra-flag.ts).
-  const consent = op === "on" && !!process.stdin.isTTY && !!process.stdout.isTTY;
+  const terminal = !!process.stdin.isTTY && !!process.stdout.isTTY;
+  const consent =
+    (op === "on" && terminal) ||
+    (op === "step" && !!onlyCount && (terminal || process.env[envName("ORCHESTRA")] === "1"));
   const extra = {
+    ...(onlyCount ? { only } : {}),
     ...(describes
       ? { launcher: { launcher, models, ...(limit ? { limit: Number(limit) } : {}), host } }
       : {}),
