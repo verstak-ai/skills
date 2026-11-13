@@ -58,7 +58,8 @@ in Codex the plugin (`codex plugin marketplace add https://github.com/verstak-ai
 `codex plugin add verstak@verstak-ai`), in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
 `verstak.skill` from the latest release, in OpenCode `npx skills add verstak-ai/skills
 --skill verstak --agent opencode --global -y` and the plugin from SETUP.md (copied by hand, or the
-release's `verstak-opencode-X.Y.Z.tgz` unpacked and named by its path in OpenCode's plugin list), elsewhere flat —
+release's archive `https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz`
+in OpenCode's plugin list), elsewhere flat —
 `npx skills add verstak-ai/skills --all --global`. Then, in a new session, do "/verstak connect the graph"
 (`/verstak:verstak connect the graph` under the Claude Code plugin).
 ```
