@@ -19,10 +19,10 @@ At start, in `doctor` or in `prepare` the delivery warns once at that entry, not
 **align**, `From contract 12`: the delegation role files re-projected, their tails kept.
 
 ## 13 → 14
-**align**, `From contract 13`: the `deputy` role file projected in both harnesses and ignored by name; the other eight stay as they are.
+**align**, `From contract 13`: the `deputy` role file projected for Claude Code always and OpenCode where it is used and ignored by name; the other eight stay as they are.
 
 ## 14 → 15
-**align**, `From contract 14`: all nine role files' bodies re-projected in both harnesses, each keeping its model and tail.
+**align**, `From contract 14`: all nine role files' bodies re-projected for Claude Code always and OpenCode where it is used, each keeping its model and tail.
 
 ## 15 → 16
 **align**, `From contract 15`: the `Refused tools` line, the `permissions.deny` entry for `AskUserQuestion` and the `question` policy in `.opencode/opencode.json` or `.jsonc`, beside others' entries, both project layers whatever the harness; the cover goes to `16` only with the live check seen, and out of reach stays at `15` with the remainder in the alignment case: Step 4, `The blocking question tool`. A `deny` that isn't a list of strings, `permissions` that isn't a map, or `policies` that isn't a list, is never rewritten: name it in the case and leave it to the person.
@@ -34,7 +34,7 @@ Found old content → check it by the current steps; never run a retired chain:
 - A Reality table in `AGENTS.md`, a promised memory stub or an older guard refusal → Steps 4–7; no role tail or carrier is lost. An older form is no licence to delete a file whole.
 
 ## A searcher role file
-The delegation roles are nine (Step 6). Project `weaver`, `recaller`, `ingester` and `deputy` in both harnesses and add them to `.gitignore` by name; delete both of your own `searcher` files and drop them from `.gitignore` (graph search is now `recaller`, for the recall ladder); re-project `designer`'s body, which no longer writes the graph — the volume edit of touched nodes is `weaver`'s, a story's intake `ingester`'s. Each file's tail in `Role file tails` carries over; a `searcher` tail goes to `recaller` where it still applies, else is named in the report.
+The delegation roles are nine (Step 6). Project `weaver`, `recaller`, `ingester` and `deputy` for Claude Code always and OpenCode where it is used and add them to `.gitignore` by name; delete both of your own `searcher` files and drop them from `.gitignore` (graph search is now `recaller`, for the recall ladder); re-project `designer`'s body, which no longer writes the graph — the volume edit of touched nodes is `weaver`'s, a story's intake `ingester`'s. Each file's tail in `Role file tails` carries over; a `searcher` tail goes to `recaller` where it still applies, else is named in the report.
 
 ## Role files in the index
 Your role files leave the index and go into `.gitignore` by name — the files stay on disk, others' agents untouched (Step 5); every other clone loses them on its next pull, so say it in the alignment case and the PR body: a receiving copy saves its role files before pulling and puts them back (they are ignored then), else re-projects them by Step 6; each file's repository tail moves into `AGENTS.md`, section `Role file tails`, and its model comes from the person's preferences (Step 6).
