@@ -4,7 +4,7 @@ verstak:
   holon: 844
   agent_role: 8498
   contract: 15
-  stamp: 2026-11-12
+  stamp: 2026-11-13
 ---
 # `verstak-ai/skills`
 The `verstak` skill — one door and its methods, `align` among them, which bootstraps any repo to this standard — plus the bundled `verstak-bridge`; consumed by agents in other repos.
@@ -21,7 +21,7 @@ The `verstak` skill — one door and its methods, `align` among them, which boot
 
 **Load the `verstak` skill first, every session, before any action**, and do the door's `Start` with the addresses above. Code work follows its `methods/code-work.md`. This file holds only this repository's own facts; a line contradicting the method → the door, `Start`, `Alignment`.
 
-**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — the blocking question tool (why, and how to ask instead: `methods/collaborate.md`, `Asking the user`): ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case. Held, not by this line alone, by: where Claude Code is used — `.claude/settings.json` `permissions.deny`, and the verstak plugin's hook where the plugin is loaded; where OpenCode is used — the `question` policy in `.opencode/opencode.json`.
+**Refused tools:** `AskUserQuestion` (Claude Code) and `question` (OpenCode) — the blocking question tool (why, and how to ask instead: `methods/collaborate.md`, `Asking the user`): ask in words someone answering now, and a question that outlives the turn as an `ask` card in the case. Held, not by this line alone, by: whatever the harness — `.claude/settings.json` `permissions.deny` and the `question` policy in `.opencode/opencode.json`; where the Claude Code plugin is loaded — the verstak plugin's hook; where the delivered OpenCode plugin is loaded — its refusal of `question`.
 
 Owned there, not restated here: start and the #8498 inbox (door, `Start`), branch and worktree, self- and cold review, the after-merge acts, asking in prose never a picker (`methods/code-work.md`), ending questions by axis (`methods/inquiry.md`).
 
@@ -61,7 +61,7 @@ Touching one obliges checking the others. Found by graph traversal, not by grep 
 |---|---|---|
 | `skills/verstak/templates/agents-template.md` | every repo align will ever bootstrap | changing a section changes configs already generated — that is what the contract counter is for |
 | Frontmatter contract (`scripts/validate-skills.mjs`) | the one `SKILL.md` door | three keys and no others; methods, references and templates have no frontmatter |
-| Client output limit (`scripts/validate-skills.mjs`, section 5) | OpenCode, which cuts every tool's output at 2000 lines / 51 200 bytes: the skill tool on the door, the read tool on methods, references and templates | the tail past the cut never reaches the model; an overgrown file is recomposed — mechanics verbatim into `references/` with a mandatory pointer in place — never trimmed; `SKILL_OUTPUT_SIZES=1` prints the sizes (#7597) |
+| Client output limit (`scripts/validate-skills.mjs`, section 5) | OpenCode, which cuts every tool's output at 2000 lines / 51 200 bytes: the skill tool on the door, the read tool on methods, references and templates; the read tool also cuts each line at 2000 characters | the tail past the cut never reaches the model; a line over 2000 characters in the door, a method, reference or template is split into paragraphs at sentence boundaries; an overgrown file is recomposed — mechanics verbatim into `references/` with a mandatory pointer in place — never trimmed; `SKILL_OUTPUT_SIZES=1` prints the sizes (#7597) |
 | `methods/assistant.md`'s `## Map`, every method but `product-roadmap`, the door and the references and templates they point to, their descriptions in `scripts/build-home.mjs` | the verstak.ai conversation home, which reads `home/` by name and lifts the Map into its prompt | one `## Map` heading, at most 1500 code points; `load_skill` opens one file by name and the home reads no other, so every pointer becomes a catalogue name (a method **X**, a reference or template `X`, the door `verstak`) or a rewrite in `build-home.mjs`, else the build fails; a new reference or template a method points to joins the catalogue there and in `HOME_SKILLS` (`scripts/validate-skills.mjs`) |
 | `collaborate` address-line contract | this skill + the bridge that relays a human onto an agent's channel | deliberately duplicated: neither side can read the other's copy, so drift is caught by meaning alone |
 | grundsatz nodes in #844 (writing/placement rules) | several applying kriyas each, via `upadhi` | a duplicate principle grows here unseen — one rule under two nodes with disjoint consumers, fixed on one and stale on the other |
