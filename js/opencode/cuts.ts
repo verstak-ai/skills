@@ -1,12 +1,20 @@
 // The interrupt of a stopped session's turn (graph @nks/nks-dev, nodes #7439, #7440, #7519),
-// and how it ended: the bridge's stop order waits for that — stopped is the executed interrupt,
-// a refusal is failed with its code. A cut belongs to the stops over the session's chain
+// and how it ended: a full stop reports interrupt/queues, the archive ceiling and client exit
+// or a local intermediate phase for the bridge's own Run (#9256). A real refusal stays failed.
+// A cut belongs to the stops over the session's chain
 // (halts.ts stopOf): a new stop of the session or of any ancestor cuts it anew. The outcomes lie
 // in the process's registry (cutwait.ts): another instance's cuts count too.
 
-import { envName, method } from "../delivery/index.ts";
+import { envName, GLOBAL_PREFIX, method } from "../delivery/index.ts";
 import { type Bridge } from "../shared/bridge-client.ts";
-import { type CutOutcome, forget as unsettle, outcomeOf, settle as settled } from "./cutwait.ts";
+import { archivePhase, isHaltPhase } from "../shared/halt-phase.ts";
+import {
+  claim,
+  type CutOutcome,
+  forget as unsettle,
+  outcomeOf,
+  settle as settled,
+} from "./cutwait.ts";
 
 export type { CutOutcome };
 
@@ -17,7 +25,7 @@ const ANSWER_CAP_MS = Number(process.env[envName("OPENCODE_HALT_CAP_MS")]) || 30
 
 /**
  * A "stopped" event of a stop order (`order` — its id): once the interrupt of the session and its
- * descendants ended, the bridge that said it hears method("halted") {order, ok, code?}. Settles
+ * descendants ended with the requested effect, its bridge hears method("halted") {order, ok, code?}. Settles
  * when that answer is given (or the cap passed): only then may the bridge go down. Past the cap
  * the wait for the outcome is dropped (`signal`).
  */
@@ -59,6 +67,7 @@ const CUT_RETRY_MS = 500;
 export interface CutDeps {
   stopOf: (id: string) => string | null;
   halted: (id: string) => boolean;
+  full: (id: string) => boolean;
   /** OpenCode's interrupt of the session's turn, if the host has one. */
   canInterrupt: () => boolean;
   interrupt: (id: string) => Promise<unknown>;
@@ -67,7 +76,7 @@ export interface CutDeps {
   /** An interrupt refused; `last` — no more tries. */
   refused: (id: string, why: string, last: boolean) => void;
   /** The session archived in the harness (`on`) or taken out of the archive (#9256). */
-  archive: (id: string, on: boolean) => Promise<void>;
+  archive: (id: string, on: boolean, current?: () => boolean) => Promise<void>;
 }
 
 export function createCuts(d: CutDeps) {
@@ -76,7 +85,9 @@ export function createCuts(d: CutDeps) {
   const cutFails = new Map<string, [string, number]>(); // refused interrupts of those stops
   const retries = new Set<ReturnType<typeof setTimeout>>();
   const waits = new Set<AbortController>(); // the confirmations waiting for outcomes
-  const archived = new Set<string>(); // the sessions this instance archived on their stop
+  // Another location's explicit stand must cancel the archive this instance already started.
+  const global = globalThis as unknown as Record<string, Set<string> | undefined>;
+  const archived = (global[`${GLOBAL_PREFIX}ArchivedStops`] ??= new Set<string>());
 
   /**
    * A stopped session's running turn is interrupted, its piles and waiting tact are dropped — once
@@ -91,27 +102,34 @@ export function createCuts(d: CutDeps) {
     if (gen === null || cutDone.get(id) === gen || cutting.get(id) === gen) return;
     d.dropped(id);
     if (cutting.has(id)) return; // the previous stop's interrupt is in flight: this one follows it
+    const owns = claim(id);
+    const current = (): boolean => owns() && d.stopOf(id) === gen;
     const settle = (code: CutOutcome): void => {
       cutDone.set(id, gen);
-      settled(id, gen, code);
+      if (current()) settled(id, gen, code);
     };
     if (!d.canInterrupt()) return settle("interrupt_missing");
     cutting.set(id, gen);
     void Promise.resolve()
       .then(() => d.interrupt(id))
       .then(
-        () => {
-          if (d.stopOf(id) !== gen) return;
-          settle(null);
+        async () => {
+          if (!current()) return;
           cutFails.delete(id);
-          // A stopped agent's session closes in the harness, not only its turn (#9256).
-          if (!archived.has(id)) {
+          // Seat removal is passive; only an order requests archive and bound-client exit.
+          if (d.full(id)) {
             archived.add(id);
-            void d.archive(id, true);
+            try {
+              await d.archive(id, true, current);
+            } catch (e) {
+              if (current()) settle(archivePhase((e as Error).message));
+              return;
+            }
           }
+          if (current()) settle(null);
         },
         (e: Error) => {
-          if (d.stopOf(id) !== gen) return;
+          if (!current()) return;
           const was = cutFails.get(id);
           const n = (was?.[0] === gen ? was[1] : 0) + 1;
           cutFails.set(id, [gen, n]);
@@ -126,6 +144,8 @@ export function createCuts(d: CutDeps) {
         },
       )
       .finally(() => {
+        // A displaced instance must not reclaim this same cut on its next sweep.
+        if (!owns() && d.stopOf(id) === gen) cutDone.set(id, gen);
         cutting.delete(id);
         if (d.stopOf(id) !== gen) cut(id);
       });
@@ -154,7 +174,9 @@ export function createCuts(d: CutDeps) {
         for (let next = ids(); next.length; next = ids().filter((id) => !asked.has(id))) {
           for (const id of next) asked.add(id);
           const all = await Promise.all(next.map((id) => outcomeOf(id, d.stopOf, own.signal)));
-          first ??= all.find((c) => c !== null) ?? null;
+          for (const code of all)
+            if (code !== null && (first === null || (isHaltPhase(first) && !isHaltPhase(code))))
+              first = code;
         }
         return first;
       } finally {
@@ -169,7 +191,8 @@ export function createCuts(d: CutDeps) {
     forget(id: string, stands = false): void {
       cutDone.delete(id);
       cutFails.delete(id);
-      if (archived.delete(id) && stands) void d.archive(id, false);
+      if (archived.delete(id) && stands)
+        void d.archive(id, false).catch((e: Error) => d.refused(id, e.message, true));
       unsettle(id);
     },
     stop(): void {

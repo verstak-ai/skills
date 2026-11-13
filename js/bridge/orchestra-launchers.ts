@@ -10,37 +10,10 @@ import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
-import { type ClonePolicy, parseClone } from "./orchestra-clone.ts";
-
-/** The harness's name is Orca's --agent value itself (case №4050 [8]). */
-export interface HarnessOffer {
-  models: string[];
-}
-export interface Launcher {
-  launcher: string;
-  /** Absent — the description answers any machine of the account leading with this launcher. */
-  host: string | null;
-  adapter: "orca";
-  limit: number;
-  harnesses: Record<string, HarnessOffer>;
-  /** Optional: overrides Orca's own project setups for its keys. */
-  checkouts: Record<string, string>;
-  /** Optional: other accounts (handles, lower case, no @) whose calls this launcher answers. */
-  callers: string[];
-  /** Optional: clone a repository Orca does not know (orchestra-clone.ts); null — never. */
-  clone: ClonePolicy | null;
-}
-export interface Launchers {
-  /** The account the daemon's key belongs to (handle, lower case, no @) — its calls are own. */
-  account: string;
-  /** This machine's launchers by their selector. */
-  own: Map<string, Launcher>;
-  /** Selectors described for other hosts: the host named — said aloud, for a host that names
-   * no machine raises nowhere. */
-  elsewhere: Map<string, string>;
-  /** Descriptions that raise nothing: the selector (or node) and the code. */
-  refused: { what: string; code: string }[];
-}
+import { parseExec } from "./exec-spec.ts";
+import { parseClone } from "./orchestra-clone.ts";
+import type { HarnessOffer, Launcher, Launchers } from "./orchestra-launcher-types.ts";
+export type { HarnessOffer, Launcher, Launchers } from "./orchestra-launcher-types.ts";
 
 const SLICE = "slice:orchestra";
 const LIMIT = 50;
@@ -76,6 +49,11 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
     if (!Array.isArray(x.models) || !x.models.every(str))
       return { code: "harness_invalid", launcher };
     harnesses[name] = { models: (x.models as string[]).map((m) => m.trim()) };
+    if (Object.hasOwn(x, "exec")) {
+      const exec = name === "opencode" ? parseExec(x.exec, harnesses[name].models) : null;
+      if (!exec) return { code: "exec_invalid", launcher };
+      harnesses[name].exec = exec;
+    }
   }
   const checkouts: Record<string, string> = {};
   const c = d.checkouts ?? {};

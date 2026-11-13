@@ -7,12 +7,12 @@
 import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import type { OpenOrder } from "./demand-rows.ts";
-import { readDemands } from "./orchestra-demands.ts";
+import { readDemands, type TactInvites } from "./orchestra-demands.ts";
 import { foreignStops } from "./orchestra-foreign.ts";
 import { readLaunchers } from "./orchestra-launchers.ts";
 import { closeEnded, expireLaunches, foldTape, quench, settleStops } from "./orchestra-quench.ts";
 import { raiseRows } from "./orchestra-raise.ts";
-import { readRuns, writeRuns } from "./orchestra-runs.ts";
+import { readRuns, syncClosed, writeRuns } from "./orchestra-runs.ts";
 import { readTape, realmCanon, type TactAct, type TactRead } from "./orchestra-tact.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
@@ -26,21 +26,22 @@ export function leadAct(
 ): TactAct {
   // Without consent the tape is not folded, so its cursors hold: the signals of our own
   // launches wait for the consent's return instead of being lost (#7514, #8202).
-  return async (reads, boundary, gone) =>
+  return async (reads, boundary, gone, invited) =>
     admitted
-      ? { said: await lead(reads, boundary, gone) }
+      ? { said: await lead(reads, boundary, gone, invited) }
       : { said: [w().leadNotAdmitted()], hold: true };
   async function lead(
     reads: TactRead[],
     boundary: string[],
     gone?: { gone: boolean },
+    invited?: TactInvites,
   ): Promise<string[]> {
     const runs = readRuns(authDir);
     for (const r of reads) foldTape(r.realm, r.signals as Record<string, unknown>[], runs);
     const said: string[] = [];
     try {
       const owned: OpenOrder[] = [];
-      const demands = await readDemands(base, token, boundary, boundary, undefined, owned);
+      const demands = await readDemands(base, token, boundary, boundary, undefined, owned, invited);
       if (!demands.complete) {
         said.push(
           w().leadIncomplete(demands.errors.map((e) => `${e.source}:${e.code}`).join(", ")),
@@ -64,6 +65,7 @@ export function leadAct(
           gone,
         )),
       );
+      syncClosed(runs, readRuns(authDir));
       said.push(...(await closeEnded(runs, gone)));
       if (gone?.gone) return said;
       let launchers;

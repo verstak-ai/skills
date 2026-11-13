@@ -18,6 +18,7 @@ import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { namedFetch } from "../shared/http.ts";
 import { words } from "../shared/lang.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
+import type { TactInvites } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
 import { canonIn, type RealmIndex, realmIndexOf } from "./realmindex.ts";
 
@@ -30,6 +31,7 @@ const TIMEOUT_MS = 10_000;
 export interface TactRead {
   realm: string;
   invites: number;
+  inviteResponse: unknown;
   signals: { cause?: unknown }[];
   cursor: string | null;
 }
@@ -49,6 +51,7 @@ export type TactAct = (
   reads: TactRead[],
   boundary: string[],
   gone?: { gone: boolean },
+  invited?: TactInvites,
 ) => Promise<{ said: string[]; hold?: boolean }>;
 function readTactState(authDir: string): TactState {
   try {
@@ -64,9 +67,15 @@ export function tactStateOf(authDir: string): TactState {
   return readTactState(authDir);
 }
 
-async function getJson(base: string, token: string, path: string): Promise<unknown> {
+async function getJson(
+  base: string,
+  token: string,
+  path: string,
+  redirect?: "error",
+): Promise<unknown> {
   const res = await namedFetch(`${base}${path}`, {
     headers: { authorization: `Bearer ${token}` },
+    redirect,
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(String(res.status));
@@ -144,9 +153,13 @@ async function readRealm(
   realm: string,
   since: string | null,
 ): Promise<TactRead> {
-  const invited = itemsOf(
-    await getJson(base, token, `/realms/${encodeURIComponent(realm)}/invites`),
+  const inviteResponse = await getJson(
+    base,
+    token,
+    `/realms/${encodeURIComponent(realm)}/invites`,
+    "error",
   );
+  const invited = itemsOf(inviteResponse);
   if (!invited) throw new Error("invites: not a list");
   const q = new URLSearchParams({ limit: String(LIMIT) });
   if (since) q.set("since", since);
@@ -161,7 +174,13 @@ async function readRealm(
   if (!tape) throw new Error("raised: not a list");
   const cursor =
     typeof raised.cursor === "string" && raised.cursor ? raised.cursor : (since ?? null);
-  return { realm, invites: invited.length, signals: tape as TactRead["signals"], cursor };
+  return {
+    realm,
+    invites: invited.length,
+    inviteResponse,
+    signals: tape as TactRead["signals"],
+    cursor,
+  };
 }
 
 /** The causes of one tape as the api words them — counts, not prose. */
@@ -218,7 +237,13 @@ export async function stepTact(
     }
   }
   if (gone?.gone) return { ok: false, said: w().stepGone() };
-  const lead = act ? await act(reads, boundary, gone) : { said: [] };
+  const lead = act
+    ? await act(reads, boundary, gone, {
+        base,
+        token: token ?? "",
+        responses: reads.map((r) => ({ realm: r.realm, body: r.inviteResponse })),
+      })
+    : { said: [] };
   state.lead = lead.said.join("; ");
   // Left during the act: what it did stays said for status, the cursors stay where they lay.
   const left = gone?.gone === true;

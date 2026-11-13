@@ -115,7 +115,25 @@ export async function planTact(
       state: "launched",
       at: new Date().toISOString(),
     };
-    say(w().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w().planBrief())].join(" ")));
+    if (own.harnesses[harness].exec) {
+      say(
+        w().planLaunch(
+          [
+            ORCA,
+            "terminal",
+            "create",
+            "--worktree",
+            `path:${worktree}`,
+            "--command",
+            "<runtime-local prepare; API create/prompt; exec opencode --server --session>",
+            "(exec_preflight_required)",
+          ].join(" "),
+        ),
+      );
+    } else
+      say(
+        w().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w().planBrief())].join(" ")),
+      );
   }
   return { ok: true, said: w().plan(rows.join("\n")) };
 }

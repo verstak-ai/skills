@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
 
-import { envName, PREPARE, REPO_SIGNS } from "../delivery/index.ts";
+import { envName, PREPARE, QUESTIONS, REPO_SIGNS } from "../delivery/index.ts";
 import { coverBlock } from "../shared/coverblock.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -269,7 +269,8 @@ test("prepare: the repository's own carried rituals are kept and named for the t
 });
 
 // The cover's rituals: field (graph @nks/nks-dev, node #9316): kept as it stands, the guard
-// switched off is not written, an unknown name goes to the model in our words.
+// switched off is not written, an unknown name goes to the model in our words; the blocking
+// question tool's project refusal (graph @nks/nks-dev, node #10397) is written beside it.
 test("prepare: the rituals: field stands, a switched-off guard is not written, an unknown name is left", () => {
   const d = repo();
   writeFileSync(
@@ -279,8 +280,86 @@ test("prepare: the rituals: field stands, a switched-off guard is not written, a
   const r = prepare(d, [...ADDR, "--contract", "11", "--stamp", "2026-11-03"]);
   assert.match(read(d, "AGENTS.md"), /^ {2}rituals: start mege$/m);
   assert.equal(coverBlock(read(d, "AGENTS.md"), "verstak").get("contract"), "11");
-  assert.throws(() => read(d, ".claude/settings.json"), "the guard switched off is not written");
+  const s = JSON.parse(read(d, ".claude/settings.json"));
+  assert.equal(s.hooks, undefined, "the guard switched off is not written");
+  // The question refusal is no ritual: written in both harnesses' project layers regardless.
+  assert.deepEqual(s.permissions, { deny: ["AskUserQuestion"] });
+  assert.deepEqual(JSON.parse(read(d, ".opencode/opencode.json")).policies, [
+    { action: "tool.use", resource: "question:*", effect: "deny" },
+  ]);
   const why = r.out.left.find((x) => x.item === "cover.rituals")?.why ?? "";
   assert.equal(why, PREPARE.en.left("cover.rituals", "'mege'"));
   assert.doesNotMatch(why, FOREIGN);
+});
+
+// The rituals check's question layers (graph @nks/nks-dev, node #10397) over a repository prepare
+// aligned: the template's AGENTS.md line, both project layers prepare writes, our plugin's
+// hooks/hooks.json entry and our OpenCode plugin's own refusal all pass; an .opencode/opencode.jsonc
+// stops prepare before any write, the JSONC left to the model.
+test("check-rituals: every question layer passes in a repository prepare aligned, with our plugins", () => {
+  const d = repo();
+  const line = read(REPO, "skills/verstak/templates/agents-template.md")
+    .split("\n")
+    .find((l) => l.startsWith("**Refused tools:**"));
+  writeFileSync(join(d, "AGENTS.md"), `---\nverstak:\n  graph: r7\n---\n# x\n\n${line}\n`);
+  prepare(d, [...ADDR, "--contract", "16", "--stamp", "2026-11-12"]);
+  const home = join(scratch, `home${n++}`);
+  mkdirSync(home);
+  const r = spawnSync(process.execPath, [BRIDGE, "check-rituals", "--json", d], {
+    env: { ...ENV, HOME: home, CLAUDE_PLUGIN_ROOT: REPO, OPENCODE_CONFIG_DIR: "" },
+    encoding: "utf8",
+    timeout: 30000,
+  });
+  const rows = JSON.parse(r.stdout).filter((v) => v.layer?.startsWith("question."));
+  assert.deepEqual(
+    rows.map((v) => [v.layer, v.hole]),
+    [
+      ["question.instructions", false],
+      ["question.project", false],
+      ["question.project", false],
+      ["question.plugin", false],
+      ["question.plugin", false],
+    ],
+    r.stdout,
+  );
+  assert.equal(rows[3].file, join(REPO, "hooks/hooks.json"));
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+
+  const j = repo();
+  mkdirSync(join(j, ".opencode"));
+  writeFileSync(join(j, ".opencode/opencode.jsonc"), "{}\n");
+  const refused = prepare(j, ADDR);
+  assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+  assert.match(refused.out?.refused ?? "", /opencode\.json/);
+  assert.throws(() => read(j, "AGENTS.md"), "a refused prepare writes nothing");
+});
+
+// A single .opencode/opencode.jsonc that already holds the question policy (graph @nks/nks-dev,
+// node #10397): prepare accepts it as the project layer and writes neither it nor a second
+// opencode.json beside it; with both files present it refuses in our words before any write.
+test("prepare: a single opencode.jsonc holding the deny is accepted and left unwritten", () => {
+  const d = repo();
+  mkdirSync(join(d, ".opencode"));
+  const jsonc =
+    '{\n  // ours\n  "policies": [\n    { "action": "tool.use", "resource": "question:*", "effect": "deny" },\n  ],\n}\n';
+  writeFileSync(join(d, ".opencode/opencode.jsonc"), jsonc);
+  const r = prepare(d, [...ADDR, "--contract", "16", "--stamp", "2026-11-12"]);
+  assert.ok([0, 3].includes(r.status), r.stdout + r.stderr);
+  assert.equal(read(d, ".opencode/opencode.jsonc"), jsonc, "the JSONC is never rewritten");
+  assert.throws(() => read(d, ".opencode/opencode.json"), "no second layer beside it");
+  assert.deepEqual(JSON.parse(read(d, ".claude/settings.json")).permissions, {
+    deny: ["AskUserQuestion"],
+  });
+
+  const b = repo();
+  mkdirSync(join(b, ".opencode"));
+  writeFileSync(join(b, ".opencode/opencode.jsonc"), jsonc);
+  writeFileSync(join(b, ".opencode/opencode.json"), "{}\n");
+  const both = prepare(b, ADDR);
+  assert.equal(both.status, 1, both.stdout + both.stderr);
+  // prepare names the file by the repository's real path (/private/var under macOS's /var).
+  const tail = QUESTIONS.en.manual(join(".opencode", "opencode.jsonc"), "both");
+  assert.ok(both.out?.refused?.endsWith(`/${tail}`), both.stdout);
+  assert.doesNotMatch(both.out.refused, FOREIGN);
+  assert.throws(() => read(b, "AGENTS.md"), "a refused prepare writes nothing");
 });

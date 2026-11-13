@@ -7,11 +7,12 @@
 // quotes; js/tests/question-refusal.test.mjs holds the command equal to what it makes.
 // Line comments and the globals line are dropped from the command.
 //
-// It refuses only in a repository that is ours as the door counts it: a mark in AGENTS.md, as
-// the core's repoSigns reads its cover and stamp (shared/reposigns.ts, shared/cover.ts,
-// shared/coverblock.ts): our cover block, the older flat keys or our stamp line, never another
-// delivery's cover. A start hook or rituals plugin alone marks nothing. Elsewhere it prints
-// nothing. The test holds this copy to those readers on every fixture.
+// It refuses only under our cover, the scope the OpenCode plugin's refusal keys on: AGENTS.md as
+// the core's repoSigns reads its cover (shared/reposigns.ts, shared/cover.ts,
+// shared/coverblock.ts): our cover block or the older flat keys, never another delivery's cover,
+// which our stamp line alone does not make ours. Our stamp line alone, a start hook or a rituals
+// plugin marks nothing. Elsewhere it prints nothing. The test holds this copy to that reader on
+// every fixture.
 /* global DENY, COVER_FILE, COVER_ROOT, FLAT_KEYS, OWN_STAMPS, OTHER_STAMP */
 let input = "";
 process.stdin
@@ -101,10 +102,9 @@ process.stdin
       }
       return out;
     };
-    // The cover and the stamp (shared/cover.ts: stampOf, hasCover).
+    // The cover, cancelled by another delivery's stamp (shared/cover.ts: stampOf, hasCover).
     const text = read(path.join(root, COVER_FILE));
-    let cover = false,
-      stamp = false;
+    let cover = false;
     if (text !== null) {
       const all = blocks(text),
         block = all.get(COVER_ROOT);
@@ -116,10 +116,9 @@ process.stdin
         !block &&
         ([...all].some(([k, b]) => k !== COVER_ROOT && b.has("contract")) ||
           OTHER_STAMP.test(text));
-      stamp = !!own;
       const flat = pairs(text);
       cover = !foreign && (!!block || (!!flat && FLAT_KEYS.some((k) => flat.has(k))));
     }
-    if (!(cover || stamp)) return;
+    if (!cover) return;
     process.stdout.write(JSON.stringify(DENY));
   });

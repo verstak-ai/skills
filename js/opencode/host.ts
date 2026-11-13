@@ -1,6 +1,6 @@
 // What the plugin's host — OpenCode itself — says about itself and the session, for the
 // "tools" half (tools.ts). Only a type comes from plugin.ts — no runtime import cycle.
-import { OPENCODE } from "../delivery/index.ts";
+import { GLOBAL_PREFIX, OPENCODE } from "../delivery/index.ts";
 import { HARNESS_VERSION_ENV, SKILLS_ROOT_ENV } from "../shared/clients.ts";
 import { words } from "../shared/lang.ts";
 import { clientOf, closeClient } from "./client.ts";
@@ -39,46 +39,88 @@ export function archives(ctx: Context): boolean {
   return !!m && (Number(m[1]) > 2 || (Number(m[1]) === 2 && Number(m[2]) >= 2));
 }
 
-/** A pause before a run's client goes: the stop's outcome reaches the bridge first (cuts.ts). */
+/** The session still exists and accepts channel words, rather than being archived. */
+export async function accepting(ctx: Context, id: string): Promise<boolean> {
+  try {
+    const info = await ctx.session.get({ sessionID: id } as never);
+    const shape = info as unknown as {
+      time?: { archived?: number };
+      data?: { time?: { archived?: number } };
+    };
+    return !(shape?.time?.archived ?? shape?.data?.time?.archived);
+  } catch {
+    return false;
+  }
+}
+
+/** A cancellation window before signalling the bound client; the terminal ack still waits. */
 const CLOSE_AFTER_MS = 1_000;
 
 /**
  * The stopped session archived (`on`) or taken out of the archive (#9256) — archived, not
  * removed: the human reads what the agent got to. A root session's client is closed as well
- * (client.ts); either way the human is told whether its window is closed.
+ * (client.ts); archive refusal or unobserved exit refuses the full stop, never a false success.
  */
 export function archiver(
   ctx: Context,
   tell: (text: string) => void,
-): (id: string, on: boolean) => Promise<void> {
+): (id: string, on: boolean, active?: () => boolean) => Promise<void> {
   const W = words(OPENCODE);
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- update takes `archived` from 2.2 on */
   const session = ctx.session as any;
-  // A close waiting its pause — an explicit stand before it fires cancels it.
-  const pending = new Map<string, ReturnType<typeof setTimeout>>();
-  const turns = new Map<string, number>(); // the latest call per session: a later one supersedes
-  return async (id, on) => {
+  // Location instances share the update queue: a new stand cannot unarchive before an older
+  // instance's in-flight archive finishes, nor let that old instance signal the client later.
+  type Book = { turns: Map<string, number>; updating: Map<string, Promise<unknown>> };
+  const global = globalThis as unknown as Record<string, Book | undefined>;
+  const { turns, updating } = (global[`${GLOBAL_PREFIX}ArchiveQueue`] ??= {
+    turns: new Map<string, number>(),
+    updating: new Map<string, Promise<unknown>>(),
+  });
+  return async (id, on, active = () => true) => {
     const turn = (turns.get(id) ?? 0) + 1;
     turns.set(id, turn);
-    clearTimeout(pending.get(id));
-    pending.delete(id);
-    let why: string | null = null;
-    if (archives(ctx) && typeof session.update === "function")
-      await session.update({ sessionID: id, archived: on }).catch((e: Error) => (why = e.message));
-    if (!on) return;
-    const root = await Promise.resolve()
-      .then(() => session.get({ sessionID: id }))
-      .then((s: { parentID?: unknown } | null) => !s?.parentID)
-      .catch(() => false);
-    if (turns.get(id) !== turn) return; // the session stood again while this stop was judged
-    const pid = root ? clientOf(id) : null;
-    if (pid === null) return void ((root || why) && tell(W.sessionLeftOpen(id, why)));
-    const t = setTimeout(() => {
-      pending.delete(id);
-      tell(closeClient(pid) ? W.clientClosed(id, pid) : W.sessionLeftOpen(id, null));
-    }, CLOSE_AFTER_MS);
-    (t as { unref?: () => void }).unref?.();
-    pending.set(id, t);
+    const current = (): boolean => turns.get(id) === turn && active();
+    if (!archives(ctx) || typeof session.update !== "function") {
+      if (!on) return;
+      tell(W.sessionLeftOpen(id, "archive_missing"));
+      throw new Error("archive_missing");
+    }
+    // A stand queues its unarchive after the old in-flight update, never before it.
+    const update = (updating.get(id) ?? Promise.resolve())
+      .catch(() => {})
+      .then(async () => {
+        if (!current()) return;
+        await session.update({ sessionID: id, archived: on });
+      });
+    updating.set(id, update);
+    try {
+      await update;
+    } catch {
+      tell(W.sessionLeftOpen(id, "archive_refused"));
+      throw new Error("archive_refused");
+    } finally {
+      if (updating.get(id) === update) updating.delete(id);
+    }
+    if (!on || !current()) return;
+    const res = await session.get({ sessionID: id }).catch(() => null);
+    const info = res?.data ?? res;
+    if (!info?.time?.archived) throw new Error("archive_unconfirmed");
+    const root = !info.parentID;
+    if (!current()) return;
+    const client = root ? clientOf(id) : null;
+    if (!root) return;
+    if (client === null) {
+      tell(W.sessionLeftOpen(id, null));
+      throw new Error("client_unbound");
+    }
+    await new Promise((r) => setTimeout(r, CLOSE_AFTER_MS));
+    if (!current()) return;
+    const closed = await closeClient(client, current);
+    if (!current()) return;
+    tell(
+      closed ? W.clientClosed(id, client.pid) : W.sessionLeftOpen(id, "client_exit_unconfirmed"),
+    );
+    if (!closed) throw new Error("client_exit_unconfirmed");
   };
 }
 

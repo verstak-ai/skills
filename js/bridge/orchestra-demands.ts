@@ -15,6 +15,12 @@ export interface Demands {
 
 const LIMIT = 200;
 const MAX_PAGES = 50;
+/** Full invites responses held only by one tact, bound to its API and account (#9958). */
+export interface TactInvites {
+  base: string;
+  token: string;
+  responses: { realm: string; body: unknown }[];
+}
 async function get(base: string, token: string, path: string): Promise<Record<string, unknown>> {
   const r = await namedFetch(`${base}${path}`, {
     headers: { authorization: `Bearer ${token}` },
@@ -42,6 +48,7 @@ export async function readDemands(
   gone?: { gone: boolean },
   /** Every open order of the account, any graph — the projection keeps the boundary's only. */
   owned?: OpenOrder[],
+  invited?: TactInvites,
 ): Promise<Demands> {
   const realms = [...new Set(requested.map((s) => s.trim()))];
   const result: Demands = {
@@ -89,13 +96,25 @@ export async function readDemands(
     error("connection", "unavailable");
     return result;
   }
+  if (
+    invited &&
+    (invited.base !== base ||
+      invited.token !== token ||
+      invited.responses.length !== realms.length ||
+      realms.some((realm) => invited.responses.filter((r) => r.realm === realm).length !== 1))
+  ) {
+    error("invites", "invalid_snapshot");
+    return result;
+  }
   for (const realm of realms) {
     if (gone?.gone) {
       error("caller", "gone");
       return result;
     }
     try {
-      const body = await get(base, token, `/realms/${encodeURIComponent(realm)}/invites`);
+      const body = invited
+        ? object(invited.responses.find((r) => r.realm === realm)?.body)
+        : await get(base, token, `/realms/${encodeURIComponent(realm)}/invites`);
       // This door returns the complete list, not a cursor tape (#4951).
       const rows = items(body).map((v) => startRow(v, realm));
       result.start.push(...rows);

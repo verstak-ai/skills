@@ -27,6 +27,7 @@ export interface Scope {
   ownBefore: boolean;
   /** The after-push hook appended to the result in its own session. */
   ownAfter: boolean;
+  questions: { removed: boolean; denied: boolean; caseAllowed: boolean };
 }
 
 // A ctx member the run did not set is a callable no-op; `then` is empty so that
@@ -104,6 +105,8 @@ async function probeWith(
   const dirs: Record<Who, string> = { mine: own, twin: alias, theirs: foreign };
   const writes: Record<Who, number> = { mine: 0, twin: 0, theirs: 0 };
   const hooks: Record<string, Fn[]> = {};
+  const permissionHooks: Array<(e: { action: string; effect: string }) => unknown> = [];
+  const tools = new Set(["question", "case_probe"]);
   const reads = new Set(["get", "list", "messages", "children", "status"]);
   const session = new Proxy(
     {},
@@ -127,7 +130,23 @@ async function probeWith(
   const ctx = context({
     location: { directory: alias },
     session,
-    tool: loose({ hook: async (name: string, fn: Fn) => void (hooks[name] ??= []).push(fn) }),
+    permission: loose({
+      hook: async (_name: string, fn: (e: { action: string; effect: string }) => unknown) => {
+        permissionHooks.push(fn);
+      },
+    }),
+    tool: loose({
+      transform: async (fn: (e: object) => void) =>
+        fn({
+          remove: (name: string) => tools.delete(name),
+          add: (tool: { name: string }) => tools.add(tool.name),
+          list: () => [...tools].map((name) => ({ id: name, name })),
+          get: (name: string) => (tools.has(name) ? { id: name, name } : undefined),
+          update: () => {},
+          namespace: () => {},
+        }),
+      hook: async (name: string, fn: Fn) => void (hooks[name] ??= []).push(fn),
+    }),
     event: loose({
       subscribe: ({ signal }: { signal?: AbortSignal } = {}) => {
         subscribed = true;
@@ -157,18 +176,32 @@ async function probeWith(
         )),
     ),
   ]).finally(() => clearTimeout(timer));
-  await settle();
-  const onEvents = { ...writes };
-  const mine = await runHooks(hooks, id.mine);
-  await settle(50);
-  if (typeof cleanup === "function") await cleanup();
-  return {
-    writes: onEvents,
-    subscribed,
-    broken: mine.broken,
-    ownBefore: mine.hit.some(
-      (h) => h.startsWith("execute.before write: throw") && !mine.broken.includes(h),
-    ),
-    ownAfter: mine.hit.includes("execute.after bash: changed"),
-  };
+  try {
+    await settle();
+    const onEvents = { ...writes };
+    const mine = await runHooks(hooks, id.mine);
+    const question = { action: "question", effect: "allow" };
+    const card = { action: "case_probe", effect: "allow" };
+    for (const fn of permissionHooks) {
+      await fn(question);
+      await fn(card);
+    }
+    await settle(50);
+    return {
+      writes: onEvents,
+      subscribed,
+      broken: mine.broken,
+      ownBefore: mine.hit.some(
+        (h) => h.startsWith("execute.before write: throw") && !mine.broken.includes(h),
+      ),
+      ownAfter: mine.hit.includes("execute.after bash: changed"),
+      questions: {
+        removed: !tools.has("question"),
+        denied: question.effect === "deny",
+        caseAllowed: card.effect === "allow",
+      },
+    };
+  } finally {
+    if (typeof cleanup === "function") await cleanup();
+  }
 }

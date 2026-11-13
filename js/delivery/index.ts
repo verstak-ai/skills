@@ -1,6 +1,6 @@
 // The delivery layer: the core (js/) takes everything that tells this delivery
 // apart through this one path. Order is by file path: the machine's config, the context gate, the contract support,
-// language, server prose forms (patterns/), product name, protocol, launch basis, version, words
+// language, server prose forms (patterns/), product name, protocol, question scope, launch basis, version, words
 // (words/).
 export { DEFAULT_SERVER_URL } from "./config.ts";
 export { CONTEXT_DOOR, CONTEXT_GATE, type ContextGateWords, ROLE_SKILLS } from "./context-gate.ts";
@@ -53,6 +53,7 @@ export {
   tool,
   TOOL_PREFIX,
 } from "./protocol.ts";
+export { QUESTION_SCOPE } from "./questions.ts";
 export { SPAWNED_FOR_ENV, spawnedForSchema } from "./spawned-for.ts";
 export { BUILD_MARK, CHANNEL_MARK, VERSION } from "./version.ts";
 export { ABSORB, type AbsorbWords } from "./words/absorb.ts";

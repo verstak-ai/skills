@@ -12,6 +12,9 @@ interface Proc {
   uid: number;
   command: string;
 }
+export interface BoundClient extends Proc {
+  born: string;
+}
 
 function processes(): Proc[] {
   try {
@@ -40,9 +43,8 @@ function standaloneClient(): number | null {
 }
 
 /** The client of a root session, or null — none to close without touching another's. */
-export function clientOf(sessionID: string): number | null {
+export function clientOf(sessionID: string): BoundClient | null {
   const own = standaloneClient();
-  if (own !== null) return own;
   const uid = process.getuid?.();
   if (uid === undefined) return null;
   const id = sessionID.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -50,18 +52,60 @@ export function clientOf(sessionID: string): number | null {
   const opened = new RegExp(
     `(?:^|[\\s/\\\\])opencode(?:\\.exe)?\\s(?:.*\\s)?(?:--session|-s)(?:=|\\s+)${id}(?:\\s|$)`,
   );
-  const hit = processes().find(
-    (p) => p.uid === uid && p.pid !== process.pid && opened.test(p.command),
+  const hits = processes().filter(
+    (p) =>
+      p.uid === uid &&
+      p.pid !== process.pid &&
+      (own !== null ? p.pid === own : opened.test(p.command)),
   );
-  return hit?.pid ?? null;
+  const hit = hits.length === 1 ? hits[0] : undefined;
+  const born = hit ? stamp(hit.pid) : null;
+  return hit && born ? { ...hit, born } : null;
 }
 
-/** SIGTERM to a client found by clientOf; false — it is gone or the signal refused. */
-export function closeClient(pid: number): boolean {
+/** A process identity, not just a reusable pid. No readable birth stamp — no signal. */
+function stamp(pid: number): string | null | undefined {
+  try {
+    return (
+      execFileSync("ps", ["-p", String(pid), "-o", "lstart="], {
+        encoding: "utf8",
+        timeout: 5_000,
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+      }).trim() || undefined
+    );
+  } catch (e) {
+    const failure = e as { status?: number; stdout?: string; stderr?: string };
+    // ps's empty no-match is absence. Timeout, permissions and a missing observer are unknown.
+    return failure.status === 1 && !failure.stdout?.trim() && !failure.stderr?.trim()
+      ? null
+      : undefined;
+  }
+}
+
+/** A signal is not an exit. Confirm this exact client's disappearance; never escalate. */
+export async function closeClient(client: BoundClient, current: () => boolean): Promise<boolean> {
+  const { pid, born } = client;
+  const now = processes().find((p) => p.pid === pid);
+  if (
+    stamp(pid) !== born ||
+    now?.uid !== client.uid ||
+    now.command !== client.command ||
+    !current()
+  )
+    return false;
   try {
     process.kill(pid, "SIGTERM");
-    return true;
   } catch {
     return false;
   }
+  const until = Date.now() + 5_000;
+  while (Date.now() < until) {
+    const observed = stamp(pid);
+    if (observed === null || (typeof observed === "string" && observed !== born)) return true;
+    if (observed === undefined) return false;
+    if (!current()) return false;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return false;
 }

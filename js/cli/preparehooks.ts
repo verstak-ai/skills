@@ -19,6 +19,7 @@ import {
   type RiteKind,
   type Settings,
 } from "./hookkinds.ts";
+import { denyClaudeQuestion } from "./preparequestions.ts";
 import { opaque } from "./preparescripts.ts";
 
 // The guard of references/hooks.md byte for byte around its message: a probe holds them equal.
@@ -118,7 +119,13 @@ export function prepareHooks(
   const path = join(dir, "settings.json");
   const s = load(path);
   if (!s) return path;
-  const changed = on.has("guard") && guard(root, s, addr, out, preserve);
+  let questionChanged: boolean;
+  try {
+    questionChanged = denyClaudeQuestion(s);
+  } catch {
+    return path;
+  }
+  const changed = (on.has("guard") && guard(root, s, addr, out, preserve)) || questionChanged;
   const carried = CARRIED.filter((kind) => on.has(kind.slice("hook.".length)));
   for (const kind of carried) if (knownOf(root, s, kind).length) out.left.push(kind);
   // A start script prepare cannot read may be the repository's start hook: named for reading.

@@ -18,6 +18,9 @@ const outcomes = (): Map<string, [string, CutOutcome]> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}CutOutcomes`] ??= new Map<string, [string, CutOutcome]>());
 const waiters = (): Map<string, Set<() => void>> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}CutWaiters`] ??= new Map<string, Set<() => void>>());
+/** Only the latest executor may certify a session's cut, even for the same stop generation. */
+const executors = (): Map<string, symbol> =>
+  ((globalThis as any)[`${GLOBAL_PREFIX}CutExecutors`] ??= new Map<string, symbol>());
 /** The child → parent maps of the process's live instances. */
 const lineages = (): Set<ReadonlyMap<string, string>> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}Lineages`] ??= new Set<ReadonlyMap<string, string>>());
@@ -28,6 +31,14 @@ function wake(id: string): void {
   for (const w of set ?? []) w();
 }
 
+/** Replace the executor before its interrupt starts; an older outcome is no longer evidence. */
+export function claim(id: string): () => boolean {
+  const token = Symbol();
+  executors().set(id, token);
+  outcomes().delete(id);
+  return () => executors().get(id) === token;
+}
+
 /** The session's cut for stop `gen` ended with `code`. */
 export function settle(id: string, gen: string, code: CutOutcome): void {
   outcomes().set(id, [gen, code]);
@@ -36,6 +47,7 @@ export function settle(id: string, gen: string, code: CutOutcome): void {
 
 /** The session is gone or stands again: whoever waits reads it anew. */
 export function forget(id: string): void {
+  executors().delete(id);
   outcomes().delete(id);
   wake(id);
 }

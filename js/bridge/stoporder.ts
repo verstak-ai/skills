@@ -12,6 +12,7 @@ import { apiBase } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
 import { broadcast, notify } from "./hold.ts";
 import { type Frame, whenOrdered } from "./holdstate.ts";
+import { boundStop } from "./order-client.ts";
 import { answerOutcome, type Order, repeatLater, sendAck, windowEnd } from "./orderack.ts";
 import { fly } from "./orderflight.ts";
 import { awaitHalt, confirmsHalts, SILENT } from "./orderhalt.ts";
@@ -61,6 +62,7 @@ function journalRefused(id: string, outcome: boolean): void {
  */
 async function stopOf(o: Order, entry: OrderEntry): Promise<OrderEntry> {
   const confirms = confirmsHalts();
+  const endClient = boundStop(o.standing_id);
   let seat: "main" | "beside" | null;
   try {
     seat = stopSeatByOrder(o.standing_id, o.by ?? "", o.id, o);
@@ -71,8 +73,16 @@ async function stopOf(o: Order, entry: OrderEntry): Promise<OrderEntry> {
   if (seat === null) return { ...entry, state: "unknown", reason: "seat_gone_before_stop" };
   if (seat === "beside") return { ...entry, state: "stopped", reason: "seat_beside" };
   if (!confirms) return { ...entry, state: "stopped", reason: "word_given" };
-  const code = await awaitHalt(o.id);
-  if (code === null) return { ...entry, state: "stopped", reason: "halt_confirmed" };
+  const phase = await awaitHalt(o.id);
+  const code = await endClient(phase);
+  if (code === null) {
+    const reason = phase?.startsWith("interrupt_confirmed_")
+      ? `client_exited_${phase.slice("interrupt_confirmed_".length)}`
+      : phase === "client_unbound"
+        ? "client_exited"
+        : "halt_confirmed";
+    return { ...entry, state: "stopped", reason };
+  }
   log(`stop order ${o.id}: the harness's stop — ${code}`);
   return code === SILENT
     ? { ...entry, state: "unknown", reason: SILENT }

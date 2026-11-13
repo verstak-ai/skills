@@ -13,6 +13,7 @@ import { skillLock } from "../shared/skilllock.ts";
 import { releaseBuild, VERSION } from "../shared/version.ts";
 import { harnessName } from "./client.ts";
 import { CFG, isProductionServer } from "./config.ts";
+import { ownPiGitSource } from "./pi-source.ts";
 import { conflictingSkillSource } from "./skillcatchup-guard.ts";
 import { updateFlatSkills } from "./skillcatchup-update.ts";
 import { skillsAttr, skillsRoot } from "./skillset.ts";
@@ -54,6 +55,9 @@ export async function skillCatchupNotice(): Promise<string | null> {
   const source = item?.source;
   const conflict = installed.name !== SKILL_SET || conflictingSkillSource(item);
   const own = !conflict && source === SKILL_SET;
+  // pi git installs do not use the flat installer's lock. This proof affects the
+  // warning only; `own` and the flat auto-write admission below stay unchanged.
+  const pi = client === PI_CLIENT && !conflict && ownPiGitSource(root);
   const patchOnly = before[0] === target[0] && before[1] === target[1];
   const probe = !!process.env[envName("BRIDGE_RELEASES_URL")]?.trim();
   if (
@@ -67,7 +71,7 @@ export async function skillCatchupNotice(): Promise<string | null> {
     (isProductionServer(CFG.serverUrl) || probe)
   )
     return updateFlatSkills(root, installed.version);
-  const diagnostic = conflict || (!own && !plugin);
+  const diagnostic = conflict || (!own && !plugin && !pi);
   const command = diagnostic
     ? `node ${JSON.stringify(currentScope().origin?.path || process.argv[1])} doctor`
     : plugin
