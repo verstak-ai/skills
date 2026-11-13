@@ -95,7 +95,7 @@ Edit the source under `skills/verstak/` directly — no unzip dance.
 | Dev build of the shipped JS | `make build-js` (→ `dist/dev/`, ignored) |
 | Release build onto the committed paths | `make build-release` (the release job's; `make check-js` checks the release mark and embedded versions against `js/delivery/version.ts`) |
 | The OpenCode npm archive over the committed outputs | `make pack-opencode` (→ `dist/pack/verstak-opencode-X.Y.Z.tgz`, ignored; the release job attaches it to the GitHub release and publishes it to npm by trusted publishing when the repository variable `NPM_TRUSTED_PUBLISH` is `1`) |
-| Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs` with `VERSTAK_BRIDGE_NO_BROWSER=1`; `scripts/reap-test-bridges.mjs` then kills and fails on any dev-build bridge left running) |
+| Bridge behaviour (offline, local fake graph + OAuth server) | `make test` (builds `dist/dev`, then `js/tests/*.test.mjs` with `VERSTAK_BRIDGE_NO_BROWSER=1` and `open`/`xdg-open` stubs first on `PATH` that fail the run if called; `scripts/reap-test-bridges.mjs` then kills and fails on any dev-build bridge left running) |
 | Refresh the surface snapshot: from the asset nks-mcp tags on each release (versioned, via `fj`); fallback — the live server (network + authorized grant, through the bundled bridge) | `make surface-asset V=X.Y.Z`; fallback `make surface` |
 
 `make validate` also bans Cyrillic and the retired delivery name in every tracked text file except `CHANGELOG.md`.
