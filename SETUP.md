@@ -257,6 +257,26 @@ This is a model's turn: without a configured model it answers with a provider er
 the graph. Then check by `node "$src/verstak-bridge.mjs" doctor` — the plugin and the bridge
 of one build with the installed skill.
 
+**Or as a package**, for a headless machine whose versions the package manager picks. Each
+release carries the plugin and its bridge as one archive,
+`https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz`
+(a fixed version, never `/latest/`: OpenCode caches a plugin by its address); once
+`@verstak/opencode` is published on npm, its name works instead. Name it in OpenCode's
+plugin list (`opencode.json`):
+
+```json
+{ "plugin": ["https://github.com/verstak-ai/skills/releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz"] }
+```
+
+and give the OpenCode service this environment: `VERSTAK_BRIDGE_URL` — the graph server's
+address; `VERSTAK_BRIDGE_NO_UPDATE=1` — the bridge does not replace itself, the version is
+the package's; `VERSTAK_BRIDGE_NO_BROWSER=1` — no sign-in page is opened; and the secret
+`VERSTAK_BRIDGE_TOKEN` — a personal token (A personal token, below). The skill itself is not
+in the archive: install it as in step 1, OpenCode. Until a release whose plugin looks for
+the bridge beside itself, the plugin takes it only from `VERSTAK_BRIDGE_PATH` or
+`~/.verstak-bridge/verstak-bridge.mjs`: point `VERSTAK_BRIDGE_PATH` at the archive's
+`verstak-bridge.mjs`, or place the home copy as above.
+
 ### Bring up the bridge by hand
 
 For Claude Code or Codex without the plugin, Claude Desktop, Cursor and any other harness

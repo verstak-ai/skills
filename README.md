@@ -57,7 +57,8 @@ Install the verstak skill for me through your harness's own channel: in Claude C
 in Codex the plugin (`codex plugin marketplace add https://github.com/verstak-ai/skills`, then
 `codex plugin add verstak@verstak-ai`), in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
 `verstak.skill` from the latest release, in OpenCode `npx skills add verstak-ai/skills
---skill verstak --agent opencode --global -y` and the plugin from SETUP.md, elsewhere flat —
+--skill verstak --agent opencode --global -y` and the plugin from SETUP.md (copied by hand, or as
+the release's `verstak-opencode-X.Y.Z.tgz` package in OpenCode's plugin list), elsewhere flat —
 `npx skills add verstak-ai/skills --all --global`. Then, in a new session, do "/verstak connect the graph"
 (`/verstak:verstak connect the graph` under the Claude Code plugin).
 ```
@@ -125,6 +126,7 @@ the bridge it gets no seat, no channel and no self-update (`SETUP.md`).
 - `skills/verstak/references/*.md` and `templates/*.md` — supporting material, without frontmatter.
 - `skills/verstak/scripts/verstak-bridge.mjs`, `opencode-plugin.js` — the stdio-to-HTTP OAuth bridge and the OpenCode plugin, built from `js/` (the shared core plus the English delivery layer); `extensions/verstak.js` — the pi extension. Never edited by hand.
 - `verstak.skill` — the only committed derived bundle; contains the complete `verstak/` tree.
+- `verstak-opencode-X.Y.Z.tgz` — not committed: the npm package `@verstak/opencode` (the plugin as `index.js` and the bridge beside it), packed by `make pack-opencode` and attached to each GitHub release by the release job, which publishes the same archive to npm once trusted publishing is on (`NPM_TRUSTED_PUBLISH`).
 - `home/` — the verstak.ai conversation home's flat catalogue: the door, every method but `product-roadmap`, and the references and templates they point to, as standalone `SKILL.md` files generated from the skill; not part of the plugin.
 - `.claude-plugin/` — Claude Code plugin and marketplace metadata.
 - `.codex-plugin/`, `.agents/plugins/` — Codex plugin manifest and marketplace.

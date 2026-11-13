@@ -60,3 +60,68 @@ jobs:
           git add -A
           git commit -m "chore: rebuild the shipped JS and bundles for the stamped version"
           git push
+
+  # The OpenCode plugin as an npm archive (scripts/pack-opencode.mjs), packed from the
+  # tag's committed release outputs and attached to its GitHub release under a versioned
+  # address: releases/download/vX.Y.Z/verstak-opencode-X.Y.Z.tgz — never /latest/, which
+  # a plugin loader caches by URL.
+  opencode-asset:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Pack the OpenCode archive
+        run: make pack-opencode
+      - name: Attach it to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release upload "$TAG" "dist/pack/verstak-opencode-${TAG#v}.tgz" --clobber
+
+  # The same bytes to npm by trusted publishing (OIDC, no token). The trusted publisher is
+  # configured on npmjs.com for this file, so the publish stays here, not in a called
+  # workflow; it can be added only once the package exists, so the first version is
+  # published by hand and the repository variable NPM_TRUSTED_PUBLISH=1 turns this on.
+  opencode-npm:
+    needs: [release-please, opencode-asset]
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Skipped without trusted publishing
+        if: ${{ vars.NPM_TRUSTED_PUBLISH != '1' }}
+        run: echo "::notice::npm publish skipped — the repository variable NPM_TRUSTED_PUBLISH is not 1"
+      - uses: actions/checkout@v4
+        if: ${{ vars.NPM_TRUSTED_PUBLISH == '1' }}
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+      - uses: actions/setup-node@v4
+        if: ${{ vars.NPM_TRUSTED_PUBLISH == '1' }}
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer and Node 22.14 or newer.
+      - name: Update npm
+        if: ${{ vars.NPM_TRUSTED_PUBLISH == '1' }}
+        run: npm install -g npm@^11.5.1
+      - name: Take the release's archive
+        if: ${{ vars.NPM_TRUSTED_PUBLISH == '1' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release download "$TAG" --pattern "verstak-opencode-${TAG#v}.tgz" --dir dist/pack
+      - name: Publish it
+        if: ${{ vars.NPM_TRUSTED_PUBLISH == '1' }}
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: npm publish "dist/pack/verstak-opencode-${TAG#v}.tgz" --access public
