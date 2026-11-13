@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 
 import { isProductionServer } from "../bridge/config.ts";
 import { BRIDGE_NAME, HARNESS, type HarnessWords } from "../delivery/index.ts";
+import { parseJsonc } from "../shared/jsonc.ts";
 import { words } from "../shared/lang.ts";
 import { escapeRe } from "../shared/regex.ts";
 import { PRODUCT_PATTERN } from "./installnames.ts";
@@ -57,21 +58,6 @@ export function openCodeMcpEntries(out: (s: string) => void): void {
     if (e.url && isProductionServer(e.url)) return "http";
     return null;
   };
-  // .jsonc allows comments and trailing commas. Two passes, both sparing string literals:
-  // comments first, then a comma before a closing bracket — in one pass a comma separated
-  // from the bracket by a comment would stay.
-  const parse = (text: string): { mcp?: Record<string, unknown> } => {
-    const STRING = '"(?:[^"\\\\]|\\\\.)*"';
-    const noComments = text.replace(
-      new RegExp(`${STRING}|/\\*[\\s\\S]*?\\*/|//[^\\n]*`, "g"),
-      (m) => (m.startsWith('"') ? m : ""),
-    );
-    const noTrailing = noComments.replace(
-      new RegExp(`${STRING}|,(\\s*[}\\]])`, "g"),
-      (m, tail: string | undefined) => (m.startsWith('"') ? m : (tail ?? "")),
-    );
-    return JSON.parse(noTrailing) as { mcp?: Record<string, unknown> };
-  };
   // The path that made the entry count as the bridge, so the reader can check: the match is by file name.
   const bridgePath = (v: unknown): string => {
     const e = (v ?? {}) as { command?: string | string[]; args?: string[] };
@@ -98,7 +84,7 @@ export function openCodeMcpEntries(out: (s: string) => void): void {
   let found = 0;
   for (const [file, text] of sources) {
     try {
-      const cfg = parse(text);
+      const cfg = parseJsonc(text) as { mcp?: Record<string, unknown> };
       for (const [name, v] of Object.entries(cfg.mcp ?? {})) {
         const kind = kindOf(v);
         if (!kind) continue;

@@ -120,11 +120,11 @@ export async function runPrepare(argv: string[]): Promise<void> {
     : null;
   const { on } = ritualsOf(coverBlock(cover.text, COVER.root));
   const policyError = prepareQuestionPolicy(root, false);
-  if (policyError) return say(json, 1, { refused: W.unparsed(policyError) });
+  if (policyError) return say(json, 1, { refused: policyError });
   const unparsed = prepareHooks(root, addr, out, on, !!warning);
   if (unparsed) return say(json, 1, { refused: W.unparsed(unparsed) });
   const policyWriteError = prepareQuestionPolicy(root);
-  if (policyWriteError) return say(json, 1, { refused: W.unparsed(policyWriteError) });
+  if (policyWriteError) return say(json, 1, { refused: policyWriteError });
   writeAgents(cover, out);
   writeReality(root, f["--case"], out);
   writeClaude(root, out);

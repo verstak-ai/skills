@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
 
-import { envName, PREPARE, REPO_SIGNS } from "../delivery/index.ts";
+import { envName, PREPARE, QUESTIONS, REPO_SIGNS } from "../delivery/index.ts";
 import { coverBlock } from "../shared/coverblock.ts";
 import { BUILT_BRIDGE, REPO } from "./built.mjs";
 
@@ -332,4 +332,34 @@ test("check-rituals: every question layer passes in a repository prepare aligned
   assert.equal(refused.status, 1, refused.stdout + refused.stderr);
   assert.match(refused.out?.refused ?? "", /opencode\.json/);
   assert.throws(() => read(j, "AGENTS.md"), "a refused prepare writes nothing");
+});
+
+// A single .opencode/opencode.jsonc that already holds the question policy (graph @nks/nks-dev,
+// node #10397): prepare accepts it as the project layer and writes neither it nor a second
+// opencode.json beside it; with both files present it refuses in our words before any write.
+test("prepare: a single opencode.jsonc holding the deny is accepted and left unwritten", () => {
+  const d = repo();
+  mkdirSync(join(d, ".opencode"));
+  const jsonc =
+    '{\n  // ours\n  "policies": [\n    { "action": "tool.use", "resource": "question:*", "effect": "deny" },\n  ],\n}\n';
+  writeFileSync(join(d, ".opencode/opencode.jsonc"), jsonc);
+  const r = prepare(d, [...ADDR, "--contract", "16", "--stamp", "2026-11-12"]);
+  assert.ok([0, 3].includes(r.status), r.stdout + r.stderr);
+  assert.equal(read(d, ".opencode/opencode.jsonc"), jsonc, "the JSONC is never rewritten");
+  assert.throws(() => read(d, ".opencode/opencode.json"), "no second layer beside it");
+  assert.deepEqual(JSON.parse(read(d, ".claude/settings.json")).permissions, {
+    deny: ["AskUserQuestion"],
+  });
+
+  const b = repo();
+  mkdirSync(join(b, ".opencode"));
+  writeFileSync(join(b, ".opencode/opencode.jsonc"), jsonc);
+  writeFileSync(join(b, ".opencode/opencode.json"), "{}\n");
+  const both = prepare(b, ADDR);
+  assert.equal(both.status, 1, both.stdout + both.stderr);
+  // prepare names the file by the repository's real path (/private/var under macOS's /var).
+  const tail = QUESTIONS.en.manual(join(".opencode", "opencode.jsonc"), "both");
+  assert.ok(both.out?.refused?.endsWith(`/${tail}`), both.stdout);
+  assert.doesNotMatch(both.out.refused, FOREIGN);
+  assert.throws(() => read(b, "AGENTS.md"), "a refused prepare writes nothing");
 });
