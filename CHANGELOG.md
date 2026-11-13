@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0](https://github.com/verstak-ai/skills/compare/v3.45.0...v4.0.0) (2026-11-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* bridge core from the sibling delivery v8.0.1 — the blocking question tool refused under our cover in both harnesses ([#431](https://github.com/verstak-ai/skills/issues/431))
+
+### Features
+
+* bridge core from the sibling delivery v8.0.1 — the blocking question tool refused under our cover in both harnesses ([#431](https://github.com/verstak-ai/skills/issues/431)) ([15f41f7](https://github.com/verstak-ai/skills/commit/15f41f761053bbba5ac82973f1c8fc050a7655b9))
+
+
+### Bug Fixes
+
+* both project question layers whatever the harness; an unused harness N/A for the cover ([#433](https://github.com/verstak-ai/skills/issues/433)) ([a7db2a3](https://github.com/verstak-ai/skills/commit/a7db2a3e82bf8e3fedaff1c8b20f810246b187bf))
+
 ## [3.45.0](https://github.com/verstak-ai/skills/compare/v3.44.2...v3.45.0) (2026-11-12)
 
 
