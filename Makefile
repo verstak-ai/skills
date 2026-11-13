@@ -53,7 +53,8 @@ typecheck:
 # VERSTAK_BRIDGE_NO_UPDATE: under tests the bridge never aligns a real home and
 # never asks for releases.
 test: build-js
-	@VERSTAK_BRIDGE_NO_UPDATE=1 node --test --test-timeout=300000 js/tests/*.test.mjs
+	@VERSTAK_BRIDGE_NO_UPDATE=1 VERSTAK_BRIDGE_NO_BROWSER=1 node --test --test-timeout=300000 js/tests/*.test.mjs; \
+	s=$$?; node scripts/reap-test-bridges.mjs || s=1; exit $$s
 
 # Build the shipped JS from js/ — the bridge (with daemon, watchdogs and doctor), the
 # OpenCode plugin and the pi extension — as the dev build, into dist/dev (outside
