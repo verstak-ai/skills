@@ -4,17 +4,32 @@
 // `orca` is found on the daemon's PATH.
 import { execFile } from "node:child_process";
 
-const FLAGS = ["agent", "worktree", "model", "prompt", "json"];
+import { sshRepository } from "./orchestra-remote.ts";
+
+const FLAGS = ["agent", "worktree", "model", "prompt", "surface", "json"];
 
 export function run(
   args: string[],
   timeoutMs: number,
+  command: "orca" | "ssh" | "git" = "orca",
+  cwd?: string,
 ): Promise<{ code: number | string; out: string }> {
   return new Promise((resolve) => {
     execFile(
-      "orca",
+      command,
       args,
-      { timeout: timeoutMs, maxBuffer: 4 * 1024 * 1024, windowsHide: true },
+      {
+        timeout: timeoutMs,
+        maxBuffer: 4 * 1024 * 1024,
+        windowsHide: true,
+        cwd,
+        env:
+          command === "git"
+            ? Object.fromEntries(
+                Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_")),
+              )
+            : process.env,
+      },
       (err, stdout) => {
         const e = err as (NodeJS.ErrnoException & { killed?: boolean }) | null;
         const code = !e
@@ -85,18 +100,37 @@ export async function orcaCheckouts(): Promise<CheckoutOf | string> {
   } catch {
     return "orca_projects_unreadable";
   }
+  const identities = await Promise.all(
+    projects.map(async (p) => {
+      const g = p.gitRemoteIdentity ?? {};
+      const remote = typeof g.remoteUrl === "string" ? await sshRepository(g.remoteUrl, run) : null;
+      return { project: p, remote };
+    }),
+  );
   return (repository) => {
     const want = hostFolded(repository);
+    const unresolved = identities.find(({ project, remote }) => {
+      const url = project.gitRemoteIdentity?.remoteUrl;
+      return (
+        remote &&
+        typeof remote !== "string" &&
+        typeof url === "string" &&
+        remoteKey(url).split("/").slice(1).join("/") === repository.split("/").slice(1).join("/")
+      );
+    });
+    if (unresolved && typeof unresolved.remote === "object" && unresolved.remote)
+      return unresolved.remote;
     const ids = new Set(
-      projects
-        .filter((p) => {
+      identities
+        .filter(({ project: p, remote }) => {
+          if (remote !== null) return typeof remote === "string" && hostFolded(remote) === want;
           const g = p.gitRemoteIdentity ?? {};
           return (
             (typeof g.canonicalKey === "string" && hostFolded(g.canonicalKey) === want) ||
             (typeof g.remoteUrl === "string" && hostFolded(remoteKey(g.remoteUrl)) === want)
           );
         })
-        .map((p) => p.id),
+        .map(({ project: p }) => p.id),
     );
     const paths = [
       ...new Set(
@@ -133,6 +167,8 @@ export function launchArgv(
     `path:${worktree}`,
     "--model",
     model,
+    "--surface",
+    "terminal",
     "--prompt",
     prompt,
     "--json",

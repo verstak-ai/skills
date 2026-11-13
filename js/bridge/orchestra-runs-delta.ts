@@ -25,6 +25,16 @@ export const runIdentity = (r: Run): string =>
     r.exec?.attempt,
     r.exec?.session,
     r.exec?.incarnation,
+    r.tree
+      ? [
+          r.tree.operation,
+          r.tree.path,
+          r.tree.commonDir,
+          r.tree.baseOID,
+          r.tree.identity,
+          r.tree.incarnation,
+        ]
+      : undefined,
     r.exec
       ? [r.karta, r.launcher, r.model, r.repository, r.worktree, r.exec.server, r.exec.model]
       : undefined,
@@ -70,14 +80,18 @@ export function mergeRuns(authDir: string, runs: Runs, latest: Runs): Runs {
       else Object.assign(row, { [k]: after[k] });
     }
     const firstSeat =
-      !!before.exec &&
-      !!after.exec &&
+      !!(before.exec || before.tree) &&
+      !!(after.exec || after.tree) &&
       !before.standing_id &&
       after.standing_id &&
       runIdentity({ ...after, standing_id: undefined }) === runIdentity(before);
     if (!firstSeat && runIdentity(after) !== runIdentity(before)) {
       delete row.closed;
       if (row.exec) delete row.exec.exit;
+      if (row.tree) {
+        row.tree = { ...row.tree };
+        delete row.tree.exit;
+      }
     }
     merged[key] = row;
   }

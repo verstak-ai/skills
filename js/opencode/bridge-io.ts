@@ -11,8 +11,16 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { envName, HALTS_CAPABILITY, HOME_DIR, OPENCODE, PLUGIN } from "../delivery/index.ts";
+import {
+  BRIDGE_FILE,
+  envName,
+  HALTS_CAPABILITY,
+  HOME_DIR,
+  OPENCODE,
+  PLUGIN,
+} from "../delivery/index.ts";
 import { type Bridge, resultToContent } from "../shared/bridge-client.ts";
 import { OPENCODE_CLIENT } from "../shared/clients.ts";
 import { FIELDS_CAPABILITIES } from "../shared/fields.ts";
@@ -37,15 +45,17 @@ const PROTOCOL = "2025-06-18";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- bridge answers come without a schema */
 
-/** Where the bridge is: the variable, then the home copy (the plugin lies as a copy, not in a package). */
+/** Where the bridge is: the variable, the package sibling, then the home copy. */
 export function findBridge(): { path: string | null; tried: string[] } {
   const tried: string[] = [];
   const env = process.env[envName("BRIDGE_PATH")]?.trim();
   if (env) tried.push(resolve(env));
+  tried.push(fileURLToPath(new URL(`./${BRIDGE_FILE}`, import.meta.url)));
   tried.push(homeBridgePath());
   for (const candidate of tried) {
     try {
       accessSync(candidate, constants.R_OK);
+      if (!statSync(candidate).isFile()) continue;
       return { path: candidate, tried };
     } catch {
       /* next */

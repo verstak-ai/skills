@@ -7,6 +7,7 @@ import { execBound, importAttempt } from "./exec-launch.ts";
 import { bindExecRaised } from "./exec-raised.ts";
 import { foreignStops } from "./orchestra-foreign.ts";
 import { LIVE, readRuns, type Run, runIdentity, writeRuns } from "./orchestra-runs.ts";
+import { cleanupEndedTrees } from "./orchestra-tree-clean.ts";
 
 export const exitClientId = (r: Run): string =>
   `orchestra-${createHash("sha256")
@@ -15,7 +16,11 @@ export const exitClientId = (r: Run): string =>
     .slice(0, 32)}`;
 export function execPending(authDir: string): boolean {
   try {
-    return Object.values(readRuns(authDir)).some((r) => !!r.exec && LIVE.includes(r.state));
+    return Object.values(readRuns(authDir)).some(
+      (r) =>
+        (!!(r.exec || r.tree) && LIVE.includes(r.state)) ||
+        (r.state === "ended" && r.tree?.state === "ready"),
+    );
   } catch {
     return true;
   } // preserve a corrupt registry for recovery, never reinterpret it as empty
@@ -29,9 +34,9 @@ export async function observeExec(
 ): Promise<void> {
   let runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
-    if (!r.exec || !LIVE.includes(r.state)) continue;
-    importAttempt(r, authDir);
-    if (r.exec.session && !execBound(r, authDir)) {
+    if (!(r.exec || r.tree) || !LIVE.includes(r.state)) continue;
+    if (r.exec) importAttempt(r, authDir);
+    if (r.exec?.session && !execBound(r, authDir)) {
       r.state = "ambiguity";
       r.why = "exec_receipt_binding_unverified";
       writeRuns(authDir, runs);
@@ -39,20 +44,22 @@ export async function observeExec(
     }
     writeRuns(authDir, runs);
     const identity = runIdentity(r);
-    if (!r.exec.exit && r.exec.session && (await execExited(r))) {
+    if (!(r.exec?.exit || r.tree?.exit) && (await execExited(r))) {
       const latest = readRuns(authDir)[key];
       if (!latest || runIdentity(latest) !== identity) continue;
-      r.exec.exit = new Date().toISOString();
+      if (r.exec) r.exec.exit = new Date().toISOString();
+      if (r.tree) r.tree.exit = new Date().toISOString();
       r.closed = "client_exited";
       writeRuns(authDir, runs);
     }
   }
+  await cleanupEndedTrees(authDir, readRuns(authDir));
   if (!base || !token) return;
   runs = readRuns(authDir);
   const realms = [
     ...new Set(
       Object.values(runs)
-        .filter((r) => r.exec && LIVE.includes(r.state))
+        .filter((r) => (r.exec || r.tree) && LIVE.includes(r.state))
         .map((r) => r.realm),
     ),
   ];
@@ -62,6 +69,7 @@ export async function observeExec(
     await foreignStops(authDir, base, token, latest);
     writeRuns(authDir, latest);
     await finishExits(authDir, base, token);
+    await cleanupEndedTrees(authDir, readRuns(authDir));
   } catch {
     process.stderr.write("exec_observer_graph_unreadable\n");
   }
@@ -70,11 +78,17 @@ export async function observeExec(
 async function finishExits(authDir: string, base: string, token: string): Promise<void> {
   const runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
-    if (!r.exec?.exit || !r.standing_id || !LIVE.includes(r.state) || !execBound(r, authDir))
+    if (
+      !(r.exec?.exit || r.tree?.exit) ||
+      !r.standing_id ||
+      !LIVE.includes(r.state) ||
+      (r.exec && !execBound(r, authDir))
+    )
       continue;
     if (r.stop_outcome === "stopped") {
       r.state = "ended";
       writeRuns(authDir, runs);
+      await cleanupEndedTrees(authDir, runs);
       continue;
     }
     const before = runIdentity(r);

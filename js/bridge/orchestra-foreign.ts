@@ -66,7 +66,7 @@ export async function foreignStops(
     if (r.state === "launched" || r.state === "raised") {
       if (r.standing_id) bySeat.set(r.standing_id, r);
       else unseated = true;
-    } else if (r.state === "stopping" && !r.stop_outcome && (r.exec || !stopLapsed(r)))
+    } else if (r.state === "stopping" && !r.stop_outcome && (r.exec || r.tree || !stopLapsed(r)))
       stopping.set(r.order_id ? `o:${r.order_id}` : `s:${r.standing_id ?? ""}`, r);
   const seen = new Set(Object.values(runs).map((r) => r.standing_id));
   let since = readSince(authDir);
@@ -106,10 +106,11 @@ export async function foreignStops(
         run.order_id = id;
         // Only a carried-out stop ends the run; a closed order of another outcome keeps it
         // stopping until its window passes (settleStops, #7522).
-        const done = state === "stopped" && (!run.exec || run.closed === "client_exited");
+        const done =
+          state === "stopped" && (!(run.exec || run.tree) || run.closed === "client_exited");
         run.state = done ? "ended" : "stopping";
         if (!done) run.stopping_at = new Date().toISOString();
-        if (!open && !done) run.stop_outcome = state;
+        if (!open) run.stop_outcome = state;
         if (open) {
           fresh.add(run);
           held ??= since;

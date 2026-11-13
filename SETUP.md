@@ -273,10 +273,9 @@ Give the OpenCode service this environment: `VERSTAK_BRIDGE_URL` — the graph s
 address; `VERSTAK_BRIDGE_NO_UPDATE=1` — the bridge does not replace itself, the version is
 the package's; `VERSTAK_BRIDGE_NO_BROWSER=1` — no sign-in page is opened; and the secret
 `VERSTAK_BRIDGE_TOKEN` — a personal token (A personal token, below). The skill itself is not
-in the archive: install it as in step 1, OpenCode. Until a release whose plugin looks for
-the bridge beside itself, the plugin takes it only from `VERSTAK_BRIDGE_PATH` or
-`~/.verstak-bridge/verstak-bridge.mjs`: point `VERSTAK_BRIDGE_PATH` at the archive's
-`verstak-bridge.mjs`, or place the home copy as above.
+in the archive: install it as in step 1, OpenCode. The plugin takes the bridge beside it, the
+archive's `verstak-bridge.mjs`; leave `VERSTAK_BRIDGE_PATH` unset, as it names another bridge
+first. Archives before 4.1.0 look only at `VERSTAK_BRIDGE_PATH` and the home copy.
 
 ### Bring up the bridge by hand
 

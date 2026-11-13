@@ -56,7 +56,7 @@ export async function bindExecRaised(
     }),
   );
   const runs = readRuns(authDir);
-  const owned = Object.fromEntries(Object.entries(runs).filter(([, run]) => run.exec));
+  const owned = Object.fromEntries(Object.entries(runs).filter(([, run]) => run.exec || run.tree));
   // Registry fsync precedes cursor advancement; a failed write replays the page safely.
   for (const read of reads) foldTape(read.realm, read.items, owned);
   writeRuns(authDir, runs);

@@ -25,7 +25,12 @@ const parse = (s: string): Reply => {
   }
 };
 export async function execExited(r: Run): Promise<boolean> {
-  if (!r.exec?.session || !r.exec.incarnation || !r.terminal || !r.runtime) return false;
+  const incarnation = r.exec
+    ? r.exec.session
+      ? r.exec.incarnation
+      : undefined
+    : r.tree?.incarnation;
+  if (!incarnation || !r.terminal || !r.runtime) return false;
   const show = async (): Promise<Reply> => {
     const got = await run(["terminal", "show", "--terminal", r.terminal!, "--json"], 5_000);
     return got.code === 0 ? parse(got.out) : {};
@@ -37,7 +42,7 @@ export async function execExited(r: Run): Promise<boolean> {
       v.ok === true &&
       v._meta?.runtimeId === r.runtime &&
       terminal.handle === r.terminal &&
-      terminal.incarnationId === r.exec?.incarnation &&
+      terminal.incarnationId === incarnation &&
       terminal.executionHostId === "local" &&
       terminal.worktreePath === r.worktree
     );

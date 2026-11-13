@@ -91,6 +91,7 @@ export async function quench(
     ([, r]) =>
       r.state === "raised" &&
       !r.exec?.exit &&
+      !r.tree?.exit &&
       r.rooms === 0 &&
       r.standing_id &&
       (r.sat || now - Date.parse(r.at) > RAISE_WINDOW_MS),
@@ -116,7 +117,7 @@ export async function quench(
       } else if (got.status === 410) {
         // A missing seat proves neither exec exit nor durable suppression (#9256).
         // Keep the live Run available to the exact-client observer.
-        if (!r.exec) r.state = "ended";
+        if (!r.exec && !r.tree) r.state = "ended";
         said.push(w().leadRow(r.realm, r.room, r.invite, `${why}seat_gone`));
       } else said.push(w().leadRow(r.realm, r.room, r.invite, `${why}stop_refused_${got.status}`));
     } catch (e) {

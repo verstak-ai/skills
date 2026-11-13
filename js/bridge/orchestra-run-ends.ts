@@ -19,9 +19,9 @@ export async function expireLaunches(
   for (const r of Object.values(runs))
     if (r.state === "launched" && now - Date.parse(r.at) > RAISE_WINDOW_MS) {
       if (gone?.gone) break;
-      if (r.exec) {
+      if (r.exec || r.tree) {
         r.state = "ambiguity";
-        r.why = "exec_no_seat_unverified";
+        r.why = r.exec ? "exec_no_seat_unverified" : "tree_no_seat_unverified";
         said.push(w().leadRow(r.realm, r.room, r.invite, r.why));
         continue;
       }
@@ -45,8 +45,8 @@ export async function closeEnded(
   for (const r of Object.values(runs))
     if (r.state === "ended" && r.terminal && r.runtime && !r.closed) {
       if (gone?.gone) break;
-      if (r.exec) {
-        r.why = "exec_client_unverified";
+      if (r.exec || r.tree) {
+        r.why = r.exec ? "exec_client_unverified" : "tree_client_unverified";
         continue;
       }
       r.closed = await close(r.terminal, r.runtime);
@@ -67,11 +67,15 @@ export function settleStops(
   for (const r of Object.values(runs)) {
     if (r.state !== "stopping" || fresh.has(r)) continue;
     const unanswered = r.order_id ? orders.has(r.order_id) : seats.has(r.standing_id ?? "");
-    if (!unanswered && r.stop_outcome === "stopped" && (!r.exec || r.closed === "client_exited")) {
+    if (
+      !unanswered &&
+      r.stop_outcome === "stopped" &&
+      (!(r.exec || r.tree) || r.closed === "client_exited")
+    ) {
       r.state = "ended";
       continue;
     }
-    if (r.exec || !stopLapsed(r, now)) continue;
+    if (r.exec || r.tree || !stopLapsed(r, now)) continue;
     r.state = "ended";
     r.closed = "terminal_left_open";
     const outcome = unanswered ? "unanswered" : (r.stop_outcome ?? "unknown");

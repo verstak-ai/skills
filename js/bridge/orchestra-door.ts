@@ -36,6 +36,7 @@ export type OrchestraServe = (
 export interface OrchestraExtra {
   launcher?: unknown;
   consent?: boolean;
+  only?: unknown;
 }
 
 /**
@@ -58,7 +59,13 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       if (nl < 0) return;
       const line = buf.slice(0, nl);
       buf = "";
-      let msg: { op?: unknown; realms?: unknown; launcher?: unknown; consent?: unknown } = {};
+      let msg: {
+        op?: unknown;
+        realms?: unknown;
+        launcher?: unknown;
+        consent?: unknown;
+        only?: unknown;
+      } = {};
       try {
         msg = JSON.parse(line) as typeof msg;
       } catch {
@@ -78,7 +85,11 @@ export async function listenOrchestraDoor(authDir: string, serve: OrchestraServe
       socket.on("close", () => {
         gone.gone = true;
       });
-      void serve(op, realms, gone, { launcher: msg.launcher, consent: msg.consent === true })
+      void serve(op, realms, gone, {
+        launcher: msg.launcher,
+        consent: msg.consent === true,
+        only: msg.only,
+      })
         .then((a) => socket.end(JSON.stringify(a) + "\n"))
         .catch((e: Error) =>
           socket.end(JSON.stringify({ ok: false, said: w().doorError(e.message) }) + "\n"),

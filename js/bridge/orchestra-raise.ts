@@ -6,11 +6,12 @@ import { execHost } from "./exec-preflight.ts";
 import { cloneFound, cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
 import type { Launchers } from "./orchestra-launchers.ts";
 import { type CheckoutOf, orcaCheckouts, orcaReady } from "./orchestra-orca.ts";
-import { checkoutFor, coverRefusal, refusal } from "./orchestra-raise-gates.ts";
+import { checkoutFor, coverRefusal } from "./orchestra-raise-gates.ts";
+import { resolveInvite } from "./orchestra-resolve.ts";
 import { type Run, runKey } from "./orchestra-runs.ts";
 import { startRun } from "./orchestra-start.ts";
 
-export { checkoutFor, coverRefusal, refusal } from "./orchestra-raise-gates.ts";
+export { checkoutFor, coverRefusal } from "./orchestra-raise-gates.ts";
 const w = (): OrchestraWords => words(ORCHESTRA);
 type Row = Record<string, unknown>;
 
@@ -20,30 +21,36 @@ export async function raiseRows(
   ls: Launchers,
   runs: Record<string, Run>,
   canon: (name: string) => Promise<string | null>,
+  role: (row: Row) => Promise<string | null>,
   gone?: { gone: boolean },
 ): Promise<string[]> {
   const said: string[] = [];
   let ready: string | null | undefined;
   let orca: CheckoutOf | string | undefined;
-  for (const row of start) {
+  for (const source of start) {
     if (gone?.gone) break;
-    const realm = String(row.realm),
-      room = String(row.room),
-      invite = Number(row.invite);
+    const realm = String(source.realm),
+      room = String(source.room),
+      invite = Number(source.invite);
     const key = runKey(realm, room, invite);
     if (runs[key]) continue;
-    const why = refusal(row, ls, runs);
-    if (why) {
-      said.push(w().leadRow(realm, room, invite, why));
+    const roleWhy = await role(source);
+    if (roleWhy) {
+      said.push(w().leadRow(realm, room, invite, roleWhy));
       continue;
     }
+    const resolved = resolveInvite(source, ls, runs);
+    if ("code" in resolved) {
+      said.push(w().leadRow(realm, room, invite, resolved.code));
+      continue;
+    }
+    const { row, own } = resolved;
     ready =
       ready === undefined ? await orcaReady((version) => said.push(`Orca ${version}`)) : ready;
     if (ready) {
       said.push(w().leadRow(realm, room, invite, ready));
       continue;
     }
-    const own = ls.own.get(String(row.launcher).trim())!;
     if (own.harnesses[String(row.harness).trim()].exec && !execHost(own.host)) {
       said.push(w().leadRow(realm, room, invite, "exec_host_unverified"));
       continue;
@@ -94,7 +101,7 @@ export async function raiseRows(
         realm,
         room,
         invite,
-        await startRun(authDir, row, own, repository, worktree, runs, key, gone),
+        await startRun(authDir, row, own, repository, worktree, runs, key, canon, gone),
       ),
     );
   }

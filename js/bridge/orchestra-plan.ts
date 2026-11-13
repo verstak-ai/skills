@@ -12,8 +12,11 @@ import { runtimeOver, specOf } from "./orchestra-cloning.ts";
 import { readDemands } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
 import { type Launchers, readLaunchers } from "./orchestra-launchers.ts";
+import { type OnlyInvite, selectInvite } from "./orchestra-only.ts";
 import { launchArgv } from "./orchestra-orca.ts";
-import { checkoutFor, coverRefusal, refusal } from "./orchestra-raise.ts";
+import { checkoutFor, coverRefusal } from "./orchestra-raise.ts";
+import { resolveInvite } from "./orchestra-resolve.ts";
+import { roleRefusal } from "./orchestra-role.ts";
 import { readClones, readRuns, runKey } from "./orchestra-runs.ts";
 import { realmCanon } from "./orchestra-tact.ts";
 
@@ -27,6 +30,7 @@ export async function planTact(
   mcpUrl: string,
   requested: string[],
   boundary: string[],
+  only?: OnlyInvite,
 ): Promise<OrchestraAnswer> {
   if (!base || !token) return { ok: false, said: w().stepNoApi() };
   if (!requested.length) return { ok: true, said: w().stepEmpty() };
@@ -43,6 +47,8 @@ export async function planTact(
       ok: false,
       said: w().leadIncomplete(demands.errors.map((e) => `${e.source}:${e.code}`).join(", ")),
     };
+  const selected = only ? selectInvite(demands.start, only) : null;
+  if (selected && "code" in selected) return { ok: false, said: String(selected.code) };
   let ls: Launchers;
   try {
     ls = await readLaunchers(mcpUrl, token);
@@ -53,7 +59,8 @@ export async function planTact(
   const runs = structuredClone(readRuns(authDir));
   const clones = readClones(authDir);
   const rows = ls.refused.map((r) => w().leadDescription(r.what, r.code));
-  for (const row of demands.start) {
+  for (const source of selected ? [selected] : demands.start) {
+    let row = source;
     const realm = String(row.realm);
     const room = String(row.room);
     const invite = Number(row.invite);
@@ -64,24 +71,27 @@ export async function planTact(
       say(w().planAlready(had.state));
       continue;
     }
-    const why = refusal(row, ls, runs);
-    const own = ls.own.get(String(row.launcher).trim());
-    if (why || !own) {
-      say(w().planRefuse(why ?? "launcher_unknown"));
+    const roleWhy = await roleRefusal(base, token, row);
+    if (roleWhy) {
+      say(w().planRefuse(roleWhy));
       continue;
     }
+    const resolved = resolveInvite(row, ls, runs);
+    if ("code" in resolved) {
+      say(w().planRefuse(resolved.code));
+      continue;
+    }
+    row = resolved.row;
+    const own = resolved.own;
     const repository = String(row.repository).trim();
     const got = checkoutFor(own, repository, () => ({ code: ORCA }));
-    let worktree: string;
     if (typeof got === "string") {
       const uncovered = await coverRefusal(got, realm, Number(row.karta), canon);
       if (uncovered) {
         say(w().planRefuse(uncovered));
         continue;
       }
-      worktree = got;
     } else if (got.code === ORCA) {
-      worktree = w().planCheckout(repository);
       // Whether Orca knows the repository is not asked. One rule: the checkout Orca would name
       // is judged as there — the only case the tact launches in (it looks for a checkout before
       // any clone, even after a failed one), so the call takes its limit slot; what comes
@@ -100,6 +110,7 @@ export async function planTact(
       say(w().planRefuse(got.code));
       continue;
     }
+    const worktree = `<own detached tree of ${repository}>`;
     const harness = String(row.harness).trim();
     const model = String(row.model).trim();
     runs[key] = {
