@@ -1,11 +1,11 @@
 // The harness's blocking question tool refused by the delivery and alignment (graph @nks/nks-dev,
 // node #10397): the Claude Code plugin's PreToolUse entry denies AskUserQuestion by itself — no
 // rituals: field, no release build behind it — in the delivery's words, which send the question to
-// a case's ask card, and only in a repository that is ours as the door counts it — a mark in
-// AGENTS.md: our cover block, its older flat keys or our stamp line, never another delivery's
-// cover; a start hook or rituals plugin alone marks nothing. Elsewhere it says nothing (quiet by
-// default, #10020, #10397). Every fixture is held against the core's readers of that mark,
-// repoSigns' cover and stamp. The template's AGENTS.md line names each harness's carriers, in the
+// a case's ask card, and only under our cover, the scope the OpenCode plugin's refusal keys on —
+// in AGENTS.md our cover block or its older flat keys, never another delivery's cover; our stamp
+// line alone, a start hook or a rituals plugin marks nothing. Elsewhere it says nothing (quiet by
+// default, #10020, #10397). Every fixture is held against the core's reader of that cover,
+// repoSigns' cover. The template's AGENTS.md line names each harness's carriers, in the
 // form the rituals check reads; align targets the contract that carries it.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -65,8 +65,7 @@ function run({ git = true, agents, settings, plugin = false, sub = "", inputCwd 
     const command = refusals[0]?.hooks[0].command ?? "true";
     const r = spawnSync(command, { shell: true, cwd, env, encoding: "utf8", input });
     const signs = repoSigns(cwd, "claude-code");
-    const ours = signs.cover || signs.stamp;
-    return { ...r, ours };
+    return { ...r, ours: signs.cover };
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -82,7 +81,7 @@ const OLD_STAMP = "# x\n\n*(verstakify: contract `5` — re-run when …)*\n";
 const THEIR_STAMP = "# x\n\n*(other suite: contract `41`, stamped `2026-10-30`)*\n";
 const THEIR_BLOCK = COVER.replace("verstak:", "neighbour:");
 
-/** Ours as the door counts it: the hook refuses. */
+/** Under our cover: the hook refuses. */
 const OURS = [
   { agents: COVER },
   { agents: COVER, sub: "src/deep" },
@@ -95,13 +94,15 @@ const OURS = [
   },
   { agents: COVER.replace("  graph: r7\n", "") },
   { agents: FLAT },
+  { agents: FLAT + OUR_STAMP.slice("# x\n".length) },
+  { agents: FLAT, settings: START, plugin: true },
+];
+/** Not under our cover: no refusal, no verstak word. Our stamp line alone marks nothing. */
+const NOT_OURS = [
   { agents: OUR_STAMP },
   { agents: OLD_STAMP },
   { agents: THEIR_STAMP + OUR_STAMP },
-  { agents: FLAT, settings: START, plugin: true },
-];
-/** Not ours: no refusal, no verstak word. */
-const NOT_OURS = [
+  { agents: OUR_STAMP, settings: START, plugin: true },
   { agents: undefined },
   { agents: "# a repository of someone else's\n" },
   { agents: "---\nverstak: x\n---\n# x\n" },
@@ -136,7 +137,7 @@ test("hooks.json's command is the one its readable source makes (js/delivery/que
   );
 });
 
-test("the hook refuses exactly where the core counts the repository ours", () => {
+test("the hook refuses exactly under our cover, as the core counts it (repoSigns().cover)", () => {
   for (const [fixtures, ours] of [
     [OURS, true],
     [NOT_OURS, false],
