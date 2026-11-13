@@ -11,7 +11,7 @@ The **rituals** (start, push, merge, memory guard) are carried by the delivery f
 |---|---|---|---|
 | Claude Code | `CLAUDE.md` | **yes**: `CLAUDE.md` = `@AGENTS.md` | start, push, merge — the delivery plugin's hooks by the cover; memory guard and the `AskUserQuestion` deny — `.claude/settings.json`; the plugin's hook refuses `AskUserQuestion` too (**align**, Step 4, `The blocking question tool`) |
 | Codex CLI | `AGENTS.md` | no | `hooks.json` in CODEX_HOME, not wired by align; the rituals are `AGENTS.md` prose |
-| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard; `question` — the project policy in `.opencode/opencode.json` or `.jsonc`, written by align (`prepare`); the plugin refuses `question` too, only in a repository of ours (**align**, Step 4, `The blocking question tool`) |
+| OpenCode | `AGENTS.md` | no | the delivered plugin by the cover — the rituals and the guard; `question` — the project policy in `.opencode/opencode.json` or `.jsonc`, written by align (`prepare`); the plugin refuses `question` too, only under our cover (**align**, Step 4, `The blocking question tool`) |
 
 Detect — the one rule for which harness is used here (the blocking question tool's layers follow it too, **align**, Step 4): `.claude/` or the plugin cache → Claude Code; `.opencode/` or a root `opencode.json` / `opencode.jsonc` → OpenCode; `.codex/` or `~/.codex/` → Codex; or the person says they run it. Take every one present through the table.
 
