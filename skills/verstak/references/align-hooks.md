@@ -81,7 +81,7 @@ Not a hook of the repository: a permission. Merge the one string into `permissio
 ```
 A `permissions` that isn't a map, or a `deny` that isn't a list of strings, is someone's shape: leave it and name it in the alignment case. The delivery's own layer is the plugin's `PreToolUse` entry on `AskUserQuestion` in its `hooks/hooks.json`, answering `permissionDecision` `deny` with a reason that sends the question to an `ask` card: it denies `AskUserQuestion` under our cover whatever its `rituals:` — in `AGENTS.md` our `verstak:` block or its older flat keys, never another delivery's cover — a mark narrower than the door's `Start`, which also counts our older stamp line: here the stamp line alone, a start hook or a rituals plugin is not enough — and in any other repository says nothing (where each layer applies: `methods/align.md`, Step 4, `The blocking question tool`). Nothing of it is copied into the repository. Skill installed without the plugin → this `deny` and the `AGENTS.md` line are the only layers: say so in the report.
 
-OpenCode, where it is used here: the policy goes into the project config `.opencode/opencode.json` — merged into `policies` (created if absent), every other field and policy kept, `$schema` added only if missing:
+OpenCode's project layer, written whatever the harness like the `deny` above: the policy goes into the project config `.opencode/opencode.json` — merged into `policies` (created if absent), every other field and policy kept, `$schema` added only if missing:
 ```json
 { "$schema": "https://opencode.ai/config.json", "policies": [{ "action": "tool.use", "resource": "question:*", "effect": "deny" }] }
 ```
