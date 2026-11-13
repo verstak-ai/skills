@@ -57,8 +57,8 @@ Install the verstak skill for me through your harness's own channel: in Claude C
 in Codex the plugin (`codex plugin marketplace add https://github.com/verstak-ai/skills`, then
 `codex plugin add verstak@verstak-ai`), in pi `pi install git:github.com/verstak-ai/skills`, in Claude Desktop chat I upload
 `verstak.skill` from the latest release, in OpenCode `npx skills add verstak-ai/skills
---skill verstak --agent opencode --global -y` and the plugin from SETUP.md (copied by hand, or as
-the release's `verstak-opencode-X.Y.Z.tgz` package in OpenCode's plugin list), elsewhere flat —
+--skill verstak --agent opencode --global -y` and the plugin from SETUP.md (copied by hand, or the
+release's `verstak-opencode-X.Y.Z.tgz` unpacked and named by its path in OpenCode's plugin list), elsewhere flat —
 `npx skills add verstak-ai/skills --all --global`. Then, in a new session, do "/verstak connect the graph"
 (`/verstak:verstak connect the graph` under the Claude Code plugin).
 ```
