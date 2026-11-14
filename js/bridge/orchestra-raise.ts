@@ -6,7 +6,7 @@ import { execHost } from "./exec-preflight.ts";
 import { cloneFound, cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
 import type { Launchers } from "./orchestra-launchers.ts";
 import { type CheckoutOf, orcaCheckouts, orcaReady } from "./orchestra-orca.ts";
-import { checkoutFor, coverRefusal } from "./orchestra-raise-gates.ts";
+import { checkoutFor, coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
 import { resolveInvite } from "./orchestra-resolve.ts";
 import { type Run, runKey } from "./orchestra-runs.ts";
 import { startRun } from "./orchestra-start.ts";
@@ -60,16 +60,18 @@ export async function raiseRows(
       said.push(w().leadRow(realm, room, invite, "exec_runtime_unverified"));
       continue;
     }
-    const repository = String(row.repository).trim();
+    const repository = String(row.repository ?? "").trim();
+    const home = homeOf(own, realm, Number(row.karta));
     orca = orca === undefined ? await orcaCheckouts() : orca;
     const find = (): ReturnType<typeof checkoutFor> =>
       checkoutFor(
         own,
         repository,
         typeof orca === "string" ? () => ({ code: orca as string }) : orca!,
+        home,
       );
     let worktree = find();
-    if (typeof worktree !== "string" && worktree.code === "no_checkout" && own.clone) {
+    if (!home && typeof worktree !== "string" && worktree.code === "no_checkout" && own.clone) {
       const spec = specOf(own);
       const turn = await cloneTurn(authDir, own.clone, spec, repository, gone);
       if (turn === "gone") break;
@@ -90,7 +92,7 @@ export async function raiseRows(
       continue;
     }
     cloneFound(authDir, repository);
-    const uncovered = await coverRefusal(worktree, realm, Number(row.karta), canon);
+    const uncovered = await coverRefusal(worktree, realm, Number(row.karta), canon, !!home);
     if (uncovered) {
       said.push(w().leadRow(realm, room, invite, uncovered));
       continue;

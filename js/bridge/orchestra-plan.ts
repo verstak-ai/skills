@@ -14,7 +14,7 @@ import type { OrchestraAnswer } from "./orchestra-door.ts";
 import { type Launchers, readLaunchers } from "./orchestra-launchers.ts";
 import { type OnlyInvite, selectInvite } from "./orchestra-only.ts";
 import { launchArgv } from "./orchestra-orca.ts";
-import { checkoutFor, coverRefusal } from "./orchestra-raise.ts";
+import { checkoutFor, coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
 import { resolveInvite } from "./orchestra-resolve.ts";
 import { roleRefusal } from "./orchestra-role.ts";
 import { readClones, readRuns, runKey } from "./orchestra-runs.ts";
@@ -83,10 +83,11 @@ export async function planTact(
     }
     row = resolved.row;
     const own = resolved.own;
-    const repository = String(row.repository).trim();
-    const got = checkoutFor(own, repository, () => ({ code: ORCA }));
+    const repository = String(row.repository ?? "").trim();
+    const home = homeOf(own, realm, Number(row.karta));
+    const got = checkoutFor(own, repository, () => ({ code: ORCA }), home);
     if (typeof got === "string") {
-      const uncovered = await coverRefusal(got, realm, Number(row.karta), canon);
+      const uncovered = await coverRefusal(got, realm, Number(row.karta), canon, !!home);
       if (uncovered) {
         say(w().planRefuse(uncovered));
         continue;

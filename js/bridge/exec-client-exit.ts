@@ -1,19 +1,24 @@
 // Wait has no incarnation field: both separate shows must match the saved client (#9966).
+import { existsSync } from "node:fs";
+
 import { run } from "./orchestra-orca.ts";
 import type { Run } from "./orchestra-runs.ts";
 
+interface Terminal {
+  handle?: string;
+  incarnationId?: string;
+  worktreePath?: string;
+  worktreeId?: string;
+  orphaned?: boolean;
+  executionHostId?: string;
+  connected?: boolean;
+  writable?: boolean;
+}
 interface Reply {
   ok?: boolean;
   _meta?: { runtimeId?: string };
   result?: {
-    terminal?: {
-      handle?: string;
-      incarnationId?: string;
-      worktreePath?: string;
-      executionHostId?: string;
-      connected?: boolean;
-      writable?: boolean;
-    };
+    terminal?: Terminal;
     wait?: { handle?: string; condition?: string; satisfied?: boolean; status?: string };
   };
 }
@@ -35,6 +40,15 @@ export async function execExited(r: Run): Promise<boolean> {
     const got = await run(["terminal", "show", "--terminal", r.terminal!, "--json"], 5_000);
     return got.code === 0 ? parse(got.out) : {};
   };
+  // A tree removed under its agent (#10603): Orca closed the terminal and shows it orphaned, its
+  // path emptied but its worktree id still naming ours; the incarnation binds it all the same.
+  const treeGone = (t: Terminal): boolean =>
+    !!r.tree &&
+    t.worktreePath === "" &&
+    t.orphaned === true &&
+    typeof t.worktreeId === "string" &&
+    t.worktreeId.endsWith(`::${r.worktree}`) &&
+    !existsSync(r.worktree);
   const matches = (v: Reply): boolean => {
     const terminal = v.result?.terminal;
     return (
@@ -44,7 +58,7 @@ export async function execExited(r: Run): Promise<boolean> {
       terminal.handle === r.terminal &&
       terminal.incarnationId === incarnation &&
       terminal.executionHostId === "local" &&
-      terminal.worktreePath === r.worktree
+      (terminal.worktreePath === r.worktree || treeGone(terminal))
     );
   };
   if (!matches(await show())) return false;

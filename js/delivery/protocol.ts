@@ -32,6 +32,12 @@ export const FRAME_MARK = `[${PRODUCT}]`;
 export const STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 
 /**
+ * The mark opening an initial prompt's first line with the invitation pair: another delivery's
+ * plugin in the same harness leaves a line without its own mark be (graph @nks/nks-dev, node #9959).
+ */
+export const SPAWN_LINE = `${PRODUCT}/spawned_for:`;
+
+/**
  * The bridge client's `capabilities.experimental` key that confirms the harness executes a
  * stop by `method("halted")` (the OpenCode plugin): a stop order waits for its outcome.
  */

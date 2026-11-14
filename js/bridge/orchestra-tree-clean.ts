@@ -13,6 +13,11 @@ import {
   treeContent,
 } from "./orchestra-tree-check.ts";
 
+/** The client is over: the stop said stopped, or the seat was already over after the exact
+ * terminal exited (#9256). */
+const clientGone = (r: Run): boolean =>
+  r.stop_outcome === "stopped" || r.why === "seat_gone_after_exit";
+
 export async function cleanupTree(
   authDir: string,
   runs: Record<string, Run>,
@@ -23,12 +28,7 @@ export async function cleanupTree(
     t = r.tree;
   if (!t || t.state === "removed") return null;
   if (t.state !== "ready") return t.why ?? "tree_cleanup_unverified";
-  if (
-    r.state !== "ended" ||
-    r.stop_outcome !== "stopped" ||
-    r.closed !== "client_exited" ||
-    !t.exit
-  )
+  if (r.state !== "ended" || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
     return "tree_client_unverified";
   const identity = runIdentity(r);
   const current = () => {
@@ -37,7 +37,7 @@ export async function cleanupTree(
       !!latest &&
       runIdentity(latest) === identity &&
       latest.state === "ended" &&
-      latest.stop_outcome === "stopped" &&
+      clientGone(latest) &&
       latest.closed === "client_exited"
     );
   };
@@ -92,6 +92,9 @@ export async function cleanupTree(
     if (!current()) return "tree_superseded";
     t.state = "removing";
     writeRuns(authDir, runs);
+    // Its own lock (orchestra-tree.ts) holds off every other remover; a tree of an older bridge
+    // has none, and its refused unlock changes nothing — the remove below decides.
+    await execute(t.source, ["worktree", "unlock", "--", t.path], 10_000);
     const removed = await execute(t.source, ["worktree", "remove", "--", t.path], 30_000);
     if (removed.code !== 0 || existsSync(t.path) || existsSync(t.identity.gitDir))
       return retain("tree_remove_unverified");

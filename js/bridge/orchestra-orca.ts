@@ -4,6 +4,7 @@
 // `orca` is found on the daemon's PATH.
 import { execFile } from "node:child_process";
 
+import { answerCode, safeCode } from "./orchestra-orca-answer.ts";
 import { sshRepository } from "./orchestra-remote.ts";
 
 const FLAGS = ["agent", "worktree", "model", "prompt", "surface", "json"];
@@ -205,18 +206,64 @@ function runtimeOf(out: string): string | undefined {
   }
 }
 
-/** ok — the harness was started (not yet a seat); ambiguous — do not launch again. */
-export async function orcaLaunch(argv: string[]): Promise<{
-  outcome: "ok" | "ambiguous" | "failed";
-  why?: string;
-  handle?: string;
-  runtime?: string;
-}> {
+/** The launch answer's prompt and receipt words, a safe projection: short strings only, no
+ * detail prose (#9966). */
+interface LaunchWords {
+  prompt?: { delivery: string; outcome: string };
+  receipt?: { mode: string; reason: string };
+}
+
+/** The launch answer's prompt and receipt words (#9966 v18, observed on 1.4.257): a launch
+ * counts as submitted only when the answer says prompt.delivery "submit" and prompt.outcome
+ * "handed-to-terminal" — the only pair observed to hand the one-line prompt to the terminal
+ * without an Enter. Other, missing or unreadable values stay ambiguous and are never retried;
+ * whatever strings were read are kept for the Run (#9969 v12). */
+function launchWords(out: string): LaunchWords & { submitted: boolean } {
+  const str = (v: unknown): string | undefined =>
+    typeof v === "string" && v ? v.slice(0, 64) : undefined;
+  try {
+    const r = (JSON.parse(out) as { result?: Record<string, unknown> }).result ?? {};
+    const p = r.prompt as { delivery?: unknown; outcome?: unknown } | undefined;
+    const rec = r.receipt as { mode?: unknown; reason?: unknown } | undefined;
+    const delivery = str(p?.delivery);
+    const outcome = str(p?.outcome);
+    const mode = str(rec?.mode);
+    const reason = str(rec?.reason);
+    return {
+      submitted: delivery === "submit" && outcome === "handed-to-terminal",
+      ...(delivery !== undefined && outcome !== undefined ? { prompt: { delivery, outcome } } : {}),
+      ...(mode !== undefined && reason !== undefined ? { receipt: { mode, reason } } : {}),
+    };
+  } catch {
+    return { submitted: false };
+  }
+}
+
+/** ok — the harness was started and the prompt submitted; ambiguous — do not launch again. */
+export async function orcaLaunch(argv: string[]): Promise<
+  {
+    outcome: "ok" | "ambiguous" | "failed";
+    why?: string;
+    handle?: string;
+    runtime?: string;
+  } & LaunchWords
+> {
   const r = await run(argv, 120_000);
-  if (r.code === 0)
-    return { outcome: "ok", handle: launchHandle(r.out), runtime: runtimeOf(r.out) };
+  if (r.code === 0) {
+    const w = launchWords(r.out);
+    return {
+      outcome: w.submitted ? "ok" : "ambiguous",
+      ...(!w.submitted && { why: "prompt_not_submitted" }),
+      handle: launchHandle(r.out),
+      runtime: runtimeOf(r.out),
+      ...(w.prompt && { prompt: w.prompt }),
+      ...(w.receipt && { receipt: w.receipt }),
+    };
+  }
   if (r.code === "timeout") return { outcome: "ambiguous", why: "launch_timeout" };
-  return { outcome: "failed", why: `launch_exit_${r.code}` };
+  // Orca's own refusal names its code (#10598); a bare exit stays a bare exit.
+  const code = safeCode(answerCode(r.out));
+  return { outcome: "failed", why: code ? `launch_refused_${code}` : `launch_exit_${r.code}` };
 }
 
 /**

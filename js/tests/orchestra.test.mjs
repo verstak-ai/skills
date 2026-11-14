@@ -12,7 +12,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-import { envName, ORCHESTRA, tool } from "../delivery/index.ts";
+import { BRIEF_MAX } from "../bridge/orchestra-start.ts";
+import { envName, ORCHESTRA, SPAWN_LINE, tool } from "../delivery/index.ts";
+import { firstLineSpawn } from "../shared/spawned-for.ts";
 import { BUILT_BRIDGE } from "./built.mjs";
 
 const BRIDGE = process.env.VERSTAK_BRIDGE_PATH || BUILT_BRIDGE;
@@ -243,15 +245,24 @@ test("orchestra: on --launcher that cannot describe the launcher is refused in o
   }
 });
 
-// The raised agent's brief follows the spawned_for line: no second register, the case joined
-// by our case tool first (the core's bridge/orchestra-raise.ts; the raise itself is the
-// sibling's suite).
-test("orchestra: the raised agent's brief sends it into its case by our case tool", () => {
+// The raised agent's one-line prompt: our spawned_for mark, the pair, then a brief sending it
+// into its case by our case tool — short enough to be submitted, not left as a paste (the
+// core's bridge/orchestra-start.ts refuses a longer one as brief_too_long; graph @nks/nks-dev,
+// node #10537). The raise itself is the sibling's suite.
+test("orchestra: the raised agent's prompt carries our mark and fits the submitted line", () => {
   const room = "1035d984-7313-4699-9090-2baa2ae7cb49";
-  const brief = ORCHESTRA.en.brief("@x/g", 42, room, 3);
-  assert.ok(brief.includes(`${tool("case")}(action="join", realm="@x/g", room="${room}")`), brief);
-  assert.match(brief, /role #42/, brief);
-  assert.match(brief, /Do not register again/, brief);
+  const realm = "@verstak-owner/a-graph-slug";
+  const brief = ORCHESTRA.en.brief(realm, 12345, room, 999);
+  assert.ok(
+    brief.includes(`${tool("case")}(action="join", realm="${realm}", room="${room}")`),
+    brief,
+  );
+  const prompt = `${SPAWN_LINE} ${JSON.stringify({ invite: 999, room, karta: 12345 })} ${brief}`;
+  assert.equal(SPAWN_LINE, "verstak/spawned_for:");
+  assert.ok(prompt.length <= BRIEF_MAX, `${prompt.length} > ${BRIEF_MAX}: ${prompt}`);
+  const seen = firstLineSpawn(prompt);
+  assert.deepEqual(seen?.pair, { invite: 999, room });
+  assert.equal(seen?.karta, 12345);
 });
 
 // A clone of a repository Orca does not know runs in the daemon's background and is said in

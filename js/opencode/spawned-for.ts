@@ -22,6 +22,11 @@ export function createSpawnStarts(readContext: (session: string) => Promise<unkn
     has(session: string) {
       return !!starts.get(session)?.pair;
     },
+    /** The role the launch named for its home (#10598); none — the cover's. */
+    karta(session: string): string | undefined {
+      const k = starts.get(session)?.karta;
+      return k === undefined ? undefined : String(k);
+    },
     async cleanup(session: string, release: () => Promise<void>) {
       const entry = starts.get(session);
       if (!entry?.conflict) return;

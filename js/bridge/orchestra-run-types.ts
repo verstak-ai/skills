@@ -26,6 +26,11 @@ export interface Run {
   worktree: string;
   terminal?: string;
   runtime?: string;
+  /** The launch answer's prompt words (#9966): delivery "submit" with outcome
+   * "handed-to-terminal" is the only observed proof the brief was handed over. */
+  prompt?: { delivery: string; outcome: string };
+  /** The launch answer's receipt words (#9966), a safe short projection. */
+  receipt?: { mode: string; reason: string };
   closed?: string;
   state: RunState;
   at: string;
@@ -37,4 +42,6 @@ export interface Run {
   order_id?: string;
   stopping_at?: string;
   stop_outcome?: string;
+  /** A failed order after the exact terminal exited was replaced once by the exit stop. */
+  restop?: boolean;
 }
