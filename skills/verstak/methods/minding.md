@@ -136,7 +136,7 @@ The user appears in each graph through one **owner role** (`svatantra` 主) boun
 
 ## Privacy — mind doesn't leave
 
-Two exceptions, the user's own word: a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case — never into the project graph, commits or PRs; and from a launcher description (`orchestra` slice) only the chosen `launcher`, `harness` and `model` go into a role invitation of a project case — its `callers`, `checkouts`, `limit` and `host` stay in mind. Everything else below holds.
+Two exceptions, the user's own word: a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case — never into the project graph, commits or PRs; and from a launcher description (`orchestra` slice) only the chosen `launcher`, `harness` and `model` go into a role invitation of a project case — its `callers`, `checkouts`, `homes`, the clone fields, `limit` and `host` stay in mind. Everything else below holds.
 
 The other way holds too: a repository the person didn't choose for Verstak gives mind nothing of its own (`Two reflexes`).
 
