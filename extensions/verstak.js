@@ -100,6 +100,7 @@ var LOGGERS = { channel: `${PRODUCT}-channel`, bridge: BRIDGE_NAME };
 var ID_PREFIX = `${PRODUCT}-`;
 var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
+var SPAWN_LINE = `${PRODUCT}/spawned_for:`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 // js/delivery/context-gate.ts
@@ -124,7 +125,7 @@ var LAUNCH_LINE = new RegExp(
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.1.0";
+var VERSION = "4.2.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
