@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.2.0](https://github.com/verstak-ai/skills/compare/v4.1.0...v4.2.0) (2026-11-14)
+
+
+### Features
+
+* the bridge core at Iskron 8.2.3 — a role raised in its home, locked orchestrator trees, the one-line marked brief ([#440](https://github.com/verstak-ai/skills/issues/440)) ([cd68347](https://github.com/verstak-ai/skills/commit/cd68347209dedf6fb804ff745e78f34b7f1a5114))
+
+
+### Bug Fixes
+
+* the manual Orca brief kept short, the cover pulled into the copy, the tree codes before any tree ([#442](https://github.com/verstak-ai/skills/issues/442)) ([bfe82d6](https://github.com/verstak-ai/skills/commit/bfe82d6e670d22eeac2dc3761a04ba0d92b267dc))
+
 ## [4.1.0](https://github.com/verstak-ai/skills/compare/v4.0.0...v4.1.0) (2026-11-13)
 
 
