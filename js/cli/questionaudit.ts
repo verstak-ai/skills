@@ -7,6 +7,7 @@ import { SELF } from "../bridge/raise.ts";
 import { envName, PLUGIN_COPY_FILE, PLUGIN_FILE, QUESTIONS } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { ritualCover } from "../shared/ritualcover.ts";
+import { PLUGIN_KEY_RE } from "./installnames.ts";
 import { hasQuestionDeny, object, questionConfig } from "./preparequestions.ts";
 import { probeScope } from "./ritualprobe.ts";
 import type { Verdict } from "./rituals.ts";
@@ -20,9 +21,25 @@ function json(path: string): Record<string, unknown> | null {
   }
 }
 
+/** The hooks of this delivery's plugin as Claude Code installed it: from an ordinary shell
+ * CLAUDE_PLUGIN_ROOT is unset and the home bridge copy has no plugin tree above it. */
+function installed(): string | null {
+  const reg = json(join(homedir(), ".claude", "plugins", "installed_plugins.json"))?.plugins;
+  if (!object(reg)) return null;
+  for (const [key, installs] of Object.entries(reg))
+    if (PLUGIN_KEY_RE.test(key) && Array.isArray(installs))
+      for (const i of installs) {
+        const at = object(i) && typeof i.installPath === "string" ? i.installPath : "";
+        if (at && existsSync(join(at, "hooks/hooks.json"))) return join(at, "hooks/hooks.json");
+      }
+  return null;
+}
+
 function manifest(): string | null {
   if (process.env.CLAUDE_PLUGIN_ROOT)
     return join(process.env.CLAUDE_PLUGIN_ROOT, "hooks/hooks.json");
+  const reg = installed();
+  if (reg) return reg;
   for (let dir = dirname(SELF); ;) {
     const path = join(dir, "hooks/hooks.json");
     if (existsSync(path)) return path;

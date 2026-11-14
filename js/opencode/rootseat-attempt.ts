@@ -47,11 +47,12 @@ export function attempt(session: string, x: AttemptDoors, expect?: string): Atte
       x.arm(session, where, cover.why, sig);
       return no(realignWord(cover.why));
     }
+    const karta = d.role?.(session) ?? cover.karta;
     const before = x.line.at;
     const turn = before.then(() => {
       if (cancelled()) return { cancelled: true } as const;
       t.begun = true;
-      return d.seat(session, cover.realm, cover.karta, cancelled);
+      return d.seat(session, cover.realm, karta, cancelled);
     });
     // A seating hung in the bridge holds the line no longer than its ceiling: the next goes.
     x.line.at = before.then(() => Promise.race([turn, pause(ceilingMs())])).catch(() => {});
@@ -61,7 +62,7 @@ export function attempt(session: string, x: AttemptDoors, expect?: string): Atte
       return no(null);
     }
     if ("error" in r) return no(refusedWord(r.error));
-    return { word: heldWord(r, cover.realm, cover.karta), seated: true };
+    return { word: heldWord(r, cover.realm, karta), seated: true };
   })()
     .catch(async (e: Error) => {
       if (cancelled()) {

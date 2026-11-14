@@ -5,12 +5,18 @@ import { readCover } from "../shared/cover.ts";
 import type { Launcher } from "./orchestra-launchers.ts";
 import type { CheckoutOf } from "./orchestra-orca.ts";
 
+/** The checkout the description names as this graph's role's home (#10598): the call raises
+ * there, and the seat takes the call's role, not the cover's. */
+export const homeOf = (own: Launcher, realm: string, karta: number): string | undefined =>
+  own.homes?.[`${realm}#${karta}`];
+
 export function checkoutFor(
   own: Launcher,
   repository: string,
   orca: CheckoutOf,
+  home?: string,
 ): string | { code: string } {
-  const named = own.checkouts[repository];
+  const named = home ?? own.checkouts[repository];
   const got = named ? { path: named } : orca(repository);
   if ("code" in got) return got;
   if (!existsSync(got.path) || !statSync(got.path).isDirectory())
@@ -23,10 +29,11 @@ export async function coverRefusal(
   realm: string,
   karta: number,
   canon: (name: string) => Promise<string | null>,
+  home = false,
 ): Promise<string | null> {
   const c = readCover(worktree);
   if (!c || "why" in c || "foreign" in c) return "checkout_uncovered";
-  if (Number(c.karta) !== karta) return "checkout_other_seat";
+  if (!home && Number(c.karta) !== karta) return "checkout_other_seat";
   const graph = /^r\d+$/i.test(c.realm) ? await canon(c.realm) : c.realm;
   if (!graph) return "checkout_cover_unresolved";
   return graph === realm ? null : "checkout_other_seat";

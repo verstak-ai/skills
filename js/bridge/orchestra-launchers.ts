@@ -1,6 +1,7 @@
 // The human's launcher descriptions (graph @nks/nks-dev, nodes #5042, #4920; decision of case
 // №4050): which orchestrator answers which `launcher` value of a role invite, with what harnesses
-// and models, how many raised at once; checkouts come from Orca, an optional map overrides. They
+// and models, how many raised at once; checkouts come from Orca, an optional map overrides, and
+// an optional homes map raises a graph's role in a checkout whose cover names another (#10598). They
 // live in the human's own graph "mind" as nodes with attribute slice:orchestra, body — one JSON
 // object; the daemon reads them under its own key, whose account (the "me" tool's whoami) is the one
 // whose calls are own — another account's only when the description lists it in callers. A description naming another host is someone
@@ -62,6 +63,14 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
     if (!str(path) || !isAbsolute(path)) return { code: "checkouts_invalid", launcher };
     checkouts[repo] = path;
   }
+  const homes: Record<string, string> = {};
+  const m = d.homes ?? {};
+  if (typeof m !== "object" || Array.isArray(m)) return { code: "homes_invalid", launcher };
+  for (const [role, path] of Object.entries(m as Record<string, unknown>)) {
+    if (!/^\S+#[1-9]\d*$/.test(role) || !str(path) || !isAbsolute(path))
+      return { code: "homes_invalid", launcher };
+    homes[role] = path;
+  }
   const callers = d.callers ?? [];
   if (!Array.isArray(callers) || !callers.every((h) => str(h) && HANDLE.test(h.trim())))
     return { code: "callers_invalid", launcher };
@@ -74,6 +83,7 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
     limit: d.limit as number,
     harnesses,
     checkouts,
+    homes,
     callers: (callers as string[]).map((h) => h.trim().slice(1).toLowerCase()),
     clone,
   };

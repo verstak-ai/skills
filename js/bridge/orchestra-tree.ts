@@ -15,6 +15,9 @@ import {
   treeContent,
 } from "./orchestra-tree-check.ts";
 
+export const LOCK_REASON =
+  "do not remove or unlock: the agent raised here dies with this tree; its orchestrator frees it after the agent ends";
+
 export async function prepareTree(
   authDir: string,
   runs: Record<string, Run>,
@@ -71,7 +74,13 @@ export async function prepareTree(
   writeRuns(authDir, runs); // durable intent precedes any add; never retry its uncertain outcome
   const current = () => readRuns(authDir)[key]?.tree?.operation === operation;
   if (!current()) return "tree_intent_superseded";
-  const added = await execute(source, ["worktree", "add", "--detach", path, baseOID], 30_000);
+  // Locked from birth (#10603): the raised agent's terminal lives here, and Orca closes it with
+  // the tree — a plain `git worktree remove` or prune by anyone else refuses it.
+  const added = await execute(
+    source,
+    ["worktree", "add", "--lock", "--reason", LOCK_REASON, "--detach", path, baseOID],
+    30_000,
+  );
   try {
     if (!current()) return "tree_intent_superseded";
     if (added.code !== 0) throw new Error("tree_add_unverified");

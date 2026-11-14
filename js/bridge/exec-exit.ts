@@ -26,7 +26,8 @@ export function execPending(authDir: string): boolean {
   } // preserve a corrupt registry for recovery, never reinterpret it as empty
 }
 
-/** Process exit is persisted before networking. Neither 410 nor timeout is suppression proof. */
+/** Process exit is persisted before networking. For an exec client neither 410 nor timeout is
+ * suppression proof; a tree run whose exact terminal exited ends on 410. */
 export async function observeExec(
   authDir: string,
   base: string,
@@ -75,6 +76,15 @@ export async function observeExec(
   }
 }
 
+interface StopAnswer {
+  id?: unknown;
+  errors?: { rule?: unknown }[];
+}
+const ruleOf = (b: StopAnswer): unknown => b.errors?.[0]?.rule;
+/** An ordinary tree run of OpenCode: its terminal holds its own process with the embedded server,
+ * so the exact terminal's exit leaves nothing to wake (#9256). */
+const ownProcess = (r: Run): boolean => !!r.tree && !r.exec && r.harness === "opencode";
+
 async function finishExits(authDir: string, base: string, token: string): Promise<void> {
   const runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
@@ -91,31 +101,55 @@ async function finishExits(authDir: string, base: string, token: string): Promis
       await cleanupEndedTrees(authDir, runs);
       continue;
     }
+    // A failed order after the exact terminal exited (Orca may refuse closing a tab that then
+    // exits, #9966) proves no ended seat: stop once more by the exit reason (#9256).
+    if (r.stop_outcome === "failed" && ownProcess(r) && r.closed === "client_exited" && !r.restop) {
+      r.restop = true;
+      delete r.order_id;
+      delete r.stop_outcome;
+    }
     const before = runIdentity(r);
     if (r.order_id) continue; // the ordinary order path owns halt/drop/interrupt and its ack
     try {
       const latest = readRuns(authDir)[key];
       if (!latest || runIdentity(latest) !== before) continue;
-      const res = await namedFetch(`${base}/standings/${encodeURIComponent(r.standing_id)}/stop`, {
-        method: "POST",
-        redirect: "error",
-        headers: {
-          authorization: `Bearer ${token}`,
-          "x-nks-realm": r.realm,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ reason_code: "client_exited", client_id: exitClientId(r) }),
-        signal: AbortSignal.timeout(10_000),
-      });
-      const body = (await res.json().catch(() => ({}))) as { id?: unknown };
+      const seat = r.standing_id;
+      const stop = (reason_code: string) =>
+        namedFetch(`${base}/standings/${encodeURIComponent(seat)}/stop`, {
+          method: "POST",
+          redirect: "error",
+          headers: {
+            authorization: `Bearer ${token}`,
+            "x-nks-realm": r.realm,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ reason_code, client_id: exitClientId(r) }),
+          signal: AbortSignal.timeout(10_000),
+        });
+      let res = await stop("client_exited");
+      let body = (await res.json().catch(() => ({}))) as StopAnswer;
+      // An API without the client_exited reason refuses it before it looks at the seat (#9969).
+      if (res.status === 422 && ruleOf(body) === "stop_reason_unknown") {
+        res = await stop("other");
+        body = (await res.json().catch(() => ({}))) as StopAnswer;
+      }
       if (res.ok && typeof body.id === "string" && body.id) {
         r.order_id = body.id;
         r.state = "stopping";
         r.stopping_at = new Date().toISOString();
-      } else r.why = res.status === 410 ? "exec_suppression_unverified" : "exec_stop_unconfirmed";
+      } else if (res.status === 410 && ownProcess(r)) {
+        // The exact terminal exited and the seat is over: nobody is left to wake (#9256).
+        r.state = "ended";
+        r.why = "seat_gone_after_exit";
+      } else
+        r.why =
+          res.status === 410
+            ? "exec_suppression_unverified"
+            : `exec_stop_unconfirmed_${res.status}`;
     } catch {
       r.why = "exec_stop_unknown";
     }
     writeRuns(authDir, runs);
+    if (r.state === "ended") await cleanupEndedTrees(authDir, runs);
   }
 }

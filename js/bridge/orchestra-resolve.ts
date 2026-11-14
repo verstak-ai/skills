@@ -1,5 +1,6 @@
 // One in-memory offer resolution for actual and dry tacts (#5042, #10096).
 import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
+import { homeOf } from "./orchestra-raise-gates.ts";
 import { LIVE, type Run } from "./orchestra-runs.ts";
 
 type Row = Record<string, unknown>;
@@ -70,7 +71,8 @@ export function resolveInvite(
     return { code: models.length ? "model_ambiguous" : "model_missing" };
   const model = missing(source.model) ? models[0] : (text(source.model) ?? "");
   if (!models.includes(model)) return { code: "model_not_offered" };
-  if (!text(source.repository))
+  // A role with a home in the description is raised there: the call needs no repository (#10598).
+  if (!text(source.repository) && !homeOf(own, String(source.realm), Number(source.karta)))
     return { code: own.clone ? "clone_refused (no_repository)" : "no_checkout" };
   const live = Object.values(runs).filter(
     (r) => r.launcher === own.launcher && LIVE.includes(r.state),

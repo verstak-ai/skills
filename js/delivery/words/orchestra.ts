@@ -142,10 +142,10 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
       `the launcher description ${what} in mind: ${code} — nothing is raised by it`,
     leadOrdersUnread: (why) =>
       `the account's orders did not read (${why}) — the next tact sees a stop on demand of a raised seat`,
-    brief: (realm, karta, room, invite) =>
-      `You are already taken: the orchestrator raised you for invitation ${invite} of case ${room} in graph ${realm}, role #${karta}, and your seat stood by the first line. ` +
-      `Do not register again. Before any work, join the case: ${tool("case")}(action="join", realm="${realm}", room="${room}"). ` +
-      "Read the case's assignment and its acceptance criteria; do not invent a task.",
+    // Short: a long line reaches the terminal as a paste that is never sent (graph
+    // @nks/nks-dev, node #9966).
+    brief: (realm, _karta, room) =>
+      `First: ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
     plan: (rows) =>
       `dry run — nothing launched, ordered or moved (Orca not asked):${rows ? `\n${rows}` : " no invites"}`,
     planLaunch: (argv) => `would launch: ${argv}`,

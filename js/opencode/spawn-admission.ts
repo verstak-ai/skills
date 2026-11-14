@@ -5,6 +5,8 @@ import { firstLineSpawn, mergeSpawn, type SpawnedFor } from "../shared/spawned-f
 
 export interface SpawnStart {
   pair?: SpawnedFor;
+  /** The role the launch was raised for in its home: the root seats it, not the cover's. */
+  karta?: number;
   target?: string;
   error?: Error;
   conflict?: boolean;
@@ -26,7 +28,8 @@ export function spawnAdmission(
 ) {
   return async (session: string, text: string, message: string): Promise<string> => {
     if (text.startsWith(FRAME_MARK)) return text;
-    const pair = firstLineSpawn(text);
+    const spawn = firstLineSpawn(text);
+    const pair = spawn?.pair;
     let entry = starts.get(session);
     if (!pair) {
       await entry?.pending?.catch(() => {});
@@ -36,10 +39,13 @@ export function spawnAdmission(
     const initialError = () => new Error(words(SPAWNED_FOR).initial());
     if (entry?.error) throw entry.error;
     if (entry && !entry.pair) throw initialError();
-    const stripped = () => text.slice(text.indexOf("\n") + 1);
+    // The session keeps the prompt without its pair line: the lines below, or the same
+    // line's remainder in the one-line form (#9959 v16, #9969 v12).
+    const stripped = () => (spawn ? spawn.rest : text);
     const compare = (own: SpawnStart) => {
       try {
         mergeSpawn(own.pair, pair);
+        if (own.karta !== spawn?.karta) throw new Error(words(SPAWNED_FOR).invalid());
       } catch (e) {
         own.conflict = true;
         own.error = e as Error;
@@ -54,7 +60,11 @@ export function spawnAdmission(
       return stripped();
     }
     const fresh = !entry;
-    entry ??= { pair, ids: new Set() };
+    entry ??= {
+      pair,
+      ...(spawn.karta === undefined ? {} : { karta: spawn.karta }),
+      ids: new Set(),
+    };
     const own = entry;
     starts.set(session, own);
     const proof = Promise.resolve().then(async () => {

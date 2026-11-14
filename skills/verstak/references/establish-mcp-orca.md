@@ -61,13 +61,13 @@ BRIDGE is the installed bridge's path (`methods/establish-mcp.md`, `What lives o
 
 For one chosen `start` row write down the graph, the role, `room` (the case's UUID), `invite` (the entry's number **within that case**), the project and checkout, and the model. The dry plan holds the `command` and an `argv` array, the brief and the whole `spawned_for` pair; it executes nothing.
 
-The first line of the initial brief for OpenCode:
+The initial brief for OpenCode is one line: the mark, the pair, a space, the brief.
 
 ```text
-spawned_for: {"invite":7,"room":"11111111-1111-4111-8111-111111111111"}
+verstak/spawned_for: {"invite":7,"room":"11111111-1111-4111-8111-111111111111"} First: join the case …
 ```
 
-This shows the form, not a real invitation: put the pair from a fresh demand. Then name the graph, the role and the case, the subject's references, the bound of permitted actions and the observable outcome. The agent must have register confirm this pair and join the case **before work**; refused → it does not work and does not get round the refusal with another name or `take`.
+This shows the form, not a real invitation: put the pair from a fresh demand. The plugin takes a pair only after its own mark `verstak/spawned_for:`; a multi-line `--prompt` the OpenCode terminal puts into its input as a paste it never sends — the pair on a first line of its own only where the input is sent whole. After the pair name the graph, the role and the case, the subject's references, the bound of permitted actions and the observable outcome. The agent must have register confirm this pair and join the case **before work**; refused → it does not work and does not get round the refusal with another name or `take`.
 
 A launcher of your own that passes a separate session's environment passes the same JSON as `VERSTAK_SPAWNED_FOR`. Never set it in the environment of a server shared by all agents. The explicit way is the `verstak_stand` field, by its description; a raw channel connect carrying the pair is refused — never a way around the check. A bare invitation number, a printed case number in place of the UUID, a partial pair or conflicting sources are refused before any seat is taken. This Orca's CLI has no flag passing environment: don't invent one.
 

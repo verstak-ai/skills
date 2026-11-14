@@ -1,5 +1,5 @@
 // Launch identity, not a case number (graph @nks/nks-dev, #9959, #6576).
-import { SPAWNED_FOR } from "../delivery/index.ts";
+import { SPAWN_LINE, SPAWNED_FOR } from "../delivery/index.ts";
 import { words } from "./lang.ts";
 
 export interface SpawnedFor {
@@ -27,12 +27,23 @@ export function parseSpawn(value: unknown): SpawnedFor {
 }
 
 export function spawnJson(text: string): SpawnedFor {
+  return spawnLine(text, false).pair;
+}
+
+/** The pair, and on the launch's first line only the role it was raised for (#10598): the
+ * register takes the pair alone. */
+function spawnLine(text: string, role: boolean): { pair: SpawnedFor; karta?: number } {
   try {
     const keys = [...text.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map(
       (m) => JSON.parse(m[1]) as string,
     );
     if (keys.length !== new Set(keys).size) return invalid();
-    return parseSpawn(JSON.parse(text));
+    const v = JSON.parse(text) as Record<string, unknown>;
+    if (!role || !v || typeof v !== "object" || !Object.hasOwn(v, "karta"))
+      return { pair: parseSpawn(v) };
+    const { karta, ...pair } = v;
+    if (!Number.isSafeInteger(karta) || Number(karta) <= 0) return invalid();
+    return { pair: parseSpawn(pair), karta: karta as number };
   } catch {
     return invalid();
   }
@@ -44,11 +55,59 @@ export function mergeSpawn(...values: (SpawnedFor | undefined)[]): SpawnedFor | 
   return pairs[0];
 }
 
-export function firstLineSpawn(text: string): SpawnedFor | undefined {
+export interface FirstLineSpawn {
+  pair: SpawnedFor;
+  /** The prompt without its pair line: the session's own words (#9959). */
+  rest: string;
+  /** The role the launch was raised for in its home, not the cover's (#10598). */
+  karta?: number;
+}
+
+/**
+ * The pair of an initial prompt's first line (#9959 v16): the JSON object is the whole line —
+ * the two-line form any sender may use — or the line's start with the brief after it through a
+ * space, the one-line form the orchestrator submits (#9969): a multi-line --prompt the
+ * terminal turns into a paste that is never sent. The object's end is found balanced, quoted
+ * strings and escapes respected; no object, glued text, an empty same-line remainder, invalid
+ * JSON or a repeated key is the invalid refusal. The rest is what the session keeps.
+ */
+export function firstLineSpawn(text: string): FirstLineSpawn | undefined {
   const first = text.split(/\r?\n/, 1)[0];
-  return first.startsWith("spawned_for:")
-    ? spawnJson(first.slice("spawned_for:".length))
-    : undefined;
+  // Only this delivery's mark: another delivery's plugin in the same harness leaves it be.
+  if (!first.startsWith(SPAWN_LINE)) return undefined;
+  const body = first.slice(SPAWN_LINE.length);
+  const at = body.indexOf("{");
+  if (at < 0 || body.slice(0, at).trim() !== "") return invalid();
+  let end = -1;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let i = at; i < body.length; i++) {
+    const ch = body[i];
+    if (escaped) escaped = false;
+    else if (quoted && ch === "\\") escaped = true;
+    else if (quoted) quoted = ch !== '"';
+    else if (ch === '"') quoted = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}" && --depth === 0) {
+      end = i;
+      break;
+    }
+  }
+  if (end < 0) return invalid();
+  const { pair, karta } = spawnLine(body.slice(at, end + 1), true);
+  const role = karta === undefined ? {} : { karta };
+  const below = ((): string => {
+    if (text.length === first.length) return "";
+    // The separator split(/\r?\n/) consumed: \n, or \r\n.
+    return text.slice(first.length + (text.charCodeAt(first.length) === 10 ? 1 : 2));
+  })();
+  const after = body.slice(end + 1);
+  if (after === "") return { pair, rest: below, ...role };
+  if (after[0] !== " " && after[0] !== "\t") return invalid();
+  const brief = after.replace(/^[ \t]+/, "");
+  if (!brief) return invalid();
+  return { pair, rest: below ? `${brief}\n${below}` : brief, ...role };
 }
 
 export interface SpawnIdentity {
@@ -77,8 +136,8 @@ export function spawnReceipt(
     !Array.isArray(s.seats)
   )
     return null;
-  if (!identity.seat_id && !identity.standing && (!identity.name || s.seats.length !== 1))
-    return null;
+  // A channel the machine shares lists all its seats: the name must pick exactly one (#8640).
+  if (!identity.seat_id && !identity.standing && !identity.name) return null;
   const seats = s.seats as Record<string, unknown>[];
   if (
     seats.some(

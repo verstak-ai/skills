@@ -17,6 +17,7 @@ import { mkdirSync, realpathSync } from "node:fs";
 
 import { envName } from "../delivery/index.ts";
 import { cloneArgv, cloneDeclared, type ClonePolicy, cloneTarget } from "./orchestra-clone.ts";
+import { answerCode } from "./orchestra-orca-answer.ts";
 import { type CloneRow, readClones, writeClone } from "./orchestra-runs.ts";
 
 /** A clone takes longer than a launch: a large repository over a slow line. */
@@ -31,23 +32,6 @@ const TAIL = 64 * 1024;
 
 /** After the client's exit its output is awaited this long — a child of it may hold the pipe. */
 const DRAIN_MS = 2_000;
-
-/** The error code of the client's answer, or null; nothing else of it is kept. The answer is
- * the whole stdout, indented over many lines (#9966); a line before it that is no JSON is
- * passed over — the answer is the last object opened at a line's start that parses to the end. */
-function answerCode(out: string): string | null {
-  for (let at = out.length; at > 0;) {
-    at = out.lastIndexOf("\n{", at - 1);
-    const from = at < 0 ? 0 : at + 1;
-    try {
-      const code = (JSON.parse(out.slice(from)) as { error?: { code?: unknown } }).error?.code;
-      return typeof code === "string" ? code : null;
-    } catch {
-      if (from === 0) return null;
-    }
-  }
-  return null;
-}
 
 /** The orca client; a timeout ends the client, not Orca's git. */
 function cloneRun(argv: string[], ms: number): Promise<number | string> {

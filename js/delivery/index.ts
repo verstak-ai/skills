@@ -49,6 +49,7 @@ export {
   method,
   SERVER_LOCALE,
   serverProtocol,
+  SPAWN_LINE,
   STRUCTURED_CAPABILITY,
   tool,
   TOOL_PREFIX,
