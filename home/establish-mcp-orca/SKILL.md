@@ -7,7 +7,7 @@ description: "Reference for the establish-mcp skill: teaching your own Orca to r
 
 ## Switching on automatic raising without an agent
 
-For the user, at their own terminal. The bridge is `~/.verstak-bridge/verstak-bridge.mjs`; its daemon is already alive while any harness session with the bridge is open. It needs Orca with the repository's project set up, and the invitation's subject holon carrying the `repository` attribute.
+For the user, at their own terminal. The bridge is `~/.verstak-bridge/verstak-bridge.mjs`; its daemon is already alive while any harness session with the bridge is open. It needs Orca with the repository's project set up, and the invitation's subject holon carrying the `repository` attribute (or the role's copy named in the description's `homes`, `minding-launcher`).
 
 1. See what lies: `node ~/.verstak-bridge/verstak-bridge.mjs orchestra status`.
 2. A dry tact — what would be raised now, launching nothing and not asking Orca:
@@ -72,7 +72,7 @@ The initial brief for OpenCode is one line: the mark, the pair, a space, the bri
 verstak/spawned_for: {"invite":7,"room":"11111111-1111-4111-8111-111111111111"} First: join the case …
 ```
 
-This shows the form, not a real invitation: put the pair from a fresh demand. The plugin takes a pair only after its own mark `verstak/spawned_for:`; a multi-line `--prompt` the OpenCode terminal puts into its input as a paste it never sends — the pair on a first line of its own only where the input is sent whole. After the pair name the graph, the role and the case, the subject's references, the bound of permitted actions and the observable outcome. The agent must have register confirm this pair and join the case **before work**; refused → it does not work and does not get round the refusal with another name or `take`.
+This shows the form, not a real invitation: put the pair from a fresh demand. The plugin takes a pair only after its own mark `verstak/spawned_for:`; a multi-line `--prompt` the OpenCode terminal puts into its input as a paste it never sends — the pair on a first line of its own only where the input is sent whole. Keep the whole line short — the orchestrator keeps its own within 220 characters, since a longer single line was seen pasted and never sent: after the pair only the join call, `First: verstak_case(action="join", realm="<graph>", room="<room>").`. The graph, the role, the subject's references, the bound of permitted actions and the observable outcome go into the case, as its assignment the agent reads on joining. The agent must have register confirm this pair and join the case **before work**; refused → it does not work and does not get round the refusal with another name or `take`.
 
 A launcher of your own that passes a separate session's environment passes the same JSON as `VERSTAK_SPAWNED_FOR`. Never set it in the environment of a server shared by all agents. The explicit way is the `verstak_stand` field, by its description; a raw channel connect carrying the pair is refused — never a way around the check. A bare invitation number, a printed case number in place of the UUID, a partial pair or conflicting sources are refused before any seat is taken. This Orca's CLI has no flag passing environment: don't invent one.
 

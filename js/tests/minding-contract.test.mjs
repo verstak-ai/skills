@@ -29,7 +29,7 @@ const PRESENT = {
     // the one exception to Privacy, the owner's word (graph @nks/nks-dev, #9818; case #3619 [97])
     "a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case",
     // the second exception: three launcher values into a role invitation (graph @nks/nks-dev, #10093, #4920)
-    "only the chosen `launcher`, `harness` and `model` go into a role invitation of a project case — its `callers`, `checkouts`, `limit` and `host` stay in mind",
+    "only the chosen `launcher`, `harness` and `model` go into a role invitation of a project case — its `callers`, `checkouts`, `homes`, the clone fields, `limit` and `host` stay in mind",
     '**Read or write it only once the `personal_mind` sign of `verstak_me(action="readiness")` shows this account\'s own graph present**',
     // personal vs project on the same topic
     "a working preference stays theirs even when its topic is development",
