@@ -419,6 +419,23 @@ for (const file of ["README.md"]) {
   for (const name of listed) if (!methodNames.includes(name)) fail(file, `method ${name} has no methods file`);
 }
 
+// This repository's own cover also carries the sibling delivery's block beside ours, so that
+// delivery's orchestrator raises this repo's role here (owner's word, graph @nks/nks-dev, case
+// №5257): its root key and the indented lines under it, inside the front matter of the cover
+// file only, are exempt from the retired-name rule; nowhere else.
+function parallelCoverLines(file, text) {
+  const exempt = new Set();
+  if (file !== "AGENTS.md" && file !== "CLAUDE.md") return exempt;
+  const lines = text.split("\n");
+  if (lines[0] !== "---") return exempt;
+  let inBlock = false;
+  for (let i = 1; i < lines.length && lines[i] !== "---"; i++) {
+    if (/^\S/.test(lines[i])) inBlock = new RegExp("^is" + "kron:\\s*$").test(lines[i]);
+    if (inBlock) exempt.add(i);
+  }
+  return exempt;
+}
+
 // Inspect working-tree contents of text (tracked, or new and not ignored), not
 // history or binary bundles, so the local gate sees work before it is staged.
 const ls = (args) =>
@@ -430,9 +447,11 @@ for (const file of new Set([...ls([]), ...ls(["--others", "--exclude-standard"])
   if (buffer.includes(0)) continue;
   const text = buffer.toString("utf8");
   if (text.includes("\uFFFD")) continue;
+  const parallel = parallelCoverLines(file, text);
   for (const [index, line] of text.split("\n").entries()) {
     if (/\p{Script=Cyrillic}/u.test(line)) fail(`${file}:${index + 1}`, "Cyrillic is not allowed");
-    if (new RegExp("is" + "kron", "i").test(line)) fail(`${file}:${index + 1}`, "retired delivery name is not allowed");
+    if (new RegExp("is" + "kron", "i").test(line) && !parallel.has(index))
+      fail(`${file}:${index + 1}`, "retired delivery name is not allowed");
   }
 }
 
