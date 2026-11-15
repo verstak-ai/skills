@@ -30,6 +30,8 @@ const PRESENT = {
     "a rule of the `agents` or `ways` slice may be cited in a case when it describes that very case",
     // the second exception: three launcher values into a role invitation (graph @nks/nks-dev, #10093, #4920)
     "only the chosen `launcher`, `harness` and `model` go into a role invitation of a project case — its `callers`, `checkouts`, `homes`, the clone fields, `limit` and `host` stay in mind",
+    // the third exception: three intake-target keys into the choice and the assignment (graph @nks/nks-dev, #10861, #10866)
+    "from an intake target (`intake` slice) only its `realm`, `skill` and `model` go into the choice offered to the user and the intake's assignment — its body stays in mind",
     '**Read or write it only once the `personal_mind` sign of `verstak_me(action="readiness")` shows this account\'s own graph present**',
     // personal vs project on the same topic
     "a working preference stays theirs even when its topic is development",
