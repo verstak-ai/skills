@@ -223,6 +223,11 @@ const SKILLS = {
     description:
       "Reference for the minding skill: the user's launcher description in personal mind — its card, slice and JSON body, the questions that fill it, what of it may leave mind. Load when minding points here; not a task of its own.",
   },
+  "minding-intake-target": {
+    source: "references",
+    description:
+      "Reference for the minding skill: the user's intake target in personal mind — where forwarded text may be let in, its card, slice and filter keys, the search that finds targets, what of it may leave mind. Load when minding points here; not a task of its own.",
+  },
   "collaborate-channel": {
     source: "references",
     description:
