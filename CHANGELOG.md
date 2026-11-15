@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.3.0](https://github.com/verstak-ai/skills/compare/v4.2.0...v4.3.0) (2026-11-15)
+
+
+### Features
+
+* intake keeps external text as content, finds a repeated source first, and runs a forwarded message in one pass ([#446](https://github.com/verstak-ai/skills/issues/446)) ([56cba05](https://github.com/verstak-ai/skills/commit/56cba051a7d6cbdc6e24aaae48d47c8fb7fdc6c4))
+* minding names the intake target — where forwarded text may be let in, its slice and the three keys that leave mind ([#445](https://github.com/verstak-ai/skills/issues/445)) ([a364d91](https://github.com/verstak-ai/skills/commit/a364d9175c8f722a0bbbe90a75416503676bccc9))
+
+
+### Bug Fixes
+
+* the door names when an invitation without launcher attrs is raised; the cover template points at the orchestrator's tree ([#443](https://github.com/verstak-ai/skills/issues/443)) ([e515451](https://github.com/verstak-ai/skills/commit/e515451a58eb8364ab6be773f94dfd39934b8071))
+* the intake target is its own card, released targets stay off, one privacy boundary, and intake reads the user's targets ([#447](https://github.com/verstak-ai/skills/issues/447)) ([1fcd9f9](https://github.com/verstak-ai/skills/commit/1fcd9f9a3c1ff8628f762e971637e913cc217a44))
+
 ## [4.2.0](https://github.com/verstak-ai/skills/compare/v4.1.0...v4.2.0) (2026-11-14)
 
 
