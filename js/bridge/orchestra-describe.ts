@@ -9,6 +9,7 @@ import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
+import { nodeBody } from "./node-body.ts";
 import { LAUNCHER_MAX, parseLauncher } from "./orchestra-launchers.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
@@ -82,7 +83,7 @@ export async function ensureLauncher(
       limit: 50,
     });
     for (const seq of new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))) {
-      const body = await s.call(tool("look"), { realm: "mind", node_id: `#${seq}`, raw: true });
+      const body = await nodeBody(s.call, tool("look"), "mind", seq);
       if (parseLauncher(body).launcher === spec.launcher)
         return w().describeTaken(spec.launcher, `#${seq}`);
     }

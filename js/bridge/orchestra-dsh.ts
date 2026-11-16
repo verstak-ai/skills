@@ -7,6 +7,7 @@ import { accessSync, constants, existsSync, mkdirSync, statSync, writeFileSync }
 import { homedir } from "node:os";
 import { delimiter, isAbsolute, join } from "node:path";
 
+import { BRIDGE_SKILL, DSH_PROFILE } from "../delivery/index.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
 
 export interface DshSpec {
@@ -50,10 +51,12 @@ export function dshReady(
         .map((d) => join(d, "dsh"))
         .find(runnable) ?? null);
   if (!bin) return { code: "dsh_missing" };
+  // The delivery's own profile when the description names none; a delivery without one requires it.
   const patch =
     spec.patch ??
-    join(homedir(), ".agents", "skills", "establish-mcp", "references", "dsh-profile.yml");
-  if (!existsSync(patch) || !statSync(patch).isFile()) return { code: "dsh_patch_missing" };
+    (DSH_PROFILE ? join(homedir(), ".agents", "skills", BRIDGE_SKILL, DSH_PROFILE) : null);
+  if (!patch || !existsSync(patch) || !statSync(patch).isFile())
+    return { code: "dsh_patch_missing" };
   return { bin, patch };
 }
 
