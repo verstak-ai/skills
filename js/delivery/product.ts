@@ -31,6 +31,11 @@ export const GLOBAL_PREFIX = `__${PRODUCT}`;
  */
 export const BRIDGE_SKILL = PRODUCT;
 export const BRIDGE_FILE = `${BRIDGE_NAME}.mjs`;
+/**
+ * The delivery's dsh profile patch inside the bridge-carrying skill of a flat install: the orchestrator raises dsh with it
+ * when a launcher description names no `patch`. This delivery ships no dsh profile, so `patch` in the description is required.
+ */
+export const DSH_PROFILE: string | null = null;
 /** The OpenCode plugin in the delivery (beside the bridge) and its copy's name in OpenCode's `plugins/`. */
 export const PLUGIN_FILE = "opencode-plugin.js";
 export const PLUGIN_COPY_FILE = `${PRODUCT}.js`;

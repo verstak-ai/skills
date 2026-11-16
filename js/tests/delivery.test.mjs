@@ -13,6 +13,7 @@ import {
   BRIDGE_FILE,
   BRIDGE_NAME,
   BUILD_SERVER_URL,
+  DSH_PROFILE,
   HOME_BRIDGE_FILE,
   HOME_DIR,
   PRODUCT,
@@ -85,6 +86,10 @@ test("the satellite entry code launches this delivery's home bridge", () => {
     SATELLITE_CODE.includes(`homedir(),'${HOME_DIR}','${HOME_BRIDGE_FILE}')`),
     `SATELLITE_CODE must join ${HOME_DIR}/${HOME_BRIDGE_FILE}: ${SATELLITE_CODE}`,
   );
+});
+
+test("this delivery ships no dsh profile: a launcher description must name its patch", () => {
+  assert.equal(DSH_PROFILE, null);
 });
 
 test("the names our skills write stay the bridge's names", () => {

@@ -12,6 +12,7 @@ import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
+import { nodeBody } from "./node-body.ts";
 import { parseClone } from "./orchestra-clone.ts";
 import { parseHarnesses } from "./orchestra-harnesses.ts";
 import type { Adapter, Launcher, Launchers } from "./orchestra-launcher-types.ts";
@@ -108,7 +109,7 @@ export async function readLaunchers(serverUrl: string, token: string): Promise<L
     const seqs = [...new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))];
     const mine: Launcher[] = [];
     for (const seq of seqs) {
-      const body = await s.call(tool("look"), { realm: "mind", node_id: `#${seq}`, raw: true });
+      const body = await nodeBody(s.call, tool("look"), "mind", seq);
       const l = parseLauncher(body);
       if ("code" in l) {
         out.refused.push({ what: l.launcher ?? `#${seq}`, code: l.code });

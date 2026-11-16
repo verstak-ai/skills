@@ -33,6 +33,14 @@ test("a malformed pair is refused in our words, never seating", () => {
   assert.match(SPAWNED_FOR.en.connect(), new RegExp(`Use ${tool("stand")}:`));
 });
 
+test("giving up on an unconfirmed pair names the invitation, the case and the count in English", () => {
+  const said = SPAWNED_FOR.en.gaveUp(5, ROOM, 3);
+  assert.ok(said.includes("invitation 3"), said);
+  assert.ok(said.includes(`case ${ROOM}`), said);
+  assert.ok(said.includes("5 times"), said);
+  assert.doesNotMatch(said, /[\u0400-\u04FF]/);
+});
+
 test("the stand tool offers spawned_for with our description and the strict pair", () => {
   const t = standTool();
   assert.equal(t.name, tool("stand"));

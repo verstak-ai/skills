@@ -265,6 +265,13 @@ test("orchestra: the raised agent's prompt carries our mark and fits the submitt
   assert.equal(seen?.karta, 12345);
 });
 
+test("orchestra: the dsh agent's brief opens with our launch line and joins the case", () => {
+  const room = "1035d984-7313-4699-9090-2baa2ae7cb49";
+  const brief = ORCHESTRA.en.dshBrief("r5", 8498, room);
+  assert.ok(brief.startsWith(`verstak r5 #8498 case ${room}`), brief);
+  assert.ok(brief.includes(`${tool("case")}(action="join", realm="r5", room="${room}")`), brief);
+});
+
 // A clone of a repository Orca does not know runs in the daemon's background and is said in
 // status and in the dry run, never hidden (the core's bridge/orchestra-clone.ts,
 // orchestra-cloning.ts; the clone itself is the sibling's suite, against its fake orca).
