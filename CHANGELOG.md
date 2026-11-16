@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/verstak-ai/skills/compare/v4.4.0...v4.5.0) (2026-11-16)
+
+
+### Features
+
+* the bridge core synced to the sibling's 8.10.0 — the orchestrator reads launcher descriptions from the card, not a raw body ([#452](https://github.com/verstak-ai/skills/issues/452)) ([039a51a](https://github.com/verstak-ai/skills/commit/039a51ad7cbe423a5a86d2c98d8d6859f638eeb5))
+
 ## [4.4.0](https://github.com/verstak-ai/skills/compare/v4.3.0...v4.4.0) (2026-11-16)
 
 
