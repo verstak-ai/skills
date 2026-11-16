@@ -4,6 +4,7 @@ import { words } from "../shared/lang.ts";
 import { execRuntime } from "./exec-launch.ts";
 import { execHost } from "./exec-preflight.ts";
 import { cloneFound, cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
+import { dshCheckout } from "./orchestra-dsh-gate.ts";
 import type { Launchers } from "./orchestra-launchers.ts";
 import { type CheckoutOf, orcaCheckouts, orcaReady } from "./orchestra-orca.ts";
 import { checkoutFor, coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
@@ -45,6 +46,19 @@ export async function raiseRows(
       continue;
     }
     const { row, own } = resolved;
+    const dsh = own.harnesses[String(row.harness).trim()].dsh;
+    if (dsh) {
+      // Adapter bridge (#10096, #10777): the bridge raises dsh itself — Orca is never asked, its
+      // checkout neither, and need not be on the machine.
+      const got = await dshCheckout(own, dsh, row, canon);
+      if (gone?.gone) break;
+      const why =
+        "code" in got
+          ? got.code
+          : await startRun(authDir, row, own, got.repository, got.worktree, runs, key, canon, gone);
+      said.push(w().leadRow(realm, room, invite, why));
+      continue;
+    }
     ready =
       ready === undefined ? await orcaReady((version) => said.push(`Orca ${version}`)) : ready;
     if (ready) {

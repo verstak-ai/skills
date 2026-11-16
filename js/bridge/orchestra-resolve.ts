@@ -1,4 +1,5 @@
 // One in-memory offer resolution for actual and dry tacts (#5042, #10096).
+import { harnessRefusal } from "./orchestra-harnesses.ts";
 import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
 import { homeOf } from "./orchestra-raise-gates.ts";
 import { LIVE, type Run } from "./orchestra-runs.ts";
@@ -6,7 +7,8 @@ import { LIVE, type Run } from "./orchestra-runs.ts";
 type Row = Record<string, unknown>;
 const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
 const missing = (v: unknown): boolean => v === null || v === undefined;
-const supported = (h: string): boolean => h === "opencode";
+/** A harness the description's own adapter raises (#10096): opencode under orca, dsh under bridge. */
+const fits = (l: Launcher, h: string): boolean => harnessRefusal(l.adapter, h) === null;
 
 export function resolveInvite(
   source: Row,
@@ -35,10 +37,11 @@ export function resolveInvite(
     if (!admitted.length) return { code: local.length ? "caller_not_allowed" : "launcher_missing" };
     const candidates = admitted.filter((l) => {
       const harnesses = missing(source.harness)
-        ? Object.keys(l.harnesses).filter(supported)
+        ? Object.keys(l.harnesses)
         : [text(source.harness) ?? ""];
       return harnesses.some(
         (h) =>
+          fits(l, h) &&
           l.harnesses[h] &&
           l.harnesses[h].models.length > 0 &&
           (missing(source.model) || l.harnesses[h].models.includes(text(source.model) ?? "")),
@@ -47,25 +50,30 @@ export function resolveInvite(
     // A single description can still explain an explicit invalid offer precisely; never replace it.
     if (!candidates.length && admitted.length === 1) own = admitted[0];
     else if (!candidates.length) {
-      const hasHarness = admitted.some((l) => l.harnesses[text(source.harness) ?? ""]);
+      const named = text(source.harness) ?? "";
+      const offering = admitted.find((l) => l.harnesses[named]);
+      const fitting = admitted.some((l) => l.harnesses[named] && fits(l, named));
       return {
         code:
-          !missing(source.harness) && !hasHarness
+          !missing(source.harness) && !offering
             ? "harness_not_offered"
-            : !missing(source.model)
-              ? "model_not_offered"
-              : "launcher_missing",
+            : offering && !fitting
+              ? (harnessRefusal(offering.adapter, named) ?? "harness_unsupported")
+              : !missing(source.model)
+                ? "model_not_offered"
+                : "launcher_missing",
       };
     } else if (candidates.length > 1) return { code: "launcher_ambiguous" };
     else own = candidates[0];
   }
-  const harnesses = Object.keys(own.harnesses).filter(supported);
+  const harnesses = Object.keys(own.harnesses).filter((h) => fits(own, h));
   if (missing(source.harness) && harnesses.length !== 1)
     return { code: harnesses.length ? "harness_ambiguous" : "harness_missing" };
   const harness = missing(source.harness) ? harnesses[0] : (text(source.harness) ?? "");
   const offer = own.harnesses[harness];
   if (!offer) return { code: "harness_not_offered" };
-  if (!supported(harness)) return { code: "harness_unsupported" };
+  const refused = harnessRefusal(own.adapter, harness);
+  if (refused) return { code: refused };
   const models = [...new Set(offer.models)];
   if (missing(source.model) && models.length !== 1)
     return { code: models.length ? "model_ambiguous" : "model_missing" };

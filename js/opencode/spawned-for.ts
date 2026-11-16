@@ -4,6 +4,7 @@ import { SPAWNED_FOR, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { mergeSpawn, parseSpawn, sameSpawn, spawnReceipt } from "../shared/spawned-for.ts";
 import { spawnAdmission, type SpawnStart } from "./spawn-admission.ts";
+import { createSpawnRetries } from "./spawn-retries.ts";
 
 const targetOf = (args: Record<string, unknown>): string =>
   `${String(args.realm)}#${String(args.karta).replace(/^#/, "")}`;
@@ -16,9 +17,20 @@ const takenWord = (e: SpawnStart | undefined): string | null =>
     ? words(SPAWNED_FOR).taken(e.realm, e.pair.room, e.pair.invite)
     : null;
 
-export function createSpawnStarts(readContext: (session: string) => Promise<unknown>) {
+export function createSpawnStarts(
+  readContext: (session: string) => Promise<unknown>,
+  loud: (word: string) => void = () => {},
+) {
   const starts = new Map<string, SpawnStart>();
+  const retries = createSpawnRetries(loud);
   return {
+    /** The prompt hook failed: a seating this session ran without the confirmed pair counts once. */
+    failed(session: string) {
+      const e = starts.get(session);
+      if (!e?.pair || e.claimed || !e.start || e.counted) return;
+      e.counted = true;
+      retries.failed(e.pair);
+    },
     has(session: string) {
       return !!starts.get(session)?.pair;
     },
@@ -64,6 +76,7 @@ export function createSpawnStarts(readContext: (session: string) => Promise<unkn
         throw error;
       }
       if (entry && !entry.claimed) {
+        if (entry.pair) retries.confirmed(entry.pair);
         entry.claimed = true;
         entry.place = receipt.standing;
         entry.target ??= targetOf(args);
@@ -81,7 +94,7 @@ export function createSpawnStarts(readContext: (session: string) => Promise<unkn
       const word = takenWord(e);
       if (e && word && sent.includes(word)) e.told = true;
     },
-    prompt: spawnAdmission(starts, readContext),
+    prompt: spawnAdmission(starts, readContext, (pair) => retries.before(pair)),
     /**
      * The pair onto a taking call; a word instead of the call when this session's seat already
      * holds that pair (`holding` — its bridge still holds a seat): no second registration.

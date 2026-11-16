@@ -1,5 +1,6 @@
-// The human's launcher descriptions (graph @nks/nks-dev, nodes #5042, #4920; decision of case
-// №4050): which orchestrator answers which `launcher` value of a role invite, with what harnesses
+// The human's launcher descriptions (graph @nks/nks-dev, nodes #5042, #4920, #10096; decision of
+// case №4050): which orchestrator answers which `launcher` value of a role invite — adapter orca
+// (Orca raises opencode) or bridge (the bridge raises dsh, no Orca) — with what harnesses
 // and models, how many raised at once; checkouts come from Orca, an optional map overrides, and
 // an optional homes map raises a graph's role in a checkout whose cover names another (#10598). They
 // live in the human's own graph "mind" as nodes with attribute slice:orchestra, body — one JSON
@@ -11,9 +12,9 @@ import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
-import { parseExec } from "./exec-spec.ts";
 import { parseClone } from "./orchestra-clone.ts";
-import type { HarnessOffer, Launcher, Launchers } from "./orchestra-launcher-types.ts";
+import { parseHarnesses } from "./orchestra-harnesses.ts";
+import type { Adapter, Launcher, Launchers } from "./orchestra-launcher-types.ts";
 export type { HarnessOffer, Launcher, Launchers } from "./orchestra-launcher-types.ts";
 
 const SLICE = "slice:orchestra";
@@ -38,24 +39,14 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
   const launcher = d.launcher.trim();
   if (d.host !== undefined && d.host !== null && !str(d.host))
     return { code: "host_invalid", launcher };
-  if (d.adapter !== "orca") return { code: "adapter_unsupported", launcher };
+  if (d.adapter !== "orca" && d.adapter !== "bridge")
+    return { code: "adapter_unsupported", launcher };
+  const adapter: Adapter = d.adapter;
   if (!Number.isSafeInteger(d.limit) || (d.limit as number) < 0)
     return { code: "limit_missing", launcher };
-  const harnesses: Record<string, HarnessOffer> = {};
-  const h = d.harnesses;
-  if (!h || typeof h !== "object" || Array.isArray(h))
-    return { code: "harnesses_missing", launcher };
-  for (const [name, o] of Object.entries(h as Record<string, unknown>)) {
-    const x = (o ?? {}) as Record<string, unknown>;
-    if (!Array.isArray(x.models) || !x.models.every(str))
-      return { code: "harness_invalid", launcher };
-    harnesses[name] = { models: (x.models as string[]).map((m) => m.trim()) };
-    if (Object.hasOwn(x, "exec")) {
-      const exec = name === "opencode" ? parseExec(x.exec, harnesses[name].models) : null;
-      if (!exec) return { code: "exec_invalid", launcher };
-      harnesses[name].exec = exec;
-    }
-  }
+  const parsed = parseHarnesses(d.harnesses, adapter);
+  if ("code" in parsed) return { code: parsed.code, launcher };
+  const harnesses = parsed.offers;
   const checkouts: Record<string, string> = {};
   const c = d.checkouts ?? {};
   if (typeof c !== "object" || Array.isArray(c)) return { code: "checkouts_invalid", launcher };
@@ -79,7 +70,7 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
   return {
     launcher,
     host: str(d.host) ? d.host.trim() : null,
-    adapter: "orca",
+    adapter,
     limit: d.limit as number,
     harnesses,
     checkouts,

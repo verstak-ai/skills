@@ -16,6 +16,8 @@ export interface SpawnStart {
   /** The seat register confirmed the pair for: a stand again with it is answered by this seat. */
   place?: string;
   told?: boolean;
+  /** Its unconfirmed seating is counted against the pair once (spawn-retries.ts). */
+  counted?: boolean;
   pending?: Promise<void>;
   ids?: Set<string>;
   start?: Promise<string[]>;
@@ -25,6 +27,8 @@ export interface SpawnStart {
 export function spawnAdmission(
   starts: Map<string, SpawnStart>,
   readContext: (s: string) => Promise<unknown>,
+  /** A new session's pause before it tries a pair again (spawn-retries.ts); past the bound — a refusal. */
+  before: (pair: SpawnedFor) => Promise<void> = async () => {},
 ) {
   return async (session: string, text: string, message: string): Promise<string> => {
     if (text.startsWith(FRAME_MARK)) return text;
@@ -37,6 +41,10 @@ export function spawnAdmission(
       return text;
     }
     const initialError = () => new Error(words(SPAWNED_FOR).initial());
+    if (!entry) {
+      await before(pair);
+      entry = starts.get(session);
+    }
     if (entry?.error) throw entry.error;
     if (entry && !entry.pair) throw initialError();
     // The session keeps the prompt without its pair line: the lines below, or the same
