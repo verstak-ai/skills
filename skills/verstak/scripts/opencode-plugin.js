@@ -214,7 +214,7 @@ var QUESTION_SCOPE = "repo";
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.3.0";
+var VERSION = "4.4.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -725,6 +725,7 @@ var SPAWNED_FOR = {
     unbound: () => "spawned_for: the taken seat is not yet bound to this session again after a passing refusal; the bridge retries before the next call. This call did not run; another seat or a call without the pair does not replace it.",
     schema: () => "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take.",
     taken: (realm, room, invite) => `You were taken for invitation ${invite} of case ${room} in graph ${realm}: register confirmed the pair. Before any work, join that case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — and read its assignment; not joined — do not work, and say why.`,
+    gaveUp: (tries, room, invite) => `spawned_for: register did not confirm invitation ${invite} of case ${room} ${tries} times; this plugin instance stops trying and takes no seat. The launch failed — only a new invitation retries it.`,
     held: (place, realm, room, invite) => `This session already stands on seat ${place} for invitation ${invite} of case ${room}: the pair is confirmed, no second seat is registered. Join the case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — before any work.`
   }
 };
@@ -3999,7 +4000,7 @@ function createChildren(d) {
         own.refused?.length ? W3().reloadStale(own.refused.join(", ")) : W3().reloadNotBack()
       );
   }
-  async function pause2() {
+  async function pause3() {
     const held = [...d.slots.values()].filter(
       (s) => s.child && s.satelliteOf && s.holding && s.session
     );
@@ -4020,7 +4021,7 @@ function createChildren(d) {
     return coming.get(session)?.catch(() => {
     });
   };
-  return { childSlot, back, pause: pause2, settled };
+  return { childSlot, back, pause: pause3, settled };
 }
 
 // js/opencode/keep.ts
@@ -6510,6 +6511,12 @@ async function setupContextGate(ctx, opts) {
   });
 }
 
+// js/opencode/direct.ts
+var DIRECT = ["look", "orient", "search", "semantic_search", "history"].map(tool);
+var standDirect = (ctx) => ctx.tool.transform((editor) => {
+  for (const id of DIRECT) editor.update(id, (t) => void (t.options = { codemode: false }));
+});
+
 // js/opencode/hook-context.ts
 var record = (x) => typeof x === "object" && x !== null;
 function checkpoint(m) {
@@ -7967,7 +7974,8 @@ function spawnReceipt(structured, expected, identity) {
 }
 
 // js/opencode/spawn-admission.ts
-function spawnAdmission(starts, readContext) {
+function spawnAdmission(starts, readContext, before = async () => {
+}) {
   return async (session, text3, message) => {
     if (text3.startsWith(FRAME_MARK)) return text3;
     const spawn2 = firstLineSpawn(text3);
@@ -7980,6 +7988,10 @@ function spawnAdmission(starts, readContext) {
       return text3;
     }
     const initialError = () => new Error(words(SPAWNED_FOR).initial());
+    if (!entry) {
+      await before(pair);
+      entry = starts.get(session);
+    }
     if (entry?.error) throw entry.error;
     if (entry && !entry.pair) throw initialError();
     const stripped = () => spawn2 ? spawn2.rest : text3;
@@ -8033,13 +8045,59 @@ function spawnAdmission(starts, readContext) {
   };
 }
 
+// js/opencode/spawn-retries.ts
+var SPAWN_TRIES = 5;
+var baseMs = () => Number(process.env[envName("SPAWN_RETRY_MS")] || 5e3);
+var ceilingMs2 = () => baseMs() * 12;
+var pause2 = (ms) => ms > 0 ? new Promise((r) => setTimeout(r, ms).unref?.()) : Promise.resolve();
+var keyOf2 = (p) => `${p.room}#${p.invite}`;
+function createSpawnRetries(loud) {
+  const tally = /* @__PURE__ */ new Map();
+  const gaveUp = (p) => words(SPAWNED_FOR).gaveUp(SPAWN_TRIES, p.room, p.invite);
+  return {
+    /** Before a seating with this pair: the try is taken, then its pause; past the bound — the refusal. */
+    async before(p) {
+      const t = tally.get(keyOf2(p)) ?? { tries: 0, at: 0, said: false };
+      tally.set(keyOf2(p), t);
+      if (t.tries >= SPAWN_TRIES) {
+        if (!t.said) loud(gaveUp(p));
+        t.said = true;
+        await pause2(ceilingMs2());
+        throw new Error(gaveUp(p));
+      }
+      const n2 = t.tries++;
+      const wait = n2 ? Math.min(baseMs() * 2 ** (n2 - 1), ceilingMs2()) : 0;
+      const start = Math.max(t.at + wait, Date.now());
+      t.at = start;
+      await pause2(start - Date.now());
+    },
+    /** A seating with this pair ended unconfirmed: the next pause counts from its end. */
+    failed(p) {
+      const t = tally.get(keyOf2(p));
+      if (t) t.at = Math.max(t.at, Date.now());
+    },
+    confirmed(p) {
+      tally.delete(keyOf2(p));
+    }
+  };
+}
+
 // js/opencode/spawned-for.ts
 var targetOf = (args) => `${String(args.realm)}#${String(args.karta).replace(/^#/, "")}`;
 var STAND_ACTS = ["status", "room", "room_karta", "take", "mute_siblings", "repeat_knock"];
 var takenWord = (e) => e?.pair && e.claimed && e.realm && !e.told ? words(SPAWNED_FOR).taken(e.realm, e.pair.room, e.pair.invite) : null;
-function createSpawnStarts(readContext) {
+function createSpawnStarts(readContext, loud = () => {
+}) {
   const starts = /* @__PURE__ */ new Map();
+  const retries = createSpawnRetries(loud);
   return {
+    /** The prompt hook failed: a seating this session ran without the confirmed pair counts once. */
+    failed(session) {
+      const e = starts.get(session);
+      if (!e?.pair || e.claimed || !e.start || e.counted) return;
+      e.counted = true;
+      retries.failed(e.pair);
+    },
     has(session) {
       return !!starts.get(session)?.pair;
     },
@@ -8076,6 +8134,7 @@ function createSpawnStarts(readContext) {
         throw error;
       }
       if (entry && !entry.claimed) {
+        if (entry.pair) retries.confirmed(entry.pair);
         entry.claimed = true;
         entry.place = receipt2.standing;
         entry.target ??= targetOf(args);
@@ -8092,7 +8151,7 @@ function createSpawnStarts(readContext) {
       const word2 = takenWord(e);
       if (e && word2 && sent.includes(word2)) e.told = true;
     },
-    prompt: spawnAdmission(starts, readContext),
+    prompt: spawnAdmission(starts, readContext, (pair) => retries.before(pair)),
     /**
      * The pair onto a taking call; a word instead of the call when this session's seat already
      * holds that pair (`holding` — its bridge still holds a seat): no second registration.
@@ -8469,7 +8528,10 @@ async function setup(ctx) {
   };
   const roots = /* @__PURE__ */ new Map();
   const seen = /* @__PURE__ */ new Map();
-  const spawnStarts = createSpawnStarts((sessionID) => ctx.session.context({ sessionID }));
+  const spawnStarts = createSpawnStarts(
+    (sessionID) => ctx.session.context({ sessionID }),
+    (word2) => say(word2, "error")
+  );
   const parents = /* @__PURE__ */ new Map();
   async function rootOf(sessionID) {
     const known = roots.get(sessionID);
@@ -8566,6 +8628,7 @@ async function setup(ctx) {
       (s) => spawnStarts.has(s),
       (s, args, result) => spawnStarts.verify(s, args, result)
     );
+    await standDirect(ctx);
   } catch (e) {
     say(words(PLUGIN).notRaised(e.message), "error");
   }
@@ -8625,6 +8688,7 @@ async function setup(ctx) {
         spawnStarts.guard(sid);
         if (root) prepared.ride();
       } catch (e) {
+        spawnStarts.failed(sid);
         await spawnStarts.cleanup(sid, () => half.releaseSeat(sid));
         if (root) half.finishSeat(sid);
         throw e;

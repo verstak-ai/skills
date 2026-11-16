@@ -251,7 +251,7 @@ var spawnedForSchema = (description) => ({
 });
 
 // js/delivery/version.ts
-var VERSION = "4.3.0";
+var VERSION = "4.4.0";
 var BUILD_MARK = "verstak-build";
 var CHANNEL_MARK = "verstak-build:release";
 
@@ -764,6 +764,7 @@ var ORCHESTRA = {
     // Short: a long line reaches the terminal as a paste that is never sent (graph
     // @nks/nks-dev, node #9966).
     brief: (realm, _karta, room) => `First: ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
+    dshBrief: (realm, karta, room) => `verstak ${realm} #${karta} case ${room}. First your seat by the door's Start, then ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
     plan: (rows) => `dry run — nothing launched, ordered or moved (Orca not asked):${rows ? `
 ${rows}` : " no invites"}`,
     planLaunch: (argv2) => `would launch: ${argv2}`,
@@ -1146,6 +1147,7 @@ var SPAWNED_FOR = {
     unbound: () => "spawned_for: the taken seat is not yet bound to this session again after a passing refusal; the bridge retries before the next call. This call did not run; another seat or a call without the pair does not replace it.",
     schema: () => "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take.",
     taken: (realm, room, invite) => `You were taken for invitation ${invite} of case ${room} in graph ${realm}: register confirmed the pair. Before any work, join that case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — and read its assignment; not joined — do not work, and say why.`,
+    gaveUp: (tries, room, invite) => `spawned_for: register did not confirm invitation ${invite} of case ${room} ${tries} times; this plugin instance stops trying and takes no seat. The launch failed — only a new invitation retries it.`,
     held: (place, realm, room, invite) => `This session already stands on seat ${place} for invitation ${invite} of case ${room}: the pair is confirmed, no second seat is registered. Join the case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — before any work.`
   }
 };
@@ -1861,9 +1863,9 @@ function readPat(cfg) {
 }
 
 // js/bridge/daemon.ts
-import { spawn as spawn5 } from "node:child_process";
-import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync26, readFileSync as readFileSync39, statSync as statSync10 } from "node:fs";
-import { join as join41 } from "node:path";
+import { spawn as spawn6 } from "node:child_process";
+import { appendFileSync as appendFileSync5, mkdirSync as mkdirSync27, readFileSync as readFileSync40, statSync as statSync11 } from "node:fs";
+import { join as join42 } from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
 
 // js/shared/channel.ts
@@ -2891,6 +2893,45 @@ import {
   writeFileSync as writeFileSync3
 } from "node:fs";
 import { join as join7 } from "node:path";
+
+// js/bridge/journal-fold.ts
+var WINDOW_MS = 6e4;
+var UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+var ROOT = /\.root-[0-9a-f]{12}\b/g;
+var shapeOf = (line) => line.replace(UUID, "<id>").replace(ROOT, ".root-<id>");
+function createFold(now2 = Date.now, windowMs = WINDOW_MS) {
+  const open = /* @__PURE__ */ new Map();
+  return (line) => {
+    const t = now2();
+    const out7 = [];
+    for (const [shape2, s3] of open)
+      if (t - s3.at >= windowMs) {
+        if (s3.folded)
+          out7.push(
+            `repeated ${s3.folded} more time(s) within ${windowMs / 1e3} s, last: ${s3.last}`
+          );
+        open.delete(shape2);
+      }
+    const shape = shapeOf(line);
+    const s2 = open.get(shape);
+    if (s2) {
+      s2.folded++;
+      s2.last = line;
+      return out7;
+    }
+    open.set(shape, { at: t, folded: 0, last: line });
+    out7.push(line);
+    return out7;
+  };
+}
+var folds = /* @__PURE__ */ new Map();
+function foldInto(path, line) {
+  let fold = folds.get(path);
+  if (!fold) folds.set(path, fold = createFold());
+  return fold(line);
+}
+
+// js/bridge/store.ts
 var b64url = (buf) => Buffer.from(buf).toString("base64url");
 var sha256 = (s2) => createHash5("sha256").update(s2).digest();
 var sleep = (ms2) => new Promise((r) => setTimeout(r, ms2));
@@ -2960,12 +3001,13 @@ function rotateJournal(path, max) {
 }
 function appendJournal(path, msg) {
   try {
+    const lines = foldInto(path, msg);
+    if (!lines.length) return;
     mkdirSync4(CFG.authDir, { recursive: true, mode: 448 });
     rotateJournal(path, 128e3);
-    appendFileSync(path, `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${msg}
-`, {
-      mode: 384
-    });
+    const at3 = `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD}`;
+    appendFileSync(path, lines.map((l) => `${at3} ${l}
+`).join(""), { mode: 384 });
   } catch {
   }
 }
@@ -3801,16 +3843,16 @@ async function linkOn(port) {
   const deadline = Date.now() + CLAIM_WAIT_MS;
   for (; ; ) {
     const l = readAuthLock();
-    const ours = !!l && l.callback_port === port && pidAlive(l.pid);
-    if (ours && (published(l) || older(l))) return l;
-    const claimed = ours && !l?.authorize_url;
+    const ours2 = !!l && l.callback_port === port && pidAlive(l.pid);
+    if (ours2 && (published(l) || older(l))) return l;
+    const claimed = ours2 && !l?.authorize_url;
     if (!claimed && Date.now() > glance || Date.now() > deadline) return null;
     await sleep(100);
   }
 }
 async function interactiveFlow(meta, judged, note4, wantTab = true) {
-  const over = grantPrint(judged);
-  const back = grantBack(over);
+  const over2 = grantPrint(judged);
+  const back = grantBack(over2);
   if (back) return back;
   const standing = readAuthLock();
   if ((published(standing) || older(standing)) && pidAlive(standing.pid) && await portListening(standing.callback_port)) {
@@ -3874,7 +3916,7 @@ async function interactiveFlow(meta, judged, note4, wantTab = true) {
       `all candidate callback ports (${rungs}) are held by other processes — free one, then retry`
     );
   }
-  const landed = grantBack(over);
+  const landed = grantBack(over2);
   if (landed) {
     callback.close();
     return landed;
@@ -3888,7 +3930,7 @@ async function interactiveFlow(meta, judged, note4, wantTab = true) {
       authorize_url: loginLink(callback.port, b64url(randomBytes2(18))),
       state: b64url(randomBytes2(24)),
       verifier: b64url(randomBytes2(48)),
-      grant: over
+      grant: over2
     };
     sweepTabMarks();
     writeAuthLock(login);
@@ -3905,14 +3947,14 @@ async function interactiveFlow(meta, judged, note4, wantTab = true) {
   }
 }
 function runFlow(meta, cb, login, openTab) {
-  const ours = (l) => l.pid === process.pid && l.state === login.state;
+  const ours2 = (l) => l.pid === process.pid && l.state === login.state;
   const redirectUri = redirectFor(login.callback_port);
   const key3 = login.authorize_url.slice(linkPrefix(login.callback_port).length);
   cb.serveLogin(key3, async () => {
     if (flow) clicked.add(flow);
     const client = await ensureClient(meta, redirectUri);
     const current2 = readAuthLock();
-    if (current2 && ours(current2)) writeAuthLock({ ...current2, client_id: client.client_id });
+    if (current2 && ours2(current2)) writeAuthLock({ ...current2, client_id: client.client_id });
     const u = new URL(meta.as.authorization_endpoint);
     u.searchParams.set("response_type", "code");
     u.searchParams.set("client_id", client.client_id);
@@ -3941,7 +3983,7 @@ function runFlow(meta, cb, login, openTab) {
     login.device,
     (code2, unset2) => {
       const current2 = readAuthLock();
-      if (current2 && ours(current2)) {
+      if (current2 && ours2(current2)) {
         writeAuthLock({ ...current2, device: code2 ?? void 0, device_unset: unset2 });
       }
     },
@@ -3954,7 +3996,7 @@ function runFlow(meta, cb, login, openTab) {
       if (openTab) openTabOnce(login);
       const code2 = await Promise.race([codePromise, cameBack, device.landed.then(() => null)]);
       if (code2 === null) {
-        releaseAuthLock(ours);
+        releaseAuthLock(ours2);
         log("signed in from another device — tokens saved for every local agent");
         grantLog("authorization complete (another device)");
         return;
@@ -3971,7 +4013,7 @@ function runFlow(meta, cb, login, openTab) {
         code_verifier: login.verifier,
         resource: resourceOf(meta)
       });
-      releaseAuthLock(ours);
+      releaseAuthLock(ours2);
       log("authorization complete — tokens saved for every local agent");
       grantLog("authorization complete");
       cb.report(null);
@@ -3985,7 +4027,7 @@ function runFlow(meta, cb, login, openTab) {
     } finally {
       clearInterval(watch2);
       device.stop();
-      releaseAuthLock(ours);
+      releaseAuthLock(ours2);
       if (RELEASE_GAP_MS) await sleep(RELEASE_GAP_MS);
       cb.close();
       if (flow) {
@@ -5359,18 +5401,18 @@ var PART_MIN = 3;
 var CUT_ORDER = ["repo", "host", "model"];
 function fitName(parts) {
   const p = { ...parts };
-  const join62 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
+  const join63 = () => [p.host, p.repo, p.model].filter(Boolean).join(".").replace(/[-.]+$/, "");
   const cut = [];
   for (const k of CUT_ORDER) {
-    const over = join62().length - NAME_MAX;
-    if (over <= 0) break;
-    const keep = Math.max(k === "model" ? 1 : PART_MIN, p[k].length - over);
+    const over2 = join63().length - NAME_MAX;
+    if (over2 <= 0) break;
+    const keep = Math.max(k === "model" ? 1 : PART_MIN, p[k].length - over2);
     if (keep >= p[k].length) continue;
     p[k] = p[k].slice(0, keep).replace(/[-.]+$/, "");
     cut.push(k);
   }
   return {
-    name: join62().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
+    name: join63().slice(0, NAME_MAX).replace(/[-.]+$/, ""),
     cut
   };
 }
@@ -7534,12 +7576,12 @@ var CONNECT_MS = 1e4;
 function attempt(url, h) {
   const answer3 = watchAnswer(url);
   const sock = namedSocket(url);
-  let over = false;
+  let over2 = false;
   let opened = false;
   let timedOut = false;
   const end = (code2) => {
-    if (over) return;
-    over = true;
+    if (over2) return;
+    over2 = true;
     clearTimeout(limit);
     const status = answer3();
     try {
@@ -7551,14 +7593,14 @@ function attempt(url, h) {
   const limit = setTimeout(() => (timedOut = true, end(1006)), CONNECT_MS);
   sock.addEventListener("open", () => {
     clearTimeout(limit);
-    if (over) return;
+    if (over2) return;
     opened = true;
     answer3();
     h.onOpen();
   });
-  sock.addEventListener("ping", () => !over && h.onPing());
+  sock.addEventListener("ping", () => !over2 && h.onPing());
   sock.addEventListener("message", (e) => {
-    if (!over) h.onMessage(typeof e.data === "string" ? e.data : "");
+    if (!over2) h.onMessage(typeof e.data === "string" ? e.data : "");
   });
   sock.addEventListener("error", () => setTimeout(() => end(1006), 500));
   sock.addEventListener("close", (e) => end(e.code));
@@ -8116,11 +8158,11 @@ function fitsOf(frame2, places) {
   if (byId) return [byId];
   const to = nameOfAddress(frame2.to_standing);
   if (!id && !to && frame2.realm == null && frame2.karta_seq == null) return null;
-  const fits = places.filter(
+  const fits2 = places.filter(
     (p) => (frame2.realm == null || sameRealm(frame2.realm, p.standing.realm)) && (!to || to === (p.standing.name ?? "")) && (frame2.karta_seq == null || String(frame2.karta_seq) === String(p.standing.karta))
   );
-  if (fits.length === 1 && id && !fits[0].door.standingId) fits[0].door.standingId = id;
-  return fits;
+  if (fits2.length === 1 && id && !fits2[0].door.standingId) fits2[0].door.standingId = id;
+  return fits2;
 }
 function strayOf(frame2, primary) {
   if (frame2?.type !== "message" || fitsOf(frame2, all(primary))?.length !== 0) return null;
@@ -8129,9 +8171,9 @@ function strayOf(frame2, primary) {
 }
 function routeFrame2(frame2, primary) {
   if (!frame2 || !extras.size) return { door: primary.door };
-  const fits = fitsOf(frame2, all(primary));
-  if (!fits) return { door: primary.door };
-  if (fits.length === 1) return { door: fits[0].door };
+  const fits2 = fitsOf(frame2, all(primary));
+  if (!fits2) return { door: primary.door };
+  if (fits2.length === 1) return { door: fits2[0].door };
   const id = typeof frame2.to_standing_id === "string" ? frame2.to_standing_id : "";
   return {
     door: primary.door,
@@ -8140,7 +8182,7 @@ function routeFrame2(frame2, primary) {
       id || "—",
       frame2.to_standing ?? "—",
       frame2.realm ?? "—",
-      fits.length > 0,
+      fits2.length > 0,
       primary.door.key
     )
   };
@@ -8345,11 +8387,11 @@ function keepUntilEvicted(holder, key3, statusUrl2) {
   const door = socketPathOf(CFG.authDir, key3);
   openSpool(path);
   let timer;
-  let over = false;
+  let over2 = false;
   const done = new Promise((resolve15) => {
     const end = (why, after2) => {
-      if (over) return;
-      over = true;
+      if (over2) return;
+      over2 = true;
       clearTimeout(timer);
       closeSpool(path);
       log(`place ${key3} handed over: ${why}`);
@@ -10782,11 +10824,11 @@ function besideRecords(url, primary) {
 async function resolveRecord(hello, rec6, primary) {
   if (resolvedRealm(rec6.realm)) return;
   const listed = Array.isArray(hello?.standings) ? hello.standings : [];
-  const fits = listed.filter(
+  const fits2 = listed.filter(
     (e) => typeof e.realm === "string" && !sameRealm(e.realm, primary.realm) && String(e.standing ?? "").replace(/^.*:/, "") === rec6.name && (e.karta_seq == null || String(e.karta_seq) === String(rec6.karta))
   );
-  if (fits.length === 1 && resolvedRealm(primary.realm))
-    learnRealm(rec6.realm, String(fits[0].realm));
+  if (fits2.length === 1 && resolvedRealm(primary.realm))
+    learnRealm(rec6.realm, String(fits2[0].realm));
   else await resolveAgainstLed(rec6.realm);
 }
 async function besideBack(url, primary) {
@@ -12341,10 +12383,10 @@ function announceEvicted(code2, text7) {
 }
 async function takenBySession(key3, url) {
   const me = sessionOfBridge();
-  const ours = (r) => me ? r.session === me : !!r.session && r.client === harnessName() && sameDir(r.cwd, H2.standCwd ?? void 0);
+  const ours2 = (r) => me ? r.session === me : !!r.session && r.client === harnessName() && sameDir(r.cwd, H2.standCwd ?? void 0);
   const changed = () => {
     const r = readHoldRecord(key3, true);
-    return r && r.url !== url ? ours(r) : null;
+    return r && r.url !== url ? ours2(r) : null;
   };
   for (; ; ) {
     const got = changed();
@@ -13585,15 +13627,15 @@ function runtimeOf(out7) {
   }
 }
 function launchWords(out7) {
-  const str6 = (v) => typeof v === "string" && v ? v.slice(0, 64) : void 0;
+  const str7 = (v) => typeof v === "string" && v ? v.slice(0, 64) : void 0;
   try {
     const r = JSON.parse(out7).result ?? {};
     const p = r.prompt;
     const rec6 = r.receipt;
-    const delivery = str6(p?.delivery);
-    const outcome = str6(p?.outcome);
-    const mode = str6(rec6?.mode);
-    const reason = str6(rec6?.reason);
+    const delivery = str7(p?.delivery);
+    const outcome = str7(p?.outcome);
+    const mode = str7(rec6?.mode);
+    const reason = str7(rec6?.reason);
     return {
       submitted: delivery === "submit" && outcome === "handed-to-terminal",
       ...delivery !== void 0 && outcome !== void 0 ? { prompt: { delivery, outcome } } : {},
@@ -14216,7 +14258,7 @@ async function launchExec(authDir, runs, key3, host, spec, prompt, bridge = reso
 }
 
 // js/bridge/exec-raised.ts
-import { mkdirSync as mkdirSync19, readFileSync as readFileSync33 } from "node:fs";
+import { mkdirSync as mkdirSync19, readFileSync as readFileSync34 } from "node:fs";
 import { join as join32 } from "node:path";
 
 // js/bridge/orchestra-quench.ts
@@ -14226,6 +14268,86 @@ import { createHash as createHash9 } from "node:crypto";
 var RAISE_WINDOW_MS = Number(process.env[envName("ORCHESTRA_RAISE_WINDOW_MS")]) || 15 * 6e4;
 var stopLapsed = (r, now2 = Date.now()) => now2 - Date.parse(r.stopping_at ?? r.at) > RAISE_WINDOW_MS;
 
+// js/bridge/orchestra-dsh-proc.ts
+import { execFile as execFile2 } from "node:child_process";
+import { readFileSync as readFileSync33 } from "node:fs";
+var exits = /* @__PURE__ */ new Map();
+var children = /* @__PURE__ */ new Set();
+var commandOf = (pid) => new Promise(
+  (done) => execFile2(
+    "ps",
+    ["-o", "command=", "-p", String(pid)],
+    { windowsHide: true, timeout: 5e3 },
+    (e, out7) => done(e ? null : String(out7))
+  )
+);
+async function ours(r) {
+  const d = r.dsh;
+  if (!d || exits.has(d.pid)) return false;
+  if (children.has(d.pid)) return true;
+  if (!d.model) return false;
+  return (await commandOf(d.pid))?.includes(d.model) ?? false;
+}
+function dshEvents(path) {
+  let text7;
+  try {
+    text7 = readFileSync33(path, "utf8");
+  } catch {
+    return {};
+  }
+  const out7 = {};
+  for (const line of text7.split("\n")) {
+    let e;
+    try {
+      e = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    const id = typeof e.sessionId === "string" && e.sessionId ? e.sessionId.slice(0, 128) : "";
+    if (e.type === "session" && id && !out7.session) out7.session = id;
+    if (e.type === "final")
+      out7.final = typeof e.reason?.kind === "string" ? e.reason.kind.slice(0, 64) : "unknown";
+  }
+  return out7;
+}
+async function dshExit(r) {
+  if (!r.dsh) return void 0;
+  const seen = exits.get(r.dsh.pid);
+  if (seen) return seen;
+  return await ours(r) ? void 0 : "unknown";
+}
+async function dshTerminate(r, why) {
+  if (!r.dsh || r.dsh.terminated || !await ours(r)) return;
+  try {
+    process.kill(-r.dsh.pid, "SIGTERM");
+    r.dsh.terminated = why;
+  } catch {
+  }
+}
+async function observeDsh(r) {
+  if (!r.dsh || r.dsh.exit) return false;
+  const seen = dshEvents(r.dsh.events);
+  if (seen.session && !r.dsh.session) r.dsh.session = seen.session;
+  if (seen.final) r.dsh.final = seen.final;
+  if (r.stop_outcome === "stopped") await dshTerminate(r, "stopped");
+  const exit = await dshExit(r);
+  if (!exit) return false;
+  r.dsh.exit = exit;
+  return true;
+}
+function dshFailure(r) {
+  const d = r.dsh;
+  if (!d?.session || !d.exit || d.terminated) return void 0;
+  if (d.final && d.final !== "completed") return `dsh_final_${d.final}`;
+  return d.exit === "0" || d.exit === "unknown" ? void 0 : `dsh_exit_${d.exit}`;
+}
+function endDshUnseated(r, live2) {
+  if (!r.dsh?.exit || !r.tree?.exit || r.standing_id || !live2) return false;
+  r.state = "ended";
+  r.why = dshFailure(r) ?? `dsh_ended_${r.dsh.final ?? "no_final"}`;
+  return true;
+}
+
 // js/bridge/orchestra-run-ends.ts
 var w = () => words(ORCHESTRA);
 async function expireLaunches(runs, gone, close = orcaClose, now2 = Date.now()) {
@@ -14233,6 +14355,13 @@ async function expireLaunches(runs, gone, close = orcaClose, now2 = Date.now()) 
   for (const r of Object.values(runs))
     if (r.state === "launched" && now2 - Date.parse(r.at) > RAISE_WINDOW_MS) {
       if (gone?.gone) break;
+      if (r.dsh) {
+        if (r.dsh.terminated || r.dsh.exit) continue;
+        await dshTerminate(r, "no_seat");
+        r.why = "dsh_no_seat_terminated";
+        said2.push(w().leadRow(r.realm, r.room, r.invite, r.why));
+        continue;
+      }
       if (r.exec || r.tree) {
         r.state = "ambiguity";
         r.why = r.exec ? "exec_no_seat_unverified" : "tree_no_seat_unverified";
@@ -14358,12 +14487,17 @@ async function quench(base, token, runs, reread, gone, now2 = Date.now()) {
   return said2;
 }
 
+// js/bridge/orchestra-session.ts
+import { randomUUID as randomUUID5 } from "node:crypto";
+var ORCHESTRA_SESSION_HEADER = "X-NKS-Session-Id";
+var ORCHESTRA_SESSION_ID = randomUUID5();
+
 // js/bridge/exec-raised.ts
 async function bindExecRaised(authDir, base, token, realms) {
   const path = join32(seamRunDir(authDir), "exec-raised-cursors.json");
   let cursors = {};
   try {
-    const value = JSON.parse(readFileSync33(path, "utf8"));
+    const value = JSON.parse(readFileSync34(path, "utf8"));
     if (!value || typeof value !== "object" || Array.isArray(value) || Object.values(value).some((v) => v !== null && (typeof v !== "string" || !v)))
       throw new Error("exec_cursor_invalid");
     cursors = value;
@@ -14375,7 +14509,10 @@ async function bindExecRaised(authDir, base, token, realms) {
       const q = new URLSearchParams({ limit: "200" });
       if (cursors[realm]) q.set("since", cursors[realm]);
       const res = await namedFetch(`${base}/realms/${encodeURIComponent(realm)}/raised?${q}`, {
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          authorization: `Bearer ${token}`,
+          [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID
+        },
         redirect: "error",
         signal: AbortSignal.timeout(1e4)
       });
@@ -14400,7 +14537,7 @@ async function bindExecRaised(authDir, base, token, realms) {
 }
 
 // js/bridge/orchestra-foreign.ts
-import { mkdirSync as mkdirSync20, readFileSync as readFileSync34, writeFileSync as writeFileSync18 } from "node:fs";
+import { mkdirSync as mkdirSync20, readFileSync as readFileSync35, writeFileSync as writeFileSync18 } from "node:fs";
 import { join as join33 } from "node:path";
 var w3 = () => words(ORCHESTRA);
 var LIMIT2 = 200;
@@ -14411,7 +14548,7 @@ var sinceStop = (r, v) => Date.parse(String(v.issued_at ?? "")) >= Date.parse(r.
 var cursorFile = (authDir) => join33(seamRunDir(authDir), "orchestra-orders.json");
 function readSince(authDir) {
   try {
-    const n = JSON.parse(readFileSync34(cursorFile(authDir), "utf8")).since;
+    const n = JSON.parse(readFileSync35(cursorFile(authDir), "utf8")).since;
     return typeof n === "number" && Number.isSafeInteger(n) && n > 0 ? n : 0;
   } catch {
     return 0;
@@ -14499,17 +14636,18 @@ async function foreignStops(authDir, base, token, runs) {
 // js/bridge/orchestra-tree-clean.ts
 import { closeSync as closeSync3, existsSync as existsSync12, fstatSync as fstatSync2, lstatSync as lstatSync8, openSync as openSync3, unlinkSync as unlinkSync19 } from "node:fs";
 import { join as join34 } from "node:path";
-var clientGone = (r) => r.stop_outcome === "stopped" || r.why === "seat_gone_after_exit";
+var clientGone = (r) => r.stop_outcome === "stopped" || r.why === "seat_gone_after_exit" || !!r.dsh?.exit && !r.standing_id;
+var over = (r) => r.state === "ended" || r.state === "refused" && !!r.dsh?.exit;
 async function cleanupTree(authDir, runs, key3, execute2 = git2) {
   const r = runs[key3], t = r.tree;
   if (!t || t.state === "removed") return null;
   if (t.state !== "ready") return t.why ?? "tree_cleanup_unverified";
-  if (r.state !== "ended" || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
+  if (!over(r) || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
     return "tree_client_unverified";
   const identity2 = runIdentity(r);
   const current2 = () => {
     const latest = readRuns(authDir)[key3];
-    return !!latest && runIdentity(latest) === identity2 && latest.state === "ended" && clientGone(latest) && latest.closed === "client_exited";
+    return !!latest && runIdentity(latest) === identity2 && over(latest) && clientGone(latest) && latest.closed === "client_exited";
   };
   const retain = (why) => {
     t.state = "retained";
@@ -14571,23 +14709,25 @@ async function cleanupTree(authDir, runs, key3, execute2 = git2) {
 }
 async function cleanupEndedTrees(authDir, runs) {
   for (const [key3, r] of Object.entries(runs))
-    if (r.tree?.state === "ready" && r.state === "ended") {
+    if (r.tree?.state === "ready" && over(r)) {
       const why = await cleanupTree(authDir, runs, key3);
       if (why) r.why = why;
     }
 }
 
-// js/bridge/exec-exit.ts
-var exitClientId = (r) => `orchestra-${createHash10("sha256").update(`${runIdentity(r)}|client_exited`).digest("hex").slice(0, 32)}`;
+// js/bridge/exec-pending.ts
 function execPending(authDir) {
   try {
     return Object.values(readRuns(authDir)).some(
-      (r) => !!(r.exec || r.tree) && LIVE.includes(r.state) || r.state === "ended" && r.tree?.state === "ready"
+      (r) => !!(r.exec || r.tree) && LIVE.includes(r.state) || (r.state === "ended" || r.state === "refused" && !!r.dsh?.exit) && r.tree?.state === "ready"
     );
   } catch {
     return true;
   }
 }
+
+// js/bridge/exec-exit.ts
+var exitClientId = (r) => `orchestra-${createHash10("sha256").update(`${runIdentity(r)}|client_exited`).digest("hex").slice(0, 32)}`;
 async function observeExec(authDir, base, token) {
   let runs = readRuns(authDir);
   for (const [key3, r] of Object.entries(runs)) {
@@ -14601,7 +14741,7 @@ async function observeExec(authDir, base, token) {
     }
     writeRuns(authDir, runs);
     const identity2 = runIdentity(r);
-    if (!(r.exec?.exit || r.tree?.exit) && await execExited(r)) {
+    if (!(r.exec?.exit || r.tree?.exit) && (r.dsh ? await observeDsh(r) : await execExited(r))) {
       const latest = readRuns(authDir)[key3];
       if (!latest || runIdentity(latest) !== identity2) continue;
       if (r.exec) r.exec.exit = (/* @__PURE__ */ new Date()).toISOString();
@@ -14630,10 +14770,15 @@ async function observeExec(authDir, base, token) {
   }
 }
 var ruleOf2 = (b) => b.errors?.[0]?.rule;
-var ownProcess = (r) => !!r.tree && !r.exec && r.harness === "opencode";
+var ownProcess = (r) => !!r.tree && !r.exec && (r.harness === "opencode" || !!r.dsh);
 async function finishExits(authDir, base, token) {
   const runs = readRuns(authDir);
   for (const [key3, r] of Object.entries(runs)) {
+    if (endDshUnseated(r, LIVE.includes(r.state))) {
+      writeRuns(authDir, runs);
+      await cleanupEndedTrees(authDir, runs);
+      continue;
+    }
     if (!(r.exec?.exit || r.tree?.exit) || !r.standing_id || !LIVE.includes(r.state) || r.exec && !execBound(r, authDir))
       continue;
     if (r.stop_outcome === "stopped") {
@@ -14769,9 +14914,12 @@ function canonIn(index, name2) {
 // js/bridge/orchestra-demands.ts
 var LIMIT3 = 200;
 var MAX_PAGES2 = 50;
-async function get(base, token, path) {
+async function get(base, token, path, control = false) {
   const r = await namedFetch(`${base}${path}`, {
-    headers: { authorization: `Bearer ${token}` },
+    headers: {
+      authorization: `Bearer ${token}`,
+      ...!control ? { [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID } : {}
+    },
     redirect: "error",
     signal: AbortSignal.timeout(1e4)
   });
@@ -14854,7 +15002,7 @@ async function readDemands(base, token, requested, boundary, gone, owned, invite
     for (let n = 0; n < MAX_PAGES2; n++) {
       if (gone?.gone) throw new Error("caller_gone");
       const q = `open=true&limit=${LIMIT3}${since ? `&since=${since}` : ""}`;
-      const body = await get(base, token, `/me/orders?${q}`);
+      const body = await get(base, token, `/me/orders?${q}`, true);
       const rows = items(body);
       if (!rows.length) return result;
       const projected = rows.map((v) => stopRow(v, realms)).filter((v) => v !== null);
@@ -14955,7 +15103,7 @@ function orchestraAsk(authDir, op, realms, timeoutMs = 5e3, extra = {}) {
 }
 
 // js/bridge/orchestra-flag.ts
-import { mkdirSync as mkdirSync21, readFileSync as readFileSync35, writeFileSync as writeFileSync19 } from "node:fs";
+import { mkdirSync as mkdirSync21, readFileSync as readFileSync36, writeFileSync as writeFileSync19 } from "node:fs";
 import { join as join35 } from "node:path";
 var ORCHESTRA_ENV = envName("ORCHESTRA");
 var envAdmitted = () => {
@@ -14965,7 +15113,7 @@ var envAdmitted = () => {
 var flagFile = (authDir) => join35(seamRunDir(authDir), "orchestra.json");
 function readOrchestraFlag(authDir) {
   try {
-    const f = JSON.parse(readFileSync35(flagFile(authDir), "utf8"));
+    const f = JSON.parse(readFileSync36(flagFile(authDir), "utf8"));
     if (f.on !== true && f.on !== false) return null;
     if (!Array.isArray(f.realms) || f.realms.some((x) => typeof x !== "string")) return null;
     const c = f.consent;
@@ -14990,7 +15138,7 @@ var orchestraAdmitted = (authDir) => envAdmitted() || !!readOrchestraFlag(authDi
 
 // js/bridge/orchestra-launchers.ts
 import { hostname as hostname3 } from "node:os";
-import { isAbsolute as isAbsolute5 } from "node:path";
+import { isAbsolute as isAbsolute6 } from "node:path";
 
 // js/shared/mcpsession.ts
 var TIMEOUT_MS2 = 8e3;
@@ -15050,38 +15198,6 @@ function mcpSession(url, token, client = "bridge") {
       });
     }
   };
-}
-
-// js/bridge/exec-spec.ts
-var object2 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
-var text4 = (v) => typeof v === "string" && v.length > 0 && v === v.trim() && ![...v].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127);
-function parseExec(v, models) {
-  if (!object2(v) || Object.keys(v).some((k) => !["server", "modelRefs"].includes(k))) return null;
-  if (!text4(v.server) || !object2(v.modelRefs)) return null;
-  try {
-    const u = new URL(v.server);
-    if (u.protocol !== "http:" || !["127.0.0.1", "[::1]"].includes(u.hostname) || u.username || u.password || u.search || u.hash || u.pathname !== "/")
-      return null;
-  } catch {
-    return null;
-  }
-  const refs = {};
-  for (const [token, ref] of Object.entries(v.modelRefs)) {
-    if (!models.includes(token) || !object2(ref)) return null;
-    if (Object.keys(ref).some((k) => !["providerID", "id", "variant"].includes(k))) return null;
-    if (!text4(ref.providerID) || !text4(ref.id) || ref.variant !== void 0 && !text4(ref.variant))
-      return null;
-    Object.defineProperty(refs, token, {
-      enumerable: true,
-      value: {
-        providerID: ref.providerID,
-        id: ref.id,
-        ...ref.variant === void 0 ? {} : { variant: ref.variant }
-      }
-    });
-  }
-  if (!models.every((m) => Object.hasOwn(refs, m))) return null;
-  return { server: v.server, modelRefs: refs };
 }
 
 // js/bridge/orchestra-clone.ts
@@ -15150,12 +15266,133 @@ function cloneArgv(project, url, parent) {
   ];
 }
 
+// js/bridge/exec-spec.ts
+var object2 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+var text4 = (v) => typeof v === "string" && v.length > 0 && v === v.trim() && ![...v].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127);
+function parseExec(v, models) {
+  if (!object2(v) || Object.keys(v).some((k) => !["server", "modelRefs"].includes(k))) return null;
+  if (!text4(v.server) || !object2(v.modelRefs)) return null;
+  try {
+    const u = new URL(v.server);
+    if (u.protocol !== "http:" || !["127.0.0.1", "[::1]"].includes(u.hostname) || u.username || u.password || u.search || u.hash || u.pathname !== "/")
+      return null;
+  } catch {
+    return null;
+  }
+  const refs = {};
+  for (const [token, ref] of Object.entries(v.modelRefs)) {
+    if (!models.includes(token) || !object2(ref)) return null;
+    if (Object.keys(ref).some((k) => !["providerID", "id", "variant"].includes(k))) return null;
+    if (!text4(ref.providerID) || !text4(ref.id) || ref.variant !== void 0 && !text4(ref.variant))
+      return null;
+    Object.defineProperty(refs, token, {
+      enumerable: true,
+      value: {
+        providerID: ref.providerID,
+        id: ref.id,
+        ...ref.variant === void 0 ? {} : { variant: ref.variant }
+      }
+    });
+  }
+  if (!models.every((m) => Object.hasOwn(refs, m))) return null;
+  return { server: v.server, modelRefs: refs };
+}
+
+// js/bridge/orchestra-dsh.ts
+import { accessSync, constants as constants2, existsSync as existsSync14, mkdirSync as mkdirSync22, statSync as statSync8, writeFileSync as writeFileSync20 } from "node:fs";
+import { homedir as homedir13 } from "node:os";
+import { delimiter, isAbsolute as isAbsolute5, join as join37 } from "node:path";
+var KEYS2 = ["models", "bin", "patch"];
+function parseDsh(offer) {
+  if (Object.keys(offer).some((k) => !KEYS2.includes(k))) return null;
+  const path = (v) => v === void 0 ? null : typeof v === "string" && isAbsolute5(v.trim()) ? v.trim() : void 0;
+  const bin = path(offer.bin), patch = path(offer.patch);
+  if (bin === void 0 || patch === void 0) return null;
+  return { bin, patch };
+}
+var runnable = (p) => {
+  try {
+    accessSync(p, constants2.X_OK);
+    return statSync8(p).isFile();
+  } catch {
+    return false;
+  }
+};
+function dshReady(spec) {
+  const bin = spec.bin ? runnable(spec.bin) ? spec.bin : null : (process.env.PATH ?? "").split(delimiter).filter(Boolean).map((d) => join37(d, "dsh")).find(runnable) ?? null;
+  if (!bin) return { code: "dsh_missing" };
+  const patch = spec.patch ?? join37(homedir13(), ".agents", "skills", "establish-mcp", "references", "dsh-profile.yml");
+  if (!existsSync14(patch) || !statSync8(patch).isFile()) return { code: "dsh_patch_missing" };
+  return { bin, patch };
+}
+function modelPatch(model) {
+  const at3 = model.indexOf("/");
+  if (at3 <= 0 || at3 === model.length - 1 || /[\r\n]/.test(model)) return null;
+  return `- id: agent-default-model
+  config:
+    provider: ${JSON.stringify(model.slice(0, at3))}
+    model: ${JSON.stringify(model.slice(at3 + 1))}
+`;
+}
+function dshFiles(authDir, operation) {
+  const dir2 = join37(seamRunDir(authDir), "dsh");
+  return {
+    dir: dir2,
+    model: join37(dir2, `${operation}.model.yml`),
+    events: join37(dir2, `${operation}.events.ndjson`),
+    stderr: join37(dir2, `${operation}.stderr`)
+  };
+}
+function writeModelPatch(path, dir2, text7) {
+  mkdirSync22(dir2, { recursive: true, mode: 448 });
+  writeFileSync20(path, text7, { mode: 384 });
+}
+var dshArgv = (patch, model, brief2) => [
+  "headless",
+  "--patch",
+  patch,
+  "--patch",
+  model,
+  "--json",
+  brief2
+];
+
+// js/bridge/orchestra-launcher-types.ts
+var HARNESS_ADAPTER = { opencode: "orca", dsh: "bridge" };
+
+// js/bridge/orchestra-harnesses.ts
+var str2 = (v) => typeof v === "string" && v.trim() !== "";
+function parseHarnesses(h, adapter) {
+  if (!h || typeof h !== "object" || Array.isArray(h)) return { code: "harnesses_missing" };
+  const harnesses = {};
+  for (const [name2, o] of Object.entries(h)) {
+    const x = o ?? {};
+    if (!Array.isArray(x.models) || !x.models.every(str2)) return { code: "harness_invalid" };
+    harnesses[name2] = { models: x.models.map((m) => m.trim()) };
+    if (HARNESS_ADAPTER[name2] && HARNESS_ADAPTER[name2] !== adapter) continue;
+    if (name2 === "dsh") {
+      const dsh = parseDsh(x);
+      if (!dsh) return { code: "dsh_invalid" };
+      harnesses[name2].dsh = dsh;
+    } else if (Object.hasOwn(x, "exec")) {
+      const exec = name2 === "opencode" ? parseExec(x.exec, harnesses[name2].models) : null;
+      if (!exec) return { code: "exec_invalid" };
+      harnesses[name2].exec = exec;
+    }
+  }
+  return { offers: harnesses };
+}
+function harnessRefusal(adapter, harness) {
+  const own = HARNESS_ADAPTER[harness];
+  return !own ? "harness_unsupported" : own !== adapter ? "harness_adapter_mismatch" : null;
+}
+
 // js/bridge/orchestra-launchers.ts
 var SLICE = "slice:orchestra";
 var LIMIT4 = 50;
 var HANDLE = /^@[^\s:@/]+$/;
 var LAUNCHER_MAX = 64;
-var str2 = (v) => typeof v === "string" && v.trim() !== "";
+var str3 = (v) => typeof v === "string" && v.trim() !== "";
 function parseLauncher(raw) {
   let v;
   try {
@@ -15165,57 +15402,47 @@ function parseLauncher(raw) {
     return { code: "description_not_json" };
   }
   const d = v ?? {};
-  if (!str2(d.launcher) || d.launcher.length > LAUNCHER_MAX) return { code: "launcher_missing" };
+  if (!str3(d.launcher) || d.launcher.length > LAUNCHER_MAX) return { code: "launcher_missing" };
   const launcher = d.launcher.trim();
-  if (d.host !== void 0 && d.host !== null && !str2(d.host))
+  if (d.host !== void 0 && d.host !== null && !str3(d.host))
     return { code: "host_invalid", launcher };
-  if (d.adapter !== "orca") return { code: "adapter_unsupported", launcher };
+  if (d.adapter !== "orca" && d.adapter !== "bridge")
+    return { code: "adapter_unsupported", launcher };
+  const adapter = d.adapter;
   if (!Number.isSafeInteger(d.limit) || d.limit < 0)
     return { code: "limit_missing", launcher };
-  const harnesses = {};
-  const h = d.harnesses;
-  if (!h || typeof h !== "object" || Array.isArray(h))
-    return { code: "harnesses_missing", launcher };
-  for (const [name2, o] of Object.entries(h)) {
-    const x = o ?? {};
-    if (!Array.isArray(x.models) || !x.models.every(str2))
-      return { code: "harness_invalid", launcher };
-    harnesses[name2] = { models: x.models.map((m2) => m2.trim()) };
-    if (Object.hasOwn(x, "exec")) {
-      const exec = name2 === "opencode" ? parseExec(x.exec, harnesses[name2].models) : null;
-      if (!exec) return { code: "exec_invalid", launcher };
-      harnesses[name2].exec = exec;
-    }
-  }
+  const parsed = parseHarnesses(d.harnesses, adapter);
+  if ("code" in parsed) return { code: parsed.code, launcher };
+  const harnesses = parsed.offers;
   const checkouts = {};
   const c = d.checkouts ?? {};
   if (typeof c !== "object" || Array.isArray(c)) return { code: "checkouts_invalid", launcher };
   for (const [repo, path] of Object.entries(c)) {
-    if (!str2(path) || !isAbsolute5(path)) return { code: "checkouts_invalid", launcher };
+    if (!str3(path) || !isAbsolute6(path)) return { code: "checkouts_invalid", launcher };
     checkouts[repo] = path;
   }
   const homes = {};
   const m = d.homes ?? {};
   if (typeof m !== "object" || Array.isArray(m)) return { code: "homes_invalid", launcher };
   for (const [role, path] of Object.entries(m)) {
-    if (!/^\S+#[1-9]\d*$/.test(role) || !str2(path) || !isAbsolute5(path))
+    if (!/^\S+#[1-9]\d*$/.test(role) || !str3(path) || !isAbsolute6(path))
       return { code: "homes_invalid", launcher };
     homes[role] = path;
   }
   const callers = d.callers ?? [];
-  if (!Array.isArray(callers) || !callers.every((h2) => str2(h2) && HANDLE.test(h2.trim())))
+  if (!Array.isArray(callers) || !callers.every((h) => str3(h) && HANDLE.test(h.trim())))
     return { code: "callers_invalid", launcher };
   const clone = parseClone(d);
   if (clone && "code" in clone) return { code: clone.code, launcher };
   return {
     launcher,
-    host: str2(d.host) ? d.host.trim() : null,
-    adapter: "orca",
+    host: str3(d.host) ? d.host.trim() : null,
+    adapter,
     limit: d.limit,
     harnesses,
     checkouts,
     homes,
-    callers: callers.map((h2) => h2.trim().slice(1).toLowerCase()),
+    callers: callers.map((h) => h.trim().slice(1).toLowerCase()),
     clone
   };
 }
@@ -15269,7 +15496,7 @@ async function readLaunchers(serverUrl, token) {
 // js/bridge/orchestra-cloning.ts
 import { spawn as spawn4 } from "node:child_process";
 import { createHash as createHash11 } from "node:crypto";
-import { mkdirSync as mkdirSync22, realpathSync as realpathSync10 } from "node:fs";
+import { mkdirSync as mkdirSync23, realpathSync as realpathSync10 } from "node:fs";
 var CLONE_MS = Number(process.env[envName("ORCHESTRA_CLONE_MS")]) || 6e5;
 var specOf = (launcher) => createHash11("sha256").update(JSON.stringify(launcher)).digest("hex").slice(0, 16);
 var TAIL = 64 * 1024;
@@ -15336,7 +15563,7 @@ async function cloneTurn(authDir, policy, spec, repository, gone) {
   if (!await cloneDeclared()) return "clone_failed (orca_schema_unverified)";
   let parent;
   try {
-    mkdirSync22(target.parent, { recursive: true });
+    mkdirSync23(target.parent, { recursive: true });
     parent = realpathSync10.native(target.parent);
   } catch {
     return "clone_failed (clone_root_unwritable)";
@@ -15376,11 +15603,11 @@ function cloneTaken(authDir, repository, spec, found) {
 }
 
 // js/bridge/orchestra-raise-gates.ts
-import { existsSync as existsSync14, statSync as statSync8 } from "node:fs";
+import { existsSync as existsSync15, statSync as statSync9 } from "node:fs";
 
 // js/shared/cover.ts
-import { readFileSync as readFileSync36 } from "node:fs";
-import { join as join37 } from "node:path";
+import { readFileSync as readFileSync37 } from "node:fs";
+import { join as join38 } from "node:path";
 
 // js/shared/coverblock.ts
 var FIELDS = ["graph", "holon", "agent_role", "contract", "stamp"];
@@ -15571,7 +15798,7 @@ function seatOfPairs(pairs, cover = COVER) {
 function readCover(dir2, cover = COVER) {
   let text7;
   try {
-    text7 = readFileSync36(join37(dir2, cover.file), "utf8");
+    text7 = readFileSync37(join38(dir2, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -15589,7 +15816,7 @@ function checkoutFor(own, repository, orca, home) {
   const named2 = home ?? own.checkouts[repository];
   const got = named2 ? { path: named2 } : orca(repository);
   if ("code" in got) return got;
-  if (!existsSync14(got.path) || !statSync8(got.path).isDirectory())
+  if (!existsSync15(got.path) || !statSync9(got.path).isDirectory())
     return { code: "checkout_absent" };
   return got.path;
 }
@@ -15602,10 +15829,24 @@ async function coverRefusal(worktree, realm, karta, canon2, home = false) {
   return graph === realm ? null : "checkout_other_seat";
 }
 
+// js/bridge/orchestra-dsh-gate.ts
+async function dshCheckout(own, spec, row, canon2) {
+  const got = dshReady(spec);
+  if ("code" in got) return got;
+  if (!modelPatch(String(row.model).trim())) return { code: "dsh_model_invalid" };
+  const realm = String(row.realm), karta = Number(row.karta);
+  const repository = String(row.repository ?? "").trim();
+  const home = homeOf(own, realm, karta);
+  const worktree = checkoutFor(own, repository, () => ({ code: "no_checkout" }), home);
+  if (typeof worktree !== "string") return worktree;
+  const uncovered = await coverRefusal(worktree, realm, karta, canon2, !!home);
+  return uncovered ? { code: uncovered } : { worktree, repository };
+}
+
 // js/bridge/orchestra-resolve.ts
 var text5 = (v) => typeof v === "string" && v.trim() ? v.trim() : null;
 var missing = (v) => v === null || v === void 0;
-var supported = (h) => h === "opencode";
+var fits = (l, h) => harnessRefusal(l.adapter, h) === null;
 function resolveInvite(source, ls, runs) {
   const caller = accountOf(source.author);
   if (!caller || !ls.account) return { code: "caller_unknown" };
@@ -15626,27 +15867,30 @@ function resolveInvite(source, ls, runs) {
     const admitted = local.filter(allowed);
     if (!admitted.length) return { code: local.length ? "caller_not_allowed" : "launcher_missing" };
     const candidates = admitted.filter((l) => {
-      const harnesses2 = missing(source.harness) ? Object.keys(l.harnesses).filter(supported) : [text5(source.harness) ?? ""];
+      const harnesses2 = missing(source.harness) ? Object.keys(l.harnesses) : [text5(source.harness) ?? ""];
       return harnesses2.some(
-        (h) => l.harnesses[h] && l.harnesses[h].models.length > 0 && (missing(source.model) || l.harnesses[h].models.includes(text5(source.model) ?? ""))
+        (h) => fits(l, h) && l.harnesses[h] && l.harnesses[h].models.length > 0 && (missing(source.model) || l.harnesses[h].models.includes(text5(source.model) ?? ""))
       );
     });
     if (!candidates.length && admitted.length === 1) own = admitted[0];
     else if (!candidates.length) {
-      const hasHarness = admitted.some((l) => l.harnesses[text5(source.harness) ?? ""]);
+      const named2 = text5(source.harness) ?? "";
+      const offering = admitted.find((l) => l.harnesses[named2]);
+      const fitting = admitted.some((l) => l.harnesses[named2] && fits(l, named2));
       return {
-        code: !missing(source.harness) && !hasHarness ? "harness_not_offered" : !missing(source.model) ? "model_not_offered" : "launcher_missing"
+        code: !missing(source.harness) && !offering ? "harness_not_offered" : offering && !fitting ? harnessRefusal(offering.adapter, named2) ?? "harness_unsupported" : !missing(source.model) ? "model_not_offered" : "launcher_missing"
       };
     } else if (candidates.length > 1) return { code: "launcher_ambiguous" };
     else own = candidates[0];
   }
-  const harnesses = Object.keys(own.harnesses).filter(supported);
+  const harnesses = Object.keys(own.harnesses).filter((h) => fits(own, h));
   if (missing(source.harness) && harnesses.length !== 1)
     return { code: harnesses.length ? "harness_ambiguous" : "harness_missing" };
   const harness = missing(source.harness) ? harnesses[0] : text5(source.harness) ?? "";
   const offer = own.harnesses[harness];
   if (!offer) return { code: "harness_not_offered" };
-  if (!supported(harness)) return { code: "harness_unsupported" };
+  const refused2 = harnessRefusal(own.adapter, harness);
+  if (refused2) return { code: refused2 };
   const models = [...new Set(offer.models)];
   if (missing(source.model) && models.length !== 1)
     return { code: models.length ? "model_ambiguous" : "model_missing" };
@@ -15659,6 +15903,128 @@ function resolveInvite(source, ls, runs) {
   ).length;
   if (live2 >= own.limit) return { code: "limit_reached" };
   return { own, row: { ...source, launcher: own.launcher, harness, model } };
+}
+
+// js/bridge/orchestra-dsh-run.ts
+import { spawn as spawn5 } from "node:child_process";
+import { closeSync as closeSync4, openSync as openSync4 } from "node:fs";
+
+// js/bridge/orchestra-tree-drop.ts
+import { existsSync as existsSync16 } from "node:fs";
+async function dropUnlaunched(authDir, runs, key3, execute2 = git2) {
+  const r = runs[key3], t = r.tree;
+  if (!t || t.state !== "ready" || !t.identity || r.terminal || r.exec)
+    return "tree_drop_unverified";
+  try {
+    if (JSON.stringify(await inspectTree(t, execute2)) !== JSON.stringify(t.identity))
+      return "tree_identity_unverified";
+    const changed = await treeContent(t, execute2);
+    if (changed) return changed;
+    t.state = "removing";
+    writeRuns(authDir, runs);
+    await execute2(t.source, ["worktree", "unlock", "--", t.path], 1e4);
+    const removed = await execute2(t.source, ["worktree", "remove", "--", t.path], 3e4);
+    if (removed.code !== 0 || existsSync16(t.path) || existsSync16(t.identity.gitDir)) {
+      t.state = "retained";
+      return "tree_remove_unverified";
+    }
+  } catch {
+    return "tree_drop_unverified";
+  }
+  delete runs[key3];
+  writeRuns(authDir, runs);
+  return null;
+}
+
+// js/bridge/orchestra-dsh-run.ts
+var SESSION_MS = Number(process.env[envName("DSH_SESSION_MS")]) || 6e4;
+async function launchDsh(authDir, runs, key3, spec, brief2) {
+  const run3 = runs[key3];
+  const fail2 = (why, state2 = "refused") => {
+    run3.state = state2;
+    run3.why = why;
+    writeRuns(authDir, runs);
+    return why;
+  };
+  const unstarted = async (why) => {
+    const kept3 = await dropUnlaunched(authDir, runs, key3);
+    return kept3 ? fail2(`${why}, ${kept3}`, "ambiguity") : `${why}, retry`;
+  };
+  const ready = dshReady(spec);
+  if ("code" in ready) return unstarted(ready.code);
+  const model = modelPatch(run3.model);
+  if (!model || !run3.tree) return unstarted(model ? "tree_unverified" : "dsh_model_invalid");
+  const files = dshFiles(authDir, run3.tree.operation);
+  writeModelPatch(files.model, files.dir, model);
+  const env2 = {
+    ...process.env,
+    [SPAWNED_FOR_ENV]: JSON.stringify({ invite: run3.invite, room: run3.room })
+  };
+  delete env2[envName("ORCHESTRA")];
+  const out7 = openSync4(files.events, "a", 384), err = openSync4(files.stderr, "a", 384);
+  let child;
+  try {
+    child = spawn5(ready.bin, dshArgv(ready.patch, files.model, brief2), {
+      cwd: run3.worktree,
+      env: env2,
+      detached: true,
+      windowsHide: true,
+      stdio: ["ignore", out7, err]
+    });
+  } finally {
+    closeSync4(out7);
+    closeSync4(err);
+  }
+  const started = await new Promise((resolve15) => {
+    child.once("spawn", () => resolve15(child.pid ?? null));
+    child.once("error", () => resolve15(null));
+  });
+  if (!started) return unstarted("dsh_spawn_failed");
+  children.add(started);
+  child.once("exit", (code2, signal) => {
+    children.delete(started);
+    exits.set(started, code2 !== null ? String(code2) : `${signal}`);
+  });
+  child.unref();
+  run3.dsh = { pid: started, events: files.events, model: files.model };
+  run3.state = "launched";
+  writeRuns(authDir, runs);
+  for (const until = Date.now() + SESSION_MS; Date.now() < until; ) {
+    const seen = dshEvents(files.events);
+    if (seen.session) {
+      run3.dsh.session = seen.session;
+      writeRuns(authDir, runs);
+      return "launched";
+    }
+    const exit = await dshExit(run3);
+    if (exit) {
+      run3.dsh.exit = exit;
+      run3.closed = "client_exited";
+      run3.tree.exit = (/* @__PURE__ */ new Date()).toISOString();
+      return fail2(`dsh_exit_${exit}`);
+    }
+    await new Promise((done) => setTimeout(done, 100));
+  }
+  await dshTerminate(run3, "no_session");
+  return fail2("dsh_no_session", "launched");
+}
+
+// js/bridge/orchestra-orca-bind.ts
+async function bindTerminal(run3, handle, runtime) {
+  if (!handle || !runtime) {
+    run3.why ??= "tree_client_binding_unverified";
+    return;
+  }
+  const shown2 = await run2(["terminal", "show", "--terminal", handle, "--json"], 5e3);
+  try {
+    const reply2 = JSON.parse(shown2.out);
+    const t = reply2.result?.terminal;
+    if (shown2.code === 0 && reply2.ok && reply2._meta?.runtimeId === runtime && t?.handle === handle && t.executionHostId === "local" && t.worktreePath === run3.worktree && t.incarnationId) {
+      if (run3.tree) run3.tree.incarnation = t.incarnationId;
+    } else run3.why = "tree_client_binding_unverified";
+  } catch {
+    run3.why = "tree_client_binding_unverified";
+  }
 }
 
 // js/bridge/orchestra-orca-seen.ts
@@ -15686,9 +16052,9 @@ async function orcaSeesTree(path) {
 }
 
 // js/bridge/orchestra-tree.ts
-import { randomUUID as randomUUID5 } from "node:crypto";
-import { existsSync as existsSync15, mkdirSync as mkdirSync23, realpathSync as realpathSync11 } from "node:fs";
-import { join as join38 } from "node:path";
+import { randomUUID as randomUUID6 } from "node:crypto";
+import { existsSync as existsSync17, mkdirSync as mkdirSync24, realpathSync as realpathSync11 } from "node:fs";
+import { join as join39 } from "node:path";
 var LOCK_REASON = "do not remove or unlock: the agent raised here dies with this tree; its orchestrator frees it after the agent ends";
 async function prepareTree(authDir, runs, key3, source, execute2 = git2) {
   const r = runs[key3];
@@ -15718,12 +16084,12 @@ async function prepareTree(authDir, runs, key3, source, execute2 = git2) {
   } catch {
     return "tree_base_unverified";
   }
-  const parent = join38(source, ".worktrees");
-  if (!existsSync15(parent)) mkdirSync23(parent, { mode: 448 });
+  const parent = join39(source, ".worktrees");
+  if (!existsSync17(parent)) mkdirSync24(parent, { mode: 448 });
   if (!directory2(parent)) return "tree_parent_unverified";
-  const operation = randomUUID5();
-  const path = join38(parent, `orchestra-${operation}`);
-  if (existsSync15(path)) return "tree_path_exists";
+  const operation = randomUUID6();
+  const path = join39(parent, `orchestra-${operation}`);
+  if (existsSync17(path)) return "tree_path_exists";
   r.tree = {
     operation,
     source,
@@ -15764,33 +16130,6 @@ async function prepareTree(authDir, runs, key3, source, execute2 = git2) {
   }
 }
 
-// js/bridge/orchestra-tree-drop.ts
-import { existsSync as existsSync16 } from "node:fs";
-async function dropUnlaunched(authDir, runs, key3, execute2 = git2) {
-  const r = runs[key3], t = r.tree;
-  if (!t || t.state !== "ready" || !t.identity || r.terminal || r.exec)
-    return "tree_drop_unverified";
-  try {
-    if (JSON.stringify(await inspectTree(t, execute2)) !== JSON.stringify(t.identity))
-      return "tree_identity_unverified";
-    const changed = await treeContent(t, execute2);
-    if (changed) return changed;
-    t.state = "removing";
-    writeRuns(authDir, runs);
-    await execute2(t.source, ["worktree", "unlock", "--", t.path], 1e4);
-    const removed = await execute2(t.source, ["worktree", "remove", "--", t.path], 3e4);
-    if (removed.code !== 0 || existsSync16(t.path) || existsSync16(t.identity.gitDir)) {
-      t.state = "retained";
-      return "tree_remove_unverified";
-    }
-  } catch {
-    return "tree_drop_unverified";
-  }
-  delete runs[key3];
-  writeRuns(authDir, runs);
-  return null;
-}
-
 // js/bridge/orchestra-start.ts
 var BRIEF_MAX = 220;
 async function startRun(authDir, row, own, repository, worktree, runs, key3, canon2, gone) {
@@ -15810,8 +16149,8 @@ async function startRun(authDir, row, own, repository, worktree, runs, key3, can
   const home = !!homeOf(own, run3.realm, run3.karta);
   const pair = { invite: run3.invite, room: run3.room, ...home ? { karta: run3.karta } : {} };
   const prompt = `${SPAWN_LINE} ${JSON.stringify(pair)} ` + words(ORCHESTRA).brief(run3.realm, run3.karta, run3.room, run3.invite);
-  const exec = own.harnesses[run3.harness].exec;
-  if (!exec && prompt.length > BRIEF_MAX) return "brief_too_long";
+  const { exec, dsh } = own.harnesses[run3.harness];
+  if (!exec && !dsh && prompt.length > BRIEF_MAX) return "brief_too_long";
   runs[key3] = run3;
   let treeWhy;
   try {
@@ -15835,6 +16174,14 @@ async function startRun(authDir, row, own, repository, worktree, runs, key3, can
     writeRuns(authDir, runs);
     return run3.why;
   }
+  if (dsh)
+    return launchDsh(
+      authDir,
+      runs,
+      key3,
+      dsh,
+      words(ORCHESTRA).dshBrief(run3.realm, run3.karta, run3.room)
+    );
   if (exec) {
     let outcome;
     try {
@@ -15873,18 +16220,7 @@ async function startRun(authDir, row, own, repository, worktree, runs, key3, can
   if (got.outcome === "failed") {
     run3.why = got.why;
   } else if (got.why) run3.why = got.why;
-  if (got.handle && got.runtime) {
-    const shown2 = await run2(["terminal", "show", "--terminal", got.handle, "--json"], 5e3);
-    try {
-      const reply2 = JSON.parse(shown2.out);
-      const t = reply2.result?.terminal;
-      if (shown2.code === 0 && reply2.ok && reply2._meta?.runtimeId === got.runtime && t?.handle === got.handle && t.executionHostId === "local" && t.worktreePath === run3.worktree && t.incarnationId) {
-        if (run3.tree) run3.tree.incarnation = t.incarnationId;
-      } else run3.why = "tree_client_binding_unverified";
-    } catch {
-      run3.why = "tree_client_binding_unverified";
-    }
-  } else run3.why ??= "tree_client_binding_unverified";
+  await bindTerminal(run3, got.handle, got.runtime);
   if (!run3.tree?.incarnation) run3.state = "ambiguity";
   writeRuns(authDir, runs);
   if (run3.state === "ambiguity") return run3.why ?? "launch_unverified";
@@ -15913,6 +16249,14 @@ async function raiseRows(authDir, start, ls, runs, canon2, role, gone) {
       continue;
     }
     const { row, own } = resolved;
+    const dsh = own.harnesses[String(row.harness).trim()].dsh;
+    if (dsh) {
+      const got = await dshCheckout(own, dsh, row, canon2);
+      if (gone?.gone) break;
+      const why = "code" in got ? got.code : await startRun(authDir, row, own, got.repository, got.worktree, runs, key3, canon2, gone);
+      said2.push(w5().leadRow(realm, room, invite, why));
+      continue;
+    }
     ready = ready === void 0 ? await orcaReady((version) => said2.push(`Orca ${version}`)) : ready;
     if (ready) {
       said2.push(w5().leadRow(realm, room, invite, ready));
@@ -15980,7 +16324,11 @@ async function roleRefusal(base, token, row) {
     return "role_unverified";
   try {
     const res = await namedFetch(`${base}/nodes/${seq4}`, {
-      headers: { authorization: `Bearer ${token}`, "x-nks-realm": row.realm },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-nks-realm": row.realm,
+        [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID
+      },
       redirect: "error",
       signal: AbortSignal.timeout(1e4)
     });
@@ -16000,15 +16348,15 @@ async function roleRefusal(base, token, row) {
 }
 
 // js/bridge/orchestra-tact.ts
-import { mkdirSync as mkdirSync24, readFileSync as readFileSync37, writeFileSync as writeFileSync20 } from "node:fs";
-import { join as join39 } from "node:path";
+import { mkdirSync as mkdirSync25, readFileSync as readFileSync38, writeFileSync as writeFileSync21 } from "node:fs";
+import { join as join40 } from "node:path";
 var w6 = () => words(ORCHESTRA);
 var LIMIT5 = 200;
 var TIMEOUT_MS3 = 1e4;
-var cursorsFile = (authDir) => join39(seamRunDir(authDir), "orchestra-cursors.json");
+var cursorsFile = (authDir) => join40(seamRunDir(authDir), "orchestra-cursors.json");
 function readTactState(authDir) {
   try {
-    const f = JSON.parse(readFileSync37(cursorsFile(authDir), "utf8"));
+    const f = JSON.parse(readFileSync38(cursorsFile(authDir), "utf8"));
     if (f && typeof f === "object" && f.realms && typeof f.realms === "object") return f;
   } catch {
   }
@@ -16019,7 +16367,10 @@ function tactStateOf(authDir) {
 }
 async function getJson(base, token, path, redirect) {
   const res = await namedFetch(`${base}${path}`, {
-    headers: { authorization: `Bearer ${token}` },
+    headers: {
+      authorization: `Bearer ${token}`,
+      [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID
+    },
     redirect,
     signal: AbortSignal.timeout(TIMEOUT_MS3)
   });
@@ -16149,8 +16500,8 @@ async function stepTact(authDir, base, token, realms, gone, act) {
         signals: r.signals.length
       };
   try {
-    mkdirSync24(seamRunDir(authDir), { recursive: true, mode: 448 });
-    writeFileSync20(cursorsFile(authDir), JSON.stringify(state2) + "\n", { mode: 384 });
+    mkdirSync25(seamRunDir(authDir), { recursive: true, mode: 448 });
+    writeFileSync21(cursorsFile(authDir), JSON.stringify(state2) + "\n", { mode: 384 });
   } catch (e) {
     return { ok: false, said: w6().doorError(e.message) };
   }
@@ -16267,6 +16618,29 @@ async function selectedStep(authDir, base, token, mcp, realms, boundary, only, g
   };
 }
 
+// js/bridge/orchestra-plan-line.ts
+function planLine(w12, own, harness, worktree, model) {
+  const offer = own.harnesses[harness];
+  if (offer.dsh)
+    return [
+      offer.dsh.bin ?? "dsh",
+      ...dshArgv(offer.dsh.patch ?? "<dsh-profile.yml>", `<patch: model ${model}>`, w12.planBrief()),
+      `(cwd ${worktree}, env spawned_for)`
+    ].join(" ");
+  if (offer.exec)
+    return [
+      "orca",
+      "terminal",
+      "create",
+      "--worktree",
+      `path:${worktree}`,
+      "--command",
+      "<runtime-local prepare; API create/prompt; exec opencode --server --session>",
+      "(exec_preflight_required)"
+    ].join(" ");
+  return ["orca", ...launchArgv(harness, worktree, model, w12.planBrief())].join(" ");
+}
+
 // js/bridge/orchestra-plan.ts
 var w8 = () => words(ORCHESTRA);
 var ORCA = "orca";
@@ -16323,7 +16697,14 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary, only)
     const own = resolved.own;
     const repository = String(row.repository ?? "").trim();
     const home = homeOf(own, realm, Number(row.karta));
-    const got = checkoutFor(own, repository, () => ({ code: ORCA }), home);
+    const offer = own.harnesses[String(row.harness).trim()].dsh;
+    const dsh = !!offer;
+    const ready = offer ? dshReady(offer) : null;
+    if (ready && "code" in ready) {
+      say3(w8().planRefuse(ready.code));
+      continue;
+    }
+    const got = checkoutFor(own, repository, () => ({ code: dsh ? "no_checkout" : ORCA }), home);
     if (typeof got === "string") {
       const uncovered = await coverRefusal(got, realm, Number(row.karta), canon2, !!home);
       if (uncovered) {
@@ -16361,25 +16742,7 @@ async function planTact(authDir, base, token, mcpUrl, requested, boundary, only)
       state: "launched",
       at: (/* @__PURE__ */ new Date()).toISOString()
     };
-    if (own.harnesses[harness].exec) {
-      say3(
-        w8().planLaunch(
-          [
-            ORCA,
-            "terminal",
-            "create",
-            "--worktree",
-            `path:${worktree}`,
-            "--command",
-            "<runtime-local prepare; API create/prompt; exec opencode --server --session>",
-            "(exec_preflight_required)"
-          ].join(" ")
-        )
-      );
-    } else
-      say3(
-        w8().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w8().planBrief())].join(" "))
-      );
+    say3(w8().planLaunch(planLine(w8(), own, harness, worktree, model)));
   }
   return { ok: true, said: w8().plan(rows.join("\n")) };
 }
@@ -16394,6 +16757,11 @@ function orchestraStatus(authDir, discovered) {
     lines.push(w12.cloneOut(repo, c.state, c.why ?? "", c.at));
   if (tact.lead) lines.push(w12.lead(tact.lead));
   for (const r of Object.values(readRuns(authDir))) {
+    const failed = r.state === "ended" ? dshFailure(r) : void 0;
+    if (failed && r.tree?.state !== "retained") {
+      lines.push(w12.leadRow(r.realm, r.room, r.invite, failed));
+      continue;
+    }
     if (!r.tree || r.tree.state === "removed") continue;
     if (r.tree.state === "ready" && r.state !== "ambiguity" && r.state !== "ended") continue;
     lines.push(
@@ -16783,6 +17151,26 @@ function noteStood(own, realm, karta, name2) {
   const rec6 = readHoldRecord(key3, true);
   if (rec6) writeHoldRecord(key3, { ...rec6, provisional: own });
 }
+var WRITES = new Set(["case", "update", "arrow", "batch", "delete_node"].map(tool));
+var writes = (name2, args) => (WRITES.has(name2) || name2.startsWith(tool("add_"))) && !readsOnly(name2, args, true);
+function adopts(msg, reply2) {
+  const service = typeof msg.id === "string" && msg.id.startsWith(SERVICE_ID);
+  if (service || reply2.error || reply2.result?.isError) return false;
+  return writes(String(msg.params?.name ?? ""), msg.params?.arguments ?? {});
+}
+function mainProvisional() {
+  const s2 = state.standing;
+  return !!s2?.name && readHoldRecord(keyOf(s2.realm, String(s2.karta), s2.name), true)?.provisional === true;
+}
+function noteWork(msg, reply2) {
+  if (!adopts(msg, reply2)) return;
+  const args = msg.params?.arguments ?? {};
+  const led = args.realm == null ? state.standing : ledIn2(String(args.realm));
+  if (!led?.name) return;
+  const karta = String(led.karta);
+  if (readHoldRecord(keyOf(led.realm, karta, led.name), true)?.provisional === true)
+    noteStood(false, led.realm, karta, led.name);
+}
 function restore(rec6) {
   if (rec6.provisional !== true || !rec6.session || rec6.session !== sessionOfBridge()) return;
   const led = ledIn2(rec6.realm);
@@ -16792,7 +17180,7 @@ function restore(rec6) {
 var releasedNote = (replaced, freed, prior) => replaced && freed.ok ? words(STAND_MOVES).provisionalReplaced(prior) : freed.note;
 
 // js/bridge/stand.ts
-import { isAbsolute as isAbsolute7 } from "node:path";
+import { isAbsolute as isAbsolute8 } from "node:path";
 
 // js/bridge/knock.ts
 var knocks = scoped(() => /* @__PURE__ */ new Map());
@@ -16826,14 +17214,14 @@ async function knock(k) {
 
 // js/bridge/orderjournal.ts
 import {
-  mkdirSync as mkdirSync25,
+  mkdirSync as mkdirSync26,
   readdirSync as readdirSync13,
-  readFileSync as readFileSync38,
+  readFileSync as readFileSync39,
   renameSync as renameSync14,
   unlinkSync as unlinkSync21,
-  writeFileSync as writeFileSync21
+  writeFileSync as writeFileSync22
 } from "node:fs";
-import { join as join40 } from "node:path";
+import { join as join41 } from "node:path";
 var ANSWER_WINDOW_MS = 6e4;
 var RESTARTED = "bridge_restarted";
 var alive5 = (pid) => {
@@ -16847,14 +17235,14 @@ var alive5 = (pid) => {
   }
 };
 var KEEP_MS = 24 * 36e5;
-var dir = () => join40(CFG.authDir, "orders");
+var dir = () => join41(CFG.authDir, "orders");
 var SAFE = /^[A-Za-z0-9_-]{1,80}$/;
-var fileOf = (id) => SAFE.test(id) ? join40(dir(), `${id}.json`) : null;
+var fileOf = (id) => SAFE.test(id) ? join41(dir(), `${id}.json`) : null;
 function readOrder(id) {
   const f = fileOf(id);
   if (!f) return null;
   try {
-    return JSON.parse(readFileSync38(f, "utf8"));
+    return JSON.parse(readFileSync39(f, "utf8"));
   } catch {
     return null;
   }
@@ -16863,9 +17251,9 @@ function writeOrder(e) {
   const f = fileOf(e.id);
   if (!f) return false;
   try {
-    mkdirSync25(dir(), { recursive: true, mode: 448 });
+    mkdirSync26(dir(), { recursive: true, mode: 448 });
     const tmp = `${f}.tmp-${process.pid}`;
-    writeFileSync21(tmp, JSON.stringify(e), { mode: 384 });
+    writeFileSync22(tmp, JSON.stringify(e), { mode: 384 });
     renameSync14(tmp, f);
     return true;
   } catch {
@@ -16877,10 +17265,10 @@ var settled = (id) => {
   const e = readOrder(id);
   return !!e && isTerminal(e.state);
 };
-var sincePath = () => join40(dir(), "since");
+var sincePath = () => join41(dir(), "since");
 function readSince2(base) {
   try {
-    const n = JSON.parse(readFileSync38(sincePath(), "utf8"))[base];
+    const n = JSON.parse(readFileSync39(sincePath(), "utf8"))[base];
     return typeof n === "number" && Number.isInteger(n) && n > 0 ? n : 0;
   } catch {
     return 0;
@@ -16889,13 +17277,13 @@ function readSince2(base) {
 function writeSince2(base, seq4) {
   let all2 = {};
   try {
-    all2 = JSON.parse(readFileSync38(sincePath(), "utf8"));
+    all2 = JSON.parse(readFileSync39(sincePath(), "utf8"));
   } catch {
   }
   try {
-    mkdirSync25(dir(), { recursive: true, mode: 448 });
+    mkdirSync26(dir(), { recursive: true, mode: 448 });
     const tmp = `${sincePath()}.tmp-${process.pid}`;
-    writeFileSync21(tmp, JSON.stringify({ ...all2, [base]: seq4 }), { mode: 384 });
+    writeFileSync22(tmp, JSON.stringify({ ...all2, [base]: seq4 }), { mode: 384 });
     renameSync14(tmp, sincePath());
   } catch {
   }
@@ -16914,7 +17302,7 @@ function unanswered(now2 = Date.now()) {
     if (!e) continue;
     if (e.acked && now2 - e.at > KEEP_MS) {
       try {
-        unlinkSync21(join40(dir(), n));
+        unlinkSync21(join41(dir(), n));
       } catch {
       }
       continue;
@@ -17120,11 +17508,11 @@ async function standAnswer(msg, lines, realm, basis, isError, fresh3 = false) {
 }
 
 // js/bridge/standcwd.ts
-import { statSync as statSync9 } from "node:fs";
-import { isAbsolute as isAbsolute6 } from "node:path";
+import { statSync as statSync10 } from "node:fs";
+import { isAbsolute as isAbsolute7 } from "node:path";
 var isDirectory2 = (p) => {
   try {
-    return isAbsolute6(p) && statSync9(p).isDirectory();
+    return isAbsolute7(p) && statSync10(p).isDirectory();
   } catch {
     return false;
   }
@@ -17263,7 +17651,7 @@ ${back.isError ? `${word3} register: ${short(back.text, 160)}` : word3}`;
 
 // js/bridge/standtool.ts
 var STAND_TOOL_NAME = tool("stand");
-var str3 = (description) => ({ type: "string", description });
+var str4 = (description) => ({ type: "string", description });
 var standTool = () => {
   const w12 = words(STAND_TOOL);
   return {
@@ -17272,18 +17660,18 @@ var standTool = () => {
     inputSchema: {
       type: "object",
       properties: {
-        realm: str3(w12.realm()),
-        karta: str3(w12.karta()),
-        name: str3(w12.name()),
-        room: str3(w12.room()),
-        model: str3(w12.model()),
+        realm: str4(w12.realm()),
+        karta: str4(w12.karta()),
+        name: str4(w12.name()),
+        room: str4(w12.room()),
+        model: str4(w12.model()),
         mute_siblings: { type: "boolean", description: w12.muteSiblings() },
         take: { type: "boolean", description: w12.take() },
-        room_karta: str3(w12.roomKarta()),
+        room_karta: str4(w12.roomKarta()),
         repeat_knock: { type: "boolean", description: w12.repeatKnock() },
-        satellite_of: str3(w12.satelliteOf()),
-        status: str3(w12.status()),
-        cwd: str3(w12.cwd()),
+        satellite_of: str4(w12.satelliteOf()),
+        status: str4(w12.status()),
+        cwd: str4(w12.cwd()),
         spawned_for: spawnedForSchema(words(SPAWNED_FOR).schema()),
         context_restored: { type: "boolean", description: words(CONTEXT_GATE).field }
       },
@@ -17320,7 +17708,7 @@ async function standOnce(msg) {
   rememberStandModel(model);
   const cwd = typeof a.cwd === "string" && a.cwd.trim() ? a.cwd.trim() : sessionCwd();
   if (cwd !== sessionCwd() && !isDirectory2(cwd)) {
-    lines.push(sw2().badCwd(cwd, !isAbsolute7(cwd)));
+    lines.push(sw2().badCwd(cwd, !isAbsolute8(cwd)));
     return done(true);
   }
   const nameNotes = [];
@@ -17852,21 +18240,21 @@ async function readOpenOrders(base, take3) {
 // js/bridge/stoporder.ts
 var taken = /* @__PURE__ */ new Set();
 var ACCEPT_CAP_MS = 2e3;
-var str4 = (v) => typeof v === "string" ? v : "";
+var str5 = (v) => typeof v === "string" ? v : "";
 function orderOf(frame2) {
-  const id = str4(frame2.order_id);
-  const standing = str4(frame2.standing_id);
+  const id = str5(frame2.order_id);
+  const standing = str5(frame2.standing_id);
   if (!id || !standing) return null;
   const span = frame2.ack_window_seconds;
   return {
     id,
     standing_id: standing,
-    reason_code: str4(frame2.reason_code),
-    by: str4(frame2.by),
-    issued_at: str4(frame2.issued_at),
+    reason_code: str5(frame2.reason_code),
+    by: str5(frame2.by),
+    issued_at: str5(frame2.issued_at),
     ...typeof span === "number" ? { ack_window_seconds: span } : {},
-    ...str4(frame2.to_standing_id) ? { to_standing_id: str4(frame2.to_standing_id) } : {},
-    ...str4(frame2.to_standing) ? { to_standing: str4(frame2.to_standing) } : {}
+    ...str5(frame2.to_standing_id) ? { to_standing_id: str5(frame2.to_standing_id) } : {},
+    ...str5(frame2.to_standing) ? { to_standing: str5(frame2.to_standing) } : {}
   };
 }
 function journalRefused(id, outcome) {
@@ -18228,6 +18616,16 @@ function localRealm(msg) {
   }));
 }
 
+// js/bridge/replynotes.ts
+async function noteReply(msg, reply2) {
+  noteCaseEntry(msg.params?.name, msg.params?.arguments, reply2);
+  const realm = msg.params?.arguments?.realm;
+  if (realm != null && adopts(msg, reply2) && mainProvisional())
+    await resolveAgainstLed(realm).catch(() => {
+    });
+  noteWork(msg, reply2);
+}
+
 // js/bridge/standdelivery.ts
 var standForHarness = async (msg, notice) => forHarness(notice(await serialized(() => withCallOrigin(msg.id, () => runStand(msg)))));
 var resumeByOrigin = (msg) => serialized(
@@ -18450,7 +18848,7 @@ async function deliverOne(msg) {
             );
           }
         }
-        noteCaseEntry(msg.params?.name, msg.params?.arguments, held2);
+        await noteReply(msg, held2);
         const reply2 = absorbCloseReply(msg, absorbRevokeReply(msg, absorbChannelReply(msg, held2)));
         emit(forHarness(withNotice(reply2)));
       }
@@ -18713,7 +19111,7 @@ var SELF = (() => {
 })();
 var versionOfFile = (path) => {
   try {
-    return versionIn(readFileSync39(path, "utf8"));
+    return versionIn(readFileSync40(path, "utf8"));
   } catch {
     return null;
   }
@@ -18723,18 +19121,16 @@ async function daemonMain(argv2) {
   const cfg = parseArgs(argv2.filter((a) => a !== "--successor"));
   const authDir = cfg.authDir;
   const run3 = seamRunDir(authDir);
-  const journalPath = join41(run3, "daemon.log");
+  const journalPath = join42(run3, "daemon.log");
   const journal = (line) => {
     try {
-      mkdirSync26(run3, { recursive: true, mode: 448 });
+      mkdirSync27(run3, { recursive: true, mode: 448 });
       rotateJournal(journalPath, JOURNAL_MAX);
-      const text7 = line.trimEnd().replace(LOG_MARK, "");
-      appendFileSync5(
-        journalPath,
-        `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD} ${text7}
-`,
-        { mode: 384 }
-      );
+      const lines = foldInto(journalPath, line.trimEnd().replace(LOG_MARK, ""));
+      const at3 = `${(/* @__PURE__ */ new Date()).toISOString()} pid=${process.pid} ${BUILD}`;
+      if (lines.length)
+        appendFileSync5(journalPath, lines.map((l) => `${at3} ${l}
+`).join(""), { mode: 384 });
     } catch {
     }
   };
@@ -18808,7 +19204,7 @@ async function daemonMain(argv2) {
     const home = homeBridgePath();
     let stamp;
     try {
-      const st = statSync10(home);
+      const st = statSync11(home);
       stamp = `${st.ino}:${st.size}:${st.mtimeMs}`;
     } catch {
       return;
@@ -19038,7 +19434,7 @@ async function daemonMain(argv2) {
 }
 function spawnDaemon(file2, authDir, successor) {
   try {
-    const child = spawn5(
+    const child = spawn6(
       process.execPath,
       [file2, "daemon", "--auth-dir", authDir, ...successor ? ["--successor"] : []],
       {
@@ -19057,12 +19453,12 @@ function spawnDaemon(file2, authDir, successor) {
 }
 
 // js/bridge/exec-prepare.ts
-import { execFile as execFile2 } from "node:child_process";
+import { execFile as execFile3 } from "node:child_process";
 import { realpathSync as realpathSync12 } from "node:fs";
 import { hostname as hostname4 } from "node:os";
 var shellQuote = (s2) => `'${s2.replaceAll("'", "'\\''")}'`;
 var execApi = (server, method2, path, body) => new Promise((resolve15, reject) => {
-  execFile2(
+  execFile3(
     "opencode",
     [
       "api",
@@ -19157,8 +19553,8 @@ import { createInterface as createInterface3 } from "node:readline";
 import { PassThrough as PassThrough2 } from "node:stream";
 
 // js/bridge/raise.ts
-import { spawn as spawn6 } from "node:child_process";
-import { readFileSync as readFileSync40 } from "node:fs";
+import { spawn as spawn7 } from "node:child_process";
+import { readFileSync as readFileSync41 } from "node:fs";
 import { fileURLToPath as fileURLToPath6 } from "node:url";
 var RAISE_STALE_MS = 15e3;
 var SELF2 = (() => {
@@ -19174,7 +19570,7 @@ function daemonEntry() {
   if (updatesDisabled()) return SELF2;
   const home = homeBridgePath();
   try {
-    const v = versionIn(readFileSync40(home, "utf8"));
+    const v = versionIn(readFileSync41(home, "utf8"));
     if (home !== SELF2 && compareVersions(v, VERSION) > 0) return home;
   } catch {
   }
@@ -19186,7 +19582,7 @@ function raiseDaemon(authDir) {
   const entry = daemonEntry();
   log(`no bridge daemon for ${authDir} — raising one: ${entry} daemon`);
   try {
-    const child = spawn6(process.execPath, [entry, "daemon", "--auth-dir", authDir], {
+    const child = spawn7(process.execPath, [entry, "daemon", "--auth-dir", authDir], {
       detached: true,
       stdio: "ignore",
       cwd: seamRunDir(authDir),
@@ -19641,9 +20037,9 @@ async function probeDaemon(args) {
 }
 
 // js/watchdog/client.ts
-import { existsSync as existsSync17, readdirSync as readdirSync14, readFileSync as readFileSync41 } from "node:fs";
+import { existsSync as existsSync18, readdirSync as readdirSync14, readFileSync as readFileSync42 } from "node:fs";
 import { connect as connect5 } from "node:net";
-import { join as join42 } from "node:path";
+import { join as join43 } from "node:path";
 
 // js/watchdog/words.ts
 var wd = () => words(WATCHDOG);
@@ -19678,9 +20074,9 @@ function resolveStanding(argv2) {
   const dir2 = standingsDirOf(authDir);
   const pathFor = (k) => socketPathOf(authDir, k);
   if (key3) return { key: key3, path: pathFor(key3), authDir };
-  const held2 = existsSync17(dir2) ? readdirSync14(dir2).filter((f) => f.endsWith(".key")).map((f) => {
+  const held2 = existsSync18(dir2) ? readdirSync14(dir2).filter((f) => f.endsWith(".key")).map((f) => {
     try {
-      return readFileSync41(join42(dir2, f), "utf8").trim();
+      return readFileSync42(join43(dir2, f), "utf8").trim();
     } catch {
       return "";
     }
@@ -19721,8 +20117,14 @@ function attach(path, o) {
   let waitingBack = false;
   let ownRelease = false;
   let forgotten = false;
+  let dead = false;
+  let retry = null;
+  let hold = null;
+  let live2 = null;
   function tryOnce() {
+    if (dead) return;
     const sock = connect5(path);
+    live2 = sock;
     let buf = "";
     sock.setEncoding("utf8");
     sock.on("connect", () => {
@@ -19761,31 +20163,40 @@ function attach(path, o) {
     sock.on("error", () => {
     });
     sock.on("close", () => {
+      live2 = null;
+      if (dead) return;
       if (attached && handover) {
         attached = false;
         handover = false;
         waitingBack = true;
         startedAt = Date.now();
-        return void setTimeout(tryOnce, RETRY_MS3);
+        return void (retry = setTimeout(tryOnce, RETRY_MS3));
       }
       if (ownRelease) return;
-      if (forgotten) return void setInterval(() => {
-      }, SILENT_MS);
+      if (forgotten) return void (hold = setInterval(() => {
+      }, SILENT_MS));
       if (attached) return o.onGone(wd().bridgeLetGo());
       if (Date.now() - startedAt > ATTACH_WINDOW_MS) {
         const s2 = ATTACH_WINDOW_MS / 1e3;
         return o.onGone(waitingBack ? wd().seatNotBack(s2, path) : wd().noSocket(path, s2));
       }
-      setTimeout(tryOnce, RETRY_MS3);
+      retry = setTimeout(tryOnce, RETRY_MS3);
     });
   }
   tryOnce();
+  return () => {
+    dead = true;
+    if (retry) clearTimeout(retry);
+    if (hold) clearInterval(hold);
+    live2?.destroy();
+    live2 = null;
+  };
 }
 
 // js/watchdog/codex.ts
-import { existsSync as existsSync18 } from "node:fs";
-import { homedir as homedir13 } from "node:os";
-import { join as join43 } from "node:path";
+import { existsSync as existsSync19 } from "node:fs";
+import { homedir as homedir14 } from "node:os";
+import { join as join44 } from "node:path";
 
 // js/shared/appserver.ts
 import { randomBytes as randomBytes5 } from "node:crypto";
@@ -19869,8 +20280,8 @@ var note2 = (s2) => {
   process.stderr.write(s2 + "\n");
 };
 function codexDoorPath() {
-  const home = process.env.CODEX_HOME?.trim() || join43(homedir13(), ".codex");
-  return join43(home, "app-server-control", "app-server-control.sock");
+  const home = process.env.CODEX_HOME?.trim() || join44(homedir14(), ".codex");
+  return join44(home, "app-server-control", "app-server-control.sock");
 }
 function runWatchdogCodex(argv2) {
   parseWatchdogArgs(argv2);
@@ -19880,7 +20291,7 @@ function runWatchdogCodex(argv2) {
     process.exit(2);
   }
   const socketPath = codexDoorPath();
-  if (!existsSync18(socketPath)) {
+  if (!existsSync19(socketPath)) {
     note2(wd().noDoor(socketPath));
     process.exit(2);
   }
@@ -20478,21 +20889,21 @@ function runWatchdogExit(argv2) {
 
 // js/cli/doctor.ts
 import { createHash as createHash13 } from "node:crypto";
-import { existsSync as existsSync24, readFileSync as readFileSync48 } from "node:fs";
-import { homedir as homedir20 } from "node:os";
-import { dirname as dirname19, join as join51 } from "node:path";
+import { existsSync as existsSync25, readFileSync as readFileSync49 } from "node:fs";
+import { homedir as homedir21 } from "node:os";
+import { dirname as dirname19, join as join52 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // js/shared/covercontract.ts
-import { readFileSync as readFileSync43 } from "node:fs";
-import { join as join45 } from "node:path";
+import { readFileSync as readFileSync44 } from "node:fs";
+import { join as join46 } from "node:path";
 
 // js/shared/reposigns.ts
-import { readFileSync as readFileSync42, statSync as statSync11 } from "node:fs";
-import { dirname as dirname15, join as join44, resolve as resolve11 } from "node:path";
+import { readFileSync as readFileSync43, statSync as statSync12 } from "node:fs";
+import { dirname as dirname15, join as join45, resolve as resolve11 } from "node:path";
 var exists = (path) => {
   try {
-    statSync11(path);
+    statSync12(path);
     return true;
   } catch {
     return false;
@@ -20501,7 +20912,7 @@ var exists = (path) => {
 function repoRoot(dir2) {
   let at3 = resolve11(dir2);
   for (; ; ) {
-    if (exists(join44(at3, ".git"))) return at3;
+    if (exists(join45(at3, ".git"))) return at3;
     const up = dirname15(at3);
     if (up === at3) return null;
     at3 = up;
@@ -20541,15 +20952,15 @@ function repoContractWarning(dir2, lang2) {
   const root = repoRoot(dir2);
   if (!root) return null;
   try {
-    return contractWarning(contractOf(readFileSync43(join45(root, COVER.file), "utf8")), lang2);
+    return contractWarning(contractOf(readFileSync44(join46(root, COVER.file), "utf8")), lang2);
   } catch {
     return null;
   }
 }
 
 // js/cli/codexcache.ts
-import { existsSync as existsSync19, readdirSync as readdirSync15 } from "node:fs";
-import { join as join46 } from "node:path";
+import { existsSync as existsSync20, readdirSync as readdirSync15 } from "node:fs";
+import { join as join47 } from "node:path";
 
 // js/cli/installnames.ts
 var PRODUCT_PATTERN = escapeRe(PRODUCT);
@@ -20565,30 +20976,30 @@ var list2 = (d) => {
     return [];
   }
 };
-var isCopy = (d) => existsSync19(join46(d, ".codex-plugin", "plugin.json"));
+var isCopy = (d) => existsSync20(join47(d, ".codex-plugin", "plugin.json"));
 function codexCopies(home) {
-  const cache = join46(home, "plugins", "cache");
+  const cache = join47(home, "plugins", "cache");
   const out7 = [];
   for (const market of list2(cache))
-    for (const plugin of list2(join46(cache, market))) {
+    for (const plugin of list2(join47(cache, market))) {
       if (!PRODUCT_RE.test(plugin)) continue;
-      const dir2 = join46(cache, market, plugin);
-      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join46(dir2, v)));
+      const dir2 = join47(cache, market, plugin);
+      const versions = isCopy(dir2) ? [] : list2(dir2).filter((v) => isCopy(join47(dir2, v)));
       if (!versions.length) out7.push({ market, plugin, dir: dir2 });
-      for (const v of versions) out7.push({ market, plugin, dir: join46(dir2, v) });
+      for (const v of versions) out7.push({ market, plugin, dir: join47(dir2, v) });
     }
   return out7;
 }
 
 // js/cli/doctornode.ts
-import { accessSync, constants as constants2 } from "node:fs";
-import { homedir as homedir16 } from "node:os";
-import { basename as basename8, dirname as dirname17, isAbsolute as isAbsolute9 } from "node:path";
+import { accessSync as accessSync2, constants as constants3 } from "node:fs";
+import { homedir as homedir17 } from "node:os";
+import { basename as basename8, dirname as dirname17, isAbsolute as isAbsolute10 } from "node:path";
 
 // js/cli/subagents.ts
-import { existsSync as existsSync20, readdirSync as readdirSync16, readFileSync as readFileSync44, statSync as statSync12 } from "node:fs";
-import { homedir as homedir15 } from "node:os";
-import { basename as basename7, delimiter, dirname as dirname16, isAbsolute as isAbsolute8, join as join47, resolve as resolve12 } from "node:path";
+import { existsSync as existsSync21, readdirSync as readdirSync16, readFileSync as readFileSync45, statSync as statSync13 } from "node:fs";
+import { homedir as homedir16 } from "node:os";
+import { basename as basename7, delimiter as delimiter2, dirname as dirname16, isAbsolute as isAbsolute9, join as join48, resolve as resolve12 } from "node:path";
 
 // js/cli/frontmatter.ts
 function frontmatterText(file2) {
@@ -20713,7 +21124,7 @@ function parseFrontmatter(text7) {
 }
 
 // js/cli/satform.ts
-import { homedir as homedir14 } from "node:os";
+import { homedir as homedir15 } from "node:os";
 import { basename as basename6 } from "node:path";
 var SATELLITE_ARGS = ["-e", SATELLITE_CODE, "--", "--satellite"];
 var SHELLS = /* @__PURE__ */ new Set(["sh", "bash", "zsh", "dash"]);
@@ -20750,7 +21161,7 @@ var SHELL_PATH_RE = new RegExp(
   `"([^"]*${P5}[^"]*\\.mjs)"|'([^']*${P5}[^']*\\.mjs)'|(\\S*${P5}\\S*\\.mjs)`
 );
 var ARG_PATH_RE = new RegExp(`${P5}[^\\\\/]*\\.mjs$`, "i");
-var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir14()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir14());
+var expandHome = (p) => p.replace(/^~(?=[\\/])/, homedir15()).replace(/\$\{HOME\}|\$HOME|%USERPROFILE%|\$\{USERPROFILE\}|\$USERPROFILE/g, homedir15());
 function bridgePathOf(e) {
   const base = cmdBase(e.command);
   if (base === "node" && (e.args[0] === "-e" || e.args[0] === "--eval")) {
@@ -20780,7 +21191,7 @@ function readyEntry(name2, disallowed, tail2 = []) {
 }
 
 // js/cli/satprobe.ts
-import { spawn as spawn7 } from "node:child_process";
+import { spawn as spawn8 } from "node:child_process";
 import { createInterface as createInterface4 } from "node:readline";
 var sw3 = () => words(SAT_PROBE);
 var PROBE_MS = Number(process.env[envName("DOCTOR_PROBE_MS")]) || 3e4;
@@ -20800,7 +21211,7 @@ async function probeSatellite(label, e, cwd) {
   };
   delete env2[envName("CHANNEL_SOCKET")];
   delete env2[envName("CHANNEL_STATUS")];
-  const child = spawn7(e.command, e.args, {
+  const child = spawn8(e.command, e.args, {
     cwd,
     env: env2,
     stdio: ["pipe", "pipe", "pipe"],
@@ -20920,7 +21331,7 @@ var TEMPLATE_PARENTS = [
   `mcp__plugin_${PLUGIN_NAME}_${PRODUCT}`,
   `mcp__${PRODUCT}`
 ];
-var str5 = (v) => typeof v === "string" ? v : "";
+var str6 = (v) => typeof v === "string" ? v : "";
 function entriesOf(fm) {
   const raw = fm.mcpServers;
   const pairs = [];
@@ -20933,16 +21344,16 @@ function entriesOf(fm) {
   } else if (raw && typeof raw === "object") pairs.push(...Object.entries(raw));
   return pairs.map(([name2, v]) => {
     const spec = v && typeof v === "object" && !Array.isArray(v) ? v : {};
-    const args = Array.isArray(spec.args) ? spec.args.map((a) => str5(a)) : [];
+    const args = Array.isArray(spec.args) ? spec.args.map((a) => str6(a)) : [];
     const env2 = {};
     if (spec.env && typeof spec.env === "object" && !Array.isArray(spec.env))
-      for (const [k, e] of Object.entries(spec.env)) env2[k] = str5(e);
-    return { name: name2, ref: v === null, command: str5(spec.command), args, env: env2 };
+      for (const [k, e] of Object.entries(spec.env)) env2[k] = str6(e);
+    return { name: name2, ref: v === null, command: str6(spec.command), args, env: env2 };
   });
 }
-var listOf = (v) => Array.isArray(v) ? v.map((x) => str5(x).trim()).filter(Boolean) : str5(v).split(",").map((x) => x.trim()).filter(Boolean);
+var listOf = (v) => Array.isArray(v) ? v.map((x) => str6(x).trim()).filter(Boolean) : str6(v).split(",").map((x) => x.trim()).filter(Boolean);
 function agentFiles(dir2, scope) {
-  if (!existsSync20(dir2)) return [];
+  if (!existsSync21(dir2)) return [];
   let names2;
   try {
     names2 = readdirSync16(dir2).filter((f) => f.endsWith(".md"));
@@ -20950,24 +21361,24 @@ function agentFiles(dir2, scope) {
     return [];
   }
   return names2.sort().map((f) => {
-    const path = join47(dir2, f);
+    const path = join48(dir2, f);
     let fm = {};
     try {
-      const text7 = frontmatterText(readFileSync44(path, "utf8"));
+      const text7 = frontmatterText(readFileSync45(path, "utf8"));
       if (text7 !== null) fm = parseFrontmatter(text7);
     } catch {
     }
-    return { path, agent: str5(fm.name) || basename7(f, ".md"), scope, fm };
+    return { path, agent: str6(fm.name) || basename7(f, ".md"), scope, fm };
   });
 }
 function projectRoot() {
-  const home = resolve12(homedir15());
+  const home = resolve12(homedir16());
   let gitRoot = null;
   for (let d = process.cwd(); ; ) {
     if (resolve12(d) === home) break;
-    if (existsSync20(join47(d, ".claude", "agents")) || existsSync20(join47(d, ".opencode", "agents")))
+    if (existsSync21(join48(d, ".claude", "agents")) || existsSync21(join48(d, ".opencode", "agents")))
       return d;
-    if (!gitRoot && existsSync20(join47(d, ".git"))) gitRoot = d;
+    if (!gitRoot && existsSync21(join48(d, ".git"))) gitRoot = d;
     const up = dirname16(d);
     if (up === d) break;
     d = up;
@@ -20975,16 +21386,16 @@ function projectRoot() {
   return gitRoot ?? process.cwd();
 }
 function which(cmd2, cwd) {
-  if (isAbsolute8(cmd2) || /[\\/]/.test(cmd2)) {
+  if (isAbsolute9(cmd2) || /[\\/]/.test(cmd2)) {
     const p = resolve12(cwd, cmd2);
-    return existsSync20(p) ? p : null;
+    return existsSync21(p) ? p : null;
   }
   const exts = platform() === "win32" ? ["", ...(process.env.PATHEXT || ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
-  for (const dir2 of (process.env.PATH || "").split(delimiter).filter(Boolean)) {
+  for (const dir2 of (process.env.PATH || "").split(delimiter2).filter(Boolean)) {
     for (const ext of exts) {
-      const p = join47(dir2, cmd2 + ext);
+      const p = join48(dir2, cmd2 + ext);
       try {
-        if (statSync12(p).isFile()) return p;
+        if (statSync13(p).isFile()) return p;
       } catch {
       }
     }
@@ -21008,12 +21419,12 @@ function parentBridges(root) {
   };
   const readJson2 = (p) => {
     try {
-      return JSON.parse(readFileSync44(p, "utf8"));
+      return JSON.parse(readFileSync45(p, "utf8"));
     } catch {
       return null;
     }
   };
-  const user = readJson2(join47(homedir15(), ".claude.json"));
+  const user = readJson2(join48(homedir16(), ".claude.json"));
   if (user) {
     scan(user.mcpServers, (n) => `mcp__${n}`);
     const projects = user.projects ?? {};
@@ -21021,8 +21432,8 @@ function parentBridges(root) {
     for (const [k, p] of Object.entries(projects))
       if (k.replace(/\\/g, "/") === key3) scan(p.mcpServers, (n) => `mcp__${n}`);
   }
-  scan(readJson2(join47(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
-  const registry = readJson2(join47(homedir15(), ".claude", "plugins", "installed_plugins.json"));
+  scan(readJson2(join48(root, ".mcp.json"))?.mcpServers, (n) => `mcp__${n}`);
+  const registry = readJson2(join48(homedir16(), ".claude", "plugins", "installed_plugins.json"));
   const plugins = registry?.plugins ?? {};
   for (const [key3, installs] of Object.entries(plugins)) {
     const plugin = key3.split("@")[0];
@@ -21030,7 +21441,7 @@ function parentBridges(root) {
     for (const inst of installs)
       if (inst.installPath)
         scan(
-          readJson2(join47(inst.installPath, ".mcp.json"))?.mcpServers,
+          readJson2(join48(inst.installPath, ".mcp.json"))?.mcpServers,
           (n) => `mcp__plugin_${plugin}_${n}`
         );
   }
@@ -21039,7 +21450,7 @@ function parentBridges(root) {
 function trustLine(root) {
   let cfg;
   try {
-    cfg = JSON.parse(readFileSync44(join47(homedir15(), ".claude.json"), "utf8"));
+    cfg = JSON.parse(readFileSync45(join48(homedir16(), ".claude.json"), "utf8"));
   } catch {
     return null;
   }
@@ -21060,7 +21471,7 @@ function trustLine(root) {
 function hasGrant() {
   if (CFG.pat) return true;
   try {
-    if (!existsSync20(storePath())) return false;
+    if (!existsSync21(storePath())) return false;
     const t = loadStore().tokens;
     return Boolean(t?.access_token || t?.refresh_token);
   } catch {
@@ -21069,20 +21480,20 @@ function hasGrant() {
 }
 async function subagentsReport(out7) {
   const root = projectRoot();
-  const userDir = join47(homedir15(), ".claude", "agents");
-  const atHome = resolve12(root) === resolve12(homedir15());
-  const project = atHome ? [] : agentFiles(join47(root, ".claude", "agents"), "project");
+  const userDir = join48(homedir16(), ".claude", "agents");
+  const atHome = resolve12(root) === resolve12(homedir16());
+  const project = atHome ? [] : agentFiles(join48(root, ".claude", "agents"), "project");
   const shadowed = new Set(project.map((f) => f.agent));
   const user = agentFiles(userDir, "user");
   const claude = [...project, ...user.filter((f) => !shadowed.has(f.agent))];
   const opencode = [
-    ...agentFiles(join47(root, ".opencode", "agents"), "project"),
-    ...agentFiles(join47(root, ".opencode", "agent"), "project")
+    ...agentFiles(join48(root, ".opencode", "agents"), "project"),
+    ...agentFiles(join48(root, ".opencode", "agent"), "project")
   ];
   const osNote = process.env[PLATFORM_ENV] ? subWords().osJudged(platform()) : platform();
   out7(subWords().header(root, osNote));
   if (!claude.length && !opencode.length) {
-    const dirs = `${join47(root, ".claude", "agents")}, ${userDir}, ${join47(root, ".opencode", "agents")}`;
+    const dirs = `${join48(root, ".claude", "agents")}, ${userDir}, ${join48(root, ".opencode", "agents")}`;
     out7(subWords().noFiles(dirs));
     return;
   }
@@ -21095,8 +21506,8 @@ async function subagentsReport(out7) {
     const lines = [];
     const expected = `${SUB_ENTRY_PREFIX}-${f.agent}`;
     const entries2 = entriesOf(f.fm);
-    const ours = entries2.filter((e) => BRIDGE_RE.test([e.command, ...e.args].join(" ")));
-    const sat = ours.filter((e) => formOf3(e) !== "session");
+    const ours2 = entries2.filter((e) => BRIDGE_RE.test([e.command, ...e.args].join(" ")));
+    const sat = ours2.filter((e) => formOf3(e) !== "session");
     let probeEntry = null;
     const own = sat.map((e) => `mcp__${e.name}`);
     const disallowed = listOf(f.fm.disallowedTools).map((d) => d.replace(/__\*$/, ""));
@@ -21117,8 +21528,8 @@ async function subagentsReport(out7) {
     const refs = entries2.filter((e) => e.ref && PRODUCT_RE.test(e.name));
     for (const r of refs) lines.push(subWords().refEntry(r.name, block(expected)));
     if (!sat.length) {
-      if (ours.length)
-        lines.push(subWords().formEntry(ours[0].name, formWord("session"), block(expected, ours[0])));
+      if (ours2.length)
+        lines.push(subWords().formEntry(ours2[0].name, formWord("session"), block(expected, ours2[0])));
       else if (!refs.length) lines.push(subWords().noEntry(block(expected)));
     }
     for (const e of sat) {
@@ -21128,7 +21539,7 @@ async function subagentsReport(out7) {
       const form = formOf3(e);
       if (form !== "eval") {
         lines.push(subWords().replaceEntry(e.name, formWord(form), block(name2, e)));
-        if (!probeEntry && existsSync20(homeBridgePath())) probeEntry = canonical(e);
+        if (!probeEntry && existsSync21(homeBridgePath())) probeEntry = canonical(e);
         continue;
       }
       if (!which(e.command, root)) {
@@ -21136,7 +21547,7 @@ async function subagentsReport(out7) {
         continue;
       }
       const bridge = bridgePathOf(e);
-      if (bridge && !existsSync20(resolve12(root, bridge))) {
+      if (bridge && !existsSync21(resolve12(root, bridge))) {
         lines.push(subWords().noBridge(bridge, homeBridgePath()));
         continue;
       }
@@ -21206,24 +21617,24 @@ var SYSTEM_DIRS = {
 };
 var executable = (p) => {
   try {
-    accessSync(p, constants2.X_OK);
+    accessSync2(p, constants3.X_OK);
     return true;
   } catch {
     return false;
   }
 };
-var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir16(), "$HOME"));
+var fix = (l, node) => hw().launchFix(l.harness, l.entry, node, homeBridgePath().replace(homedir17(), "$HOME"));
 function launchReport(out7, launches2) {
   for (const l of launches2) {
     const cmd2 = l.command || "node";
     const found = which(cmd2, process.cwd());
     if (!found || !executable(found)) {
-      out7(`${todo()} ${hw().launchNotFound(l.who, cmd2, isAbsolute9(cmd2))}`);
+      out7(`${todo()} ${hw().launchNotFound(l.who, cmd2, isAbsolute10(cmd2))}`);
       const own = /^node/i.test(basename8(process.execPath)) ? process.execPath : null;
       out7(fix(l, own));
       continue;
     }
-    if (isAbsolute9(cmd2)) {
+    if (isAbsolute10(cmd2)) {
       out7(hw().launchAbsolute(l.who, cmd2));
       continue;
     }
@@ -21240,13 +21651,13 @@ function launchReport(out7, launches2) {
 var openCodeRuntimeWord = () => hw().openCodeRuntime();
 
 // js/cli/doctorpaths.ts
-import { existsSync as existsSync21, readFileSync as readFileSync45 } from "node:fs";
-import { homedir as homedir17 } from "node:os";
-import { join as join48 } from "node:path";
+import { existsSync as existsSync22, readFileSync as readFileSync46 } from "node:fs";
+import { homedir as homedir18 } from "node:os";
+import { join as join49 } from "node:path";
 var hw2 = () => words(HARNESS);
 var readJson = (p) => {
   try {
-    return JSON.parse(readFileSync45(p, "utf8"));
+    return JSON.parse(readFileSync46(p, "utf8"));
   } catch {
     return null;
   }
@@ -21255,7 +21666,7 @@ var httpEntries = (servers) => Object.entries(servers ?? {}).filter(([, v]) => t
 var say = (out7, where, name2, url, remove) => out7(`${todo()} ${hw2().secondPath(where, name2, url, remove)}`);
 var CONNECTOR_RE = CONNECTOR_PATTERN;
 function claudeCode(out7) {
-  const file2 = join48(homedir17(), ".claude.json");
+  const file2 = join49(homedir18(), ".claude.json");
   const cfg = readJson(file2);
   if (!cfg) return;
   for (const [n, url] of httpEntries(cfg.mcpServers))
@@ -21270,7 +21681,7 @@ function claudeCode(out7) {
         url,
         `cd "${dir2}" && claude mcp remove "${n}" --scope local`
       );
-  const mcp = join48(projectRoot(), ".mcp.json");
+  const mcp = join49(projectRoot(), ".mcp.json");
   for (const [n, url] of httpEntries(readJson(mcp)?.mcpServers))
     say(out7, `Claude Code (${mcp})`, n, url, hw2().deleteFrom(mcp));
   const ever = Array.isArray(cfg.claudeAiMcpEverConnected) ? cfg.claudeAiMcpEverConnected : [];
@@ -21292,11 +21703,11 @@ function codexHttp(text7) {
 function secondPathReport(out7, codexHomes2) {
   claudeCode(out7);
   for (const home of codexHomes2) {
-    const file2 = join48(home, "config.toml");
-    if (!existsSync21(file2)) continue;
+    const file2 = join49(home, "config.toml");
+    if (!existsSync22(file2)) continue;
     let text7;
     try {
-      text7 = readFileSync45(file2, "utf8");
+      text7 = readFileSync46(file2, "utf8");
     } catch {
       continue;
     }
@@ -21306,33 +21717,33 @@ function secondPathReport(out7, codexHomes2) {
 }
 
 // js/cli/doctorskills.ts
-import { existsSync as existsSync22, readFileSync as readFileSync46 } from "node:fs";
-import { homedir as homedir18 } from "node:os";
-import { join as join49, resolve as resolve13 } from "node:path";
+import { existsSync as existsSync23, readFileSync as readFileSync47 } from "node:fs";
+import { homedir as homedir19 } from "node:os";
+import { join as join50, resolve as resolve13 } from "node:path";
 var hw3 = () => words(HARNESS);
-var IN_SET = join49(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
+var IN_SET = join50(BRIDGE_SKILL, "scripts", BRIDGE_FILE);
 function sets(codexHomes2) {
   const found = [];
   try {
     const reg = JSON.parse(
-      readFileSync46(join49(homedir18(), ".claude", "plugins", "installed_plugins.json"), "utf8")
+      readFileSync47(join50(homedir19(), ".claude", "plugins", "installed_plugins.json"), "utf8")
     );
     for (const [key3, installs] of Object.entries(reg.plugins ?? {}))
       if (PLUGIN_KEY_RE.test(key3)) {
         for (const i of installs)
-          if (i.installPath) found.push([join49(i.installPath, "skills"), "claude"]);
+          if (i.installPath) found.push([join50(i.installPath, "skills"), "claude"]);
       }
   } catch {
   }
   for (const home of codexHomes2)
-    for (const c of codexCopies(home)) found.push([join49(c.dir, "skills"), "codex"]);
-  found.push([join49(homedir18(), ".agents", "skills"), "flat"]);
+    for (const c of codexCopies(home)) found.push([join50(c.dir, "skills"), "codex"]);
+  found.push([join50(homedir19(), ".agents", "skills"), "flat"]);
   const own = skillsRoot();
   if (own) found.push([own, "other"]);
   const seen = /* @__PURE__ */ new Set();
   return found.filter(([root]) => {
     const key3 = resolve13(root);
-    if (seen.has(key3) || !existsSync22(join49(root, IN_SET))) return false;
+    if (seen.has(key3) || !existsSync23(join50(root, IN_SET))) return false;
     seen.add(key3);
     return true;
   });
@@ -21352,7 +21763,7 @@ function skillsReport(out7, codexHomes2) {
   for (const [root, kind2] of found) {
     let v = null;
     try {
-      v = versionIn(readFileSync46(join49(root, IN_SET), "utf8"));
+      v = versionIn(readFileSync47(join50(root, IN_SET), "utf8"));
     } catch {
     }
     if (!v) out7(hw3().skillsUnreadable(root));
@@ -21366,9 +21777,9 @@ function skillsReport(out7, codexHomes2) {
 }
 
 // js/cli/opencode-config.ts
-import { existsSync as existsSync23, readFileSync as readFileSync47 } from "node:fs";
-import { homedir as homedir19 } from "node:os";
-import { dirname as dirname18, join as join50 } from "node:path";
+import { existsSync as existsSync24, readFileSync as readFileSync48 } from "node:fs";
+import { homedir as homedir20 } from "node:os";
+import { dirname as dirname18, join as join51 } from "node:path";
 
 // js/shared/jsonc.ts
 function parseJsonc(text7) {
@@ -21391,10 +21802,10 @@ var BRIDGE_PART_RE = new RegExp(
 var hw4 = () => words(HARNESS);
 function openCodeMcpEntries(out7) {
   const dirFiles = (d) => [
-    join50(d, "opencode.json"),
-    join50(d, "opencode.jsonc"),
-    join50(d, ".opencode", "opencode.json"),
-    join50(d, ".opencode", "opencode.jsonc")
+    join51(d, "opencode.json"),
+    join51(d, "opencode.jsonc"),
+    join51(d, ".opencode", "opencode.json"),
+    join51(d, ".opencode", "opencode.jsonc")
   ];
   const upwards = [];
   if (!process.env.OPENCODE_CONFIG_PROJECT_DISABLE)
@@ -21408,7 +21819,7 @@ function openCodeMcpEntries(out7) {
     ...process.env.OPENCODE_CONFIG ? [process.env.OPENCODE_CONFIG] : [],
     // Whether this directory belongs to the switchable project layer was not observed (#5559).
     ...process.env.OPENCODE_CONFIG_DIR ? dirFiles(process.env.OPENCODE_CONFIG_DIR) : [],
-    ...dirFiles(join50(homedir19(), ".config", "opencode")),
+    ...dirFiles(join51(homedir20(), ".config", "opencode")),
     ...upwards
   ];
   const kindOf3 = (v) => {
@@ -21432,9 +21843,9 @@ function openCodeMcpEntries(out7) {
   let unreadable = 0;
   const sources = [];
   for (const f of new Set(files)) {
-    if (!existsSync23(f)) continue;
+    if (!existsSync24(f)) continue;
     try {
-      sources.push([f, readFileSync47(f, "utf8")]);
+      sources.push([f, readFileSync48(f, "utf8")]);
     } catch {
       unreadable++;
       out7(hw4().ocUnreadable(f));
@@ -21480,14 +21891,14 @@ function homeCopyReport() {
   const home = homeBridgePath();
   let self = null;
   try {
-    self = readFileSync48(fileURLToPath8(import.meta.url));
+    self = readFileSync49(fileURLToPath8(import.meta.url));
   } catch {
   }
-  if (!existsSync24(home)) {
+  if (!existsSync25(home)) {
     out3(dw().homeNone(home));
     return;
   }
-  const bytes = readFileSync48(home);
+  const bytes = readFileSync49(home);
   if (self && bytes.equals(self)) {
     out3(dw().homeSame(home));
     return;
@@ -21572,12 +21983,12 @@ async function patReport() {
   else if (res.ok) out3(dw().patAccepted(res.status));
   else out3(dw().patOther(res.status));
   const path = storePath();
-  if (existsSync24(path)) out3(dw().patStore(path));
+  if (existsSync25(path)) out3(dw().patStore(path));
 }
 function grantReport() {
   const path = storePath();
   out3(dw().grant(path));
-  if (!existsSync24(path)) {
+  if (!existsSync25(path)) {
     out3(dw().noStore());
     return;
   }
@@ -21609,11 +22020,11 @@ function grantReport() {
   if (st.refused_since)
     out3(dw().refusedSince(new Date(st.refused_since).toISOString(), st.reason ?? ""));
   for (const suffix of [".auth-pending", ".refreshing"]) {
-    if (existsSync24(path + suffix)) out3(dw().lock(path + suffix));
+    if (existsSync25(path + suffix)) out3(dw().lock(path + suffix));
   }
   const logPath = grantLogPath();
-  if (existsSync24(logPath)) {
-    const lines = readFileSync48(logPath, "utf8").trim().split("\n").slice(-3);
+  if (existsSync25(logPath)) {
+    const lines = readFileSync49(logPath, "utf8").trim().split("\n").slice(-3);
     out3(dw().grantLog());
     for (const l of lines) out3(`    ${l}`);
   }
@@ -21631,10 +22042,10 @@ function latestReport() {
   else out3(dw().latestCurrent(latest.version, ago));
 }
 function claudePluginReport() {
-  const registry = join51(homedir20(), ".claude", "plugins", "installed_plugins.json");
-  if (!existsSync24(registry)) return;
+  const registry = join52(homedir21(), ".claude", "plugins", "installed_plugins.json");
+  if (!existsSync25(registry)) return;
   try {
-    const reg = JSON.parse(readFileSync48(registry, "utf8"));
+    const reg = JSON.parse(readFileSync49(registry, "utf8"));
     const mine = Object.entries(reg.plugins ?? {}).filter(([k]) => PLUGIN_KEY_RE.test(k));
     if (!mine.length) {
       out3(dw().pluginMissing(registry));
@@ -21642,11 +22053,11 @@ function claudePluginReport() {
     }
     for (const [key3, installs] of mine) {
       for (const inst of installs) {
-        const manifest2 = inst.installPath ? join51(inst.installPath, ".mcp.json") : "";
+        const manifest2 = inst.installPath ? join52(inst.installPath, ".mcp.json") : "";
         let entry = dw().entryNotFound();
-        if (manifest2 && existsSync24(manifest2)) {
+        if (manifest2 && existsSync25(manifest2)) {
           try {
-            const m = JSON.parse(readFileSync48(manifest2, "utf8"));
+            const m = JSON.parse(readFileSync49(manifest2, "utf8"));
             const hit = Object.entries(m.mcpServers ?? {}).find(
               ([, v]) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
             );
@@ -21680,21 +22091,21 @@ function claudePluginReport() {
 function codexHomes() {
   const homes = [
     process.env.CODEX_HOME?.trim() || "",
-    join51(homedir20(), ".codex"),
-    ...process.platform === "darwin" ? [join51(homedir20(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
+    join52(homedir21(), ".codex"),
+    ...process.platform === "darwin" ? [join52(homedir21(), "Library", "Application Support", "orca", "codex-runtime-home", "home")] : []
   ].filter(Boolean);
-  return [...new Set(homes)].filter((h) => existsSync24(h));
+  return [...new Set(homes)].filter((h) => existsSync25(h));
 }
 function codexPluginReport(home) {
-  const cache = join51(home, "plugins", "cache");
-  if (!existsSync24(cache)) return;
+  const cache = join52(home, "plugins", "cache");
+  if (!existsSync25(cache)) return;
   let found = 0;
   for (const { market, plugin, dir: dir2 } of codexCopies(home)) {
-    const manifest2 = join51(dir2, ".codex-plugin", "plugin.json");
+    const manifest2 = join52(dir2, ".codex-plugin", "plugin.json");
     let word3 = dw().codexNoManifest();
-    if (existsSync24(manifest2)) {
+    if (existsSync25(manifest2)) {
       try {
-        const m = JSON.parse(readFileSync48(manifest2, "utf8"));
+        const m = JSON.parse(readFileSync49(manifest2, "utf8"));
         const hit = Object.values(m.mcpServers ?? {}).find(
           (v) => (v.args ?? []).some((a) => BRIDGE_FILE_RE.test(a))
         );
@@ -21718,10 +22129,10 @@ var launches = [];
 function harnessReport() {
   launches.length = 0;
   claudePluginReport();
-  const claude = join51(homedir20(), ".claude.json");
-  if (existsSync24(claude)) {
+  const claude = join52(homedir21(), ".claude.json");
+  if (existsSync25(claude)) {
     try {
-      const cfg = JSON.parse(readFileSync48(claude, "utf8"));
+      const cfg = JSON.parse(readFileSync49(claude, "utf8"));
       const entries2 = Object.entries(cfg.mcpServers ?? {}).filter(
         ([, v]) => (v.args ?? []).some((a) => PRODUCT_RE.test(a))
       );
@@ -21740,27 +22151,27 @@ function harnessReport() {
       out3(dw().claudeUnreadable(claude));
     }
   }
-  const opencodeDir = join51(homedir20(), ".config", "opencode");
-  if (existsSync24(opencodeDir)) {
-    const copy = join51(opencodeDir, "plugins", PLUGIN_COPY_FILE);
-    const packaged = join51(dirname19(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
-    if (!existsSync24(copy)) out3(dw().ocNoPlugin(copy));
-    else if (!existsSync24(packaged)) out3(dw().ocNoPackaged(copy));
-    else if (readFileSync48(copy).equals(readFileSync48(packaged))) out3(dw().ocSame(copy));
+  const opencodeDir = join52(homedir21(), ".config", "opencode");
+  if (existsSync25(opencodeDir)) {
+    const copy = join52(opencodeDir, "plugins", PLUGIN_COPY_FILE);
+    const packaged = join52(dirname19(fileURLToPath8(import.meta.url)), PLUGIN_FILE);
+    if (!existsSync25(copy)) out3(dw().ocNoPlugin(copy));
+    else if (!existsSync25(packaged)) out3(dw().ocNoPackaged(copy));
+    else if (readFileSync49(copy).equals(readFileSync49(packaged))) out3(dw().ocSame(copy));
     else out3(dw().ocDiffers(copy, packaged));
-    if (existsSync24(copy)) out3(openCodeRuntimeWord());
+    if (existsSync25(copy)) out3(openCodeRuntimeWord());
   }
   openCodeMcpEntries(out3);
   for (const codexHome of codexHomes()) {
     out3(dw().codexHome(codexHome));
     codexPluginReport(codexHome);
-    const door = join51(codexHome, "app-server-control", "app-server-control.sock");
-    if (existsSync24(door)) out3(dw().codexDoorOpen(door));
+    const door = join52(codexHome, "app-server-control", "app-server-control.sock");
+    if (existsSync25(door)) out3(dw().codexDoorOpen(door));
     else if (Buffer.byteLength(door) > 100) out3(dw().codexDoorNever());
     else out3(dw().codexDoorNone(door));
-    const codex = join51(codexHome, "config.toml");
-    if (existsSync24(codex)) {
-      const text7 = readFileSync48(codex, "utf8");
+    const codex = join52(codexHome, "config.toml");
+    if (existsSync25(codex)) {
+      const text7 = readFileSync49(codex, "utf8");
       out3(dw().codexManual(CODEX_ENTRY_RE.test(text7)));
     }
   }
@@ -21776,7 +22187,7 @@ async function daemonReport() {
     out3(dw().fallbackCount(fallbacks.length));
     for (const f of fallbacks) out3(dw().fallbackOne(f.pid, f.build, f.since, f.cwd, f.why));
   }
-  if (!existsSync24(seamRunDir(CFG.authDir))) {
+  if (!existsSync25(seamRunDir(CFG.authDir))) {
     out3(dw().daemonNeverUp(seamRunDir(CFG.authDir)));
     return;
   }
@@ -21878,14 +22289,14 @@ async function runOrchestra(argv2) {
 // js/cli/preparefiles.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
 import {
-  existsSync as existsSync27,
+  existsSync as existsSync28,
   lstatSync as lstatSync9,
-  readFileSync as readFileSync53,
+  readFileSync as readFileSync54,
   readlinkSync,
   symlinkSync,
-  writeFileSync as writeFileSync24
+  writeFileSync as writeFileSync25
 } from "node:fs";
-import { join as join56 } from "node:path";
+import { join as join57 } from "node:path";
 
 // js/shared/coverwrite.ts
 var scalar = (v) => {
@@ -21932,8 +22343,8 @@ function others(lines) {
 }
 
 // js/shared/ritualcover.ts
-import { readdirSync as readdirSync17, readFileSync as readFileSync49 } from "node:fs";
-import { join as join52 } from "node:path";
+import { readdirSync as readdirSync17, readFileSync as readFileSync50 } from "node:fs";
+import { join as join53 } from "node:path";
 function headings(text7) {
   const lines = text7.split("\n");
   let i = lines[0]?.trim() === "---" ? lines.findIndex((l, n) => n > 0 && l.trim() === "---") + 1 : 0;
@@ -21964,7 +22375,7 @@ function ritualCover(dir2, cover = COVER) {
   if (!root) return null;
   let text7;
   try {
-    text7 = readFileSync49(join52(root, cover.file), "utf8");
+    text7 = readFileSync50(join53(root, cover.file), "utf8");
   } catch {
     return null;
   }
@@ -21989,19 +22400,19 @@ function ritualCover(dir2, cover = COVER) {
 }
 function ownRitualsPlugin(root) {
   try {
-    return readdirSync17(join52(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
+    return readdirSync17(join53(root, ".opencode", "plugins")).some((f) => /ritual/i.test(f));
   } catch {
     return false;
   }
 }
 
 // js/cli/preparehooks.ts
-import { existsSync as existsSync26, mkdirSync as mkdirSync28, readFileSync as readFileSync52, writeFileSync as writeFileSync23 } from "node:fs";
-import { join as join55 } from "node:path";
+import { existsSync as existsSync27, mkdirSync as mkdirSync29, readFileSync as readFileSync53, writeFileSync as writeFileSync24 } from "node:fs";
+import { join as join56 } from "node:path";
 
 // js/cli/preparescripts.ts
-import { readFileSync as readFileSync50, statSync as statSync13 } from "node:fs";
-import { isAbsolute as isAbsolute10, join as join53 } from "node:path";
+import { readFileSync as readFileSync51, statSync as statSync14 } from "node:fs";
+import { isAbsolute as isAbsolute11, join as join54 } from "node:path";
 var SCRIPT = /\.(sh|bash|zsh|js|cjs|mjs|ts|py|rb|pl)$/;
 var PROJECT = /\$\{?CLAUDE_PROJECT_DIR\}?/g;
 var INTERPRETER = /(^|\/)(sh|bash|zsh|dash|node|bun|deno|tsx|python3?|ruby|perl)$/;
@@ -22009,7 +22420,7 @@ function scriptsOf(root, command) {
   const words2 = command.split(/\s+/).map((t) => t.replace(/["']/g, ""));
   const at3 = (t) => {
     const p = t.replace(PROJECT, root);
-    return isAbsolute10(p) ? p : join53(root, p);
+    return isAbsolute11(p) ? p : join54(root, p);
   };
   return words2.filter(
     (t, i) => SCRIPT.test(t) || t.includes("CLAUDE_PROJECT_DIR") || i > 0 && INTERPRETER.test(words2[i - 1] ?? "") && /^[\w.~]/.test(t) || t.includes("/") && isFile(at3(t))
@@ -22017,14 +22428,14 @@ function scriptsOf(root, command) {
 }
 function isFile(path) {
   try {
-    return statSync13(path).isFile();
+    return statSync14(path).isFile();
   } catch {
     return false;
   }
 }
 function text6(path) {
   try {
-    return isFile(path) ? readFileSync50(path, "utf8") : "";
+    return isFile(path) ? readFileSync51(path, "utf8") : "";
   } catch {
     return "";
   }
@@ -22075,8 +22486,8 @@ var knownOf = (root, s2, kind2, target) => {
 };
 
 // js/cli/preparequestions.ts
-import { existsSync as existsSync25, mkdirSync as mkdirSync27, readFileSync as readFileSync51, writeFileSync as writeFileSync22 } from "node:fs";
-import { dirname as dirname20, join as join54 } from "node:path";
+import { existsSync as existsSync26, mkdirSync as mkdirSync28, readFileSync as readFileSync52, writeFileSync as writeFileSync23 } from "node:fs";
+import { dirname as dirname20, join as join55 } from "node:path";
 var QUESTION_POLICY = { action: "tool.use", resource: "question:*", effect: "deny" };
 function object3(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -22098,18 +22509,18 @@ function hasQuestionDeny(policies) {
   );
 }
 function questionConfig(root) {
-  const path = join54(root, ".opencode", "opencode.json");
+  const path = join55(root, ".opencode", "opencode.json");
   const jsoncPath = `${path}c`;
-  const jsonc = existsSync25(jsoncPath);
+  const jsonc = existsSync26(jsoncPath);
   const file2 = jsonc ? jsoncPath : path;
   const fail2 = (reason) => ({
     path: file2,
     jsonc,
     error: words(QUESTIONS).manual(file2, reason)
   });
-  if (jsonc && existsSync25(path)) return fail2("both");
+  if (jsonc && existsSync26(path)) return fail2("both");
   try {
-    const cfg = existsSync25(file2) ? parseJsonc(readFileSync51(file2, "utf8")) : {};
+    const cfg = existsSync26(file2) ? parseJsonc(readFileSync52(file2, "utf8")) : {};
     if (!object3(cfg) || cfg.policies !== void 0 && !Array.isArray(cfg.policies))
       return fail2("shape");
     if (jsonc && !hasQuestionDeny(cfg.policies)) return fail2("missing");
@@ -22127,8 +22538,8 @@ function prepareQuestionPolicy(root, write = true) {
     cfg.policies = [...policies, QUESTION_POLICY];
     cfg.$schema ??= "https://opencode.ai/config.json";
     if (!write) return null;
-    mkdirSync27(dirname20(path), { recursive: true });
-    writeFileSync22(path, `${JSON.stringify(cfg, null, 2)}
+    mkdirSync28(dirname20(path), { recursive: true });
+    writeFileSync23(path, `${JSON.stringify(cfg, null, 2)}
 `);
     return null;
   } catch {
@@ -22151,9 +22562,9 @@ var written = (c) => {
 };
 var CARRIED = ["hook.start", "hook.push", "hook.merge"];
 function load2(path) {
-  if (!existsSync26(path)) return {};
+  if (!existsSync27(path)) return {};
   try {
-    const s2 = JSON.parse(readFileSync52(path, "utf8"));
+    const s2 = JSON.parse(readFileSync53(path, "utf8"));
     return s2 && typeof s2 === "object" && !Array.isArray(s2) ? s2 : null;
   } catch {
     return null;
@@ -22183,8 +22594,8 @@ function guard(root, s2, addr, out7, preserve) {
   return true;
 }
 function prepareHooks(root, addr, out7, on, preserve = false) {
-  const dir2 = join55(root, ".claude");
-  const path = join55(dir2, "settings.json");
+  const dir2 = join56(root, ".claude");
+  const path = join56(dir2, "settings.json");
   const s2 = load2(path);
   if (!s2) return path;
   let questionChanged;
@@ -22203,8 +22614,8 @@ function prepareHooks(root, addr, out7, on, preserve = false) {
     (out7.named ??= {})["hook.start"] = cmd(unread);
   }
   if (changed) {
-    mkdirSync28(dir2, { recursive: true });
-    writeFileSync23(path, `${JSON.stringify(s2, null, 2)}
+    mkdirSync29(dir2, { recursive: true });
+    writeFileSync24(path, `${JSON.stringify(s2, null, 2)}
 `);
   }
   return null;
@@ -22225,8 +22636,8 @@ function repositoryOf(root) {
 }
 function coverText(root, given) {
   const W4 = words(PREPARE);
-  const file2 = join56(root, COVER.file);
-  const before = existsSync27(file2) ? readFileSync53(file2, "utf8") : null;
+  const file2 = join57(root, COVER.file);
+  const before = existsSync28(file2) ? readFileSync54(file2, "utf8") : null;
   if (before !== null && stampOf2(before) === "foreign") return { why: W4.foreign(COVER.file) };
   const had = before === null ? null : coverBlock(before, COVER.root);
   const twice = before === null ? [] : repeatedKeys(before);
@@ -22249,7 +22660,7 @@ function writeAgents(c, out7) {
     out7.repeated = c.repeated;
   } else if (c.text === c.before) out7.kept.push(COVER.file);
   else {
-    writeFileSync24(c.file, c.text);
+    writeFileSync25(c.file, c.text);
     out7.done.push(COVER.file);
   }
   for (const k of ["graph", "holon", "agent_role", "contract"])
@@ -22264,29 +22675,29 @@ function writeAgents(c, out7) {
     out7.left.push("cover.flat");
 }
 function writeReality(root, caseNo, out7) {
-  const file2 = join56(root, "REALITY.md");
+  const file2 = join57(root, "REALITY.md");
   const stub = words(PREPARE).reality(caseNo);
-  const had = existsSync27(file2) ? readFileSync53(file2, "utf8") : null;
+  const had = existsSync28(file2) ? readFileSync54(file2, "utf8") : null;
   if (had !== null && (had === stub || !caseNo || had !== words(PREPARE).reality()))
     return void out7.kept.push("REALITY.md");
-  writeFileSync24(file2, stub);
+  writeFileSync25(file2, stub);
   out7.done.push("REALITY.md");
 }
 function writeClaude(root, out7) {
-  const file2 = join56(root, "CLAUDE.md");
+  const file2 = join57(root, "CLAUDE.md");
   const st = lstatSync9(file2, { throwIfNoEntry: false });
   if (st?.isSymbolicLink()) {
     out7[readlinkSync(file2) === COVER.file ? "kept" : "left"].push("CLAUDE.md");
     return;
   }
   if (st) {
-    const lines = readFileSync53(file2, "utf8").split(/\r?\n/);
+    const lines = readFileSync54(file2, "utf8").split(/\r?\n/);
     out7[lines.includes(`@${COVER.file}`) ? "kept" : "left"].push("CLAUDE.md");
     return;
   }
   const links = process.platform !== "win32" && git3(root, "config", "core.symlinks") !== "false";
   if (links) symlinkSync(COVER.file, file2);
-  else writeFileSync24(file2, `@${COVER.file}
+  else writeFileSync25(file2, `@${COVER.file}
 `);
   out7.done.push("CLAUDE.md");
 }
@@ -22295,7 +22706,7 @@ function checkOpencode(root, out7) {
 }
 
 // js/cli/stopapi.ts
-import { randomUUID as randomUUID6 } from "node:crypto";
+import { randomUUID as randomUUID7 } from "node:crypto";
 var sw4 = () => words(STOP_CLI);
 var TIMEOUT_MS5 = 1e4;
 var sameServer = (a, b) => {
@@ -22355,7 +22766,7 @@ async function stopSeat(p, id, base, token) {
     if (realm === null) return { ok: false, said: sw4().unnamedGraph(seat2, p.realm) };
     const order2 = await ask2(`${at3}/stop`, "POST", realm, token, {
       reason_code: "person_request",
-      client_id: `stop-${randomUUID6()}`
+      client_id: `stop-${randomUUID7()}`
     });
     if (order2.status >= 200 && order2.status < 300) {
       let orderId = "";
@@ -22528,25 +22939,25 @@ ${W4.usage()}` });
 }
 
 // js/cli/rituals.ts
-import { mkdtempSync as mkdtempSync3, readdirSync as readdirSync18, realpathSync as realpathSync13, rmSync as rmSync4, statSync as statSync14 } from "node:fs";
+import { mkdtempSync as mkdtempSync3, readdirSync as readdirSync18, realpathSync as realpathSync13, rmSync as rmSync4, statSync as statSync15 } from "node:fs";
 import { tmpdir as tmpdir3 } from "node:os";
-import { join as join60, resolve as resolve14 } from "node:path";
+import { join as join61, resolve as resolve14 } from "node:path";
 
 // js/cli/questionaudit.ts
-import { copyFileSync, existsSync as existsSync28, mkdtempSync as mkdtempSync2, readFileSync as readFileSync54, rmSync as rmSync3 } from "node:fs";
-import { homedir as homedir22, tmpdir as tmpdir2 } from "node:os";
-import { dirname as dirname21, join as join59 } from "node:path";
+import { copyFileSync, existsSync as existsSync29, mkdtempSync as mkdtempSync2, readFileSync as readFileSync55, rmSync as rmSync3 } from "node:fs";
+import { homedir as homedir23, tmpdir as tmpdir2 } from "node:os";
+import { dirname as dirname21, join as join60 } from "node:path";
 
 // js/cli/ritualprobe.ts
 import { mkdtempSync, rmSync as rmSync2, symlinkSync as symlinkSync2 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join58 } from "node:path";
+import { join as join59 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // js/cli/ritualcalls.ts
-import { homedir as homedir21 } from "node:os";
-import { join as join57 } from "node:path";
-var memoryPath = join57(homedir21(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
+import { homedir as homedir22 } from "node:os";
+import { join as join58 } from "node:path";
+var memoryPath = join58(homedir22(), ".claude", "projects", "-probe", "memory", "MEMORY.md");
 var pushed = "To github.com:o/r.git\n   1234567..89abcde  feat/x -> feat/x";
 var seq3 = 0;
 var fresh2 = (kind2) => `${kind2}-${++seq3}`;
@@ -22644,9 +23055,9 @@ var created = (sessionID, directory3) => {
 };
 var settle = (ms2 = SETTLE_MS) => new Promise((r) => setTimeout(r, ms2));
 async function probeScope(file2, own, foreign) {
-  const aliasRoot = mkdtempSync(join58(tmpdir(), "ritual-scope-alias-"));
+  const aliasRoot = mkdtempSync(join59(tmpdir(), "ritual-scope-alias-"));
   try {
-    const alias = join58(aliasRoot, "own");
+    const alias = join59(aliasRoot, "own");
     symlinkSync2(own, alias, "dir");
     return await probeWith(file2, own, alias, foreign);
   } finally {
@@ -22660,7 +23071,7 @@ async function probeWith(file2, own, alias, foreign) {
   const id = Object.fromEntries(who.map((w12) => [w12, `${w12}@${tag}`]));
   const whoOf4 = (sessionID) => who.find((w12) => id[w12] === sessionID);
   const dirs = { mine: own, twin: alias, theirs: foreign };
-  const writes = { mine: 0, twin: 0, theirs: 0 };
+  const writes2 = { mine: 0, twin: 0, theirs: 0 };
   const hooks = {};
   const permissionHooks = [];
   const tools = /* @__PURE__ */ new Set(["question", "case_probe"]);
@@ -22678,7 +23089,7 @@ async function probeWith(file2, own, alias, foreign) {
         if (reads.has(k)) return async () => [];
         return async (arg) => {
           const who2 = whoOf4(arg?.sessionID);
-          if (who2) writes[who2] += 1;
+          if (who2) writes2[who2] += 1;
         };
       }
     }
@@ -22730,7 +23141,7 @@ async function probeWith(file2, own, alias, foreign) {
   ]).finally(() => clearTimeout(timer));
   try {
     await settle();
-    const onEvents = { ...writes };
+    const onEvents = { ...writes2 };
     const mine = await runHooks(hooks, id.mine);
     const question = { action: "question", effect: "allow" };
     const card = { action: "case_probe", effect: "allow" };
@@ -22761,31 +23172,31 @@ async function probeWith(file2, own, alias, foreign) {
 // js/cli/questionaudit.ts
 function json2(path) {
   try {
-    const v = JSON.parse(readFileSync54(path, "utf8"));
+    const v = JSON.parse(readFileSync55(path, "utf8"));
     return object3(v) ? v : null;
   } catch {
     return null;
   }
 }
 function installed() {
-  const reg = json2(join59(homedir22(), ".claude", "plugins", "installed_plugins.json"))?.plugins;
+  const reg = json2(join60(homedir23(), ".claude", "plugins", "installed_plugins.json"))?.plugins;
   if (!object3(reg)) return null;
   for (const [key3, installs] of Object.entries(reg))
     if (PLUGIN_KEY_RE.test(key3) && Array.isArray(installs))
       for (const i of installs) {
         const at3 = object3(i) && typeof i.installPath === "string" ? i.installPath : "";
-        if (at3 && existsSync28(join59(at3, "hooks/hooks.json"))) return join59(at3, "hooks/hooks.json");
+        if (at3 && existsSync29(join60(at3, "hooks/hooks.json"))) return join60(at3, "hooks/hooks.json");
       }
   return null;
 }
 function manifest() {
   if (process.env.CLAUDE_PLUGIN_ROOT)
-    return join59(process.env.CLAUDE_PLUGIN_ROOT, "hooks/hooks.json");
+    return join60(process.env.CLAUDE_PLUGIN_ROOT, "hooks/hooks.json");
   const reg = installed();
   if (reg) return reg;
   for (let dir2 = dirname21(SELF2); ; ) {
-    const path = join59(dir2, "hooks/hooks.json");
-    if (existsSync28(path)) return path;
+    const path = join60(dir2, "hooks/hooks.json");
+    if (existsSync29(path)) return path;
     const up = dirname21(dir2);
     if (up === dir2) return null;
     dir2 = up;
@@ -22799,14 +23210,14 @@ async function auditQuestions(root) {
     const basis = layer === "question.plugin" ? W4.pluginBasis() : W4.fileBasis();
     rows.push({ layer, basis, file: file3, hole: !pass2, ...pass2 ? {} : { error: error2 } });
   };
-  const text7 = readFileSync54(join59(root, "AGENTS.md"), "utf8");
+  const text7 = readFileSync55(join60(root, "AGENTS.md"), "utf8");
   row(
     "question.instructions",
-    join59(root, "AGENTS.md"),
+    join60(root, "AGENTS.md"),
     /question/.test(text7) && /AskUserQuestion/.test(text7) && /\bask\b/.test(text7),
     W4.instructions()
   );
-  const cc = join59(root, ".claude/settings.json");
+  const cc = join60(root, ".claude/settings.json");
   const permissions = json2(cc)?.permissions;
   const denied = object3(permissions) && Array.isArray(permissions.deny) && permissions.deny.includes("AskUserQuestion");
   const oc = questionConfig(root);
@@ -22823,22 +23234,22 @@ async function auditQuestions(root) {
   );
   row("question.plugin", path ?? W4.claudeFile(), hook, W4.claudePlugin());
   const file2 = [
-    process.env.OPENCODE_CONFIG_DIR && join59(process.env.OPENCODE_CONFIG_DIR, "plugins", PLUGIN_COPY_FILE),
-    join59(dirname21(SELF2), PLUGIN_FILE),
-    join59(homedir22(), ".config/opencode/plugins", PLUGIN_COPY_FILE)
-  ].find((p) => !!p && existsSync28(p));
+    process.env.OPENCODE_CONFIG_DIR && join60(process.env.OPENCODE_CONFIG_DIR, "plugins", PLUGIN_COPY_FILE),
+    join60(dirname21(SELF2), PLUGIN_FILE),
+    join60(homedir23(), ".config/opencode/plugins", PLUGIN_COPY_FILE)
+  ].find((p) => !!p && existsSync29(p));
   let pass = false;
   let error = W4.opencodeMissing();
   if (file2) {
-    const foreign = mkdtempSync2(join59(tmpdir2(), "question-audit-"));
+    const foreign = mkdtempSync2(join60(tmpdir2(), "question-audit-"));
     const keys = ["HOME", envName("BRIDGE_AUTH_DIR"), envName("BRIDGE_PATH"), envName("ROOT_SEAT")];
     const before = keys.map((k) => process.env[k]);
     try {
-      for (const [i, value] of [foreign, foreign, join59(foreign, "absent.mjs"), "0"].entries()) {
+      for (const [i, value] of [foreign, foreign, join60(foreign, "absent.mjs"), "0"].entries()) {
         const key3 = keys[i];
         if (key3) process.env[key3] = value;
       }
-      const isolatedPlugin = join59(foreign, PLUGIN_FILE);
+      const isolatedPlugin = join60(foreign, PLUGIN_FILE);
       copyFileSync(file2, isolatedPlugin);
       const q = (await probeScope(isolatedPlugin, root, foreign)).questions;
       pass = q.removed && q.denied && q.caseAllowed;
@@ -22865,18 +23276,18 @@ var rw2 = () => words(RITUALS);
 async function auditRepo(repo) {
   const own = realpathSync13(repo);
   const layers = await auditQuestions(own);
-  const dir2 = join60(own, ".opencode", "plugins");
+  const dir2 = join61(own, ".opencode", "plugins");
   let names2;
   try {
     names2 = readdirSync18(dir2).filter((n) => /\.(m?js|ts)$/.test(n));
   } catch {
     return layers;
   }
-  const foreign = realpathSync13(mkdtempSync3(join60(tmpdir3(), "ritual-scope-foreign-")));
+  const foreign = realpathSync13(mkdtempSync3(join61(tmpdir3(), "ritual-scope-foreign-")));
   const verdicts = [];
   try {
     for (const name2 of names2.sort()) {
-      const file2 = join60(dir2, name2);
+      const file2 = join61(dir2, name2);
       try {
         const scope = await probeScope(file2, own, foreign);
         const hole = scope.writes.theirs > 0 || lostSpelling(scope) || mute(scope) || scope.broken.length > 0;
@@ -22916,7 +23327,7 @@ function verdictLines(v) {
 var RITUALS_USAGE = () => rw2().usage();
 var isDir = (p) => {
   try {
-    return statSync14(p).isDirectory();
+    return statSync15(p).isDirectory();
   } catch {
     return false;
   }
@@ -22949,13 +23360,13 @@ async function runCheckRituals(argv2) {
 }
 
 // js/cli/status.ts
-import { existsSync as existsSync29 } from "node:fs";
+import { existsSync as existsSync30 } from "node:fs";
 
 // js/cli/statusdisk.ts
-import { readdirSync as readdirSync19, readFileSync as readFileSync55 } from "node:fs";
-import { join as join61 } from "node:path";
+import { readdirSync as readdirSync19, readFileSync as readFileSync56 } from "node:fs";
+import { join as join62 } from "node:path";
 async function diskPlaces(authDir, sessions = []) {
-  const dir2 = join61(authDir, "standings");
+  const dir2 = join62(authDir, "standings");
   let names2;
   try {
     names2 = readdirSync19(dir2).filter((n) => n.endsWith(".hold")).sort();
@@ -22965,7 +23376,7 @@ async function diskPlaces(authDir, sessions = []) {
   const rows = await Promise.all(
     names2.map(async (n) => {
       try {
-        const p = record(JSON.parse(readFileSync55(join61(dir2, n), "utf8")));
+        const p = record(JSON.parse(readFileSync56(join62(dir2, n), "utf8")));
         if (!text(p.name) || !text(p.realm) || !["string", "number"].includes(typeof p.karta))
           return null;
         if (sessions.some(
@@ -22993,7 +23404,7 @@ var fallbackSnapshot = (authDir) => readFallbacks(authDir).map((f) => ({ pid: f.
 // js/cli/status.ts
 async function machine(authDir) {
   let daemon_error = "no answer";
-  if (!existsSync29(authDir)) daemon_error = "missing directory";
+  if (!existsSync30(authDir)) daemon_error = "missing directory";
   else if (!seamEntranceProblem(authDir, false)) {
     try {
       const link = await connectSeam(
@@ -23079,7 +23490,7 @@ async function runStatus(args) {
 }
 
 // js/cli/stop.ts
-import { readFileSync as readFileSync56 } from "node:fs";
+import { readFileSync as readFileSync57 } from "node:fs";
 var sw5 = () => words(STOP_CLI);
 function take2(args, flag) {
   const i = args.indexOf(flag);
@@ -23110,7 +23521,7 @@ function apiOf({ place: p, session }) {
   if (session.api) return session.api;
   try {
     const rec6 = JSON.parse(
-      readFileSync56(holdFilePathOf(CFG.authDir, keyOf(p.realm, p.karta, p.name)), "utf8")
+      readFileSync57(holdFilePathOf(CFG.authDir, keyOf(p.realm, p.karta, p.name)), "utf8")
     );
     return typeof rec6.url === "string" && rec6.url ? apiBase(rec6.url) : null;
   } catch {
