@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.4.0](https://github.com/verstak-ai/skills/compare/v4.3.0...v4.4.0) (2026-11-16)
+
+
+### Features
+
+* the bridge core synced to the sibling's 8.9.0 — graph reads stand outside OpenCode's code mode; a body is taken byte for byte as the look tool says ([#451](https://github.com/verstak-ai/skills/issues/451)) ([fff23c2](https://github.com/verstak-ai/skills/commit/fff23c281177a3a2cf9d1102f540c74d7e5ffae3))
+
+
+### Bug Fixes
+
+* a reading tool's answer comes back whole — no raw body read before an edit, no slicing the card in a script ([#449](https://github.com/verstak-ai/skills/issues/449)) ([e38f417](https://github.com/verstak-ai/skills/commit/e38f417ae3fcac4a08691ab61cb850def5ee8ee9))
+
 ## [4.3.0](https://github.com/verstak-ai/skills/compare/v4.2.0...v4.3.0) (2026-11-15)
 
 
