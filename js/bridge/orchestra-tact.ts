@@ -20,6 +20,7 @@ import { words } from "../shared/lang.ts";
 import { seamRunDir } from "../shared/seam-entrance.ts";
 import type { TactInvites } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
+import { ORCHESTRA_SESSION_HEADER, ORCHESTRA_SESSION_ID } from "./orchestra-session.ts";
 import { canonIn, type RealmIndex, realmIndexOf } from "./realmindex.ts";
 
 const w = (): OrchestraWords => words(ORCHESTRA);
@@ -74,7 +75,10 @@ async function getJson(
   redirect?: "error",
 ): Promise<unknown> {
   const res = await namedFetch(`${base}${path}`, {
-    headers: { authorization: `Bearer ${token}` },
+    headers: {
+      authorization: `Bearer ${token}`,
+      [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID,
+    },
     redirect,
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

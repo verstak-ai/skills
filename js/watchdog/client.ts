@@ -149,17 +149,25 @@ export interface AttachOptions {
  * Attach to the local socket and read NDJSON events while the bridge lives. On a
  * `handover` event (the machine daemon passes the seat to a successor) the door closes
  * and reopens at the same path, and the watchdog re-attaches within the start window.
+ * Returns the detach: closes the socket, stops the retries and keeps the process quiet —
+ * for a holder that leaves by its own event (a harness plugin), not by process exit.
  */
-export function attach(path: string, o: AttachOptions): void {
+export function attach(path: string, o: AttachOptions): () => void {
   let startedAt = Date.now();
   let attached = false;
   let handover = false;
   let waitingBack = false; // the seat was handed over and waits to return
   let ownRelease = false; // the bridge released the seat by the session's own close/revoke
   let forgotten = false; // another took this seat beside off, the main seat holds (#7504)
+  let dead = false; // detached on purpose: no retry, no word, no hold on the process
+  let retry: ReturnType<typeof setTimeout> | null = null;
+  let hold: ReturnType<typeof setInterval> | null = null; // a forgotten seat's silence
+  let live: ReturnType<typeof connect> | null = null;
 
   function tryOnce(): void {
+    if (dead) return;
     const sock = connect(path);
+    live = sock;
     let buf = "";
     sock.setEncoding("utf8");
     sock.on("connect", () => {
@@ -200,24 +208,33 @@ export function attach(path: string, o: AttachOptions): void {
       /* the close event speaks for it */
     });
     sock.on("close", () => {
+      live = null;
+      if (dead) return; // detached: the detach speaks, not the close it caused
       if (attached && handover) {
         // The seat goes to the daemon's successor: the same door reopens, wait with the start window.
         attached = false;
         handover = false;
         waitingBack = true;
         startedAt = Date.now();
-        return void setTimeout(tryOnce, RETRY_MS);
+        return void (retry = setTimeout(tryOnce, RETRY_MS));
       }
       if (ownRelease) return; // an own release was said by the released event (#6638)
       // Its exit or alarm would wake the doer, whose main seat holds: the watchdog falls silent.
-      if (forgotten) return void setInterval(() => {}, SILENT_MS);
+      if (forgotten) return void (hold = setInterval(() => {}, SILENT_MS));
       if (attached) return o.onGone(wd().bridgeLetGo());
       if (Date.now() - startedAt > ATTACH_WINDOW_MS) {
         const s = ATTACH_WINDOW_MS / 1000;
         return o.onGone(waitingBack ? wd().seatNotBack(s, path) : wd().noSocket(path, s));
       }
-      setTimeout(tryOnce, RETRY_MS);
+      retry = setTimeout(tryOnce, RETRY_MS);
     });
   }
   tryOnce();
+  return () => {
+    dead = true;
+    if (retry) clearTimeout(retry);
+    if (hold) clearInterval(hold);
+    live?.destroy();
+    live = null;
+  };
 }

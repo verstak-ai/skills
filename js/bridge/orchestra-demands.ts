@@ -1,6 +1,7 @@
 // Read-only local demands (graph @nks/nks-dev, nodes #9957, #9958, #8202).
 import { namedFetch } from "../shared/http.ts";
 import { object, type OpenOrder, openOrder, startRow, stopRow } from "./demand-rows.ts";
+import { ORCHESTRA_SESSION_HEADER, ORCHESTRA_SESSION_ID } from "./orchestra-session.ts";
 import { canonIn, realmIndexOf } from "./realmindex.ts";
 
 export interface Demands {
@@ -21,9 +22,17 @@ export interface TactInvites {
   token: string;
   responses: { realm: string; body: unknown }[];
 }
-async function get(base: string, token: string, path: string): Promise<Record<string, unknown>> {
+async function get(
+  base: string,
+  token: string,
+  path: string,
+  control = false,
+): Promise<Record<string, unknown>> {
   const r = await namedFetch(`${base}${path}`, {
-    headers: { authorization: `Bearer ${token}` },
+    headers: {
+      authorization: `Bearer ${token}`,
+      ...(!control ? { [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID } : {}),
+    },
     redirect: "error",
     signal: AbortSignal.timeout(10_000),
   });
@@ -127,7 +136,7 @@ export async function readDemands(
     for (let n = 0; n < MAX_PAGES; n++) {
       if (gone?.gone) throw new Error("caller_gone");
       const q = `open=true&limit=${LIMIT}${since ? `&since=${since}` : ""}`;
-      const body = await get(base, token, `/me/orders?${q}`);
+      const body = await get(base, token, `/me/orders?${q}`, true);
       const rows = items(body);
       if (!rows.length) return result;
       const projected = rows.map((v) => stopRow(v, realms)).filter((v) => v !== null);

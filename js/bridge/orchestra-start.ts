@@ -1,9 +1,12 @@
-// Both adapters consume the same admitted row and brief; only explicit exec selects the new one.
+// The adapters consume the same admitted row and tree; only explicit exec selects the Orca
+// exec path, and the harness dsh the bridge's own process (#10777).
 import { ORCHESTRA, SPAWN_LINE } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { launchExec } from "./exec-launch.ts";
+import { launchDsh } from "./orchestra-dsh-run.ts";
 import type { Launcher } from "./orchestra-launchers.ts";
-import { launchArgv, orcaLaunch, run as orcaRun } from "./orchestra-orca.ts";
+import { launchArgv, orcaLaunch } from "./orchestra-orca.ts";
+import { bindTerminal } from "./orchestra-orca-bind.ts";
 import { orcaSeesTree } from "./orchestra-orca-seen.ts";
 import { coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
 import { type Run, writeRuns } from "./orchestra-runs.ts";
@@ -47,8 +50,8 @@ export async function startRun(
   const prompt =
     `${SPAWN_LINE} ${JSON.stringify(pair)} ` +
     words(ORCHESTRA).brief(run.realm, run.karta, run.room, run.invite);
-  const exec = own.harnesses[run.harness].exec;
-  if (!exec && prompt.length > BRIEF_MAX) return "brief_too_long";
+  const { exec, dsh } = own.harnesses[run.harness];
+  if (!exec && !dsh && prompt.length > BRIEF_MAX) return "brief_too_long";
   runs[key] = run;
   let treeWhy: string | null;
   try {
@@ -72,6 +75,15 @@ export async function startRun(
     writeRuns(authDir, runs);
     return run.why;
   }
+  // The pair rides the environment; the brief names the role and the case (#10777).
+  if (dsh)
+    return launchDsh(
+      authDir,
+      runs,
+      key,
+      dsh,
+      words(ORCHESTRA).dshBrief(run.realm, run.karta, run.room),
+    );
   if (exec) {
     let outcome: string;
     try {
@@ -111,37 +123,7 @@ export async function startRun(
   if (got.outcome === "failed") {
     run.why = got.why;
   } else if (got.why) run.why = got.why;
-  if (got.handle && got.runtime) {
-    const shown = await orcaRun(["terminal", "show", "--terminal", got.handle, "--json"], 5_000);
-    try {
-      const reply = JSON.parse(shown.out) as {
-        ok?: boolean;
-        _meta?: { runtimeId?: string };
-        result?: {
-          terminal?: {
-            handle?: string;
-            incarnationId?: string;
-            worktreePath?: string;
-            executionHostId?: string;
-          };
-        };
-      };
-      const t = reply.result?.terminal;
-      if (
-        shown.code === 0 &&
-        reply.ok &&
-        reply._meta?.runtimeId === got.runtime &&
-        t?.handle === got.handle &&
-        t.executionHostId === "local" &&
-        t.worktreePath === run.worktree &&
-        t.incarnationId
-      ) {
-        if (run.tree) run.tree.incarnation = t.incarnationId;
-      } else run.why = "tree_client_binding_unverified";
-    } catch {
-      run.why = "tree_client_binding_unverified";
-    }
-  } else run.why ??= "tree_client_binding_unverified";
+  await bindTerminal(run, got.handle, got.runtime);
   if (!run.tree?.incarnation) run.state = "ambiguity";
   writeRuns(authDir, runs);
   if (run.state === "ambiguity") return run.why ?? "launch_unverified";

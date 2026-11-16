@@ -2,6 +2,7 @@
 import { ORCHESTRA } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
+import { dshFailure } from "./orchestra-dsh-proc.ts";
 import { readOrchestraFlag } from "./orchestra-flag.ts";
 import { readClones, readRuns } from "./orchestra-runs.ts";
 import { tactStateOf } from "./orchestra-tact.ts";
@@ -17,6 +18,12 @@ export function orchestraStatus(authDir: string, discovered: string[]): Orchestr
     lines.push(w.cloneOut(repo, c.state, c.why ?? "", c.at));
   if (tact.lead) lines.push(w.lead(tact.lead));
   for (const r of Object.values(readRuns(authDir))) {
+    // A dsh run gone wrong after its session stays said after its tree goes (#10777).
+    const failed = r.state === "ended" ? dshFailure(r) : undefined;
+    if (failed && r.tree?.state !== "retained") {
+      lines.push(w.leadRow(r.realm, r.room, r.invite, failed));
+      continue;
+    }
     if (!r.tree || r.tree.state === "removed") continue;
     if (r.tree.state === "ready" && r.state !== "ambiguity" && r.state !== "ended") continue;
     lines.push(

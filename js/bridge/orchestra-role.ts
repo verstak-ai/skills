@@ -1,5 +1,6 @@
 // Flat NodeView read, observed on API 0.185.4; only adhikarin is executable (#5042).
 import { namedFetch } from "../shared/http.ts";
+import { ORCHESTRA_SESSION_HEADER, ORCHESTRA_SESSION_ID } from "./orchestra-session.ts";
 
 export async function roleRefusal(
   base: string,
@@ -11,7 +12,11 @@ export async function roleRefusal(
     return "role_unverified";
   try {
     const res = await namedFetch(`${base}/nodes/${seq}`, {
-      headers: { authorization: `Bearer ${token}`, "x-nks-realm": row.realm },
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-nks-realm": row.realm,
+        [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID,
+      },
       redirect: "error",
       signal: AbortSignal.timeout(10_000),
     });

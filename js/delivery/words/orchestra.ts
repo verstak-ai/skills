@@ -58,6 +58,8 @@ export interface OrchestraWords {
   leadOrdersUnread: (why: string) => string;
   /** The raised agent's brief, after the spawned_for line. */
   brief: (realm: string, karta: number, room: string, invite: number) => string;
+  /** The brief of an agent raised by dsh: its launch line, its seat first, then the case. */
+  dshBrief: (realm: string, karta: number, room: string) => string;
   /** Dry run: rows — the per-invitation lines joined by newlines (may be empty). */
   plan: (rows: string) => string;
   /** Dry run: the invitation would be launched by this command. */
@@ -146,6 +148,8 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
     // @nks/nks-dev, node #9966).
     brief: (realm, _karta, room) =>
       `First: ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
+    dshBrief: (realm, karta, room) =>
+      `verstak ${realm} #${karta} case ${room}. First your seat by the door's Start, then ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
     plan: (rows) =>
       `dry run — nothing launched, ordered or moved (Orca not asked):${rows ? `\n${rows}` : " no invites"}`,
     planLaunch: (argv) => `would launch: ${argv}`,

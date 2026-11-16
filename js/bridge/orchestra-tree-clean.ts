@@ -16,7 +16,11 @@ import {
 /** The client is over: the stop said stopped, or the seat was already over after the exact
  * terminal exited (#9256). */
 const clientGone = (r: Run): boolean =>
-  r.stop_outcome === "stopped" || r.why === "seat_gone_after_exit";
+  r.stop_outcome === "stopped" ||
+  r.why === "seat_gone_after_exit" ||
+  (!!r.dsh?.exit && !r.standing_id);
+/** Ended — or a dsh launch refused by its own exit before any session (#10777). */
+const over = (r: Run): boolean => r.state === "ended" || (r.state === "refused" && !!r.dsh?.exit);
 
 export async function cleanupTree(
   authDir: string,
@@ -28,7 +32,7 @@ export async function cleanupTree(
     t = r.tree;
   if (!t || t.state === "removed") return null;
   if (t.state !== "ready") return t.why ?? "tree_cleanup_unverified";
-  if (r.state !== "ended" || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
+  if (!over(r) || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
     return "tree_client_unverified";
   const identity = runIdentity(r);
   const current = () => {
@@ -36,7 +40,7 @@ export async function cleanupTree(
     return (
       !!latest &&
       runIdentity(latest) === identity &&
-      latest.state === "ended" &&
+      over(latest) &&
       clientGone(latest) &&
       latest.closed === "client_exited"
     );
@@ -120,7 +124,7 @@ export async function cleanupTree(
 
 export async function cleanupEndedTrees(authDir: string, runs: Record<string, Run>): Promise<void> {
   for (const [key, r] of Object.entries(runs))
-    if (r.tree?.state === "ready" && r.state === "ended") {
+    if (r.tree?.state === "ready" && over(r)) {
       const why = await cleanupTree(authDir, runs, key);
       if (why) r.why = why;
     }

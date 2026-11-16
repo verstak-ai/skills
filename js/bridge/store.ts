@@ -12,6 +12,7 @@ import { join } from "node:path";
 
 import { BUILD } from "./build.ts";
 import { CFG } from "./config.ts";
+import { foldInto } from "./journal-fold.ts";
 import { type GrantState, type Store } from "./types.ts";
 
 export const b64url = (buf: Buffer | Uint8Array): string => Buffer.from(buf).toString("base64url");
@@ -117,14 +118,18 @@ export function rotateJournal(path: string, max: number): void {
   } catch {}
 }
 
-/** A line in a machine journal beside the grant: time, pid, build; past 128 KB it moves to `.1`. */
+/**
+ * A line in a machine journal beside the grant: time, pid, build; past 128 KB it moves to `.1`.
+ * A line repeating in shape within a minute is counted, not written (journal-fold.ts).
+ */
 export function appendJournal(path: string, msg: string): void {
   try {
+    const lines = foldInto(path, msg);
+    if (!lines.length) return;
     mkdirSync(CFG.authDir, { recursive: true, mode: 0o700 });
     rotateJournal(path, 128_000);
-    appendFileSync(path, `${new Date().toISOString()} pid=${process.pid} ${BUILD} ${msg}\n`, {
-      mode: 0o600,
-    });
+    const at = `${new Date().toISOString()} pid=${process.pid} ${BUILD}`;
+    appendFileSync(path, lines.map((l) => `${at} ${l}\n`).join(""), { mode: 0o600 });
   } catch {} // a log that cannot be written must never break the call
 }
 

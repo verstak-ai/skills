@@ -3,6 +3,7 @@
 import { ORCHESTRA } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import type { OpenOrder } from "./demand-rows.ts";
+import { dshTerminate } from "./orchestra-dsh-proc.ts";
 import { orcaClose } from "./orchestra-orca.ts";
 import type { Run } from "./orchestra-runs.ts";
 import { RAISE_WINDOW_MS, stopLapsed } from "./orchestra-window.ts";
@@ -19,6 +20,14 @@ export async function expireLaunches(
   for (const r of Object.values(runs))
     if (r.state === "launched" && now - Date.parse(r.at) > RAISE_WINDOW_MS) {
       if (gone?.gone) break;
+      if (r.dsh) {
+        // No seat stood: our own process ends; its observed exit frees the slot (#10777).
+        if (r.dsh.terminated || r.dsh.exit) continue;
+        await dshTerminate(r, "no_seat");
+        r.why = "dsh_no_seat_terminated";
+        said.push(w().leadRow(r.realm, r.room, r.invite, r.why));
+        continue;
+      }
       if (r.exec || r.tree) {
         r.state = "ambiguity";
         r.why = r.exec ? "exec_no_seat_unverified" : "tree_no_seat_unverified";

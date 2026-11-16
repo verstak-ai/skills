@@ -11,9 +11,10 @@ import { cloneTarget } from "./orchestra-clone.ts";
 import { runtimeOver, specOf } from "./orchestra-cloning.ts";
 import { readDemands } from "./orchestra-demands.ts";
 import type { OrchestraAnswer } from "./orchestra-door.ts";
+import { dshReady } from "./orchestra-dsh.ts";
 import { type Launchers, readLaunchers } from "./orchestra-launchers.ts";
 import { type OnlyInvite, selectInvite } from "./orchestra-only.ts";
-import { launchArgv } from "./orchestra-orca.ts";
+import { planLine } from "./orchestra-plan-line.ts";
 import { checkoutFor, coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
 import { resolveInvite } from "./orchestra-resolve.ts";
 import { roleRefusal } from "./orchestra-role.ts";
@@ -85,7 +86,15 @@ export async function planTact(
     const own = resolved.own;
     const repository = String(row.repository ?? "").trim();
     const home = homeOf(own, realm, Number(row.karta));
-    const got = checkoutFor(own, repository, () => ({ code: ORCA }), home);
+    // A dsh call is never Orca's (#10777): only the description's checkouts or homes.
+    const offer = own.harnesses[String(row.harness).trim()].dsh;
+    const dsh = !!offer;
+    const ready = offer ? dshReady(offer) : null;
+    if (ready && "code" in ready) {
+      say(w().planRefuse(ready.code));
+      continue;
+    }
+    const got = checkoutFor(own, repository, () => ({ code: dsh ? "no_checkout" : ORCA }), home);
     if (typeof got === "string") {
       const uncovered = await coverRefusal(got, realm, Number(row.karta), canon, !!home);
       if (uncovered) {
@@ -127,25 +136,7 @@ export async function planTact(
       state: "launched",
       at: new Date().toISOString(),
     };
-    if (own.harnesses[harness].exec) {
-      say(
-        w().planLaunch(
-          [
-            ORCA,
-            "terminal",
-            "create",
-            "--worktree",
-            `path:${worktree}`,
-            "--command",
-            "<runtime-local prepare; API create/prompt; exec opencode --server --session>",
-            "(exec_preflight_required)",
-          ].join(" "),
-        ),
-      );
-    } else
-      say(
-        w().planLaunch([ORCA, ...launchArgv(harness, worktree, model, w().planBrief())].join(" ")),
-      );
+    say(w().planLaunch(planLine(w(), own, harness, worktree, model)));
   }
   return { ok: true, said: w().plan(rows.join("\n")) };
 }

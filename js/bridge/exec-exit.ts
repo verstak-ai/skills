@@ -5,6 +5,7 @@ import { namedFetch } from "../shared/http.ts";
 import { execExited } from "./exec-client-exit.ts";
 import { execBound, importAttempt } from "./exec-launch.ts";
 import { bindExecRaised } from "./exec-raised.ts";
+import { endDshUnseated, observeDsh } from "./orchestra-dsh-proc.ts";
 import { foreignStops } from "./orchestra-foreign.ts";
 import { LIVE, readRuns, type Run, runIdentity, writeRuns } from "./orchestra-runs.ts";
 import { cleanupEndedTrees } from "./orchestra-tree-clean.ts";
@@ -14,17 +15,7 @@ export const exitClientId = (r: Run): string =>
     .update(`${runIdentity(r)}|client_exited`)
     .digest("hex")
     .slice(0, 32)}`;
-export function execPending(authDir: string): boolean {
-  try {
-    return Object.values(readRuns(authDir)).some(
-      (r) =>
-        (!!(r.exec || r.tree) && LIVE.includes(r.state)) ||
-        (r.state === "ended" && r.tree?.state === "ready"),
-    );
-  } catch {
-    return true;
-  } // preserve a corrupt registry for recovery, never reinterpret it as empty
-}
+export { execPending } from "./exec-pending.ts";
 
 /** Process exit is persisted before networking. For an exec client neither 410 nor timeout is
  * suppression proof; a tree run whose exact terminal exited ends on 410. */
@@ -45,7 +36,7 @@ export async function observeExec(
     }
     writeRuns(authDir, runs);
     const identity = runIdentity(r);
-    if (!(r.exec?.exit || r.tree?.exit) && (await execExited(r))) {
+    if (!(r.exec?.exit || r.tree?.exit) && (r.dsh ? await observeDsh(r) : await execExited(r))) {
       const latest = readRuns(authDir)[key];
       if (!latest || runIdentity(latest) !== identity) continue;
       if (r.exec) r.exec.exit = new Date().toISOString();
@@ -83,11 +74,17 @@ interface StopAnswer {
 const ruleOf = (b: StopAnswer): unknown => b.errors?.[0]?.rule;
 /** An ordinary tree run of OpenCode: its terminal holds its own process with the embedded server,
  * so the exact terminal's exit leaves nothing to wake (#9256). */
-const ownProcess = (r: Run): boolean => !!r.tree && !r.exec && r.harness === "opencode";
+const ownProcess = (r: Run): boolean =>
+  !!r.tree && !r.exec && (r.harness === "opencode" || !!r.dsh);
 
 async function finishExits(authDir: string, base: string, token: string): Promise<void> {
   const runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
+    if (endDshUnseated(r, LIVE.includes(r.state))) {
+      writeRuns(authDir, runs);
+      await cleanupEndedTrees(authDir, runs);
+      continue;
+    }
     if (
       !(r.exec?.exit || r.tree?.exit) ||
       !r.standing_id ||

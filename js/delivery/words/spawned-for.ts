@@ -15,6 +15,8 @@ export interface SpawnedForWords {
   schema: () => string;
   /** Register confirmed the pair: the session joins the case before any work. */
   taken: (realm: string, room: string, invite: number) => string;
+  /** Register never confirmed the pair within the bound: this plugin instance stops trying. */
+  gaveUp: (tries: number, room: string, invite: number) => string;
   /** The session already stands on a seat for this pair: no second seat, join the case. */
   held: (place: string, realm: string, room: string, invite: number) => string;
 }
@@ -37,6 +39,8 @@ export const SPAWNED_FOR: Readonly<Record<Lang, SpawnedForWords>> = {
       "The launch basis: the invitation's number within its case and the case's UUID. Register must confirm the same pair; a refusal is not bypassed with another name or take.",
     taken: (realm, room, invite) =>
       `You were taken for invitation ${invite} of case ${room} in graph ${realm}: register confirmed the pair. Before any work, join that case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — and read its assignment; not joined — do not work, and say why.`,
+    gaveUp: (tries, room, invite) =>
+      `spawned_for: register did not confirm invitation ${invite} of case ${room} ${tries} times; this plugin instance stops trying and takes no seat. The launch failed — only a new invitation retries it.`,
     held: (place, realm, room, invite) =>
       `This session already stands on seat ${place} for invitation ${invite} of case ${room}: the pair is confirmed, no second seat is registered. Join the case — ${tool("case")}(action="join", realm="${realm}", room="${room}") — before any work.`,
   },

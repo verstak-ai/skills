@@ -15,6 +15,19 @@ export interface Run {
     /** Observed exact-client exit, not proof of durable halt. */
     exit?: string;
   };
+  /** A dsh process the bridge started itself (#10777): its pid, its event file, what it said. */
+  dsh?: {
+    pid: number;
+    events: string;
+    /** This run's model overlay: its path in the command line proves the pid ours. */
+    model?: string;
+    session?: string;
+    /** The `final` event's reason kind. */
+    final?: string;
+    /** Observed exit: its code, or "unknown" when not proven ours after a restart. */
+    exit?: string;
+    terminated?: string;
+  };
   realm: string;
   room: string;
   invite: number;

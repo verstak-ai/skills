@@ -7,6 +7,7 @@ import { seamRunDir } from "../shared/seam-entrance.ts";
 import { writeOwned } from "./doorfiles.ts";
 import { foldTape } from "./orchestra-quench.ts";
 import { readRuns, writeRuns } from "./orchestra-runs.ts";
+import { ORCHESTRA_SESSION_HEADER, ORCHESTRA_SESSION_ID } from "./orchestra-session.ts";
 
 export async function bindExecRaised(
   authDir: string,
@@ -34,7 +35,10 @@ export async function bindExecRaised(
       const q = new URLSearchParams({ limit: "200" });
       if (cursors[realm]) q.set("since", cursors[realm]);
       const res = await namedFetch(`${base}/realms/${encodeURIComponent(realm)}/raised?${q}`, {
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          authorization: `Bearer ${token}`,
+          [ORCHESTRA_SESSION_HEADER]: ORCHESTRA_SESSION_ID,
+        },
         redirect: "error",
         signal: AbortSignal.timeout(10_000),
       });

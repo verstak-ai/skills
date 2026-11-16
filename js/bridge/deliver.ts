@@ -13,7 +13,6 @@ import { ensureAuth } from "./auth.ts";
 import { localAway } from "./away.ts";
 import { BUILD } from "./build.ts";
 import { crossPlaceRefusal, resolveAgainstLed, serialized } from "./call.ts";
-import { noteCaseEntry } from "./caseexit.ts";
 import { claimReply, refuseLaunch, refuseUnbound } from "./claimdelivery.ts";
 import { contextCall, refuseContext } from "./context-gate.ts";
 import { deafRefusal } from "./deaf.ts";
@@ -38,6 +37,7 @@ import { noteLocaleEcho, withPlaceFields } from "./placefields.ts";
 import { isPulseCall, runPulse } from "./pulse.ts";
 import { localRealm } from "./realmask.ts";
 import { isRead } from "./repeat.ts";
+import { noteReply } from "./replynotes.ts";
 import { isCheckCall, isResumeCall } from "./resume.ts";
 import { localEnd } from "./runend.ts";
 import { satelliteChannelRefusal } from "./satellite.ts";
@@ -386,9 +386,9 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
             );
           }
         }
-        // connect/mint: the bridge takes the socket and appends how to listen; a successful
-        // case join is remembered by a satellite (graph @nks/nks-dev, node #6573).
-        noteCaseEntry(msg.params?.name, msg.params?.arguments, held);
+        // connect/mint: the bridge takes the socket and appends how to listen; the reply notes
+        // the place — a satellite's case join, a provisional seat's first write (replynotes.ts).
+        await noteReply(msg, held);
         const reply = absorbCloseReply(msg, absorbRevokeReply(msg, absorbChannelReply(msg, held)));
         emit(forHarness(withNotice(reply)));
       }

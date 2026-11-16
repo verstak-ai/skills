@@ -47,6 +47,7 @@ import { pruneFallbacks } from "./fallback.ts";
 import { handoffsSettled } from "./handoff.ts";
 import { eraOf, HOLD_RECORD_MAX_AGE_MS, holdRecordsWhere } from "./holdrecord.ts";
 import { beginHandover, beginSessionHandover, H } from "./holdstate.ts";
+import { foldInto } from "./journal-fold.ts";
 import { openOrchestra, orchestraLeading, orchestraServe } from "./orchestra.ts";
 import { pauseForHandover } from "./pauserecord.ts";
 import { extraPlaces } from "./places.ts";
@@ -119,12 +120,10 @@ export async function daemonMain(argv: string[]): Promise<void> {
       mkdirSync(run, { recursive: true, mode: 0o700 });
       rotateJournal(journalPath, JOURNAL_MAX);
       // The journal line already starts with time and build, so the log stamp is dropped.
-      const text = line.trimEnd().replace(LOG_MARK, "");
-      appendFileSync(
-        journalPath,
-        `${new Date().toISOString()} pid=${process.pid} ${BUILD} ${text}\n`,
-        { mode: 0o600 },
-      );
+      const lines = foldInto(journalPath, line.trimEnd().replace(LOG_MARK, ""));
+      const at = `${new Date().toISOString()} pid=${process.pid} ${BUILD}`;
+      if (lines.length)
+        appendFileSync(journalPath, lines.map((l) => `${at} ${l}\n`).join(""), { mode: 0o600 });
     } catch {} // an unwritable journal never kills the daemon
   };
   setProcessLog(journal);
