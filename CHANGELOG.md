@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.1](https://github.com/verstak-ai/skills/compare/v4.5.0...v4.5.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* intake says the person chooses the target among remembered ones, never the text or the agent; the one-pass thread runs with its target already chosen ([#454](https://github.com/verstak-ai/skills/issues/454)) ([bcaddae](https://github.com/verstak-ai/skills/commit/bcaddaec8db948c8900add61bb764b38ed693b8d))
+
 ## [4.5.0](https://github.com/verstak-ai/skills/compare/v4.4.0...v4.5.0) (2026-11-16)
 
 
