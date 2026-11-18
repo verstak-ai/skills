@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.6.0](https://github.com/verstak-ai/skills/compare/v4.5.1...v4.6.0) (2026-11-18)
+
+
+### Features
+
+* the intake target may point to a described way, read before intake; a canvas is let in by its cards, groups and arrows ([#458](https://github.com/verstak-ai/skills/issues/458)) ([1705f59](https://github.com/verstak-ai/skills/commit/1705f596a7912cacf1def9b4c29cda7b247912c8))
+
+
+### Bug Fixes
+
+* a thread finds the target's way on the card itself and a way never lifts the guards; a canvas arrow becomes a link only where an allowed type carries it ([#459](https://github.com/verstak-ai/skills/issues/459)) ([aefd6e5](https://github.com/verstak-ai/skills/commit/aefd6e5fbfb47ece76235aa63e6c73dbec8a28c3))
+* intake offers even a single remembered target, the tasker carries the person's choice, and a thread with no chosen target writes nothing ([#456](https://github.com/verstak-ai/skills/issues/456)) ([d87c058](https://github.com/verstak-ai/skills/commit/d87c058e856e871e6bc1d53a2fa6a409d4fb5ebc))
+
 ## [4.5.1](https://github.com/verstak-ai/skills/compare/v4.5.0...v4.5.1) (2026-11-17)
 
 

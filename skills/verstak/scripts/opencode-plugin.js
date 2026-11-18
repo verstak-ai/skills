@@ -214,7 +214,7 @@ var QUESTION_SCOPE = "repo";
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.5.1";
+var VERSION = "4.6.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
