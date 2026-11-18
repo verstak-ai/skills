@@ -4,15 +4,16 @@ A reference of **minding** (`Where in mind`); read it whole before writing a tar
 
 The user forwards someone else's message — a post, a piece of news, a remark — and wants it let into a graph. Which graphs is theirs to say; their choice lies in personal mind as one record per target. The companion — in the conversation home or a messenger — and an agent at the terminal write and read it the same way.
 
-**The record.** One phenomenon card per target graph under the holon of working with agents (none → create it, as a subject area by `Where in mind`). It is its own card, never the graph's live-graph card (the `ding` with `attrs.key` and `address`): that one routes questions to the graph, this one admits forwarded text into it; a graph may have both, and refining the live-graph card leaves no target the search finds. `attrs` carry only the filter keys:
+**The record.** One phenomenon card per target graph under the holon of working with agents (none → create it, as a subject area by `Where in mind`). It is its own card, never the graph's live-graph card (the `ding` with `attrs.key` and `address`): that one routes questions to the graph, this one admits forwarded text into it; a graph may have both, and refining the live-graph card leaves no target the search finds. `attrs` carry only these keys:
 
 ```json
-{"slice":"intake","realm":"@owner/slug","skill":"intake","model":"provider/id"}
+{"slice":"intake","realm":"@owner/slug","skill":"intake","model":"provider/id","way":"mind#N"}
 ```
 
 - `realm` — the target graph's address, in full, with the owner's handle.
 - `skill` — which skill lets the text in: the common **intake**, or the graph's own skill (as a chronicle has).
 - `model` — the model of the background intake thread; no key → the conversation's model.
+- `way` — optional: a pointer to the description of how text is let into this graph — the user's own way in their personal mind (`mind#N`) or a method node in the target graph (`#N`). Whoever lets the text in reads it themselves, with their own access, and follows it where it says more precisely than the common skill; no key → the skill alone.
 
 The name — the user's words about the graph; the body — their words on what belongs there and what doesn't. The values are their answers, never a guess: no skill named → `intake`; a model only when they named one. One card per `realm`: a target for the same graph already there → edit it, never a second. A target they gave up is released by its mode (`visarjana`), not deleted.
 
