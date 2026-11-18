@@ -13,7 +13,7 @@ The user forwards someone else's message — a post, a piece of news, a remark �
 - `realm` — the target graph's address, in full, with the owner's handle.
 - `skill` — which skill lets the text in: the common **intake**, or the graph's own skill (as a chronicle has).
 - `model` — the model of the background intake thread; no key → the conversation's model.
-- `way` — optional: a pointer to the description of how text is let into this graph — the user's own way in their personal mind (`mind#N`) or a method node in the target graph (`#N`). Whoever lets the text in reads it themselves, with their own access, and follows it where it says more precisely than the common skill; no key → the skill alone.
+- `way` — optional: a pointer to the description of how text is let into this graph — the user's own way in their personal mind (`mind#N`) or a method node in the target graph (`#N`). It never travels in an assignment: whoever lets the text in — a background thread included — finds the target's card themselves, with their own access (`verstak_search(realm="mind", q="", attrs_filter="slice:intake;realm:<the target's realm>")`), reads the description it points to, and follows it where it says more precisely than the common skill; no key → the skill alone.
 
 The name — the user's words about the graph; the body — their words on what belongs there and what doesn't. The values are their answers, never a guess: no skill named → `intake`; a model only when they named one. One card per `realm`: a target for the same graph already there → edit it, never a second. A target they gave up is released by its mode (`visarjana`), not deleted.
 
