@@ -163,7 +163,7 @@ var COVER = {
 var LAUNCH_WORD = "verstak";
 var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(\\S+))?(?=\\s|$)`,
   "mu"
 );
 
@@ -867,6 +867,18 @@ function merged(c) {
   return ran(c, "gh pr merge", noop, /(Merged|Squashed and merged|Rebased and merged) pull request/) || ran(c, "fj pr merge", noop, /Merged PR #/) || (c.exit ?? 0) === 0 && PULL.test(c.command);
 }
 
+// js/shared/ritenotes.ts
+function shellNotes(cover, call, dir, skip = () => false) {
+  const W = wordsIn(RITES, cover.lang);
+  const { on, holon, sections } = cover;
+  const push = on.has("push") && !skip("push") ? pushedTo(call, dir) : null;
+  const said = [];
+  if (push === "branch") said.push(W.push(sections.check));
+  if (push === "trunk" || on.has("merge") && !skip("merge") && merged(call))
+    said.push(W.merge(holon, ...mergeHeads(sections, push === "trunk")));
+  return said;
+}
+
 // js/shared/turnend.ts
 var TURN_RITE = "turn";
 var SPEAKING = /* @__PURE__ */ new Map([
@@ -1151,13 +1163,7 @@ function riteWords(input, dir) {
     command: String(input.tool_input?.command ?? ""),
     ...printed(input.tool_response)
   };
-  const said = [];
-  const W = wordsIn(RITES, cover.lang);
-  const push = cover.on.has("push") && !own.has("hook.push") ? pushedTo(call, dir) : null;
-  if (push === "branch") said.push(W.push(cover.sections.check));
-  if (push === "trunk" || cover.on.has("merge") && !own.has("hook.merge") && merged(call))
-    said.push(W.merge(cover.holon, ...mergeHeads(cover.sections, push === "trunk")));
-  return said;
+  return shellNotes(cover, call, dir, (kind) => own.has(`hook.${kind}`));
 }
 function turnWord(input, dir) {
   if (input.stop_hook_active === true || typeof input.transcript_path !== "string") return null;

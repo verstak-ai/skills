@@ -117,7 +117,7 @@ var CONTEXT_GATE = {
 var LAUNCH_WORD = "verstak";
 var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(\\S+))?(?=\\s|$)`,
   "mu"
 );
 
@@ -125,7 +125,7 @@ var LAUNCH_LINE = new RegExp(
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.6.0";
+var VERSION = "4.7.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -565,7 +565,7 @@ function seatIs(frame, ...named2) {
   if (!myId && !myAddr) return null;
   const id = named2.map((v) => str(obj(v).id)).find(Boolean);
   if (id && myId) return id === myId;
-  const addr = named2.map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0]).find(Boolean);
+  const addr = named2.map((v) => addresseeOf(v)?.addr.filter((a) => a !== str(obj(v).id))[0]).find(Boolean);
   if (addr) return addr === myAddr;
   return id ? false : null;
 }
@@ -573,7 +573,7 @@ function addresseeOf(v) {
   if (typeof v === "string") return v ? { addr: [v], label: v } : null;
   const o = obj(v);
   const handle = str(o.handle).replace(/^@/, "");
-  const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
+  const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : str(o.name));
   const id = str(o.id);
   const label = standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);
@@ -1203,6 +1203,8 @@ var REGISTRATION_REUSE_MS = 45 * 6e4;
 // js/bridge/oauth/pacing.ts
 var pauses = (v, fallback) => (v || fallback).split(",").map(Number).filter((n2) => Number.isFinite(n2) && n2 >= 0);
 var DEAD_RECHECK_MS = pauses(process.env[envName("BRIDGE_DEAD_RECHECK_MS")], "1000,2000");
+var LOST_RETRY_MS = Number(process.env[envName("BRIDGE_LOST_RETRY_MS")]) || 1e3;
+var KEEPALIVE_MS = Number(process.env[envName("BRIDGE_KEEPALIVE_MS")]) || 6e4;
 var IN_CALL_WAIT_MS = Number(process.env[envName("BRIDGE_IN_CALL_WAIT_MS")]) || 1e4;
 var ORPHAN_FLOW_MS = Number(process.env[envName("BRIDGE_ORPHAN_FLOW_MS")]) || 5 * 6e4;
 
@@ -1294,12 +1296,7 @@ var state = scoped(() => ({
   places: [],
   standingSession: null,
   // the session id that registration is known to hold in
-  // The access token the session was opened with. A session is opened BY a
-  // credential and dies with it (the surface's own word): once the token in the
-  // store is no longer the one this session was opened with — expired, refreshed
-  // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
-  // server that opens a fresh session on it silently runs the call unattributed
-  // before we learn the new id. So a changed token means: re-open first.
+  // The bearer last associated with the session; refresh alone does not end it.
   sessionToken: null,
   // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
   goneSession: null
@@ -1478,13 +1475,24 @@ function caseHead(frame, withZachin) {
   const no = W().case(need(c.room));
   return withZachin && c.zachin ? `${no} «${c.zachin}»` : no;
 }
+var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function userTag(user) {
+  const u = typeof user === "string" ? user.trim().replace(/^@/, "") : "";
+  if (!u) return "";
+  return /^[\w.-]+$/.test(u) && !UUID.test(u) ? ` @${u}` : ` ${u}`;
+}
 function whoOf2(frame, withPlace) {
   const p = frame.provenance ?? {};
   const origin2 = frame.origin ?? classifyOrigin(frame);
   if (origin2 === "platform") return W().whoPlatform();
   if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
   const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
-  if (origin2 === "human") return W().whoHuman(opt(" @", p.user)) + place;
+  if (origin2 === "human") {
+    const user = typeof p.user === "string" ? p.user.trim().replace(/^@/, "") : "";
+    const seat = (p.from_standing ?? "").trim();
+    const repeats = !!user && !seat.includes(":") && seat.replace(/^@/, "") === user;
+    return W().whoHuman(userTag(p.user)) + (repeats ? "" : place);
+  }
   const karta = p.from_karta_seq;
   if (karta == null) return p.from_standing ?? "";
   return (origin2 === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
@@ -1733,6 +1741,10 @@ var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 // js/bridge/sweep.ts
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
 
+// js/bridge/endedseats.ts
+var KEEP_MS = 10 * 6e4;
+var J = scoped(() => ({ ended: /* @__PURE__ */ new Map() }));
+
 // js/bridge/holdstate.ts
 var H2 = scoped(() => ({
   /** session dir the place is taken from (stand cwd), kept in the hold record for cwd resume (resume.ts) */
@@ -1753,6 +1765,8 @@ var H2 = scoped(() => ({
   parked: false,
   /** socket reopened on the same address without this opening's hello yet: another may have rotated it (deaf.ts) */
   unheard: false,
+  /** this opening's hello came: hearing is proven until the socket drops, is left or reopened — the ring may forget the hello (RING) */
+  proven: false,
   /** key of a place whose socket was released but binding remembered, until hello proves hearing (deaf.ts) */
   deafKey: null,
   /** places of other graphs on the channel at the 4001: the server remembers the binding, no hearing (deaf.ts) */
@@ -2379,6 +2393,10 @@ function resultToContent(result) {
 }
 
 // js/shared/mindslice.ts
+var C = scoped(() => ({
+  entries: /* @__PURE__ */ new WeakMap(),
+  listing: null
+}));
 function sliceIn(text2) {
   for (const lang2 of LANGS) {
     const mark = MIND_SLICE[lang2].mark();
