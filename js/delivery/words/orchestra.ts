@@ -46,20 +46,26 @@ export interface OrchestraWords {
   lead: (lines: string) => string;
   /** The outcome for one invitation: graph, case (id), the invitation's number in it and the outcome code (the api's and the bridge's words). */
   leadRow: (realm: string, room: string, invite: number, code: string) => string;
+  /** The outcome code of an invitation whose raised seat has ended. */
+  seatEnded: () => string;
+  /** A dozing dsh session's state: cursor — the case entry it waits after (empty — the journal start). */
+  dormant: (cursor: string) => string;
   /** The flag lies, but the machine has not admitted the orchestrator — nothing raised or extinguished. */
   leadNotAdmitted: () => string;
   /** The demands snapshot is incomplete — nothing is raised or extinguished by it. */
   leadIncomplete: (errors: string) => string;
   /** The launcher descriptions in mind did not read — nothing is raised. */
   leadNoLaunchers: (why: string) => string;
-  /** A launcher description in mind is unfit — nothing is raised by it. */
-  leadDescription: (what: string, code: string) => string;
+  /** A launcher description in mind is unfit — nothing is raised by it; nodes — the refusal's mind nodes as "#76, #79". */
+  leadDescription: (what: string, code: string, nodes?: string) => string;
   /** The account's orders did not read — a stop on demand goes unseen this tact. */
   leadOrdersUnread: (why: string) => string;
   /** The raised agent's brief, after the spawned_for line. */
   brief: (realm: string, karta: number, room: string, invite: number) => string;
   /** The brief of an agent raised by dsh: its launch line, its seat first, then the case. */
   dshBrief: (realm: string, karta: number, room: string) => string;
+  /** The brief continuing a doze: a word in the case raises the same dsh session. */
+  dshContinue: (room: string, n: number) => string;
   /** Dry run: rows — the per-invitation lines joined by newlines (may be empty). */
   plan: (rows: string) => string;
   /** Dry run: the invitation would be launched by this command. */
@@ -134,14 +140,16 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
       `clone of ${repository}: ${state}${why ? ` (${why})` : ""} (${at})`,
     lead: (lines) => `leading: ${lines}`,
     leadRow: (realm, room, invite, code) => `${realm} case ${room} invite ${invite}: ${code}`,
+    seatEnded: () => "seat_ended",
+    dormant: (cursor) => `dormant, waiting after ${cursor || "journal start"}`,
     leadNotAdmitted: () =>
       "the flag lies, but the machine has not admitted the orchestrator (orchestra on typed at a terminal, or VERSTAK_ORCHESTRA=1 in the daemon's environment) — no agent is raised or extinguished",
     leadIncomplete: (errors) =>
       `the demands snapshot is incomplete (${errors}) — nothing raised or extinguished by it`,
     leadNoLaunchers: (why) =>
       `the launcher descriptions in mind did not read (${why}) — nothing is raised`,
-    leadDescription: (what, code) =>
-      `the launcher description ${what} in mind: ${code} — nothing is raised by it`,
+    leadDescription: (what, code, nodes) =>
+      `the launcher description ${what} in mind: ${code}${nodes ? ` (${nodes})` : ""} — nothing is raised by it`,
     leadOrdersUnread: (why) =>
       `the account's orders did not read (${why}) — the next tact sees a stop on demand of a raised seat`,
     // Short: a long line reaches the terminal as a paste that is never sent (graph
@@ -150,6 +158,8 @@ export const ORCHESTRA: Readonly<Record<Lang, OrchestraWords>> = {
       `First: ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
     dshBrief: (realm, karta, room) =>
       `verstak ${realm} #${karta} case ${room}. First your seat by the door's Start, then ${tool("case")}(action="join", realm="${realm}", room="${room}").`,
+    dshContinue: (room, n) =>
+      `Call continuation: case ${room} has a new entry [${n}] for you — take your seat, read the case and bring your share to its line's outcome.`,
     plan: (rows) =>
       `dry run — nothing launched, ordered or moved (Orca not asked):${rows ? `\n${rows}` : " no invites"}`,
     planLaunch: (argv) => `would launch: ${argv}`,

@@ -35,7 +35,7 @@ export const STAND_TOOL: Readonly<Record<Lang, StandToolWords>> = {
     name: () =>
       "Your own half of the standing's name; without it machine.repo.model is derived — the model from the model parameter.",
     room: () =>
-      "The user's seat address @handle:name (the user's window gives it); the bridge knocks a join there to stand beside the user.",
+      "The user's seat address as the board prints it (a bare name or @handle:name; the user's window gives it); the bridge knocks a join there to stand beside the user.",
     model: () =>
       "The model the agent runs on (id or name, for example claude-opus-5 or opus-5) — the third part of the derived name; without it the name is machine.repo.",
     muteSiblings: () => "Do not hear the echo of other standings of the same role.",
@@ -46,7 +46,7 @@ export const STAND_TOOL: Readonly<Record<Lang, StandToolWords>> = {
     repeatKnock: () =>
       "A deliberate repeat of the knock at the same user seat: allowed once and no sooner than 2 minutes after the first; without it a repeated call sends no second join.",
     satelliteOf: () =>
-      "Only for a subagent's satellite bridge (the bridge entry with --satellite in the agent file): the caller's seat @handle:name from the brief. The bridge stands beside as the satellite seat <caller's name>.sub-N (the first free N), with the role from karta (the brief names it, the caller's role is not inherited); the seat lives for the run. name, take and room are not passed with it.",
+      "Only for a subagent's satellite bridge (the bridge entry with --satellite in the agent file): the caller's seat from the brief, as the board prints it (a bare name or @handle:name). The bridge stands beside as the satellite seat <caller's name>.sub-N (the first free N), with the role from karta (the brief names it, the caller's role is not inherited); the seat lives for the run. name, take and room are not passed with it.",
     status: () =>
       "The seat's busyness, up to 64 characters: on taking — the first line; on a seat this bridge already holds — the main way to update busyness (the call sets only it); an empty string clears.",
     cwd: () =>

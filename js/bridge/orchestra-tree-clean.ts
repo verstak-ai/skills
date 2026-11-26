@@ -12,13 +12,10 @@ import {
   OID,
   treeContent,
 } from "./orchestra-tree-check.ts";
+import { sameTreePath } from "./orchestra-tree-path.ts";
+import { clientGone, keepProof } from "./orchestra-tree-proof.ts";
+import { recheckDue, recheckKept } from "./orchestra-tree-recheck.ts";
 
-/** The client is over: the stop said stopped, or the seat was already over after the exact
- * terminal exited (#9256). */
-const clientGone = (r: Run): boolean =>
-  r.stop_outcome === "stopped" ||
-  r.why === "seat_gone_after_exit" ||
-  (!!r.dsh?.exit && !r.standing_id);
 /** Ended — or a dsh launch refused by its own exit before any session (#10777). */
 const over = (r: Run): boolean => r.state === "ended" || (r.state === "refused" && !!r.dsh?.exit);
 
@@ -27,6 +24,7 @@ export async function cleanupTree(
   runs: Record<string, Run>,
   key: string,
   execute: Git = git,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<string | null> {
   const r = runs[key],
     t = r.tree;
@@ -34,6 +32,7 @@ export async function cleanupTree(
   if (t.state !== "ready") return t.why ?? "tree_cleanup_unverified";
   if (!over(r) || !clientGone(r) || r.closed !== "client_exited" || !t.exit)
     return "tree_client_unverified";
+  keepProof(r);
   const identity = runIdentity(r);
   const current = () => {
     const latest = readRuns(authDir)[key];
@@ -52,11 +51,13 @@ export async function cleanupTree(
     return why;
   };
   if (!current()) return "tree_superseded";
+  if (platform === "win32") return retain("tree_clean_win32_unverified");
   if (
     !t.identity ||
     !/^[a-f0-9-]{36}$/.test(t.operation) ||
-    t.path !== r.worktree ||
-    t.path !== join(t.source, ".worktrees", `orchestra-${t.operation}`) ||
+    !r.worktree ||
+    !sameTreePath(t.path, r.worktree) ||
+    !sameTreePath(t.path, join(t.source, ".worktrees", `orchestra-${t.operation}`)) ||
     !OID.test(t.baseOID) ||
     t.realm !== r.realm ||
     t.room !== r.room ||
@@ -72,11 +73,11 @@ export async function cleanupTree(
       execute,
     );
     if (
-      common !== t.commonDir ||
+      !sameTreePath(common, t.commonDir) ||
       JSON.stringify(await inspectTree(t, execute)) !== JSON.stringify(t.identity)
     )
       return retain("tree_identity_unverified");
-    const invalid = await treeContent(t, execute);
+    const invalid = await treeContent(t, execute, true);
     if (invalid) return retain(invalid);
     if (!current()) return "tree_superseded";
     // A detached commit updates this HEAD through HEAD.lock. Hold it across the final check
@@ -91,7 +92,7 @@ export async function cleanupTree(
     }
     if (JSON.stringify(await inspectTree(t, execute)) !== JSON.stringify(t.identity))
       return retain("tree_identity_unverified");
-    const changed = await treeContent(t, execute);
+    const changed = await treeContent(t, execute, true);
     if (changed) return retain(changed);
     if (!current()) return "tree_superseded";
     t.state = "removing";
@@ -122,10 +123,16 @@ export async function cleanupTree(
   }
 }
 
-export async function cleanupEndedTrees(authDir: string, runs: Record<string, Run>): Promise<void> {
+/** Ready trees of ended runs are cleaned; kept ones are looked at again (orchestra-tree-recheck.ts). */
+export async function cleanupEndedTrees(
+  authDir: string,
+  runs: Record<string, Run>,
+  now = Date.now(),
+): Promise<void> {
   for (const [key, r] of Object.entries(runs))
     if (r.tree?.state === "ready" && over(r)) {
       const why = await cleanupTree(authDir, runs, key);
       if (why) r.why = why;
-    }
+    } else if (over(r) && recheckDue(r, now))
+      await recheckKept(authDir, runs, key, now, cleanupTree);
 }

@@ -5,7 +5,7 @@
 // <id>", the same account) is found, by its command line. No other process is touched.
 import { execFileSync } from "node:child_process";
 
-import { envName } from "../delivery/index.ts";
+import { envName, GLOBAL_PREFIX } from "../delivery/index.ts";
 
 interface Proc {
   pid: number;
@@ -83,16 +83,31 @@ function stamp(pid: number): string | null | undefined {
   }
 }
 
+/** Closes in flight in this process, by client identity: two stops of one client signal it once. */
+const closing = (): Map<string, Promise<boolean>> =>
+  ((globalThis as unknown as Record<string, Map<string, Promise<boolean>> | undefined>)[
+    `${GLOBAL_PREFIX}ClientCloses`
+  ] ??= new Map());
+
+/** A close of the client already in flight is joined; a client already gone is closed. */
+export function closeClient(client: BoundClient, current: () => boolean): Promise<boolean> {
+  const key = `${client.pid} ${client.born}`;
+  const was = closing().get(key);
+  if (was) return was;
+  const close = signal(client, current).finally(() => {
+    if (closing().get(key) === close) closing().delete(key);
+  });
+  closing().set(key, close);
+  return close;
+}
+
 /** A signal is not an exit. Confirm this exact client's disappearance; never escalate. */
-export async function closeClient(client: BoundClient, current: () => boolean): Promise<boolean> {
+async function signal(client: BoundClient, current: () => boolean): Promise<boolean> {
   const { pid, born } = client;
+  const before = stamp(pid);
+  if (before === null || (typeof before === "string" && before !== born)) return true;
   const now = processes().find((p) => p.pid === pid);
-  if (
-    stamp(pid) !== born ||
-    now?.uid !== client.uid ||
-    now.command !== client.command ||
-    !current()
-  )
+  if (before !== born || now?.uid !== client.uid || now.command !== client.command || !current())
     return false;
   try {
     process.kill(pid, "SIGTERM");

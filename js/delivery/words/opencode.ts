@@ -42,6 +42,8 @@ export interface OpencodeWords {
   staleBatch: () => string;
   wakeBatch: (n: number) => string;
   resumedLabel: () => string;
+  /** The log's label of a seat return that failed — a word into the session (channel.ts). */
+  returnFailedLabel: () => string;
   tact: () => string;
   tactWaits: () => string;
   tactWaitsFolded: () => string;
@@ -69,6 +71,8 @@ export interface OpencodeWords {
   sessionLeftOpen: (id: string, why: string | null) => string;
   /** A stopped session's client closed. */
   clientClosed: (id: string, pid: number) => string;
+  /** A stopped session's client kept: it still serves other seats of this process. */
+  clientKept: (id: string, pid: number, places: string) => string;
   held: (key: string) => string;
   released: (key: string, text: string) => string;
   /** seats — not revoked by the deleted session's bridge, or its word when it did not answer. */
@@ -127,6 +131,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     staleBatch: () => "batch of stale frames",
     wakeBatch: (n) => `wake-up batch (${n})`,
     resumedLabel: () => "word about the returned seat",
+    returnFailedLabel: () => "word about the seat that did not return",
     tact: () => "attention tact",
     tactWaits: () => "Verstak: the attention tact waits for the end of the session's turn",
     tactWaitsFolded: () =>
@@ -142,7 +147,7 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     childEnded: (frame, id, text) =>
       `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; a case record stays in the case (${tool("case")} history) — ${text}`,
     sessionClosed: (id, frame) =>
-      `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
+      `Verstak: session ${id} is closed or archived — the ${frame} was not delivered`,
     nowhere: (frame, text) =>
       `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; a case record stays in the case (${tool("case")} history), a direct word did not arrive — ` +
       text,
@@ -163,6 +168,8 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
     sessionLeftOpen: (id, why) =>
       `Verstak: session ${id} is stopped but its window is left open — ${why ?? "the plugin finds no client of this session"}; close it in OpenCode`,
     clientClosed: (id, pid) => `Verstak: session ${id} is stopped, its client closed (pid ${pid})`,
+    clientKept: (id, pid, places) =>
+      `Verstak: session ${id} is stopped, the client is not closed: it still holds the seats ${places} (pid ${pid})`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
     released: (key, text) => `Verstak: the bridge released the standing ${key} — ${text}`,
     endUnrevoked: (seats) =>

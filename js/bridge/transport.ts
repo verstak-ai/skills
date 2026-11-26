@@ -48,12 +48,7 @@ export const state = scoped(() => ({
   // it and are replayed with it after every session turnover.
   places: [] as Standing[],
   standingSession: null as string | null, // the session id that registration is known to hold in
-  // The access token the session was opened with. A session is opened BY a
-  // credential and dies with it (the surface's own word): once the token in the
-  // store is no longer the one this session was opened with — expired, refreshed
-  // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
-  // server that opens a fresh session on it silently runs the call unattributed
-  // before we learn the new id. So a changed token means: re-open first.
+  // The bearer last associated with the session; refresh alone does not end it.
   sessionToken: null as string | null,
   // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
   goneSession: null as string | null,
@@ -134,8 +129,22 @@ export const bearer = (): string | null => CFG.pat ?? loadStore().tokens?.access
 // server answers with (JSON body or a per-request SSE stream) via onMessage —
 // except tools/list_changed, which goes to the harness whoever asked (toolsync.ts, #6819).
 export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => void): Promise<void> {
-  const onMessage = (m: JsonRpcMessage): void =>
-    isListChanged(m) ? heardListChanged(msg, emit) : heard(m);
+  let answered = false;
+  const onMessage = (m: JsonRpcMessage): void => {
+    if (msg.method && msg.id !== undefined && m.id === msg.id) answered = true;
+    if (isListChanged(m)) heardListChanged(msg, emit);
+    else heard(m);
+  };
+  const requireAnswer = (): void => {
+    if (msg.method && msg.id !== undefined && !answered)
+      throw new UpstreamError(
+        "upstream ended the response without an answer",
+        "network",
+        null,
+        UpstreamError.UNKNOWN,
+        true,
+      );
+  };
   const unnamed = unnamedSeatRefusal(msg);
   if (unnamed) return void onMessage(unnamed);
   const headers: Record<string, string> = {
@@ -233,14 +242,17 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
   noteServerDate(res);
 
   if (res.status === 401) {
-    res.body?.cancel?.();
+    const challenge = res.headers.get("www-authenticate") || "";
+    const body = await res.text().catch(() => "");
+    if (sentSession && /credential_mismatch/i.test(`${challenge} ${body}`))
+      throw new UpstreamError(
+        "session credential mismatch",
+        "session",
+        null,
+        UpstreamError.NOT_SENT,
+      );
     // The server answered, and its answer was a refusal: nothing was applied.
-    throw new UpstreamError(
-      res.headers.get("www-authenticate") || "unauthorized",
-      "auth",
-      token,
-      UpstreamError.NOT_SENT,
-    );
+    throw new UpstreamError(challenge || "unauthorized", "auth", token, UpstreamError.NOT_SENT);
   }
   if (res.status === 404 && sentSession) {
     res.body?.cancel?.();
@@ -265,7 +277,10 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
     // handshake does not say which. So the register is replayed regardless:
     // one idempotent call per turnover buys attribution on both.
   }
-  if (res.status === 202 || res.status === 204) return;
+  if (res.status === 202 || res.status === 204) {
+    requireAnswer();
+    return;
+  }
   if (!res.ok) {
     const text = (await res.text().catch(() => "")).slice(0, 300);
     // A 4xx is the server judging the request and refusing it — nothing ran. A
@@ -282,8 +297,7 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
   const ctype = res.headers.get("content-type") || "";
   if (ctype.includes("text/event-stream")) {
     try {
-      if (!res.body) return;
-      for await (const data of sseEvents(res.body)) {
+      for await (const data of res.body ? sseEvents(res.body) : []) {
         try {
           onMessage(JSON.parse(data) as JsonRpcMessage);
         } catch {
@@ -299,15 +313,18 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
         true,
       );
     }
+    requireAnswer();
     return;
   }
   const text = await res.text();
-  if (!text.trim()) return;
-  try {
-    onMessage(JSON.parse(text) as JsonRpcMessage);
-  } catch {
-    throw new UpstreamError(`upstream sent unparseable JSON: ${text.slice(0, 200)}`, "http");
+  if (text.trim()) {
+    try {
+      onMessage(JSON.parse(text) as JsonRpcMessage);
+    } catch {
+      throw new UpstreamError(`upstream sent unparseable JSON: ${text.slice(0, 200)}`, "http");
+    }
   }
+  requireAnswer();
 }
 
 // Transparent re-initialize after a lost session: replay the harness's own

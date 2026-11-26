@@ -25,6 +25,12 @@ export function callerCode(state: string | undefined): DeviceCode | undefined {
   }
 }
 
+/** The device side's view of the codes callers issued for its login. */
+export interface CallerCodes {
+  latest: () => DeviceCode | undefined;
+  dead: (code: DeviceCode) => void;
+}
+
 /** The later-dying of two codes of one login. */
 const later = (a?: DeviceCode, b?: DeviceCode): DeviceCode | undefined =>
   !a || (b && b.expires_at > a.expires_at) ? b : a;
@@ -65,13 +71,22 @@ async function renewed(
   const other = callerCode(l.state);
   if (other && other.device_code !== stale.device_code) return alive(other);
   const fresh = { ...code, interval_ms: Math.max(code.interval_ms, stale.interval_ms) };
+  return keepCallerCode(l.state, fresh) ? fresh : alive(stale);
+}
+
+function keepCallerCode(state: string | undefined, code: DeviceCode): boolean {
   const tmp = `${freshPath()}.tmp-${process.pid}`;
   try {
-    writeFileSync(tmp, JSON.stringify({ state: l.state, code: fresh }), { mode: 0o600 });
+    writeFileSync(tmp, JSON.stringify({ state, code }), { mode: 0o600 });
     renameSync(tmp, freshPath());
+    return true;
   } catch (e) {
-    log(`fresh code for sign-in from another device not kept: ${errorMessage(e)}`);
-    return alive(stale);
+    log(`code for sign-in from another device not kept: ${errorMessage(e)}`);
+    return false;
   }
-  return fresh;
+}
+
+/** A code the server refused is dead in the caller's copy too, when that copy is it. */
+export function callerCodeDead(state: string | undefined, dead: DeviceCode): void {
+  if (callerCode(state)?.device_code === dead.device_code) keepCallerCode(state, dead);
 }

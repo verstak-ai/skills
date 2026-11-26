@@ -1,4 +1,5 @@
 // Scoped recovery state, reconciled with its saved mark (graph @nks/nks-dev, node #10121).
+import { CONTEXT_DOOR } from "../delivery/index.ts";
 import { scoped } from "../shared/scope.ts";
 import {
   clearContextMark,
@@ -17,9 +18,10 @@ export interface Recovery {
   calls: Map<string, string>;
 }
 const S = scoped(() => ({ pending: null as Recovery | null, fault: null as string | null }));
+// The door skill alone releases a generation: no role's skill list is read or awaited (#10740).
 const fresh = (mark: ContextMark): Recovery => ({
   mark,
-  required: null,
+  required: new Set([CONTEXT_DOOR]),
   loaded: new Set(),
   calls: new Map(),
 });

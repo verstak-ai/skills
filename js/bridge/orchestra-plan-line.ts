@@ -12,10 +12,17 @@ export function planLine(
   model: string,
 ): string {
   const offer = own.harnesses[harness];
+  // The dry tact runs no git: the run's shared git-dir is named, as the run passes it (#10777).
   if (offer.dsh)
     return [
       offer.dsh.bin ?? "dsh",
-      ...dshArgv(offer.dsh.patch ?? "<dsh-profile.yml>", `<patch: model ${model}>`, w.planBrief()),
+      ...dshArgv(
+        offer.dsh.patch ?? "<dsh-profile.yml>",
+        `<patch: model ${model}>`,
+        w.planBrief(),
+        undefined,
+        "<shared git-dir of the tree>",
+      ),
       `(cwd ${worktree}, env spawned_for)`,
     ].join(" ");
   if (offer.exec)

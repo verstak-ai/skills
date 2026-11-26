@@ -12,6 +12,7 @@ import { envName, OPENCODE_KEEP } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { authDir } from "./bridge-io.ts";
 import { homeOf, sessionDirectory } from "./host.ts";
+import { channelEnds } from "./leadends.ts";
 import { writeLostMarker } from "./marker.ts";
 import type { Context } from "./plugin.ts";
 import type { Home } from "./records.ts";
@@ -34,9 +35,10 @@ export interface MoveDoors {
   adopt(): void;
 }
 
-export function createMoves(ctx: Context) {
+export function createMoves(ctx: Context, say: Say) {
   const W = words(OPENCODE_KEEP);
   const home = homeOf(ctx);
+  const ends = channelEnds(authDir, say); // the end of a session the host archived (canReturn)
   const directoryOf = (sessionID: string) => sessionDirectory(ctx, sessionID);
   const exists = (sessionID: string): Promise<boolean> =>
     Promise.resolve()
@@ -50,6 +52,23 @@ export function createMoves(ctx: Context) {
     if (!(await exists(sessionID))) return false;
     const dir = home ? await directoryOf(sessionID) : null;
     return !home || !dir || dir === home.directory;
+  };
+  /**
+   * This instance returns the session's seat from a loss marker (keep.ts): the session is readable,
+   * not archived and in this location. The host's archive is the session's end (#9256), a local end
+   * mark or not: the end is recorded here — the dead bridge's seat is never returned to it, no word
+   * is laid into it; a later explicit stand of the session lifts the end as any other.
+   */
+  const canReturn = async (sessionID: string): Promise<boolean> => {
+    const s: any = await Promise.resolve()
+      .then(() => ctx.session.get({ sessionID } as any))
+      .catch(() => null);
+    if (s === null) return false;
+    if (s?.time?.archived ?? s?.data?.time?.archived) {
+      ends.end(sessionID);
+      return false;
+    }
+    return ours(sessionID);
   };
   const left = new Set<string>(); // roots moved from here to another folder
   /** The session moved to location to. */
@@ -103,7 +122,7 @@ export function createMoves(ctx: Context) {
   /** A refusal to stand as a satellite of a root in another directory the process does not hold — for now. */
   const farRefusal = async (root: string | null): Promise<string | null> =>
     root && (await farRoot(root)) === "foreign" ? W.farRefusal() : null;
-  return { home, directoryOf, exists, ours, moved, relay, guard, farRoot, farRefusal };
+  return { home, directoryOf, exists, ours, canReturn, moved, relay, guard, farRoot, farRefusal };
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

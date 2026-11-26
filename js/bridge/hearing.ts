@@ -14,7 +14,15 @@ import { type Board, type BoardEntry, listens, nameOf, readBoard } from "./board
 import { type AskedHearing, callTool as call, realmList, resolveAgainstLed } from "./call.ts";
 import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
-import { doors, holdsStanding, isParked, ledKey, localSocketPathOf, wasEvicted } from "./hold.ts";
+import {
+  doors,
+  holdsKey,
+  holdsStanding,
+  isParked,
+  ledKey,
+  localSocketPathOf,
+  wasEvicted,
+} from "./hold.ts";
 import { canonHoldRecords } from "./holdcanon.ts";
 import {
   type HoldRecord,
@@ -29,6 +37,12 @@ import { canonicalRealm, sameRealm } from "./realms.ts";
 import { localSocketAlive } from "./sweep.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
+
+/** A live, proven socket can answer the watch without an upstream session (the ring may have lost the hello). */
+export function liveHearing(): boolean {
+  const s = state.standing;
+  return !!s && H.proven && holdsKey(keyOf(s.realm, s.karta, s.name ?? "")) && !H.unheard;
+}
 
 /** A non-numeric role is a sentinel: the board prints roles as numbers. */
 export const isSentinel = (karta: string): boolean => !/^\d+$/.test(karta);
@@ -155,7 +169,7 @@ export async function askedHearing(
   const local = await heldLocally(realm, karta, name, cwd);
   if (local === "other") return "other";
   if (local === "session") return "free";
-  const b = await call(tool("channel"), { action: "list", realm }).catch(() => null);
+  const b = await call(tool("channel"), { action: "list", realm, karta }).catch(() => null);
   return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name);
 }
 

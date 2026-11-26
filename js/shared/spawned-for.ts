@@ -1,6 +1,7 @@
 // Launch identity, not a case number (graph @nks/nks-dev, #9959, #6576).
 import { SPAWN_LINE, SPAWNED_FOR } from "../delivery/index.ts";
 import { words } from "./lang.ts";
+import { seatName } from "./seat.ts";
 
 export interface SpawnedFor {
   invite: number;
@@ -147,23 +148,19 @@ export function spawnReceipt(
         typeof v.seat_id !== "string" ||
         !v.seat_id ||
         typeof v.standing !== "string" ||
-        !/^@[^:]+:.+$/.test(v.standing),
+        !seatName(v.standing),
     )
   )
     return null;
   const matches = seats.filter((v) => {
     if (identity.seat_id) return v.seat_id === identity.seat_id;
     if (identity.standing) return v.standing === identity.standing;
-    return (v.standing as string).slice((v.standing as string).indexOf(":") + 1) === identity.name;
+    return seatName(v.standing as string) === identity.name;
   });
   if (matches.length !== 1) return null;
   const v = matches[0];
   if (identity.standing && v.standing !== identity.standing) return null;
-  if (
-    identity.name &&
-    (v.standing as string).slice((v.standing as string).indexOf(":") + 1) !== identity.name
-  )
-    return null;
+  if (identity.name && seatName(v.standing as string) !== identity.name) return null;
   try {
     const pair = parseSpawn(v.spawned_for);
     return sameSpawn(pair, expected)

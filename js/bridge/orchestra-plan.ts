@@ -59,7 +59,7 @@ export async function planTact(
   // A copy: the launches judged here take their limit slots in it, never on disk.
   const runs = structuredClone(readRuns(authDir));
   const clones = readClones(authDir);
-  const rows = ls.refused.map((r) => w().leadDescription(r.what, r.code));
+  const rows = ls.refused.map((r) => w().leadDescription(r.what, r.code, r.nodes?.join(", ")));
   for (const source of selected ? [selected] : demands.start) {
     let row = source;
     const realm = String(row.realm);

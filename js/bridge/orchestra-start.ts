@@ -8,7 +8,7 @@ import type { Launcher } from "./orchestra-launchers.ts";
 import { launchArgv, orcaLaunch } from "./orchestra-orca.ts";
 import { bindTerminal } from "./orchestra-orca-bind.ts";
 import { orcaSeesTree } from "./orchestra-orca-seen.ts";
-import { coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
+import { coverRefusal, homeLine, homeOf } from "./orchestra-raise-gates.ts";
 import { type Run, writeRuns } from "./orchestra-runs.ts";
 import { prepareTree } from "./orchestra-tree.ts";
 import { dropUnlaunched } from "./orchestra-tree-drop.ts";
@@ -30,6 +30,8 @@ export async function startRun(
 ): Promise<string> {
   const run: Run = {
     realm: String(row.realm),
+    ...(typeof row.author === "string" ? { author: row.author } : {}),
+    ...(typeof row.author_user_id === "string" ? { author_user_id: row.author_user_id } : {}),
     room: String(row.room),
     invite: Number(row.invite),
     karta: Number(row.karta),
@@ -75,14 +77,15 @@ export async function startRun(
     writeRuns(authDir, runs);
     return run.why;
   }
-  // The pair rides the environment; the brief names the role and the case (#10777).
+  // The pair rides the environment; the brief names the role and the case (#10777); a role
+  // raised in its home opens the task with the pair and the role (#11076).
   if (dsh)
     return launchDsh(
       authDir,
       runs,
       key,
       dsh,
-      words(ORCHESTRA).dshBrief(run.realm, run.karta, run.room),
+      homeLine(own, run) + words(ORCHESTRA).dshBrief(run.realm, run.karta, run.room),
     );
   if (exec) {
     let outcome: string;

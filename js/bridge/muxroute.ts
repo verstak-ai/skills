@@ -43,7 +43,13 @@ export function createMux(url: string, onSocket?: (s: Sub) => void): Mux {
     if (!link.open) return link.connect();
     s.ref = `r${++refs}`;
     byRef.set(s.ref, s);
-    link.send({ type: "subscribe", secret: s.secret, ref: s.ref });
+    const session = s.sessionId();
+    link.send({
+      type: "subscribe",
+      secret: s.secret,
+      ref: s.ref,
+      ...(session && session.length <= 128 ? { session_id: session } : {}),
+    });
   }
 
   function toSocket(s: Sub): void {

@@ -5,12 +5,12 @@
 // or merged gets one more line (shared/ritualjudge.ts; a push to the trunk — the merge's, #8362); a kind the cover's rituals field leaves
 // out keeps silent. A repository keeping a rituals plugin
 // of its own hears only that one — the delivery keeps silent there until the transition.
-import { PREPARE, RITES } from "../delivery/index.ts";
+import { PREPARE } from "../delivery/index.ts";
 import { repoContractWarning } from "../shared/covercontract.ts";
 import { wordsIn } from "../shared/lang.ts";
 import { inLocalMemory } from "../shared/memorypath.ts";
-import { mergeHeads, ownRitualsPlugin, ritualCover, startWord } from "../shared/ritualcover.ts";
-import { merged, pushedTo } from "../shared/ritualjudge.ts";
+import { shellNotes } from "../shared/ritenotes.ts";
+import { ownRitualsPlugin, ritualCover, startWord } from "../shared/ritualcover.ts";
 import { TURN_RITE } from "../shared/turnend.ts";
 import { sessionDirectory } from "./host.ts";
 import type { Context } from "./plugin.ts";
@@ -95,16 +95,7 @@ export function createRites(ctx: Context) {
         };
         const c = await coverOf(String(t.sessionID));
         if (!c) return;
-        const W = wordsIn(RITES, c.cover.lang);
-        const { on, holon, sections } = c.cover;
-        const push = on.has("push") ? pushedTo(call, c.dir) : null;
-        const note = [
-          push === "branch" && W.push(sections.check),
-          (push === "trunk" || (on.has("merge") && merged(call))) &&
-            W.merge(holon, ...mergeHeads(sections, push === "trunk")),
-        ]
-          .filter(Boolean)
-          .join("\n\n");
+        const note = shellNotes(c.cover, call, c.dir).join("\n\n");
         if (!note || !once(t.id)) return;
         const next: Result = {
           ...result,

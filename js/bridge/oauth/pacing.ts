@@ -14,6 +14,10 @@ const pauses = (v: string | undefined, fallback: string): number[] =>
 
 /** The knocks on a refused grant, before it is judged dead and a human is called in. */
 export const DEAD_RECHECK_MS = pauses(process.env[envName("BRIDGE_DEAD_RECHECK_MS")], "1000,2000");
+/** How often a refresh whose answer was lost is presented again until the token endpoint answers. */
+export const LOST_RETRY_MS = Number(process.env[envName("BRIDGE_LOST_RETRY_MS")]) || 1_000;
+/** How often the background looks at the grant: its top-up, and the login a dead grant owes. */
+export const KEEPALIVE_MS = Number(process.env[envName("BRIDGE_KEEPALIVE_MS")]) || 60_000;
 /** The longest the bridge sits out a hold inside one call before it offers the login instead. */
 export const IN_CALL_WAIT_MS = Number(process.env[envName("BRIDGE_IN_CALL_WAIT_MS")]) || 10_000;
 /** How long a bridge left by its harness — or a daemon left by its last session — still waits for a pending login's click. */

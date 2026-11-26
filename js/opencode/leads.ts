@@ -255,8 +255,6 @@ export function createLeads(d: LeadDoors): Leads {
       cascade.note(ev); // interruptions of all sessions: the lead's parent too (cascade.ts)
       const child: unknown = ev?.data?.sessionID;
       const l = typeof child === "string" ? leads.get(child) : undefined;
-      // No session — no end record either, whichever instance ended it.
-      if (ev?.type === "session.deleted" && typeof child === "string" && !l) over.lift(child);
       if (!l || typeof child !== "string") return;
       switch (ev.type) {
         case "session.execution.started":
@@ -293,8 +291,8 @@ export function createLeads(d: LeadDoors): Leads {
           });
           return;
         case "session.deleted":
-          void finish(child, W().deleted(), false); // its end is laid at once, and goes with the session
-          return over.lift(child);
+          void finish(child, W().deleted(), false);
+          return;
       }
     },
   };

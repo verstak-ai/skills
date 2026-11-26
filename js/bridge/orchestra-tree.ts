@@ -14,6 +14,7 @@ import {
   OID,
   treeContent,
 } from "./orchestra-tree-check.ts";
+import { sameTreePath, treePath } from "./orchestra-tree-path.ts";
 
 export const LOCK_REASON =
   "do not remove or unlock: the agent raised here dies with this tree; its orchestrator frees it after the agent ends";
@@ -28,20 +29,18 @@ export async function prepareTree(
   const r = runs[key];
   if (r.tree) return "tree_intent_exists";
   try {
-    source = realpathSync.native(source);
+    source = treePath(realpathSync.native(source));
   } catch {
     return "tree_source_unverified";
   }
-  if (process.platform === "win32" || !directory(source)) return "tree_source_unverified";
+  if (!directory(source)) return "tree_source_unverified";
   let commonDir: string, baseOID: string;
   try {
-    if ((await gitText(source, ["rev-parse", "--show-toplevel"], execute)) !== source)
+    if (!sameTreePath(await gitText(source, ["rev-parse", "--show-toplevel"], execute), source))
       return "tree_source_unverified";
     if (!(await filesRefs(source, execute))) return "tree_ref_storage_unverified";
-    commonDir = await gitText(
-      source,
-      ["rev-parse", "--path-format=absolute", "--git-common-dir"],
-      execute,
+    commonDir = treePath(
+      await gitText(source, ["rev-parse", "--path-format=absolute", "--git-common-dir"], execute),
     );
     baseOID = await gitText(
       source,

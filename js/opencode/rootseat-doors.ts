@@ -1,11 +1,8 @@
 // The root seating's contract with the plugin (rootseat.ts) and its terms.
-import { envName } from "../delivery/index.ts";
+import { rootSeatMs } from "../shared/rootseat-env.ts";
 import type { Seating } from "./rootseat-by.ts";
 
-/** How long the first prompt waits for the seating; the variable is for probes. */
-export const rootSeatMs = (): number => Number(process.env[envName("ROOT_SEAT_MS")] || 15_000);
-/** Agent-launched headless runs opt out explicitly; a root without parentID is not proof of a human. */
-export const rootSeatEnabled = (): boolean => process.env[envName("ROOT_SEAT")] !== "0";
+export { rootSeatEnabled, rootSeatMs } from "../shared/rootseat-env.ts";
 /** How long a seating holds the instance's line: the term and as much again, at most 5 s more. */
 export const ceilingMs = (): number => rootSeatMs() + Math.min(rootSeatMs(), 5_000);
 export const pause = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms).unref?.());

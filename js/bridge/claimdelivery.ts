@@ -11,7 +11,8 @@ import { emit } from "./streams.ts";
 import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
-const refused = (id: JsonRpcMessage["id"], text: string): JsonRpcMessage => ({
+/** A tools/call answered by the bridge with a refusal `text`, nothing sent (deliver.ts too). */
+export const refused = (id: JsonRpcMessage["id"], text: string): JsonRpcMessage => ({
   jsonrpc: "2.0",
   id,
   result: { isError: true, content: [{ type: "text", text }] },
@@ -55,12 +56,16 @@ export function claimReply(msg: JsonRpcMessage, reply: JsonRpcMessage): JsonRpcM
 /** The api's temporary rules (#9959 v13); an unknown rule is no guess, it stays terminal. */
 const BUSY_RULES = new Set(["db_pool_busy", "db_unreachable", "realm_busy"]);
 
-/** A refusal that says nothing about the invitation: no rule with no status or 5xx, or a busy rule. */
+/** A refusal that says nothing about the invitation: no rule with no status or 5xx, a busy rule — or the source's rate limit, which the rebind waits out inside itself (#10801). */
 function passing(reply: JsonRpcMessage): boolean {
   const r = refusalOf(reply);
   const status = r?.status ?? 0;
   const server = status >= 500 && status < 600;
-  if (r?.rule) return BUSY_RULES.has(r.rule) && (server || status === 429);
+  if (r?.rule)
+    return (
+      (BUSY_RULES.has(r.rule) && (server || status === 429)) ||
+      (r.rule === "rate_limited" && status === 429)
+    );
   return (!status || server) && !seatIsGone(reply);
 }
 

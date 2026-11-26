@@ -14,7 +14,7 @@ export interface Seat {
   seat_id?: string;
   karta_seq?: number;
   karta_name?: string;
-  /** `@handle:name` */
+  /** `@handle:name` or a bare name; absent on the unnamed seat of a human without a handle. */
   standing?: string;
   listening?: boolean;
   /** api status: `active` | `revoked` | `expired`. */
@@ -22,7 +22,7 @@ export interface Seat {
   /** undelivered frames */
   pending?: number;
   /** incoming address */
-  inbound?: string;
+  inbound?: string | null;
   locale?: string;
   satellite_of?: string | null;
   realm?: string;
@@ -50,7 +50,7 @@ const SEAT_KEYS: Record<string, (v: unknown) => boolean> = {
   listening: is.bool,
   state: is.str,
   pending: is.num,
-  inbound: is.str,
+  inbound: is.strOrNull,
   locale: is.str,
   satellite_of: is.strOrNull,
   realm: is.str,
@@ -119,12 +119,10 @@ export function boardField(sc: unknown): { seats: Seat[]; folded: number } | nul
   const list = seats(sc, "list");
   if (!list) return null;
   const folded = (sc as Obj).folded;
+  // No standing key (or an empty one) is the unnamed seat of a human without a handle — a
+  // lawful row without an address (MCP 0.159.0), not a broken board.
   const whole = list.every(
-    (s) =>
-      typeof s.karta_seq === "number" &&
-      typeof s.standing === "string" &&
-      s.standing.startsWith("@") &&
-      typeof s.listening === "boolean",
+    (s) => typeof s.karta_seq === "number" && typeof s.listening === "boolean",
   );
   if (!whole || !is.num(folded)) return fallback(`${tool("channel")} list`, sc);
   return { seats: list, folded: typeof folded === "number" ? folded : 0 };

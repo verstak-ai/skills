@@ -58,7 +58,5 @@ export const standingsInRealm = (r: Refusal | null | undefined): string[] => {
  * server reads no root rule), so a 409 with a root-only rule also lands here and gets one retry,
  * whose refusal comes back as is.
  */
-export const openedConcurrently = (reply: JsonRpcMessage | null): boolean => {
-  const r = reply?.result?.isError ? refusalOf(reply) : null;
-  return !!r && !r.rule && r.status === 409;
-};
+export const racedOpening = (r: Refusal | null | undefined): boolean =>
+  !!r && !r.rule && r.status === 409;

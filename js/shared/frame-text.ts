@@ -6,7 +6,7 @@ import { compactCounts } from "./frame-format.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
 import { cardRepeatText, cardsIn, openCardsText } from "./open-cards.ts";
-import { addresseeOf, need, opt } from "./room-fields.ts";
+import { addresseeOf, need } from "./room-fields.ts";
 import { roomKind } from "./room-kinds.ts";
 import { isLifeCheck } from "./seen.ts";
 
@@ -64,6 +64,15 @@ function caseHead(frame: Frame, withZachin: boolean): string {
   return withZachin && c.zachin ? `${no} «${c.zachin}»` : no;
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The human's account after a space: "@" only before a handle (#11011), an id or other name as is. */
+function userTag(user: unknown): string {
+  const u = typeof user === "string" ? user.trim().replace(/^@/, "") : "";
+  if (!u) return "";
+  return /^[\w.-]+$/.test(u) && !UUID.test(u) ? ` @${u}` : ` ${u}`;
+}
+
 /** Who speaks — one word from provenance: human, role with seat, sibling, platform. */
 function whoOf(frame: Frame, withPlace: boolean): string {
   const p = frame.provenance ?? {};
@@ -71,7 +80,13 @@ function whoOf(frame: Frame, withPlace: boolean): string {
   if (origin === "platform") return W().whoPlatform();
   if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
   const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
-  if (origin === "human") return W().whoHuman(opt(" @", p.user)) + place;
+  if (origin === "human") {
+    // The unnamed seat of a human is the bare account (`@handle`): said once, no brackets.
+    const user = typeof p.user === "string" ? p.user.trim().replace(/^@/, "") : "";
+    const seat = (p.from_standing ?? "").trim();
+    const repeats = !!user && !seat.includes(":") && seat.replace(/^@/, "") === user;
+    return W().whoHuman(userTag(p.user)) + (repeats ? "" : place);
+  }
   const karta = p.from_karta_seq;
   if (karta == null) return p.from_standing ?? "";
   return (origin === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;

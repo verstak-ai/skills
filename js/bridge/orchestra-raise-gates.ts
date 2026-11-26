@@ -1,6 +1,7 @@
 // Author/offer/limit and checkout-cover gates shared by execution and dry planning (#9968).
 import { existsSync, statSync } from "node:fs";
 
+import { SPAWN_LINE } from "../delivery/index.ts";
 import { readCover } from "../shared/cover.ts";
 import type { Launcher } from "./orchestra-launchers.ts";
 import type { CheckoutOf } from "./orchestra-orca.ts";
@@ -9,6 +10,17 @@ import type { CheckoutOf } from "./orchestra-orca.ts";
  * there, and the seat takes the call's role, not the cover's. */
 export const homeOf = (own: Launcher, realm: string, karta: number): string | undefined =>
   own.homes?.[`${realm}#${karta}`];
+
+/** A dsh task's first line when the role is raised in its home: the pair with the role, the
+ * same line OpenCode's prompt opens with (orchestra-start.ts), read by the dsh plugin's root
+ * seating (#11076). Elsewhere none — the pair rides the environment alone (#10777). */
+export function homeLine(
+  own: Launcher,
+  r: { realm: string; karta: number; invite: number; room: string },
+): string {
+  if (!homeOf(own, r.realm, r.karta)) return "";
+  return `${SPAWN_LINE} ${JSON.stringify({ invite: r.invite, room: r.room, karta: r.karta })} `;
+}
 
 export function checkoutFor(
   own: Launcher,

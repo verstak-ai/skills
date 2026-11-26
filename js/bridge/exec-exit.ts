@@ -5,6 +5,7 @@ import { namedFetch } from "../shared/http.ts";
 import { execExited } from "./exec-client-exit.ts";
 import { execBound, importAttempt } from "./exec-launch.ts";
 import { bindExecRaised } from "./exec-raised.ts";
+import { goDormant } from "./orchestra-dsh-dormant.ts";
 import { endDshUnseated, observeDsh } from "./orchestra-dsh-proc.ts";
 import { foreignStops } from "./orchestra-foreign.ts";
 import { LIVE, readRuns, type Run, runIdentity, writeRuns } from "./orchestra-runs.ts";
@@ -18,11 +19,13 @@ export const exitClientId = (r: Run): string =>
 export { execPending } from "./exec-pending.ts";
 
 /** Process exit is persisted before networking. For an exec client neither 410 nor timeout is
- * suppression proof; a tree run whose exact terminal exited ends on 410. */
+ * suppression proof; a tree run whose exact terminal exited ends on 410. `boundary` — the
+ * daemon's present one: a dsh call of a graph outside it ends without a sleep (#10995). */
 export async function observeExec(
   authDir: string,
   base: string,
   token: string | null,
+  boundary?: string[],
 ): Promise<void> {
   let runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
@@ -60,7 +63,7 @@ export async function observeExec(
     const latest = readRuns(authDir);
     await foreignStops(authDir, base, token, latest);
     writeRuns(authDir, latest);
-    await finishExits(authDir, base, token);
+    await finishExits(authDir, base, token, boundary);
     await cleanupEndedTrees(authDir, readRuns(authDir));
   } catch {
     process.stderr.write("exec_observer_graph_unreadable\n");
@@ -77,10 +80,18 @@ const ruleOf = (b: StopAnswer): unknown => b.errors?.[0]?.rule;
 const ownProcess = (r: Run): boolean =>
   !!r.tree && !r.exec && (r.harness === "opencode" || !!r.dsh);
 
-async function finishExits(authDir: string, base: string, token: string): Promise<void> {
+async function finishExits(
+  authDir: string,
+  base: string,
+  token: string,
+  boundary?: string[],
+): Promise<void> {
   const runs = readRuns(authDir);
   for (const [key, r] of Object.entries(runs)) {
     if (endDshUnseated(r, LIVE.includes(r.state))) {
+      // A clean exit with the case still open sleeps instead of ending (#10995); the row's
+      // recorded end proof stays on it for the sleep's own end.
+      await goDormant(base, token, r, boundary);
       writeRuns(authDir, runs);
       await cleanupEndedTrees(authDir, runs);
       continue;
@@ -94,13 +105,23 @@ async function finishExits(authDir: string, base: string, token: string): Promis
       continue;
     if (r.stop_outcome === "stopped") {
       r.state = "ended";
+      await goDormant(base, token, r, boundary);
       writeRuns(authDir, runs);
       await cleanupEndedTrees(authDir, runs);
       continue;
     }
-    // A failed order after the exact terminal exited (Orca may refuse closing a tab that then
-    // exits, #9966) proves no ended seat: stop once more by the exit reason (#9256).
-    if (r.stop_outcome === "failed" && ownProcess(r) && r.closed === "client_exited" && !r.restop) {
+    // A failed, expired or refused order after the exact terminal exited (Orca may refuse closing
+    // a tab that then exits, #9966; the daemon closed it itself, #11099) proves no ended seat:
+    // stop once more by the exit reason (#9256). Refused is the executing bridge's seat_not_held
+    // (stoporder.ts carry) — the order not carried out, not a seat the platform kept alive.
+    if (
+      (r.stop_outcome === "failed" ||
+        r.stop_outcome === "expired" ||
+        r.stop_outcome === "refused") &&
+      ownProcess(r) &&
+      r.closed === "client_exited" &&
+      !r.restop
+    ) {
       r.restop = true;
       delete r.order_id;
       delete r.stop_outcome;
@@ -132,12 +153,17 @@ async function finishExits(authDir: string, base: string, token: string): Promis
       }
       if (res.ok && typeof body.id === "string" && body.id) {
         r.order_id = body.id;
+        // Every own stop order's id is kept: the call's exit stop and each continuation's
+        // (#10995 review 4) — a re-read of one's own order is never a foreign stop.
+        r.orders = [...(r.orders ?? []), body.id];
         r.state = "stopping";
         r.stopping_at = new Date().toISOString();
       } else if (res.status === 410 && ownProcess(r)) {
         // The exact terminal exited and the seat is over: nobody is left to wake (#9256).
         r.state = "ended";
         r.why = "seat_gone_after_exit";
+        // Its case still open and the exit clean — the run sleeps instead of ending (#10995).
+        await goDormant(base, token, r, boundary);
       } else
         r.why =
           res.status === 410

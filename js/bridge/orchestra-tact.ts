@@ -68,7 +68,7 @@ export function tactStateOf(authDir: string): TactState {
   return readTactState(authDir);
 }
 
-async function getJson(
+export async function getJson(
   base: string,
   token: string,
   path: string,

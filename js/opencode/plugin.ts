@@ -19,13 +19,14 @@ import { setupChannel } from "./channel.ts";
 import { setupCommands } from "./commands.ts";
 import { createCompaction } from "./compaction.ts";
 import { setupContextGate } from "./context-gate.ts";
-import { standDirect } from "./direct.ts";
+import { directWord, standDirect } from "./direct.ts";
 import { idleHalf } from "./half.ts";
 import { createHalts } from "./halts.ts";
 import { createHookContext } from "./hook-context.ts";
 import { homeOf, sessionDirectory } from "./host.ts";
 import { createKeepAlive, keepaliveTitle } from "./keepalive.ts";
 import { teller } from "./leaddoors.ts";
+import { channelEnds } from "./leadends.ts";
 import { sliceBy } from "./mindslice.ts";
 import { annotate } from "./notice.ts";
 import { createOnboardStart } from "./onboardstart.ts";
@@ -52,7 +53,6 @@ const CHANNEL_DOWN = "channel_down";
 const nothing = (): void => {};
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK events and answers without a schema */
-
 async function setup(ctx: Context): Promise<() => Promise<void>> {
   // A guard registration failure must fail loading, not silently allow questions.
   await setupQuestionGuard(ctx);
@@ -66,6 +66,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // and an ownerless bridge's frame goes to the freshest one seen — the v2 context lists no sessions.
   const roots = new Map<string, string>();
   const seen = new Map<string, number>();
+  const createdHere = new Set<string>();
   const spawnStarts = createSpawnStarts(
     (sessionID) => ctx.session.context({ sessionID } as any),
     (word) => say(word, "error"),
@@ -108,7 +109,6 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     }
     return best;
   }
-
   // Each half under its own try: a failed one takes neither the other nor the plugin's load.
   let onChannel: (session: string | null, params: unknown, child?: boolean) => void = () => {};
   let ch: ReturnType<typeof setupChannel> | null = null;
@@ -159,7 +159,8 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // child's word (teller): an ended lead or a stopped session gets none, its live ancestor does
   // (#7505). The stops are read from the channel's registry and records (halts.ts), never written.
   const stops = createHalts((s) => parents.get(s), authDir, nothing, nothing);
-  const closed = (s: string): boolean => half.ended(s) || stops.halted(s);
+  const ends = channelEnds(authDir, say);
+  const closed = (s: string): boolean => ends.has(s) || half.ended(s) || stops.halted(s);
   // Usage comes up after the tools (it needs the session's bridge); a subagent's end flushes it first.
   let flushUsage = (_s: string): Promise<void> => Promise.resolve();
   // A seat taken or returned gets the session's last word on its turn at once (pulse.ts, #7529).
@@ -197,7 +198,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // A root of an aligned project seats itself by the cover of its directory (rootseat.ts).
   const rootSeats = createRootSeats({
     directoryOf: (s) => sessionDirectory(ctx, s),
-    halted: (s) => !ch || stops.halted(s),
+    halted: (s) => !ch || closed(s),
     seat: (s, realm, karta, cancelled) => half.seatRoot(s, realm, karta, cancelled),
     role: (s) => spawnStarts.karta(s),
     cancel: (s) => half.cancelSeat(s),
@@ -205,7 +206,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     finished: (s) => {
       if (!spawnStarts.has(s)) half.finishSeat(s);
     },
-    tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text } }),
+    tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "seat_result", text } }),
     steer: (s, text) => teller(ctx, say, closed)(s, text, false),
   });
   // A root waiting for its cover's alignment looks at the cover after a tool call of its own or its child's.
@@ -254,7 +255,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
         // Raised for an invite: the case it was taken for, by the delivery, not the brief (#10043).
         prepared.put(spawnStarts.taken(sid));
         // A service seating's stand was not read by the model; its rules go beside it.
-        if (start.length) prepared.put(await (rulesOf(sid) ?? null));
+        if (start.length && createdHere.has(sid)) prepared.put(await (rulesOf(sid) ?? null));
         spawnStarts.guard(sid);
         if (root) prepared.ride();
       } catch (e) {
@@ -296,8 +297,10 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
           }
           if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
+          const direct = directWord(req.tools);
           // A word laid by two prompts of one request goes into it once (#9654).
-          for (const text of new Set(ready.words)) req.system.push({ type: "text", text });
+          for (const text of new Set(direct ? [...ready.words, direct] : ready.words))
+            req.system.push({ type: "text", text });
           spawnStarts.delivered(sid, ready.words);
           // Counts wake no turn; take them only when their own root actually requests a model.
           if (ready.ride)
@@ -377,6 +380,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
             rites.forget(id);
             roots.delete(id);
             seen.delete(id);
+            createdHere.delete(id);
             parents.delete(id);
             ch?.gone(id);
             void usage.flush(id).finally(() => {
@@ -388,6 +392,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
             // data.parentID is the parent, not the root: a grandchild takes its parent's root.
             if (!id) break;
             if (ev.data?.title === keepaliveTitle()) break; // the keepalive service session is no activity
+            createdHere.add(id);
             const parent = ev.data?.parentID;
             if (typeof parent === "string") {
               parents.set(id, parent);
@@ -467,8 +472,9 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // An instance of another spelling of the same directory wakes this one unloaded with a seat (twins.ts).
   const twins = createTwins(ctx, homeOf(ctx), {
     say,
-    lost: (s, text) => onChannel(s, { logger: LOGGERS.channel, data: { kind: "lost", text } }),
+    lost: (s, t) => heard(s, { logger: LOGGERS.channel, data: { kind: "return_failed", text: t } }),
     holds: (r) => half.held(r),
+    holders: () => half.holders(),
     adopt: () => half.adopt(),
     sweep: () => void sweep(),
   });
@@ -491,5 +497,4 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
 export default { id: PRODUCT, setup };

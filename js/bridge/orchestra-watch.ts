@@ -10,8 +10,25 @@ export async function openOrchestraWatch(
   paused: () => boolean,
   say: (line: string) => void,
   active: () => boolean,
+  waitMs: number,
 ): Promise<Server> {
-  const door = await listenOrchestraDoor(authDir, serve);
+  const started = Date.now();
+  let door: Server;
+  for (;;) {
+    try {
+      door = await listenOrchestraDoor(authDir, serve);
+      if (paused()) door.close();
+      break;
+    } catch (e) {
+      if (
+        (e as NodeJS.ErrnoException).code !== "EADDRINUSE" ||
+        paused() ||
+        Date.now() - started >= waitMs
+      )
+        throw e;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
   let busy = false;
   setInterval(() => {
     if (busy || paused() || !active()) return;

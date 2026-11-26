@@ -9,6 +9,8 @@ export interface OpencodeKeepWords {
   resumedOwn: (key: string) => string;
   elsewhere: (keys: string) => string;
   notBack: (place: string, why: string) => string;
+  /** A seat lost with the bridge's death (no marker) did not return: one word, the watchdog watches silently. */
+  lostNotBack: (place: string, why: string) => string;
   noKeyNoDir: () => string;
   noAnswer: () => string;
   legacy: (word: string) => string;
@@ -62,6 +64,9 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
     notBack: (place, why) =>
       `Verstak: the seat ${place} did not return from disk: ${why}. ` +
       `The hearing watchdog retries once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
+    lostNotBack: (place, why) =>
+      `Verstak: the session's bridge died and the seat ${place} did not return: ${why}. There is no hearing here: to act now — ${tool("stand")} with this name. ` +
+      "The hearing watchdog keeps watching and retries the return silently; no further word.",
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word) => `Verstak: ${word}.`,

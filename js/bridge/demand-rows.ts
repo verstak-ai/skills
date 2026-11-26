@@ -33,6 +33,10 @@ export function startRow(v: unknown, realm: string): Row {
     harness: a.harness == null ? null : (text(a.harness) ?? ""),
     launcher: a.launcher == null ? null : (text(a.launcher) ?? ""),
     author: text(x.author),
+    // The author's account id (#11011); the platform's own invite and an older api carry none.
+    ...(text(x.author_user_id) ? { author_user_id: text(x.author_user_id) } : {}),
+    // The platform's own invite after a seat's end (#10995): it is that call's share.
+    ...(text(p.cause) ? { cause: text(p.cause), gone_standing: text(p.gone_standing) } : {}),
   };
 }
 /** An open order of the account in any graph — only what settles a stop of ours. */

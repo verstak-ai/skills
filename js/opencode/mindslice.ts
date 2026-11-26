@@ -12,12 +12,15 @@ export function sliceBy(
   bridge: Pick<Bridge, "request">,
   options: MindSliceOptions = {},
 ): Promise<string> {
-  return mindSlice(async (name, args) => {
-    const got = (await bridge.request(
-      "tools/call",
-      { name, arguments: args },
-      { timeoutMs: SLICE_MS, service: true },
-    )) as { isError?: boolean } | null;
-    return { isError: !!got?.isError, text: textOf(got) };
-  }, options);
+  return mindSlice(
+    async (name, args) => {
+      const got = (await bridge.request(
+        "tools/call",
+        { name, arguments: args },
+        { timeoutMs: SLICE_MS, service: true },
+      )) as { isError?: boolean; structuredContent?: unknown } | null;
+      return { isError: !!got?.isError, text: textOf(got), structured: got?.structuredContent };
+    },
+    { ...options, cacheKey: bridge },
+  );
 }

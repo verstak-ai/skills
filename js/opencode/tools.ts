@@ -130,9 +130,9 @@ export async function setupTools(
         // A holding bridge exited against our will — a word into the session, not a log line (#5140).
         if (slot.ownStop || stopped || !slot.holding) return;
         slot.holding = false;
+        if (slot.session && !slot.child) keeper.seatLost(slot.session); // no marker names this loss
         const text = W.hearingLost(new Date().toTimeString().slice(0, 5), e.message);
-        const lost = { logger: LOGGERS.channel, data: { kind: "lost", text } };
-        onChannel(slot.session, lost, !!slot.child); // a child's hearing — a word only to it (#6625)
+        say(text, "warning");
       },
       args,
     );
@@ -142,8 +142,8 @@ export async function setupTools(
   }
 
   // The instance's location: a moved session calls its tools through its new folder's instance (moves.ts).
-  const mv = createMoves(ctx);
-  const { home, directoryOf, exists, ours } = mv;
+  const mv = createMoves(ctx, say);
+  const { home, directoryOf, canReturn } = mv;
   const relay = mv.relay(onChannel, say);
   const models = createModels(ctx); // a satellite's seat names its session's model (#7591)
   const runEnds = createRunEnds(); // ended children: a write through a seat is a refusal aloud (#6361)
@@ -154,13 +154,12 @@ export async function setupTools(
   const keeper = createKeeper({
     say,
     tell: (root, text, child) =>
-      onChannel(root, { logger: LOGGERS.channel, data: { kind: "resumed", text } }, !!child),
-    lost: (root, text) =>
-      onChannel(root, { logger: LOGGERS.channel, data: { kind: "lost", text } }),
+      onChannel(root, { logger: LOGGERS.channel, data: { kind: "return_failed", text } }, !!child),
     slotFor: (root, touch) => slotFor(root, touch),
     ready: readyFor,
     directoryOf,
-    exists: ours,
+    exists: canReturn,
+    ended: closed,
   });
   // A child of a previous instance has no slot here: nothing to put down (forget is called before setup ends).
   const nothing = () => {};
@@ -173,7 +172,7 @@ export async function setupTools(
     spawn,
     keeper,
     leads,
-    exists,
+    exists: canReturn, // an archived child ended: its seat is not returned to it
     endRun,
     stopped: () => stopped,
   });
@@ -252,7 +251,7 @@ export async function setupTools(
     }
     // Claims bind session identity without returning an old place; ordinary roots return by directory.
     const s = slot;
-    if (far !== "foreign" && unasked.delete(s))
+    if (far !== "foreign" && unasked.delete(s) && !closed(root))
       s.resume = (
         claiming(root)
           ? awaitReady(s).then(() => s.bridge.request(method("resume"), { session: root }))

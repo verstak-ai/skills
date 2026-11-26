@@ -4,8 +4,9 @@
 // and models, how many raised at once; checkouts come from Orca, an optional map overrides, and
 // an optional homes map raises a graph's role in a checkout whose cover names another (#10598). They
 // live in the human's own graph "mind" as nodes with attribute slice:orchestra, body — one JSON
-// object; the daemon reads them under its own key, whose account (the "me" tool's whoami) is the one
-// whose calls are own — another account's only when the description lists it in callers. A description naming another host is someone
+// object; the daemon reads them under its own key, whose account (the "me" tool's whoami: its id
+// line, else its handle) is the one whose calls are own — another account's only when the description
+// lists it (@handle or account id) in callers. A description naming another host is someone
 // else's; one without a host answers any leading machine; a broken one raises nothing, aloud.
 import { hostname } from "node:os";
 import { isAbsolute } from "node:path";
@@ -13,6 +14,7 @@ import { isAbsolute } from "node:path";
 import { tool } from "../delivery/index.ts";
 import { mcpSession } from "../shared/mcpsession.ts";
 import { nodeBody } from "./node-body.ts";
+import { readAccount, UUID } from "./orchestra-account.ts";
 import { parseClone } from "./orchestra-clone.ts";
 import { parseHarnesses } from "./orchestra-harnesses.ts";
 import type { Adapter, Launcher, Launchers } from "./orchestra-launcher-types.ts";
@@ -63,8 +65,12 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
       return { code: "homes_invalid", launcher };
     homes[role] = path;
   }
+  // A caller is an account: @handle or its id — an account without a handle has only the id (#11011).
   const callers = d.callers ?? [];
-  if (!Array.isArray(callers) || !callers.every((h) => str(h) && HANDLE.test(h.trim())))
+  if (
+    !Array.isArray(callers) ||
+    !callers.every((h) => str(h) && (HANDLE.test(h.trim()) || UUID.test(h.trim())))
+  )
     return { code: "callers_invalid", launcher };
   const clone = parseClone(d);
   if (clone && "code" in clone) return { code: clone.code, launcher };
@@ -76,16 +82,9 @@ export function parseLauncher(raw: string): Launcher | { code: string; launcher?
     harnesses,
     checkouts,
     homes,
-    callers: (callers as string[]).map((h) => h.trim().slice(1).toLowerCase()),
+    callers: (callers as string[]).map((h) => h.trim().replace(/^@/, "").toLowerCase()),
     clone,
   };
-}
-
-/** The account of a seat address @handle or @handle:name, lower case; anything else — null. */
-export function accountOf(address: unknown): string | null {
-  if (typeof address !== "string") return null;
-  const m = /^@([^\s:@/]+)(?::\S*)?$/.exec(address.trim());
-  return m ? m[1].toLowerCase() : null;
 }
 
 /** The descriptions as they lie in mind; a failed read throws — the tact raises nothing. */
@@ -95,11 +94,9 @@ export async function readLaunchers(serverUrl: string, token: string): Promise<L
   const here = hostname().toLowerCase();
   try {
     await s.open();
-    // The key's own identity, as the server names it: «… handle @name …» (live 09.11.2026).
-    const me = await s.call(tool("me"), { action: "whoami" });
-    const handle = /\bhandle @([^\s:@/()·]+)/.exec(me)?.[1];
-    if (!handle) throw new Error("account_unknown");
-    out.account = handle.toLowerCase();
+    const account = await readAccount(s);
+    out.account = account.handle;
+    out.accountId = account.id;
     const found = await s.call(tool("search"), {
       realm: "mind",
       q: "",
@@ -108,6 +105,8 @@ export async function readLaunchers(serverUrl: string, token: string): Promise<L
     });
     const seqs = [...new Set([...found.matchAll(/\(#(\d+), /g)].map((m) => m[1]))];
     const mine: Launcher[] = [];
+    // The mind node of each description of this machine: a duplicate names them all.
+    const nodeOf = new Map<Launcher, string>();
     for (const seq of seqs) {
       const body = await nodeBody(s.call, tool("look"), "mind", seq);
       const l = parseLauncher(body);
@@ -116,13 +115,20 @@ export async function readLaunchers(serverUrl: string, token: string): Promise<L
         continue;
       }
       // Host names are case-insensitive: the human writes what the machine shows, in any case.
-      if (l.host === null || l.host.toLowerCase() === here) mine.push(l);
-      else out.elsewhere.set(l.launcher, l.host);
+      if (l.host === null || l.host.toLowerCase() === here) {
+        mine.push(l);
+        nodeOf.set(l, `#${seq}`);
+      } else out.elsewhere.set(l.launcher, l.host);
     }
     for (const l of mine) {
-      if (mine.filter((x) => x.launcher === l.launcher).length > 1) {
+      const same = mine.filter((x) => x.launcher === l.launcher);
+      if (same.length > 1) {
         if (!out.refused.some((r) => r.what === l.launcher))
-          out.refused.push({ what: l.launcher, code: "launcher_duplicate" });
+          out.refused.push({
+            what: l.launcher,
+            code: "launcher_duplicate",
+            nodes: same.map((x) => nodeOf.get(x) ?? "?"),
+          });
         continue;
       }
       out.own.set(l.launcher, l);

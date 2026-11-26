@@ -68,8 +68,9 @@ export function seatIs(frame: Rec, ...named: unknown[]): boolean | null {
   if (!myId && !myAddr) return null;
   const id = named.map((v) => str(obj(v).id)).find(Boolean);
   if (id && myId) return id === myId;
+  // An address may be bare (a seat without a handle, #11011): only the object's id is not one.
   const addr = named
-    .map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0])
+    .map((v) => addresseeOf(v)?.addr.filter((a) => a !== str(obj(v).id))[0])
     .find(Boolean);
   if (addr) return addr === myAddr;
   return id ? false : null;
@@ -77,15 +78,16 @@ export function seatIs(frame: Rec, ...named: unknown[]): boolean | null {
 
 /**
  * Addressee of a word (api 0.91.3, observed in production): a seat address string
- * or a seat object {standing | handle+name, id, name}. addr — what to compare with
- * my seat, label — how to name it: by one address, the name only without one (#9654).
+ * or a seat object {standing | handle+name | name, id}. addr — what to compare with
+ * my seat, label — how to name it: by one address (#9654); without a handle the
+ * address is the bare name (#11011).
  */
 export function addresseeOf(v: unknown): { addr: string[]; label: string } | null {
   if (typeof v === "string") return v ? { addr: [v], label: v } : null;
   const o = obj(v);
   const handle = str(o.handle).replace(/^@/, "");
   const standing =
-    str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
+    str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : str(o.name));
   const id = str(o.id);
   const label = standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);

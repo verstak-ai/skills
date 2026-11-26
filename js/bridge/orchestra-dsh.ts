@@ -3,7 +3,15 @@
 // `bin` (the dsh binary, else `dsh` on the daemon's PATH) and `patch` (the delivery's profile
 // patch, else the flat install's establish-mcp/references/dsh-profile.yml). dsh 0.2.2-rc.1 has
 // no --model: the model `provider/model` rides a second patch overriding agent-default-model.
-import { accessSync, constants, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  accessSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  realpathSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, isAbsolute, join } from "node:path";
 
@@ -87,13 +95,32 @@ export function writeModelPatch(path: string, dir: string, text: string): void {
   writeFileSync(path, text, { mode: 0o600 });
 }
 
+/** The tree's shared git-dir as a physical path, else null (graph @nks/nks-dev, node #10777). */
+export function sharedGitDir(commonDir: unknown): string | null {
+  if (typeof commonDir !== "string" || !isAbsolute(commonDir)) return null;
+  try {
+    return realpathSync.native(commonDir);
+  } catch {
+    return null;
+  }
+}
+
 /** `--patch` is dsh's launcher option, before the app's `--json` (observed live, case 5308). */
-export const dshArgv = (patch: string, model: string, brief: string): string[] => [
+export const dshArgv = (
+  patch: string,
+  model: string,
+  brief: string,
+  session?: string,
+  gitDir?: string | null,
+): string[] => [
   "headless",
   "--patch",
   patch,
   "--patch",
   model,
+  ...(session ? ["--session-id", session] : []),
+  // workspace-write admits only the cwd; a linked tree commits into the shared git-dir (#10777).
+  ...(gitDir ? ["--add-dir", gitDir] : []),
   "--json",
   brief,
 ];

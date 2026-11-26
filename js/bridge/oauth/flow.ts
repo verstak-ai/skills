@@ -19,7 +19,7 @@ import {
 import { bindCallback, type Callback } from "./callback.ts";
 import { deviceSide } from "./device.ts";
 import { type DeviceCode } from "./devicecode.ts";
-import { callerCode, joinedPending } from "./devicehandout.ts";
+import { callerCode, callerCodeDead, joinedPending } from "./devicehandout.ts";
 import {
   CALLBACK_PORT_RUNGS,
   callbackPort,
@@ -124,6 +124,12 @@ export function loginPublished(): boolean {
   return published(readAuthLock());
 }
 
+/** …and is its bridge alive to catch the click? */
+export function loginLive(): boolean {
+  const l = readAuthLock();
+  return (published(l) || older(l)) && pidAlive(l.pid);
+}
+
 // A login's one tab: opened by whichever bridge needs a human for it and wins
 // its marker; a bridge that cannot open a browser claims nothing, leaving the
 // tab to one that can.
@@ -200,11 +206,14 @@ async function linkOn(port: number): Promise<(AuthLock & { authorize_url: string
 // grant: any other one in the store — a login that landed, a grant that came
 // back — is handed back instead of a login while none is out yet, and once one
 // is, makes it moot, however narrow the moment it appeared in.
+// `renew` false is the background's: a login it takes over keeps a code past
+// its end as it is — a new code goes out only on a call.
 export async function interactiveFlow(
   meta: Meta,
   judged: Tokens | null | undefined,
   note?: string,
   wantTab = true,
+  renew = true,
 ): Promise<Tokens> {
   const over = grantPrint(judged);
   const back = grantBack(over);
@@ -242,12 +251,12 @@ export async function interactiveFlow(
       grantLog(
         `authorization flow of pid ${standing.pid} (gone) taken over on the same link — waiting for the human`,
       );
-      const first = runFlow(meta, cb, still, wantTab);
+      const first = runFlow(meta, cb, still, wantTab, renew);
       throw new AuthPending(still.authorize_url, note, await firstCode(first));
     }
     if (cb && published(still)) {
       cb.close(); // another login went out meanwhile: that one is joined, not a second
-      return interactiveFlow(meta, judged, note, wantTab);
+      return interactiveFlow(meta, judged, note, wantTab, renew);
     }
     callback = cb; // the login ended meanwhile: the port serves a new one
   }
@@ -332,6 +341,7 @@ function runFlow(
   cb: Callback,
   login: Published,
   openTab: boolean,
+  renew = true,
 ): Promise<DeviceCode | string | null> {
   const ours = (l: AuthLock) => l.pid === process.pid && l.state === login.state;
   const redirectUri = redirectFor(login.callback_port);
@@ -382,7 +392,11 @@ function runFlow(
         writeAuthLock({ ...current, device: code ?? undefined, device_unset: unset });
       }
     },
-    () => callerCode(login.state),
+    {
+      latest: () => callerCode(login.state),
+      dead: (code) => callerCodeDead(login.state, code),
+    },
+    renew,
   );
   let flow: Promise<void> | null = null;
   flow = (async () => {

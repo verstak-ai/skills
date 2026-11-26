@@ -4,13 +4,15 @@ import { debug, log } from "../streams.ts";
 import { type Meta } from "../types.ts";
 import { codeThrough, DeviceUnset } from "./deviceclient.ts";
 import { DEVICE_GRANT, type DeviceCode, deviceOffered } from "./devicecode.ts";
+import { type CallerCodes } from "./devicehandout.ts";
 import { resourceOf } from "./discovery.ts";
 import { pauseUntil } from "./pacing.ts";
 import { tokenRequest } from "./tokenrequest.ts";
 
 // RFC 8628 §3.5: slow_down widens the interval by five seconds for good.
 const SLOW_DOWN_MS = Number(process.env[envName("BRIDGE_DEVICE_SLOW_DOWN_MS")]) || 5_000;
-// A code the server would not issue is asked for again after this long.
+// A first code the server would not issue is asked for again after this long: with no
+// code standing a caller has nothing dead to renew. An issued code is never renewed here.
 const REISSUE_PAUSE_MS = Number(process.env[envName("BRIDGE_DEVICE_REISSUE_MS")]) || 30_000;
 
 /** The device side of one published login. */
@@ -34,16 +36,18 @@ const never = new Promise<never>(() => {});
  * stopped. `onCode` hears every code issued (null when none stands, with the
  * word why when the server has no client for it — then the side stops asking),
  * so the login's record — what every bridge of the machine hands out — stays current.
- * `called` reads the code a caller issued: one that found the record's code
+ * `caller` reads the code a caller issued: one that found the record's code
  * dead asks a fresh one (devicehandout.ts), and that one is polled
- * from then on, the old one never again.
+ * from then on, the old one never again; the poll itself never asks for one.
+ * `renew` false resumes a code past its end as it is, for a caller to renew.
  */
 export function deviceSide(
   meta: Meta,
   redirectUri: string,
   resume: DeviceCode | undefined,
   onCode: (code: DeviceCode | null, unset?: string) => void,
-  called: () => DeviceCode | undefined,
+  caller: CallerCodes,
+  renew = true,
 ): DeviceSide {
   const halt = new AbortController();
   let tellFirst: (c: DeviceCode | string | null) => void = () => {};
@@ -70,8 +74,15 @@ export function deviceSide(
   };
   // A newer code a caller issued, if there is one.
   const newer = (code: DeviceCode): DeviceCode | null => {
-    const r = called();
+    const r = caller.latest();
     return r && r.device_code !== code.device_code && r.expires_at > code.expires_at ? r : null;
+  };
+  // A refused code is dead wherever it lies, so the next caller issues a fresh one.
+  const dies = (code: DeviceCode): DeviceCode => {
+    const dead = { ...code, expires_at: Date.now() };
+    onCode(dead);
+    caller.dead(dead);
+    return dead;
   };
 
   const run = async (): Promise<void> => {
@@ -79,7 +90,10 @@ export function deviceSide(
       tellFirst(null);
       return never;
     }
-    let code = resume && resume.expires_at > Date.now() ? resume : await fresh(resume?.client_id);
+    let code =
+      resume && (!renew || resume.expires_at > Date.now())
+        ? resume
+        : await fresh(resume?.client_id);
     tellFirst(code ?? unset ?? null);
     if (unset) return giveUp();
     onCode(code);
@@ -102,8 +116,9 @@ export function deviceSide(
         onCode(code);
         continue;
       }
-      let renew = Date.now() >= code.expires_at;
-      if (!renew) {
+      // A dead code is not renewed here: the poll waits, touching the token endpoint
+      // no more, until a caller asking for the login after its end issues the next one.
+      if (Date.now() < code.expires_at) {
         try {
           await tokenRequest(meta, {
             grant_type: DEVICE_GRANT,
@@ -121,15 +136,9 @@ export function deviceSide(
             code = { ...code, interval_ms: code.interval_ms + SLOW_DOWN_MS };
             onCode(code);
           } else if (word && word !== "authorization_pending") {
-            renew = true; // expired_token, or a code the server no longer knows
+            code = dies(code); // expired_token, or a code the server no longer knows
           } else if (!word) debug(`device poll: ${errorMessage(e)} — asking again`);
         }
-      }
-      if (renew) {
-        code = newer(code) ?? (await fresh(clientId));
-        if (halt.signal.aborted) return never;
-        if (unset) return giveUp();
-        onCode(code);
       }
     }
   };

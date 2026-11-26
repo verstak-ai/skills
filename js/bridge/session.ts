@@ -188,7 +188,10 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
     const paused = suspended();
     // A failure of the run's end does not break the leave; a stop order in flight is answered first.
     await Promise.all([
-      closeRun(why, handover).catch((e: Error) => log(`the run's end failed: ${e.message}`)),
+      closeRun(why, handover).catch((e: Error) => {
+        if (CFG.satellite && !paused) releaseSatelliteClaims(true);
+        log(`the run's end failed: ${e.message}`);
+      }),
       ordersSettled(),
     ]);
     if (handover) await Promise.race([Promise.allSettled([...pending]), sleep(HANDOVER_WAIT_MS)]);

@@ -8,11 +8,11 @@
 // Local reads only; always exit 0.
 import { readFileSync } from "node:fs";
 
-import { RITES, TURN } from "../delivery/index.ts";
+import { TURN } from "../delivery/index.ts";
 import { repoContractWarning } from "../shared/covercontract.ts";
 import { wordsIn } from "../shared/lang.ts";
-import { mergeHeads, ritualCover, startWord } from "../shared/ritualcover.ts";
-import { merged, pushedTo } from "../shared/ritualjudge.ts";
+import { shellNotes } from "../shared/ritenotes.ts";
+import { ritualCover, startWord } from "../shared/ritualcover.ts";
 import { lostWord, TURN_RITE } from "../shared/turnend.ts";
 import { standingRites } from "./hookkinds.ts";
 import { lastTurn } from "./turnread.ts";
@@ -66,13 +66,7 @@ function riteWords(input: HookInput, dir: string): string[] {
     command: String(input.tool_input?.command ?? ""),
     ...printed(input.tool_response),
   };
-  const said: string[] = [];
-  const W = wordsIn(RITES, cover.lang);
-  const push = cover.on.has("push") && !own.has("hook.push") ? pushedTo(call, dir) : null;
-  if (push === "branch") said.push(W.push(cover.sections.check));
-  if (push === "trunk" || (cover.on.has("merge") && !own.has("hook.merge") && merged(call)))
-    said.push(W.merge(cover.holon, ...mergeHeads(cover.sections, push === "trunk")));
-  return said;
+  return shellNotes(cover, call, dir, (kind) => own.has(`hook.${kind}`));
 }
 
 /**

@@ -13,7 +13,7 @@ import { isAbsolute } from "node:path";
 
 import { tool } from "../delivery/index.ts";
 import { scoped, sessionCwd } from "../shared/scope.ts";
-import { alive, listens, nameOf, readBoard } from "./board.ts";
+import { alive, type BoardEntry, listens, nameOf, readBoard } from "./board.ts";
 import {
   type AskedHearing,
   besideRefusal,
@@ -45,7 +45,7 @@ import {
   wasEvicted,
 } from "./hold.ts";
 import { keyOf, noteSeatBase } from "./holdrecord.ts";
-import { stoppedSince, stopsNow } from "./holdstate.ts";
+import { stoppedDuring, stoppedSince, stopsNow } from "./holdstate.ts";
 import { knock, resetKnocks } from "./knock.ts";
 import { heardOnReturn, returnToStanding } from "./leave.ts";
 import { listenBlock } from "./listen.ts";
@@ -64,7 +64,9 @@ import {
 import { ownerRefusal } from "./owner.ts";
 import { placeFields, rememberStandModel, type SeatMove } from "./placefields.ts";
 import * as provisional from "./provisional.ts";
+import { registerMove, seatOfPlace, throughRateLimitAnswer } from "./ratelimit.ts";
 import { otherRealm } from "./realms.ts";
+import { registerByCall } from "./registergate.ts";
 import { resumeFromDisk, takeLapsed } from "./resume.ts";
 import { resumeWords } from "./resumewords.ts";
 import { SATELLITE_TTL_S, satelliteGate, satelliteListenWord, ttlRefused } from "./satellite.ts";
@@ -105,6 +107,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   const a = msg.params?.arguments ?? {};
   const auto = provisional.takesProvisional(msg);
   const stopsBefore = stopsNow(); // an owner's 4001 met by this call's own return ends it (#7439)
+  const move = registerMove("returns", () => stoppedDuring(stopsBefore)); // its return's move begins here
   let realm = typeof a.realm === "string" ? a.realm.trim() : "";
   let karta = a.karta != null ? normKarta(a.karta) : "";
   const lines: string[] = [];
@@ -215,9 +218,10 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   // The session directory goes into the hold record: a re-raised bridge returns the seat by it (#5140).
   noteStandCwd(cwd);
   const here = (move: SeatMove = "register") => placeFields({ realm, karta, name }, true, move); // seat fields on every registration (#5174)
+  // The named seat — main or beside — with its id as held, or as the connect answer gives it.
+  const seat = seatOfPlace({ realm, karta, name }, true);
   const reg = () =>
-    call(tool("channel"), {
-      action: "register",
+    registerByCall(move, seat, {
       realm,
       karta,
       name,
@@ -288,8 +292,8 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
       .map((x) => sanitize(x.trim()))
       .filter(Boolean),
   );
-  const legacy = entries.filter((e) => {
-    if (sat) return false; // the caller's former seats are not the satellite's business
+  const legacy = entries.filter((e): e is BoardEntry & { address: string } => {
+    if (sat || e.address === null) return false; // the caller's former seats are not the satellite's business
     if (e.karta !== karta || nameOf(e.address) === name) return false;
     const own = nameOf(e.address);
     if (!own.startsWith(`${stem}.`)) return false;
@@ -349,15 +353,15 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     if (heardHere && !standingIdIn(realm)) extra.push(sw().noIdInRegister());
     how = sw().howBeside(ledKey() ?? "");
   } else if (resumed) {
-    const r = await register();
-    if (r.isError) {
-      lines.push(refusedWord("register", r, realm));
-      return done(true);
-    }
+    // A 429 rate_limited of the source is waited out inside the return (#10801, ratelimit.ts).
+    const { r, waitS } = await throughRateLimitAnswer(register, move, seat);
+    if (!r) return (lines.push(move.stopped() ?? ""), done(true)); // stopped before the register (#7439)
+    if (r.isError) return (lines.push(refusedWord("register", r, realm)), done(true));
     heardHere = true;
     socketBefore = true;
     // A return does not republish the record's busy line (#6017): a fresh mark would pass old words as current.
-    how = `${resumed.word}, register`;
+    const word = waitS > 0 ? resumeWords.registerWaited(waitS) : "register";
+    how = `${resumed.word}, ${word}`;
   } else if (!take && isParked(realm, karta, name) && returnToStanding(tool("stand"))) {
     // Left the seat and came back: same address, socket reopened, register attributes. If
     // another session turned the address meanwhile, the socket is refused and released —
@@ -421,7 +425,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     const r = await register();
     if (r.isError) {
       const freshClaim = !!basis && !mine && !ownSession && !reopening;
-      lines.push(await registerRefused(r, realm, taken, prior, addr, freshClaim, !!basis));
+      lines.push(await registerRefused(move, r, realm, taken, prior, addr, freshClaim, !!basis));
       return done(true);
     }
     resetKnocks(realm, karta, name);

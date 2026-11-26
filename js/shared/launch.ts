@@ -13,7 +13,7 @@ export interface Launch {
   karta: string;
   /** Case number — digits, no sign. */
   no: string;
-  /** Launcher's seat (@handle:name) from the "from" tail; no tail — null. */
+  /** Launcher's seat (@handle:name or a bare name) from the "from" tail; no tail — null. */
   of: string | null;
 }
 

@@ -59,6 +59,10 @@ export class TokenError extends Error {
   }
 }
 
+// The token endpoint said 200 and its answer did not come whole: what it did is
+// as unknown as if no answer had come at all.
+export class AnswerCut extends Error {}
+
 // Only these OAuth errors prove the grant itself is dead; anything else
 // (network, 5xx, temporarily_unavailable) must NOT burn the refresh token
 // or drag the user into the browser.
@@ -128,13 +132,15 @@ export class HoldOffError extends Error {
   }
 }
 
-// `expired` marks the one refusal that is proof by the grant's own hours: the
-// refresh token's exp has passed, and no server hiccup ever looks like that.
+// `settled` marks a refusal no second knock can change: the refresh token's
+// exp has passed — proof by the grant's own hours, and no server hiccup ever
+// looks like that — or the server refused it at an endpoint discovery still
+// names (graph @nks/nks-dev, node #11291).
 export class DeadGrantError extends Error {
-  expired: boolean;
-  constructor(message: string, expired = false) {
+  settled: boolean;
+  constructor(message: string, settled = false) {
     super(message);
-    this.expired = expired;
+    this.settled = settled;
   }
 }
 

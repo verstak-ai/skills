@@ -72,7 +72,7 @@ export function createTurnEnds(
     turns.delete(s);
     if (!t || t.woken) return;
     if (!lostWord({ ...t, heard: heard.get(s) ?? null })) return;
-    if (opts.skip(s) || !(await opts.on(s))) return;
+    if (opts.skip(s) || !(await opts.on(s)) || opts.skip(s)) return;
     try {
       const r: any = await ctx.session.prompt({
         sessionID: s,

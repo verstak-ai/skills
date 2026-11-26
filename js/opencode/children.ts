@@ -30,6 +30,7 @@ export interface ChildDoors {
   spawn(args: string[]): Slot;
   keeper: Keeper<Slot>;
   leads: Leads;
+  /** Readable, not archived and in this location (moves.ts canReturn): an archived child ended — the door records its end. */
   exists(session: string): Promise<boolean>;
   stopped(): boolean;
   /** A child's run is over: usage to the bridge, the bridge goes down (live), a write by the root's bridge is a refusal (#6361). */
