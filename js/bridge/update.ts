@@ -41,18 +41,23 @@ const uw = () => words(UPDATE);
 export const RAW_URL =
   process.env[envName("BRIDGE_RAW_URL")]?.trim() ||
   `https://raw.githubusercontent.com/${SKILL_SET}`;
-export const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const envMs = (name: string, dflt: number): number => {
+  const v = Number(process.env[name]);
+  return process.env[name]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
+};
+/** The release-check period; the variable is for probes only. */
+export const CHECK_INTERVAL_MS = envMs(envName("BRIDGE_CHECK_INTERVAL_MS"), 6 * 60 * 60 * 1000);
 /** A failed check without a named reset is retried after this, not after six hours. */
 export const FAILED_RETRY_MS = 15 * 60 * 1000;
+/** Each next check's spread around the cache's expiry: ±10% of the period (#11337). */
+const CHECK_SPREAD_MS = CHECK_INTERVAL_MS / 10;
+/** The first check after start over an expired cache waits a random pause up to this. */
+const FIRST_SPREAD_MS = 10 * 60 * 1000;
 /**
  * Retry after a failure: not before a floor (the machine clock may run ahead of GitHub's
  * reset; without the floor the retry would fire every second) and with a per-bridge spread
  * so bridges do not hit the API in one second. The variables are for probes only.
  */
-const envMs = (name: string, dflt: number): number => {
-  const v = Number(process.env[name]);
-  return process.env[name]?.trim() && Number.isFinite(v) && v >= 0 ? v : dflt;
-};
 export const RETRY_FLOOR_MS = envMs(envName("BRIDGE_RETRY_FLOOR_MS"), 60_000);
 export const RETRY_JITTER_MS = envMs(envName("BRIDGE_RETRY_JITTER_MS"), 60_000);
 /** Probes and CI: neither touch home nor go to the network. */
@@ -234,11 +239,15 @@ export function checkExpiresAt(latest: Latest): number {
  * What is fresh: from the cache while valid (checkExpiresAt), otherwise from releases
  * (resolveTag: the machine-wide tag, the API, the releases page). Something fresh is
  * downloaded home in the same move. A network failure is no bridge error: it is cached as
- * a word and retried soon.
+ * a word and retried soon. `earlyMs` — the watch's spread: a cache expiring within it is due.
  */
-export async function checkLatest(authDir: string, force = false): Promise<Latest | null> {
+export async function checkLatest(
+  authDir: string,
+  force = false,
+  earlyMs = 0,
+): Promise<Latest | null> {
   const cached = readLatest(authDir);
-  if (!force && cached && Date.now() < checkExpiresAt(cached)) return cached;
+  if (!force && cached && Date.now() + earlyMs < checkExpiresAt(cached)) return cached;
   const latest: Latest = { checked_at: Date.now(), version: null, tag: null, downloaded: [] };
   try {
     const tag = await resolveTag(force);
@@ -326,10 +335,29 @@ export function tellNotice(notice: string): void {
 }
 
 /**
- * Background release check: a couple of seconds after start, then every six hours, only
- * for a bridge on a production server (another server — another delivery) and never under
- * BRIDGE_NO_UPDATE. `tell` — whom: the full bridge its session; the machine daemon each
- * of its sessions, and it updates itself (daemon.ts). `onChecked` — after every check.
+ * When the watch looks next after a good check (#11337): at the cache's own expiry, spread by
+ * ±10% of the period — a fixed beat from start fired just before the expiry, read the cache
+ * and checked every second period; a shared beat sent every bridge at once.
+ */
+const nextCheckIn = (latest: Latest | null): number =>
+  (latest ? checkExpiresAt(latest) - Date.now() : CHECK_INTERVAL_MS) +
+  (Math.random() * 2 - 1) * CHECK_SPREAD_MS;
+
+/** The first look: the override; a cache still good — read in a couple of seconds; else spread. */
+function firstCheckIn(authDir: string): number {
+  const delay = process.env[envName("BRIDGE_UPDATE_DELAY_MS")];
+  if (delay?.trim() && Number.isFinite(Number(delay))) return Number(delay);
+  const cached = readLatest(authDir);
+  if (cached && Date.now() + CHECK_SPREAD_MS < checkExpiresAt(cached)) return 2000;
+  return Math.random() * FIRST_SPREAD_MS;
+}
+
+/**
+ * Background release check, only for a bridge on a production server (another server —
+ * another delivery) and never under BRIDGE_NO_UPDATE: from the cache's expiry each time
+ * (nextCheckIn), the first over an expired cache after a random pause up to ten minutes.
+ * `tell` — whom: the full bridge its session; the machine daemon each of its sessions, and
+ * it updates itself (daemon.ts). `onChecked` — after every check.
  */
 export function startFreshnessWatch(
   authDir: string,
@@ -345,23 +373,26 @@ export function startFreshnessWatch(
     );
     return;
   }
-  let retry: ReturnType<typeof setTimeout> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   let told: string | null = null;
   const spread = Math.floor(Math.random() * RETRY_JITTER_MS); // per bridge
+  const plan = (ms: number): void => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => void tick(), Math.max(0, ms));
+    timer.unref();
+  };
   const tick = async (): Promise<void> => {
-    const latest = await checkLatest(authDir);
-    if (retry) clearTimeout(retry);
-    retry = null;
-    if (latest?.error) {
-      // A failure is not "checked": retry after the limit reset or a quarter hour, not on
-      // the six-hour beat (+1 s: the reset is named in seconds), above the floor, spread.
-      const wait = Math.min(
-        CHECK_INTERVAL_MS,
-        Math.max(RETRY_FLOOR_MS, checkExpiresAt(latest) - Date.now() + 1000) + spread,
+    const latest = await checkLatest(authDir, false, CHECK_SPREAD_MS);
+    // A failure is not "checked": retry after the limit reset or a quarter hour, not on the
+    // period (+1 s: the reset is named in seconds), above the floor, spread.
+    if (latest?.error)
+      plan(
+        Math.min(
+          CHECK_INTERVAL_MS,
+          Math.max(RETRY_FLOOR_MS, checkExpiresAt(latest) - Date.now() + 1000) + spread,
+        ),
       );
-      retry = setTimeout(() => void tick(), wait);
-      retry.unref();
-    }
+    else plan(nextCheckIn(latest));
     onChecked();
     const notice = staleNotice(latest, authDir);
     if (!notice) return;
@@ -370,7 +401,7 @@ export function startFreshnessWatch(
     log(notice);
     tell(notice);
   };
-  const delay = Number(process.env[envName("BRIDGE_UPDATE_DELAY_MS")] ?? 2000);
-  setTimeout(() => void tick(), Number.isFinite(delay) ? delay : 2000).unref();
-  setInterval(() => void tick(), CHECK_INTERVAL_MS).unref();
+  const first = firstCheckIn(authDir);
+  log(`release check: the first in ${Math.round(first / 1000)} s`);
+  plan(first);
 }

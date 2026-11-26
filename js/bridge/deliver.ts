@@ -1,5 +1,6 @@
-import { BRIDGE_NAME, envName, ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
+import { ID_PREFIX, NOTICE_MARK, tool } from "../delivery/index.ts";
 import { OWN_CLIENTS } from "../shared/clients.ts";
+import { REPLAY_ID_PREFIX } from "../shared/seam.ts";
 import { parseSpawn } from "../shared/spawned-for.ts";
 import {
   absorbChannelReply,
@@ -11,7 +12,6 @@ import {
 import { refusedAudience } from "./audience.ts";
 import { ensureAuth } from "./auth.ts";
 import { localAway } from "./away.ts";
-import { BUILD } from "./build.ts";
 import { crossPlaceRefusal, resolveAgainstLed, serialized } from "./call.ts";
 import {
   claimReply,
@@ -19,10 +19,16 @@ import {
   refuseLaunch,
   refuseUnbound,
 } from "./claimdelivery.ts";
+import { CFG } from "./config.ts";
 import { contextCall, refuseContext } from "./context-gate.ts";
 import { deafRefusal } from "./deaf.ts";
+// The window's ladder (downwindow.ts) begins with the call's own retry pauses: unsent calls
+// always, answer-lost ones only when they are reads (graph @nks/nks-dev, node #4664) — a
+// write has no version fence and would land twice.
+import { NET_BACKOFF_MS } from "./downwindow.ts";
 import {
   AuthPending,
+  DownError,
   errorMessage,
   HoldOffError,
   type Outcome,
@@ -44,6 +50,7 @@ import { localRealm } from "./realmask.ts";
 import { isRead } from "./repeat.ts";
 import { noteReply } from "./replynotes.ts";
 import { isCheckCall, isResumeCall } from "./resume.ts";
+import { throughGate } from "./returngate.ts";
 import { localEnd } from "./runend.ts";
 import { satelliteChannelRefusal } from "./satellite.ts";
 import { withCallOrigin } from "./seatorigin.ts";
@@ -62,79 +69,7 @@ import { onReinitialized, post, reinitialize, state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 import { takeNotice } from "./update.ts";
 import { isUsageCall, runUsage } from "./usage.ts";
-
-// The verdict a caller actually needs is not "it failed" but "may it have taken
-// effect?" — and those are different sentences. A single "retry the call" over
-// both is worse than silence: it is advice, and for a write with no version
-// guard the advice duplicates the record without a trace.
-export function syntheticError(
-  id: JsonRpcMessage["id"],
-  message: string,
-  outcome: Outcome = UpstreamError.UNKNOWN,
-  holdOff: boolean | "wait" | "knock" | "dead" | "human" = false,
-): JsonRpcMessage {
-  // holdOff carries the KIND of not-yet, because the two kinds prescribe
-  // opposite moves. "wait" is a pause with an honest figure — the knock
-  // cooldown, an hour a repeated refusal proved real — when one reaches a
-  // caller at all: calls sit short holds out and answer long ones with the
-  // login (#4794); a retry there buys nothing. "knock" is the FIRST early refusal of a needed
-  // refresh: witnessed in the field, the same call succeeded seconds after
-  // that refusal (a rotated grant, a 401 that did not survive a second
-  // presentation — the cause was not pinned, the refuted prescription was),
-  // so selling the token's whole hour as a wait once cost a caller a
-  // self-imposed half hour of blindness.
-  const kind = holdOff === true ? "wait" : holdOff;
-  const verdict =
-    outcome === UpstreamError.NOT_SENT
-      ? kind === "wait"
-        ? // Safe and not-yet are different axes, and an agent told only "safe" reads
-          // it as "now": it retries into the same wall, then goes looking for a
-          // defect in what only time repairs. The interval itself stays where it was
-          // measured — in the reason above — so one refusal never carries two.
-          "Nothing was applied and the grant is whole — this clears itself by waiting, " +
-          "not by fixing: wait out the interval named above before retrying."
-        : kind === "knock"
-          ? "Nothing was applied and the grant is whole — a benign transition, not a broken " +
-            "authorization: retry the call now. Only a refusal that returns means the hour is " +
-            "real — that one names its own wait."
-          : kind === "dead"
-            ? "Nothing was applied, and no retry and no wait will change that — only a human " +
-              "with a new token can."
-            : kind === "human"
-              ? // The agent reads this; the human does not. A retry buys nothing
-                // and a wait shortens nothing — only handing the link over does.
-                "Nothing was applied, and only the human can move this: hand them the link above — " +
-                "the local one opens only on this machine; from another, the sign-in page with the " +
-                "code, where one is named — the login is already waiting for their click. Once they " +
-                "finish, retry the call."
-              : "The call never reached the server, so nothing was applied — retry freely."
-      : "The call went out and its answer was lost, so THE OUTCOME IS UNKNOWN — re-read the target " +
-        "before retrying: a blind retry can apply a second time, and a write with no version guard " +
-        "duplicates silently.";
-  // The attention clause stays off every hold-off: a whole grant pausing is
-  // the server's own pacing, never a defect to escalate.
-  const tail = kind
-    ? "The bridge stays up."
-    : "The bridge stays up; if this repeats, the server side needs attention.";
-  return {
-    jsonrpc: "2.0",
-    id,
-    error: {
-      code: -32001,
-      // BUILD is here for the field report: the error is quoted verbatim, and
-      // the build string is what dates the code that produced it.
-      message: `${BRIDGE_NAME} ${BUILD}: ${message}. ${verdict} ${tail}`,
-    },
-  };
-}
-
-// Network blips are retried with backoff: unsent calls always, answer-lost ones
-// only when they are reads (graph @nks/nks-dev, node #4664): a write has no version
-// fence and would land twice.
-const NET_BACKOFF_MS = (process.env[envName("BRIDGE_NET_BACKOFF_MS")] || "1000,2000,4000")
-  .split(",")
-  .map(Number)
-  .filter((n) => Number.isFinite(n) && n >= 0);
+import { syntheticError } from "./verdict.ts";
 
 // After a reopen the tool list is rechecked against the harness's copy, unless the
 // harness's own tools/list is in flight (graph @nks/nks-dev, node #5405).
@@ -349,7 +284,13 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       // Raw connect/mint runs under an intent until the hold record (graph @nks/nks-dev, node #6706).
       endTaking =
         msg.params?.name === tool("channel") ? beginTaking(msg.params.arguments ?? {}) : null;
-      await (takes ? withCallOrigin(msg.id, () => post(msg, forward)) : post(msg, forward));
+      const send = () =>
+        takes ? withCallOrigin(msg.id, () => post(msg, forward)) : post(msg, forward);
+      // Every upstream initialize goes through the machine's gate (returngate.ts, #11375): a thin
+      // bridge's replayed handshake to a session new to it (a successor after a handover or a
+      // self-update) as a return; any other (new thin bridges after a plugin reload) as an open.
+      const replayed = String(msg.id).startsWith(REPLAY_ID_PREFIX);
+      await (isInit ? throughGate(CFG.serverUrl, send, replayed ? "return" : "open") : send());
       const held = heldReply as JsonRpcMessage | null;
       if (held && msg.params?.name === tool("channel") && msg.params.arguments)
         noteLocaleEcho(msg.params.arguments, replyText(held), structuredOf(held));
@@ -451,40 +392,53 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
           return;
         }
       }
+      let metDown: DownError | null = null;
       if (e instanceof UpstreamError && e.kind === "session" && !sessionRetried && !isInit) {
         sessionRetried = true;
         try {
           await reinitialize();
           continue;
         } catch (reErr) {
-          if (hasId) {
-            emit(
-              syntheticError(msg.id, `session recovery failed: ${errorMessage(reErr)}`, outcome),
-            );
+          // A reopen that met the down window, or whose own knock failed in the down
+          // family (downwindow.ts), is the server being down — not a session that cannot
+          // be recovered, and no word a reader can act on. The call answers the down
+          // word below: nothing was applied — the 404 saw to that — and the call is not
+          // sent again; the bridge knocks again by itself.
+          if (!(reErr instanceof DownError)) {
+            if (hasId)
+              emit(
+                syntheticError(msg.id, `session recovery failed: ${errorMessage(reErr)}`, outcome),
+              );
+            return;
           }
-          return;
+          metDown = reErr;
         }
       }
+      // What the answer names: the caught error, or the window's word when the reopen met it.
+      const failure: unknown = metDown ?? e;
       if (
-        e instanceof UpstreamError &&
-        (e.kind === "network" || (e.kind === "auth" && harness)) &&
+        failure instanceof UpstreamError &&
+        (failure.kind === "network" || (failure.kind === "auth" && harness)) &&
         hasId
       ) {
         const cached = lastServerAnswer(msg);
         if (cached) {
-          log(`${e.message} — ${msg.method} answered from the last server answer`);
+          log(`${failure.message} — ${msg.method} answered from the last server answer`);
           emit(cached);
           return;
         }
       }
       const reason =
-        e instanceof UpstreamError
-          ? e.kind === "auth" && authRetried
-            ? refusedAudience(e.message)
-            : e.message
-          : `bridge internal error: ${errorMessage(e)}`;
+        failure instanceof UpstreamError
+          ? failure.kind === "auth" && authRetried
+            ? refusedAudience(failure.message)
+            : failure.message
+          : `bridge internal error: ${errorMessage(failure)}`;
       log(`request ${hasId ? msg.id : `(notification ${msg?.method})`} failed: ${reason}`);
-      if (hasId) emit(syntheticError(msg.id, reason, outcome));
+      if (hasId)
+        emit(
+          syntheticError(msg.id, reason, outcome, failure instanceof DownError ? "down" : false),
+        );
       return;
     }
   }

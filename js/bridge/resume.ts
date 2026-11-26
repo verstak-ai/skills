@@ -4,11 +4,12 @@
 // plugin's `resume` request, which may name the harness session); the plugin's `check` request is the hearing watchdog.
 // A bridge leading another seat never takes a foreign record: holdStanding of another
 // key would kill the led one.
-import { envName, LOGGERS, method, tool } from "../delivery/index.ts";
+import { envName, LOGGERS, method } from "../delivery/index.ts";
 import { envOf, scoped, sessionCwd } from "../shared/scope.ts";
 import { besideBack, registerRecord } from "./besideback.ts";
 import { listens, nameOf, readBoard, undelivered } from "./board.ts";
-import { callTool, short } from "./call.ts";
+import { boardRead } from "./boardread.ts";
+import { short } from "./call.ts";
 import { CFG } from "./config.ts";
 import { liveHearing, localHolder } from "./hearing.ts";
 import {
@@ -221,7 +222,7 @@ export async function resumeBy(
   takeOwn = false,
 ): Promise<ResumeOutcome> {
   // The move begins here, before any disk read or wait: a seat ended since then is not registered (#7439).
-  const move = registerMove("returns");
+  const move = registerMove("returns", undefined, true); // a re-registration: the return gate
   await canonHoldRecords(); // an earlier build's record of rN or a bare slug returns as @owner/slug (#8677)
   const { own: recs, sameDir, legacy: legacyRecs, left, neighbour, stale } = recordsFor(sel);
   // A keyed seat older than the session's other record: a journal line and the outcome (refused),
@@ -434,7 +435,7 @@ export async function runCheck(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
     D.reopens = 0;
     return reply(msg, { holding: true, key, listening: true, word: resumeWords.listening() });
   }
-  const board = await callTool(tool("channel"), { action: "list", realm: s.realm, karta: s.karta });
+  const board = await boardRead(s.realm, s.karta, `watchdog check, ${key} not heard live`); // a return: the gate
   if (board.isError)
     return reply(msg, { holding: true, key, word: resumeWords.boardUnread(short(board.text)) });
   const mine = readBoard(board).entries.find(

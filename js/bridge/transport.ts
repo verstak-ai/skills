@@ -5,9 +5,19 @@ import { lang } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { noteServerDate } from "./clock.ts";
 import { CFG } from "./config.ts";
-import { closedUnder, errorCode, errorMessage, UpstreamError } from "./errors.ts";
+import {
+  admit,
+  answered as windowAnswered,
+  DOWN_HTTP,
+  downHttp,
+  failed,
+  NEVER_LEFT,
+  retryAfterMs,
+} from "./downwindow.ts";
+import { closedUnder, DownError, errorCode, errorMessage, UpstreamError } from "./errors.ts";
 import { loginPublished } from "./oauth/flow.ts";
 import { repeatable } from "./repeat.ts";
+import { throughGate } from "./returngate.ts";
 import { closeSession, noteOpened } from "./sessionclose.ts";
 import { loadStore, saveServerCache } from "./store.ts";
 import { debug, emit, log } from "./streams.ts";
@@ -159,6 +169,11 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
   // No grant and a login already out: the server can only answer 401 — say it here.
   else if (loginPublished())
     throw new UpstreamError("unauthorized (login pending)", "auth", null, UpstreamError.NOT_SENT);
+  // The machine's down window (downwindow.ts): while it stands this knock does not go
+  // out — the call answers «not sent» at once, and a refused initialize lets nothing go; the
+  // first knock after it is the one probe.
+  const gate = admit();
+  if (gate.refused) throw new DownError(null, UpstreamError.NOT_SENT, false, gate.waitMs);
   const isInit = msg?.method === "initialize";
   if (isInit && state.sessionId) {
     // An initialize opens a session and never rides one (the MCP spec): the id
@@ -215,31 +230,33 @@ export async function post(msg: JsonRpcMessage, heard: (m: JsonRpcMessage) => vo
           : "");
     // A connection that was never established carries nothing: the server never
     // saw the call. A timeout is the opposite — the request was on the wire and
-    // only the answer is missing, so the write may well have landed. Bun (the
-    // runtime OpenCode runs the bridge on) names both a refused port and an
-    // unknown host ConnectionRefused.
-    const neverLeft =
-      !timedOut &&
-      (tls ||
-        [
-          "ECONNREFUSED",
-          "ENOTFOUND",
-          "EAI_AGAIN",
-          "ERR_SOCKET_BAD_PORT",
-          "ConnectionRefused",
-        ].includes(code ?? ""));
+    // only the answer is missing, so the write may well have landed (NEVER_LEFT, downwindow.ts).
+    const neverLeft = !timedOut && (tls || NEVER_LEFT.has(code ?? ""));
     // A timeout already spent the whole deadline: repeating it multiplies the
     // wait, so only a connection that failed outright is worth another knock —
     // and not a certificate refusal, which fails the same way every time.
-    throw new UpstreamError(
-      `upstream unreachable: ${reason}`,
-      "network",
-      null,
-      neverLeft ? UpstreamError.NOT_SENT : UpstreamError.UNKNOWN,
-      !timedOut && !tls,
-    );
+    const outcome = neverLeft ? UpstreamError.NOT_SENT : UpstreamError.UNKNOWN;
+    const again = !timedOut && !tls;
+    // A connection shut under the request, or a timeout, does not say the server is down:
+    // an idle keep-alive the server closed fails the same way (#6630), and the call's own
+    // repeat serves it (#4664) — no window opens for it. The window opens when nothing
+    // answered at all: a connection that was never established (below), the front line's
+    // 502/503/504 (downwindow.ts).
+    const down = neverLeft && !tls;
+    if (!down) {
+      gate.knock.release();
+      throw new UpstreamError(`upstream unreachable: ${reason}`, "network", null, outcome, again);
+    }
+    throw new DownError(`upstream unreachable: ${reason}`, outcome, again, failed(gate.knock, 0));
   }
   noteServerDate(res);
+  if (DOWN_HTTP.has(res.status)) {
+    // The server's pause is read from the whole body; only the word keeps it short.
+    const body = await res.text().catch(() => "");
+    const pause = retryAfterMs(res.headers.get("retry-after"), body);
+    throw downHttp(gate.knock, res.status, body.slice(0, 300), pause);
+  }
+  windowAnswered(gate.knock);
 
   if (res.status === 401) {
     const challenge = res.headers.get("www-authenticate") || "";
@@ -345,9 +362,12 @@ export async function reinitialize(): Promise<void> {
       void letGo("re-initialize");
       const id = `${ID_PREFIX}bridge-reinit-${++state.reinitCounter}`;
       let result: JsonRpcMessage | null = null;
-      await post({ jsonrpc: "2.0", id, method: "initialize", params: state.initParams }, (m) => {
-        if (m.id === id) result = m;
-      });
+      // One probe per machine, the rest spread after it (returngate.ts, #11375).
+      await throughGate(CFG.serverUrl, () =>
+        post({ jsonrpc: "2.0", id, method: "initialize", params: state.initParams }, (m) => {
+          if (m.id === id) result = m;
+        }),
+      );
       const got = result as JsonRpcMessage | null;
       if (!got || got.error) {
         throw new UpstreamError(

@@ -13,7 +13,7 @@ import { join } from "node:path";
 import { BUILD } from "./build.ts";
 import { CFG } from "./config.ts";
 import { foldInto } from "./journal-fold.ts";
-import { type GrantState, type Store } from "./types.ts";
+import { type DownRecord, type GrantState, type Store } from "./types.ts";
 
 export const b64url = (buf: Buffer | Uint8Array): string => Buffer.from(buf).toString("base64url");
 export const sha256 = (s: string): Buffer => createHash("sha256").update(s).digest();
@@ -170,5 +170,40 @@ export function saveGrantState(patch: Partial<GrantState>): void {
 export function clearGrantState(): void {
   try {
     unlinkSync(grantStatePath());
+  } catch {}
+}
+
+// The machine's down window of the server (downwindow.ts): shared by every bridge on the
+// grant directory, so one failure is one window, not one per process. A record that does
+// not parse is no window — a call must never be refused by a broken file.
+export function downPath(): string {
+  return storePath() + ".down";
+}
+
+export function downProbeLockPath(): string {
+  return storePath() + ".down.probe";
+}
+
+export function loadDown(): DownRecord | null {
+  try {
+    const rec = JSON.parse(readFileSync(downPath(), "utf8")) as DownRecord;
+    return Number.isFinite(rec?.step) && Number.isFinite(rec?.notBefore) ? rec : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveDown(rec: DownRecord): void {
+  try {
+    mkdirSync(CFG.authDir, { recursive: true, mode: 0o700 });
+    const tmp = `${downPath()}.tmp-${process.pid}`;
+    writeFileSync(tmp, JSON.stringify(rec), { mode: 0o600 });
+    renameSync(tmp, downPath());
+  } catch {} // a window that cannot be written is no window: the next knock goes out
+}
+
+export function clearDown(): void {
+  try {
+    unlinkSync(downPath());
   } catch {}
 }
