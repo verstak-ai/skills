@@ -165,13 +165,11 @@ var COVER = {
 var LAUNCH_WORD = "verstak";
 var word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 var LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(\\S+))?(?=\\s|$)`,
   "mu"
 );
 
 // js/delivery/patterns/mind.ts
-var MIND_PRESENT = /^\s*personal_mind\b[^\n]*—\s*present\b/m;
-var MIND_MISSING = /^\s*personal_mind\b[^\n]*—\s*missing\b/m;
 var MIND_ROW = /^\s+(\S[^\n]*?) \(#(\d+), [^\s,)]+[^)\n]*\)(?: — ([^\n]*))?$/;
 
 // js/delivery/patterns/mine.ts
@@ -214,7 +212,7 @@ var QUESTION_SCOPE = "repo";
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.6.0";
+var VERSION = "4.7.0";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -238,7 +236,7 @@ var ASK = {
 var BRIDGE_CLIENT = {
   en: {
     failedToStart: (message) => `the bridge failed to start: ${message}`,
-    exited: (code2, signal, why) => `the bridge exited (code=${code2}, signal=${signal})${why}`,
+    exited: (code2, signal2, why) => `the bridge exited (code=${code2}, signal=${signal2})${why}`,
     lastFromBridge: (lines) => `; last from the bridge: ${lines}`,
     aborted: () => "call aborted",
     noAnswer: (method2, ms, why) => `${method2}: no answer in ${ms} ms${why}`,
@@ -317,6 +315,13 @@ var COMPACTION = {
 var CONTRACT_WORDS = {
   en: {
     unsupported: (n2, target) => `Contract ${n2} is no longer supported; old hooks have not been removed. Run a full verstak align to contract ${target}; rituals will be accepted after verification`
+  }
+};
+
+// js/delivery/words/direct-reads.ts
+var DIRECT_READ_WORD = {
+  en: {
+    word: (list) => `Graph reads — ${list} — are direct tool calls outside execute; search() inside execute does not list them. Every other ${tool("*")} tool is called inside execute.`
   }
 };
 
@@ -457,6 +462,7 @@ var OPENCODE = {
     staleBatch: () => "batch of stale frames",
     wakeBatch: (n2) => `wake-up batch (${n2})`,
     resumedLabel: () => "word about the returned seat",
+    returnFailedLabel: () => "word about the seat that did not return",
     tact: () => "attention tact",
     tactWaits: () => "Verstak: the attention tact waits for the end of the session's turn",
     tactWaitsFolded: () => "Verstak: the attention tact waits for the end of the session's turn — the previous waiting one is folded",
@@ -464,7 +470,7 @@ var OPENCODE = {
     lifeCheckChild: (name, karta, realm) => `Verstak: the platform will put out the subagent's seat ${name || "<seat name>"} unless it acts: still working — its own move keeps it; ended — release it: ${tool("channel")}(realm="${realm || "<graph>"}", action="revoke", standing="${name || "<seat name>"}", karta=${karta || "<role>"}).`,
     childGone: (frame, id, text3) => `Verstak: ${frame} for the seat of child session ${id}, which no longer exists — not readdressing it to the root; a case record stays in the case (${tool("case")} history), a direct word did not reach the root; the child session's seat is extra on a channel where the root stands on: whether to revoke it, decide knowing the cost (standing) —${text3}`,
     childEnded: (frame, id, text3) => `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; a case record stays in the case (${tool("case")} history) — ${text3}`,
-    sessionClosed: (id, frame) => `Verstak: session ${id} is closed or archived — the ${frame} goes to the freshest one seen`,
+    sessionClosed: (id, frame) => `Verstak: session ${id} is closed or archived — the ${frame} was not delivered`,
     nowhere: (frame, text3) => `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; a case record stays in the case (${tool("case")} history), a direct word did not arrive — ` + text3,
     halted: (frame, id) => `Verstak: ${frame} not delivered — session ${id} was stopped by taking its seat off; it is not woken until it takes a seat again explicitly`,
     pulseOverflow: (id, waiting) => `Verstak: ${waiting} frames laid into session ${id} wait for its turn — OpenCode does not take them; the pulse keeps them all`,
@@ -474,6 +480,7 @@ var OPENCODE = {
     notDelivered: (frame, id, message) => `Verstak: ${frame} was not delivered into session ${id}: ${message}`,
     sessionLeftOpen: (id, why) => `Verstak: session ${id} is stopped but its window is left open — ${why ?? "the plugin finds no client of this session"}; close it in OpenCode`,
     clientClosed: (id, pid) => `Verstak: session ${id} is stopped, its client closed (pid ${pid})`,
+    clientKept: (id, pid, places) => `Verstak: session ${id} is stopped, the client is not closed: it still holds the seats ${places} (pid ${pid})`,
     held: (key) => `Verstak: the bridge holds the standing ${key}`,
     released: (key, text3) => `Verstak: the bridge released the standing ${key} — ${text3}`,
     endUnrevoked: (seats) => `Verstak: the session is deleted but its seat is not revoked (${seats}) — the hold record is kept; the machine's bridge repeats the revoke after the window, else the seat goes by the platform's term`,
@@ -488,6 +495,7 @@ var OPENCODE_KEEP = {
     resumedOwn: (key) => `Verstak: the bridge came up and returned the seat ${key} itself — your own, this session stood on it; without your move.`,
     elsewhere: (keys) => `Verstak: returning the seat ${keys} from disk failed — another live bridge holds its socket, not the one serving this session now; hearing and the busy line here hold no seat. Call ${tool("stand")} with this name, no take needed: it returns this session's own seat and stands beside another session's on name.N with hearing.`,
     notBack: (place, why) => `Verstak: the seat ${place} did not return from disk: ${why}. The hearing watchdog retries once — wait for its word; if it did not return on the retry either — ${tool("stand")}.`,
+    lostNotBack: (place, why) => `Verstak: the session's bridge died and the seat ${place} did not return: ${why}. There is no hearing here: to act now — ${tool("stand")} with this name. The hearing watchdog keeps watching and retries the return silently; no further word.`,
     noKeyNoDir: () => "neither a seat key nor a session directory",
     noAnswer: () => "the bridge did not answer",
     legacy: (word2) => `Verstak: ${word2}.`,
@@ -943,7 +951,7 @@ function seatIs(frame, ...named2) {
   if (!myId && !myAddr) return null;
   const id = named2.map((v) => str(obj(v).id)).find(Boolean);
   if (id && myId) return id === myId;
-  const addr = named2.map((v) => addresseeOf(v)?.addr.filter((a) => a.startsWith("@"))[0]).find(Boolean);
+  const addr = named2.map((v) => addresseeOf(v)?.addr.filter((a) => a !== str(obj(v).id))[0]).find(Boolean);
   if (addr) return addr === myAddr;
   return id ? false : null;
 }
@@ -951,7 +959,7 @@ function addresseeOf(v) {
   if (typeof v === "string") return v ? { addr: [v], label: v } : null;
   const o = obj(v);
   const handle = str(o.handle).replace(/^@/, "");
-  const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : "");
+  const standing = str(o.standing) || (handle ? `@${handle}${str(o.name) ? `:${str(o.name)}` : ""}` : str(o.name));
   const id = str(o.id);
   const label = standing || str(o.name) || id;
   const addr = [standing, id].filter(Boolean);
@@ -1721,13 +1729,24 @@ function caseHead(frame, withZachin) {
   const no = W().case(need(c.room));
   return withZachin && c.zachin ? `${no} «${c.zachin}»` : no;
 }
+var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function userTag(user) {
+  const u = typeof user === "string" ? user.trim().replace(/^@/, "") : "";
+  if (!u) return "";
+  return /^[\w.-]+$/.test(u) && !UUID.test(u) ? ` @${u}` : ` ${u}`;
+}
 function whoOf2(frame, withPlace) {
   const p = frame.provenance ?? {};
   const origin2 = frame.origin ?? classifyOrigin(frame);
   if (origin2 === "platform") return W().whoPlatform();
   if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
   const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
-  if (origin2 === "human") return W().whoHuman(opt(" @", p.user)) + place;
+  if (origin2 === "human") {
+    const user = typeof p.user === "string" ? p.user.trim().replace(/^@/, "") : "";
+    const seat = (p.from_standing ?? "").trim();
+    const repeats = !!user && !seat.includes(":") && seat.replace(/^@/, "") === user;
+    return W().whoHuman(userTag(p.user)) + (repeats ? "" : place);
+  }
   const karta = p.from_karta_seq;
   if (karta == null) return p.from_standing ?? "";
   return (origin2 === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
@@ -2010,7 +2029,7 @@ var Bridge = class {
       }
     });
     proc.on("error", (e) => this.die(new Error(W2().failedToStart(e.message))));
-    proc.on("exit", (code2, signal) => this.die(new Error(W2().exited(code2, signal, this.why()))));
+    proc.on("exit", (code2, signal2) => this.die(new Error(W2().exited(code2, signal2, this.why()))));
   }
   why() {
     return this.tail.length ? W2().lastFromBridge(this.tail.slice(-3).join(" | ")) : "";
@@ -2393,6 +2412,8 @@ var REGISTRATION_REUSE_MS = 45 * 6e4;
 // js/bridge/oauth/pacing.ts
 var pauses = (v, fallback) => (v || fallback).split(",").map(Number).filter((n2) => Number.isFinite(n2) && n2 >= 0);
 var DEAD_RECHECK_MS = pauses(process.env[envName("BRIDGE_DEAD_RECHECK_MS")], "1000,2000");
+var LOST_RETRY_MS = Number(process.env[envName("BRIDGE_LOST_RETRY_MS")]) || 1e3;
+var KEEPALIVE_MS = Number(process.env[envName("BRIDGE_KEEPALIVE_MS")]) || 6e4;
 var IN_CALL_WAIT_MS = Number(process.env[envName("BRIDGE_IN_CALL_WAIT_MS")]) || 1e4;
 var ORPHAN_FLOW_MS = Number(process.env[envName("BRIDGE_ORPHAN_FLOW_MS")]) || 5 * 6e4;
 
@@ -2475,6 +2496,12 @@ function isSatelliteOf(base, name) {
 
 // js/shared/seat.ts
 var normKarta = (k) => String(k ?? "").trim().replace(/^#/, "");
+function seatName(address) {
+  const t = typeof address === "string" ? address.trim() : "";
+  const colon = t.indexOf(":");
+  if (colon >= 0) return t.slice(colon + 1);
+  return t.startsWith("@") ? "" : t;
+}
 function sameSeat(a, b) {
   const realm = String(a.realm ?? "").trim();
   const name = String(a.name ?? "").trim();
@@ -2509,12 +2536,7 @@ var state = scoped(() => ({
   places: [],
   standingSession: null,
   // the session id that registration is known to hold in
-  // The access token the session was opened with. A session is opened BY a
-  // credential and dies with it (the surface's own word): once the token in the
-  // store is no longer the one this session was opened with — expired, refreshed
-  // after a 401, rotated by a sibling bridge — the old id is a dead letter, and a
-  // server that opens a fresh session on it silently runs the call unattributed
-  // before we learn the new id. So a changed token means: re-open first.
+  // The bearer last associated with the session; refresh alone does not end it.
   sessionToken: null,
   // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
   goneSession: null
@@ -2571,6 +2593,10 @@ var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
 // js/bridge/sweep.ts
 var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
 
+// js/bridge/endedseats.ts
+var KEEP_MS = 10 * 6e4;
+var J = scoped(() => ({ ended: /* @__PURE__ */ new Map() }));
+
 // js/bridge/holdstate.ts
 var H2 = scoped(() => ({
   /** session dir the place is taken from (stand cwd), kept in the hold record for cwd resume (resume.ts) */
@@ -2591,6 +2617,8 @@ var H2 = scoped(() => ({
   parked: false,
   /** socket reopened on the same address without this opening's hello yet: another may have rotated it (deaf.ts) */
   unheard: false,
+  /** this opening's hello came: hearing is proven until the socket drops, is left or reopened — the ring may forget the hello (RING) */
+  proven: false,
   /** key of a place whose socket was released but binding remembered, until hello proves hearing (deaf.ts) */
   deafKey: null,
   /** places of other graphs on the channel at the 4001: the server remembers the binding, no hearing (deaf.ts) */
@@ -2681,19 +2709,19 @@ var late = () => words(STATUS_POST).noAnswer(words(STATUS_POST).late());
 async function postStatus(url, text3, until, standingId) {
   const left = until - Date.now();
   if (left <= 0) return { ok: false, body: late() };
-  const signal = AbortSignal.timeout(left);
+  const signal2 = AbortSignal.timeout(left);
   const post2 = () => namedFetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(
       typeof standingId === "string" ? { text: text3, standing_id: standingId } : { text: text3 }
     ),
-    signal
+    signal: signal2
   });
   let res;
   try {
     res = await post2().catch((e) => {
-      if (!closedUnder(e) || signal.aborted) throw e;
+      if (!closedUnder(e) || signal2.aborted) throw e;
       return post2();
     });
   } catch (e) {
@@ -2912,13 +2940,13 @@ function forget(id) {
   outcomes().delete(id);
   wake(id);
 }
-function outcomeOf(id, stopOf, signal) {
+function outcomeOf(id, stopOf, signal2) {
   const gen = stopOf(id);
   const o = outcomes().get(id);
   if (gen === null) return Promise.resolve(null);
   if (o?.[0] === gen) return Promise.resolve(o[1]);
   return new Promise((done) => {
-    if (signal?.aborted) return;
+    if (signal2?.aborted) return;
     const set = waiters().get(id) ?? /* @__PURE__ */ new Set();
     const off = () => {
       const now2 = waiters().get(id);
@@ -2926,10 +2954,10 @@ function outcomeOf(id, stopOf, signal) {
       if (now2?.size === 0) waiters().delete(id);
     };
     const w = () => {
-      signal?.removeEventListener("abort", off);
-      void outcomeOf(id, stopOf, signal).then(done);
+      signal2?.removeEventListener("abort", off);
+      void outcomeOf(id, stopOf, signal2).then(done);
     };
-    signal?.addEventListener("abort", off, { once: true });
+    signal2?.addEventListener("abort", off, { once: true });
     set.add(w);
     waiters().set(id, set);
   });
@@ -3045,15 +3073,15 @@ function createCuts(d) {
      * born during the wait) is waited for too, until the set stands still. `signal` or this
      * instance's stop drops the wait.
      */
-    async outcome(ids2, signal) {
+    async outcome(ids2, signal2) {
       const own = new AbortController();
       const off = () => {
         waits.delete(own);
         own.abort();
       };
       waits.add(own);
-      signal?.addEventListener("abort", off, { once: true });
-      if (signal?.aborted) off();
+      signal2?.addEventListener("abort", off, { once: true });
+      if (signal2?.aborted) off();
       try {
         const asked = /* @__PURE__ */ new Set();
         let first = null;
@@ -3067,7 +3095,7 @@ function createCuts(d) {
         return first;
       } finally {
         waits.delete(own);
-        signal?.removeEventListener("abort", off);
+        signal2?.removeEventListener("abort", off);
       }
     },
     /**
@@ -3139,10 +3167,23 @@ function stamp(pid) {
     return failure.status === 1 && !failure.stdout?.trim() && !failure.stderr?.trim() ? null : void 0;
   }
 }
-async function closeClient(client, current) {
+var closing = () => globalThis[`${GLOBAL_PREFIX}ClientCloses`] ??= /* @__PURE__ */ new Map();
+function closeClient(client, current) {
+  const key = `${client.pid} ${client.born}`;
+  const was = closing().get(key);
+  if (was) return was;
+  const close = signal(client, current).finally(() => {
+    if (closing().get(key) === close) closing().delete(key);
+  });
+  closing().set(key, close);
+  return close;
+}
+async function signal(client, current) {
   const { pid, born } = client;
+  const before = stamp(pid);
+  if (before === null || typeof before === "string" && before !== born) return true;
   const now2 = processes().find((p) => p.pid === pid);
-  if (stamp(pid) !== born || now2?.uid !== client.uid || now2.command !== client.command || !current())
+  if (before !== born || now2?.uid !== client.uid || now2.command !== client.command || !current())
     return false;
   try {
     process.kill(pid, "SIGTERM");
@@ -3160,29 +3201,315 @@ async function closeClient(client, current) {
   return false;
 }
 
+// js/shared/canon.ts
+import { realpathSync as realpathSync2 } from "node:fs";
+import { sep } from "node:path";
+function canonDir(p) {
+  let real2 = p;
+  try {
+    real2 = realpathSync2.native(p);
+  } catch {
+  }
+  while (real2.length > 1 && (real2.endsWith("/") || real2.endsWith(sep))) real2 = real2.slice(0, -1);
+  return real2;
+}
+
+// js/opencode/marker.ts
+import { createHash as createHash4 } from "node:crypto";
+import { mkdirSync as mkdirSync3, readdirSync as readdirSync3, readFileSync as readFileSync8, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync4 } from "node:fs";
+import { join as join8 } from "node:path";
+
+// js/opencode/procstart.ts
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { readFileSync as readFileSync7 } from "node:fs";
+var CLK_TCK = 100;
+function linuxStart(pid) {
+  const stat = readFileSync7(`/proc/${pid}/stat`, "utf8");
+  const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
+  const ticks = Number(fields[19]);
+  const btime = Number(/^btime (\d+)$/m.exec(readFileSync7("/proc/stat", "utf8"))?.[1]);
+  return Number.isFinite(ticks) && btime ? (btime + ticks / CLK_TCK) * 1e3 : null;
+}
+function psStart(pid) {
+  const out2 = execFileSync2("ps", ["-o", "lstart=", "-p", String(pid)], {
+    encoding: "utf8",
+    env: { ...process.env, LC_ALL: "C" },
+    stdio: ["ignore", "pipe", "ignore"],
+    windowsHide: true,
+    timeout: 2e3
+  }).trim();
+  const at2 = Date.parse(out2);
+  return Number.isNaN(at2) ? null : at2;
+}
+function processStart(pid) {
+  try {
+    return process.platform === "linux" ? linuxStart(pid) : psStart(pid);
+  } catch {
+    return null;
+  }
+}
+
+// js/opencode/records.ts
+var entryOf2 = (e) => ({
+  session: e.session,
+  dir: e.dir ?? null,
+  key: e.key ?? null,
+  child: !!e.child,
+  ...typeof e.stoodAt === "number" ? { stoodAt: e.stoodAt } : {},
+  ...e.moved ? { moved: true } : {},
+  ...e.child ? {
+    of: e.of ?? null,
+    ...e.noted ? { noted: true } : {},
+    ...e.name ? { name: e.name } : {},
+    ...e.last ? { last: e.last } : {},
+    ...e.leaving ? { leaving: e.leaving } : {}
+  } : {}
+});
+
+// js/opencode/marker.ts
+var PREFIX2 = "opencode-lost";
+var LEGACY_MS = 2 * 6e4;
+var START_SLACK_MS = 1e3;
+var hash = (s) => createHash4("sha256").update(s).digest("hex").slice(0, 12);
+var tagOf = (home) => home ? hash(`${home.directory}\0${home.workspace ?? ""}`) : "any";
+var tagIn = (f) => /^opencode-lost\.@([^.]+)\./.exec(f)?.[1] ?? null;
+var otherLive = (f, path) => {
+  const pid = Number(/\.(\d+)\.[^.]+\.json$/.exec(f)?.[1]);
+  if (!pid || pid === process.pid) return false;
+  const started = processStart(pid);
+  if (started === null) return false;
+  try {
+    return started <= statSync3(path).mtimeMs + START_SLACK_MS;
+  } catch {
+    return false;
+  }
+};
+function stoodAtOf(authDir2, key) {
+  try {
+    const at2 = JSON.parse(readFileSync8(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
+    return typeof at2 === "number" ? at2 : void 0;
+  } catch {
+    return void 0;
+  }
+}
+function writeLostMarker(authDir2, slots, home) {
+  const entries = [...slots].filter((s) => s.holding && s.session).map(
+    (s) => entryOf2({
+      ...s,
+      session: s.session,
+      of: s.satelliteOf,
+      name: s.place?.name,
+      stoodAt: s.key ? stoodAtOf(authDir2, s.key) : void 0
+    })
+  );
+  if (!entries.length) return [];
+  try {
+    mkdirSync3(authDir2, { recursive: true, mode: 448 });
+    const lost = { at: (/* @__PURE__ */ new Date()).toISOString(), entries };
+    const rand = Math.random().toString(36).slice(2, 8);
+    const name = `${PREFIX2}.@${tagOf(home)}.${process.pid}.${rand}.json`;
+    writeFileSync4(join8(authDir2, name), JSON.stringify(lost), { mode: 384 });
+    return entries;
+  } catch {
+    return [];
+  }
+}
+function markerWaits(authDir2, home) {
+  try {
+    return readdirSync3(authDir2).some(
+      (f) => f.startsWith(`${PREFIX2}.@${tagOf(home)}.`) && !otherLive(f, join8(authDir2, f))
+    );
+  } catch {
+    return false;
+  }
+}
+function readOwn(path, tag, home) {
+  const drop2 = () => {
+    try {
+      unlinkSync2(path);
+    } catch {
+    }
+  };
+  let lost = null;
+  try {
+    const text3 = readFileSync8(path, "utf8");
+    if (tag !== null) drop2();
+    lost = JSON.parse(text3);
+  } catch {
+  }
+  if (tag === null && !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS)) drop2();
+  if (!lost) return null;
+  const mine = (e) => tag !== null || !home || !e.dir || e.dir === home.directory;
+  return { at: lost.at, entries: (lost.entries ?? []).filter(mine) };
+}
+function takeLostMarker(authDir2, home) {
+  const entries = [];
+  let at2 = "";
+  let files;
+  try {
+    files = readdirSync3(authDir2).filter((f) => f.startsWith(PREFIX2) && f.endsWith(".json"));
+  } catch {
+    return null;
+  }
+  const mine = tagOf(home);
+  const read = [];
+  for (const f of files) {
+    const tag = tagIn(f);
+    if (tag !== null && tag !== mine) continue;
+    if (otherLive(f, join8(authDir2, f))) continue;
+    const lost = readOwn(join8(authDir2, f), tag, home);
+    if (lost) read.push({ tagged: tag !== null, lost });
+  }
+  const eraOf = (e, lost) => e.stoodAt ?? (Date.parse(lost.at) || 0);
+  const best = /* @__PURE__ */ new Map();
+  for (const { tagged, lost } of read) {
+    const stale = !(Date.now() - Date.parse(lost.at ?? "") < LEGACY_MS);
+    for (const e of lost.entries ?? []) {
+      if (!e?.session || e.moved && stale) continue;
+      const era = eraOf(e, lost);
+      const had = best.get(e.session);
+      if (had && (Number(had.tagged) - Number(tagged) || had.era - era) >= 0) continue;
+      best.set(e.session, { tagged, era, e, lost });
+    }
+  }
+  for (const { e, lost } of best.values()) {
+    if (lost.at > at2) at2 = lost.at;
+    entries.push(entryOf2(e));
+  }
+  if (!entries.length) return null;
+  const when = new Date(at2);
+  const hhmm = Number.isNaN(when.getTime()) ? at2 : when.toTimeString().slice(0, 5);
+  const word2 = (of) => {
+    const where = of.filter((e) => !e.child && !e.moved).map((e) => e.key ?? e.dir ?? e.session).join(", ");
+    return where ? words(OPENCODE_KEEP).lostWord(hhmm, where) : null;
+  };
+  return {
+    text: word2(entries),
+    // the log gets all
+    entries,
+    wordFor: (s) => word2(entries.filter((e) => e.session === s))
+  };
+}
+
+// js/opencode/twins.ts
+var WAKE_MS = Number(process.env[envName("WAKE_MS")]) || 15e3;
+var PAUSE_MS = Math.min(1e3, WAKE_MS / 5);
+var registry = () => globalThis[`${GLOBAL_PREFIX}Twins`] ??= /* @__PURE__ */ new Set();
+var handing = () => globalThis[`${GLOBAL_PREFIX}Handing`] ??= /* @__PURE__ */ new Map();
+function handOver(session, p) {
+  handing().set(session, p);
+  void p.finally(() => handing().get(session) === p && handing().delete(session));
+}
+var handedOver = (session) => handing().get(session);
+function adoptIn(to) {
+  for (const t of registry()) if (t.home && sameSpelling(t.home, to)) t.adopt();
+}
+function sweepAll() {
+  for (const t of registry()) t.sweep();
+}
+function heldInProcess(root) {
+  for (const t of registry()) {
+    const s = t.holds(root);
+    if (s) return s;
+  }
+  return null;
+}
+var folderOf = (h) => `${canonDir(h.directory)}\0${h.workspace ?? ""}`;
+var sameSpelling = (a, b) => a.directory === b.directory && (a.workspace ?? null) === (b.workspace ?? null);
+var sleep3 = (ms) => new Promise((r) => setTimeout(r, ms));
+function createTwins(ctx, home, d) {
+  const W5 = words(OPENCODE_KEEP);
+  let gone = false;
+  const me = {
+    home,
+    wake: (h, e) => void wake2(h, e),
+    holds: (r) => d.holds(r),
+    holders: () => d.holders(),
+    adopt: () => d.adopt(),
+    sweep: () => d.sweep()
+  };
+  registry().add(me);
+  async function wake2(h, entries) {
+    const roots = entries.filter((e) => !e.child && !e.moved && e.session);
+    await sleep3(PAUSE_MS);
+    if (gone || !roots.length) return;
+    const up = [...registry()].some((t) => t.home && sameSpelling(t.home, h));
+    if (up || !markerWaits(authDir(), h)) return;
+    let why = "";
+    for (const e of roots) {
+      try {
+        const args = { sessionID: e.session, directory: h.directory, delivery: "queue" };
+        await ctx.session.move(args);
+        why = "";
+        break;
+      } catch (err) {
+        why = err.message;
+      }
+    }
+    if (!why) {
+      await sleep3(WAKE_MS);
+      if (!markerWaits(authDir(), h)) {
+        d.say(W5.twinUp(h.directory), "info");
+        return;
+      }
+      why = W5.markerUntaken(Math.round(WAKE_MS / 1e3));
+    }
+    if (gone) return;
+    const named2 = roots.map((e) => e.key ?? e.session).join(", ");
+    d.say(W5.unloaded(h.directory, named2, why), "error");
+    for (const e of roots)
+      d.lost(e.session, W5.seatLost(e.key ?? W5.thisSession(), h.directory, why));
+  }
+  return {
+    /** The instance stops — out of the registry, nobody to wake it and no need. */
+    leave() {
+      gone = true;
+      registry().delete(me);
+    },
+    /** A stop with seats entries (the marker landed): a live twin wakes this spelling. */
+    left(entries) {
+      if (!home || !entries.length) return;
+      const live = [...registry()].filter((t) => t.home);
+      if (live.some((t) => sameSpelling(t.home, home))) return;
+      live.find((t) => folderOf(t.home) === folderOf(home))?.wake(home, entries);
+    }
+  };
+}
+
+// js/opencode/sameclient.ts
+function seatsOfClient(id, pid) {
+  const seated = /* @__PURE__ */ new Map();
+  for (const t of registry())
+    for (const s of t.holders()) {
+      const slot = t.holds(s);
+      if (slot && !slot.child && slot.place) seated.set(s, slot.place.name);
+    }
+  return [...seated].filter(([s]) => s !== id && clientOf(s)?.pid === pid).map(([, name]) => name);
+}
+
 // js/opencode/skillread.ts
-import { existsSync as existsSync2, lstatSync as lstatSync2, readdirSync as readdirSync3, realpathSync as realpathSync3 } from "node:fs";
+import { existsSync as existsSync2, lstatSync as lstatSync2, readdirSync as readdirSync4, realpathSync as realpathSync4 } from "node:fs";
 import { homedir as homedir6 } from "node:os";
-import { basename as basename4, dirname as dirname3, isAbsolute as isAbsolute2, join as join9, relative, resolve as resolve6 } from "node:path";
+import { basename as basename4, dirname as dirname3, isAbsolute as isAbsolute2, join as join10, relative, resolve as resolve6 } from "node:path";
 
 // js/shared/skilllock.ts
-import { existsSync, readFileSync as readFileSync7, realpathSync as realpathSync2 } from "node:fs";
+import { existsSync, readFileSync as readFileSync9, realpathSync as realpathSync3 } from "node:fs";
 import { homedir as homedir5 } from "node:os";
-import { basename as basename3, dirname as dirname2, join as join8, resolve as resolve5 } from "node:path";
+import { basename as basename3, dirname as dirname2, join as join9, resolve as resolve5 } from "node:path";
 var canon = (p) => {
   try {
-    return realpathSync2(p);
+    return realpathSync3(p);
   } catch {
     return resolve5(p);
   }
 };
 function lockPlaces(root, stateHome = process.env.XDG_STATE_HOME) {
   const places = [];
-  if (stateHome && canon(root) === canon(join8(homedir5(), ".agents", "skills")))
-    places.push(join8(stateHome, "skills", ".skill-lock.json"));
-  places.push(join8(dirname2(root), ".skill-lock.json"));
+  if (stateHome && canon(root) === canon(join9(homedir5(), ".agents", "skills")))
+    places.push(join9(stateHome, "skills", ".skill-lock.json"));
+  places.push(join9(dirname2(root), ".skill-lock.json"));
   if (basename3(root) === "skills" && basename3(dirname2(root)) === ".agents")
-    places.push(join8(dirname2(dirname2(root)), "skills-lock.json"));
+    places.push(join9(dirname2(dirname2(root)), "skills-lock.json"));
   return places;
 }
 var hasSkillLock = (root, stateHome = process.env.XDG_STATE_HOME) => lockPlaces(root, stateHome).some((p) => existsSync(p));
@@ -3190,7 +3517,7 @@ function skillLock(root, stateHome = process.env.XDG_STATE_HOME) {
   const place = lockPlaces(root, stateHome).find((p) => existsSync(p));
   if (!place) return null;
   try {
-    const lock = JSON.parse(readFileSync7(place, "utf8"));
+    const lock = JSON.parse(readFileSync9(place, "utf8"));
     return lock.skills ?? {};
   } catch {
     return null;
@@ -3203,7 +3530,7 @@ var CALLS = 256;
 var WALK = 4096;
 var canon2 = (p) => {
   try {
-    return realpathSync3(p);
+    return realpathSync4(p);
   } catch {
     return null;
   }
@@ -3220,7 +3547,7 @@ function canonReach(p) {
   let at2 = p;
   for (; ; ) {
     const c = canon2(at2);
-    if (c) return tail2.length ? join9(c, ...tail2.reverse()) : c;
+    if (c) return tail2.length ? join10(c, ...tail2.reverse()) : c;
     if (!absent(at2)) return null;
     const name = basename4(at2);
     const up = dirname3(at2);
@@ -3241,7 +3568,7 @@ function bridgeRoot(s) {
   const path = typeof s?.path === "string" ? s.path : null;
   if (s?.id !== BRIDGE_SKILL || !path || !isAbsolute2(path)) return null;
   const dir = dirname3(path);
-  if (basename4(dir) !== BRIDGE_SKILL || !existsSync2(join9(dir, "scripts", BRIDGE_FILE))) return null;
+  if (basename4(dir) !== BRIDGE_SKILL || !existsSync2(join10(dir, "scripts", BRIDGE_FILE))) return null;
   return dirname3(dir);
 }
 async function skillDirs(ctx) {
@@ -3278,13 +3605,13 @@ function leadsOut(dir) {
     const d = stack.pop();
     let entries;
     try {
-      entries = readdirSync3(d, { withFileTypes: true });
+      entries = readdirSync4(d, { withFileTypes: true });
     } catch {
       return true;
     }
     for (const e of entries) {
       if (++seen > WALK) return true;
-      const p = join9(d, e.name);
+      const p = join10(d, e.name);
       if (e.isSymbolicLink()) {
         const c = canon2(p);
         if (!c || !within(c, dir)) return true;
@@ -3294,7 +3621,7 @@ function leadsOut(dir) {
   return false;
 }
 function absolute(p, base) {
-  if (p === "~" || p.startsWith("~/")) return join9(homedir6(), p.slice(1));
+  if (p === "~" || p.startsWith("~/")) return join10(homedir6(), p.slice(1));
   if (isAbsolute2(p)) return p;
   return base ? resolve6(base, p) : null;
 }
@@ -3383,13 +3710,21 @@ function archives(ctx) {
   const m = typeof v === "string" ? /^(\d+)\.(\d+)/.exec(v) : null;
   return !!m && (Number(m[1]) > 2 || Number(m[1]) === 2 && Number(m[2]) >= 2);
 }
+function notFound(e) {
+  const x = e ?? {};
+  const tag = [x.name, x.code, x.type].filter((v) => typeof v === "string").join(" ");
+  if (/not[_ .-]?found/i.test(tag)) return true;
+  return /\bsession\b[^\n]{0,80}\b(not found|does not exist|is gone)\b/i.test(
+    typeof x.message === "string" ? x.message : String(e ?? "")
+  );
+}
 async function accepting(ctx, id) {
   try {
     const info = await ctx.session.get({ sessionID: id });
     const shape = info;
-    return !(shape?.time?.archived ?? shape?.data?.time?.archived);
-  } catch {
-    return false;
+    return shape?.time?.archived ?? shape?.data?.time?.archived ? "ended" : "live";
+  } catch (e) {
+    return notFound(e) ? "ended" : "unknown";
   }
 }
 var CLOSE_AFTER_MS = 1e3;
@@ -3438,6 +3773,8 @@ function archiver(ctx, tell) {
     }
     await new Promise((r) => setTimeout(r, CLOSE_AFTER_MS));
     if (!current()) return;
+    const kept2 = seatsOfClient(id, client.pid);
+    if (kept2.length) return tell(W5.clientKept(id, client.pid, kept2.join(", ")));
     const closed = await closeClient(client, current);
     if (!current()) return;
     tell(
@@ -3461,6 +3798,77 @@ async function sessionDirectory(ctx, sessionID) {
     return null;
   }
 }
+
+// js/opencode/leadends.ts
+import { createHash as createHash5 } from "node:crypto";
+import { mkdirSync as mkdirSync4, readFileSync as readFileSync10, unlinkSync as unlinkSync3, writeFileSync as writeFileSync5 } from "node:fs";
+import { join as join11 } from "node:path";
+
+// js/opencode/leadwords.ts
+var SUMMARY_MAX = 4e3;
+var W3 = () => words(LEAD);
+var shown = (last) => last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}${W3().cut(SUMMARY_MAX, last.length)}` : last;
+var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept(who, kept2) : W3().endPlain(), shown(last));
+var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
+
+// js/opencode/leadends.ts
+var fileOf2 = (dir, session) => join11(
+  dir,
+  `opencode-ended.${createHash5("sha256").update(session).digest("hex").slice(0, 16)}.json`
+);
+var ended = () => globalThis[`${GLOBAL_PREFIX}Ended`] ??= /* @__PURE__ */ new Set();
+var lifted2 = () => globalThis[`${GLOBAL_PREFIX}EndLiftedAt`] ??= /* @__PURE__ */ new Map();
+function recorded2(file, since) {
+  try {
+    const r = JSON.parse(readFileSync10(file, "utf8"));
+    return !r.lifted && !(since !== void 0 && Date.parse(r.at ?? "") <= since);
+  } catch (e) {
+    return e.code !== "ENOENT";
+  }
+}
+function createEnds(dir, unwritten, unlifted) {
+  return {
+    end(session) {
+      const key = `${dir()}\0${session}`;
+      ended().add(key);
+      lifted2().delete(key);
+      try {
+        mkdirSync4(dir(), { recursive: true, mode: 448 });
+        const record2 = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString() });
+        writeFileSync5(fileOf2(dir(), session), record2, { mode: 384 });
+      } catch (e) {
+        unwritten(session, e.message);
+      }
+    },
+    lift(session) {
+      const key = `${dir()}\0${session}`;
+      ended().delete(key);
+      lifted2().set(key, Date.now());
+      const file = fileOf2(dir(), session);
+      try {
+        unlinkSync3(file);
+      } catch (e) {
+        if (e.code === "ENOENT") return;
+        try {
+          writeFileSync5(file, JSON.stringify({ session, lifted: (/* @__PURE__ */ new Date()).toISOString() }), {
+            mode: 384
+          });
+        } catch {
+          unlifted(session, e.message);
+        }
+      }
+    },
+    has: (session) => {
+      const key = `${dir()}\0${session}`;
+      return ended().has(key) || recorded2(fileOf2(dir(), session), lifted2().get(key));
+    }
+  };
+}
+var channelEnds = (dir, say) => createEnds(
+  dir,
+  (id, message) => say(W3().endUnwritten(id, message), "warning"),
+  (id, message) => say(W3().endUnlifted(id, message), "warning")
+);
 
 // js/opencode/leadframes.ts
 var NO_LEADS = { ended: () => false, launcherOf: () => null };
@@ -3632,183 +4040,6 @@ function handRiders(ps, put, note) {
   }
 }
 
-// js/opencode/marker.ts
-import { createHash as createHash4 } from "node:crypto";
-import { mkdirSync as mkdirSync3, readdirSync as readdirSync4, readFileSync as readFileSync9, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync4 } from "node:fs";
-import { join as join10 } from "node:path";
-
-// js/opencode/procstart.ts
-import { execFileSync as execFileSync2 } from "node:child_process";
-import { readFileSync as readFileSync8 } from "node:fs";
-var CLK_TCK = 100;
-function linuxStart(pid) {
-  const stat = readFileSync8(`/proc/${pid}/stat`, "utf8");
-  const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
-  const ticks = Number(fields[19]);
-  const btime = Number(/^btime (\d+)$/m.exec(readFileSync8("/proc/stat", "utf8"))?.[1]);
-  return Number.isFinite(ticks) && btime ? (btime + ticks / CLK_TCK) * 1e3 : null;
-}
-function psStart(pid) {
-  const out2 = execFileSync2("ps", ["-o", "lstart=", "-p", String(pid)], {
-    encoding: "utf8",
-    env: { ...process.env, LC_ALL: "C" },
-    stdio: ["ignore", "pipe", "ignore"],
-    windowsHide: true,
-    timeout: 2e3
-  }).trim();
-  const at2 = Date.parse(out2);
-  return Number.isNaN(at2) ? null : at2;
-}
-function processStart(pid) {
-  try {
-    return process.platform === "linux" ? linuxStart(pid) : psStart(pid);
-  } catch {
-    return null;
-  }
-}
-
-// js/opencode/records.ts
-var entryOf2 = (e) => ({
-  session: e.session,
-  dir: e.dir ?? null,
-  key: e.key ?? null,
-  child: !!e.child,
-  ...typeof e.stoodAt === "number" ? { stoodAt: e.stoodAt } : {},
-  ...e.moved ? { moved: true } : {},
-  ...e.child ? {
-    of: e.of ?? null,
-    ...e.noted ? { noted: true } : {},
-    ...e.name ? { name: e.name } : {},
-    ...e.last ? { last: e.last } : {},
-    ...e.leaving ? { leaving: e.leaving } : {}
-  } : {}
-});
-
-// js/opencode/marker.ts
-var PREFIX2 = "opencode-lost";
-var LEGACY_MS = 2 * 6e4;
-var START_SLACK_MS = 1e3;
-var hash = (s) => createHash4("sha256").update(s).digest("hex").slice(0, 12);
-var tagOf = (home) => home ? hash(`${home.directory}\0${home.workspace ?? ""}`) : "any";
-var tagIn = (f) => /^opencode-lost\.@([^.]+)\./.exec(f)?.[1] ?? null;
-var otherLive = (f, path) => {
-  const pid = Number(/\.(\d+)\.[^.]+\.json$/.exec(f)?.[1]);
-  if (!pid || pid === process.pid) return false;
-  const started = processStart(pid);
-  if (started === null) return false;
-  try {
-    return started <= statSync3(path).mtimeMs + START_SLACK_MS;
-  } catch {
-    return false;
-  }
-};
-function stoodAtOf(authDir2, key) {
-  try {
-    const at2 = JSON.parse(readFileSync9(holdFilePathOf(authDir2, key), "utf8"))?.stoodAt;
-    return typeof at2 === "number" ? at2 : void 0;
-  } catch {
-    return void 0;
-  }
-}
-function writeLostMarker(authDir2, slots, home) {
-  const entries = [...slots].filter((s) => s.holding && s.session).map(
-    (s) => entryOf2({
-      ...s,
-      session: s.session,
-      of: s.satelliteOf,
-      name: s.place?.name,
-      stoodAt: s.key ? stoodAtOf(authDir2, s.key) : void 0
-    })
-  );
-  if (!entries.length) return [];
-  try {
-    mkdirSync3(authDir2, { recursive: true, mode: 448 });
-    const lost = { at: (/* @__PURE__ */ new Date()).toISOString(), entries };
-    const rand = Math.random().toString(36).slice(2, 8);
-    const name = `${PREFIX2}.@${tagOf(home)}.${process.pid}.${rand}.json`;
-    writeFileSync4(join10(authDir2, name), JSON.stringify(lost), { mode: 384 });
-    return entries;
-  } catch {
-    return [];
-  }
-}
-function markerWaits(authDir2, home) {
-  try {
-    return readdirSync4(authDir2).some(
-      (f) => f.startsWith(`${PREFIX2}.@${tagOf(home)}.`) && !otherLive(f, join10(authDir2, f))
-    );
-  } catch {
-    return false;
-  }
-}
-function readOwn(path, tag, home) {
-  const drop2 = () => {
-    try {
-      unlinkSync2(path);
-    } catch {
-    }
-  };
-  let lost = null;
-  try {
-    const text3 = readFileSync9(path, "utf8");
-    if (tag !== null) drop2();
-    lost = JSON.parse(text3);
-  } catch {
-  }
-  if (tag === null && !(Date.now() - Date.parse(lost?.at ?? "") < LEGACY_MS)) drop2();
-  if (!lost) return null;
-  const mine = (e) => tag !== null || !home || !e.dir || e.dir === home.directory;
-  return { at: lost.at, entries: (lost.entries ?? []).filter(mine) };
-}
-function takeLostMarker(authDir2, home) {
-  const entries = [];
-  let at2 = "";
-  let files;
-  try {
-    files = readdirSync4(authDir2).filter((f) => f.startsWith(PREFIX2) && f.endsWith(".json"));
-  } catch {
-    return null;
-  }
-  const mine = tagOf(home);
-  const read = [];
-  for (const f of files) {
-    const tag = tagIn(f);
-    if (tag !== null && tag !== mine) continue;
-    if (otherLive(f, join10(authDir2, f))) continue;
-    const lost = readOwn(join10(authDir2, f), tag, home);
-    if (lost) read.push({ tagged: tag !== null, lost });
-  }
-  const eraOf = (e, lost) => e.stoodAt ?? (Date.parse(lost.at) || 0);
-  const best = /* @__PURE__ */ new Map();
-  for (const { tagged, lost } of read) {
-    const stale = !(Date.now() - Date.parse(lost.at ?? "") < LEGACY_MS);
-    for (const e of lost.entries ?? []) {
-      if (!e?.session || e.moved && stale) continue;
-      const era = eraOf(e, lost);
-      const had = best.get(e.session);
-      if (had && (Number(had.tagged) - Number(tagged) || had.era - era) >= 0) continue;
-      best.set(e.session, { tagged, era, e, lost });
-    }
-  }
-  for (const { e, lost } of best.values()) {
-    if (lost.at > at2) at2 = lost.at;
-    entries.push(entryOf2(e));
-  }
-  if (!entries.length) return null;
-  const when = new Date(at2);
-  const hhmm = Number.isNaN(when.getTime()) ? at2 : when.toTimeString().slice(0, 5);
-  const word2 = (of) => {
-    const where = of.filter((e) => !e.child && !e.moved).map((e) => e.key ?? e.dir ?? e.session).join(", ");
-    return where ? words(OPENCODE_KEEP).lostWord(hhmm, where) : null;
-  };
-  return {
-    text: word2(entries),
-    // the log gets all
-    entries,
-    wordFor: (s) => word2(entries.filter((e) => e.session === s))
-  };
-}
-
 // js/opencode/adopt.ts
 function createAdopt(d) {
   const moved = /* @__PURE__ */ new Map();
@@ -3842,110 +4073,6 @@ function createAdopt(d) {
       for (const n2 of moved.keys())
         if (s === n2 || s.endsWith(`:${n2}`)) return words(OPENCODE_KEEP).revokedMoved(n2);
       return null;
-    }
-  };
-}
-
-// js/opencode/leadwords.ts
-var SUMMARY_MAX = 4e3;
-var W3 = () => words(LEAD);
-var shown = (last) => last.length > SUMMARY_MAX ? `${last.slice(0, SUMMARY_MAX)}${W3().cut(SUMMARY_MAX, last.length)}` : last;
-var endWord = (who, why, last, kept2) => W3().end(who, why, kept2 ? W3().endKept(who, kept2) : W3().endPlain(), shown(last));
-var unrevokedWord = (who, failed) => failed === null ? W3().unrevokedUnknown(who) : W3().unrevoked(who, failed.join(", "), String(failed[0]));
-
-// js/shared/canon.ts
-import { realpathSync as realpathSync4 } from "node:fs";
-import { sep } from "node:path";
-function canonDir(p) {
-  let real2 = p;
-  try {
-    real2 = realpathSync4.native(p);
-  } catch {
-  }
-  while (real2.length > 1 && (real2.endsWith("/") || real2.endsWith(sep))) real2 = real2.slice(0, -1);
-  return real2;
-}
-
-// js/opencode/twins.ts
-var WAKE_MS = Number(process.env[envName("WAKE_MS")]) || 15e3;
-var PAUSE_MS = Math.min(1e3, WAKE_MS / 5);
-var registry = () => globalThis[`${GLOBAL_PREFIX}Twins`] ??= /* @__PURE__ */ new Set();
-var handing = () => globalThis[`${GLOBAL_PREFIX}Handing`] ??= /* @__PURE__ */ new Map();
-function handOver(session, p) {
-  handing().set(session, p);
-  void p.finally(() => handing().get(session) === p && handing().delete(session));
-}
-var handedOver = (session) => handing().get(session);
-function adoptIn(to) {
-  for (const t of registry()) if (t.home && sameSpelling(t.home, to)) t.adopt();
-}
-function sweepAll() {
-  for (const t of registry()) t.sweep();
-}
-function heldInProcess(root) {
-  for (const t of registry()) {
-    const s = t.holds(root);
-    if (s) return s;
-  }
-  return null;
-}
-var folderOf = (h) => `${canonDir(h.directory)}\0${h.workspace ?? ""}`;
-var sameSpelling = (a, b) => a.directory === b.directory && (a.workspace ?? null) === (b.workspace ?? null);
-var sleep3 = (ms) => new Promise((r) => setTimeout(r, ms));
-function createTwins(ctx, home, d) {
-  const W5 = words(OPENCODE_KEEP);
-  let gone = false;
-  const me = {
-    home,
-    wake: (h, e) => void wake2(h, e),
-    holds: (r) => d.holds(r),
-    adopt: () => d.adopt(),
-    sweep: () => d.sweep()
-  };
-  registry().add(me);
-  async function wake2(h, entries) {
-    const roots = entries.filter((e) => !e.child && !e.moved && e.session);
-    await sleep3(PAUSE_MS);
-    if (gone || !roots.length) return;
-    const up = [...registry()].some((t) => t.home && sameSpelling(t.home, h));
-    if (up || !markerWaits(authDir(), h)) return;
-    let why = "";
-    for (const e of roots) {
-      try {
-        const args = { sessionID: e.session, directory: h.directory, delivery: "queue" };
-        await ctx.session.move(args);
-        why = "";
-        break;
-      } catch (err) {
-        why = err.message;
-      }
-    }
-    if (!why) {
-      await sleep3(WAKE_MS);
-      if (!markerWaits(authDir(), h)) {
-        d.say(W5.twinUp(h.directory), "info");
-        return;
-      }
-      why = W5.markerUntaken(Math.round(WAKE_MS / 1e3));
-    }
-    if (gone) return;
-    const named2 = roots.map((e) => e.key ?? e.session).join(", ");
-    d.say(W5.unloaded(h.directory, named2, why), "error");
-    for (const e of roots)
-      d.lost(e.session, W5.seatLost(e.key ?? W5.thisSession(), h.directory, why));
-  }
-  return {
-    /** The instance stops — out of the registry, nobody to wake it and no need. */
-    leave() {
-      gone = true;
-      registry().delete(me);
-    },
-    /** A stop with seats entries (the marker landed): a live twin wakes this spelling. */
-    left(entries) {
-      if (!home || !entries.length) return;
-      const live = [...registry()].filter((t) => t.home);
-      if (live.some((t) => sameSpelling(t.home, home))) return;
-      live.find((t) => folderOf(t.home) === folderOf(home))?.wake(home, entries);
     }
   };
 }
@@ -4024,13 +4151,15 @@ function createChildren(d) {
   return { childSlot, back, pause: pause3, settled };
 }
 
+// js/shared/ratelimit.ts
+var RATE_LIMIT_WAIT_S = 60;
+var RESUME_MARGIN_S = 15;
+var RESUME_ANSWER_MS = (RATE_LIMIT_WAIT_S + RESUME_MARGIN_S) * 1e3;
+
 // js/opencode/keep.ts
 var WATCH_MS = Number(process.env[envName("BRIDGE_WATCH_MS")] || 5 * 6e4);
 var PATIENCE_MS = Number(process.env[envName("RESUME_PATIENCE_MS")] || 1e4);
 var STEP_MS = 500;
-function resumedWord(key, own = false) {
-  return own ? words(OPENCODE_KEEP).resumedOwn(key) : words(OPENCODE_KEEP).resumed(key);
-}
 var elsewhereWord = (keys) => words(OPENCODE_KEEP).elsewhere(keys.join(", "));
 function createKeeper(doors) {
   const W5 = words(OPENCODE_KEEP);
@@ -4038,6 +4167,9 @@ function createKeeper(doors) {
   const hints = /* @__PURE__ */ new Map();
   const marked2 = /* @__PURE__ */ new Map();
   const retrying = /* @__PURE__ */ new Map();
+  const stuckTold = /* @__PURE__ */ new Set();
+  const lostSeats = /* @__PURE__ */ new Set();
+  const lostTold = /* @__PURE__ */ new Set();
   let stopped = false;
   function notBack(root, mark, why) {
     const place = mark.key ?? mark.dir ?? root;
@@ -4045,9 +4177,21 @@ function createKeeper(doors) {
     retrying.set(root, place);
     doors.tell(root, W5.notBack(place, why));
   }
+  function tellLost(root, text3) {
+    if (lostTold.has(root)) return;
+    lostTold.add(root);
+    doors.tell(root, text3);
+  }
+  function stillLost(root, place, why) {
+    if (!lostSeats.has(root)) return;
+    roots.add(root);
+    tellLost(root, W5.lostNotBack(place, why));
+  }
+  const unlost = (root) => void (lostSeats.delete(root), lostTold.delete(root));
   function stoppedRoot(root, word2) {
     roots.delete(root);
     retrying.delete(root);
+    unlost(root);
     doors.say(typeof word2 === "string" ? word2 : W5.noWhy(), "warning");
     return "none";
   }
@@ -4067,18 +4211,19 @@ function createKeeper(doors) {
     }
   }
   async function once2(slot, root, quiet3, final) {
+    if (doors.ended(root)) return "none";
     const mark = slot.child ? void 0 : marked2.get(root);
     try {
       await doors.ready(slot);
       slot.dir ??= mark?.dir ?? await doors.directoryOf(root);
-      if (stopped) return "none";
+      if (stopped || doors.ended(root)) return "none";
       if (!slot.dir && !slot.key || slot.child && !slot.key) {
         marked2.delete(root);
         if (mark) notBack(root, mark, W5.noKeyNoDir());
         return "none";
       }
       const r = await slot.bridge.request(method("resume"), selector(slot), {
-        timeoutMs: 3e4
+        timeoutMs: RESUME_ANSWER_MS
       });
       const elsewhere2 = Array.isArray(r?.elsewhere) && r.elsewhere.length ? r.elsewhere : null;
       if (slot.child && Array.isArray(r?.refused) && r.refused.length) slot.refused = r.refused;
@@ -4086,11 +4231,13 @@ function createKeeper(doors) {
       marked2.delete(root);
       if (r?.stopped) return stoppedRoot(root, r.word);
       if (!r?.resumed) {
-        if (mark) notBack(root, mark, typeof r?.word === "string" ? r.word : W5.noAnswer());
+        const why = typeof r?.word === "string" ? r.word : W5.noAnswer();
+        if (mark) notBack(root, mark, why);
         else if (elsewhere2) {
           if (!quiet3) doors.tell(root, elsewhereWord(elsewhere2), slot.child);
         } else if (Array.isArray(r?.legacy) && r.legacy.length && typeof r.word === "string")
           doors.tell(root, W5.legacy(r.word), slot.child);
+        else stillLost(root, slot.key ?? slot.dir ?? root, why);
         return elsewhere2 ? "elsewhere" : "none";
       }
       slot.holding = true;
@@ -4098,35 +4245,43 @@ function createKeeper(doors) {
       slot.provisional = r.provisional === true;
       if (typeof r.key === "string") slot.key = r.key;
       roots.add(root);
+      unlost(root);
       doors.say(W5.sessionResumed(root, r.word), "info");
-      if (typeof r.key === "string" && !quiet3)
-        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
       return "held";
     } catch (e) {
+      const why = e.message;
       marked2.delete(root);
-      doors.say(W5.resumeFailed(root, e.message), "warning");
-      if (mark && !stopped) notBack(root, mark, e.message);
+      doors.say(W5.resumeFailed(root, why), "warning");
+      if (mark && !stopped) notBack(root, mark, why);
+      else if (!stopped) stillLost(root, slot.key ?? slot.dir ?? root, why);
       return "none";
     }
   }
   async function check(root) {
+    if (doors.ended(root)) {
+      roots.delete(root);
+      unlost(root);
+      return;
+    }
     const slot = await doors.slotFor(root, false);
     if (slot.resume) await slot.resume;
     if (!slot.dir) slot.dir = await doors.directoryOf(root);
     await doors.ready(slot);
     const r = await slot.bridge.request(method("check"), selector(slot), {
-      timeoutMs: 3e4
+      timeoutMs: RESUME_ANSWER_MS
     });
     if (typeof r?.key === "string") slot.key = r.key;
     slot.provisional = r?.provisional === true;
+    if (!r?.stuck) stuckTold.delete(root);
     if (r?.stopped) {
       slot.holding = false;
       return void stoppedRoot(root, r.word);
     }
+    if (r?.holding || r?.resumed) unlost(root);
     if (r?.holding) slot.holding = true;
     else if (r?.holding === false) {
       slot.holding = false;
-      roots.delete(root);
+      if (!(lostSeats.has(root) && lostTold.has(root))) roots.delete(root);
       const place = retrying.get(root);
       if (place && !r?.resumed)
         doors.tell(root, W5.retryFailed(place, r?.word ?? W5.noWhy()), slot.child);
@@ -4134,17 +4289,31 @@ function createKeeper(doors) {
     retrying.delete(root);
     if (r?.resumed) {
       doors.say(W5.watchResumed(root, r.word), "info");
-      if (typeof r.key === "string")
-        doors.tell(root, resumedWord(r.key, r.own === true), slot.child);
     } else if (r?.reopened) doors.say(W5.watchReopened(root, r.word), "warning");
-    else if (r?.stuck) doors.say(r.word, "error");
+    else if (r?.stuck) {
+      doors.say(r.word, "error");
+      if (!stuckTold.has(root)) {
+        stuckTold.add(root);
+        doors.tell(root, r.word, slot.child);
+      }
+    }
   }
-  const timer = setInterval(() => {
+  let timer;
+  const schedule = (delay) => {
+    timer = setTimeout(tick, delay);
+    timer.unref?.();
+  };
+  const tick = () => {
     if (stopped) return;
     for (const root of roots)
-      void check(root).catch((e) => doors.say(W5.watchFailed(root, e.message), "warning"));
-  }, WATCH_MS);
-  timer.unref?.();
+      void check(root).catch((e) => {
+        const text3 = W5.watchFailed(root, e.message);
+        doors.say(text3, "warning");
+        tellLost(root, text3);
+      });
+    schedule(WATCH_MS * (0.8 + 0.4 * Math.random()));
+  };
+  schedule(WATCH_MS * Math.random());
   return {
     hint(entries) {
       for (const e of entries) {
@@ -4159,9 +4328,9 @@ function createKeeper(doors) {
         if (stopped) break;
         if (e.child || !e.session || seen.has(e.session)) continue;
         seen.add(e.session);
-        if (!await doors.exists(e.session)) continue;
-        const word2 = wordFor(e.session);
-        if (word2) doors.lost(e.session, word2);
+        if (doors.ended(e.session) || !await doors.exists(e.session) || doors.ended(e.session))
+          continue;
+        wordFor(e.session);
         await doors.slotFor(e.session, false);
       }
     },
@@ -4171,13 +4340,19 @@ function createKeeper(doors) {
       slot.stood = true;
       if (slot.session) roots.add(slot.session);
     },
+    seatLost(root) {
+      lostSeats.add(root);
+      lostTold.delete(root);
+    },
     forget(root) {
       roots.delete(root);
       retrying.delete(root);
+      stuckTold.delete(root);
+      unlost(root);
     },
     stop() {
       stopped = true;
-      clearInterval(timer);
+      clearTimeout(timer);
     }
   };
 }
@@ -4377,12 +4552,58 @@ function createKeepAlive(ctx, d) {
 var LIMIT2 = 100;
 var NODE_ROW = /^\s+\S.* \(#\d+, /;
 var SLICE_ARGS = {
-  realm: "mind",
   q: "",
   attrs_filter: "slice:agents,ways",
   limit: LIMIT2,
   include_description: true
 };
+var C = scoped(() => ({
+  entries: /* @__PURE__ */ new WeakMap(),
+  listing: null
+}));
+var cacheFor = (key) => {
+  let cache = C.entries.get(key);
+  if (!cache) {
+    cache = { listing: null, handle: "", result: null, expires: 0 };
+    C.entries.set(key, cache);
+  }
+  return cache;
+};
+async function ownMind(call, key) {
+  const cache = cacheFor(key);
+  if (!cache.handle) {
+    const who = await call(tool("me"), { action: "whoami" });
+    if (who.isError) throw new Error(who.text);
+    cache.handle = /\bhandle @([A-Za-z0-9_.-]+)/.exec(who.text)?.[1] ?? "";
+    if (!cache.handle) throw new Error("account handle unknown");
+  }
+  const address = `@${cache.handle}/mind`;
+  if (cache.result !== null && Date.now() < cache.expires) return cache.result ? address : null;
+  cache.listing = C.listing && Date.now() - (C.listing.at ?? 0) < 1e4 ? C.listing : null;
+  if (!cache.listing) {
+    const listing2 = await call(tool("realm"), { action: "list" });
+    if (listing2.isError) throw new Error(listing2.text);
+    cache.listing = listing2;
+  }
+  const { text: text3, structured } = cache.listing;
+  C.listing = null;
+  cache.listing = null;
+  const data = structured;
+  let addresses;
+  if (data?.action === "list" && Array.isArray(data.realms)) {
+    addresses = data.realms.flatMap(
+      (r) => typeof r?.ref === "string" ? [r.ref] : []
+    );
+  } else {
+    if (!/^\s*[^\n]*\(\d+\).*@owner\/slug/m.test(text3)) throw new Error("realm list unknown");
+    addresses = [...text3.matchAll(/^\s{4}(@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\s{2}r\d+\s{2}/gm)].map(
+      (m) => m[1]
+    );
+  }
+  cache.result = addresses.includes(address);
+  cache.expires = Date.now() + (cache.result ? 6 * 60 * 6e4 : 10 * 6e4);
+  return cache.result ? address : null;
+}
 var brief = (s) => {
   const t = s.replace(/\s+/g, " ").trim();
   return t.length > 120 ? `${t.slice(0, 119)}…` : t || "-";
@@ -4394,14 +4615,9 @@ async function mindSlice(call, options = {}) {
     return W5.unread(brief(text3));
   };
   try {
-    const ready = await call(tool("me"), { action: "readiness" });
-    if (ready.isError) return unread(ready.text);
-    if (MIND_MISSING.test(ready.text)) return W5.absent();
-    if (!MIND_PRESENT.test(ready.text)) {
-      if (options.strict) throw new Error("mind readiness unknown");
-      return W5.unknown();
-    }
-    const got = await call(tool("search"), SLICE_ARGS);
+    const realm = await ownMind(call, options.cacheKey ?? call);
+    if (!realm) return W5.absent();
+    const got = await call(tool("search"), { ...SLICE_ARGS, realm });
     if (got.isError) return unread(got.text);
     const listed = got.text.split("\n").filter((l) => NODE_ROW.test(l)).length;
     const rows = got.text.split("\n").flatMap((l) => {
@@ -4496,58 +4712,6 @@ async function casesLeft(bridge, realm) {
   if (rows) return rows;
   if (MINE_NONE.test(text3)) return 0;
   throw new Error(`unread answer: ${text3.slice(0, 120)}`);
-}
-
-// js/opencode/leadends.ts
-import { createHash as createHash5 } from "node:crypto";
-import { mkdirSync as mkdirSync4, readFileSync as readFileSync10, unlinkSync as unlinkSync3, writeFileSync as writeFileSync5 } from "node:fs";
-import { join as join11 } from "node:path";
-var fileOf2 = (dir, session) => join11(
-  dir,
-  `opencode-ended.${createHash5("sha256").update(session).digest("hex").slice(0, 16)}.json`
-);
-var ended = () => globalThis[`${GLOBAL_PREFIX}Ended`] ??= /* @__PURE__ */ new Set();
-var lifted2 = () => globalThis[`${GLOBAL_PREFIX}EndLiftedAt`] ??= /* @__PURE__ */ new Map();
-function recorded2(file, since) {
-  try {
-    const r = JSON.parse(readFileSync10(file, "utf8"));
-    return !r.lifted && !(since !== void 0 && Date.parse(r.at ?? "") <= since);
-  } catch (e) {
-    return e.code !== "ENOENT";
-  }
-}
-function createEnds(dir, unwritten, unlifted) {
-  return {
-    end(session) {
-      ended().add(session);
-      lifted2().delete(session);
-      try {
-        mkdirSync4(dir(), { recursive: true, mode: 448 });
-        const record2 = JSON.stringify({ session, at: (/* @__PURE__ */ new Date()).toISOString() });
-        writeFileSync5(fileOf2(dir(), session), record2, { mode: 384 });
-      } catch (e) {
-        unwritten(session, e.message);
-      }
-    },
-    lift(session) {
-      ended().delete(session);
-      lifted2().set(session, Date.now());
-      const file = fileOf2(dir(), session);
-      try {
-        unlinkSync3(file);
-      } catch (e) {
-        if (e.code === "ENOENT") return;
-        try {
-          writeFileSync5(file, JSON.stringify({ session, lifted: (/* @__PURE__ */ new Date()).toISOString() }), {
-            mode: 384
-          });
-        } catch {
-          unlifted(session, e.message);
-        }
-      }
-    },
-    has: (session) => ended().has(session) || recorded2(fileOf2(dir(), session), lifted2().get(session))
-  };
 }
 
 // js/opencode/leaddoors.ts
@@ -4792,7 +4956,6 @@ function createLeads(d) {
       cascade.note(ev);
       const child = ev?.data?.sessionID;
       const l = typeof child === "string" ? leads.get(child) : void 0;
-      if (ev?.type === "session.deleted" && typeof child === "string" && !l) over.lift(child);
       if (!l || typeof child !== "string") return;
       switch (ev.type) {
         case "session.execution.started":
@@ -4824,7 +4987,7 @@ function createLeads(d) {
           return;
         case "session.deleted":
           void finish(child, W3().deleted(), false);
-          return over.lift(child);
+          return;
       }
     }
   };
@@ -4980,9 +5143,10 @@ function createModels(ctx) {
 
 // js/opencode/moves.ts
 var ADOPT_MS = Number(process.env[envName("MOVE_ADOPT_MS")]) || 1e3;
-function createMoves(ctx) {
+function createMoves(ctx, say) {
   const W5 = words(OPENCODE_KEEP);
   const home = homeOf(ctx);
+  const ends = channelEnds(authDir, say);
   const directoryOf = (sessionID) => sessionDirectory(ctx, sessionID);
   const exists2 = (sessionID) => Promise.resolve().then(() => ctx.session.get({ sessionID })).then(
     () => true,
@@ -4992,6 +5156,15 @@ function createMoves(ctx) {
     if (!await exists2(sessionID)) return false;
     const dir = home ? await directoryOf(sessionID) : null;
     return !home || !dir || dir === home.directory;
+  };
+  const canReturn = async (sessionID) => {
+    const s = await Promise.resolve().then(() => ctx.session.get({ sessionID })).catch(() => null);
+    if (s === null) return false;
+    if (s?.time?.archived ?? s?.data?.time?.archived) {
+      ends.end(sessionID);
+      return false;
+    }
+    return ours(sessionID);
   };
   const left = /* @__PURE__ */ new Set();
   function moved(d, s, to) {
@@ -5008,10 +5181,10 @@ function createMoves(ctx) {
     void d.rootOf(s).then((root) => root === s ? d.slotFor(s, false) : null);
     setTimeout(() => d.adopt(), ADOPT_MS).unref?.();
   }
-  function relay(on, say) {
+  function relay(on, say2) {
     return (s, params, child) => {
       if (params?.data?.kind !== "evicted" || !home || !s || child) return on(s, params, child);
-      void ours(s).then((mine) => mine ? on(s, params, child) : say(W5.takenFromNew(s), "info"));
+      void ours(s).then((mine) => mine ? on(s, params, child) : say2(W5.takenFromNew(s), "info"));
     };
   }
   function guard(root, session) {
@@ -5025,7 +5198,7 @@ function createMoves(ctx) {
     return home && dir && dir !== home.directory ? "foreign" : null;
   }
   const farRefusal = async (root) => root && await farRoot(root) === "foreign" ? W5.farRefusal() : null;
-  return { home, directoryOf, exists: exists2, ours, moved, relay, guard, farRoot, farRefusal };
+  return { home, directoryOf, exists: exists2, ours, canReturn, moved, relay, guard, farRoot, farRefusal };
 }
 
 // js/opencode/putdown.ts
@@ -5066,7 +5239,7 @@ var SEAT_KEYS = {
   listening: is.bool,
   state: is.str,
   pending: is.num,
-  inbound: is.str,
+  inbound: is.strOrNull,
   locale: is.str,
   satellite_of: is.strOrNull,
   realm: is.str,
@@ -5112,14 +5285,7 @@ async function revokeAsLauncher(freed, args, call) {
   }
 }
 
-// js/opencode/rootseat-by.ts
-function heldSeat(d, slot, session) {
-  if (slot.place) return { ...slot.place };
-  const rec4 = d.recorded?.(slot, session);
-  if (rec4) return rec4;
-  const [name = "", karta = ""] = (slot.key ?? "").split("--");
-  return { name, karta, realm: "" };
-}
+// js/shared/sameseat.ts
 var short = (t) => /^r\d+$/.test(t.trim());
 var canonical = (t) => /^@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(t);
 var slug = (t) => /^[A-Za-z0-9_.-]+$/.test(t) && !short(t);
@@ -5131,6 +5297,15 @@ function sameSeat2(seat, realm, karta) {
   if (canonical(x) && slug(y)) return x.slice(x.indexOf("/") + 1) === y;
   if (slug(x) && canonical(y)) return x === y.slice(y.indexOf("/") + 1);
   return slug(x) && slug(y) && x === y;
+}
+
+// js/opencode/rootseat-by.ts
+function heldSeat(d, slot, session) {
+  if (slot.place) return { ...slot.place };
+  const rec4 = d.recorded?.(slot, session);
+  if (rec4) return rec4;
+  const [name = "", karta = ""] = (slot.key ?? "").split("--");
+  return { name, karta, realm: "" };
 }
 var REALM_MS = 1e4;
 async function canonOf(slot, realm) {
@@ -5581,7 +5756,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
           const answered = answerHalt(
             slot.bridge,
             params?.data,
-            (signal) => halted(slot.session, signal)
+            (signal2) => halted(slot.session, signal2)
           );
           if (lead) void answered.then(() => leads.heard(session, kind2, slot.place));
           return;
@@ -5592,9 +5767,9 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       (e) => {
         if (slot.ownStop || stopped || !slot.holding) return;
         slot.holding = false;
+        if (slot.session && !slot.child) keeper.seatLost(slot.session);
         const text3 = W5.hearingLost((/* @__PURE__ */ new Date()).toTimeString().slice(0, 5), e.message);
-        const lost2 = { logger: LOGGERS.channel, data: { kind: "lost", text: text3 } };
-        onChannel(slot.session, lost2, !!slot.child);
+        say(text3, "warning");
       },
       args
     );
@@ -5602,8 +5777,8 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     shake(slot);
     return slot;
   }
-  const mv = createMoves(ctx);
-  const { home, directoryOf, exists: exists2, ours } = mv;
+  const mv = createMoves(ctx, say);
+  const { home, directoryOf, canReturn } = mv;
   const relay = mv.relay(onChannel, say);
   const models = createModels(ctx);
   const runEnds = createRunEnds();
@@ -5611,12 +5786,12 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
   const leads = createLeads(leadDoors(ctx, say, flushUsage, endChild, slots, closed));
   const keeper = createKeeper({
     say,
-    tell: (root, text3, child) => onChannel(root, { logger: LOGGERS.channel, data: { kind: "resumed", text: text3 } }, !!child),
-    lost: (root, text3) => onChannel(root, { logger: LOGGERS.channel, data: { kind: "lost", text: text3 } }),
+    tell: (root, text3, child) => onChannel(root, { logger: LOGGERS.channel, data: { kind: "return_failed", text: text3 } }, !!child),
     slotFor: (root, touch) => slotFor(root, touch),
     ready: readyFor,
     directoryOf,
-    exists: ours
+    exists: canReturn,
+    ended: closed
   });
   const nothing2 = () => {
   };
@@ -5626,7 +5801,8 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
     spawn: spawn2,
     keeper,
     leads,
-    exists: exists2,
+    exists: canReturn,
+    // an archived child ended: its seat is not returned to it
     endRun,
     stopped: () => stopped
   });
@@ -5691,7 +5867,7 @@ async function setupTools(ctx, say, onChannel, rootOf, flushUsage = async () => 
       unasked.add(slot);
     }
     const s = slot;
-    if (far !== "foreign" && unasked.delete(s))
+    if (far !== "foreign" && unasked.delete(s) && !closed(root))
       s.resume = (claiming(root) ? awaitReady(s).then(() => s.bridge.request(method("resume"), { session: root })) : keeper.resume(s, root)).finally(() => s.resume = null);
     if (touch) slot.lastCall = Date.now();
     return slot;
@@ -5980,22 +6156,25 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     (id, message, kept2) => say(W5.haltUnlifted(id, message, kept2), "warning")
   );
   const accepting2 = (id) => accepting(ctx, id);
+  const ends = channelEnds(authDir, say);
   async function deliver2(session2, text3, frame = W5.frame(), delivery = "steer", child = false) {
     let id = session2;
-    if (child && (!id || !await accepting2(id))) {
+    if (id && ends.has(id)) return null;
+    if (child && (!id || await accepting2(id) === "ended")) {
       say(W5.childGone(frame, id ?? "?", text3.slice(0, 120)), "error");
       return null;
     }
-    if (id && !await accepting2(id)) {
+    if (id && await accepting2(id) === "ended") {
       say(W5.sessionClosed(id, frame), "warning");
-      id = null;
+      return null;
     }
     id ??= freshestRoot();
-    if (id && id !== session2 && !await accepting2(id)) id = null;
+    if (id && id !== session2 && await accepting2(id) === "ended") id = null;
     if (!id) {
       say(W5.nowhere(frame, text3.slice(0, 120)), "error");
       return null;
     }
+    if (ends.has(id)) return null;
     if (halts.halted(id)) {
       say(W5.halted(frame, id), "warning");
       return null;
@@ -6142,6 +6321,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     say(text3, "error");
     dropPile(`${child ? "child" : "root"}:${session2 ?? ""}`);
     if (!session2) return;
+    ends.end(session2);
     const alone = ev.reason === "revoked:silent";
     const full = typeof ev.order === "string";
     halts.stop(session2, child ? null : text3, alone, full);
@@ -6159,6 +6339,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       else this.taken(session2);
     },
     gone(session2) {
+      ends.end(session2);
       for (const k of ["child", "root"]) dropPile(`${k}:${session2}`);
       tacts.gone(session2);
       lives.gone(session2);
@@ -6167,13 +6348,13 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     },
     // Each reading cuts the descendants this instance serves, a child born during the wait too;
     // other instances cut theirs by the same stops (plugin.ts sweep).
-    async halted(session2, signal) {
+    async halted(session2, signal2) {
       const gen = session2 ? halts.stopOf(session2) : null;
       const outcome2 = await cuts.outcome(() => {
         if (!session2) return [];
         this.halt(session2);
         return [session2, ...covered(processDescendants(session2))];
-      }, signal);
+      }, signal2);
       return session2 && halts.stopOf(session2) !== gen ? "stop_superseded" : outcome2;
     },
     halt(session2) {
@@ -6207,7 +6388,7 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
       }
     },
     ride(session2, put) {
-      if (halts.halted(session2)) return;
+      if (ends.has(session2) || halts.halted(session2)) return;
       const own = [...piles.values()].filter(
         (p) => !p.child && (p.session === session2 || !p.session && freshestRoot() === session2)
       );
@@ -6220,6 +6401,16 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
     onEvent(session2, params, child = false) {
       const ev = params?.data;
       if (!ev || typeof ev !== "object") return;
+      if (session2 && ends.has(session2)) {
+        if (ev.kind === "held" && params?.data?.automatic === false) ends.lift(session2);
+        else {
+          say(
+            halts.halted(session2) ? W5.halted(W5.frame(), session2) : W5.sessionClosed(session2, W5.frame()),
+            "warning"
+          );
+          return;
+        }
+      }
       switch (ev.kind) {
         case "frame": {
           const frame = cardFrame(ev.frame ?? null);
@@ -6256,12 +6447,20 @@ function setupChannel(ctx, say, freshestRoot, parents = /* @__PURE__ */ new Map(
         case "backlog":
           return batch(session2, child, ev, W5.wakeBatch(ev.frames?.length ?? 0));
         case "lost":
-          if (ev.text) loud(session2, ev.text, child);
+          if (ev.text) say(ev.text, "warning");
           return;
         case "resumed":
           if (ev.text) {
             say(ev.text, "warning");
-            void deliver2(session2, ev.text, W5.resumedLabel(), "steer", child);
+          }
+          return;
+        case "return_failed":
+        // a return that did not happen: a word to act on (#5140)
+        case "seat_result":
+          if (ev.text) {
+            say(ev.text, "warning");
+            const label = ev.kind === "return_failed" ? W5.returnFailedLabel() : W5.resumedLabel();
+            void deliver2(session2, ev.text, label, "steer", child);
           }
           return;
         case "held":
@@ -6512,9 +6711,11 @@ async function setupContextGate(ctx, opts) {
 }
 
 // js/opencode/direct.ts
-var DIRECT = ["look", "orient", "search", "semantic_search", "history"].map(tool);
+var DIRECT_READ_NAMES = ["look", "orient", "search", "semantic_search", "history"].map(tool);
+var directWord = (tools) => tools?.execute && DIRECT_READ_NAMES.some((name) => name in tools) ? words(DIRECT_READ_WORD).word(DIRECT_READ_NAMES.join(", ")) : null;
 var standDirect = (ctx) => ctx.tool.transform((editor) => {
-  for (const id of DIRECT) editor.update(id, (t) => void (t.options = { codemode: false }));
+  for (const id of DIRECT_READ_NAMES)
+    editor.update(id, (t) => void (t.options = { codemode: false }));
 });
 
 // js/opencode/hook-context.ts
@@ -6632,14 +6833,17 @@ function createHookContext(closed) {
 // js/opencode/mindslice.ts
 var SLICE_MS = 1e4;
 function sliceBy(bridge, options = {}) {
-  return mindSlice(async (name, args) => {
-    const got = await bridge.request(
-      "tools/call",
-      { name, arguments: args },
-      { timeoutMs: SLICE_MS, service: true }
-    );
-    return { isError: !!got?.isError, text: textOf2(got) };
-  }, options);
+  return mindSlice(
+    async (name, args) => {
+      const got = await bridge.request(
+        "tools/call",
+        { name, arguments: args },
+        { timeoutMs: SLICE_MS, service: true }
+      );
+      return { isError: !!got?.isError, text: textOf2(got), structured: got?.structuredContent };
+    },
+    { ...options, cacheKey: bridge }
+  );
 }
 
 // js/opencode/notice.ts
@@ -6928,7 +7132,7 @@ function repoSigns(dir, harness, keys = REPO_SIGNS, cover = COVER) {
   const any = signs.cover || signs.stamp || hooked;
   const block = agents === null ? null : coverBlock(agents, cover.root);
   const carried = !!block?.get("graph") && !!block.get("holon") && !!block.get("agent_role");
-  const complete = signs.cover && signs.stamp && (harness === null || carried || signs.hooks[harness]);
+  const complete = signs.cover && signs.stamp && (harness === null || harness === "dsh" || carried || signs.hooks[harness]);
   const verdict = stamped2 === "foreign" && !hooked ? "foreign" : !any ? "invite" : complete ? "aligned" : "partial";
   return { root, ...signs, verdict };
 }
@@ -7488,6 +7692,18 @@ function merged(c) {
   return ran(c, "gh pr merge", noop, /(Merged|Squashed and merged|Rebased and merged) pull request/) || ran(c, "fj pr merge", noop, /Merged PR #/) || (c.exit ?? 0) === 0 && PULL.test(c.command);
 }
 
+// js/shared/ritenotes.ts
+function shellNotes(cover, call, dir, skip = () => false) {
+  const W5 = wordsIn(RITES, cover.lang);
+  const { on, holon, sections } = cover;
+  const push = on.has("push") && !skip("push") ? pushedTo(call, dir) : null;
+  const said2 = [];
+  if (push === "branch") said2.push(W5.push(sections.check));
+  if (push === "trunk" || on.has("merge") && !skip("merge") && merged(call))
+    said2.push(W5.merge(holon, ...mergeHeads(sections, push === "trunk")));
+  return said2;
+}
+
 // js/shared/turnend.ts
 var TURN_RITE = "turn";
 var SPEAKING = /* @__PURE__ */ new Map([
@@ -7576,13 +7792,7 @@ function createRites(ctx) {
         };
         const c = await coverOf(String(t.sessionID));
         if (!c) return;
-        const W5 = wordsIn(RITES, c.cover.lang);
-        const { on, holon, sections } = c.cover;
-        const push = on.has("push") ? pushedTo(call, c.dir) : null;
-        const note = [
-          push === "branch" && W5.push(sections.check),
-          (push === "trunk" || on.has("merge") && merged(call)) && W5.merge(holon, ...mergeHeads(sections, push === "trunk"))
-        ].filter(Boolean).join("\n\n");
+        const note = shellNotes(c.cover, call, c.dir).join("\n\n");
         if (!note || !once(t.id)) return;
         const next = {
           ...result,
@@ -7597,9 +7807,35 @@ ${note}` : [...content ?? [], { type: "text", text: note }]
   };
 }
 
+// js/shared/rootseat-say.ts
+var W4 = () => words(ROOT_SEAT);
+var oneLine = (text3) => {
+  const t = text3.replace(/\s+/g, " ").trim();
+  return t.length > 300 ? `${t.slice(0, 299)}…` : t;
+};
+var notSeatedWord = (why) => W4().notSeated(why);
+var refusedWord = (text3) => W4().notSeated(W4().refused(oneLine(text3)));
+var lateWord = (ms) => W4().notSeated(W4().late(Math.round(ms / 100) / 10));
+var realignWord = (why) => W4().realign(why, COVER.file);
+function heldWord(r, realm, karta) {
+  if ("other" in r) {
+    const { name, karta: k, realm: held } = r.other;
+    return r.uncompared ? W4().heldUncompared(name, k, held || W4().unknownRealm(), r.uncompared) : W4().ownOther(name, k, held || W4().unknownRealm());
+  }
+  return (r.provisional === true ? W4().seated : W4().ownSeated)(
+    r.place,
+    karta,
+    r.realm ?? realm,
+    COVER.file
+  );
+}
+
 // js/opencode/rootseat-again.ts
-import { realpathSync as realpathSync6, statSync as statSync5 } from "node:fs";
+import { statSync as statSync5 } from "node:fs";
 import { join as join17 } from "node:path";
+
+// js/shared/coverin.ts
+import { realpathSync as realpathSync6 } from "node:fs";
 function atRepoRoot(where) {
   const root = repoRoot(where);
   if (root === null) return false;
@@ -7616,6 +7852,8 @@ function coverIn(where) {
   if ("foreign" in cover) return null;
   return "why" in cover ? { why: cover.why, align } : cover;
 }
+
+// js/opencode/rootseat-again.ts
 function stamp2(where) {
   try {
     const st = statSync5(join17(where, COVER.file));
@@ -7680,34 +7918,13 @@ function createRealign(halted) {
   };
 }
 
-// js/opencode/rootseat-doors.ts
+// js/shared/rootseat-env.ts
 var rootSeatMs = () => Number(process.env[envName("ROOT_SEAT_MS")] || 15e3);
 var rootSeatEnabled = () => process.env[envName("ROOT_SEAT")] !== "0";
+
+// js/opencode/rootseat-doors.ts
 var ceilingMs = () => rootSeatMs() + Math.min(rootSeatMs(), 5e3);
 var pause = (ms) => new Promise((r) => setTimeout(r, ms).unref?.());
-
-// js/opencode/rootseat-say.ts
-var W4 = () => words(ROOT_SEAT);
-var oneLine = (text3) => {
-  const t = text3.replace(/\s+/g, " ").trim();
-  return t.length > 300 ? `${t.slice(0, 299)}…` : t;
-};
-var notSeatedWord = (why) => W4().notSeated(why);
-var refusedWord = (text3) => W4().notSeated(W4().refused(oneLine(text3)));
-var lateWord = (ms) => W4().notSeated(W4().late(Math.round(ms / 100) / 10));
-var realignWord = (why) => W4().realign(why, COVER.file);
-function heldWord(r, realm, karta) {
-  if ("other" in r) {
-    const { name, karta: k, realm: held } = r.other;
-    return r.uncompared ? W4().heldUncompared(name, k, held || W4().unknownRealm(), r.uncompared) : W4().ownOther(name, k, held || W4().unknownRealm());
-  }
-  return (r.provisional === true ? W4().seated : W4().ownSeated)(
-    r.place,
-    karta,
-    r.realm ?? realm,
-    COVER.file
-  );
-}
 
 // js/opencode/rootseat-attempt.ts
 function attempt2(session, x, expect) {
@@ -7952,19 +8169,18 @@ function spawnReceipt(structured, expected, identity) {
   if (!identity.seat_id && !identity.standing && !identity.name) return null;
   const seats = s.seats;
   if (seats.some(
-    (v2) => !v2 || typeof v2 !== "object" || typeof v2.seat_id !== "string" || !v2.seat_id || typeof v2.standing !== "string" || !/^@[^:]+:.+$/.test(v2.standing)
+    (v2) => !v2 || typeof v2 !== "object" || typeof v2.seat_id !== "string" || !v2.seat_id || typeof v2.standing !== "string" || !seatName(v2.standing)
   ))
     return null;
   const matches = seats.filter((v2) => {
     if (identity.seat_id) return v2.seat_id === identity.seat_id;
     if (identity.standing) return v2.standing === identity.standing;
-    return v2.standing.slice(v2.standing.indexOf(":") + 1) === identity.name;
+    return seatName(v2.standing) === identity.name;
   });
   if (matches.length !== 1) return null;
   const v = matches[0];
   if (identity.standing && v.standing !== identity.standing) return null;
-  if (identity.name && v.standing.slice(v.standing.indexOf(":") + 1) !== identity.name)
-    return null;
+  if (identity.name && seatName(v.standing) !== identity.name) return null;
   try {
     const pair = parseSpawn(v.spawned_for);
     return sameSpawn(pair, expected) ? { seat_id: v.seat_id, standing: v.standing, spawned_for: pair } : null;
@@ -8258,7 +8474,7 @@ function createTurnEnds(ctx, opts) {
     turns.delete(s);
     if (!t || t.woken) return;
     if (!lostWord({ ...t, heard: heard.get(s) ?? null })) return;
-    if (opts.skip(s) || !await opts.on(s)) return;
+    if (opts.skip(s) || !await opts.on(s) || opts.skip(s)) return;
     try {
       const r = await ctx.session.prompt({
         sessionID: s,
@@ -8528,6 +8744,7 @@ async function setup(ctx) {
   };
   const roots = /* @__PURE__ */ new Map();
   const seen = /* @__PURE__ */ new Map();
+  const createdHere = /* @__PURE__ */ new Set();
   const spawnStarts = createSpawnStarts(
     (sessionID) => ctx.session.context({ sessionID }),
     (word2) => say(word2, "error")
@@ -8606,7 +8823,8 @@ async function setup(ctx) {
   }
   let half = idleHalf();
   const stops2 = createHalts((s) => parents.get(s), authDir, nothing, nothing);
-  const closed = (s) => half.ended(s) || stops2.halted(s);
+  const ends = channelEnds(authDir, say);
+  const closed = (s) => ends.has(s) || half.ended(s) || stops2.halted(s);
   let flushUsage = (_s) => Promise.resolve();
   const heard = (s, p, c) => {
     onChannel(s, p, c);
@@ -8623,7 +8841,7 @@ async function setup(ctx) {
       (s) => flushUsage(s),
       closed,
       // No channel half — no interrupt: the order's stop is refused, not reported executed.
-      (s, signal) => ch ? ch.halted(s, signal) : Promise.resolve(CHANNEL_DOWN),
+      (s, signal2) => ch ? ch.halted(s, signal2) : Promise.resolve(CHANNEL_DOWN),
       (s, name, args, holding) => spawnStarts.apply(s, name, args, holding),
       (s) => spawnStarts.has(s),
       (s, args, result) => spawnStarts.verify(s, args, result)
@@ -8634,7 +8852,7 @@ async function setup(ctx) {
   }
   const rootSeats = createRootSeats({
     directoryOf: (s) => sessionDirectory(ctx, s),
-    halted: (s) => !ch || stops2.halted(s),
+    halted: (s) => !ch || closed(s),
     seat: (s, realm, karta, cancelled) => half.seatRoot(s, realm, karta, cancelled),
     role: (s) => spawnStarts.karta(s),
     cancel: (s) => half.cancelSeat(s),
@@ -8642,7 +8860,7 @@ async function setup(ctx) {
     finished: (s) => {
       if (!spawnStarts.has(s)) half.finishSeat(s);
     },
-    tell: (s, text3) => heard(s, { logger: LOGGERS.channel, data: { kind: "resumed", text: text3 } }),
+    tell: (s, text3) => heard(s, { logger: LOGGERS.channel, data: { kind: "seat_result", text: text3 } }),
     steer: (s, text3) => teller(ctx, say, closed)(s, text3, false)
   });
   await watchCover(ctx, rootSeats, say, rootOf);
@@ -8684,7 +8902,7 @@ async function setup(ctx) {
         spawnStarts.guard(sid);
         for (const w of start) prepared.put(w);
         prepared.put(spawnStarts.taken(sid));
-        if (start.length) prepared.put(await (rulesOf(sid) ?? null));
+        if (start.length && createdHere.has(sid)) prepared.put(await (rulesOf(sid) ?? null));
         spawnStarts.guard(sid);
         if (root) prepared.ride();
       } catch (e) {
@@ -8722,7 +8940,9 @@ async function setup(ctx) {
           }
           if (spawnStarts.has(sid)) half.finishSeat(sid);
           const ready = hookContext.take(sid, req.messages);
-          for (const text3 of new Set(ready.words)) req.system.push({ type: "text", text: text3 });
+          const direct = directWord(req.tools);
+          for (const text3 of new Set(direct ? [...ready.words, direct] : ready.words))
+            req.system.push({ type: "text", text: text3 });
           spawnStarts.delivered(sid, ready.words);
           if (ready.ride)
             ch?.ride(sid, (counts) => req.system.push({ type: "text", text: markFrame(counts) }));
@@ -8794,6 +9014,7 @@ async function setup(ctx) {
             rites.forget(id);
             roots.delete(id);
             seen.delete(id);
+            createdHere.delete(id);
             parents.delete(id);
             ch?.gone(id);
             void usage.flush(id).finally(() => {
@@ -8804,6 +9025,7 @@ async function setup(ctx) {
           case "session.created": {
             if (!id) break;
             if (ev.data?.title === keepaliveTitle()) break;
+            createdHere.add(id);
             const parent = ev.data?.parentID;
             if (typeof parent === "string") {
               parents.set(id, parent);
@@ -8870,8 +9092,9 @@ async function setup(ctx) {
   sweeper.unref?.();
   const twins = createTwins(ctx, homeOf(ctx), {
     say,
-    lost: (s, text3) => onChannel(s, { logger: LOGGERS.channel, data: { kind: "lost", text: text3 } }),
+    lost: (s, t) => heard(s, { logger: LOGGERS.channel, data: { kind: "return_failed", text: t } }),
     holds: (r) => half.held(r),
+    holders: () => half.holders(),
     adopt: () => half.adopt(),
     sweep: () => void sweep()
   });

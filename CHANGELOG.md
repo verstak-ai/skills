@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.7.0](https://github.com/verstak-ai/skills/compare/v4.6.0...v4.7.0) (2026-11-26)
+
+
+### Features
+
+* the bridge core synced to the sibling's 8.16.5 — no reconnect volley, bounded calls on session turnover, a bare seat name is a seat address ([#460](https://github.com/verstak-ai/skills/issues/460)) ([a62809f](https://github.com/verstak-ai/skills/commit/a62809fd1d00979c3df0834ef70ec41591028959))
+
 ## [4.6.0](https://github.com/verstak-ai/skills/compare/v4.5.1...v4.6.0) (2026-11-18)
 
 
