@@ -13,6 +13,6 @@ export const LAUNCH_WORD = "verstak";
 const word = LAUNCH_WORD.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const LAUNCH_LINE = new RegExp(
-  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(@\\S+))?(?=\\s|$)`,
+  `^[ \\t]*${word}\\s+(\\S+)\\s+(\\S+)\\s+(?:case\\s+)?[№#]\\s?(\\d+)(?:[ \\t]+from[ \\t]+(\\S+))?(?=\\s|$)`,
   "mu",
 );

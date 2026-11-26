@@ -13,7 +13,7 @@ import { STOP, type StopWho } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { type Door } from "./door.ts";
 import { broadcast, type ChannelEvent, forgetSeat, notify, releasedAsOwn } from "./hold.ts";
-import { type Frame, H, whenStopped } from "./holdstate.ts";
+import { type Frame, H, noteEndedSeat, whenStopped } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { dropExtra, extraPlaces, type Place } from "./places.ts";
 import { standingLog } from "./store.ts";
@@ -95,7 +95,7 @@ export const holdsSeat = (id: string, framed: boolean, to: Addressed = {}): bool
 
 /** One seat of a live channel taken off (api: standing_ended {standing_id, by | reason}). */
 function seatEnded(key: string, frame: Frame): void {
-  const id = typeof frame.standing_id === "string" ? frame.standing_id : "";
+  const id = noteEndedSeat(frame.standing_id); // known or not: register moves skip it (endedseats.ts)
   const reason =
     typeof frame.by === "string"
       ? `revoked:${frame.by}`

@@ -17,6 +17,18 @@ export const normKarta = (k: unknown): string =>
     .replace(/^#/, "");
 
 /**
+ * The seat name in an address (#11011): the tail after ":" of `@handle:name`, or the whole
+ * bare name of a seat without a handle; "@" stands only before a handle, so a lone
+ * `@handle` names no seat. "" — not a seat address.
+ */
+export function seatName(address: unknown): string {
+  const t = typeof address === "string" ? address.trim() : "";
+  const colon = t.indexOf(":");
+  if (colon >= 0) return t.slice(colon + 1);
+  return t.startsWith("@") ? "" : t;
+}
+
+/**
  * The same seat: the graphs compared only in the canonical @owner/slug — a graph not in that
  * form matches nothing (#5838), role normalized, name exact.
  */

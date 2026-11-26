@@ -31,6 +31,11 @@ export const execApi: ApiCall = (server, method, path, body) =>
           reject(new Error("exec_api_failed_or_unknown"));
           return;
         }
+        // A 204 prints nothing and exits 0 on 2.2.7 (graph @nks/nks-dev, #11099): no content.
+        if (!stdout.trim()) {
+          resolve(undefined);
+          return;
+        }
         try {
           resolve(JSON.parse(stdout));
         } catch {

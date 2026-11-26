@@ -10,6 +10,7 @@
 import { STOP } from "../delivery/index.ts";
 import { apiBase } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
+import { noteEndedSeat } from "./endedseats.ts";
 import { broadcast, notify } from "./hold.ts";
 import { type Frame, whenOrdered } from "./holdstate.ts";
 import { boundStop } from "./order-client.ts";
@@ -100,6 +101,7 @@ async function finish(end: OrderEntry): Promise<void> {
 }
 
 async function execute(o: Order, base: string, framed: boolean): Promise<void> {
+  noteEndedSeat(o.standing_id); // held or not yet: a register move under way skips it (endedseats.ts)
   const known = readOrder(o.id);
   if (known && isTerminal(known.state)) {
     log(`stop order ${o.id} again — the same outcome ${known.state}, no second stop`);

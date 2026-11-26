@@ -27,6 +27,8 @@ export interface ResumeWords {
   noHello: (key: string) => string;
   stale: (key: string) => string;
   registerRefused: (text: string) => string;
+  /** The return's register waited out the source's 429 rate_limited; seconds — how long it waited. */
+  registerWaited: (seconds: number) => string;
   othersInDir: (others: string) => string;
   notYours: () => string;
   nothingToReturn: (skipped: string) => string;
@@ -79,6 +81,8 @@ export const RESUME: Readonly<Record<Lang, ResumeWords>> = {
       `${key}: hello did not come — the record is intact, the watchdog will repeat the return; if you do not wait — ${via}`,
     stale: (key) => `${key}: the record went stale — ${via} will take the seat`,
     registerRefused: (text) => `register refused — ${text}`,
+    registerWaited: (seconds) =>
+      `register waited out the source's rate limit (${seconds} s) and stood`,
     othersInDir: (others) => `the same directory holds records of other seats too: ${others}`,
     notYours: () =>
       `the seat is not yours — ${tool("channel")}(action="leave") will release it, the channel stays intact`,

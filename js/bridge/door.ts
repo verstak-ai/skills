@@ -45,10 +45,11 @@ export const ENV_KEY = "env";
 
 export interface ChannelEvent {
   // held — the bridge took the socket (OpenCode plugin holding, #5140); backlog — a wake batch; lost — hearing lost, resumed — seat returned without the agent's move (both synthesized by the plugin, #5366);
+  // seat_result — a seat the bridge settled, return_failed — a return that did not happen (both synthesized by the plugin): the first opens no turn, the second is a word to the session
   // handover — the machine daemon hands the seat to a successor: the door reopens at the same path (watchdog/client.ts)
   // stopped — the owner took the seat off (4001, #7439): every holder stops, nothing wakes or reconnects
   // prettier-ignore
-  kind: "attached" | "frame" | "note" | "dead" | "alive" | "evicted" | "stale" | "released" | "held" | "backlog" | "lost" | "resumed" | "handover" | "beside" | "beside-gone" | "stopped";
+  kind: "attached" | "frame" | "note" | "dead" | "alive" | "evicted" | "stale" | "released" | "held" | "backlog" | "lost" | "resumed" | "seat_result" | "return_failed" | "handover" | "beside" | "beside-gone" | "stopped";
   key?: string;
   raw?: string;
   frame?: Frame | null;

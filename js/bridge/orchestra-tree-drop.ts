@@ -11,11 +11,18 @@ export async function dropUnlaunched(
   runs: Record<string, Run>,
   key: string,
   execute: Git = git,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<string | null> {
   const r = runs[key],
     t = r.tree;
   if (!t || t.state !== "ready" || !t.identity || r.terminal || r.exec)
     return "tree_drop_unverified";
+  if (platform === "win32") {
+    t.state = "retained";
+    t.why = "tree_clean_win32_unverified";
+    writeRuns(authDir, runs);
+    return t.why;
+  }
   try {
     if (JSON.stringify(await inspectTree(t, execute)) !== JSON.stringify(t.identity))
       return "tree_identity_unverified";

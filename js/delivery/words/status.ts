@@ -37,7 +37,7 @@ export const STATUS: Readonly<Record<Lang, StatusWords>> = {
     busyLine: (label, line, nudge) => `busyness ${label}: ${line || "(cleared)"}${nudge}`,
     placeDerived: (place) => `${place} (address derived, hello did not name it)`,
     placeUnnamed: (name) =>
-      `of the seat${name ? ` "${name}"` : ""} (no @handle:name address yet — hello has not come)`,
+      `of the seat${name ? ` "${name}"` : ""} (no seat address yet — hello has not come)`,
     evictedWhy: () =>
       `the hearing is with another holder — take it back by ${tool("stand")} with take=true: ${TAKE.en.rule()}`,
     reopeningWhy: () =>

@@ -5,9 +5,13 @@
 import { mindSlice } from "../shared/mindslice.ts";
 import { callTool } from "./call.ts";
 import { CFG } from "./config.ts";
+import { automaticSeat } from "./seatorigin.ts";
 import { readLatest, staleNotice } from "./update.ts";
 
 export async function standTail(stood: boolean): Promise<string[]> {
   const stale = staleNotice(readLatest(CFG.authDir), CFG.authDir);
-  return [...(stale ? [stale] : []), ...(stood ? [await mindSlice(callTool)] : [])];
+  return [
+    ...(stale ? [stale] : []),
+    ...(stood && !automaticSeat() ? [await mindSlice(callTool)] : []),
+  ];
 }

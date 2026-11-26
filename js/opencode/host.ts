@@ -6,6 +6,7 @@ import { words } from "../shared/lang.ts";
 import { clientOf, closeClient } from "./client.ts";
 import type { Context } from "./plugin.ts";
 import type { Home } from "./records.ts";
+import { seatsOfClient } from "./sameclient.ts";
 import { bridgeRoot } from "./skillread.ts";
 
 /**
@@ -39,17 +40,34 @@ export function archives(ctx: Context): boolean {
   return !!m && (Number(m[1]) > 2 || (Number(m[1]) === 2 && Number(m[2]) >= 2));
 }
 
-/** The session still exists and accepts channel words, rather than being archived. */
-export async function accepting(ctx: Context, id: string): Promise<boolean> {
+/**
+ * The host's own "no such session": a deleted one answers NotFound. Known by the error's
+ * name/code or by its line about the session; any other failure of the lookup is no proof of an end.
+ */
+export function notFound(e: unknown): boolean {
+  const x = (e ?? {}) as { name?: unknown; code?: unknown; type?: unknown; message?: unknown };
+  const tag = [x.name, x.code, x.type].filter((v) => typeof v === "string").join(" ");
+  if (/not[_ .-]?found/i.test(tag)) return true;
+  return /\bsession\b[^\n]{0,80}\b(not found|does not exist|is gone)\b/i.test(
+    typeof x.message === "string" ? x.message : String(e ?? ""),
+  );
+}
+
+/**
+ * The session's standing for channel words: "live" — it exists, "ended" — the host says it is
+ * archived or knows of no such session, "unknown" — the lookup failed another way (no proof of an
+ * end: the word still goes to the session itself).
+ */
+export async function accepting(ctx: Context, id: string): Promise<"live" | "ended" | "unknown"> {
   try {
     const info = await ctx.session.get({ sessionID: id } as never);
     const shape = info as unknown as {
       time?: { archived?: number };
       data?: { time?: { archived?: number } };
     };
-    return !(shape?.time?.archived ?? shape?.data?.time?.archived);
-  } catch {
-    return false;
+    return (shape?.time?.archived ?? shape?.data?.time?.archived) ? "ended" : "live";
+  } catch (e) {
+    return notFound(e) ? "ended" : "unknown";
   }
 }
 
@@ -59,7 +77,7 @@ const CLOSE_AFTER_MS = 1_000;
 /**
  * The stopped session archived (`on`) or taken out of the archive (#9256) — archived, not
  * removed: the human reads what the agent got to. A root session's client is closed as well
- * (client.ts); archive refusal or unobserved exit refuses the full stop, never a false success.
+ * (client.ts), unless it still serves another root holding a seat in this process; archive refusal or unobserved exit refuses the full stop, never a false success.
  */
 export function archiver(
   ctx: Context,
@@ -115,6 +133,9 @@ export function archiver(
     }
     await new Promise((r) => setTimeout(r, CLOSE_AFTER_MS));
     if (!current()) return;
+    // One process may serve other seated roots (a shared run): their client is not this stop's.
+    const kept = seatsOfClient(id, client.pid);
+    if (kept.length) return tell(W.clientKept(id, client.pid, kept.join(", ")));
     const closed = await closeClient(client, current);
     if (!current()) return;
     tell(

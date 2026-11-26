@@ -108,7 +108,7 @@ async function leaveSatellite(reason: string): Promise<string> {
   const kept = !!url && onDispatcher(url) && !liveOnDispatcher(url);
   const st = kept ? null : await publishStatus("", undefined, true);
   releaseStanding(`${reason}: ${W.satelliteReleased()}`, true, false, true);
-  releaseSatelliteClaims(); // the name is free for the next run
+  releaseSatelliteClaims(true); // closing a socket does not confirm the seat was revoked
   const line = st ? clearedLine(st) : W.keptOnBoard();
   log(`left the satellite place: ${reason}; ${line}`);
   return W.leftSatellite(place, line);

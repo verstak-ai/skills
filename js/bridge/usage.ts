@@ -14,6 +14,7 @@ import { observeContext, observeSkill } from "./context-gate.ts";
 import { isParked } from "./hold.ts";
 import { onDispatcher, tickFor } from "./muxhold.ts";
 import { rememberUsage } from "./placefields.ts";
+import { registerMove } from "./ratelimit.ts";
 import { skillsNeedRegister } from "./skillwatch.ts";
 import { replayRegister } from "./standing.ts";
 import { statusAddress } from "./statusaddr.ts";
@@ -44,7 +45,9 @@ export function usagePlace(): Standing | null {
 /** register of the seat with the last snapshot kept (`u`; null — none new); true — attrs taken. */
 async function publish(place: Standing, u: Usage | null): Promise<boolean> {
   U.at = Date.now();
-  const got = await replayRegister(place, false);
+  // A snapshot does not return the seat: one send, no 429 wait — a late retry would write over
+  // the next holder's numbers after leave (ratelimit.ts MoveKind).
+  const got = await replayRegister(place, false, registerMove("once"));
   const ok = !!got && !got.error && !got.result?.isError;
   if (ok) {
     if (u) U.published = u;

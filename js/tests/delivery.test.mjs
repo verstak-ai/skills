@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { BUILD_TOOL_PREFIX, parseConfig } from "../delivery/config.ts";
-import { CONTEXT_DOOR, ROLE_SKILLS } from "../delivery/context-gate.ts";
+import { CONTEXT_DOOR } from "../delivery/context-gate.ts";
 import { DEFAULT_LANG, langOfServer, LANGS } from "../delivery/lang.ts";
 import {
   BRIDGE_FILE,
@@ -118,6 +118,11 @@ test("the launch line has this delivery's own word: the sibling's line does not 
   const { LAUNCH_LINE, LAUNCH_WORD } = await import("../delivery/patterns/launch.ts");
   assert.notEqual(LAUNCH_WORD, "start", "the sibling delivery's launch word");
   assert.match(`${LAUNCH_WORD} @o/g #931 case #12 from @a:b`, LAUNCH_LINE);
+  // A bare seat name is a seat address too, as the board prints it.
+  assert.equal(
+    LAUNCH_LINE.exec(`${LAUNCH_WORD} @o/g #931 case #12 from m.repo.model`)?.[4],
+    "m.repo.model",
+  );
   assert.doesNotMatch("start @o/g #931 case #12", LAUNCH_LINE);
   assert.doesNotMatch("Verstak review PR #143", LAUNCH_LINE);
   const spelled = [];
@@ -183,26 +188,9 @@ test("a lead's last case is read off the English server prose", async () => {
     await assert.rejects(left(unread), /unread answer/, unread);
 });
 
-// The context recovery gate (the core's bridge/context-gate.ts) reads the role's skills off a
-// node read: mcp.verstak.ai prints the attributes as a last `  ATTRS:` section (observed on a
-// karta, 2026-11-11). A list the gate cannot find stays unknown and only the explicit
-// confirmation lifts the mark; a `skills:` line elsewhere in the role must not pass for it.
-test("the role's skills are read off the English server's ATTRS section, and the door is our skill", () => {
-  const skillsOf = (text) => {
-    const attrs = ROLE_SKILLS.exec(text)?.[1];
-    return attrs === undefined ? undefined : /^ {2}skills:[ \t]*([^\r\n]*)$/m.exec(attrs)?.[1];
-  };
-  const karta = (attrs) =>
-    "🧭 Companion @bb (#6, karta 能, v1)\n  Modes: pratyakshita · vartamana · adhimoksha\n" +
-    "  Manifested as: 能 adhikarin — authorised karta\n\n  MOTIVATION:\n" +
-    "  The person's companion.\n  skills: not-the-list\n" +
-    (attrs ? `\n  ATTRS:\n${attrs}` : "");
-  assert.equal(
-    skillsOf(karta("  persona: companion\n  skills: writing, weaving")),
-    "writing, weaving",
-  );
-  assert.equal(skillsOf(karta("  persona: companion")), undefined);
-  assert.equal(skillsOf(karta("")), undefined);
+// The context recovery gate (the core's bridge/context-gate.ts) releases its mark when the door
+// skill alone is loaded again: that door is our one skill, by its frontmatter name.
+test("the context gate's door is our skill", () => {
   const door = /^name:\s*(\S+)$/m.exec(
     readFileSync(join(REPO, "skills", "verstak", "SKILL.md"), "utf8"),
   )?.[1];

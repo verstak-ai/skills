@@ -121,6 +121,24 @@ test("a seat returning from disk is waited for; the stand tool is named only for
   assert.doesNotMatch(lost, /If it did not return/);
 });
 
+test("a seat lost with its bridge's death is said once, the stand tool named, no further word promised", () => {
+  const w = OPENCODE_KEEP.en.lostNotBack("@owner:seat", "why");
+  assert.match(w, /to act now — verstak_stand with this name\./);
+  assert.match(w, /retries the return silently; no further word\./);
+  assert.doesNotMatch(w, /wait for its word/);
+});
+
+test("the seat-address words take a bare name as the board prints it", () => {
+  for (const w of [
+    SATELLITE.en.notSeatName("x", "fault"),
+    SATELLITE.en.ambiguous(2, "base"),
+    SATELLITE.en.needSatelliteOf(),
+    STAND_TOOL.en.room(),
+    STAND_TOOL.en.satelliteOf(),
+  ])
+    assert.match(w, /a bare name or @handle:name/);
+});
+
 test("rejoin joins the waiting cases by room, without checking mine first", () => {
   const text = RESUME.en.rejoin();
   assert.match(

@@ -10,6 +10,8 @@ import { forgetSeat, holdsStanding, holdStanding, keyOf } from "./hold.ts";
 import { H, setRevokingOwn, stoppedDuring, stoppedInMove, stopsNow } from "./holdstate.ts";
 import { holdWords } from "./holdwords.ts";
 import { placeFields } from "./placefields.ts";
+import { type RegisterMove, seatOfPlace } from "./ratelimit.ts";
+import { registerByCall } from "./registergate.ts";
 import { refusedWord, type Reissued, revokeCall, throughReissue } from "./standmoves.ts";
 import { sw } from "./standwords.ts";
 import { type Standing, state } from "./transport.ts";
@@ -108,6 +110,7 @@ export async function stopGuard(
  * only seat (#7553). Otherwise the seat stays taken. The answer's words.
  */
 export async function registerRefused(
+  move: RegisterMove,
   r: Answer,
   realm: string,
   taken: Required<Standing> | null,
@@ -136,11 +139,9 @@ export async function registerRefused(
   // Do not try a failed invitation on the previous place as a compensating
   // register. Claim refusal blocks this session's work, including a missing echo.
   if (claimFailed) return `${refusal}\n${mw().moveUndone(taken.name, prior.name ?? "")}`;
-  const back = await callTool(tool("channel"), {
-    action: "register",
-    ...prior,
-    ...placeFields(prior, true),
-  });
+  // Through the gate (registergate.ts): a stop since the call began sends nothing.
+  const seat = seatOfPlace(prior, true); // the former seat, held again just above: its own id
+  const back = await registerByCall(move, seat, { ...prior, ...placeFields(prior, true) });
   const word = mw().moveUndone(taken.name, prior.name ?? "");
   return `${refusal}\n${back.isError ? `${word} register: ${short(back.text, 160)}` : word}`;
 }

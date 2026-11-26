@@ -23,12 +23,17 @@ export interface Launcher {
   checkouts: Record<string, string>;
   /** `<graph>#<role>` → the checkout that role is raised in, whatever its cover's role. */
   homes?: Record<string, string>;
+  /** Other accounts whose calls are own too: handles without "@" and account ids, lower case. */
   callers: string[];
   clone: ClonePolicy | null;
 }
 export interface Launchers {
+  /** The key's account handle without "@", lower case; "" — the account has none (#11011). */
   account: string;
+  /** The key's account id from the api's whoami; absent or "" — an older api. */
+  accountId?: string;
   own: Map<string, Launcher>;
   elsewhere: Map<string, string>;
-  refused: { what: string; code: string }[];
+  /** nodes — the mind nodes a refusal is about (`#N`), when it names several: launcher_duplicate. */
+  refused: { what: string; code: string; nodes?: string[] }[];
 }

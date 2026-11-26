@@ -1,6 +1,7 @@
 // One in-memory offer resolution for actual and dry tacts (#5042, #10096).
+import { authorOf, listed, sameAccount } from "./orchestra-account.ts";
 import { harnessRefusal } from "./orchestra-harnesses.ts";
-import { accountOf, type Launcher, type Launchers } from "./orchestra-launchers.ts";
+import { type Launcher, type Launchers } from "./orchestra-launchers.ts";
 import { homeOf } from "./orchestra-raise-gates.ts";
 import { LIVE, type Run } from "./orchestra-runs.ts";
 
@@ -15,9 +16,13 @@ export function resolveInvite(
   ls: Launchers,
   runs: Record<string, Run>,
 ): { row: Row; own: Launcher } | { code: string } {
-  const caller = accountOf(source.author);
-  if (!caller || !ls.account) return { code: "caller_unknown" };
-  const allowed = (l: Launcher): boolean => caller === ls.account || l.callers.includes(caller);
+  const caller = authorOf(source);
+  if (!caller) return { code: "caller_unknown" };
+  // callers first, by any basis the author has; own after it — an incomparable own refuses
+  // as unknown only when no description names the author either.
+  const self = sameAccount(caller, { id: ls.accountId ?? "", handle: ls.account });
+  const allowed = (l: Launcher): boolean => listed(l.callers, caller) || self === true;
+  const notAllowed = self == null ? "caller_unknown" : "caller_not_allowed";
   const launcher = text(source.launcher);
   let own: Launcher | undefined;
   if (!missing(source.launcher)) {
@@ -30,11 +35,14 @@ export function resolveInvite(
           (launcher && ls.elsewhere.has(launcher) ? "host_elsewhere" : "launcher_unknown"),
       };
     }
-    if (!allowed(own)) return { code: "caller_not_allowed" };
+    if (!allowed(own)) return { code: notAllowed };
   } else {
     const local = [...ls.own.values()];
     const admitted = local.filter(allowed);
-    if (!admitted.length) return { code: local.length ? "caller_not_allowed" : "launcher_missing" };
+    if (!admitted.length)
+      return {
+        code: local.length || self == null ? notAllowed : "launcher_missing",
+      };
     const candidates = admitted.filter((l) => {
       const harnesses = missing(source.harness)
         ? Object.keys(l.harnesses)

@@ -3,7 +3,7 @@
 import { isHaltPhase } from "../shared/halt-phase.ts";
 import { CFG } from "./config.ts";
 import { H } from "./holdstate.ts";
-import { orcaCloseObserved } from "./orca-stop.ts";
+import { orcaCloseObserved, ownClient } from "./orca-stop.ts";
 import { LIVE, readRuns, recordRunClosed, runIdentity } from "./orchestra-runs.ts";
 import { sameRealm } from "./realms.ts";
 import { state } from "./transport.ts";
@@ -43,10 +43,8 @@ export function boundStop(standing: string): (code: string | null) => Promise<st
     const latest = readRuns(CFG.authDir)[key];
     if ((latest?.exec?.exit || latest?.tree?.exit) && latest.closed === "client_exited")
       return null;
-    if (r.exec && !r.exec.incarnation) return "client_unbound";
-    const incarnation = r.exec?.incarnation ?? r.tree?.incarnation;
-    if (r.tree && !incarnation) return "client_unbound";
-    const expectedClient = incarnation ? { incarnation, worktree: r.worktree } : undefined;
+    const expectedClient = ownClient(r);
+    if (expectedClient === null) return "client_unbound";
     const outcome = await orcaCloseObserved(r.terminal, r.runtime, current, expectedClient);
     if (outcome !== null) return outcome;
     if (!recordRunClosed(CFG.authDir, key, r)) return "stop_superseded";

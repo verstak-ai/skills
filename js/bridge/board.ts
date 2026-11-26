@@ -6,7 +6,8 @@ import { boardField, LIVE_STATE, type Seat } from "./fields.ts";
 
 export interface BoardEntry {
   karta: string;
-  address: string;
+  /** null — the unnamed seat of a human without a handle: no address, matches no lookup. */
+  address: string | null;
   rest: string;
   incoming: string | null;
   /** The seat's own id from the `id <uuid>` line under it; null when the board lacks it. */
@@ -27,7 +28,7 @@ export interface Board {
 
 const fromField = (s: Seat): BoardEntry => ({
   karta: String(s.karta_seq),
-  address: s.standing ?? "",
+  address: s.standing?.trim() || null,
   rest: "",
   incoming: s.inbound ?? null,
   id: s.seat_id ?? null,
@@ -57,13 +58,23 @@ export function readBoard(a: { text: string; structured?: unknown }): Board {
   };
 }
 
-/** Board lines: `#N … · @handle:name — …`, then `📥 https://…` and `id <uuid>`. */
+/**
+ * Board lines: `#N … · @handle:name — …` or a bare `#N … · name — …` (#11011), or a seat
+ * without an address `#N <role> — …` (the unnamed seat of a human without a handle, LAB 0.159.0;
+ * fixture in tests/bare-seat.test.mjs), then `📥 https://…` and `id <uuid>`.
+ */
 export function parseBoard(text: string): BoardEntry[] {
   const out: BoardEntry[] = [];
   for (const line of text.split("\n")) {
-    const m = /^\s*#(\d+)\s.*?·\s(@\S+)\s—\s(.*)$/.exec(line);
+    const m = /^\s*#(\d+)\s.*?·\s(\S+)\s—\s(.*)$/.exec(line);
     if (m) {
       out.push({ karta: m[1], address: m[2], rest: m[3], incoming: null, id: null });
+      continue;
+    }
+    // The role part before the first « — » has no «·»: no address stands in it.
+    const bare = /^\s*#(\d+)\s[^·—]*?\s—\s(.*)$/.exec(line);
+    if (bare) {
+      out.push({ karta: bare[1], address: null, rest: bare[2], incoming: null, id: null });
       continue;
     }
     const inc = /📥\s*(https?:\/\/\S+)/.exec(line);
@@ -74,8 +85,12 @@ export function parseBoard(text: string): BoardEntry[] {
   return out;
 }
 
-/** Own half of `@handle:name`, compared whole: `endsWith(":proba")` would match neighbour `x.proba`. */
-export const nameOf = (address: string): string => address.slice(address.indexOf(":") + 1);
+/** Own half of `@handle:name` (a bare name is itself), compared whole: `endsWith(":proba")` would match neighbour `x.proba`. */
+export function nameOf(address: string): string;
+export function nameOf(address: string | null): string | null;
+export function nameOf(address: string | null): string | null {
+  return address === null ? null : address.slice(address.indexOf(":") + 1);
+}
 
 /**
  * Server prose forms of the board, both languages (graph @nks/nks-dev,

@@ -5,6 +5,7 @@ import { execRuntime } from "./exec-launch.ts";
 import { execHost } from "./exec-preflight.ts";
 import { cloneFound, cloneTaken, cloneTurn, specOf } from "./orchestra-cloning.ts";
 import { dshCheckout } from "./orchestra-dsh-gate.ts";
+import { dormantShare } from "./orchestra-dsh-reinvite.ts";
 import type { Launchers } from "./orchestra-launchers.ts";
 import { type CheckoutOf, orcaCheckouts, orcaReady } from "./orchestra-orca.ts";
 import { checkoutFor, coverRefusal, homeOf } from "./orchestra-raise-gates.ts";
@@ -35,6 +36,10 @@ export async function raiseRows(
       invite = Number(source.invite);
     const key = runKey(realm, room, invite);
     if (runs[key]) continue;
+    if (dormantShare(source, runs)) {
+      said.push(w().leadRow(realm, room, invite, "dormant_share"));
+      continue;
+    }
     const roleWhy = await role(source);
     if (roleWhy) {
       said.push(w().leadRow(realm, room, invite, roleWhy));

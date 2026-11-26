@@ -1,6 +1,16 @@
 // Observed Orca 1.4.242 post-close surface (#9966, #9256; case 4542): terminal show
 // remains readable, and wait --for exit reports the outcome. CLI close exit0 alone is not it.
 import { run } from "./orchestra-orca.ts";
+import type { Run } from "./orchestra-runs.ts";
+
+/** The exact client a close may touch: the launch's incarnation and tree path. null — the
+ * run's client is unbound; undefined — a legacy run that names none. */
+export function ownClient(r: Run): { incarnation: string; worktree: string } | null | undefined {
+  if (r.exec && !r.exec.incarnation) return null;
+  const incarnation = r.exec?.incarnation ?? r.tree?.incarnation;
+  if (r.tree && !incarnation) return null;
+  return incarnation ? { incarnation, worktree: r.worktree } : undefined;
+}
 
 interface Reply {
   ok?: boolean;

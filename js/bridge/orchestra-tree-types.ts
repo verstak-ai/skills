@@ -22,4 +22,6 @@ export interface RunTree {
   incarnation?: string;
   exit?: string;
   why?: string;
+  /** When a kept tree was last looked at again (#11189). */
+  checked?: string;
 }

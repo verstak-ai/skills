@@ -8,10 +8,13 @@ import { ORCHESTRA, type OrchestraWords } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import type { OpenOrder } from "./demand-rows.ts";
 import { readDemands, type TactInvites } from "./orchestra-demands.ts";
+import { dormantFromEnds, stepDormant } from "./orchestra-dsh-dormant.ts";
 import { foreignStops } from "./orchestra-foreign.ts";
 import { readLaunchers } from "./orchestra-launchers.ts";
 import { closeEnded, expireLaunches, foldTape, quench, settleStops } from "./orchestra-quench.ts";
 import { raiseRows } from "./orchestra-raise.ts";
+import { reapOwn } from "./orchestra-reap.ts";
+import { type Held, noHeld } from "./orchestra-reap-held.ts";
 import { roleRefusal } from "./orchestra-role.ts";
 import { readRuns, syncClosed, writeRuns } from "./orchestra-runs.ts";
 import { readTape, realmCanon, type TactAct, type TactRead } from "./orchestra-tact.ts";
@@ -25,6 +28,7 @@ export function leadAct(
   token: string,
   mcpUrl: string,
   admitted: boolean,
+  held: Held = noHeld,
 ): TactAct {
   // Without consent the tape is not folded, so its cursors hold: the signals of our own
   // launches wait for the consent's return instead of being lost (#7514, #8202).
@@ -54,8 +58,11 @@ export function leadAct(
       // the run it marks stopping now waits for the next tact's read (review of №4050 [105]).
       const foreign = await foreignStops(authDir, base, token, runs);
       said.push(...foreign.said);
-      said.push(...(await expireLaunches(runs, gone)));
+      said.push(...(await expireLaunches(runs, gone, undefined, undefined, held)));
       said.push(...settleStops(runs, owned, foreign.fresh));
+      // A dsh run the tact just ended sleeps when its case stays open (#10995) — before any
+      // write, so the tree cleanup below sees a dormant row, not an ended one.
+      await dormantFromEnds(base, token, runs, boundary);
       const cursorOf = (realm: string): string | null =>
         reads.find((r) => r.realm === realm)?.cursor ?? null;
       said.push(
@@ -68,7 +75,8 @@ export function leadAct(
         )),
       );
       syncClosed(runs, readRuns(authDir));
-      said.push(...(await closeEnded(runs, gone)));
+      said.push(...(await reapOwn(authDir, runs, gone, undefined, undefined, undefined, held)));
+      said.push(...(await closeEnded(runs, gone, undefined, held)));
       if (gone?.gone) return said;
       writeRuns(authDir, runs);
       await cleanupEndedTrees(authDir, runs);
@@ -79,7 +87,8 @@ export function leadAct(
         said.push(w().leadNoLaunchers((e as Error).message));
         return said;
       }
-      for (const r of launchers.refused) said.push(w().leadDescription(r.what, r.code));
+      for (const r of launchers.refused)
+        said.push(w().leadDescription(r.what, r.code, r.nodes?.join(", ")));
       const canon = realmCanon(base, token);
       said.push(
         ...(await raiseRows(
@@ -92,6 +101,23 @@ export function leadAct(
           gone,
         )),
       );
+      // The dormant rows take their turn after the new calls: a word in the case wakes the
+      // continuation, a closed case or a passed window ends the sleep (#10995).
+      said.push(
+        ...(await stepDormant(
+          authDir,
+          base,
+          token,
+          runs,
+          launchers,
+          gone,
+          undefined,
+          undefined,
+          boundary,
+        )),
+      );
+      writeRuns(authDir, runs);
+      await cleanupEndedTrees(authDir, runs);
       return said;
     } finally {
       writeRuns(authDir, runs);

@@ -1,18 +1,16 @@
 // Recovery after an observed fill collapse (graph @nks/nks-dev, node #10121).
-import { CONTEXT_DOOR, CONTEXT_GATE, ROLE_SKILLS, tool } from "../delivery/index.ts";
+import { CONTEXT_GATE, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { readsOnly } from "../shared/toolreads.ts";
-import { callTool } from "./call.ts";
 import {
   beginRecovery,
   currentRecovery as current,
   finishRecovery,
-  type Recovery,
   recoveryFault,
   recoverySeat as seat,
 } from "./context-state.ts";
-import { seatRealm } from "./hearing.ts";
+import { sameRealm } from "./realms.ts";
 import { emit } from "./streams.ts";
 import { toolDeclaresAction } from "./toolsync.ts";
 import type { JsonRpcMessage } from "./types.ts";
@@ -27,7 +25,7 @@ interface Fill {
 const S = scoped(() => ({ last: null as Fill | null }));
 const positive = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n > 0;
 
-/** Set the mark before any asynchronous role read; never infer skills from a failed read. */
+/** Mark a collapse locally; the door skill alone is required to release it (context-state.ts). */
 export async function observeContext(p: Record<string, unknown>): Promise<void> {
   if (!Object.hasOwn(p, "context")) return;
   const own = seat();
@@ -47,24 +45,7 @@ export async function observeContext(p: Record<string, unknown>): Promise<void> 
     next.context > previous.context / 2
   )
     return;
-  await roleSkills(beginRecovery(next.seat));
-}
-
-async function roleSkills(pending: Recovery): Promise<void> {
-  const place = usagePlace();
-  if (!place) return;
-  try {
-    const got = await callTool(tool("look"), { realm: place.realm, node_id: place.karta });
-    if (got.isError || current() !== pending) return;
-    const attrs = ROLE_SKILLS.exec(got.text)?.[1];
-    const raw = attrs === undefined ? undefined : /^ {2}skills:[ \t]*([^\r\n]*)$/m.exec(attrs)?.[1];
-    if (raw === undefined) return;
-    const skills = raw.trim() ? raw.split(",").map((s) => s.trim()) : [];
-    if (skills.some((s) => !/^[a-z][a-z0-9-]*$/.test(s))) return;
-    pending.required = new Set([CONTEXT_DOOR, ...skills]);
-  } catch {
-    /* unknown list: only explicit confirmation can release the mark */
-  }
+  beginRecovery(next.seat);
 }
 
 /** begin/end are observations by the harness, not a model-facing MCP tool. */
@@ -74,7 +55,6 @@ export async function observeSkill(p: unknown): Promise<void> {
   const v = p as Record<string, unknown>;
   if (typeof v.id !== "string" || typeof v.skill !== "string") return;
   if (v.phase === "begin") {
-    if (!r.required) await roleSkills(r);
     if (current() !== r) return;
     if (r.calls.size < 128 && !r.calls.has(v.id)) r.calls.set(v.id, v.skill);
     return;
@@ -97,7 +77,7 @@ const refusalReason = (): string => {
   return fault ? words(CONTEXT_GATE).storage(fault) : words(CONTEXT_GATE).refused;
 };
 
-/** Local confirmation snapshots the generation before realm resolution; it never registers. */
+/** Local confirmation uses known realm aliases and never registers or resolves over the network. */
 export function contextCall(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null {
   if (msg.method !== "tools/call") return null;
   const name = String(msg.params?.name ?? "");
@@ -117,7 +97,7 @@ export function contextCall(msg: JsonRpcMessage): Promise<JsonRpcMessage> | null
           String(args.karta).replace(/^#/, "") === String(place.karta).replace(/^#/, "")) &&
         (args.name === undefined || args.name === place.name) &&
         args.realm !== undefined &&
-        (await seatRealm(args.realm)) === place.realm;
+        sameRealm(args.realm, place.realm);
       if (!valid || seat() !== own || current() !== r) return answer(msg, refusalReason(), true);
       try {
         if (r) finishRecovery(r);

@@ -1,17 +1,12 @@
 // The context recovery gate (the core's bridge/context-gate.ts): after an observed fill collapse
-// a write is refused until the door and the role's skills are loaded again, or the reread is
-// confirmed on the seat. Kept apart from words/: the core reads two of its words as strings.
+// a write is refused until the door is loaded again, or the reread is confirmed on the seat.
+// Kept apart from words/: the core reads two of its words as strings.
 import type { Lang } from "./lang.ts";
 import { BRIDGE_SKILL } from "./product.ts";
 import { tool } from "./protocol.ts";
 
-/** The door skill: recovery after a context collapse needs it loaded beside the role's skills. */
+/** The door skill: loading it alone releases the recovery mark after a context collapse. */
 export const CONTEXT_DOOR = BRIDGE_SKILL;
-/**
- * The attributes section of a node read (`  ATTRS:` to the end, as mcp.verstak.ai prints it),
- * so a `skills:` line in the role's motivation or description is never taken for the list.
- */
-export const ROLE_SKILLS = /(?:^|\n) {2}ATTRS:\r?\n([\s\S]*)$/;
 
 export interface ContextGateWords {
   /** A write refused while the recovery mark stands. */

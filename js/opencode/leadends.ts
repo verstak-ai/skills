@@ -11,6 +11,8 @@ import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { GLOBAL_PREFIX } from "../delivery/index.ts";
+import { W } from "./leadwords.ts";
+import type { Say } from "./tools.ts";
 
 export interface Ends {
   end(session: string): void;
@@ -48,8 +50,9 @@ export function createEnds(
 ): Ends {
   return {
     end(session) {
-      ended().add(session);
-      lifted().delete(session);
+      const key = `${dir()}\0${session}`;
+      ended().add(key);
+      lifted().delete(key);
       try {
         mkdirSync(dir(), { recursive: true, mode: 0o700 });
         const record = JSON.stringify({ session, at: new Date().toISOString() });
@@ -59,8 +62,9 @@ export function createEnds(
       }
     },
     lift(session) {
-      ended().delete(session);
-      lifted().set(session, Date.now());
+      const key = `${dir()}\0${session}`;
+      ended().delete(key);
+      lifted().set(key, Date.now());
       const file = fileOf(dir(), session);
       try {
         unlinkSync(file);
@@ -75,9 +79,18 @@ export function createEnds(
         }
       }
     },
-    has: (session) =>
-      ended().has(session) || recorded(fileOf(dir(), session), lifted().get(session)),
+    has: (session) => {
+      const key = `${dir()}\0${session}`;
+      return ended().has(key) || recorded(fileOf(dir(), session), lifted().get(key));
+    },
   };
 }
+
+export const channelEnds = (dir: () => string, say: Say): Ends =>
+  createEnds(
+    dir,
+    (id, message) => say(W().endUnwritten(id, message), "warning"),
+    (id, message) => say(W().endUnlifted(id, message), "warning"),
+  );
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

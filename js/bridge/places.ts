@@ -6,7 +6,8 @@
 import { LOGGERS, PLACES } from "../delivery/index.ts";
 import { type Frame } from "../shared/channel.ts";
 import { words } from "../shared/lang.ts";
-import { scoped } from "../shared/scope.ts";
+import { runIn, type Scope, scoped } from "../shared/scope.ts";
+import { ownPidAlive } from "../shared/seam-entrance.ts";
 import { harnessName } from "./client.ts";
 import { type ChannelEvent, Door, type DoorHooks } from "./door.ts";
 import {
@@ -16,8 +17,9 @@ import {
   readHoldRecord,
   writeHoldRecord,
 } from "./holdrecord.ts";
-import { handoverReason } from "./holdstate.ts";
+import { H, handoverReason } from "./holdstate.ts";
 import { normKarta, normName } from "./names.ts";
+import type { SeatHolder } from "./orchestra-reap-held.ts";
 import { canonRealm, learnRealm, sameRealm } from "./realms.ts";
 import { standingLog } from "./store.ts";
 import { emit } from "./streams.ts";
@@ -39,6 +41,40 @@ const extras = scoped(() => new Map<string, Place>()); // seat key → seat with
 
 export const keyOfPlace = (s: Standing): string => keyOf(s.realm, s.karta, s.name ?? "");
 export const extraPlaces = (): Place[] => [...extras.values()];
+/** The seats beside to register in a move, each with its id as its door holds it now (ratelimit.ts). */
+export const besideSeats = (): { place: Standing; id: string | null }[] =>
+  state.places.map((place) => ({ place, id: heldIdOf(place) }));
+
+/** The names of the seats this session stands: the main one and those beside. */
+const standingNames = (): string[] =>
+  [state.standing, ...extraPlaces().map((x) => x.standing)].flatMap((s) =>
+    s ? [s.name ?? `${s.realm}#${s.karta}`] : [],
+  );
+
+/** The daemon's sessions whose thin bridge lives and stands a seat, by the bridge's pid: a
+ * launch's terminal whose client stands here is not reaped (orchestra-reap-held.ts). */
+export function seatHolders(
+  sessions: Map<string, { scope: Scope | null }>,
+  pids: Map<string, number>,
+  attached: Set<string>,
+): SeatHolder[] {
+  const out: SeatHolder[] = [];
+  for (const [id, s] of sessions) {
+    const pid = pids.get(id);
+    if (!pid || (!attached.has(id) && !ownPidAlive(pid))) continue;
+    const seats = s.scope ? runIn(s.scope, standingNames) : standingNames();
+    if (seats.length) out.push({ pid, seats });
+  }
+  return out;
+}
+
+/** The id of exactly this seat (graph, role, name) as the bridge holds it — main or beside; null — not held or not known. */
+export function heldIdOf(s: Standing): string | null {
+  const key = keyOfPlace(s);
+  const beside = extras.get(key);
+  if (beside) return beside.door.standingId;
+  return state.standing && keyOfPlace(state.standing) === key ? (H.door?.standingId ?? null) : null;
+}
 
 /** The channel seat in this graph (surely the same graph), if the bridge holds it. */
 export const extraIn = (realm: unknown): Place | undefined =>
@@ -75,11 +111,15 @@ function writeRecord(p: Place, ch: Channel, status?: string): void {
   });
 }
 
-/** A beside seat's address from the main seat's handle (one channel, same handle) — marked derived. */
+/**
+ * A beside seat's address from the main seat's handle (one channel, same handle) — marked
+ * derived. A bare main address (an account without a handle, #11011) gives a bare one.
+ */
 function deriveAddress(p: Place, primaryAddress: string | null | undefined): void {
-  const handle = primaryAddress?.match(/^(.*):/)?.[1];
-  if (!handle || !p.standing.name) return;
-  p.door.address = `${handle}:${p.standing.name}`;
+  if (!primaryAddress || !p.standing.name) return;
+  const handle = primaryAddress.match(/^(.*):/)?.[1];
+  if (!handle && primaryAddress.startsWith("@")) return;
+  p.door.address = handle ? `${handle}:${p.standing.name}` : p.standing.name;
   p.door.addressDerived = true;
 }
 

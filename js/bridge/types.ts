@@ -45,6 +45,12 @@ export interface GrantState {
   refused_at?: number;
   reason?: string;
   early_refused_until?: number;
+  /** the refresh token the server judged dead at an endpoint that did not move, as a fingerprint */
+  dead_refresh?: string;
+  /** the refresh token whose rotation answer was lost on the wire, as a fingerprint */
+  lost_refresh?: string;
+  /** when that answer was first lost */
+  lost_at?: number;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- JSON-RPC payloads come without a schema */

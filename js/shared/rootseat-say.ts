@@ -1,7 +1,8 @@
-// The root seating's words to the model (rootseat.ts): which one a seating's outcome gets.
+// The root seating's words (opencode/rootseat.ts to the model, dsh/rootseat.ts to its console):
+// which one a seating's outcome gets.
 import { COVER, ROOT_SEAT } from "../delivery/index.ts";
-import { words } from "../shared/lang.ts";
-import type { HeldSeat } from "./rootseat-by.ts";
+import { words } from "./lang.ts";
+import type { HeldSeat } from "./sameseat.ts";
 
 const W = () => words(ROOT_SEAT);
 

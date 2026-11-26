@@ -59,15 +59,36 @@ export async function foreignStops(
   const said: string[] = [];
   const fresh = new Set<Run>();
   const bySeat = new Map<string, Run>();
+  const seatRuns = new Map<string, Run>();
+  // A sleeping run's seat (#10995): an order naming it ends the sleep — the stop is not ours.
+  const asleep = new Map<string, Run>();
   // Stopping runs wait for their order's closed state: the cursor holds before an open one.
   const stopping = new Map<string, Run>();
   let unseated = false;
-  for (const r of Object.values(runs))
+  for (const r of Object.values(runs)) {
+    // 8.13.1 stored both own and foreign order ids with no durable origin marker.
+    // An unmarked old id is ambiguous, so it must never authorize a continuation.
+    if (!r.orders && r.order_id && !r.foreign_stop) {
+      r.foreign_stop = {
+        id: r.order_id,
+        state: r.stop_outcome ?? "issued",
+        at: r.stopping_at ?? r.at,
+      };
+      if (r.dsh && r.state === "stopping" && r.tree?.exit) {
+        r.state = "ended";
+        r.why = OPEN.has(r.foreign_stop.state)
+          ? "stop_ordered_elsewhere"
+          : `stop_${r.foreign_stop.state}_elsewhere`;
+      }
+    }
+    if (r.state !== "ended" && r.standing_id) seatRuns.set(r.standing_id, r);
     if (r.state === "launched" || r.state === "raised") {
       if (r.standing_id) bySeat.set(r.standing_id, r);
       else unseated = true;
-    } else if (r.state === "stopping" && !r.stop_outcome && (r.exec || r.tree || !stopLapsed(r)))
+    } else if (r.state === "dormant" && r.standing_id) asleep.set(r.standing_id, r);
+    else if (r.state === "stopping" && !r.stop_outcome && (r.exec || r.tree || !stopLapsed(r)))
       stopping.set(r.order_id ? `o:${r.order_id}` : `s:${r.standing_id ?? ""}`, r);
+  }
   const seen = new Set(Object.values(runs).map((r) => r.standing_id));
   let since = readSince(authDir);
   let held: number | undefined;
@@ -88,6 +109,25 @@ export async function foreignStops(
         const id = typeof v.id === "string" ? v.id : "";
         const state = String(v.state);
         const open = OPEN.has(state);
+        const seatRun = seatRuns.get(seat);
+        if (id && seatRun && !seatRun.orders?.includes(id)) {
+          seatRun.foreign_stop ??= { id, state, at: new Date().toISOString() };
+          if (seatRun.dsh && seatRun.state === "stopping" && seatRun.tree?.exit) {
+            seatRun.state = "ended";
+            seatRun.why = OPEN.has(seatRun.foreign_stop.state)
+              ? "stop_ordered_elsewhere"
+              : `stop_${seatRun.foreign_stop.state}_elsewhere`;
+          }
+        }
+        // An order on a sleeping run's seat is foreign unless its id is the row's own
+        // (#10995): the sticky field is set at this first reading and never erased — the
+        // dormant tact ends the sleep by the field alone, not here.
+        const sleep = !run && asleep.get(seat);
+        if (sleep) {
+          if (id && !sleep.orders?.includes(id))
+            sleep.foreign_stop ??= { id, state, at: new Date().toISOString() };
+          continue;
+        }
         if (!run && unseated && seat && !seen.has(seat)) held ??= since;
         const bySeatOnly = stopping.get(`s:${seat}`);
         const own =
@@ -101,14 +141,21 @@ export async function foreignStops(
           }
           continue;
         }
-        if (!run || !id || id === run.order_id) continue;
+        if (!run || !id || run.orders?.includes(id)) continue;
         bySeat.delete(seat);
         run.order_id = id;
+        // A foreign order on the call's seat is a final end in any reading order of its
+        // states: the sticky field is set at the first reading — issued or already closed —
+        // and holds to the end, so no later path sleeps the row (#10995 review 5).
+        run.foreign_stop ??= { id, state, at: new Date().toISOString() };
+        if (open) run.why = "stop_ordered_elsewhere";
         // Only a carried-out stop ends the run; a closed order of another outcome keeps it
-        // stopping until its window passes (settleStops, #7522).
+        // stopping until its window passes (settleStops, #7522). A carried-out one is a
+        // wind-down: its end never sleeps (#10995).
         const done =
           state === "stopped" && (!(run.exec || run.tree) || run.closed === "client_exited");
         run.state = done ? "ended" : "stopping";
+        if (done) run.why = "stopped_elsewhere";
         if (!done) run.stopping_at = new Date().toISOString();
         if (!open) run.stop_outcome = state;
         if (open) {

@@ -1,14 +1,11 @@
 // The root's service stand and the held seat's comparison with the project cover.
 import { method, PLUGIN } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { canonical, type HeldSeat, sameSeat, short } from "../shared/sameseat.ts";
 import { STAND_TOOL } from "./satellite.ts";
 import type { Slot } from "./slot.ts";
 
-export interface HeldSeat {
-  name: string;
-  karta: string;
-  realm: string;
-}
+export { type HeldSeat, sameSeat } from "../shared/sameseat.ts";
 
 /** Taken seat, returned own seat unlike the cover, or refusal. */
 export type Seating =
@@ -41,21 +38,6 @@ function heldSeat(d: SeatDoors, slot: Slot, session: string): HeldSeat {
   if (rec) return rec;
   const [name = "", karta = ""] = (slot.key ?? "").split("--");
   return { name, karta, realm: "" };
-}
-
-const short = (t: string): boolean => /^r\d+$/.test(t.trim());
-const canonical = (t: string): boolean => /^@[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(t);
-const slug = (t: string): boolean => /^[A-Za-z0-9_.-]+$/.test(t) && !short(t);
-
-/** Compare known spellings only: rN against a slug is compared after the bridge resolves it. */
-export function sameSeat(seat: HeldSeat, realm: string, karta: string): boolean {
-  if (seat.karta.trim().replace(/^#/, "") !== karta.trim().replace(/^#/, "")) return false;
-  const [x, y] = [seat.realm.trim(), realm.trim()];
-  if (short(x) || short(y)) return short(x) && short(y) && x === y;
-  if (canonical(x) && canonical(y)) return x === y;
-  if (canonical(x) && slug(y)) return x.slice(x.indexOf("/") + 1) === y;
-  if (slug(x) && canonical(y)) return x === y.slice(y.indexOf("/") + 1);
-  return slug(x) && slug(y) && x === y;
 }
 
 const REALM_MS = 10_000;

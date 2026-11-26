@@ -1,12 +1,11 @@
 // The full stand call after a seat went from under the bridge (graph @nks/nks-dev, node #7554):
 // named by this session's own former seat, never by another's record of the same directory.
-import { STAND_MOVES, tool } from "../delivery/index.ts";
+import { STAND_MOVES } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { sessionCwd } from "../shared/scope.ts";
-import { callTool } from "./call.ts";
 import { harnessName } from "./client.ts";
 import { holdRecordsWhere, sessionOfBridge } from "./holdrecord.ts";
-import { resolveRealms, sameRealm } from "./realms.ts";
+import { sameRealm } from "./realms.ts";
 import { standCall } from "./standmoves.ts";
 import { type StatusMiss } from "./status.ts";
 import { type Standing } from "./transport.ts";
@@ -28,10 +27,6 @@ async function formerSeat(realm: string, karta: string): Promise<Standing | null
       (!r.client || !client || r.client === client) &&
       (!r.session || r.session === me),
   );
-  await resolveRealms([realm, ...recs.map((r) => r.realm)], async () => {
-    const r = await callTool(tool("realm"), { action: "list" });
-    return r.isError ? null : r.text;
-  });
   const best = recs
     .filter((r) => sameRealm(r.realm, realm))
     .sort((a, b) => (b.at ?? 0) - (a.at ?? 0))[0];

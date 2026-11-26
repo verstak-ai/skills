@@ -3,7 +3,7 @@
 // language, server prose forms (patterns/), product name, protocol, question scope, launch basis, version, words
 // (words/).
 export { DEFAULT_SERVER_URL } from "./config.ts";
-export { CONTEXT_DOOR, CONTEXT_GATE, type ContextGateWords, ROLE_SKILLS } from "./context-gate.ts";
+export { CONTEXT_DOOR, CONTEXT_GATE, type ContextGateWords } from "./context-gate.ts";
 export { CONTRACT_SUPPORT } from "./contract.ts";
 export { DEFAULT_LANG, type Lang, langOfServer, LANGS } from "./lang.ts";
 export { BOARD_FORM, BOARD_HEADER } from "./patterns/board.ts";
@@ -69,6 +69,7 @@ export { CLI, type CliWords } from "./words/cli.ts";
 export { COMPACTION, type CompactionWords } from "./words/compaction.ts";
 export { CONTRACT_WORDS, type ContractWords } from "./words/contract.ts";
 export { DEAF, type DeafWords } from "./words/deaf.ts";
+export { DIRECT_READ_WORD, type DirectReadWords } from "./words/direct-reads.ts";
 export { DOCTOR, type DoctorWords } from "./words/doctor.ts";
 export { HARNESS, type HarnessWords } from "./words/doctorharness.ts";
 export { DOOR, type DoorWords } from "./words/door.ts";

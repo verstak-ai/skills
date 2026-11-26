@@ -3,12 +3,15 @@
 // subscription's, not the connection's: a frame sent again in a new subscription after a break
 // or a resubscribe is known by its id (the last 1000 ids of the channel).
 import { type Frame, type Holder, type HoldOptions } from "../shared/channel.ts";
+import { bindScope } from "../shared/scope.ts";
+import { sessionOfBridge } from "./holdrecord.ts";
 import { type Lost, type TickEntry } from "./muxtick.ts";
 
 const SEEN_MAX = 1000;
 
 export interface Sub {
   secret: string;
+  sessionId: () => string | null;
   o: HoldOptions;
   /** The ref of the subscribe in flight on the current connection. */
   ref: string | null;
@@ -85,6 +88,7 @@ export const entryOf = (
 export function newSub(secret: string, o: HoldOptions): Sub {
   return {
     secret,
+    sessionId: bindScope(sessionOfBridge),
     o,
     ref: null,
     channel: null,

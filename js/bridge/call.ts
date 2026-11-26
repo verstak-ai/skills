@@ -2,6 +2,7 @@
 // an accepted register is remembered by the standing.
 import { CALL, SPAWNED_FOR, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
+import { rememberMindRealmList } from "../shared/mindslice.ts";
 import { scoped } from "../shared/scope.ts";
 import { absorbChannelReply } from "./absorb.ts";
 import { claimReply } from "./claimdelivery.ts";
@@ -14,7 +15,7 @@ import { normKarta, normName } from "./names.ts";
 import { noteLocaleEcho } from "./placefields.ts";
 import { extraIn } from "./places.ts";
 import { canonRealm, otherRealm, resolveRealms, unknownRealm, unresolvedWord } from "./realms.ts";
-import { openedConcurrently, type Refusal, refusalOf } from "./refusal.ts";
+import { type Refusal, refusalOf } from "./refusal.ts";
 import { OWN_CALL_PREFIX } from "./repeat.ts";
 import { launchBasis, refuseClaim, rememberBasis } from "./spawned-for.ts";
 import { noteStanding, replyText } from "./standing.ts";
@@ -193,15 +194,9 @@ export const callTool = async (name: string, args: Record<string, unknown>): Pro
 };
 
 async function answer(name: string, args: Record<string, unknown>): Promise<Answer> {
-  let { msg, got } = await ask(name, args);
-  // Seat-open race (409 without rule, refusal.ts): register once more, only once.
-  if (
-    name === tool("channel") &&
-    args.action === "register" &&
-    !args.spawned_for &&
-    openedConcurrently(got)
-  )
-    ({ msg, got } = await ask(name, args));
+  // One send: a register's retry after a seat-open race lives in the gate (registergate.ts).
+  const { msg, got: reply } = await ask(name, args);
+  let got = reply;
   if (!got) {
     if (args.spawned_for) refuseClaim(words(SPAWNED_FOR).echo());
     return { text: words(CALL).noReply(), isError: true };
@@ -209,6 +204,11 @@ async function answer(name: string, args: Record<string, unknown>): Promise<Answ
   got = claimReply(msg, got);
   const structured = structuredOf(got);
   const refusal = refusalOf(got);
+  // Only the whole list says whether the account has a mind: a filtered one would cache a false "none".
+  const wholeList =
+    name === tool("realm") && args.action === "list" && Object.keys(args).length === 1;
+  if (wholeList && !got.error && !got.result?.isError)
+    rememberMindRealmList(replyText(got), structured);
   if (name === tool("channel")) {
     noteLocaleEcho(args, replyText(got), structured);
     if (!got.error && !got.result?.isError) noteTaken(args); // the stand call's stop guard (standundo.ts)

@@ -21,8 +21,9 @@ import { coverBlock } from "./coverblock.ts";
 
 export type RepoVerdict = "invite" | "aligned" | "partial" | "outside" | "foreign";
 
-/** The harness asking: the ones the bootstrap writes a start hook for, or null — any other. */
-export type HookHarness = "claude-code" | "opencode" | null;
+/** The harness asking: the ones the bootstrap writes a start hook for; dsh, whose start the
+ * delivery's plugin carries (#11071), and null — any other — need none. */
+export type HookHarness = "claude-code" | "opencode" | "dsh" | null;
 
 export interface RepoSigns {
   root: string | null;
@@ -112,7 +113,9 @@ export function repoSigns(
   const block = agents === null ? null : coverBlock(agents, cover.root);
   const carried = !!block?.get("graph") && !!block.get("holon") && !!block.get("agent_role");
   const complete =
-    signs.cover && signs.stamp && (harness === null || carried || signs.hooks[harness]);
+    signs.cover &&
+    signs.stamp &&
+    (harness === null || harness === "dsh" || carried || signs.hooks[harness]);
   const verdict =
     stamped === "foreign" && !hooked
       ? "foreign"

@@ -1,10 +1,11 @@
 import { envName } from "../delivery/index.ts";
 import { now } from "./clock.ts";
 import { CFG } from "./config.ts";
-import { DeadGrantError, errorMessage, HoldOffError, TokenRefused } from "./errors.ts";
+import { AuthPending, DeadGrantError, errorMessage, HoldOffError, TokenRefused } from "./errors.ts";
 import { discover, resourceOf } from "./oauth/discovery.ts";
-import { interactiveFlow, loginPublished } from "./oauth/flow.ts";
-import { DEAD_RECHECK_MS, IN_CALL_WAIT_MS } from "./oauth/pacing.ts";
+import { interactiveFlow, loginLive, loginPublished } from "./oauth/flow.ts";
+import { judgedDead, lostRotation } from "./oauth/grantmarks.ts";
+import { DEAD_RECHECK_MS, IN_CALL_WAIT_MS, KEEPALIVE_MS, LOST_RETRY_MS } from "./oauth/pacing.ts";
 import { refreshShared, refusalStands } from "./oauth/refresh.ts";
 import { loadStore, sleep, storePath } from "./store.ts";
 import { debug, log } from "./streams.ts";
@@ -20,6 +21,8 @@ export interface AuthOptions {
   interactive?: boolean;
   /** a top-up the caller does not actually need yet */
   proactive?: boolean;
+  /** a background caller that publishes the login (link and code, no tab) on a settled verdict */
+  publish?: boolean;
 }
 
 // One token round per grant (the server's store), not per session: daemon sessions share it.
@@ -100,6 +103,13 @@ export async function ensureAuth(
             if (!interactive) {
               // The background opens no browser and sits out nothing: its knock
               // did not land, and the next tick or a caller's own call tries again.
+              if (e instanceof DeadGrantError && e.settled && opts.publish) {
+                // A verdict no knock can change owes the human the login now,
+                // whoever heard it: the link and its code go out at once — no
+                // tab, the background opens no browser (graph @nks/nks-dev, node #11291).
+                log(`refresh grant is dead (${e.message}) — publishing the login`);
+                return await interactiveFlow(meta, s.tokens, undefined, false, false);
+              }
               if (e instanceof DeadGrantError) {
                 throw new Error(
                   "authorization required (refresh grant dead, browser flow deferred)",
@@ -128,9 +138,9 @@ export async function ensureAuth(
             if (e instanceof DeadGrantError) {
               // A server mid-restart words a live grant's death the same way, so
               // knock again ourselves before a human is called in — unless the
-              // grant's own hour has passed, or a login is already out: then the
-              // verdict is already in.
-              if (!e.expired && rechecks < DEAD_RECHECK_MS.length && !loginPublished()) {
+              // grant's own hour has passed, the server refused it where nothing
+              // moved, or a login is already out: then the verdict is already in.
+              if (!e.settled && rechecks < DEAD_RECHECK_MS.length && !loginPublished()) {
                 const pause = DEAD_RECHECK_MS[rechecks++] ?? 0;
                 debug(`refresh refused (${e.message}) — knocking again in ${pause}ms`);
                 await sleep(pause);
@@ -166,6 +176,19 @@ export async function ensureAuth(
 // waits for the later of the two hours.
 const REFRESH_MARGIN_MS = 3 * 60_000;
 
+// The dead grant whose login the background has put out. Once per process: a
+// login closed after that waits for a call, the background does not publish anew.
+let deadLoginFor: string | undefined;
+
+function background(t: Tokens, opts: AuthOptions, ok: () => void, failed: (e: unknown) => void) {
+  ensureAuth(null, { ...opts, force: true, interactive: false, publish: true })
+    .then(ok)
+    .catch((e) => {
+      if (e instanceof AuthPending) deadLoginFor = t.refresh_token;
+      failed(e);
+    });
+}
+
 export function startTokenKeepalive(): void {
   if (CFG.pat) return; // a PAT has no hour to keep
   const tick = () => {
@@ -173,6 +196,22 @@ export function startTokenKeepalive(): void {
     if (!t?.refresh_token) return;
     const expiresAt = t.expires_at || 0;
     if (!expiresAt || expiresAt - now() >= REFRESH_MARGIN_MS) return;
+    if (judgedDead(t)) {
+      // No knock brings it back, the login does — and the verdict may have been
+      // heard before a restart, by a process that died or failed to publish it:
+      // it goes out from here, until once it has (graph @nks/nks-dev, node #11291).
+      if (deadLoginFor === t.refresh_token || loginLive()) {
+        debug("the server judged this grant dead — its login is out");
+        return;
+      }
+      background(
+        t,
+        {},
+        () => {},
+        (e) => log(`the login of a dead grant: ${errorMessage(e)}`),
+      );
+      return;
+    }
     const hours = refreshHours(t);
     if (hours.nbf && now() < hours.nbf) {
       debug(
@@ -188,10 +227,29 @@ export function startTokenKeepalive(): void {
       debug("the grant stands refused — the machine's control knock is not due yet");
       return;
     }
-    ensureAuth(null, { force: true, interactive: false, proactive: true })
-      .then(() => debug("background token refresh ok"))
-      .catch((e) => log(`background token refresh: ${errorMessage(e)}`));
+    if (lostRotation(t)) return; // the quick knock below owns it
+    background(
+      t,
+      { proactive: true },
+      () => debug("background token refresh ok"),
+      (e) => log(`background token refresh: ${errorMessage(e)}`),
+    );
+  };
+  // A rotation whose answer was lost is presented again as soon as the token
+  // endpoint answers, not a minute on: the server's grace for the old refresh
+  // token is narrow and unknown here (graph @nks/nks-dev, node #11292).
+  const again = () => {
+    const t = loadStore().tokens;
+    if (!t || !lostRotation(t) || judgedDead(t)) return;
+    background(
+      t,
+      {},
+      () => log("a refresh whose answer was lost is settled"),
+      (e) => debug(`a lost refresh answer, presented again: ${errorMessage(e)}`),
+    );
   };
   tick(); // an already-expired store refreshes on startup, before the first call
-  setInterval(tick, 60_000).unref();
+  setInterval(tick, KEEPALIVE_MS).unref();
+  again(); // a lost answer outlives the process that lost it
+  setInterval(again, LOST_RETRY_MS).unref();
 }

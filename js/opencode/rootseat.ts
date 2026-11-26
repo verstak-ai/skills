@@ -15,6 +15,7 @@
 // The queue bounds service work, not name allocation; a seating hung in the bridge holds the
 // line no longer than its ceiling. Only proof from the serving bridge makes the seat
 // provisional and promises replacement by an explicit stand in the same graph without take.
+import { lateWord, realignWord } from "../shared/rootseat-say.ts";
 import { createRealign } from "./rootseat-again.ts";
 import { type Attempt, attempt } from "./rootseat-attempt.ts";
 import {
@@ -24,7 +25,6 @@ import {
   rootSeatMs,
   type RootSeats,
 } from "./rootseat-doors.ts";
-import { lateWord, realignWord } from "./rootseat-say.ts";
 
 export function createRootSeats(d: RootSeatDoors): RootSeats {
   const seatings = new Map<string, Attempt>();

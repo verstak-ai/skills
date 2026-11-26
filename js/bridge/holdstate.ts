@@ -25,6 +25,8 @@ export const H = scoped(() => ({
   parked: false,
   /** socket reopened on the same address without this opening's hello yet: another may have rotated it (deaf.ts) */
   unheard: false,
+  /** this opening's hello came: hearing is proven until the socket drops, is left or reopened — the ring may forget the hello (RING) */
+  proven: false,
   /** key of a place whose socket was released but binding remembered, until hello proves hearing (deaf.ts) */
   deafKey: null as string | null,
   /** places of other graphs on the channel at the 4001: the server remembers the binding, no hearing (deaf.ts) */
@@ -75,6 +77,17 @@ export const stopsNow = (): number => H.stopped.n;
 /** The stop word if the session was stopped since the count `before`, whichever seat it held; otherwise null. */
 export const stoppedDuring = (before: number): string | null =>
   H.stopped.n !== before ? H.stopped.text : null;
+/**
+ * One move's stop watch (#7439): the count taken once at the move's start, then the stop word
+ * since then, else null. Every register of the move asks the same watch — a rebind, a return
+ * and the seats beside them are one move, and a stop ends all of it (ratelimit.ts).
+ */
+export { noteEndedSeat } from "./endedseats.ts"; // the frame's and the order's seat ends (stophold.ts)
+export type StopWatch = () => string | null;
+export const stopWatch = (): StopWatch => {
+  const before = stopsNow();
+  return () => stoppedDuring(before);
+};
 /** A stand call's connect answers after the session was stopped: the seat it took is not held (#7439). */
 export const stoppedInMove = (): boolean =>
   H.moveSince !== null && stoppedDuring(H.moveSince) !== null;

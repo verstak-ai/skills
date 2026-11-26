@@ -88,7 +88,7 @@ function reissueThrottled(r: Answer): number | null {
 }
 
 /** The wait for the seat's socket: `own` — it is ours; `stop` — the owner stopped the session meanwhile. */
-async function awaitReissue(
+export async function awaitReissue(
   seconds: number,
   held: () => boolean,
   stopped: () => string | null,

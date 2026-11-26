@@ -262,7 +262,7 @@ export function releaseStanding(
   }
   const busy = keepBusy ? null : H.currentStatusUrl;
   letGo(H.holder, handover && !forget ? (key ?? null) : null, reason, busy); // before eviction (#6586)
-  H.holder = null;
+  Object.assign(H, { holder: null, proven: false }); // no holder — no proven hearing
   for (const w of [...H.helloWaiters]) w(null); // no hello will come from a released socket
   H.door?.close();
   H.door = null;
@@ -314,7 +314,7 @@ export function parkStanding(reason: string): string | null {
   letGo(H.holder, null, reason);
   H.holder = null;
   // A left seat awaits no hello: a drop's wait (expectHello) is not the return's (heardOnReturn).
-  Object.assign(H, { parked: true, unheard: false });
+  Object.assign(H, { parked: true, unheard: false, proven: false });
   standingLog(`parked ${H.currentKey}: ${reason}`);
   const text = holdWords().parked(reason);
   broadcast({ kind: "note", text });
@@ -323,7 +323,7 @@ export function parkStanding(reason: string): string | null {
 
 /** The socket reopens on the same address: hearing comes from this opening's hello, not an old one in the ring (#5036 §4, deaf.ts). */
 function expectHello(): void {
-  H.unheard = true;
+  Object.assign(H, { unheard: true, proven: false });
   for (const d of doors())
     d.ring.splice(0, d.ring.length, ...d.ring.filter((r) => r.frame?.type !== "hello"));
 }
@@ -365,7 +365,7 @@ function deliverTo(d: Door, raw: string, frame: Frame | null, full: Frame | null
   // hello goes into every door's ring: a watchdog attaching later must see the proof of holding.
   const hello = full?.type === "hello";
   for (const x of hello ? doors() : [d]) x.push(text, full);
-  if (hello) Object.assign(H, { unheard: false, deafKey: null }); // hearing proven
+  if (hello) Object.assign(H, { unheard: false, deafKey: null, proven: true }); // hearing proven
   if (hello) for (const w of [...H.helloWaiters]) w(full);
   const ev = frameEvent(text, full, seenPath);
   const msg = full?.type === "message" && !again ? full : null;

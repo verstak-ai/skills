@@ -1,8 +1,8 @@
 // One seating attempt of a root (rootseat.ts): the cover of the session's directory, then the
 // seat through the instance's line, one at a time; its outcome is the word it carries.
+import { heldWord, notSeatedWord, realignWord, refusedWord } from "../shared/rootseat-say.ts";
 import { coverIn, stamp } from "./rootseat-again.ts";
 import { ceilingMs, pause, type RootSeatDoors } from "./rootseat-doors.ts";
-import { heldWord, notSeatedWord, realignWord, refusedWord } from "./rootseat-say.ts";
 
 export type Told = { word: string | null; seated: boolean };
 /** retry — after the alignment; said — its word is delivered; followed — its late word is scheduled. */

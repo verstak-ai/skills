@@ -29,6 +29,7 @@ import { CFG } from "./config.ts";
 import { NAME_MAX, nameFault, normKarta } from "./names.ts";
 import { noteSatelliteOf } from "./placefields.ts";
 import { otherRealm } from "./realms.ts";
+import { nextRunAfterEnd } from "./runend.ts";
 import { log } from "./streams.ts";
 import { state } from "./transport.ts";
 
@@ -83,7 +84,10 @@ function claimName(name: string): boolean {
   const file = claimFile(name);
   let pid = 0;
   try {
-    pid = Number(readFileSync(file, "utf8").trim());
+    const contents = readFileSync(file, "utf8").trim();
+    if (contents.startsWith("until ")) {
+      if (Number(contents.slice(6)) > Date.now()) return false;
+    } else pid = Number(contents);
   } catch {
     // no claim
   }
@@ -107,9 +111,19 @@ const dropClaim = (f: string, pid: number): void => {
 };
 
 /** Drop this bridge's claims: the seat is released, the name is free for the next run. */
-export function releaseSatelliteClaims(): void {
+export function releaseSatelliteClaims(unconfirmed = false): void {
   const me = sessionPid();
-  for (const f of claims) dropClaim(f, me);
+  for (const f of claims) {
+    if (unconfirmed) {
+      try {
+        if (Number(readFileSync(f, "utf8").trim()) === me)
+          writeFileSync(f, `until ${Date.now() + SATELLITE_TTL_S * 1000}\n`, { mode: 0o600 });
+      } catch (e) {
+        log(`satellite claim not retained: ${(e as Error).message}`);
+      }
+    }
+    dropClaim(f, me);
+  }
   claims.clear();
 }
 
@@ -243,9 +257,11 @@ export function pickSatellite(
   const base = address ? nameOf(address) : of.replace(/^@/, "");
   const fault = base ? nameFault(base) : sw().empty();
   if (fault) return { ok: false, refusal: sw().notSeatName(of, fault) };
-  const callers = entries.filter((e) =>
-    address ? e.address === address : nameOf(e.address) === base,
-  );
+  // A bare seat (#11011) is its own full address: an exact match goes first.
+  // A seat without an address (an unnamed human seat) is nobody's caller.
+  const named = entries.filter((e): e is BoardEntry & { address: string } => e.address !== null);
+  const exact = named.filter((e) => e.address === of);
+  const callers = address || exact.length ? exact : named.filter((e) => nameOf(e.address) === base);
   if (!callers.length) return { ok: false, refusal: sw().noCaller(of) };
   // One name on several seats (different roles): the own role's seat if it is the only one.
   const same = callers.length > 1 ? callers.filter((e) => e.karta === normKarta(karta)) : callers;
@@ -289,6 +305,7 @@ export async function satelliteGate(
   if (!CFG.satellite) return refuse(sw().notSatellite());
   if (asked || a.take === true || (typeof a.room === "string" && a.room.trim()))
     return refuse(sw().derivesName());
+  await nextRunAfterEnd(); // a closed seat is no `led` (graph @nks/nks-dev, node #11271)
   const b = await call(tool("channel"), { action: "list", realm });
   if (b.isError) return refuse(sw().boardUnread(short(b.text)));
   const s = state.standing;

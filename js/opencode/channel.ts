@@ -1,20 +1,8 @@
-// The "channel" half — standing frames inside an OpenCode session (graph @nks/nks-dev, node #4266).
-//
-// The session's bridge holds the standing socket; the plugin puts a frame into the agent's
-// session as a prompt (ctx.session.prompt). steer enters the running turn at the next step,
-// queue waits for the turn's end, one prompt per turn: a live frame and a loud word go steer,
-// or frames lagged by hours (#5233). Wake-up and stale batches go queue: not urgent — but a
-// wake-up or stale batch carrying the launcher's word to its lead steers, as the word alone would (#7505).
-// Case frames for the pile go queue too, one prompt per pile: a head of counts per case and
-// below it only lines addressed to the seat (#6574). While the pile's previous prompt is not
-// taken, new frames gather here and leave as one when OpenCode says it took it; a pile of counts
-// only wakes no turn and rides the next prompt into the session (the prompt hook). A direct word
-// and a human's word go steer, whole. A life check goes queue, alone, to the root (case #1046). Delivery is handing control back to the agent; a frame
-// gone to a log is a silencer (#4355).
-//
-// The addressee is the session whose bridge brought the frame; a frame of a bridge given to
-// nobody yet goes to the freshest root seen; a child session is the addressee only of its own
-// bridge (#5154).
+// The channel half (graph @nks/nks-dev #4266): the bridge holds the socket; the plugin prompts
+// the session. Direct words steer; wake-up and stale batches queue, except a launcher's word to
+// its lead (#7505). Case counts ride the next prompt; addressed case words wake (#6574).
+// Life checks queue to the root (#1046). Delivery is handing control back to the agent (#4355).
+// A frame goes to its bridge's session, or the freshest root if unnamed; a child gets only its own (#5154).
 import { type ChannelEvent } from "../bridge/hold.ts";
 import { envName, OPENCODE, PLUGIN } from "../delivery/index.ts";
 import { addressedToMine } from "../shared/addressed.ts";
@@ -31,6 +19,7 @@ import { createCuts } from "./cuts.ts";
 import { processDescendants, processParent, shareLineage } from "./cutwait.ts";
 import { createHalts, descendantsOf } from "./halts.ts";
 import { accepting as accepts, archiver } from "./host.ts";
+import { channelEnds } from "./leadends.ts";
 import { type ChildLeads, fromLauncher, NO_LEADS } from "./leadframes.ts";
 import { createLifeChecks } from "./lifecheck.ts";
 import {
@@ -106,7 +95,8 @@ export function setupChannel(
     (id, message) => say(W.haltUnwritten(id, message), "warning"),
     (id, message, kept) => say(W.haltUnlifted(id, message, kept), "warning"),
   );
-  const accepting = (id: string): Promise<boolean> => accepts(ctx, id);
+  const accepting = (id: string): Promise<"live" | "ended" | "unknown"> => accepts(ctx, id);
+  const ends = channelEnds(authDir, say);
 
   // Every delivery is a log line with the address and the frame, a refusal is loud (#4355).
   async function deliver(
@@ -117,21 +107,24 @@ export function setupChannel(
     child = false,
   ): Promise<{ session: string; inbox: string | null } | null> {
     let id = session;
-    if (child && (!id || !(await accepting(id)))) {
+    if (id && ends.has(id)) return null;
+    // Only the host's "ended" drops a word: an unknown session (the host did not answer) still gets it.
+    if (child && (!id || (await accepting(id)) === "ended")) {
       // The child's seat outlived it: the frame is not the root's (#5167); it stays in the seat's history.
       say(W.childGone(frame, id ?? "?", text.slice(0, 120)), "error");
       return null;
     }
-    if (id && !(await accepting(id))) {
+    if (id && (await accepting(id)) === "ended") {
       say(W.sessionClosed(id, frame), "warning");
-      id = null;
+      return null;
     }
     id ??= freshestRoot();
-    if (id && id !== session && !(await accepting(id))) id = null;
+    if (id && id !== session && (await accepting(id)) === "ended") id = null;
     if (!id) {
       say(W.nowhere(frame, text.slice(0, 120)), "error");
       return null;
     }
+    if (ends.has(id)) return null;
     if (halts.halted(id)) {
       say(W.halted(frame, id), "warning");
       return null;
@@ -315,19 +308,12 @@ export function setupChannel(
   });
   const cut = cuts.cut;
 
-  /**
-   * The owner took the seat off (#7439, #7440 item 2): the running turns of the session and of
-   * every descendant are interrupted, their piles and waiting tacts are dropped, and the stop
-   * word goes to the human and to the context of the session's turns while it stays stopped —
-   * not into its inbox, where a later turn would take it stale (#7585); the word lies with the
-   * stop and outlives a reload as the stop does. Nothing of this session or its descendants
-   * reaches them afterwards until it stands again by an explicit call (halts.ts). The
-   * descendants' seats go down in their own instances (onStop).
-   */
+  /** Owner stop cuts covered turns, drops pending deliveries and persists until an explicit stand. */
   function stopped(session: string | null, text: string, child: boolean, ev: ChannelEvent): void {
     say(text, "error");
     dropPile(`${child ? "child" : "root"}:${session ?? ""}`);
     if (!session) return;
+    ends.end(session);
     // A child's end goes to its parent (leads.ts): no word is laid into the child.
     const alone = ev.reason === "revoked:silent";
     const full = typeof ev.order === "string";
@@ -349,6 +335,7 @@ export function setupChannel(
       else this.taken(session);
     },
     gone(session) {
+      ends.end(session);
       for (const k of ["child", "root"]) dropPile(`${k}:${session}`);
       tacts.gone(session);
       lives.gone(session);
@@ -398,7 +385,7 @@ export function setupChannel(
       }
     },
     ride(session, put) {
-      if (halts.halted(session)) return;
+      if (ends.has(session) || halts.halted(session)) return;
       const own = [...piles.values()].filter(
         (p) => !p.child && (p.session === session || (!p.session && freshestRoot() === session)),
       );
@@ -411,6 +398,18 @@ export function setupChannel(
     onEvent(session, params: any, child = false) {
       const ev = params?.data as ChannelEvent | undefined;
       if (!ev || typeof ev !== "object") return;
+      if (session && ends.has(session)) {
+        if (ev.kind === "held" && params?.data?.automatic === false) ends.lift(session);
+        else {
+          say(
+            halts.halted(session)
+              ? W.halted(W.frame(), session)
+              : W.sessionClosed(session, W.frame()),
+            "warning",
+          );
+          return;
+        }
+      }
       switch (ev.kind) {
         case "frame": {
           const frame = cardFrame(ev.frame ?? null);
@@ -452,14 +451,21 @@ export function setupChannel(
           // A wake-up with the backlog — one prompt per pile, queued: steered mid-turn it would cut the doer's work (#5140).
           return batch(session, child, ev, W.wakeBatch(ev.frames?.length ?? 0));
         case "lost":
-          // The holding bridge exited or the previous plugin was stopped: loudly, into the session.
-          if (ev.text) loud(session, ev.text, child);
+          // Hearing loss is a service observation, not a reason to start a turn.
+          if (ev.text) say(ev.text, "warning");
           return;
         case "resumed":
           // The bridge returned the seat itself (#5366): the taken name goes into the session.
           if (ev.text) {
             say(ev.text, "warning");
-            void deliver(session, ev.text, W.resumedLabel(), "steer", child);
+          }
+          return;
+        case "return_failed": // a return that did not happen: a word to act on (#5140)
+        case "seat_result":
+          if (ev.text) {
+            say(ev.text, "warning");
+            const label = ev.kind === "return_failed" ? W.returnFailedLabel() : W.resumedLabel();
+            void deliver(session, ev.text, label, "steer", child);
           }
           return;
         case "held":

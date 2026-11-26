@@ -1,6 +1,6 @@
 import { namedFetch } from "../../shared/http.ts";
 import { noteServerDate, now } from "../clock.ts";
-import { TokenError } from "../errors.ts";
+import { AnswerCut, errorMessage, TokenError } from "../errors.ts";
 import { clearGrantState, grantLog, loadStore, saveStore } from "../store.ts";
 import { type TokenBody, tokenSchedule } from "../tokens.ts";
 import { type Meta, type Tokens } from "../types.ts";
@@ -12,6 +12,25 @@ interface TokenEndpointError {
   message?: string;
 }
 
+// A 200 is the server's word that it acted — for a refresh, that it rotated the
+// grant. A body cut on the wire, or one carrying no access token, leaves what it
+// did unread: nothing is stored, and the answer counts as lost (graph
+// @nks/nks-dev, node #11294).
+async function grantIn(res: Response): Promise<TokenBody> {
+  let body: TokenBody | null;
+  try {
+    body = (await res.json()) as TokenBody | null;
+  } catch (e) {
+    throw new AnswerCut(`token endpoint ${res.status}, its body cut (${errorMessage(e)})`, {
+      cause: e,
+    });
+  }
+  if (!body?.access_token) {
+    throw new AnswerCut(`token endpoint ${res.status} with no access token in its body`);
+  }
+  return body;
+}
+
 async function tokenRequestOnce(meta: Meta, params: Record<string, string>): Promise<Tokens> {
   const res = await namedFetch(meta.as.token_endpoint, {
     method: "POST",
@@ -20,9 +39,9 @@ async function tokenRequestOnce(meta: Meta, params: Record<string, string>): Pro
     signal: AbortSignal.timeout(30_000),
   });
   noteServerDate(res);
-  // Under Bun an empty body yields null, not a throw — hence `?? {}`.
-  const body = ((await res.json().catch(() => null)) ?? {}) as TokenBody & TokenEndpointError;
   if (!res.ok) {
+    // Under Bun an empty body yields null, not a throw — hence `?? {}`.
+    const body = ((await res.json().catch(() => null)) ?? {}) as TokenEndpointError;
     throw new TokenError(
       `token endpoint ${res.status}: ${body.error || ""} ${body.error_description || body.message || ""}`.trim(),
       body.error,
@@ -30,6 +49,7 @@ async function tokenRequestOnce(meta: Meta, params: Record<string, string>): Pro
       body.message,
     );
   }
+  const body = await grantIn(res);
   const before = loadStore().tokens;
   const refresh = body.refresh_token ?? before?.refresh_token;
   // A grant by code keeps that birth through its refreshes: its audience is
