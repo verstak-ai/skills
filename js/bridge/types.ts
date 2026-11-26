@@ -53,6 +53,20 @@ export interface GrantState {
   lost_at?: number;
 }
 
+/**
+ * The machine's down window of one server (bridge/downwindow.ts): no bridge on the grant
+ * directory knocks before `notBefore`. Written by the first failure in the down family and
+ * erased by the first answer under 500.
+ */
+export interface DownRecord {
+  /** Failures since the window opened; the pause before the next probe is drawn under that step of the ladder. */
+  step: number;
+  /** Wall-clock ms (Date.now) before which no bridge knocks. */
+  notBefore: number;
+  /** When the window opened, wall-clock ms. */
+  since: number;
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any -- JSON-RPC payloads come without a schema */
 export interface JsonRpcMessage {
   jsonrpc?: string;

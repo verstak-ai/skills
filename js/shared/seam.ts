@@ -25,7 +25,7 @@
 import { createHash } from "node:crypto";
 import { connect, type Socket } from "node:net";
 
-import { ENV_PREFIX, envName, PRODUCT } from "../delivery/index.ts";
+import { ENV_PREFIX, envName, ID_PREFIX, PRODUCT } from "../delivery/index.ts";
 import { type MachineSnapshot } from "./snapshot.ts";
 
 /** Wire version. Different versions do not talk: the daemon refuses, the thin bridge runs full. */
@@ -33,6 +33,13 @@ export const SEAM_PROTOCOL = 1;
 
 /** How long the daemon keeps a session whose socket closed without bye, awaiting reattach. */
 export const SEAM_REATTACH_GRACE_MS = 5_000;
+
+/**
+ * The id prefix of the harness's initialize a thin bridge replays to a daemon session that is
+ * new to it (a successor after a handover or a self-update): the daemon reads such an
+ * initialize as a return, not a session's first handshake (graph @nks/nks-dev, node #11375).
+ */
+export const REPLAY_ID_PREFIX = `${ID_PREFIX}thin-replay-`;
 
 /** Thin bridge by default; `0` switches to a full in-process bridge (probes, people). */
 export const DAEMON_ENV = envName("BRIDGE_DAEMON");

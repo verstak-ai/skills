@@ -42,6 +42,31 @@ export class UpstreamError extends Error {
   }
 }
 
+// The server is down for the whole machine (downwindow.ts): either the window refused this
+// call before it left, or this call's own failure is what opened or stepped the window. It
+// is the same `network` kind the callers already read — the handshake stands on its last
+// server answer — and nothing here is the caller's to retry: the bridge knocks the server
+// again by itself, so the verdict never says «retry freely» (deliver.ts).
+export class DownError extends UpstreamError {
+  /** How long before the bridge's next knock, on this machine's clock. */
+  waitMs: number;
+  constructor(
+    /** The failure's own words (`upstream unreachable: …`); null — refused before it left. */
+    cause: string | null,
+    outcome: Outcome,
+    retryable: boolean,
+    waitMs: number,
+  ) {
+    super(downMessage(cause, waitMs), "network", null, outcome, retryable);
+    this.waitMs = waitMs;
+  }
+}
+
+// Nothing repeats the call without a new one: the word names the wait, not a retry (#11375).
+const downMessage = (cause: string | null, waitMs: number): string =>
+  `${cause ? `${cause} — ` : "not sent — "}server unavailable — call again in about ` +
+  `${Math.max(1, Math.ceil(waitMs / 1000))} s`;
+
 export class TokenError extends Error {
   oauthError: string | undefined;
   status: number;

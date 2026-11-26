@@ -32,6 +32,7 @@ import {
   helloFrame,
   NO_DAEMON_ENV,
   patShaOf,
+  REPLAY_ID_PREFIX,
   SeamError,
   type SeamLink,
 } from "../shared/seam.ts";
@@ -39,7 +40,6 @@ import { seamEntranceProblem, seamSocketPath } from "../shared/seam-entrance.ts"
 import { BUILD } from "./build.ts";
 import { parseArgs, setConfig } from "./config.ts";
 import { DAEMON_BUSY_EXIT, ms } from "./daemon.ts";
-import { syntheticError } from "./deliver.ts";
 import { fullBridgeSigint, installCrashWords, startEngine } from "./engine.ts";
 import { NOT_SENT, UNKNOWN } from "./errors.ts";
 import { markFallback } from "./fallback.ts";
@@ -49,6 +49,7 @@ import { type BridgeSession, openSession } from "./session.ts";
 import { sleep } from "./store.ts";
 import { debug, flushStdout, log, writeTo } from "./streams.ts";
 import { type JsonRpcMessage } from "./types.ts";
+import { syntheticError } from "./verdict.ts";
 
 /** How long to wait for a daemon, own or raised, before going as the full bridge. */
 const ATTACH_MS = ms(envName("BRIDGE_DAEMON_WAIT_MS"), 5_000);
@@ -259,7 +260,7 @@ export function thinMain(argv: string[]): void {
   const replay = (send: (m: JsonRpcMessage) => void) => {
     if (!initCopy || !initSent) return;
     if (!queue.some((m) => m.method === "initialize")) {
-      const id = `${ID_PREFIX}thin-replay-${++replays}`;
+      const id = `${REPLAY_ID_PREFIX}${++replays}`;
       replayIds.add(key(id));
       closeGate(key(id));
       send({ ...initCopy, id });

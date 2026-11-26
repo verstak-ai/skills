@@ -4,10 +4,9 @@
 // and a revoke by name would close its new holder's live seat. And the hold record goes only
 // with a confirmed revoke: a seat left on the board keeps it, so the window or the next start
 // repeats the revoke.
-import { tool } from "../delivery/index.ts";
 import { normKarta, type SeatKey } from "../shared/seat.ts";
 import { listens, nameOf, readBoard } from "./board.ts";
-import { callTool } from "./call.ts";
+import { boardRead } from "./boardread.ts";
 import { dropHoldRecord, keyOf, readHoldRecord } from "./holdrecord.ts";
 import { canonRealm } from "./realms.ts";
 import { publishStatusTo } from "./statuspost.ts";
@@ -75,11 +74,14 @@ export async function stillOwn(s: Standing, status: string | null): Promise<bool
     if (r.code === 404) return taken("its socket's address was turned");
     if (!r.ok) return unknown(`its status address did not answer: ${r.body.slice(0, 120)}`);
   }
-  const board = await callTool(tool("channel"), {
-    action: "list",
-    realm: s.realm,
-    karta: normKarta(s.karta),
-  }).catch((e: Error) => ({ isError: true, text: e.message, structured: undefined }));
+  // A return: the gate (boardread.ts).
+  const board = await boardRead(s.realm, normKarta(s.karta), `death window, ${key}`).catch(
+    (e: Error) => ({
+      isError: true,
+      text: e.message,
+      structured: undefined,
+    }),
+  );
   if (board.isError) return unknown(`the board did not read: ${board.text.slice(0, 120)}`);
   const bd = readBoard(board);
   const own = bd.entries.filter(

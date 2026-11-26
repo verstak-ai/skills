@@ -68,12 +68,23 @@ export interface RegisterMove {
   readonly deadline: number;
   /** whether its main seat waits out a 429 rate_limited */
   readonly waits: boolean;
+  /**
+   * a re-registration of seats the machine had (a rebind after a lost session, a return from
+   * disk after a reload or a handover, a skills refresh after a self-update): it goes through
+   * the machine's return gate (returngate.ts, #11375)
+   */
+  readonly regate: boolean;
 }
 /** "returns" — the move returns a seat (rebind, disk return, stand, skills refresh): it waits. */
 export type MoveKind = "returns" | "once";
-export function registerMove(kind: MoveKind, stopped: StopWatch = stopWatch()): RegisterMove {
+export function registerMove(
+  kind: MoveKind,
+  stopped: StopWatch = stopWatch(),
+  regate = false,
+): RegisterMove {
   const since = Date.now();
-  return { stopped, since, deadline: since + RATE_LIMIT_WAIT_S * 1000, waits: kind === "returns" };
+  const waits = kind === "returns";
+  return { stopped, since, deadline: since + RATE_LIMIT_WAIT_S * 1000, waits, regate };
 }
 
 /**

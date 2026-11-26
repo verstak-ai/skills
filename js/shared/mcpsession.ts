@@ -35,23 +35,34 @@ export interface McpSession {
   close: () => Promise<void>;
 }
 
+/** A request's way out: the daemon's own down window wraps every one (bridge windowfetch.ts). */
+export type Through = (send: () => Promise<Response>) => Promise<Response>;
+const direct: Through = (send) => send();
+
 /** One MCP session against the server under the key: initialize, then calls by name. */
-export function mcpSession(url: string, token: string, client = "bridge"): McpSession {
+export function mcpSession(
+  url: string,
+  token: string,
+  client = "bridge",
+  through: Through = direct,
+): McpSession {
   let sid: string | null = null;
   let n = 0;
   const post = async (body: Record<string, unknown>): Promise<Rpc | null> => {
-    const res = await namedFetch(url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json, text/event-stream",
-        authorization: `Bearer ${token}`,
-        "mcp-protocol-version": PROTOCOL,
-        ...(sid ? { "mcp-session-id": sid } : {}),
-      },
-      body: JSON.stringify({ jsonrpc: "2.0", ...body }),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
+    const res = await through(() =>
+      namedFetch(url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json, text/event-stream",
+          authorization: `Bearer ${token}`,
+          "mcp-protocol-version": PROTOCOL,
+          ...(sid ? { "mcp-session-id": sid } : {}),
+        },
+        body: JSON.stringify({ jsonrpc: "2.0", ...body }),
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      }),
+    );
     if (!res.ok) throw new Error(String(res.status));
     sid = res.headers.get("mcp-session-id") ?? sid;
     if (!("id" in body)) return null;
@@ -76,7 +87,9 @@ export function mcpSession(url: string, token: string, client = "bridge"): McpSe
     close: async (): Promise<void> => {
       if (!sid) return;
       const headers = { authorization: `Bearer ${token}`, "mcp-session-id": sid };
-      await namedFetch(url, { method: "DELETE", headers, signal: AbortSignal.timeout(TIMEOUT_MS) })
+      await through(() =>
+        namedFetch(url, { method: "DELETE", headers, signal: AbortSignal.timeout(TIMEOUT_MS) }),
+      )
         .then((r) => r.body?.cancel())
         .catch(() => {});
     },
