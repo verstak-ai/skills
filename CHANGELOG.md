@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.8.0](https://github.com/verstak-ai/skills/compare/v4.7.0...v4.8.0) (2026-11-27)
+
+
+### Features
+
+* release, rollout and catch-up lines in code-work and lead; surface snapshot from nks-mcp 0.159.3 ([#464](https://github.com/verstak-ai/skills/issues/464)) ([1d57409](https://github.com/verstak-ai/skills/commit/1d57409d0d4c83794573f3073b88cf9c568c43c5))
+
+
+### Bug Fixes
+
+* a release case stays open for its rollout and catch-up; the catch-up line is written by whoever moves the modes ([#465](https://github.com/verstak-ai/skills/issues/465)) ([7743556](https://github.com/verstak-ai/skills/commit/774355696b81abbcd47cbf9b4a79afe69fdb3f98))
+* the bridge core synced to the sibling's 8.16.6 — no reconnect volley after an mcp restart or a self-update ([#462](https://github.com/verstak-ai/skills/issues/462)) ([6fc8b18](https://github.com/verstak-ai/skills/commit/6fc8b18e52b73318e342d124a24de1220c9dc7cd))
+
 ## [4.7.0](https://github.com/verstak-ai/skills/compare/v4.6.0...v4.7.0) (2026-11-26)
 
 
