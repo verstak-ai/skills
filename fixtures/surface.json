@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "verstak",
-    "version": "0.142.0"
+    "version": "0.159.3"
   },
   "protocolVersion": "2025-06-18",
   "resource": "https://mcp.verstak.ai",
@@ -150,6 +150,10 @@
       "reader",
       "writer"
     ],
+    "scope": [
+      "business",
+      "own"
+    ],
     "base_role": [
       "none",
       "reader",
@@ -282,6 +286,7 @@
       "active",
       "channel",
       "email",
+      "from",
       "handle",
       "node_id",
       "one_shot",
@@ -290,8 +295,10 @@
       "q",
       "realm",
       "role",
+      "scope",
       "scope_vimarsha",
       "sub",
+      "to",
       "ttl_seconds",
       "url",
       "user_id",
@@ -416,6 +423,7 @@
       "handle",
       "invitation_id",
       "key",
+      "name",
       "realm",
       "since",
       "subject",
@@ -464,12 +472,18 @@
     "verstak_realm": [
       "action",
       "attrs",
+      "before",
       "confirm",
+      "debt_id",
       "include_archived",
       "name",
+      "node",
       "public_read_role",
       "realm",
-      "slug"
+      "reason",
+      "slug",
+      "standing",
+      "status"
     ],
     "verstak_search": [
       "actor",
@@ -514,6 +528,7 @@
       "volitive_mode"
     ],
     "verstak_stand": [
+      "context_restored",
       "cwd",
       "karta",
       "model",

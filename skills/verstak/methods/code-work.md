@@ -58,7 +58,7 @@ A push shipped nothing; these acts hang on the merge, all mandatory, in the same
 5. **Reconcile** (`methods/reconcile.md`): nodes against code, code against graph; the remainder as vimarshas.
 6. **Feedback reflection** unless `AGENTS.md` sets `Feedback reflection` to `no`, and at session end without a merge: experience about the method, as a concrete instance (`methods/feedback.md`); zero entries is valid.
 7. **Vocabulary pass** over what landed.
-8. **The case gets lines, not prose**: the merge, the release, the rollout — each a line on the work's key as it lands (`done` what landed where and the checks it passed, `note` the ceiling); a step another holder takes — tagging, deploying, accepting — a take card to their role and seat (the door, `One-off task`).
+8. **The case gets lines, not prose**: the merge, the release, the rollout — each a line on the work's key as it lands (`done` what landed where and the checks it passed, `note` the ceiling); a step another holder takes — tagging, deploying, accepting — a take card to their role and seat (the door, `One-off task`). **A release, its rollout and the graph's catch-up are three kinds of line:** the release line names each node the release carries and its fate (in force from the rollout, past, or riding dark behind a named switch); the operator's rollout line answers it; then the steward of those nodes writes the catch-up line — each node by its new version, once its modes moved on the rollout's evidence (step 3), or by why it doesn't move. Their shapes are the case tool's description (`verstak_case(action="?")`, `line`), not retold here.
 
 Then cleanup; next task → `Before code`.
 
