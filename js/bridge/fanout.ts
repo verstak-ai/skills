@@ -15,7 +15,7 @@ import { log } from "./streams.ts";
  */
 const lastRead = new Map<string, { stamp: string; ids: Set<string> }>();
 
-function givenIds(seenPath: string): Set<string> {
+export function givenIds(seenPath: string): Set<string> {
   let stamp: string;
   try {
     const st = statSync(seenPath);

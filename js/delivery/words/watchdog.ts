@@ -14,6 +14,8 @@ export interface WatchdogWords {
   seatNotBack: (s: number, path: string) => string;
   noSocket: (path: string, s: number) => string;
   bridgeReleasedSocket: (text: string) => string;
+  /** The agent's session ended (the end gate): the watchdog leaves, opening no turn. */
+  sessionEnded: (text: string) => string;
   notWakeup: (type: string | undefined) => string;
   seenEarlier: (id: string) => string;
   unaddressed: () => string;
@@ -33,6 +35,7 @@ export interface WatchdogWords {
   doorNotOpened: (why: string) => string;
   noIdFromRing: () => string;
   alreadyPut: (id: string) => string;
+  deferred: (id: string, s: number) => string;
 }
 
 export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
@@ -51,6 +54,8 @@ export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
       `the seat did not return within ${s}s of the daemon change (socket ${path} not up); bring it back with ${tool("stand")}`,
     noSocket: (path, s) => `the bridge did not bring up the local socket ${path} within ${s}s`,
     bridgeReleasedSocket: (text) => `the bridge released the socket: ${text}`,
+    sessionEnded: (text) =>
+      `the agent's session has ended — the watchdog leaves, no turn opens any more: ${text}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
     seenEarlier: (id) =>
       `frame ${id} was already delivered by an earlier arming — not a reason to wake`,
@@ -80,5 +85,7 @@ export const WATCHDOG: Readonly<Record<Lang, WatchdogWords>> = {
     noIdFromRing: () =>
       "a frame without an id from the ring — nothing to mark it with, not putting it into the thread again",
     alreadyPut: (id) => `frame ${id} was already put in — not putting it into the thread again`,
+    deferred: (id, s) =>
+      `frame ${id} deferred — not interrupting the running turn: into the thread in ${s}s or with the next interrupting frame`,
   },
 };

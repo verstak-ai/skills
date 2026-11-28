@@ -5,6 +5,7 @@
 import { type Frame, holdSocket, statusUrl } from "../shared/channel.ts";
 import { closedBy, type Ends, refusedBy } from "./muxends.ts";
 import { type FrameRoutes, routeFrame } from "./muxframe.ts";
+import { lifeOfLetGo } from "./muxlifecheck.ts";
 import { createLink, type Link } from "./muxlink.ts";
 import { pauseOf } from "./muxprobe.ts";
 import { asSeatFrame, deliver, earlyLines, holdEarly, type Sub } from "./muxsub.ts";
@@ -127,7 +128,9 @@ export function createMux(url: string, onSocket?: (s: Sub) => void): Mux {
   const ends: Ends = { end, again, toSocket };
   const refused = (s: Sub, code: string): void => refusedBy(ends, s, code);
   const closed = (s: Sub, code: number, why: string): void => closedBy(ends, s, code, why);
-  const routes: FrameRoutes = { byRef, byChannel, hello, refused, closed, frame };
+  // A life check of a channel no subscription holds: gone only for a seat the server ended.
+  const life = (channel: string, f: Frame): void => lifeOfLetGo(link, channel, f);
+  const routes: FrameRoutes = { byRef, byChannel, hello, refused, closed, frame, life };
 
   return {
     link,

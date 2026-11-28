@@ -49,13 +49,17 @@ export function deafPlaceIn(realm: unknown): Place | null {
   return deafPlaces().find((p) => !otherRealm(realm, p.realm)) ?? null;
 }
 
-/** Why a deaf seat must not sign (another session may hold it); null when it is free. */
+/**
+ * Why a deaf seat must not sign (another session may hold it); null when it is free. `call` — a
+ * call in hand waits: not held at the gate past ~20 s (gatestay.ts).
+ */
 export async function deafSeatTaken(
   p: Place | null = deafPlaces()[0] ?? null,
+  call = false,
 ): Promise<string | null> {
   if (!p) return null;
   const name = p.name ?? "";
-  const hearing = await askedHearing(p.realm, String(p.karta), name);
+  const hearing = await askedHearing(p.realm, String(p.karta), name, undefined, call);
   if (hearing === "free") return null;
   return hearing === "other" ? words(DEAF).takenByOther(name) : words(DEAF).unknownHearing(name);
 }
@@ -65,6 +69,6 @@ export async function deafRefusal(msg: JsonRpcMessage): Promise<string | null> {
   const realm = signedRealm(msg);
   if (H.unheard && deafPlaceIn(realm)) await awaitHello(4000); // own reopening: wait for its hello
   const p = deafPlaceIn(realm);
-  const why = p ? await deafSeatTaken(p) : null;
+  const why = p ? await deafSeatTaken(p, true) : null;
   return why ? words(DEAF).refusal(why) : null;
 }

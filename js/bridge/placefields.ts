@@ -129,6 +129,8 @@ export function placeFields(
     ...(CFG.satellite && satelliteOfId ? { satellite_of: satelliteOfId } : {}),
     attrs: {
       ...extra,
+      // What the bridge answers itself: "life" — the server's life_check (lifeanswer.ts).
+      caps: [...new Set([...(Array.isArray(extra.caps) ? extra.caps : []), "life"])],
       build: { name: BRIDGE_NAME, version: VERSION, stamp: BUILD.split("+")[1] ?? "" },
       skills: installedSkills(place, freshSkills),
       ...(harness ? { harness, harness_version: harnessVersion() } : {}),

@@ -9,17 +9,15 @@
 import { ID_PREFIX, tool } from "../delivery/index.ts";
 import { type Answer, callTool } from "./call.ts";
 import { claimResult } from "./claimdelivery.ts";
-import { CFG } from "./config.ts";
 import { endedSince } from "./endedseats.ts";
 import { H } from "./holdstate.ts";
 import { placeFields } from "./placefields.ts";
 import { type MoveSeat, type RegisterMove, seatIdOf } from "./ratelimit.ts";
 import { racedOpening, refusalOf } from "./refusal.ts";
-import { throughGate } from "./returngate.ts";
 import { noteSkills } from "./skillwatch.ts";
 import { claimRefusal, launchBasis, registeredBasis, rememberBasis } from "./spawned-for.ts";
 import { log } from "./streams.ts";
-import { post, type Standing, state } from "./transport.ts";
+import { post, type Standing, state, throughReturn } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
 /**
@@ -40,7 +38,9 @@ export const gateShut = (move: RegisterMove, seat: MoveSeat): string | null =>
 /**
  * A re-registration (a rebind after a lost session, a return from disk after a reload or a
  * handover, a skills refresh after a self-update) goes through the machine's return gate
- * (returngate.ts, #11375): one probe, the rest spread after it. A first stand does not. The
+ * (returngate.ts, #11375): one probe, the rest spread after it; a session that already came back
+ * through it (its reopen after 404) goes as its tail, not waiting again (#11413). A first stand
+ * does not. The
  * gate is asked once more right before the request leaves — a wait at the return gate may last a
  * minute: stopped, the seat ended, or left by word meanwhile — nothing is sent (#7439), `dropped`.
  */
@@ -56,7 +56,7 @@ async function returning<R>(
     log(`register not sent: ${shut}`);
     return Promise.resolve(dropped(shut));
   };
-  return move.regate ? throughGate(CFG.serverUrl, go) : go();
+  return move.regate ? throughReturn(go) : go();
 }
 
 /**

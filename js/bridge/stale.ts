@@ -7,6 +7,7 @@
 import { type Frame } from "../shared/channel.ts";
 import { type Marks, sameCopy } from "../shared/seen.ts";
 import { staleBatch } from "../shared/stalebatch.ts";
+import { logBatch } from "./batchlog.ts";
 import { type ChannelEvent } from "./door.ts";
 
 const STALE_BURST_MS = 1500;
@@ -18,8 +19,11 @@ export class StaleBurst {
 
   /** The seat's marks: an event already in play is not repeated (seen.ts eventIn). */
   private readonly has: Marks;
-  constructor(has: Marks) {
+  /** The seat's key, for the journal line of the batch (batchlog.ts). */
+  private readonly seat: () => string;
+  constructor(has: Marks, seat: () => string = () => "") {
     this.has = has;
+    this.seat = seat;
   }
 
   /** Add a stale frame; when the window ends `flush` gets one event. A repeated id is not a second frame. */
@@ -33,8 +37,9 @@ export class StaleBurst {
       if (!all.length) return; // a live copy of the same event took them all
       // Text and marks by the seat's memory now, as the bridge delivers it (pi, OpenCode);
       // watchdogs judge the frames themselves at print time (shared/stalebatch.ts).
-      const { text, keys, body } = staleBatch(all, this.has);
+      const { text, keys, body } = staleBatch(all, this.has, [], false); // no head (#11359)
       if (!text) return; // all already in play: marks only grow, the watchdog decides the same
+      logBatch("stale", this.seat(), all);
       flush({ kind: "stale", frames: all, marks: keys, text, body });
     }, STALE_BURST_MS).unref();
   }

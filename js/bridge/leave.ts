@@ -1,23 +1,20 @@
 // Leaving the seat — between an absence and a revoke (graph nks-dev: #4895):
 // socket closed, busyness cleared; address, queue and hooks intact.
-// Three causes: the doer's word (channel leave), deafness (no local listener
-// past the threshold where the harness hears only through one), session end.
-// Mail piles up at the platform and arrives as a stale tail on return; pi and OpenCode
-// get frames by notification and are never deaf.
-import { envName, LEAVE, LOGGERS, tool } from "../delivery/index.ts";
+// Two causes: the doer's word (channel leave) and session end. A seat nobody
+// listens to is not one (node #11362): the bridge keeps holding it, the server
+// decides by its own silence rule.
+// Mail piles up at the platform and arrives as a stale tail on return.
+import { LEAVE, LOGGERS, tool } from "../delivery/index.ts";
 import { words } from "../shared/lang.ts";
 import { scoped } from "../shared/scope.ts";
 import { nameOf } from "./board.ts";
 import { resolveAgainstLed, unresolvedRefusal } from "./call.ts";
-import { notifiedClient } from "./client.ts";
 import { CFG } from "./config.ts";
 import {
   awaitHello,
   besideKeyIn,
   heldPlaces,
-  holdsStanding,
   ledKey,
-  listenerIdleSince,
   localListeners,
   onListenerAttached,
   parkStanding,
@@ -38,15 +35,8 @@ import { state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 import { flushUsage, usagePlace } from "./usage.ts";
 
-/** Deafness threshold; the variable is a seam for probes. */
-const DEAF_MS = Number(process.env[envName("BRIDGE_DEAF_MS")]) || 15 * 60_000;
-const TICK_MS = Math.min(60_000, Math.max(200, Math.floor(DEAF_MS / 5)));
-
 const clearedLine = (st: { ok: boolean; body: string }): string =>
   st.ok ? words(LEAVE).cleared() : words(LEAVE).notCleared(st.body);
-
-/** Frames reach this harness only through the bridge's local client. */
-const deafWithoutListener = (): boolean => !notifiedClient();
 
 const K = scoped(() => ({
   /** Busy line cleared by the leave — restored with the seat. */
@@ -157,25 +147,19 @@ export async function heardOnReturn(): Promise<void> {
 }
 
 /**
- * Deafness watch: nobody listening past the threshold on a watchdog-only harness — leave the
- * seat. An attaching watchdog returns it: the socket reopens at the same address.
+ * An attaching watchdog returns a left seat: the socket reopens at the same address. That is
+ * all the bridge does about a listener: it does not decide a seat's fate itself (graph
+ * @nks/nks-dev, node #11362) — with no local listener the seat stays held, its socket open,
+ * and the server decides by its own silence rule. Only the doer's word (channel leave), a stop
+ * order or a revoke lets it go.
  */
-export function startDeafnessWatch(): void {
+export function startReturnOnListener(): void {
   // A liveness probe attaches and drops at once; only a listener that stays returns the seat (#5140).
   onListenerAttached(() =>
     setTimeout(() => {
       if (localListeners() > 0) returnToStanding(words(LEAVE).watchdogAttached());
     }, 300).unref(),
   );
-  setInterval(() => {
-    const since = listenerIdleSince();
-    if (since == null || !deafWithoutListener()) return;
-    if (Date.now() - since < DEAF_MS) return;
-    const s = state.standing;
-    if (!s || !holdsStanding(s.realm, s.karta, s.name ?? "")) return;
-    const min = Math.round(DEAF_MS / 60_000);
-    void leaveStanding(words(LEAVE).nobodyListens(min));
-  }, TICK_MS).unref();
 }
 
 /** Whether `standing` names this bridge's seat: its key, its address or its name (#6975). */

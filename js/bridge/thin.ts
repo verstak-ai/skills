@@ -43,6 +43,7 @@ import { DAEMON_BUSY_EXIT, ms } from "./daemon.ts";
 import { fullBridgeSigint, installCrashWords, startEngine } from "./engine.ts";
 import { NOT_SENT, UNKNOWN } from "./errors.ts";
 import { markFallback } from "./fallback.ts";
+import { harnessLine } from "./linelimit.ts";
 import { lostPlaces, placeWord, realmListAsk, resumeCall, seeSession } from "./lostplaces.ts";
 import { type Raise, raiseDaemon, SELF } from "./raise.ts";
 import { type BridgeSession, openSession } from "./session.ts";
@@ -111,7 +112,10 @@ export function thinMain(argv: string[]): void {
   const cancelled = new Set<string>(); // cancelled by the harness before their ack
   let replays = 0;
   const key = (id: unknown) => JSON.stringify(id);
-  const writeHarness = (m: JsonRpcMessage) => writeTo(process.stdout, JSON.stringify(m) + "\n");
+  const writeHarness = (m: JsonRpcMessage) => {
+    const line = harnessLine(m, log); // the harness's line limit (linelimit.ts)
+    if (line) writeTo(process.stdout, line);
+  };
 
   const toHarness = (msg: JsonRpcMessage) => {
     if (msg.method === undefined && msg.id !== undefined && msg.id !== null) {

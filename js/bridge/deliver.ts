@@ -37,6 +37,7 @@ import {
 } from "./errors.ts";
 import { evictedRefusal } from "./evicted.ts";
 import { forHarness, structuredOf } from "./fields.ts";
+import { notPast, ReturnLater } from "./gatestay.ts";
 import { liveHearing, rawSeatRefusal, seatRealm } from "./hearing.ts";
 import { initializeSession } from "./initialize.ts";
 import { localLeave } from "./leave.ts";
@@ -65,11 +66,11 @@ import { emit, log } from "./streams.ts";
 import { localSuspend } from "./suspend.ts";
 import { beginTaking } from "./taking.ts";
 import { harnessListing, noteServedTools, recheckTools, watchHarnessListing } from "./toolsync.ts";
-import { onReinitialized, post, reinitialize, state } from "./transport.ts";
+import { onReinitialized, post, reinitialize, state, throughReturn } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 import { takeNotice } from "./update.ts";
 import { isUsageCall, runUsage } from "./usage.ts";
-import { syntheticError } from "./verdict.ts";
+import { returnLater, syntheticError } from "./verdict.ts";
 
 // After a reopen the tool list is rechecked against the harness's copy, unless the
 // harness's own tools/list is in flight (graph @nks/nks-dev, node #5405).
@@ -202,10 +203,10 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
         // call, and a call without Mcp-Session-Id is refused outright. Open the
         // session now, with the params the harness gave — it will not ask again.
         log("no upstream session yet — initializing before the call");
-        await reinitialize();
+        await notPast(reinitialize());
       }
       // The session may have turned over under us: rebind; its stop sends nothing (#7439).
-      const stop = isInit ? null : await ensureStanding();
+      const stop = isInit ? null : await notPast(ensureStanding());
       if (stop ? !hasId : refuseLaunch(msg) || refuseUnbound(msg) || (await refuseContext(msg)))
         return;
       // A taken or deaf seat signs no record (graph @nks/nks-dev, node #6706); a stop answers.
@@ -290,7 +291,11 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       // bridge's replayed handshake to a session new to it (a successor after a handover or a
       // self-update) as a return; any other (new thin bridges after a plugin reload) as an open.
       const replayed = String(msg.id).startsWith(REPLAY_ID_PREFIX);
-      await (isInit ? throughGate(CFG.serverUrl, send, replayed ? "return" : "open") : send());
+      await (!isInit
+        ? send()
+        : replayed
+          ? throughReturn(send, true)
+          : throughGate(CFG.serverUrl, send, "open"));
       const held = heldReply as JsonRpcMessage | null;
       if (held && msg.params?.name === tool("channel") && msg.params.arguments)
         noteLocaleEcho(msg.params.arguments, replyText(held), structuredOf(held));
@@ -328,6 +333,7 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       return;
     } catch (e) {
       endTaking?.();
+      if (e instanceof ReturnLater) return void (hasId && emit(returnLater(msg.id, e, outcome)));
       note(e);
       if (
         e instanceof UpstreamError &&
@@ -396,9 +402,11 @@ async function deliverOne(msg: JsonRpcMessage): Promise<void> {
       if (e instanceof UpstreamError && e.kind === "session" && !sessionRetried && !isInit) {
         sessionRetried = true;
         try {
-          await reinitialize();
+          await notPast(reinitialize());
           continue;
         } catch (reErr) {
+          if (reErr instanceof ReturnLater)
+            return void (hasId && emit(returnLater(msg.id, reErr, outcome)));
           // A reopen that met the down window, or whose own knock failed in the down
           // family (downwindow.ts), is the server being down — not a session that cannot
           // be recovered, and no word a reader can act on. The call answers the down

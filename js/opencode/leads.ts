@@ -12,6 +12,7 @@
 import { tool } from "../delivery/index.ts";
 import { sameSeat } from "../shared/seat.ts";
 import { createCascade } from "./cascade.ts";
+import { type ChildSeat, sendsChildEnded, serverEnded, toldChildEnded } from "./childended.ts";
 import type { LeadDoors, Leads, RunEnd } from "./leaddoors.ts";
 import type { Up } from "./leadframes.ts";
 import { endWord, unrevokedWord, W } from "./leadwords.ts";
@@ -44,7 +45,8 @@ export function createLeads(d: LeadDoors): Leads {
   const parentOf = (child: string) => d.parentOf(child).catch(() => null);
 
   /**
-   * The end: the outcome to the parent, then the bridge ends its run and goes down (ended).
+   * The end: the outcome to the parent, then the bridge ends its run and goes down (ended); with
+   * a server that sends child_ended the run ends first and its notice is the outcome.
    * The outcome wakes and goes steer: OpenCode's own synthetic on the child's quiet wakes the
    * parent first, and a queued word would land only after its turn. A seat taken down by the
    * platform and an unreturned seat (lost) do not wake.
@@ -75,15 +77,38 @@ export function createLeads(d: LeadDoors): Leads {
       if (parent) await d.tell(parent, text, wakes);
       else d.say(W().noParent(text), "warning");
     };
-    await tell(
-      kind === "lost" ? W().lost(who(l, child), why) : endWord(who(l, child), why, last, kept),
-      wake,
-    );
-    if (!ended || kept) return null;
-    // The bridge ends its run after the word: after it, the word landed later than OpenCode's
-    // synthetic and the parent woke twice (№147). A failed release is a correction that does not wake.
+    const word =
+      kind === "lost" ? W().lost(who(l, child), why) : endWord(who(l, child), why, last, kept);
+    // A server known to send child_ended (childended.ts) tells the parent once the seat ends:
+    // the run ends first, the plugin's own word goes only when no notice came within the window.
+    // Otherwise — as before: the word first, then the run's end (№147). A plain seat that stays
+    // is not ended — no notice to wait for. A notice names the child by its seat's id, which the
+    // run's end gives (the seat name is reused by the next child); by the name only without one.
+    const me: ChildSeat = { seat: l.place?.name ?? null, child, ids: [] };
+    const records: ChildSeat[] = [];
+    // The launcher's own revoke (own) is the parent's act: the server sends the parent no
+    // child_ended for it (nks-api #48) — nothing waits for one; a late one is a told end.
+    const server = sendsChildEnded() && !kept && !own;
+    const told = async (): Promise<void> => {
+      await tell(word, wake);
+      records.push(toldChildEnded(me)); // a late notice of this end is not a second turn
+    };
+    const heard = async (): Promise<boolean> => {
+      if (!(await serverEnded(me))) return false;
+      d.say(W().serverSaidEnd(who(l, child)), "info");
+      return true;
+    };
+    if (!server) await told();
+    if (!ended || kept) {
+      if (server && !(await heard())) await told();
+      return null;
+    }
+    // A failed release is a correction that does not wake.
     const run = await d.close(child).catch(() => null);
+    for (const c of [me, ...records]) c.ids.push(...(run?.ids ?? []));
     await d.end(child).catch((e: Error) => d.say(W().notDown(who(l, child), e.message), "warning"));
+    if (server && (await heard())) return run;
+    if (server) await told();
     const failed = run?.failed ?? null;
     if (kind !== "lost" && !own && (failed === null || failed.length))
       await tell(unrevokedWord(who(l, child), failed), false);

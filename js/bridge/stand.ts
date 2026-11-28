@@ -200,7 +200,7 @@ async function standOnce(msg: JsonRpcMessage): Promise<JsonRpcMessage> {
   if (led && a.take !== true && !replaces) {
     // Another session listens on the asked seat — no bare take=true advice: own name after a silent probe, another's on the human's word (#6706, #6976).
     // An unread board gives no take=true advice either: the bridge does not know who listens.
-    const hearing = await askedHearing(realm, karta, name, cwd);
+    const hearing = await askedHearing(realm, karta, name, cwd, true); // bounded at the gate
     lines.push(otherPlaceWord(led, keyOf(realm, karta, name), name === ledName(), hearing));
     return done(true);
   }

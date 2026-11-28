@@ -3,20 +3,21 @@ import { FRAME_TEXT } from "../delivery/index.ts";
 import type { Frame } from "./channel.ts";
 import { words } from "./lang.ts";
 
+// The readers below are shared with the card snapshot's items (open-cards.ts).
 type Rec = Record<string, unknown>;
-const rec = (v: unknown): Rec =>
+export const rec = (v: unknown): Rec =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Rec) : {};
-const text = (v: unknown): string | null =>
+export const text = (v: unknown): string | null =>
   typeof v === "string" &&
   v.length > 0 &&
   v.length <= 256 &&
   [...v].every((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127)
     ? v
     : null;
-const number = (v: unknown): number | null =>
+export const number = (v: unknown): number | null =>
   typeof v === "number" && Number.isSafeInteger(v) && v > 0 ? v : null;
 const bool = (v: unknown): boolean | null => (typeof v === "boolean" ? v : null);
-const timestamp = (v: unknown): string | null => {
+export const timestamp = (v: unknown): string | null => {
   const s = text(v);
   return s &&
     /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(

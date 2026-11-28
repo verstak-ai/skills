@@ -101,12 +101,18 @@ export const E: {
   order: ((url: string, frame: Frame | null) => boolean) | null;
   /** The seat's pulse (pulse.ts): a frame or hello came, or `holder` is about to be let go ("last"). */
   pulse: ((why: "hello" | "frame" | "last", holder?: Holder) => void) | null;
+  /** The server's life_check control frame (lifeanswer.ts): answered by the bridge, never a turn. */
+  life: ((frame: Frame) => void) | null;
 } = {
   next: null,
   stop: null,
   order: null,
   pulse: null,
+  life: null,
 };
+export function whenLifeChecked(fn: NonNullable<(typeof E)["life"]>): void {
+  E.life = fn;
+}
 export function whenPulsed(fn: NonNullable<(typeof E)["pulse"]>): void {
   E.pulse = fn;
 }

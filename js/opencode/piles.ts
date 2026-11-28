@@ -9,6 +9,7 @@ import { receiptGraph } from "../shared/graph-receipt.ts";
 import { roomKind, stackOf } from "../shared/room-kinds.ts";
 import { eventIn, eventKeyOf, splitBatch } from "../shared/seen.ts";
 import { batchBodyText, ridesIn } from "../shared/stalebatch.ts";
+import { type Cuts, withCut } from "./pilecuts.ts";
 
 /** Addressing precedes stack; graph inbox text waits for next-turn context. */
 export function toPile(frame: Frame | null): boolean {
@@ -25,10 +26,30 @@ export function toPile(frame: Frame | null): boolean {
   return !addressedToMine(frame) || stackOf(frame) === "batch";
 }
 
-interface Riders {
+interface Riders extends Cuts {
   riders: Frame[];
   held: Frame[];
   marks: Set<string>;
+}
+
+/** A flushed pile of counts only: its frames join the riders, the newest `max` kept; its cuts ride. */
+export function toRiders(p: Riders, frames: Frame[], max: number): void {
+  p.riders.push(...frames);
+  const soft = p.riders.filter((f) => !isGraphInbox(f)).slice(-max);
+  p.riders = [...p.riders.filter(isGraphInbox), ...soft];
+}
+
+/** The piles' riding counts and cuts as head lines, the carrier frame under its case's count (#9654). */
+export function ridingOf(ps: Riders[], frame: Frame | null, raw: string): string {
+  const outs = ps.map((p) => takeRiders(p, false));
+  return withCut(
+    outs.flatMap((o) => o.cut),
+    rideWith(
+      outs.flatMap((o) => o.kept),
+      frame,
+      raw,
+    ),
+  );
 }
 
 export interface Pile extends Riders {
@@ -62,8 +83,8 @@ export function ridersInBatch(p: Riders | undefined, ev: ChannelEvent): string {
   const frames = ev.frames ?? [];
   const waiting = p?.riders.filter((f) => !isGraphInbox(f)) ?? [];
   if (!Array.isArray(ev.frames) || !ev.body) return ev.text ?? "";
-  const riding = p && ridesIn(waiting, frames, ev.body) ? takeRiders(p, false).kept : [];
-  return batchBodyText(frames, ev.body, riding);
+  const out = p && ridesIn(waiting, frames, ev.body) ? takeRiders(p, false) : null;
+  return withCut(out?.cut ?? [], batchBodyText(frames, ev.body, out?.kept ?? []));
 }
 
 /** Pending graph text suppresses its counted case copy before either is handed out. */
@@ -84,7 +105,8 @@ export function takeRiders(p: Riders, graph: boolean) {
   const out = splitBatch([...p.riders.filter(isGraphInbox), ...unit], Infinity, (k) =>
     p.marks.has(k),
   );
-  return { ...out, kept: graph ? out.kept : out.kept.filter((f) => !isGraphInbox(f)) };
+  const kept = graph ? out.kept : out.kept.filter((f) => !isGraphInbox(f));
+  return { ...out, kept, cut: (p.cuts ?? []).splice(0) };
 }
 
 /** Selection is reversible until the actual host context accepts its text and receipt. */
@@ -94,16 +116,18 @@ export function handRiders<T extends Riders>(
   note: (p: T, keys: string[]) => void,
 ): void {
   const batches = ps.map((p) => {
-    const preview = { ...p, riders: [...p.riders], held: [...p.held] };
+    const preview = { ...p, riders: [...p.riders], held: [...p.held], cuts: [...(p.cuts ?? [])] };
     return { p, preview, out: takeRiders(preview, true) };
   });
   const got = batches.flatMap((b) => b.out.kept);
-  if (!got.length) return;
-  put(batchText(got));
+  const cut = batches.flatMap((b) => b.out.cut);
+  if (!got.length && !cut.length) return;
+  put(withCut(cut, got.length ? batchText(got) : ""));
   receiptGraph(got);
   for (const { p, preview, out } of batches) {
     p.riders = preview.riders;
     p.held = preview.held;
+    p.cuts = preview.cuts;
     note(p, out.keys);
   }
 }

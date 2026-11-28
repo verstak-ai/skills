@@ -6,6 +6,7 @@
 import "./standwire.ts"; // a taken seat and an own return stand by the same stand tool
 import "./stophold.ts"; // the owner's 4001 marks the seat stopped (#7439)
 import "./stoporder.ts"; // a stop order stops the seat the same way and is answered (#7519)
+import "./lifeanswer.ts"; // the server's life check is the bridge's to answer, never a turn
 
 import { createInterface } from "node:readline";
 import { type Writable } from "node:stream";
@@ -18,7 +19,7 @@ import { deliver } from "./deliver.ts";
 import { errorMessage } from "./errors.ts";
 import { keepHeldRecordFresh } from "./holdkeep.ts";
 import { handoverUnderway } from "./holdstate.ts";
-import { startDeafnessWatch } from "./leave.ts";
+import { startReturnOnListener } from "./leave.ts";
 import { clickPending } from "./oauth/flow.ts";
 import { ORPHAN_FLOW_MS } from "./oauth/pacing.ts";
 import { tokenRequestsInFlight } from "./oauth/tokenrequest.ts";
@@ -119,9 +120,10 @@ function openIn(io: SessionIO, origin: SessionOrigin | null, scope: Scope | null
   holdFromEnv();
   // Outcomes of stop orders the api has not taken: an answer is a POST, no seat or socket needed (#7510).
   repeatLater(true);
-  // Nobody listening, the bridge leaves the seat itself (graph @nks/nks-dev, node #4895); a
-  // satellite's seat signs the run's writes, so it keeps no deafness watch.
-  if (!CFG.satellite) startDeafnessWatch();
+  // A watchdog attaching to a left seat returns it (graph @nks/nks-dev, node #4895); with nobody
+  // listening the seat stays held — the server decides (node #11362). A satellite's seat signs the
+  // run's writes and never returns from disk, so it keeps no such return.
+  if (!CFG.satellite) startReturnOnListener();
 
   const rl = createInterface({ input: io.input, terminal: false });
   const pending = new Set<Promise<void>>();

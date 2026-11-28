@@ -15,7 +15,7 @@ export function separateGraphBatch(ev: ChannelEvent) {
   const text = !other.length
     ? ""
     : ev.kind === "stale"
-      ? staleBatch(other, () => false).text
+      ? staleBatch(other, () => false, [], false).text
       : batchText(other);
   return {
     graph,

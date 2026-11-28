@@ -1,12 +1,5 @@
-// The "tools" half — the server's tools through the bridge, each under its own name,
-// and A BRIDGE PER SESSION (graph @nks/nks-dev, node #4283).
-//
-// The plugin speaks MCP stdio to the bridge itself and registers EVERY server tool via
-// ctx.tool.transform under its own name: OpenCode's native `mcp` entry names a foreign
-// tool <entry>.<tool> (observed on 2.0.9), and every skill phrase calling a tool by name
-// would turn false.
-// Tool transforms serve the cached list and status without waiting for sign-in.
-// The server list replaces them in the background via ctx.tool.reload().
+// The "tools" half: a bridge per session, server tools under their own names (#4283).
+// The cached list and status do not wait for sign-in; ctx.tool.reload replaces the list in the background.
 import { LOGGERS, method, OPENCODE, PLUGIN, SPAWNED_FOR_ENV } from "../delivery/index.ts";
 import { Bridge, toParameters } from "../shared/bridge-client.ts";
 import { words } from "../shared/lang.ts";
@@ -24,6 +17,7 @@ import { answerHalt } from "./cuts.ts";
 import { listInBackground, waitListed } from "./firstlist.ts";
 import { type Halted, idleHalf, type SpawnBasis, type ToolsHalf } from "./half.ts";
 import { createHandoff } from "./handoff.ts";
+import * as holder from "./holder.ts";
 import { hostEnvOf } from "./host.ts";
 import { createKeeper } from "./keep.ts";
 import { holdersOf } from "./keepalive.ts";
@@ -37,13 +31,16 @@ import { createModels } from "./models.ts";
 import { createMoves } from "./moves.ts";
 import type { Context } from "./plugin.ts";
 import { type PutDown } from "./putdown.ts";
+import { startReaper } from "./reaper.ts";
 import { revokeAsLauncher } from "./release.ts";
+import { toldAside, wireNotes } from "./replynotes.ts";
+import { OwnedSlots, type Reservation } from "./reserve.ts";
 import { canonOf, type SeatAnswer } from "./rootseat-by.ts";
 import { createSeatLife, explicitHeld } from "./rootseat-tools.ts";
 import { childWriteRefusal, createRunEnds, declaresAction, readsOnly } from "./runends.ts";
 import { asSatellite, STAND_TOOL, standsBy } from "./satellite.ts";
 import { inSlot } from "./service.ts";
-import { IDLE_MS, REAP_MS, type Slot } from "./slot.ts";
+import { type Slot } from "./slot.ts";
 import { statusLines, statusTool } from "./status.ts";
 
 export type Say = (text: string, level: "info" | "warning" | "error") => void;
@@ -73,8 +70,9 @@ export async function setupTools(
   const path = found.path;
   const builds = buildsLine(path, import.meta.url);
   const hostEnv = await hostEnvOf(ctx); // OpenCode's version and the set's root — once per plugin
+  await wireNotes(ctx); // the plugin's own words ride the next tool reply (replynotes.ts)
 
-  const slots = new Map<string, Slot>();
+  const slots = new OwnedSlots(); // a dropped root's slot takes its reservation along (reserve.ts)
   const unasked = new WeakSet<Slot>(); // a root's slot that has not asked for its seat from disk yet
   let spare: Slot | null = null;
   let stopped = false;
@@ -141,7 +139,6 @@ export async function setupTools(
     return slot;
   }
 
-  // The instance's location: a moved session calls its tools through its new folder's instance (moves.ts).
   const mv = createMoves(ctx, say);
   const { home, directoryOf, canReturn } = mv;
   const relay = mv.relay(onChannel, say);
@@ -153,8 +150,7 @@ export async function setupTools(
   const leads = createLeads(leadDoors(ctx, say, flushUsage, endChild, slots, closed));
   const keeper = createKeeper({
     say,
-    tell: (root, text, child) =>
-      onChannel(root, { logger: LOGGERS.channel, data: { kind: "return_failed", text } }, !!child),
+    tell: toldAside(say), // no turn: the log and the next tool reply (replynotes.ts)
     slotFor: (root, touch) => slotFor(root, touch),
     ready: readyFor,
     directoryOf,
@@ -197,6 +193,8 @@ export async function setupTools(
     stood: (slot) => keeper.stood(slot),
     forgot: (s) => keeper.forget(s),
     held: (s, slot) => onChannel(s, explicitHeld(slot), !!slot.child),
+    movedTo: mv.movedTo,
+    hand: (_s, slot, to) => holder.handMoved(slot, to, keeper),
   });
   // A previous instance stopped with a holding bridge (or a session moved here): keys to the
   // watchdog, seats back at once, each holding session a word about its own seats (#6626).
@@ -213,6 +211,13 @@ export async function setupTools(
   async function slotFor(sessionID: string, touch = true): Promise<Slot> {
     seats.guard(sessionID);
     const root = await rootOf(sessionID);
+    if (root !== sessionID) return slotOf(sessionID, root, touch, null);
+    // One owner per root across the process (#11463): reserved before any other wait (reserve.ts).
+    const own = (r: Reservation) => slotOf(sessionID, root, touch, r);
+    return holder.rootSlot(root, slots, home, own, touch).then((s) => (seats.guard(sessionID), s));
+  }
+
+  async function slotOf(sessionID: string, root: string, touch: boolean, r: Reservation | null) {
     // A child that stood as its own satellite goes by its own bridge (#5154); the root's is read-only to it (#6550 item 2).
     if (root !== sessionID && !slots.has(sessionID)) {
       adopt.now(); // a previous instance's marker laid after our load (adopt.ts)
@@ -232,13 +237,9 @@ export async function setupTools(
     const far = root !== sessionID && !slots.get(root)?.place ? await mv.farRoot(root) : null;
     seats.guard(sessionID);
     if (far && far !== "foreign") return far;
+    const dead = slots.get(root)?.bridge.failure ? slots.get(root) : undefined;
+    if (dead) slots.delete(root);
     let slot = slots.get(root);
-    let dead: Slot | undefined;
-    if (slot?.bridge.failure) {
-      dead = slot;
-      slots.delete(root);
-      slot = undefined;
-    }
     if (!slot) {
       slot = spare && !spare.bridge.failure ? spare : spawn();
       spare = null;
@@ -247,36 +248,30 @@ export async function setupTools(
       slot.dir = dead?.dir ?? slot.dir;
       slot.key = dead?.key ?? slot.key;
       slots.set(root, slot);
+      holder.owned(slot, slots);
       unasked.add(slot);
     }
-    // Claims bind session identity without returning an old place; ordinary roots return by directory.
     const s = slot;
-    if (far !== "foreign" && unasked.delete(s) && !closed(root))
+    if (r) await holder.ownerSet(r, s, slots, unasked.has(s)); // the root's owner (reserve.ts)
+    // Claims bind session identity without returning an old place; ordinary roots return by directory.
+    if (far !== "foreign" && unasked.delete(s) && !closed(root)) {
       s.resume = (
         claiming(root)
           ? awaitReady(s).then(() => s.bridge.request(method("resume"), { session: root }))
           : keeper.resume(s, root)
       ).finally(() => (s.resume = null));
+      holder.claimResume(root, s, slots);
+    }
     if (touch) slot.lastCall = Date.now();
     return slot;
   }
 
-  // A silent session's bridge without a standing does not live forever: `opencode run` breeds sessions.
-  const reaper = setInterval(() => {
-    const now = Date.now();
-    for (const [session, slot] of slots) {
-      if (slot.holding || slot.busy > 0 || now - slot.lastCall < IDLE_MS) continue;
-      slot.ownStop = true;
-      slot.bridge.stop();
-      slots.delete(session);
-    }
-    if (spare && !spare.holding && now - spare.lastCall >= IDLE_MS && state.serverSeen) {
-      spare.ownStop = true;
-      spare.bridge.stop();
-      spare = null;
-    }
-  }, REAP_MS);
-  reaper.unref?.();
+  // A silent session's bridge without a standing does not live forever: `opencode run` breeds sessions (reaper.ts).
+  const reap = startReaper(
+    slots,
+    { get: () => spare, set: (s) => (spare = s) },
+    () => state.serverSeen,
+  );
 
   const state = {
     listed: readCache() ?? ([] as any[]),
@@ -371,6 +366,8 @@ export async function setupTools(
     const args: Record<string, unknown> = { ...(input ?? {}) };
     const held = launchBasis(sessionID, name, args, !!slot.holding);
     if (held) return { content: held };
+    const kept = await holder.keptStand(name, slot, sessionID, args, slots); // no register (#11463)
+    if (kept) return { content: kept };
     // One seat per bridge: a child standing by its own call gets its own bridge (#5154).
     if (standsBy(name, args) && slot.session !== sessionID) {
       // The parent's seat is unknown — a refusal (#6550 item 2).
@@ -398,6 +395,8 @@ export async function setupTools(
       leads.dispatched(sessionID, name, args);
     const result = await slot.bridge.request("tools/call", { name, arguments: args }, { service });
     verifyClaim(sessionID, args, result);
+    if (slot.session === sessionID && holder.foreign(slot, slots))
+      return holder.foreignAnswer(result, name);
     const out = seats.answer(
       slot,
       name,
@@ -455,7 +454,7 @@ export async function setupTools(
   return {
     launch: launcher.launch,
     ...seats.half,
-    bridgeOf: (s) => [slots.get(s)].find((x) => x?.holding)?.bridge ?? null,
+    bridgeOf: (s) => holder.bridgeOf(s, slots), // a moved root's — its holder's (#11463)
     forget(s) {
       seats.cancel(s);
       forget(s, "end"); // a deleted session is the agent's end: its seat closes (#7493)
@@ -485,7 +484,7 @@ export async function setupTools(
     },
     async stop() {
       stopped = true;
-      clearInterval(reaper);
+      reap();
       keeper.stop();
       await children.pause(); // a reload is not a child's end (#6625): its seat and cases wait
       const left = seats.stopSlots(home, spare);

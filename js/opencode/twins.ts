@@ -11,10 +11,12 @@
 import { envName, GLOBAL_PREFIX, OPENCODE_KEEP } from "../delivery/index.ts";
 import { canonDir } from "../shared/canon.ts";
 import { words } from "../shared/lang.ts";
+import { rootSeatMs } from "../shared/rootseat-env.ts";
 import { authDir } from "./bridge-io.ts";
 import { markerWaits } from "./marker.ts";
 import type { Context } from "./plugin.ts";
 import type { Home, LostEntry } from "./records.ts";
+import { toldAside } from "./replynotes.ts";
 import type { Slot } from "./slot.ts";
 
 /** How long to wait for the raised instance to take the marker. */
@@ -37,6 +39,9 @@ export interface Twin {
 
 export const registry = (): Set<Twin> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}Twins`] ??= new Set<Twin>());
+/** Slot ownership also spans separately loaded copies of the plugin in this process. */
+export const slotOwners = (): WeakMap<Slot, Map<string, Slot>> =>
+  ((globalThis as any)[`${GLOBAL_PREFIX}SlotOwners`] ??= new WeakMap<Slot, Map<string, Slot>>());
 /** Satellites of children moved to another folder whose marker has not landed yet (children.ts, #6695). */
 const handing = (): Map<string, Promise<unknown>> =>
   ((globalThis as any)[`${GLOBAL_PREFIX}Handing`] ??= new Map<string, Promise<unknown>>());
@@ -67,6 +72,56 @@ export function heldInProcess(root: string): Slot | null {
   return null;
 }
 
+/** An instance of that spelling is live in this process: a root moved there is handed to it (reserve.ts). */
+export const spellingUp = (h: Home): boolean =>
+  [...registry()].some((t) => t.home && sameSpelling(t.home, h));
+
+/** A root's service seating in flight in an instance of this process (rootseat-tools.ts). */
+export interface Seating {
+  /** The instance's slots — how an instance tells its own seating from another's. */
+  owner: unknown;
+  /** The seating is over: its seat was taken, kept or handed on. */
+  settled: Promise<void>;
+}
+/** Roots a seating stands at this moment, by instance: shared by the process like the twins. */
+const seatings = (): Map<string, Set<Seating>> =>
+  ((globalThis as any)[`${GLOBAL_PREFIX}Seating`] ??= new Map<string, Set<Seating>>());
+
+/** An instance's seating of a root begins; the returned word withdraws it. */
+export function seatClaim(root: string, settled: Promise<void>, owner: unknown): () => void {
+  const held = seatings().get(root) ?? new Set<Seating>();
+  seatings().set(root, held);
+  const seating = { owner, settled };
+  held.add(seating);
+  return () => {
+    held.delete(seating);
+    if (!held.size && seatings().get(root) === held) seatings().delete(root);
+  };
+}
+
+/** How long an instance waits for another's seating of the same root: its ceiling and a revoke's term. */
+const SEAT_WAIT_MS = rootSeatMs() + 20_000;
+
+/**
+ * Wait for another instance's seating in flight of the root: two instances seating one root
+ * stand two seats. Not this instance's own — it would wait for itself. The wait is bounded: a
+ * seating hung in its bridge holds no other instance forever.
+ */
+export async function seatingElsewhere(root: string, owner: unknown): Promise<void> {
+  const claims = [...(seatings().get(root) ?? [])];
+  const own = claims.findIndex((c) => c.owner === owner);
+  const others = (own < 0 ? claims : claims.slice(0, own)).filter((c) => c.owner !== owner);
+  if (!others.length) return;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  await Promise.race([
+    Promise.allSettled(others.map((c) => c.settled)),
+    new Promise<void>((r) => {
+      timer = setTimeout(r, SEAT_WAIT_MS);
+    }),
+  ]);
+  clearTimeout(timer);
+}
+
 const folderOf = (h: Home): string => `${canonDir(h.directory)}\0${h.workspace ?? ""}`;
 const sameSpelling = (a: Home, b: Home): boolean =>
   a.directory === b.directory && (a.workspace ?? null) === (b.workspace ?? null);
@@ -75,8 +130,6 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** An instance's doors: its seats (tools.ts), marker (adopt.ts) and sweep (plugin.ts), as Twin's. */
 export interface TwinDoors extends Omit<Twin, "home" | "wake"> {
   say(text: string, level: "info" | "warning" | "error"): void;
-  /** A loud word into the session (channel.ts, kind=lost). */
-  lost(session: string, text: string): void;
 }
 
 export function createTwins(ctx: Context, home: Home | null, d: TwinDoors) {
@@ -123,8 +176,9 @@ export function createTwins(ctx: Context, home: Home | null, d: TwinDoors) {
     if (gone) return;
     const named = roots.map((e) => e.key ?? e.session).join(", ");
     d.say(W.unloaded(h.directory, named, why), "error");
+    // The seat lost is said with the session's next tool reply, no turn (replynotes.ts).
     for (const e of roots)
-      d.lost(e.session as string, W.seatLost(e.key ?? W.thisSession(), h.directory, why));
+      toldAside(d.say)(e.session as string, W.seatLost(e.key ?? W.thisSession(), h.directory, why));
   }
 
   return {

@@ -11,10 +11,15 @@
 // returns ahead of a call: only a call that needs its session back comes here. Every other
 // upstream initialize the daemon opens (new thin bridges after a plugin reload, the
 // orchestrator's own session) goes through the same gate as "open": at once without
-// contention, at most two in flight with everything else. A bridge outside a daemon is a
-// machine of its own: its gate holds only itself (README).
+// contention, at most two in flight with everything else. A seat passes the gate once per
+// return (#11413): a session that already came back through it goes on as its return's tail
+// (its re-registration, a board read) — a slot of the two, no second draw, and never past a
+// probe out for the server. Every wait here is the session's stay (gatestay.ts): a call whose
+// time at the gate would pass ~20 s is not held — it answers at once, and the return goes on in
+// its place. A bridge outside a daemon is a machine of its own: its gate holds only itself (README).
 import { envName } from "../delivery/index.ts";
 import { DownError } from "./errors.ts";
+import { stayAt } from "./gatestay.ts";
 import { sleep } from "./store.ts";
 import { log } from "./streams.ts";
 
@@ -45,6 +50,18 @@ interface Gate {
   turns: (() => void)[];
 }
 
+/** The delay a return waiting for the probe will draw, on average: its best estimate (gatestay.ts). */
+const drawnLater = (g: Gate): number => Math.min(CAP_MS, STEP_MS * g.waiting) * (FIXED ?? 0.5);
+
+/** The probe's outcome: a DownError — the server is down, no knock goes; anything else — go on. */
+async function probeOutcome(g: Gate): Promise<void> {
+  for (let p = g.probe; p; p = g.probe) {
+    const down = await p;
+    // The server is down: the window stands — no knock; the call answers «not sent».
+    if (down instanceof DownError) throw down;
+  }
+}
+
 const gates = new Map<string, Gate>();
 const gateOf = (server: string): Gate => {
   let g = gates.get(server);
@@ -56,6 +73,16 @@ const gateOf = (server: string): Gate => {
 async function turn(g: Gate): Promise<void> {
   if (g.out < AT_ONCE && !g.turns.length) return void g.out++;
   await new Promise<void>((r) => g.turns.push(r));
+}
+
+/** A slot as this session's stay at the gate: its wait is the knocks ahead, not estimated. */
+async function slot(g: Gate): Promise<void> {
+  const end = stayAt(() => 0);
+  try {
+    await turn(g);
+  } finally {
+    end();
+  }
 }
 
 function done(g: Gate): void {
@@ -79,14 +106,27 @@ async function knocked<T>(g: Gate, knock: () => Promise<T>): Promise<T> {
  * waiting or out is the probe, and the other returns and opens wait for its outcome. "open" —
  * any other upstream initialize the daemon opens: never a probe; without contention (no probe,
  * nobody waiting, a free slot) it goes at once. All go at most two at a time; every return but
- * the probe draws its random delay, an open — only with more than two waiting.
+ * the probe draws its random delay, an open — only with more than two waiting. "tail" — a knock
+ * of a session that already came back through the gate (#11413): one of the two in flight, no
+ * probe, no draw.
  */
 export async function throughGate<T>(
   server: string,
   knock: () => Promise<T>,
-  kind: "return" | "open" = "return",
+  kind: "return" | "open" | "tail" = "return",
 ): Promise<T> {
   const g = gateOf(server);
+  if (kind === "tail") {
+    // Not past the one probe (#11413): a probe out for the server holds the tail too.
+    const end = stayAt(() => 0);
+    try {
+      await probeOutcome(g);
+      await turn(g);
+    } finally {
+      end();
+    }
+    return knocked(g, knock);
+  }
   if (kind === "open" && !g.probe && g.waiting === 0 && g.out < AT_ONCE) {
     g.out++;
     return knocked(g, knock);
@@ -94,7 +134,7 @@ export async function throughGate<T>(
   if (kind === "return" && !g.probe && g.returns === 0) {
     log("return gate: this session is the machine's probe");
     g.returns++;
-    const run = turn(g).then(() => knocked(g, knock));
+    const run = slot(g).then(() => knocked(g, knock));
     g.probe = run.then(
       () => null,
       (e: unknown) => (e instanceof DownError ? e : null),
@@ -108,13 +148,15 @@ export async function throughGate<T>(
     }
   }
   if (kind === "return") g.returns++;
+  const came = Date.now();
   try {
     g.waiting++;
     try {
-      for (let p = g.probe; p; p = g.probe) {
-        const down = await p;
-        // The server is down: the window stands — no knock; the call answers «not sent».
-        if (down instanceof DownError) throw down;
+      const forProbe = stayAt(() => (kind === "return" ? drawnLater(g) : 0));
+      try {
+        await probeOutcome(g);
+      } finally {
+        forProbe();
       }
       // Every return after the probe's outcome spreads over the window (#11375): two returns at
       // once are not two knocks in the same second. An open spreads only in a crowd: a few
@@ -125,9 +167,18 @@ export async function throughGate<T>(
         log(
           `return gate: ${g.waiting} waiting — this one goes in ${wait} ms (window ${window} ms)`,
         );
-        await sleep(wait);
+        const until = Date.now() + wait;
+        const delayed = stayAt(() => until - Date.now()); // a call this far away is not held
+        try {
+          await sleep(wait);
+        } finally {
+          delayed();
+        }
       }
-      await turn(g);
+      const from = Date.now();
+      await slot(g);
+      const now = Date.now();
+      log(`return gate: admitted after ${now - came} ms (waited for slot ${now - from} ms)`);
     } finally {
       g.waiting--;
     }

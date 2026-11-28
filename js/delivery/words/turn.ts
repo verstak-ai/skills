@@ -10,6 +10,8 @@ export interface TurnWords {
   wake: () => string;
   /** To the plugin's service stderr: the word did not enter the session. */
   notLaid: (session: string, why: string) => string;
+  /** OpenCode: the word goes to the service's log — a turn opens only by a server frame. */
+  logged: (session: string, text: string) => string;
 }
 
 export const TURN: Readonly<Record<Lang, TurnWords>> = {
@@ -17,5 +19,7 @@ export const TURN: Readonly<Record<Lang, TurnWords>> = {
     wake: () =>
       `${FRAME_MARK} No human at the console: a question — an ask card in the case; progress or an outcome — a line on its key (${tool("case")} line); an answer or act you need from a doer — say \`to\` their seat; a report to the person — a short word to their seat (${tool("channel")} send). Nothing to say — the turn ends, no text.`,
     notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`,
+    logged: (session, text) =>
+      `the turn's end word of session ${session} — to the log, the plugin opens no turn: ${text}`,
   },
 };

@@ -37,7 +37,10 @@ export async function putDown(slot: Slot, word: PutDown | null): Promise<void> {
     // Without a seat known here an unanswered `end` says nothing: there may be none to revoke.
     const seated = slot.holding || !!slot.key;
     const got = await slot.bridge
-      .request(method(word), {}, { timeoutMs: SAY_MS[word], service: true })
+      .request(method(word), word === "end" ? { event: "session_deleted" } : {}, {
+        timeoutMs: SAY_MS[word],
+        service: true,
+      })
       .catch((e: Error) => (seated ? { ended: false, word: e.message } : null));
     const left = word === "end" && got ? unrevoked(got) : null;
     const maybe = word === "end" ? unconfirmed(got) : null;

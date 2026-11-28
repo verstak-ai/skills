@@ -44,6 +44,13 @@ export const SPAWN_LINE = `${PRODUCT}/spawned_for:`;
 export const HALTS_CAPABILITY = `${PRODUCT}/halts`;
 
 /**
+ * The `capabilities.experimental` key of the server's initialize answer, opened by the seat header:
+ * by it the server surface says whether it bound the session by that header
+ * (`{ bound, opened?, … }`). No header, no key.
+ */
+export const STANDING_CAPABILITY = `${PRODUCT}/standing`;
+
+/**
  * Server protocol keys not derived from the product name: the server's surface names them
  * (api refusal — `_meta[refusal]`). Confirmed 2026-10-08 against mcp.verstak.ai 0.108.0: its
  * initialize answer names `verstak/structured` and `verstak/refusal` in capabilities.experimental.

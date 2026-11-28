@@ -56,15 +56,17 @@ export function notFound(e: unknown): boolean {
 /**
  * The session's standing for channel words: "live" — it exists, "ended" — the host says it is
  * archived or knows of no such session, "unknown" — the lookup failed another way (no proof of an
- * end: the word still goes to the session itself).
+ * end, but also no evidence that a delivery is safe).
  */
 export async function accepting(ctx: Context, id: string): Promise<"live" | "ended" | "unknown"> {
   try {
     const info = await ctx.session.get({ sessionID: id } as never);
     const shape = info as unknown as {
+      id?: string;
       time?: { archived?: number };
-      data?: { time?: { archived?: number } };
+      data?: { id?: string; time?: { archived?: number } };
     };
+    if ((shape?.id ?? shape?.data?.id) !== id) return "unknown";
     return (shape?.time?.archived ?? shape?.data?.time?.archived) ? "ended" : "live";
   } catch (e) {
     return notFound(e) ? "ended" : "unknown";

@@ -5,12 +5,14 @@ import { LOGGERS, PLUGIN, ROOT_SEAT, SPAWNED_FOR, tool } from "../delivery/index
 import { words } from "../shared/lang.ts";
 import { holdFilePathOf } from "../shared/standings.ts";
 import { textOf } from "./bridge-io.ts";
+import { foreign } from "./holder.ts";
 import { writeLostMarker } from "./marker.ts";
 import { type PutDown, putDown } from "./putdown.ts";
 import type { Home } from "./records.ts";
 import { seatBy, type SeatDoors } from "./rootseat-by.ts";
 import { asSatellite, heldPlace, type Place, standsBy } from "./satellite.ts";
 import type { Slot } from "./slot.ts";
+import { seatClaim } from "./twins.ts";
 
 interface Doors extends Pick<SeatDoors, "slotFor" | "awaitReady" | "callThrough" | "modelOf"> {
   stopped(): boolean;
@@ -21,6 +23,10 @@ interface Doors extends Pick<SeatDoors, "slotFor" | "awaitReady" | "callThrough"
   failed(word: string): void;
   held(session: string, slot: Slot): void;
   claiming(session: string): boolean;
+  /** The folder the session moved to while its seat was standing here; null — it is here (moves.ts). */
+  movedTo(session: string): Home | null;
+  /** The stood seat goes to that folder's instance: a marker tagged for it, taken at once if it is live. */
+  hand(session: string, slot: Slot, to: Home): void;
 }
 
 export const explicitHeld = (slot: Slot) => ({
@@ -28,24 +34,28 @@ export const explicitHeld = (slot: Slot) => ({
   data: { kind: "held", key: slot.key, automatic: false },
 });
 
+/** One service seating of a session from its start to its end (rootseat-by.ts `seatBy`). */
+type Life = {
+  cancelled: () => boolean;
+  slot?: Slot;
+  cancelledHere: boolean;
+  failure?: string;
+  onWire?: boolean;
+  fresh?: boolean;
+  returned?: boolean;
+  owned?: { key: string; place: Place };
+  explicit?: Promise<void>;
+  closing?: Promise<void>;
+  adopted?: boolean;
+  foreign?: boolean;
+  /** The seating is over: the root is released to other instances of the process (twins.ts). */
+  over?: () => void;
+  withdraw?: () => void;
+};
+
 export function createSeatLife(d: Doors) {
   const deleted = new Set<string>();
-  const attempts = new Map<
-    string,
-    {
-      cancelled: () => boolean;
-      slot?: Slot;
-      cancelledHere: boolean;
-      failure?: string;
-      onWire?: boolean;
-      fresh?: boolean;
-      returned?: boolean;
-      owned?: { key: string; place: Place };
-      explicit?: Promise<void>;
-      closing?: Promise<void>;
-      adopted?: boolean;
-    }
-  >();
+  const attempts = new Map<string, Life>();
   const epochs = new Map<string, number>();
   let awaying: Promise<void> = Promise.resolve();
   const cancelled = (s: string) =>
@@ -76,6 +86,27 @@ export function createSeatLife(d: Doors) {
     d.forgot(s);
     if (d.slots.get(s) === slot) d.slots.delete(s);
   };
+  /**
+   * The session moved to another folder while its seat was standing here: the seat is not
+   * dropped — it goes to that folder's instance as on a settled move (moves.ts), under the name
+   * it stood (#11463). The announced absence keeps the record; the marker names the seat by its key.
+   */
+  async function hand(s: string, slot: Slot, to: Home, a: Life | undefined): Promise<void> {
+    slot.ownStop = true;
+    let finished = () => {};
+    if (a)
+      a.closing = new Promise<void>((r) => {
+        finished = r;
+      });
+    try {
+      await putDown(slot, "away");
+      if (slot.session) d.hand(s, slot, to);
+    } finally {
+      slot.bridge.stop();
+      drop(s, slot);
+      finished();
+    }
+  }
   return {
     guard(s: string, service = false) {
       if (d.stopped() || deleted.has(s) || (service && cancelled(s)))
@@ -215,29 +246,26 @@ export function createSeatLife(d: Doors) {
     half: {
       async seatRoot(s: string, realm: string, karta: string, isCancelled: () => boolean) {
         if (cancelled(s) || isCancelled()) return { cancelled: true } as const;
-        const attempt: {
-          cancelled: () => boolean;
-          cancelledHere: boolean;
-          slot?: Slot;
-          failure?: string;
-          onWire?: boolean;
-          fresh?: boolean;
-          returned?: boolean;
-          owned?: { key: string; place: Place };
-          explicit?: Promise<void>;
-          closing?: Promise<void>;
-          adopted?: boolean;
-        } = {
+        const attempt: Life = {
           cancelled: isCancelled,
           cancelledHere: false,
           slot: undefined as Slot | undefined,
         };
         attempts.set(s, attempt);
+        // The root is being seated here: other instances of the process wait for the outcome (#11463).
+        attempt.withdraw = seatClaim(
+          s,
+          new Promise<void>((r) => {
+            attempt.over = r;
+          }),
+          d.slots,
+        );
         return seatBy(
           {
             slotFor: async (root) => {
               const slot = await d.slotFor(root);
               attempt.slot = slot;
+              attempt.foreign = foreign(slot, d.slots);
               return slot;
             },
             awaitReady: d.awaitReady,
@@ -278,11 +306,14 @@ export function createSeatLife(d: Doors) {
         const attempt = attempts.get(s);
         const slot = attempt?.slot;
         if (!slot) return;
+        if (attempt?.foreign) return;
         let last: Promise<void> | undefined;
         do {
           last = attempt?.explicit;
           await last;
         } while (attempt?.explicit !== last);
+        const to = d.movedTo?.(s);
+        if (to && slot.holding && !deleted.has(s)) return hand(s, slot, to, attempt);
         const owned = attempt?.owned;
         if (
           !owned ||
@@ -342,7 +373,10 @@ export function createSeatLife(d: Doors) {
         }
       },
       finishSeat(s: string) {
+        const a = attempts.get(s);
         attempts.delete(s);
+        a?.over?.(); // the seating is over: the root's seat is where this attempt left it
+        a?.withdraw?.();
       },
     },
   };

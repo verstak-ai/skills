@@ -23,10 +23,18 @@ import { type Refusal, refusalOf } from "./refusal.ts";
 import { registerRaw } from "./registergate.ts";
 import { noteSkills } from "./skillwatch.ts";
 import { debug, log } from "./streams.ts";
-import { type Standing, state } from "./transport.ts";
+import { seatLeftJudgedBy, type Standing, state } from "./transport.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
 const SEAT_EXPIRED = (): string => words(STANDING).seatExpired();
+
+/** The bridge's own seat left by word (hold.ts `isParked`): it returns by its own stand — here in `rebind`, and for the handshake sign (transport.ts `noteBinding`). */
+const seatLeft = (): boolean => {
+  const s = state.standing;
+  return !!s && isParked(s.realm, s.karta, s.name ?? "");
+};
+// transport.ts cannot import this module back: the judge of its question is handed down at load.
+seatLeftJudgedBy(seatLeft);
 
 // Remember a registration the harness made, so it can be replayed into the next
 // session. Only a call the server ACCEPTED is remembered: a refused one names no
@@ -111,8 +119,7 @@ async function rebind(move: RegisterMove): Promise<void> {
   // A seat the bridge left (leave, nobody listening) is no rebind's: its register would not be
   // sent (registergate.ts), so its deaf check reads the board for nothing (#11351, #11337).
   // It returns by its own stand; the socket's state decides, not the board.
-  const s = state.standing;
-  if (s && isParked(s.realm, s.karta, s.name ?? ""))
+  if (seatLeft())
     return log("standing not re-registered: the seat was left — it returns by its own stand");
   // A deaf seat another session may listen on is not re-bound (deaf.ts, #6706).
   const deaf = await deafSeatTaken();

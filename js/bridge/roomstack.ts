@@ -1,6 +1,6 @@
 // Room frames by the kinds dictionary, batched for watchdogs by the bridge
 // (graph @nks/nks-dev, nodes #5851, #6574): a batch leaves by window, when full,
-// or before an interrupting frame, as a note head (at: 0) and frames marked batch.
+// or before a frame that goes at once, as a note head (at: 0) and frames marked batch.
 // Notification clients (pi, OpenCode) route frames themselves. The head counts per case;
 // lines below are only those addressed to the seat. A frame without event_kind goes at
 // once, untouched by the dictionary; the door ring still gets every frame (hold.ts).
@@ -10,7 +10,7 @@ import { askFromPerson } from "../shared/asks.ts";
 import { classifyOrigin, type Frame } from "../shared/channel.ts";
 import { batchHead, foldAsides } from "../shared/frame-text.ts";
 import { isGraphInbox } from "../shared/graph-inbox.ts";
-import { byKind, roomKind, stackOf } from "../shared/room-kinds.ts";
+import { byKind, deferredMine, roomKind, stackOf } from "../shared/room-kinds.ts";
 import { deliveryKeys, type Marks, noteSeen, splitBatch } from "../shared/seen.ts";
 import { type ChannelEvent, type Door } from "./door.ts";
 import { HumanWords, idOf, isWordOf } from "./humanwords.ts";
@@ -173,11 +173,12 @@ export function batchForWatchdogs(
   }
   // A human's word goes now whatever its stack, unless addressed to another (graph
   // @nks/nks-dev, node #6081);
-  // anything not addressed to the seat is batched (graph @nks/nks-dev, node #6574).
+  // anything not addressed to the seat is batched (graph @nks/nks-dev, node #6574); a word
+  // deferred by the server or a question to the seat goes now, its defer kept (#11421).
   if (
     (!human || rk?.phase || rk?.aside) &&
     byKind(frame) &&
-    (!addressedToMine(frame) || stackOf(frame) === "batch")
+    (!addressedToMine(frame) || (stackOf(frame) === "batch" && !deferredMine(frame)))
   ) {
     d.roomBatch.add(raw, frame, emit);
     return true;

@@ -3,6 +3,7 @@ import { type Writable } from "node:stream";
 import { BRIDGE_NAME } from "../delivery/index.ts";
 import { currentScope, scoped } from "../shared/scope.ts";
 import { CFG } from "./config.ts";
+import { harnessLine } from "./linelimit.ts";
 import { type JsonRpcMessage } from "./types.ts";
 
 // The stop of last resort under a wind-down flush: long enough that a busy but
@@ -80,7 +81,11 @@ export function emit(msg: JsonRpcMessage): void {
   // The daemon outside a harness session writes to nobody: a word without its scope goes to the journal.
   if (!out.stream && processLog)
     return processLog(`emit outside of a session, dropped: ${JSON.stringify(msg).slice(0, 200)}\n`);
-  writeTo(sessionStream(), JSON.stringify(msg) + "\n");
+  const s = sessionStream();
+  // The harness's own stdout keeps to its line limit; a daemon session's stream goes to
+  // the thin bridge, which keeps to it there (linelimit.ts).
+  const line = s === process.stdout ? harnessLine(msg, log) : JSON.stringify(msg) + "\n";
+  if (line) writeTo(s, line);
 }
 
 // Writing to a pipe is asynchronous, and process.exit does not wait: an answer

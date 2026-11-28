@@ -183,6 +183,7 @@ export function dropExtra(
   reason: string,
   forget: boolean,
   as?: "own" | "beside",
+  ended = false,
 ): void {
   const p = extras.get(key);
   if (!p) return;
@@ -196,8 +197,11 @@ export function dropExtra(
     return standingLog(`handed over ${key} beside the channel: ${handover}`);
   }
   if (as === "own") {
-    p.door.flushBatches();
-    p.door.broadcast({ kind: "released", key, text: reason, own: true });
+    // The agent's session ended (the end gate, #11359): what waited goes to no one, the word
+    // says so to every watchdog of the seat; otherwise the last batch leaves first.
+    if (ended) p.door.dropBatches();
+    else p.door.flushBatches();
+    p.door.broadcast({ kind: "released", key, text: reason, own: true, ...(ended && { ended }) });
   } else if (as === "beside")
     p.door.broadcast({ kind: "released", key, text: reason, beside: true });
   p.door.close();
@@ -211,8 +215,9 @@ export function dropExtra(
     for (const k of [key, ...former]) besideWord({ kind: "beside-gone", key: k, text: reason });
 }
 
-export function dropAllExtras(reason: string, forget: boolean, own = false): void {
-  for (const k of [...extras.keys()]) dropExtra(k, reason, forget, own ? "own" : undefined);
+export function dropAllExtras(reason: string, forget: boolean, own = false, ended = false): void {
+  for (const k of [...extras.keys()])
+    dropExtra(k, reason, forget, own || ended ? "own" : undefined, ended);
   if (forget) state.places = [];
 }
 
