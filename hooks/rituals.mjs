@@ -103,6 +103,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var SPAWN_LINE = `${PRODUCT}/spawned_for:`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
+var STANDING_CAPABILITY = `${PRODUCT}/standing`;
 
 // js/delivery/context-gate.ts
 var CONTEXT_GATE = {
@@ -192,6 +193,11 @@ var TAKE = {
 };
 
 // js/delivery/words/frame-text.ts
+function openCard(c) {
+  const role = c.karta === null ? null : `role ${c.karta}`;
+  const who = c.standing && role ? `${c.standing} (${role})` : c.standing ?? role ?? "unknown";
+  return `  case #${c.room} [${c.entry}], key ${c.key}: asked by ${who}, since ${c.askedAt}`;
+}
 function clockNotice(kind, f) {
   const unknown = "unknown";
   const flag = (v) => v === null ? unknown : v ? "yes" : "no";
@@ -206,6 +212,8 @@ var FRAME_TEXT = {
     clockNotice: (kind, facts) => clockNotice(kind, facts),
     cardRepeat: (n) => `card repeated: ${n ?? "repeat number unknown"}`,
     openCards: (count, oldest, malformed = false) => `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
+    openCard: (c) => openCard(c),
+    cardsMalformed: (n) => `  malformed cards not shown: ${n} (my_open_cards.items)`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
@@ -379,7 +387,8 @@ var TURNED_EN = `${TWO_ENTRIES_EN} Otherwise ${TAKE_PATH_EN}.`;
 var TURN = {
   en: {
     wake: () => `${FRAME_MARK} No human at the console: a question — an ask card in the case; progress or an outcome — a line on its key (${tool("case")} line); an answer or act you need from a doer — say \`to\` their seat; a report to the person — a short word to their seat (${tool("channel")} send). Nothing to say — the turn ends, no text.`,
-    notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`
+    notLaid: (session, why) => `the turn's end word did not enter session ${session}: ${why}`,
+    logged: (session, text2) => `the turn's end word of session ${session} — to the log, the plugin opens no turn: ${text2}`
   }
 };
 
@@ -397,6 +406,7 @@ var WATCHDOG = {
     seatNotBack: (s, path) => `the seat did not return within ${s}s of the daemon change (socket ${path} not up); bring it back with ${tool("stand")}`,
     noSocket: (path, s) => `the bridge did not bring up the local socket ${path} within ${s}s`,
     bridgeReleasedSocket: (text2) => `the bridge released the socket: ${text2}`,
+    sessionEnded: (text2) => `the agent's session has ended — the watchdog leaves, no turn opens any more: ${text2}`,
     notWakeup: (type) => `frame ${type ?? "unparsed"} — not a reason to wake`,
     seenEarlier: (id) => `frame ${id} was already delivered by an earlier arming — not a reason to wake`,
     unaddressed: () => "a batch with nothing addressed to the seat — the count waits for the next wake-up",
@@ -415,7 +425,8 @@ var WATCHDOG = {
     doorClosed: (why, lost) => `the door closed: ${why} — will reopen on the next frame` + (lost ? `; unanswered: ${lost} — will come back from the ring on the next arming` : ""),
     doorNotOpened: (why) => `the door did not open: ${why}`,
     noIdFromRing: () => "a frame without an id from the ring — nothing to mark it with, not putting it into the thread again",
-    alreadyPut: (id) => `frame ${id} was already put in — not putting it into the thread again`
+    alreadyPut: (id) => `frame ${id} was already put in — not putting it into the thread again`,
+    deferred: (id, s) => `frame ${id} deferred — not interrupting the running turn: into the thread in ${s}s or with the next interrupting frame`
   }
 };
 
@@ -1029,12 +1040,23 @@ var COMPACT = new RegExp(
 var CARDS = new RegExp(
   `(?:${LANGS.flatMap((lang2) => {
     const T = FRAME_TEXT[lang2];
-    return [
+    const count = [
       esc(flat(T.openCards(null, null))),
       esc(flat(T.openCards(null, null, true))),
       esc(flat(T.openCards(N, null))).replace(NUM, String.raw`\d+`),
       esc(flat(T.openCards(N, ARGS))).replace(NUM, String.raw`\d+`).replace(ARGS, String.raw`[0-9T:.+Z-]+`)
     ];
+    const askers = [
+      [ARGS, N],
+      [ARGS, null],
+      [null, N],
+      [null, null]
+    ];
+    const card = askers.map(
+      ([standing, karta]) => esc(flat(T.openCard({ room: N, entry: N, key: ARGS, standing, karta, askedAt: ARGS }))).replace(NUM, String.raw`\d+`).replaceAll(ARGS, ".+?")
+    );
+    const malformed = esc(flat(T.cardsMalformed(N))).replace(NUM, String.raw`\d+`);
+    return [`(?:${count.join("|")})(?:${card.join("|")})*(?:${malformed})?`];
   }).join("|")})$`
 );
 function quiet(text2) {
