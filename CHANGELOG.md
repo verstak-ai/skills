@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.8.1](https://github.com/verstak-ai/skills/compare/v4.8.0...v4.8.1) (2026-11-28)
+
+
+### Bug Fixes
+
+* the bridge core synced to the sibling's 8.16.9 — an OpenCode session moved to another folder keeps one seat; foreman reads the whole board without all=true ([#466](https://github.com/verstak-ai/skills/issues/466)) ([446e2c2](https://github.com/verstak-ai/skills/commit/446e2c2ecae4936691f4bf3b6594715385fcc76e))
+
 ## [4.8.0](https://github.com/verstak-ai/skills/compare/v4.7.0...v4.8.0) (2026-11-27)
 
 
