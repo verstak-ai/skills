@@ -40,7 +40,7 @@ export function batchBodyText(
     body.incomplete,
     frames,
   );
-  return `${body.head}\n\n${bodies.join("\n\n")}`;
+  return [body.head, ...bodies].filter(Boolean).join("\n\n");
 }
 
 /** The waiting counts ride in a batch only when one of them is of a case the batch shows. */
@@ -53,17 +53,21 @@ export function ridesIn(riding: Frame[], frames: readonly Frame[], body: BatchBo
  * Stale batch by the giver's memory `has`: the text ("" — all already in the turn), its
  * parts and its delivery marks, written by the giver once the text is out (#5831). Rule
  * #6574: addressed to the seat as text, other case records by count; an event once.
+ * `headed` false — no head of the giver's own, unless frames were left out: the bridge handing
+ * pi and OpenCode their batch, the plugin itself (#11359); the watchdogs keep theirs.
  */
 export function staleBatch(
   all: readonly Frame[],
   has: Marks,
   riding: Frame[] = [],
+  headed = true,
 ): { text: string; keys: string[]; body?: BatchBody } {
   const { shown: frames, kept, keys } = splitBatch(all, STALE_BURST_KEEP, has);
   const count = kept.length;
   if (!count) return { text: "", keys };
   const body = {
-    head: words(STALE).head(count, frames.length),
+    // Headless or not, a batch that did not fit whole says what was left out.
+    head: headed || count > frames.length ? words(STALE).head(count, frames.length) : "",
     shown: frames.map((f) => all.indexOf(f)),
     incomplete: count > frames.length,
   };

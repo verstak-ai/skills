@@ -55,6 +55,8 @@ function pulseFrom(m: Mux, s: Sub, text: string, sent?: (at: number) => void): b
   } catch {
     return false;
   }
+  // The answer to a life check goes at once, with its channel (lifeanswer.ts): not in the tact.
+  if (f?.type === "life") return m.link.send({ ...f, channel_id: s.channel });
   if (f?.type !== "pulse") return false;
   const { type: _t, ...pulse } = f;
   m.ticker.put({ channel_id: s.channel, pulse }, undefined, sent);

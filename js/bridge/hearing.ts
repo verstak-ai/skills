@@ -15,6 +15,7 @@ import { boardRead } from "./boardread.ts";
 import { type AskedHearing, realmList, resolveAgainstLed } from "./call.ts";
 import { harnessName } from "./client.ts";
 import { CFG } from "./config.ts";
+import { ReturnLater } from "./gatestay.ts";
 import {
   doors,
   holdsKey,
@@ -159,21 +160,25 @@ async function heldLocally(
  * Who listens on the seat: another session, nobody, or the bridge does not know. Judged as
  * the stand tool does (separate.ts): the directory named by the call, else the standing's or
  * the session's; a former bridge of this session is its own though the board reads it
- * listening (graph @nks/nks-dev, node #6702).
+ * listening (graph @nks/nks-dev, node #6702). `call` — a call in hand waits: its board read is
+ * not held at the gate past ~20 s, ReturnLater goes up to the call (gatestay.ts).
  */
 export async function askedHearing(
   realm: string,
   karta: string,
   name: string,
   cwd: string = H.standCwd ?? sessionCwd(),
+  call = false,
 ): Promise<AskedHearing> {
   const local = await heldLocally(realm, karta, name, cwd);
   if (local === "other") return "other";
   if (local === "session") return "free";
   // A return: the gate (boardread.ts).
-  const b = await boardRead(realm, karta, `hearing of ${name || "the seat"} not proven`).catch(
-    () => null,
-  );
+  const why = `hearing of ${name || "the seat"} not proven`;
+  const b = await boardRead(realm, karta, why, call).catch((e: unknown) => {
+    if (e instanceof ReturnLater) throw e;
+    return null;
+  });
   return boardHearing(b && !b.isError ? readBoard(b) : null, karta, name);
 }
 
@@ -194,7 +199,7 @@ export async function rawSeatRefusal(msg: JsonRpcMessage): Promise<string | null
   const agent = unresolvedAgent(karta, action);
   if (agent) return agent;
   if (ledHere(realm, karta, name)) return null;
-  const hearing = await askedHearing(realm, karta, name);
+  const hearing = await askedHearing(realm, karta, name, undefined, true);
   if (hearing === "free") return null;
   const seat = keyOf(realm, karta, name);
   const w = words(HEARING);

@@ -53,11 +53,11 @@ const COMPACT = new RegExp(
   `^(?:${LANGS.flatMap(head).join("|")})?(?:${LANGS.map(compact).join("|")})$`,
 );
 
-// A server card snapshot is context, not another wake-up (#10167).
+// A server card snapshot is context, not another wake-up (#10167), its card lines too (#11419).
 const CARDS = new RegExp(
   `(?:${LANGS.flatMap((lang) => {
     const T = FRAME_TEXT[lang];
-    return [
+    const count = [
       esc(flat(T.openCards(null, null))),
       esc(flat(T.openCards(null, null, true))),
       esc(flat(T.openCards(N, null))).replace(NUM, String.raw`\d+`),
@@ -65,6 +65,19 @@ const CARDS = new RegExp(
         .replace(NUM, String.raw`\d+`)
         .replace(ARGS, String.raw`[0-9T:.+Z-]+`),
     ];
+    const askers: [string | null, number | null][] = [
+      [ARGS, N],
+      [ARGS, null],
+      [null, N],
+      [null, null],
+    ];
+    const card = askers.map(([standing, karta]) =>
+      esc(flat(T.openCard({ room: N, entry: N, key: ARGS, standing, karta, askedAt: ARGS })))
+        .replace(NUM, String.raw`\d+`)
+        .replaceAll(ARGS, ".+?"),
+    );
+    const malformed = esc(flat(T.cardsMalformed(N))).replace(NUM, String.raw`\d+`);
+    return [`(?:${count.join("|")})(?:${card.join("|")})*(?:${malformed})?`];
   }).join("|")})$`,
 );
 

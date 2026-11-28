@@ -5,7 +5,7 @@ import { clockNoticeText } from "./clock-notices.ts";
 import { compactCounts } from "./frame-format.ts";
 import { superseded } from "./keyfold.ts";
 import { words as wordsOf } from "./lang.ts";
-import { cardRepeatText, cardsIn, openCardsText } from "./open-cards.ts";
+import { cardRepeatText, cardsIn, hasCards, openCardsText } from "./open-cards.ts";
 import { addresseeOf, need } from "./room-fields.ts";
 import { roomKind } from "./room-kinds.ts";
 import { isLifeCheck } from "./seen.ts";
@@ -155,7 +155,7 @@ export function frameToText(frame: Frame | null | undefined, raw: string, withCa
   const text = frameText(frame, raw, withCase);
   if (!frame || !withCase) return text;
   const cards = openCardsText(frame);
-  return text.split("\n").includes(cards) ? text : `${text}\n${cards}`;
+  return hasCards(text, cards) ? text : `${text}\n${cards}`;
 }
 
 function frameText(frame: Frame | null | undefined, raw: string, withCase: boolean): string {
@@ -300,9 +300,7 @@ export function underCounts(
 ): string[] {
   const lines = groupedCounts(counted, shown, incomplete);
   const cards = cardsIn(cardFrames);
-  return cards && !lines.some((line) => line.split("\n").includes(cards))
-    ? [...lines, cards]
-    : lines;
+  return cards && !lines.some((line) => hasCards(line, cards)) ? [...lines, cards] : lines;
 }
 
 function groupedCounts(counted: Frame[], shown: Shown[], incomplete: boolean): string[] {

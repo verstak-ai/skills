@@ -58,6 +58,12 @@ export interface OpencodeWords {
   /** text — the start of the frame. */
   childEnded: (frame: string, id: string, text: string) => string;
   sessionClosed: (id: string, frame: string) => string;
+  /** The host did not answer whether the session is live: the frame is held, no turn opens. */
+  sessionUnknown: (id: string, frame: string) => string;
+  /** The hold of a session not known to be live is full: its oldest frame goes. */
+  holdFull: (id: string, frame: string) => string;
+  /** The server's child_ended for an end the plugin already told the parent of: not delivered. */
+  childEndedTold: (standing: string) => string;
   nowhere: (frame: string, text: string) => string;
   halted: (frame: string, id: string) => string;
   /** The pulse (#7529): the session holds so many frames laid and not taken by its turn yet. */
@@ -148,6 +154,12 @@ export const OPENCODE: Readonly<Record<Lang, OpencodeWords>> = {
       `Verstak: ${frame} not delivered — the subagent of session ${id} has ended, its session is not woken any more; a case record stays in the case (${tool("case")} history) — ${text}`,
     sessionClosed: (id, frame) =>
       `Verstak: session ${id} is closed or archived — the ${frame} was not delivered`,
+    sessionUnknown: (id, frame) =>
+      `Verstak: session ${id} — not known to be live: the host did not answer — the ${frame} is held in the plugin's memory until the host tells; no turn opens`,
+    holdFull: (id, frame) =>
+      `Verstak: session ${id} — too many frames held while the host is silent about it; the oldest (${frame}) was not delivered`,
+    childEndedTold: (standing) =>
+      `Verstak: the server's child_ended of ${standing} was not delivered — the plugin already told the parent of that end`,
     nowhere: (frame, text) =>
       `Verstak: ${frame} HAS NOWHERE TO GO — the plugin has seen no live root session; a case record stays in the case (${tool("case")} history), a direct word did not arrive — ` +
       text,

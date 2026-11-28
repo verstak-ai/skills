@@ -54,12 +54,18 @@ const TACT_POLL_MS = 1_000;
 export function setupChannel(pi: ExtensionAPI): (params: any) => void {
   const P = words(PLUGIN);
   let ctxRef: any = null;
+  let ended = true;
 
   pi.on("session_start", async (_event, ctx) => {
+    ended = false;
     ctxRef = ctx;
   });
   pi.on("session_shutdown", async () => {
+    ended = true;
     ctxRef = null;
+    if (tactPoll) clearInterval(tactPoll);
+    tactPoll = null;
+    tact = null;
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     aside.splice(0);
@@ -112,7 +118,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
 
   // The harness admits a new turn here: graph updates stay foldable until this boundary.
   pi.on("before_agent_start", async () => {
-    if (halted || !aside.some(contextOnly)) return;
+    if (ended || halted || !aside.some(contextOnly)) return;
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     const unit = [...aside];
@@ -174,7 +180,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
     tactPoll = null;
     const t = tact;
     tact = null;
-    if (t) sendBatch(t);
+    if (t && !ended) sendBatch(t);
   }
   /** The batch's tact was taken by the platform before the waiting one — a stale batch comes after a live one. */
   function olderTact(ev: ChannelEvent): boolean {
@@ -220,6 +226,7 @@ export function setupChannel(pi: ExtensionAPI): (params: any) => void {
   }
 
   return (params: any) => {
+    if (ended) return;
     let ev = params?.data as ChannelEvent | undefined;
     if (!ev || typeof ev !== "object") return;
     if (ev.kind === "held") halted = false;

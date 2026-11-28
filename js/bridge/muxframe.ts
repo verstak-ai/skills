@@ -12,6 +12,8 @@ export interface FrameRoutes {
   refused(s: Sub, code: string): void;
   closed(s: Sub, code: number, reason: string): void;
   frame(s: Sub, f: Frame, channel: string): void;
+  /** A life check of a channel no live subscription holds: the dispatcher answers it itself. */
+  life(channel: string, f: Frame): void;
 }
 
 export function routeFrame(raw: string, r: FrameRoutes): void {
@@ -39,6 +41,7 @@ export function routeFrame(raw: string, r: FrameRoutes): void {
   const s = r.byChannel.get(channel);
   if (f.type === "channel_closed")
     return s ? r.closed(s, Number(f.code), String(f.reason ?? "")) : undefined;
+  if ((!s || s.closed) && f.type === "life_check") return r.life(channel, f);
   if (!s || s.closed) return log(`dispatcher: a frame of ${channel} held by no session`);
   r.frame(s, f, channel);
 }

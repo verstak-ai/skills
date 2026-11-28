@@ -3,8 +3,9 @@
 // CODEX_THREAD_ID and CODEX_HOME only into the environment of commands the agent runs
 // (MCP servers do not get them), so the agent starts this watchdog from its shell as a
 // background task; each message frame goes into the thread by turn/start — a steer on a
-// busy thread, a new turn on an idle one. A dead token and drops while the service is
-// alive are a non-zero exit, as with the other watchdogs.
+// busy thread, a new turn on an idle one; a deferred one waits out the turn (defer.ts).
+// A dead token and drops while the service is alive are a non-zero exit, as with the
+// other watchdogs.
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -26,6 +27,7 @@ import {
   resolveStanding,
   staleOf,
 } from "./client.ts";
+import { afterTurn, type Carrier, DEFER_MS, DeferHold } from "./defer.ts";
 import { doer, wd } from "./words.ts";
 
 const FLUSH_WAIT_MS = 5000; // an own release waits for in-flight puts at most this long
@@ -193,22 +195,25 @@ export function runWatchdogCodex(argv: string[]): void {
   // as a per-case count head with the next frame; their text does not go into the thread.
   let pend: { frame: NonNullable<ChannelEvent["frame"]>; ids: string[] }[] = [];
   /**
-   * The pending count as a head before `text`, built at put time by the watchdog's memory;
-   * copies of an event on a turn awaiting the thread wait with it (holdOut, client.ts heldText);
-   * the carrier stands under its case's count (#9654).
+   * The pending count as a head before the carriers' text, built at put time by the watchdog's
+   * memory; copies of an event on a turn awaiting the thread wait with it (holdOut, client.ts
+   * heldText); each carrier stands under its case's count (#9654). One turn for all of them.
    */
-  const withPend = (ids: string[], carrier?: ChannelEvent["frame"], raw = ""): void => {
+  const withPend = (carriers: Carrier[] = []): void => {
     const got = holdOut(pend.map((p) => ({ ...p, stale: false })));
     pend = [];
-    const shown = carrier
-      ? [{ frame: carrier, text: (w: boolean) => frameToText(carrier, raw, w) }]
-      : [];
+    const shown = carriers.map(({ frame, raw }) => ({
+      frame,
+      text: (w: boolean) => frameToText(frame, raw, w),
+    }));
+    const ids = carriers.flatMap((c) => deliveryKeys(c.frame));
     const keys = [...got.flatMap((g) => g.ids), ...ids];
     const lines = heldText([got.map((g) => g.frame)], (k) => seen.has(k), shown).filter(Boolean);
     // Nothing to put, what waited is already in a turn: marks are written, no empty turn.
     if (!lines.length) return void keys.forEach((k) => noteSeen(seenPath, k, seen));
     void deliver(lines.join("\n"), keys);
   };
+  const later = new DeferHold((held) => withPend(held));
   attach(target.path, {
     onEvent: (ev) => {
       switch (ev.kind) {
@@ -230,8 +235,18 @@ export function runWatchdogCodex(argv: string[]): void {
             pend.splice(0, Math.max(0, pend.length - 500)); // the oldest go: the count is bounded
             return;
           }
-          // The piled-up count as a head in front; the frame as text, marks on acceptance.
-          withPend(deliveryKeys(ev.frame), ev.frame, ev.raw ?? "");
+          const frame = ev.frame;
+          if (!frame) break;
+          const carrier = { frame, raw: ev.raw ?? "" };
+          // A deferred word or a question to the seat waits out the running turn (defer.ts); a
+          // bridge's batch has already waited its window.
+          if (!ev.batch && afterTurn(frame)) {
+            if (later.hold(carrier)) note(wd().deferred(String(frame.id ?? "?"), DEFER_MS / 1000));
+            break;
+          }
+          // The piled-up count as a head in front; what waited and the frame as text, one turn,
+          // marks on acceptance.
+          withPend([...later.take(), carrier]);
           break;
         }
         case "stale":
@@ -260,12 +275,14 @@ export function runWatchdogCodex(argv: string[]): void {
           if (ev.beside && !ev.own) {
             forgotten = true;
             pend = [];
+            later.take();
             again.length = 0;
             break;
           }
-          // An own close/revoke/leave: last frames and the pending count into the thread, then exit (#6638).
+          // An own close/revoke/leave: last frames, what waited out the turn and the pending
+          // count into the thread, then exit (#6638).
           if (!ev.own) break;
-          if (pend.length) withPend([]);
+          if (pend.length || later.size) withPend(later.take());
           if (again.length) putStale(again.splice(0)); // a batch that waited for the door opens it
           // A door that never answers the upgrade would hold the watchdog forever: a limit and a loud exit.
           setTimeout(() => {

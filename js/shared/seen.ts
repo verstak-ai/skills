@@ -47,6 +47,26 @@ export function eventKeyOf(frame: Frame | null | undefined): string {
   return evOf((body as Record<string, unknown>).event_id);
 }
 
+/**
+ * Case record mark `rec:<room.id>|<entry_id>` — the record's contract key on the wire, the same
+ * on every copy of one record (graph @nks/nks-dev, node #11359). "" for a frame outside a case
+ * or without room.id, a frame with event_id (its event is its key), a server card repeat
+ * (repeat: true stays intentional) and a two-phase body.
+ */
+export function recordKeyOf(frame: Frame | null | undefined): string {
+  if (!frame || frame.type !== "message" || frame.repeat === true || eventKeyOf(frame)) return "";
+  const f = frame as Record<string, unknown>;
+  const room = idOf(objOf(f.room).id);
+  const line = objOf(f.line);
+  const entry = idOf(f.entry_id ?? line.entry_id);
+  return room && entry && line.kind !== "body" ? `rec:${room}|${entry}` : "";
+}
+
+const objOf = (v: unknown): Record<string, unknown> =>
+  v && typeof v === "object" ? (v as Record<string, unknown>) : {};
+const idOf = (v: unknown): string =>
+  typeof v === "number" || (typeof v === "string" && v) ? String(v) : "";
+
 // One event enters the turn once, as text or as a count (graph @nks/nks-dev, nodes
 // #5842, #6563, #6574). The rule is the two functions below and only they:
 // deliveryKeys — what delivery marks, eventIn — whether a mark already quenches a copy.
@@ -74,7 +94,8 @@ export function deliveryKeys(frame: Frame | null | undefined, named = false): st
   const retired = (frame && !named && asText(frame) ? (graphMarks.get(frame) ?? []) : []).map(
     (k) => (frame?.stale === true && k.startsWith("ev:") ? `evs:${k.slice(3)}` : k),
   );
-  return [...new Set([...retired, id, mark && (named ? `c${mark}` : mark)].filter(Boolean))];
+  const rec = recordKeyOf(frame);
+  return [...new Set([...retired, id, mark && (named ? `c${mark}` : mark), rec].filter(Boolean))];
 }
 
 /**
@@ -84,6 +105,7 @@ export function deliveryKeys(frame: Frame | null | undefined, named = false): st
  * does not quench a live text copy: it wakes (graph @nks/nks-dev, node #5842).
  */
 export function eventIn(frame: Frame | null | undefined, has: Marks): boolean {
+  if (frame && !asText(frame) && recordIn(frame, has)) return true;
   const ev = frame ? eventKeyOf(frame) : "";
   if (!ev || !frame) return false;
   const n = ev.slice(3);
@@ -95,6 +117,12 @@ export function eventIn(frame: Frame | null | undefined, has: Marks): boolean {
       : [ev, `cev:${n}`];
   return keys.some(has);
 }
+
+/** A counted copy of a record already in the turn (recordKeyOf); a text copy still wakes. */
+const recordIn = (frame: Frame, has: Marks): boolean => {
+  const rec = recordKeyOf(frame);
+  return !!rec && has(rec);
+};
 
 /**
  * Attention tact frame (graph @nks/nks-dev, node #6169): provenance.wake="look_up" —
@@ -164,8 +192,16 @@ export function splitBatch(
     const shown = new Set(kept.slice(0, keep));
     const marks = new Set<string>();
     const local: Marks = (k) => marks.has(k) || has(k);
+    // One record once: a counted copy goes when the batch has its text or an earlier count.
+    for (const f of kept) if (asText(f) && recordKeyOf(f)) marks.add(recordKeyOf(f));
+    const counted = new Set<string>();
     const texts = kept.filter((f) => {
-      if (!asText(f)) return true;
+      if (!asText(f)) {
+        const rec = recordKeyOf(f);
+        if (rec && (counted.has(rec) || local(rec))) return false;
+        if (rec) counted.add(rec);
+        return true;
+      }
       if (eventIn(f, local)) return false; // the event's text is already above in this batch
       for (const k of deliveryKeys(f, !shown.has(f))) marks.add(k);
       return true;

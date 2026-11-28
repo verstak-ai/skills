@@ -10,6 +10,7 @@ import { apiBase } from "../shared/channel.ts";
 import { namedFetch } from "../shared/http.ts";
 import { revokeOwnPlaces } from "./caseexit.ts";
 import { dropConfirmed, seatKeyOf, stillOwn } from "./deadseat.ts";
+import { reportEnd } from "./endreport.ts";
 import { dropOwnHoldRecord } from "./holdrecord.ts";
 import { log } from "./streams.ts";
 import { type Standing } from "./transport.ts";
@@ -20,7 +21,7 @@ const NOT_CURRENT = "ws_token_not_current";
 export type Stop = "stopped" | "moved" | "absent" | "unknown";
 
 /** errors[0].rule of a ProblemDetail body; null — no rule (or no JSON). */
-function ruleOf(body: string): string | null {
+export function ruleOf(body: string): string | null {
   try {
     const rule = (JSON.parse(body) as { errors?: { rule?: unknown }[] })?.errors?.[0]?.rule;
     return typeof rule === "string" ? rule : null;
@@ -29,12 +30,17 @@ function ruleOf(body: string): string | null {
   }
 }
 
-/** standing_id of each ended[] entry of a 200 {channel_id, ended_by, ended:[{standing_id, ended_at}]}. */
-function endedOf(body: string): string[] {
+/**
+ * standing_id of each ended[] entry of a 200 {channel_id, ended_by, ended:[{standing_id, ended_at}]};
+ * the end event's 200 {ended:[ids]} names them bare.
+ */
+export function endedOf(body: string): string[] {
   try {
-    const ended = (JSON.parse(body) as { ended?: { standing_id?: unknown }[] })?.ended;
+    const ended = (JSON.parse(body) as { ended?: unknown[] })?.ended;
     return Array.isArray(ended)
-      ? ended.map((e) => e?.standing_id).filter((id): id is string => typeof id === "string")
+      ? ended
+          .map((e) => (typeof e === "string" ? e : (e as { standing_id?: unknown })?.standing_id))
+          .filter((id): id is string => typeof id === "string")
       : [];
   } catch {
     return [];
@@ -134,13 +140,14 @@ export async function closeDeadSeats(
   const say = (): void =>
     log(`the agent's session ended without an announced absence — closing its seats (#7493)`);
   if (!main) return closeByBoard(places, status, say);
-  const { how, why, ended } = await stopBySocket(main.socket);
+  const { how, why, ended } = await reportEnd(main.socket, "process_died");
   if (how === "stopped") {
     say();
     settleStopped(places, main.socket, ids, ended, why);
     return;
   }
   if (how === "moved") return settleMoved(places, main.seat, main.socket);
+  if (how === "refused") return; // the api refused the event (endreport.ts): no fallback, no repeat
   if (how === "unknown")
     return log(
       `${seatKeyOf(main.seat)}: the stop by its token did not answer: ${why} — not closed, the seats go by the platform's term`,

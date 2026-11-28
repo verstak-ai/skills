@@ -141,6 +141,8 @@ export function earlyLines(s: Sub, channel: string): [TickEntry, Lost][] {
 /** The frame as a seat's own socket gives it: the connection's labels stripped. */
 export function asSeatFrame(f: Frame): { raw: string; frame: Frame } {
   const { channel_id: _c, sub: _s, seq: _q, ref: _r, ...rest } = f;
+  // A life check's ref is its own (lifeanswer.ts), not the dispatcher's subscribe ref.
+  if (f.type === "life_check") Object.assign(rest, { ref: f.ref });
   return { raw: JSON.stringify(rest), frame: rest as Frame };
 }
 

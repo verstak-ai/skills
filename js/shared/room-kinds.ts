@@ -2,7 +2,7 @@
 // frame — its word and stack. Only `event_kind: "room.<kind>"` is decided here;
 // rules are code (RULES, stackOf), words come from the delivery layer.
 import { CASE_LINE, ROOM, ROOM_AUTO, ROOM_REL, VERDICT } from "../delivery/index.ts";
-import { addressedMine, ASK_KINDS, askText, askValues } from "./asks.ts";
+import { addressedMine, ASK_KINDS, askedMine, askText, askValues } from "./asks.ts";
 import { classifyOrigin, type Frame } from "./channel.ts";
 import { words } from "./lang.ts";
 import {
@@ -302,6 +302,20 @@ export function roomKind(frame: Frame | null | undefined): RoomKind | null {
 }
 
 export const byKind = (frame: Frame | null | undefined): boolean => roomKind(frame) !== null;
+
+/**
+ * A word the server deferred or a question asked of my seat (graph @nks/nks-dev, nodes
+ * #6655, #11421): "do not interrupt the running turn", not "wait for the batch window".
+ * Its rule stays batch — a door with a queue puts it after the turn — and the bridge
+ * hands it to a watchdog at once, once the frame is addressed to the seat at all.
+ */
+export function deferredMine(frame: Frame | null | undefined): boolean {
+  const rk = roomKind(frame);
+  if (!rk || rk.phase || rk.aside) return false;
+  const f = frame as Rec;
+  if (rk.kind === "ask") return askedMine(f, obj(obj(f.line).fields));
+  return (rk.kind === "said" || rk.kind === "body") && f.stack === "defer";
+}
 
 /** Frame path: with event_kind — the kind's rule; otherwise the frame's own stack (defer — batch). */
 export const stackOf = (frame: Frame | null | undefined): Stack =>

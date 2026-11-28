@@ -20,6 +20,21 @@ export interface ClockNoticeFacts {
   escalated: boolean | null;
 }
 
+export interface OpenCardFacts {
+  room: number;
+  entry: number;
+  key: string;
+  standing: string | null;
+  karta: number | null;
+  askedAt: string;
+}
+
+function openCard(c: OpenCardFacts): string {
+  const role = c.karta === null ? null : `role ${c.karta}`;
+  const who = c.standing && role ? `${c.standing} (${role})` : (c.standing ?? role ?? "unknown");
+  return `  case #${c.room} [${c.entry}], key ${c.key}: asked by ${who}, since ${c.askedAt}`;
+}
+
 function clockNotice(kind: "card_unanswered" | "line_due", f: ClockNoticeFacts): string {
   const unknown = "unknown";
   const flag = (v: boolean | null) => (v === null ? unknown : v ? "yes" : "no");
@@ -39,6 +54,10 @@ export interface FrameTextWords {
   cardRepeat: (n: number | null) => string;
   /** The server's snapshot of the seat's unanswered cards; malformed — the field was unreadable. */
   openCards: (count: number | null, oldest: string | null, malformed?: boolean) => string;
+  /** One card of the snapshot, under the count line; the time as the server sent it. */
+  openCard: (card: OpenCardFacts) => string;
+  /** How many cards of the snapshot are not shown: malformed. */
+  cardsMalformed: (n: number) => string;
   myCases: () => string;
   frame: (id: string) => string;
   yoursBelow: () => string;
@@ -76,6 +95,8 @@ export const FRAME_TEXT: Readonly<Record<Lang, FrameTextWords>> = {
     cardRepeat: (n) => `card repeated: ${n ?? "repeat number unknown"}`,
     openCards: (count, oldest, malformed = false) =>
       `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
+    openCard: (c) => openCard(c),
+    cardsMalformed: (n) => `  malformed cards not shown: ${n} (my_open_cards.items)`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,

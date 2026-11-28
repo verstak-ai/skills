@@ -35,6 +35,8 @@ export interface LeadWords {
   endUnwritten: (sessionID: string, message: string) => string;
   endUnlifted: (sessionID: string, message: string) => string;
   notDown: (who: string, message: string) => string;
+  /** The server's child_ended told the parent: the plugin's own end word is not sent. */
+  serverSaidEnd: (who: string) => string;
   leftSeat: () => string;
   leftCases: () => string;
   leftCase: (room: string) => string;
@@ -118,13 +120,15 @@ export const LEAD: Readonly<Record<Lang, LeadWords>> = {
     noParent: (text) =>
       `${text}\n(the plugin does not know the parent — nobody to give the outcome to)`,
     noLiveAncestor: (text) =>
-      `${text}\n(the parent and every ancestor are ended or stopped — the word went into no session, it is here)`,
+      `${text}\n(the parent and every ancestor are ended, stopped or not answering — the word went into no session, it is here)`,
     endUnwritten: (sessionID, message) =>
       `Verstak: the end of the subagent of session ${sessionID} was not written to disk (${message}) — only this process's live plugin instances keep it, a reload will lose it`,
     endUnlifted: (sessionID, message) =>
       `Verstak: the subagent of session ${sessionID} stood again, but the record of its end was not removed from disk (${message}) — after a plugin reload it will count as ended again`,
     notDown: (who, message) =>
       `Verstak: the bridge of subagent ${who} was not put down after the outcome — ${message}`,
+    serverSaidEnd: (who) =>
+      `Verstak: the server told the parent of subagent ${who}'s end (child_ended) — the plugin sends no word of its own`,
     leftSeat: () => "left its seat by the outcome",
     leftCases: () => "left its cases by the outcome",
     leftCase: (room) => `left case #${room} by the outcome`,

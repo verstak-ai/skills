@@ -6,7 +6,8 @@
 import { type SeatKey } from "../shared/seat.ts";
 import { revokeOwnPlaces, type Revokes } from "./caseexit.ts";
 import { dropConfirmed, seatKeyOf } from "./deadseat.ts";
-import { settleMoved, settleStopped, stopBySocket } from "./deadstop.ts";
+import { settleMoved, settleStopped } from "./deadstop.ts";
+import { type EndEvent, reportEnd } from "./endreport.ts";
 import { normKarta } from "./names.ts";
 import { canonRealm } from "./realms.ts";
 import { log } from "./streams.ts";
@@ -27,12 +28,13 @@ export async function endOnWord(
   places: Standing[],
   socket: string | null,
   ids: Map<string, string | null>,
+  event: EndEvent = "session_closed",
 ): Promise<{ end: Revokes; left: Standing[] }> {
   const none: Revokes = { failed: [], revoked: [], probably: [] };
   if (!places.length) return { end: none, left: [] };
   const [main] = places;
   if (socket) {
-    const { how, why, ended } = await stopBySocket(socket);
+    const { how, why, ended } = await reportEnd(socket, event);
     if (how === "stopped") {
       log(`the agent's session ended on the harness's word — its seats end by its socket's token`);
       const done = settleStopped(places, socket, ids, ended, why);
@@ -42,6 +44,9 @@ export async function endOnWord(
       settleMoved(places, main, socket);
       return { end: none, left: [] };
     }
+    // The api refused the event (endreport.ts): not ended, no fallback, no window to repeat it.
+    if (how === "refused")
+      return { end: { ...none, failed: places.map((s) => s.name ?? "") }, left: [] };
     if (how === "unknown") {
       log(
         `${seatKeyOf(main)}: the stop by its token did not answer: ${why} — the window repeats it`,

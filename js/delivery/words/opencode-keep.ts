@@ -37,8 +37,12 @@ export interface OpencodeKeepWords {
   thisSession: () => string;
   seatLost: (key: string, dir: string, why: string) => string;
   movedAway: (session: string, dir: string) => string;
+  /** An explicit stand of the same graph and role through an instance not holding the session's seat: the holder answers for it. */
+  alreadyStanding: (name: string, realm: string, karta: string) => string;
   takenFromNew: (session: string) => string;
   parentMoved: () => string;
+  /** seconds — when to call again. */
+  rootElsewhere: (seconds: number) => string;
   farRefusal: () => string;
   elsewhereDevice: (device: string) => string;
   elsewhereTunnel: (why: string) => string;
@@ -113,11 +117,17 @@ export const OPENCODE_KEEP: Readonly<Record<Lang, OpencodeKeepWords>> = {
       `was unloaded and did not come up (${why}). Return the seat: ${tool("stand")}.`,
     movedAway: (session, dir) =>
       `Verstak: session ${session} was moved to ${dir} — releasing its seat to that folder's instance`,
+    alreadyStanding: (name, realm, karta) =>
+      `Verstak: the session already stands as ${name} — the seat ${realm}, role ${karta}, is held by the plugin instance of the folder the session lives in now; ` +
+      "this call takes no new seat. Go on from this name.",
     takenFromNew: (session) =>
       `Verstak: the seat of session ${session} was taken from its new folder — it was moved`,
     parentMoved: () =>
       "Refused (plugin): this session's parent was moved to another folder — " +
       "the parent's bridge is not raised here, and it has no seat of its own; this session's work goes on without the graph, or by a word to the launcher.",
+    rootElsewhere: (seconds) =>
+      "Refused (plugin): the root's seat is held by another instance of the plugin, which has not answered yet — " +
+      `retry in ${seconds} s; this call raised no bridge of its own.`,
     farRefusal: () =>
       "Refused (plugin): this child session was moved to a different directory than its parent, and the parent's seat " +
       "is held by no plugin instance of this OpenCode process — the parent is in another process or holds no seat. " +

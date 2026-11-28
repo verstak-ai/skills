@@ -198,6 +198,14 @@ export function attach(path: string, o: AttachOptions): () => void {
           handover = true; // the close that follows is not the bridge leaving
           continue;
         }
+        // The end gate (#11359): after the agent's session ended nothing opens a turn — no frame,
+        // batch, stale, alive/dead/evicted word, no last flush: the watchdog leaves at once, 0.
+        if (ev.kind === "released" && ev.ended) {
+          dead = true;
+          sock.destroy();
+          process.stderr.write(wd().sessionEnded(ev.text ?? "") + "\n");
+          return void process.exit(0);
+        }
         if (ev.kind === "released" && ev.own) ownRelease = true; // own close/revoke: the watchdog leaves itself
         if (ev.kind === "released" && ev.beside) forgotten = true;
         if (ev.kind === "frame") carryGraphMarks(ev.frame, ev.marks);

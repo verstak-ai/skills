@@ -18,7 +18,6 @@ export interface LeaveWords {
   returned: (how: string, status: string) => string;
   noHello: () => string;
   watchdogAttached: () => string;
-  nobodyListens: (min: number) => string;
   byDoerWord: () => string;
   refusedBeside: (beside: string, led: string, realm: string | undefined) => string;
   refusedOther: (realm: string, led: string, ledRealm: string) => string;
@@ -47,7 +46,6 @@ export const LEAVE: Readonly<Record<Lang, LeaveWords>> = {
     noHello: () =>
       "the socket reopened at the same address gave no hello — another may have turned the address",
     watchdogAttached: () => "a watchdog attached",
-    nobodyListens: (min) => `nobody has listened for ${min} min`,
     byDoerWord: () => "by the doer's word",
     refusedBeside: (beside, led, realm) =>
       `Refused (bridge): the seat ${beside} stands on the bridge's shared channel beside ${led} — leaving would close the socket for all seats of the channel. To leave all — leave in the graph ${realm ?? "of the main seat"}; to remove only this seat — revoke.`,

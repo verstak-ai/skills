@@ -11,7 +11,7 @@
 // it needs no imports — the @opencode/plugin types are erased by the build.
 import type { Plugin } from "@opencode/plugin";
 
-import { LOGGERS, OPENCODE, PLUGIN, PRODUCT } from "../delivery/index.ts";
+import { OPENCODE, PLUGIN, PRODUCT } from "../delivery/index.ts";
 import { markFrame } from "../shared/frame-text.ts";
 import { words } from "../shared/lang.ts";
 import { authDir } from "./bridge-io.ts";
@@ -33,6 +33,7 @@ import { createOnboardStart } from "./onboardstart.ts";
 import { createPulseFeed } from "./pulse.ts";
 import { setupQuestionGuard } from "./questions.ts";
 import { quietCalls } from "./quiet-calls.ts";
+import { toldAside } from "./replynotes.ts";
 import { createRites } from "./rites.ts";
 import { createRootSeats } from "./rootseat.ts";
 import { startWords, watchCover } from "./rootseat-start.ts";
@@ -206,7 +207,7 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
     finished: (s) => {
       if (!spawnStarts.has(s)) half.finishSeat(s);
     },
-    tell: (s, text) => heard(s, { logger: LOGGERS.channel, data: { kind: "seat_result", text } }),
+    tell: toldAside(say), // seated past the term: the next tool reply, no turn (replynotes.ts)
     steer: (s, text) => teller(ctx, say, closed)(s, text, false),
   });
   // A root waiting for its cover's alignment looks at the cover after a tool call of its own or its child's.
@@ -472,7 +473,6 @@ async function setup(ctx: Context): Promise<() => Promise<void>> {
   // An instance of another spelling of the same directory wakes this one unloaded with a seat (twins.ts).
   const twins = createTwins(ctx, homeOf(ctx), {
     say,
-    lost: (s, t) => heard(s, { logger: LOGGERS.channel, data: { kind: "return_failed", text: t } }),
     holds: (r) => half.held(r),
     holders: () => half.holders(),
     adopt: () => half.adopt(),

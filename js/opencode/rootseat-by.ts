@@ -32,7 +32,7 @@ export interface SeatDoors {
 }
 
 /** Bridge's held word, else the real record; a sanitized key cannot recover a graph. */
-function heldSeat(d: SeatDoors, slot: Slot, session: string): HeldSeat {
+function heldSeat(d: Pick<SeatDoors, "recorded">, slot: Slot, session: string): HeldSeat {
   if (slot.place) return { ...slot.place };
   const rec = d.recorded?.(slot, session);
   if (rec) return rec;
@@ -53,6 +53,27 @@ export async function canonOf(slot: Pick<Slot, "bridge">, realm: string): Promis
   }
 }
 
+/**
+ * The slot's held seat against the graph and the role: same — the seat is theirs; not same —
+ * another seat; null — a spelling not to be compared. One spelling short and the other not:
+ * the short one goes by the bridge's realm table.
+ */
+export async function heldAs(
+  d: Pick<SeatDoors, "recorded">,
+  slot: Slot,
+  session: string,
+  realm: string,
+  karta: string,
+): Promise<{ own: HeldSeat; same: boolean } | null> {
+  const own = heldSeat(d, slot, session);
+  const mixed = !!own.realm && short(own.realm) !== short(realm);
+  const [x, y] = mixed
+    ? await Promise.all([own.realm, realm].map((r) => (short(r) ? canonOf(slot, r) : r)))
+    : [own.realm, realm];
+  if (!x || short(x) !== short(y)) return null;
+  return { own, same: sameSeat({ ...own, realm: x }, y, karta) };
+}
+
 async function outcome(
   d: SeatDoors,
   slot: Slot,
@@ -61,16 +82,9 @@ async function outcome(
   karta: string,
   provisional: boolean,
 ): Promise<Seating> {
-  const own = heldSeat(d, slot, session);
-  // One spelling short and the other not: the short one goes by the bridge's realm table.
-  const mixed = !!own.realm && short(own.realm) !== short(realm);
-  const [x, y] = mixed
-    ? await Promise.all([own.realm, realm].map((r) => (short(r) ? canonOf(slot, r) : r)))
-    : [own.realm, realm];
-  if (!x || short(x) !== short(y)) return { other: own, uncompared: realm };
-  return sameSeat({ ...own, realm: x }, y, karta)
-    ? { place: own.name, realm: own.realm, provisional }
-    : { other: own };
+  const got = await heldAs(d, slot, session, realm, karta);
+  if (!got) return { other: heldSeat(d, slot, session), uncompared: realm };
+  return got.same ? { place: got.own.name, realm: got.own.realm, provisional } : { other: got.own };
 }
 
 export interface SeatAnswer {

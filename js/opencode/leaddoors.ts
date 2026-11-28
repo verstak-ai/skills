@@ -7,6 +7,7 @@ import { markFrame } from "../shared/frame-text.ts";
 import type { SeatKey } from "../shared/seat.ts";
 import { authDir } from "./bridge-io.ts";
 import { casesLeft } from "./casesleft.ts";
+import { live } from "./endgate.ts";
 import { createEnds, type Ends } from "./leadends.ts";
 import type { Up } from "./leadframes.ts";
 import { W } from "./leadwords.ts";
@@ -72,6 +73,8 @@ export interface Released {
 export interface RunEnd {
   failed: string[];
   revoked: SeatKey[];
+  /** The platform ids of the seats the run's end covered: a child_ended names its child by them. */
+  ids?: string[];
 }
 
 /** Its cases are not here: whether a leave is the last, the platform says (casesleft.ts). */
@@ -126,12 +129,17 @@ export function leadDoors(
       await flush(child).catch(() => {});
       const got: any = await slots
         .get(child)
-        ?.bridge.request(method("end"), {}, { timeoutMs: END_MS, service: true })
+        ?.bridge.request(
+          method("end"),
+          { event: "subagent_ended" },
+          { timeoutMs: END_MS, service: true },
+        )
         .catch(() => null);
       if (!got?.ended) return null;
       // A bare name (an older bridge) is no seat: it confirms nothing.
       const revoked = (got.revoked ?? []).filter((k: any) => typeof k?.name === "string");
-      return { failed: got.failed ?? [], revoked };
+      const ids = (got.ids ?? []).filter((id: unknown) => typeof id === "string");
+      return { failed: got.failed ?? [], revoked, ids };
     },
     sits: (child, realm) => casesLeft(slots.get(child)?.bridge, realm),
     seal: (child) => end(child, null),
@@ -159,18 +167,24 @@ async function parentOf(ctx: Context, child: string): Promise<string | null> {
 /**
  * Synthetic text (no synthetic — prompt) with steer; wake — resume. A closed addressee gets
  * nothing — the word would wake it past the channel's ban (#7505): it goes up the parentID chain
- * to the nearest live ancestor without waking it; none — the journal.
+ * to the nearest live ancestor without waking it; none — the journal. A session the host does
+ * not call live is closed here too (end gate): ended or unknown, no turn opens in it.
  */
 export function teller(ctx: Context, say: Say, closed: Closed = () => false): LeadDoors["tell"] {
   return async (sessionID, text, wake) => {
     const s: any = ctx.session;
     const delivery = "steer";
-    for (const seen = new Set<string>(); closed(sessionID); wake = false) {
+    for (
+      const seen = new Set<string>();
+      closed(sessionID) || !(await live(ctx, sessionID));
+      wake = false
+    ) {
       seen.add(sessionID);
       const up = await parentOf(ctx, sessionID).catch(() => null);
       if (!up || seen.has(up)) return say(W().noLiveAncestor(text), "warning");
       sessionID = up;
     }
+    if (closed(sessionID)) return say(W().noLiveAncestor(text), "warning");
     text = markFrame(text);
     try {
       if (typeof s.synthetic === "function")

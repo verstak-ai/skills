@@ -56,6 +56,19 @@ const dw = (): DoctorWords => words(DOCTOR);
 
 const hashOf = (buf: Buffer): string => createHash("sha256").update(buf).digest("hex").slice(0, 8);
 
+/** Whether two files hold the same bytes; the path that does not read — instead. */
+const sameBytes = (a: string, b: string): boolean | string => {
+  const bytes: Buffer[] = [];
+  for (const p of [a, b]) {
+    try {
+      bytes.push(readFileSync(p));
+    } catch {
+      return p;
+    }
+  }
+  return bytes[0].equals(bytes[1]);
+};
+
 const seconds = (ms: number): string => `${Math.round(ms / 1000)}s`;
 
 const ENTRY = escapeRe(PLUGIN_NAME);
@@ -373,8 +386,11 @@ export function harnessReport(): void {
     const packaged = join(dirname(fileURLToPath(import.meta.url)), PLUGIN_FILE);
     if (!existsSync(copy)) out(dw().ocNoPlugin(copy));
     else if (!existsSync(packaged)) out(dw().ocNoPackaged(copy));
-    else if (readFileSync(copy).equals(readFileSync(packaged))) out(dw().ocSame(copy));
-    else out(dw().ocDiffers(copy, packaged));
+    else {
+      const same = sameBytes(copy, packaged);
+      if (typeof same === "string") out(dw().ocUnreadable(same));
+      else out(same ? dw().ocSame(copy) : dw().ocDiffers(copy, packaged));
+    }
     if (existsSync(copy)) out(openCodeRuntimeWord());
   }
   openCodeMcpEntries(out);
@@ -387,8 +403,12 @@ export function harnessReport(): void {
     else out(dw().codexDoorNone(door));
     const codex = join(codexHome, "config.toml");
     if (existsSync(codex)) {
-      const text = readFileSync(codex, "utf8");
-      out(dw().codexManual(CODEX_ENTRY_RE.test(text)));
+      // A sandbox may forbid another harness's home (EPERM): one line, and the report goes on.
+      try {
+        out(dw().codexManual(CODEX_ENTRY_RE.test(readFileSync(codex, "utf8"))));
+      } catch {
+        out(dw().codexUnreadable(codex));
+      }
     }
   }
   launchReport(out, launches);

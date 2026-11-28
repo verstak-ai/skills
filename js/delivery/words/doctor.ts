@@ -65,11 +65,13 @@ export interface DoctorWords {
   ocNoPackaged: (copy: string) => string;
   ocSame: (copy: string) => string;
   ocDiffers: (copy: string, packaged: string) => string;
+  ocUnreadable: (p: string) => string;
   codexHome: (h: string) => string;
   codexDoorOpen: (door: string) => string;
   codexDoorNever: () => string;
   codexDoorNone: (door: string) => string;
   codexManual: (has: boolean) => string;
+  codexUnreadable: (p: string) => string;
   daemonOn: () => string;
   daemonOff: () => string;
   daemonNeverUp: (dir: string) => string;
@@ -170,6 +172,7 @@ export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
     ocSame: (copy) => `OpenCode: the plugin ${copy} — the same build as in the delivery`,
     ocDiffers: (copy, packaged) =>
       `OpenCode: the plugin ${copy} — DIFFERENT bytes, update from the delivery: cp "${packaged}" ${copy}`,
+    ocUnreadable: (p) => `OpenCode: ${p} is unreadable`,
     codexHome: (h) => `Codex: home ${h}`,
     codexDoorOpen: (door) => `Codex: the app-server door is open (${door})`,
     codexDoorNever: () =>
@@ -178,6 +181,7 @@ export const DOCTOR: Readonly<Record<Lang, DoctorWords>> = {
       `Codex: no door (${door}) — the app-server daemon is not up; without it the frame is delivered by watchdog-exit`,
     codexManual: (has) =>
       `Codex: ${has ? "there is a manual bridge entry in config.toml" : "no manual bridge entry in config.toml (the standard one is in the plugin)"}`,
+    codexUnreadable: (p) => `Codex: ${p} is unreadable`,
     daemonOn: () =>
       "machine daemon: the thin bridge is on — the default (the switch is VERSTAK_BRIDGE_DAEMON=0 in the bridge environment)",
     daemonOff: () =>

@@ -48,6 +48,6 @@ export function quietCalls(ev: ChannelEvent, spawned: boolean): ChannelEvent {
   const drop = quiet(ev.frames, spawned);
   if (!drop.size) return ev;
   const kept = ev.frames.filter((f) => !drop.has(f));
-  const text = kept.length ? staleBatch(kept, () => false).text : "";
+  const text = kept.length ? staleBatch(kept, () => false, [], false).text : "";
   return { ...ev, frames: kept, text, body: undefined };
 }
