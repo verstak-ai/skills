@@ -102,6 +102,7 @@ var FRAME_MARK = `[${PRODUCT}]`;
 var STRUCTURED_CAPABILITY = `${PRODUCT}/structured`;
 var SPAWN_LINE = `${PRODUCT}/spawned_for:`;
 var HALTS_CAPABILITY = `${PRODUCT}/halts`;
+var STANDING_CAPABILITY = `${PRODUCT}/standing`;
 
 // js/delivery/context-gate.ts
 var CONTEXT_GATE = {
@@ -125,7 +126,7 @@ var LAUNCH_LINE = new RegExp(
 var SPAWNED_FOR_ENV = envName("SPAWNED_FOR");
 
 // js/delivery/version.ts
-var VERSION = "4.8.0";
+var VERSION = "4.8.1";
 var BUILD_MARK = "verstak-build";
 
 // js/delivery/words/asks.ts
@@ -167,20 +168,27 @@ var TAKE = {
 };
 
 // js/delivery/words/frame-text.ts
+function openCard(c) {
+  const role = c.karta === null ? null : `role ${c.karta}`;
+  const who = c.standing && role ? `${c.standing} (${role})` : c.standing ?? role ?? "unknown";
+  return `  case #${c.room} [${c.entry}], key ${c.key}: asked by ${who}, since ${c.askedAt}`;
+}
 function clockNotice(kind2, f) {
   const unknown = "unknown";
   const flag = (v) => v === null ? unknown : v ? "yes" : "no";
-  const card = kind2 === "card_unanswered";
+  const card2 = kind2 === "card_unanswered";
   const ref = `case #${f.room ?? unknown} (id: ${f.roomId ?? unknown}, graph: ${f.realm ?? unknown}) [${f.entry ?? unknown}], key: ${f.key ?? unknown}`;
-  const who = `${card ? "addressee" : "holder"}: ${f.standing ?? unknown} (id: ${f.standingId ?? unknown}, role: ${f.karta ?? unknown})`;
-  const facts = card ? `listening: ${flag(f.listening)}; last move: ${f.lastAct ?? unknown}; role called: ${flag(f.roleCalled)}` : `due: ${f.due ?? unknown}; passed to the assigner: ${flag(f.escalated)}`;
-  return `${card ? "card unanswered" : "line due"}: ${ref}; ${who}; ${facts}`;
+  const who = `${card2 ? "addressee" : "holder"}: ${f.standing ?? unknown} (id: ${f.standingId ?? unknown}, role: ${f.karta ?? unknown})`;
+  const facts = card2 ? `listening: ${flag(f.listening)}; last move: ${f.lastAct ?? unknown}; role called: ${flag(f.roleCalled)}` : `due: ${f.due ?? unknown}; passed to the assigner: ${flag(f.escalated)}`;
+  return `${card2 ? "card unanswered" : "line due"}: ${ref}; ${who}; ${facts}`;
 }
 var FRAME_TEXT = {
   en: {
     clockNotice: (kind2, facts) => clockNotice(kind2, facts),
     cardRepeat: (n2) => `card repeated: ${n2 ?? "repeat number unknown"}`,
     openCards: (count, oldest, malformed = false) => `your unanswered cards: ${count ?? "unknown"}${oldest ? `; the oldest since ${oldest}` : ""}${malformed ? " (my_open_cards unreadable)" : ""}`,
+    openCard: (c) => openCard(c),
+    cardsMalformed: (n2) => `  malformed cards not shown: ${n2} (my_open_cards.items)`,
     myCases: () => `${tool("case")}(action="mine"), then read each`,
     frame: (id) => `frame ${id}`,
     yoursBelow: () => ` — yours in the lines below; `,
@@ -1055,6 +1063,16 @@ function eventKeyOf(frame) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return "";
   return evOf(body.event_id);
 }
+function recordKeyOf(frame) {
+  if (!frame || frame.type !== "message" || frame.repeat === true || eventKeyOf(frame)) return "";
+  const f = frame;
+  const room = idOf(objOf(f.room).id);
+  const line = objOf(f.line);
+  const entry = idOf(f.entry_id ?? line.entry_id);
+  return room && entry && line.kind !== "body" ? `rec:${room}|${entry}` : "";
+}
+var objOf = (v) => v && typeof v === "object" ? v : {};
+var idOf = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
 var asText = (frame) => addressedToMine(frame);
 function deliveryKeys(frame, named2 = false) {
   const id = typeof frame?.id === "string" ? frame.id : "";
@@ -1063,9 +1081,11 @@ function deliveryKeys(frame, named2 = false) {
   const retired = (frame && !named2 && asText(frame) ? graphMarks.get(frame) ?? [] : []).map(
     (k) => frame?.stale === true && k.startsWith("ev:") ? `evs:${k.slice(3)}` : k
   );
-  return [...new Set([...retired, id, mark && (named2 ? `c${mark}` : mark)].filter(Boolean))];
+  const rec4 = recordKeyOf(frame);
+  return [...new Set([...retired, id, mark && (named2 ? `c${mark}` : mark), rec4].filter(Boolean))];
 }
 function eventIn(frame, has) {
+  if (frame && !asText(frame) && recordIn(frame, has)) return true;
   const ev = frame ? eventKeyOf(frame) : "";
   if (!ev || !frame) return false;
   const n2 = ev.slice(3);
@@ -1073,6 +1093,10 @@ function eventIn(frame, has) {
   const keys = !asText(frame) ? [ev, `evs:${n2}`] : stale ? [ev, `evs:${n2}`, `cev:${n2}`, `cevs:${n2}`] : [ev, `cev:${n2}`];
   return keys.some(has);
 }
+var recordIn = (frame, has) => {
+  const rec4 = recordKeyOf(frame);
+  return !!rec4 && has(rec4);
+};
 var isTact = (frame) => frame?.provenance?.wake === "look_up";
 var isLifeCheck = (frame) => frame?.provenance?.wake === "life_check";
 function foldedTacts(all) {
@@ -1095,8 +1119,15 @@ function splitBatch(all, keep2, has) {
     const shown = new Set(kept3.slice(0, keep2));
     const marks = /* @__PURE__ */ new Set();
     const local = (k) => marks.has(k) || has(k);
+    for (const f of kept3) if (asText(f) && recordKeyOf(f)) marks.add(recordKeyOf(f));
+    const counted = /* @__PURE__ */ new Set();
     const texts = kept3.filter((f) => {
-      if (!asText(f)) return true;
+      if (!asText(f)) {
+        const rec4 = recordKeyOf(f);
+        if (rec4 && (counted.has(rec4) || local(rec4))) return false;
+        if (rec4) counted.add(rec4);
+        return true;
+      }
       if (eventIn(f, local)) return false;
       for (const k of deliveryKeys(f, !shown.has(f))) marks.add(k);
       return true;
@@ -1138,31 +1169,23 @@ function compact(seenPath, seen) {
   for (const x of tail2) seen.add(x);
 }
 
-// js/shared/clients.ts
-var OPENCODE_CLIENT = CLIENTS.opencode;
-var PI_CLIENT = CLIENTS.pi;
-var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
-var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
-
-// js/shared/fields.ts
-var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
-var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
-
-// js/bridge/store.ts
-import { createHash as createHash2 } from "node:crypto";
-import {
-  appendFileSync as appendFileSync2,
-  mkdirSync,
-  readFileSync as readFileSync5,
-  renameSync as renameSync2,
-  statSync,
-  unlinkSync,
-  writeFileSync as writeFileSync2
-} from "node:fs";
-import { join as join4 } from "node:path";
-
 // js/bridge/build.ts
 var BUILD = buildOf(import.meta.url);
+
+// js/bridge/config.ts
+var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
+function strip(url) {
+  return url.replace(/\/+$/, "");
+}
+var cfgSlot = scoped(() => ({ cfg: null }));
+var CFG = new Proxy({}, {
+  get: (_, k) => cfgSlot.cfg ? Reflect.get(cfgSlot.cfg, k) : void 0,
+  has: (_, k) => !!cfgSlot.cfg && Reflect.has(cfgSlot.cfg, k)
+});
+
+// js/bridge/linelimit.ts
+var MIB = 1024 * 1024;
+var LIMIT_ENV = envName("BRIDGE_MAX_LINE_BYTES");
 
 // js/bridge/streams.ts
 var deadStreams = /* @__PURE__ */ new WeakSet();
@@ -1193,22 +1216,515 @@ function log(msg) {
   else writeTo(process.stderr, line);
 }
 
-// js/bridge/config.ts
-var PRODUCTION_URLS = new Set(LANGS.map((l) => strip(SERVER_URLS[l])));
-function strip(url) {
-  return url.replace(/\/+$/, "");
+// js/shared/clock-notices.ts
+var rec = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+var text = (v) => typeof v === "string" && v.length > 0 && v.length <= 256 && [...v].every((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127) ? v : null;
+var number = (v) => typeof v === "number" && Number.isSafeInteger(v) && v > 0 ? v : null;
+var bool = (v) => typeof v === "boolean" ? v : null;
+var timestamp = (v) => {
+  const s = text(v);
+  return s && /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(
+    s
+  ) && Number.isFinite(Date.parse(s)) && (/* @__PURE__ */ new Date(`${s.slice(0, 10)}T00:00:00Z`)).toISOString().slice(0, 10) === s.slice(0, 10) ? s : null;
+};
+function kind(frame) {
+  const p = frame.provenance;
+  return frame.type === "message" && p?.via === "platform" && p.auth === "none" && (p.notice === "card_unanswered" || p.notice === "line_due") ? p.notice : null;
 }
-var cfgSlot = scoped(() => ({ cfg: null }));
-var CFG = new Proxy({}, {
-  get: (_, k) => cfgSlot.cfg ? Reflect.get(cfgSlot.cfg, k) : void 0,
-  has: (_, k) => !!cfgSlot.cfg && Reflect.has(cfgSlot.cfg, k)
-});
+function dataOf(frame, notice) {
+  const d = rec(frame.provenance?.notice_data);
+  const r = rec(d.room);
+  const who = rec(notice === "card_unanswered" ? d.to : d.holder);
+  const seat = {
+    standing_id: text(who.standing_id),
+    standing: text(who.standing),
+    karta_seq: number(who.karta_seq)
+  };
+  return {
+    room: { id: text(r.id), number: number(r.number), realm: text(r.realm) },
+    entry_id: number(d.entry_id),
+    key: text(d.key),
+    ...notice === "card_unanswered" ? {
+      to: seat,
+      listening: bool(d.listening),
+      last_act_at: timestamp(d.last_act_at),
+      role_called: bool(d.role_called)
+    } : { holder: seat, due_at: timestamp(d.due_at), escalated: bool(d.escalated) }
+  };
+}
+function clockNoticeFrame(frame) {
+  const notice = kind(frame);
+  if (!notice) return frame;
+  return {
+    ...frame,
+    body: "",
+    provenance: { ...frame.provenance, notice_data: dataOf(frame, notice) }
+  };
+}
+function clockNoticeText(frame) {
+  const notice = kind(frame);
+  if (!notice) return "";
+  const d = dataOf(frame, notice);
+  const seat = "to" in d ? d.to : d.holder;
+  return words(FRAME_TEXT).clockNotice(notice, {
+    room: d.room.number,
+    roomId: d.room.id,
+    realm: d.room.realm,
+    entry: d.entry_id,
+    key: d.key,
+    standing: seat?.standing ?? null,
+    standingId: seat?.standing_id ?? null,
+    karta: seat?.karta_seq ?? null,
+    listening: "listening" in d ? d.listening : null,
+    lastAct: "last_act_at" in d ? d.last_act_at : null,
+    roleCalled: "role_called" in d ? d.role_called : null,
+    due: "due_at" in d ? d.due_at : null,
+    escalated: "escalated" in d ? d.escalated : null
+  });
+}
+
+// js/shared/frame-format.ts
+var COMPACT_COUNTS_CAPABILITY = "compact-counts";
+var COMPACT_COUNTS = { [COMPACT_COUNTS_CAPABILITY]: { version: 1 } };
+var format = scoped(() => ({ compact: true }));
+var compactCounts = () => format.compact;
+
+// js/shared/keyfold.ts
+var rec2 = (v) => v && typeof v === "object" ? v : {};
+var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
+function superseded(frames) {
+  const last = /* @__PURE__ */ new Map();
+  const out2 = /* @__PURE__ */ new Set();
+  frames.forEach((f, i) => {
+    const r = f;
+    const line = rec2(r.line);
+    const key = typeof line.key === "string" ? line.key : "";
+    if (line.kind !== "progress" || !key || line.verdict === "bad" || addressedToMine(f)) return;
+    const k = `${idOf2(rec2(r.room).id) || idOf2(rec2(r.room).seq)}|${key}`;
+    const e = Number(r.entry_id ?? line.entry_id);
+    const at = Number.isFinite(e) ? e : i;
+    const was = last.get(k);
+    if (!was) return void last.set(k, { frame: f, at });
+    if (at >= was.at) {
+      out2.add(was.frame);
+      last.set(k, { frame: f, at });
+    } else out2.add(f);
+  });
+  return out2;
+}
+
+// js/shared/open-cards.ts
+var MAX_ITEMS = 5;
+var repeatNumber = (n2) => typeof n2 === "number" && Number.isSafeInteger(n2) && n2 > 0 ? n2 : null;
+function cardFrame(frame) {
+  if (!frame) return null;
+  frame = clockNoticeFrame(frame);
+  const checked = {};
+  if (Object.hasOwn(frame, "my_open_cards")) checked.my_open_cards = openCards(frame.my_open_cards);
+  if (Object.hasOwn(frame, "repeat")) checked.repeat = frame.repeat === true;
+  if (Object.hasOwn(frame, "repeat_n")) checked.repeat_n = repeatNumber(frame.repeat_n);
+  return Object.keys(checked).length ? { ...frame, ...checked } : frame;
+}
+var cardRepeatText = (frame) => {
+  if (frame.repeat !== true) return "";
+  return words(FRAME_TEXT).cardRepeat(repeatNumber(frame.repeat_n));
+};
+var orNull = (v, read) => v === null || v === void 0 ? null : read(v) ?? void 0;
+function card(value) {
+  const c = rec(value);
+  const r = rec(c.room);
+  const a = rec(c.asker);
+  const [id, num, realm] = [text(r.id), number(r.number), text(r.realm)];
+  const [entry, key, at] = [number(c.entry_id), text(c.key), timestamp(c.asked_at)];
+  const standing_id = orNull(a.standing_id, text);
+  const standing = orNull(a.standing, text);
+  const karta_seq = orNull(a.karta_seq, number);
+  if (!id || !num || !realm || !entry || !key || !at || c.asker !== a) return null;
+  if (standing_id === void 0 || standing === void 0 || karta_seq === void 0) return null;
+  return {
+    room: { id, number: num, realm },
+    entry_id: entry,
+    key,
+    asked_at: at,
+    asker: { standing_id, standing, karta_seq }
+  };
+}
+function itemsOf(v) {
+  const before = number(v.malformed_items) ?? 0;
+  if (v.items === void 0) return before ? { malformed_items: before } : {};
+  const list = Array.isArray(v.items) ? v.items : null;
+  const items = (list ?? []).slice(0, MAX_ITEMS).flatMap((x) => card(x) ?? []);
+  const bad = before + (list ? list.length - items.length : 1);
+  return bad ? { items, malformed_items: bad } : { items };
+}
+function openCards(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const v = value;
+  const { count, oldest_at: at } = v;
+  if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return null;
+  if (count === 0) return at === null ? { count, oldest_at: null, ...itemsOf(v) } : null;
+  const oldest = timestamp(at);
+  return oldest ? { count, oldest_at: oldest, ...itemsOf(v) } : null;
+}
+var openCardsText = (frame) => {
+  const value = frame.my_open_cards;
+  const cards = openCards(value);
+  const T3 = words(FRAME_TEXT);
+  const lines = [
+    T3.openCards(cards?.count ?? null, cards?.oldest_at ?? null, value !== void 0 && !cards)
+  ];
+  for (const c of cards?.items ?? [])
+    lines.push(
+      T3.openCard({
+        room: c.room.number,
+        entry: c.entry_id,
+        key: c.key,
+        standing: c.asker.standing,
+        karta: c.asker.karta_seq,
+        askedAt: c.asked_at
+      })
+    );
+  if (cards?.malformed_items) lines.push(T3.cardsMalformed(cards.malformed_items));
+  return lines.join("\n");
+};
+var cardsIn = (frames) => frames.length ? openCardsText(frames[frames.length - 1]) : "";
+var hasCards = (text2, cards) => `
+${text2}
+`.includes(`
+${cards}
+`);
+
+// js/shared/frame-text.ts
+var W = () => words(ROOM);
+var T = () => words(FRAME_TEXT);
+var CAPTION_REPLY = /* @__PURE__ */ new Set(["body", "answer", "ack", "retract"]);
+var rec3 = (v) => v && typeof v === "object" ? v : {};
+var idOf3 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
+var ZACHIN = 40;
+function groupKey(f) {
+  const c = caseOf(f);
+  return c ? JSON.stringify([c.realm, c.room]) : idOf3(f.id) || "?";
+}
+function casesOf(frames) {
+  const by = /* @__PURE__ */ new Map();
+  for (const f of frames) {
+    const key = groupKey(f);
+    const got = by.get(key);
+    if (got) got.push(f);
+    else by.set(key, [f]);
+  }
+  return [...by.values()];
+}
+function caseOf(frame) {
+  const f = frame;
+  const room = rec3(f.room);
+  const n2 = idOf3(room.seq) || idOf3(room.id);
+  if (!n2) return null;
+  const z = typeof room.zachin === "string" ? [...room.zachin.trim()] : [];
+  const zachin = z.length > ZACHIN ? z.slice(0, ZACHIN).join("") + "…" : z.join("");
+  const realm = idOf3(room.realm) || idOf3(f.realm);
+  return { room: n2, zachin, realm };
+}
+var caseKey = (frame) => caseOf(frame)?.room ?? "";
+function caseHead(frame, withZachin) {
+  const c = caseOf(frame);
+  if (!c) return "";
+  const no = W().case(need(c.room));
+  return withZachin && c.zachin ? `${no} «${c.zachin}»` : no;
+}
+var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function userTag(user) {
+  const u = typeof user === "string" ? user.trim().replace(/^@/, "") : "";
+  if (!u) return "";
+  return /^[\w.-]+$/.test(u) && !UUID.test(u) ? ` @${u}` : ` ${u}`;
+}
+function whoOf2(frame, withPlace) {
+  const p = frame.provenance ?? {};
+  const origin2 = frame.origin ?? classifyOrigin(frame);
+  if (origin2 === "platform") return W().whoPlatform();
+  if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
+  const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
+  if (origin2 === "human") {
+    const user = typeof p.user === "string" ? p.user.trim().replace(/^@/, "") : "";
+    const seat = (p.from_standing ?? "").trim();
+    const repeats = !!user && !seat.includes(":") && seat.replace(/^@/, "") === user;
+    return W().whoHuman(userTag(p.user)) + (repeats ? "" : place);
+  }
+  const karta = p.from_karta_seq;
+  if (karta == null) return p.from_standing ?? "";
+  return (origin2 === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
+}
+function textOf(frame) {
+  const rk = roomKind(frame);
+  if (rk?.aside || rk?.bodyInWords) return "";
+  const b = frame.body;
+  return typeof b === "string" ? b : b === void 0 ? "" : JSON.stringify(b);
+}
+function tail(frame, withReply) {
+  const f = frame;
+  const parts = [];
+  const to = idOf3(f.in_reply_to) || idOf3(frame.provenance?.in_reply_to);
+  if (withReply && to) parts.push(W().replyTo(need(to)));
+  if (frame.stale === true) parts.push(W().stale());
+  const repeat = cardRepeatText(frame);
+  if (repeat) parts.push(repeat);
+  if (typeof frame.body_read === "string" && frame.body_read !== "history")
+    parts.push(W().bodyRead(need(frame.body_read)));
+  return parts.length ? `, ${parts.join(", ")}` : "";
+}
+var markFrame = (text2) => `${FRAME_MARK} ${text2}`;
+function humanWordReply(frame, origin2) {
+  if (origin2 !== "human") return "";
+  const f = frame;
+  const p = rec3(frame.provenance);
+  const karta = idOf3(p.from_karta_seq) || idOf3(p.user_karta_seq);
+  const missing = {
+    realm: !idOf3(f.realm),
+    karta: !karta,
+    standing: !idOf3(p.from_standing),
+    id: !idOf3(frame.id)
+  };
+  return Object.values(missing).every((x) => !x) ? T().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame.id)) : T().noReplyAddress(missing);
+}
+function frameToText(frame, raw, withCase = true) {
+  const text2 = frameText(frame, raw, withCase);
+  if (!frame || !withCase) return text2;
+  const cards = openCardsText(frame);
+  return hasCards(text2, cards) ? text2 : `${text2}
+${cards}`;
+}
+function frameText(frame, raw, withCase) {
+  if (!frame) return raw;
+  const notice = clockNoticeText(frame);
+  if (notice) return notice;
+  const f = frame;
+  const origin2 = frame.origin ?? classifyOrigin(frame);
+  const text2 = textOf(frame);
+  const c = caseOf(frame);
+  if (c) {
+    if (!addressedToMine(frame)) return caseCountLine([frame]);
+    const rk = roomKind(frame);
+    const line = rec3(f.line);
+    const entry = idOf3(f.entry_id) || idOf3(line.entry_id);
+    const words2 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
+    const author = rk?.author && !words2.includes(rk.author) ? rk.author : "";
+    const who = rk || origin2 === "platform" ? "" : whoOf2(frame, false);
+    const by = [author, who].filter(Boolean).join(", ");
+    const withReply = !rk || !CAPTION_REPLY.has(rk.kind);
+    const label = [withCase ? caseHead(frame, true) : "", entry ? `[${entry}]` : ""];
+    const head = `${[...label.filter(Boolean), words2].join(" ")}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
+    const lines2 = [head];
+    if (text2 && !words2.includes(text2.trim())) lines2.push(text2);
+    return lines2.join("\n");
+  }
+  const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
+  if (text2) lines.push(text2);
+  const reply = humanWordReply(frame, origin2);
+  if (reply) lines.push(reply);
+  if (isLifeCheck(frame)) lines.push(T().lifeCheckSeat(warnedSeat(frame)), T().lifeCheckReply());
+  return lines.join("\n");
+}
+var warnedSeat = (frame) => typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
+function batchLine(frame, run, withZachin = true, withCase = true) {
+  const notice = clockNoticeText(frame);
+  if (notice) return notice;
+  const f = frame;
+  const rk = roomKind(frame);
+  const head = withCase ? caseHead(frame, withZachin) : "";
+  const pre = head ? `${head} ` : "";
+  if (rk?.aside) return pre + (run === void 0 ? rk.words : rk.aside.run(run));
+  const line = rec3(f.line);
+  const e = f.entry_id ?? line.entry_id ?? f.id;
+  const entry = typeof e === "number" || typeof e === "string" ? e : "?";
+  const words2 = (rk?.words ?? T().frame(typeof f.id === "string" ? f.id : "?")).replace(/\s+/g, " ").trim();
+  const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
+  const text2 = textOf(frame).replace(/\s+/g, " ").trim();
+  const dup = !!text2 && words2.includes(text2);
+  return `${pre}[${entry}] ${words2}${author}${tail(frame, !rk || !CAPTION_REPLY.has(rk.kind))}${text2 && !dup ? `: ${text2}` : ""}`;
+}
+function batchShown(frames) {
+  const seen = /* @__PURE__ */ new Set();
+  return frames.flatMap((f) => {
+    if (f.type === "hello" || !addressedToMine(f)) return [];
+    const key = caseKey(f);
+    const first = !seen.has(key);
+    seen.add(key);
+    return [{ frame: f, text: (withCase) => batchLine(f, void 0, first, withCase) }];
+  });
+}
+var textShown = (frames, cap) => frames.filter((f) => addressedToMine(f)).map((f) => ({
+  frame: f,
+  text: (withCase) => {
+    const t = [...frameText(f, JSON.stringify(f), withCase)];
+    return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
+  }
+}));
+var batchText = (counted, frames = counted) => underCounts(counted, batchShown(frames)).join("\n");
+function underCounts(counted, shown, incomplete = false, cardFrames = [
+  ...counted,
+  ...shown.map((s) => s.frame).filter((f) => !counted.includes(f))
+]) {
+  const lines = groupedCounts(counted, shown, incomplete);
+  const cards = cardsIn(cardFrames);
+  return cards && !lines.some((line) => hasCards(line, cards)) ? [...lines, cards] : lines;
+}
+function groupedCounts(counted, shown, incomplete) {
+  const groups = casesOf(counted).filter((group) => caseOf(group[0]));
+  const placed = /* @__PURE__ */ new Set();
+  const under = (group) => {
+    const key = groupKey(group[0]);
+    return shown.filter((s) => caseOf(s.frame) && groupKey(s.frame) === key).map((s) => (placed.add(s), s.text(false)));
+  };
+  const rest = () => shown.filter((s) => !placed.has(s)).map((s) => s.text(true));
+  if (!groups.length) return rest();
+  if (!compactCounts())
+    return [...groups.flatMap((g) => [legacyCountLine(g, incomplete), ...under(g)]), ...rest()];
+  if (groups.length === 1 && !incomplete)
+    return [caseCountLine(groups[0]), ...under(groups[0]), ...rest()];
+  const pointer = incomplete ? T().inFull("") : batchPointer(groups.flat());
+  if (groups.length === 1)
+    return [`${countText(groups[0], true)}; ${pointer}.`, ...under(groups[0]), ...rest()];
+  return [...groups.flatMap((g) => [countText(g, true), ...under(g)]), `${pointer}.`, ...rest()];
+}
+function countsWithShown(counted, shown) {
+  const asCount = shown.filter((s) => caseOf(s.frame) && !addressedToMine(s.frame));
+  const lines = shown.filter((s) => !asCount.includes(s));
+  const all = [...counted, ...asCount.map((s) => s.frame).filter((f) => !counted.includes(f))];
+  if (!all.length) return lines.map((s) => s.text(true));
+  const extra = lines.map((s) => s.frame).filter((f) => caseOf(f) && !all.includes(f));
+  return underCounts([...all, ...extra], lines);
+}
+function closingOf(frame) {
+  const n2 = closedQuestion(frame);
+  if (!n2) return "";
+  const rk = roomKind(frame);
+  const to = rec3(rec3(rec3(rec3(frame).line).fields).to);
+  if (rk?.kind !== "ask") return T().askAnswered(n2, need(rk?.author));
+  const seat = addresseeOf(to.standing)?.label || idOf3(rec3(to.karta).name);
+  return T().askMoved(n2, need(seat));
+}
+function caseCountLine(frames) {
+  const count = countText(frames, false);
+  if (!compactCounts()) return legacyCountLine(frames, false);
+  return count ? `${count}; ${batchPointer(frames)}.` : "";
+}
+function legacyCountLine(frames, incomplete) {
+  const count = countText(frames, false);
+  if (!count) return "";
+  const yours = frames.some((f) => addressedToMine(f)) ? "; " : T().noneYours();
+  return count + yours + (incomplete ? T().inFull("") : batchPointer(frames)) + ".";
+}
+function countText(frames, withCursor) {
+  const c = frames.length ? caseOf(frames[0]) : null;
+  if (!c) return "";
+  const mineN = frames.filter((f) => addressedToMine(f)).length;
+  const gone = superseded(frames).size;
+  const head = caseHead(frames[0], true);
+  const cursor = withCursor ? cursorOf(frames) : null;
+  const n2 = frames.length - gone;
+  return T().count(head, n2, mineN) + (gone ? T().supersededLines(gone) : "") + frames.map(closingOf).join("") + (cursor ? ` · realm=${JSON.stringify(cursor.realm)}, since=${cursor.since}` : "");
+}
+function cursorOf(frames) {
+  const first = frames[0];
+  const c = first && caseOf(first);
+  if (!c?.realm) return null;
+  const room = rec3(first.room);
+  const entries = frames.map((f) => idOf3(f.entry_id ?? rec3(f.line).entry_id));
+  if (entries.some((e) => !e || !Number.isSafeInteger(Number(e)) || Number(e) < 1)) return null;
+  return {
+    realm: c.realm,
+    room: JSON.stringify(room.seq ?? room.id),
+    since: Math.min(...entries.map(Number)) - 1
+  };
+}
+function batchPointer(frames) {
+  const cursors = casesOf(frames).map(cursorOf);
+  const c = cursors[0];
+  if (!c || cursors.some((cursor) => !cursor)) return T().inFull("");
+  if (cursors.length > 1)
+    return T().inFull(T().caseHistory('realm=R, action="history", room=N', "S"));
+  return T().inFull(
+    T().caseHistory(`realm=${JSON.stringify(c.realm)}, action="history", room=${c.room}`, c.since)
+  );
+}
+
+// js/shared/stalebatch.ts
+var STALE_BURST_KEEP = 20;
+var BODY_CAP = 800;
+var shownOf = (frames, body) => body.shown.filter((i) => Number.isSafeInteger(i) && i >= 0).map((i) => frames[i]).filter((f) => f?.type === "message");
+function batchBodyText(frames, body, riding = []) {
+  const shown = shownOf(frames, body);
+  const bodies = underCounts(
+    [...riding, ...shown],
+    textShown(shown, BODY_CAP),
+    body.incomplete,
+    frames
+  );
+  return [body.head, ...bodies].filter(Boolean).join("\n\n");
+}
+function ridesIn(riding, frames, body) {
+  const cases = new Set(shownOf(frames, body).map(caseKey).filter(Boolean));
+  return riding.some((f) => cases.has(caseKey(f)));
+}
+function staleBatch(all, has, riding = [], headed = true) {
+  const { shown: frames, kept: kept3, keys } = splitBatch(all, STALE_BURST_KEEP, has);
+  const count = kept3.length;
+  if (!count) return { text: "", keys };
+  const body = {
+    // Headless or not, a batch that did not fit whole says what was left out.
+    head: headed || count > frames.length ? words(STALE).head(count, frames.length) : "",
+    shown: frames.map((f) => all.indexOf(f)),
+    incomplete: count > frames.length
+  };
+  return { text: batchBodyText(all, body, ridingOf(riding, frames, has)), keys, body };
+}
+function ridingOf(riding, frames, has) {
+  const own = new Set(frames.flatMap((f) => deliveryKeys(f)));
+  return riding.filter((f) => !frames.includes(f) && !eventIn(f, (k) => has(k) || own.has(k)));
+}
+
+// js/bridge/backlog.ts
+var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
+
+// js/bridge/holdrecord.ts
+var S2 = scoped(() => /* @__PURE__ */ new Map());
+var H = scoped(() => ({ session: null }));
+var B = scoped(() => /* @__PURE__ */ new Map());
+
+// js/bridge/roomstack.ts
+var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
+
+// js/bridge/sweep.ts
+var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
+
+// js/shared/clients.ts
+var OPENCODE_CLIENT = CLIENTS.opencode;
+var PI_CLIENT = CLIENTS.pi;
+var HARNESS_VERSION_ENV = envName("HARNESS_VERSION");
+var SKILLS_ROOT_ENV = envName("SKILLS_ROOT");
+
+// js/shared/fields.ts
+var FIELDS_CAPABILITY = STRUCTURED_CAPABILITY;
+var FIELDS_CAPABILITIES = { experimental: { [FIELDS_CAPABILITY]: {} } };
+
+// js/bridge/store.ts
+import { createHash as createHash2 } from "node:crypto";
+import {
+  appendFileSync as appendFileSync2,
+  mkdirSync,
+  readFileSync as readFileSync5,
+  renameSync as renameSync2,
+  statSync,
+  unlinkSync,
+  writeFileSync as writeFileSync2
+} from "node:fs";
+import { join as join4 } from "node:path";
 
 // js/bridge/journal-fold.ts
 var WINDOW_MS = 6e4;
-var UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+var UUID2 = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 var ROOT = /\.root-[0-9a-f]{12}\b/g;
-var shapeOf = (line) => line.replace(UUID, "<id>").replace(ROOT, ".root-<id>");
+var shapeOf = (line) => line.replace(UUID2, "<id>").replace(ROOT, ".root-<id>");
 function createFold(now2 = Date.now, windowMs = WINDOW_MS) {
   const open = /* @__PURE__ */ new Map();
   return (line) => {
@@ -1567,6 +2083,35 @@ var SAFE_ACTIONS = {
   [tool("realm")]: /* @__PURE__ */ new Set(["list"])
 };
 
+// js/bridge/gatestay.ts
+var LIMIT_MS = ((v) => Number.isFinite(v) && v > 0 ? v : 2e4)(
+  Number(process.env[envName("BRIDGE_RETURN_LIMIT_MS")])
+);
+var S3 = scoped(() => ({
+  stay: null,
+  /** When the current stay began, and the time at the gate before it. */
+  from: 0,
+  spent: 0,
+  asking: /* @__PURE__ */ new Set()
+}));
+var tell = () => {
+  for (const ask of [...S3.asking]) ask();
+};
+function stayAt(left) {
+  const now2 = Date.now();
+  if (S3.stay) S3.spent += now2 - S3.from;
+  const me = { left };
+  S3.stay = me;
+  S3.from = now2;
+  tell();
+  return () => {
+    if (S3.stay !== me) return;
+    S3.spent += Date.now() - S3.from;
+    S3.stay = null;
+    tell();
+  };
+}
+
 // js/bridge/returngate.ts
 var envMs = (name, dflt) => {
   const v = Number(process.env[envName(name)]);
@@ -1579,6 +2124,13 @@ var FIXED = ((v) => v && Number(v) >= 0 && Number(v) < 1 ? Number(v) : null)(
   process.env[envName("BRIDGE_RETURN_DRAW")]
 );
 var draw = () => FIXED ?? Math.random();
+var drawnLater = (g) => Math.min(CAP_MS, STEP_MS * g.waiting) * (FIXED ?? 0.5);
+async function probeOutcome(g) {
+  for (let p = g.probe; p; p = g.probe) {
+    const down = await p;
+    if (down instanceof DownError) throw down;
+  }
+}
 var gates = /* @__PURE__ */ new Map();
 var gateOf = (server) => {
   let g = gates.get(server);
@@ -1588,6 +2140,14 @@ var gateOf = (server) => {
 async function turn(g) {
   if (g.out < AT_ONCE && !g.turns.length) return void g.out++;
   await new Promise((r) => g.turns.push(r));
+}
+async function slot(g) {
+  const end = stayAt(() => 0);
+  try {
+    await turn(g);
+  } finally {
+    end();
+  }
 }
 function done(g) {
   const next = g.turns.shift();
@@ -1604,6 +2164,16 @@ async function knocked(g, knock) {
 }
 async function throughGate(server, knock, kind2 = "return") {
   const g = gateOf(server);
+  if (kind2 === "tail") {
+    const end = stayAt(() => 0);
+    try {
+      await probeOutcome(g);
+      await turn(g);
+    } finally {
+      end();
+    }
+    return knocked(g, knock);
+  }
   if (kind2 === "open" && !g.probe && g.waiting === 0 && g.out < AT_ONCE) {
     g.out++;
     return knocked(g, knock);
@@ -1611,7 +2181,7 @@ async function throughGate(server, knock, kind2 = "return") {
   if (kind2 === "return" && !g.probe && g.returns === 0) {
     log("return gate: this session is the machine's probe");
     g.returns++;
-    const run = turn(g).then(() => knocked(g, knock));
+    const run = slot(g).then(() => knocked(g, knock));
     g.probe = run.then(
       () => null,
       (e) => e instanceof DownError ? e : null
@@ -1625,12 +2195,15 @@ async function throughGate(server, knock, kind2 = "return") {
     }
   }
   if (kind2 === "return") g.returns++;
+  const came = Date.now();
   try {
     g.waiting++;
     try {
-      for (let p = g.probe; p; p = g.probe) {
-        const down = await p;
-        if (down instanceof DownError) throw down;
+      const forProbe = stayAt(() => kind2 === "return" ? drawnLater(g) : 0);
+      try {
+        await probeOutcome(g);
+      } finally {
+        forProbe();
       }
       if (kind2 === "return" || g.waiting > AT_ONCE) {
         const window = Math.min(CAP_MS, STEP_MS * g.waiting);
@@ -1638,9 +2211,18 @@ async function throughGate(server, knock, kind2 = "return") {
         log(
           `return gate: ${g.waiting} waiting — this one goes in ${wait} ms (window ${window} ms)`
         );
-        await sleep(wait);
+        const until = Date.now() + wait;
+        const delayed = stayAt(() => until - Date.now());
+        try {
+          await sleep(wait);
+        } finally {
+          delayed();
+        }
       }
-      await turn(g);
+      const from = Date.now();
+      await slot(g);
+      const now2 = Date.now();
+      log(`return gate: admitted after ${now2 - came} ms (waited for slot ${now2 - from} ms)`);
     } finally {
       g.waiting--;
     }
@@ -1754,7 +2336,7 @@ var READ_ACTIONS = {
 };
 
 // js/bridge/toolsync.ts
-var T = scoped(() => ({
+var T2 = scoped(() => ({
   served: null,
   // each harness session has its own list
   told: false,
@@ -1802,447 +2384,11 @@ var state = scoped(() => ({
   // The bearer last associated with the session; refresh alone does not end it.
   sessionToken: null,
   // The last session id the server answered 404 for: it is gone there, closing it is moot (#9174).
-  goneSession: null
+  goneSession: null,
+  // The session that came back through the machine's return gate: its further returns are its tail (#11413).
+  returned: null
 }));
 var reinit = scoped(() => ({ inFlight: null }));
-
-// js/shared/clock-notices.ts
-var rec = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
-var text = (v) => typeof v === "string" && v.length > 0 && v.length <= 256 && [...v].every((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127) ? v : null;
-var number = (v) => typeof v === "number" && Number.isSafeInteger(v) && v > 0 ? v : null;
-var bool = (v) => typeof v === "boolean" ? v : null;
-var timestamp = (v) => {
-  const s = text(v);
-  return s && /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(
-    s
-  ) && Number.isFinite(Date.parse(s)) && (/* @__PURE__ */ new Date(`${s.slice(0, 10)}T00:00:00Z`)).toISOString().slice(0, 10) === s.slice(0, 10) ? s : null;
-};
-function kind(frame) {
-  const p = frame.provenance;
-  return frame.type === "message" && p?.via === "platform" && p.auth === "none" && (p.notice === "card_unanswered" || p.notice === "line_due") ? p.notice : null;
-}
-function dataOf(frame, notice) {
-  const d = rec(frame.provenance?.notice_data);
-  const r = rec(d.room);
-  const who = rec(notice === "card_unanswered" ? d.to : d.holder);
-  const seat = {
-    standing_id: text(who.standing_id),
-    standing: text(who.standing),
-    karta_seq: number(who.karta_seq)
-  };
-  return {
-    room: { id: text(r.id), number: number(r.number), realm: text(r.realm) },
-    entry_id: number(d.entry_id),
-    key: text(d.key),
-    ...notice === "card_unanswered" ? {
-      to: seat,
-      listening: bool(d.listening),
-      last_act_at: timestamp(d.last_act_at),
-      role_called: bool(d.role_called)
-    } : { holder: seat, due_at: timestamp(d.due_at), escalated: bool(d.escalated) }
-  };
-}
-function clockNoticeFrame(frame) {
-  const notice = kind(frame);
-  if (!notice) return frame;
-  return {
-    ...frame,
-    body: "",
-    provenance: { ...frame.provenance, notice_data: dataOf(frame, notice) }
-  };
-}
-function clockNoticeText(frame) {
-  const notice = kind(frame);
-  if (!notice) return "";
-  const d = dataOf(frame, notice);
-  const seat = "to" in d ? d.to : d.holder;
-  return words(FRAME_TEXT).clockNotice(notice, {
-    room: d.room.number,
-    roomId: d.room.id,
-    realm: d.room.realm,
-    entry: d.entry_id,
-    key: d.key,
-    standing: seat?.standing ?? null,
-    standingId: seat?.standing_id ?? null,
-    karta: seat?.karta_seq ?? null,
-    listening: "listening" in d ? d.listening : null,
-    lastAct: "last_act_at" in d ? d.last_act_at : null,
-    roleCalled: "role_called" in d ? d.role_called : null,
-    due: "due_at" in d ? d.due_at : null,
-    escalated: "escalated" in d ? d.escalated : null
-  });
-}
-
-// js/shared/open-cards.ts
-var repeatNumber = (n2) => typeof n2 === "number" && Number.isSafeInteger(n2) && n2 > 0 ? n2 : null;
-function cardFrame(frame) {
-  if (!frame) return null;
-  frame = clockNoticeFrame(frame);
-  const checked = {};
-  if (Object.hasOwn(frame, "my_open_cards")) checked.my_open_cards = openCards(frame.my_open_cards);
-  if (Object.hasOwn(frame, "repeat")) checked.repeat = frame.repeat === true;
-  if (Object.hasOwn(frame, "repeat_n")) checked.repeat_n = repeatNumber(frame.repeat_n);
-  return Object.keys(checked).length ? { ...frame, ...checked } : frame;
-}
-var cardRepeatText = (frame) => {
-  if (frame.repeat !== true) return "";
-  return words(FRAME_TEXT).cardRepeat(repeatNumber(frame.repeat_n));
-};
-function openCards(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const { count, oldest_at: at } = value;
-  if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return null;
-  if (count === 0) return at === null ? { count, oldest_at: null } : null;
-  if (typeof at !== "string" || at.length > 64 || !/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(
-    at
-  ) || !Number.isFinite(Date.parse(at)) || (/* @__PURE__ */ new Date(`${at.slice(0, 10)}T00:00:00Z`)).toISOString().slice(0, 10) !== at.slice(0, 10))
-    return null;
-  return { count, oldest_at: at };
-}
-var openCardsText = (frame) => {
-  const value = frame.my_open_cards;
-  const cards = openCards(value);
-  return words(FRAME_TEXT).openCards(
-    cards?.count ?? null,
-    cards?.oldest_at ?? null,
-    value !== void 0 && cards === null
-  );
-};
-var cardsIn = (frames) => frames.length ? openCardsText(frames[frames.length - 1]) : "";
-
-// js/shared/frame-format.ts
-var COMPACT_COUNTS_CAPABILITY = "compact-counts";
-var COMPACT_COUNTS = { [COMPACT_COUNTS_CAPABILITY]: { version: 1 } };
-var format = scoped(() => ({ compact: true }));
-var compactCounts = () => format.compact;
-
-// js/shared/keyfold.ts
-var rec2 = (v) => v && typeof v === "object" ? v : {};
-var idOf = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
-function superseded(frames) {
-  const last = /* @__PURE__ */ new Map();
-  const out2 = /* @__PURE__ */ new Set();
-  frames.forEach((f, i) => {
-    const r = f;
-    const line = rec2(r.line);
-    const key = typeof line.key === "string" ? line.key : "";
-    if (line.kind !== "progress" || !key || line.verdict === "bad" || addressedToMine(f)) return;
-    const k = `${idOf(rec2(r.room).id) || idOf(rec2(r.room).seq)}|${key}`;
-    const e = Number(r.entry_id ?? line.entry_id);
-    const at = Number.isFinite(e) ? e : i;
-    const was = last.get(k);
-    if (!was) return void last.set(k, { frame: f, at });
-    if (at >= was.at) {
-      out2.add(was.frame);
-      last.set(k, { frame: f, at });
-    } else out2.add(f);
-  });
-  return out2;
-}
-
-// js/shared/frame-text.ts
-var W = () => words(ROOM);
-var T2 = () => words(FRAME_TEXT);
-var CAPTION_REPLY = /* @__PURE__ */ new Set(["body", "answer", "ack", "retract"]);
-var rec3 = (v) => v && typeof v === "object" ? v : {};
-var idOf2 = (v) => typeof v === "number" || typeof v === "string" && v ? String(v) : "";
-var ZACHIN = 40;
-function groupKey(f) {
-  const c = caseOf(f);
-  return c ? JSON.stringify([c.realm, c.room]) : idOf2(f.id) || "?";
-}
-function casesOf(frames) {
-  const by = /* @__PURE__ */ new Map();
-  for (const f of frames) {
-    const key = groupKey(f);
-    const got = by.get(key);
-    if (got) got.push(f);
-    else by.set(key, [f]);
-  }
-  return [...by.values()];
-}
-function caseOf(frame) {
-  const f = frame;
-  const room = rec3(f.room);
-  const n2 = idOf2(room.seq) || idOf2(room.id);
-  if (!n2) return null;
-  const z = typeof room.zachin === "string" ? [...room.zachin.trim()] : [];
-  const zachin = z.length > ZACHIN ? z.slice(0, ZACHIN).join("") + "…" : z.join("");
-  const realm = idOf2(room.realm) || idOf2(f.realm);
-  return { room: n2, zachin, realm };
-}
-var caseKey = (frame) => caseOf(frame)?.room ?? "";
-function caseHead(frame, withZachin) {
-  const c = caseOf(frame);
-  if (!c) return "";
-  const no = W().case(need(c.room));
-  return withZachin && c.zachin ? `${no} «${c.zachin}»` : no;
-}
-var UUID2 = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-function userTag(user) {
-  const u = typeof user === "string" ? user.trim().replace(/^@/, "") : "";
-  if (!u) return "";
-  return /^[\w.-]+$/.test(u) && !UUID2.test(u) ? ` @${u}` : ` ${u}`;
-}
-function whoOf2(frame, withPlace) {
-  const p = frame.provenance ?? {};
-  const origin2 = frame.origin ?? classifyOrigin(frame);
-  if (origin2 === "platform") return W().whoPlatform();
-  if (p.via === "graph" && p.from_karta_seq == null && !p.from_standing) return W().whoGraph();
-  const place = withPlace && p.from_standing ? ` (${p.from_standing})` : "";
-  if (origin2 === "human") {
-    const user = typeof p.user === "string" ? p.user.trim().replace(/^@/, "") : "";
-    const seat = (p.from_standing ?? "").trim();
-    const repeats = !!user && !seat.includes(":") && seat.replace(/^@/, "") === user;
-    return W().whoHuman(userTag(p.user)) + (repeats ? "" : place);
-  }
-  const karta = p.from_karta_seq;
-  if (karta == null) return p.from_standing ?? "";
-  return (origin2 === "sibling" ? W().whoSibling : W().whoRole)(need(karta)) + place;
-}
-function textOf(frame) {
-  const rk = roomKind(frame);
-  if (rk?.aside || rk?.bodyInWords) return "";
-  const b = frame.body;
-  return typeof b === "string" ? b : b === void 0 ? "" : JSON.stringify(b);
-}
-function tail(frame, withReply) {
-  const f = frame;
-  const parts = [];
-  const to = idOf2(f.in_reply_to) || idOf2(frame.provenance?.in_reply_to);
-  if (withReply && to) parts.push(W().replyTo(need(to)));
-  if (frame.stale === true) parts.push(W().stale());
-  const repeat = cardRepeatText(frame);
-  if (repeat) parts.push(repeat);
-  if (typeof frame.body_read === "string" && frame.body_read !== "history")
-    parts.push(W().bodyRead(need(frame.body_read)));
-  return parts.length ? `, ${parts.join(", ")}` : "";
-}
-var markFrame = (text2) => `${FRAME_MARK} ${text2}`;
-function humanWordReply(frame, origin2) {
-  if (origin2 !== "human") return "";
-  const f = frame;
-  const p = rec3(frame.provenance);
-  const karta = idOf2(p.from_karta_seq) || idOf2(p.user_karta_seq);
-  const missing = {
-    realm: !idOf2(f.realm),
-    karta: !karta,
-    standing: !idOf2(p.from_standing),
-    id: !idOf2(frame.id)
-  };
-  return Object.values(missing).every((x) => !x) ? T2().humanWordReply(need(f.realm), need(karta), need(p.from_standing), need(frame.id)) : T2().noReplyAddress(missing);
-}
-function frameToText(frame, raw, withCase = true) {
-  const text2 = frameText(frame, raw, withCase);
-  if (!frame || !withCase) return text2;
-  const cards = openCardsText(frame);
-  return text2.split("\n").includes(cards) ? text2 : `${text2}
-${cards}`;
-}
-function frameText(frame, raw, withCase) {
-  if (!frame) return raw;
-  const notice = clockNoticeText(frame);
-  if (notice) return notice;
-  const f = frame;
-  const origin2 = frame.origin ?? classifyOrigin(frame);
-  const text2 = textOf(frame);
-  const c = caseOf(frame);
-  if (c) {
-    if (!addressedToMine(frame)) return caseCountLine([frame]);
-    const rk = roomKind(frame);
-    const line = rec3(f.line);
-    const entry = idOf2(f.entry_id) || idOf2(line.entry_id);
-    const words2 = rk ? rk.words : W().legacy(need(f.kind), typeof f.stack === "string" ? f.stack : "");
-    const author = rk?.author && !words2.includes(rk.author) ? rk.author : "";
-    const who = rk || origin2 === "platform" ? "" : whoOf2(frame, false);
-    const by = [author, who].filter(Boolean).join(", ");
-    const withReply = !rk || !CAPTION_REPLY.has(rk.kind);
-    const label = [withCase ? caseHead(frame, true) : "", entry ? `[${entry}]` : ""];
-    const head = `${[...label.filter(Boolean), words2].join(" ")}${by ? ` — ${by}` : ""}${tail(frame, withReply)}`;
-    const lines2 = [head];
-    if (text2 && !words2.includes(text2.trim())) lines2.push(text2);
-    return lines2.join("\n");
-  }
-  const lines = [`${whoOf2(frame, true) || "?"}${tail(frame, true)}`];
-  if (text2) lines.push(text2);
-  const reply = humanWordReply(frame, origin2);
-  if (reply) lines.push(reply);
-  if (isLifeCheck(frame)) lines.push(T2().lifeCheckSeat(warnedSeat(frame)), T2().lifeCheckReply());
-  return lines.join("\n");
-}
-var warnedSeat = (frame) => typeof frame.to_standing === "string" ? frame.to_standing.replace(/^.*:/, "") : "";
-function batchLine(frame, run, withZachin = true, withCase = true) {
-  const notice = clockNoticeText(frame);
-  if (notice) return notice;
-  const f = frame;
-  const rk = roomKind(frame);
-  const head = withCase ? caseHead(frame, withZachin) : "";
-  const pre = head ? `${head} ` : "";
-  if (rk?.aside) return pre + (run === void 0 ? rk.words : rk.aside.run(run));
-  const line = rec3(f.line);
-  const e = f.entry_id ?? line.entry_id ?? f.id;
-  const entry = typeof e === "number" || typeof e === "string" ? e : "?";
-  const words2 = (rk?.words ?? T2().frame(typeof f.id === "string" ? f.id : "?")).replace(/\s+/g, " ").trim();
-  const author = rk?.author && !words2.includes(rk.author) ? ` — ${rk.author}` : "";
-  const text2 = textOf(frame).replace(/\s+/g, " ").trim();
-  const dup = !!text2 && words2.includes(text2);
-  return `${pre}[${entry}] ${words2}${author}${tail(frame, !rk || !CAPTION_REPLY.has(rk.kind))}${text2 && !dup ? `: ${text2}` : ""}`;
-}
-function batchShown(frames) {
-  const seen = /* @__PURE__ */ new Set();
-  return frames.flatMap((f) => {
-    if (f.type === "hello" || !addressedToMine(f)) return [];
-    const key = caseKey(f);
-    const first = !seen.has(key);
-    seen.add(key);
-    return [{ frame: f, text: (withCase) => batchLine(f, void 0, first, withCase) }];
-  });
-}
-var textShown = (frames, cap) => frames.filter((f) => addressedToMine(f)).map((f) => ({
-  frame: f,
-  text: (withCase) => {
-    const t = [...frameText(f, JSON.stringify(f), withCase)];
-    return t.length > cap ? t.slice(0, cap).join("") + "…" : t.join("");
-  }
-}));
-var batchText = (counted, frames = counted) => underCounts(counted, batchShown(frames)).join("\n");
-function underCounts(counted, shown, incomplete = false, cardFrames = [
-  ...counted,
-  ...shown.map((s) => s.frame).filter((f) => !counted.includes(f))
-]) {
-  const lines = groupedCounts(counted, shown, incomplete);
-  const cards = cardsIn(cardFrames);
-  return cards && !lines.some((line) => line.split("\n").includes(cards)) ? [...lines, cards] : lines;
-}
-function groupedCounts(counted, shown, incomplete) {
-  const groups = casesOf(counted).filter((group) => caseOf(group[0]));
-  const placed = /* @__PURE__ */ new Set();
-  const under = (group) => {
-    const key = groupKey(group[0]);
-    return shown.filter((s) => caseOf(s.frame) && groupKey(s.frame) === key).map((s) => (placed.add(s), s.text(false)));
-  };
-  const rest = () => shown.filter((s) => !placed.has(s)).map((s) => s.text(true));
-  if (!groups.length) return rest();
-  if (!compactCounts())
-    return [...groups.flatMap((g) => [legacyCountLine(g, incomplete), ...under(g)]), ...rest()];
-  if (groups.length === 1 && !incomplete)
-    return [caseCountLine(groups[0]), ...under(groups[0]), ...rest()];
-  const pointer = incomplete ? T2().inFull("") : batchPointer(groups.flat());
-  if (groups.length === 1)
-    return [`${countText(groups[0], true)}; ${pointer}.`, ...under(groups[0]), ...rest()];
-  return [...groups.flatMap((g) => [countText(g, true), ...under(g)]), `${pointer}.`, ...rest()];
-}
-function countsWithShown(counted, shown) {
-  const asCount = shown.filter((s) => caseOf(s.frame) && !addressedToMine(s.frame));
-  const lines = shown.filter((s) => !asCount.includes(s));
-  const all = [...counted, ...asCount.map((s) => s.frame).filter((f) => !counted.includes(f))];
-  if (!all.length) return lines.map((s) => s.text(true));
-  const extra = lines.map((s) => s.frame).filter((f) => caseOf(f) && !all.includes(f));
-  return underCounts([...all, ...extra], lines);
-}
-function closingOf(frame) {
-  const n2 = closedQuestion(frame);
-  if (!n2) return "";
-  const rk = roomKind(frame);
-  const to = rec3(rec3(rec3(rec3(frame).line).fields).to);
-  if (rk?.kind !== "ask") return T2().askAnswered(n2, need(rk?.author));
-  const seat = addresseeOf(to.standing)?.label || idOf2(rec3(to.karta).name);
-  return T2().askMoved(n2, need(seat));
-}
-function caseCountLine(frames) {
-  const count = countText(frames, false);
-  if (!compactCounts()) return legacyCountLine(frames, false);
-  return count ? `${count}; ${batchPointer(frames)}.` : "";
-}
-function legacyCountLine(frames, incomplete) {
-  const count = countText(frames, false);
-  if (!count) return "";
-  const yours = frames.some((f) => addressedToMine(f)) ? "; " : T2().noneYours();
-  return count + yours + (incomplete ? T2().inFull("") : batchPointer(frames)) + ".";
-}
-function countText(frames, withCursor) {
-  const c = frames.length ? caseOf(frames[0]) : null;
-  if (!c) return "";
-  const mineN = frames.filter((f) => addressedToMine(f)).length;
-  const gone = superseded(frames).size;
-  const head = caseHead(frames[0], true);
-  const cursor = withCursor ? cursorOf(frames) : null;
-  const n2 = frames.length - gone;
-  return T2().count(head, n2, mineN) + (gone ? T2().supersededLines(gone) : "") + frames.map(closingOf).join("") + (cursor ? ` · realm=${JSON.stringify(cursor.realm)}, since=${cursor.since}` : "");
-}
-function cursorOf(frames) {
-  const first = frames[0];
-  const c = first && caseOf(first);
-  if (!c?.realm) return null;
-  const room = rec3(first.room);
-  const entries = frames.map((f) => idOf2(f.entry_id ?? rec3(f.line).entry_id));
-  if (entries.some((e) => !e || !Number.isSafeInteger(Number(e)) || Number(e) < 1)) return null;
-  return {
-    realm: c.realm,
-    room: JSON.stringify(room.seq ?? room.id),
-    since: Math.min(...entries.map(Number)) - 1
-  };
-}
-function batchPointer(frames) {
-  const cursors = casesOf(frames).map(cursorOf);
-  const c = cursors[0];
-  if (!c || cursors.some((cursor) => !cursor)) return T2().inFull("");
-  if (cursors.length > 1)
-    return T2().inFull(T2().caseHistory('realm=R, action="history", room=N', "S"));
-  return T2().inFull(
-    T2().caseHistory(`realm=${JSON.stringify(c.realm)}, action="history", room=${c.room}`, c.since)
-  );
-}
-
-// js/shared/stalebatch.ts
-var STALE_BURST_KEEP = 20;
-var BODY_CAP = 800;
-var shownOf = (frames, body) => body.shown.filter((i) => Number.isSafeInteger(i) && i >= 0).map((i) => frames[i]).filter((f) => f?.type === "message");
-function batchBodyText(frames, body, riding = []) {
-  const shown = shownOf(frames, body);
-  const bodies = underCounts(
-    [...riding, ...shown],
-    textShown(shown, BODY_CAP),
-    body.incomplete,
-    frames
-  );
-  return `${body.head}
-
-${bodies.join("\n\n")}`;
-}
-function ridesIn(riding, frames, body) {
-  const cases = new Set(shownOf(frames, body).map(caseKey).filter(Boolean));
-  return riding.some((f) => cases.has(caseKey(f)));
-}
-function staleBatch(all, has, riding = []) {
-  const { shown: frames, kept: kept3, keys } = splitBatch(all, STALE_BURST_KEEP, has);
-  const count = kept3.length;
-  if (!count) return { text: "", keys };
-  const body = {
-    head: words(STALE).head(count, frames.length),
-    shown: frames.map((f) => all.indexOf(f)),
-    incomplete: count > frames.length
-  };
-  return { text: batchBodyText(all, body, ridingOf(riding, frames, has)), keys, body };
-}
-function ridingOf(riding, frames, has) {
-  const own = new Set(frames.flatMap((f) => deliveryKeys(f)));
-  return riding.filter((f) => !frames.includes(f) && !eventIn(f, (k) => has(k) || own.has(k)));
-}
-
-// js/bridge/backlog.ts
-var BACKLOG_MS = Number(process.env[envName("BRIDGE_BACKLOG_MS")]) || 1500;
-
-// js/bridge/holdrecord.ts
-var S2 = scoped(() => /* @__PURE__ */ new Map());
-var H = scoped(() => ({ session: null }));
-var B = scoped(() => /* @__PURE__ */ new Map());
-
-// js/bridge/roomstack.ts
-var ROOM_BATCH_MS = Number(process.env[envName("BRIDGE_ROOM_BATCH_MS")]) || 6e4;
-
-// js/bridge/sweep.ts
-var SEEN_FILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1e3;
 
 // js/bridge/endedseats.ts
 var KEEP_MS = 10 * 6e4;
@@ -2438,7 +2584,7 @@ function separateGraphBatch(ev) {
     (f) => !isGraphInbox(f)
   );
   const graphMarks2 = new Set(graph.flatMap((f) => deliveryKeys(f)));
-  const text2 = !other.length ? "" : ev.kind === "stale" ? staleBatch(other, () => false).text : batchText(other);
+  const text2 = !other.length ? "" : ev.kind === "stale" ? staleBatch(other, () => false, [], false).text : batchText(other);
   return {
     graph,
     rest: {
@@ -2458,11 +2604,17 @@ var TACT_POLL_MS = 1e3;
 function setupChannel(pi) {
   const P = words(PLUGIN);
   let ctxRef = null;
+  let ended = true;
   pi.on("session_start", async (_event, ctx) => {
+    ended = false;
     ctxRef = ctx;
   });
   pi.on("session_shutdown", async () => {
+    ended = true;
     ctxRef = null;
+    if (tactPoll) clearInterval(tactPoll);
+    tactPoll = null;
+    tact = null;
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     aside.splice(0);
@@ -2506,7 +2658,7 @@ function setupChannel(pi) {
     );
   }
   pi.on("before_agent_start", async () => {
-    if (halted || !aside.some(contextOnly)) return;
+    if (ended || halted || !aside.some(contextOnly)) return;
     if (asideTimer) clearTimeout(asideTimer);
     asideTimer = null;
     const unit = [...aside];
@@ -2559,7 +2711,7 @@ function setupChannel(pi) {
     tactPoll = null;
     const t = tact;
     tact = null;
-    if (t) sendBatch(t);
+    if (t && !ended) sendBatch(t);
   }
   function olderTact(ev) {
     const at = tactAt(ev.frames);
@@ -2598,6 +2750,7 @@ function setupChannel(pi) {
     );
   }
   return (params) => {
+    if (ended) return;
     let ev = params?.data;
     if (!ev || typeof ev !== "object") return;
     if (ev.kind === "held") halted = false;
@@ -3175,17 +3328,17 @@ function endOf(messages) {
 var seatedBy = (ev) => ev?.kind === "held" || ev?.kind === "attached" || ev?.kind === "resumed" || ev?.frame?.type === "hello";
 function setupPulse(pi, live) {
   let line = wordLine(live);
-  const tell = (change) => line.tell(change);
+  const tell2 = (change) => line.tell(change);
   const at = () => (/* @__PURE__ */ new Date()).toISOString();
-  const acted = async () => tell({ act_at: at() });
+  const acted = async () => tell2({ act_at: at() });
   const output = async (event) => {
-    if (event?.message?.role === "assistant") tell({ act_at: at() });
+    if (event?.message?.role === "assistant") tell2({ act_at: at() });
   };
-  pi.on("agent_start", async () => tell({ state: "busy" }));
-  pi.on("agent_end", async (event) => tell({ state: endOf(event.messages), turn_at: at() }));
+  pi.on("agent_start", async () => tell2({ state: "busy" }));
+  pi.on("agent_end", async (event) => tell2({ state: endOf(event.messages), turn_at: at() }));
   pi.on("message_start", async (event) => {
     const m = event.message;
-    if (m?.role === "custom" && m.customType === LOGGERS.channel) tell({ read_at: at() });
+    if (m?.role === "custom" && m.customType === LOGGERS.channel) tell2({ read_at: at() });
   });
   pi.on("tool_execution_start", acted);
   pi.on("tool_execution_update", acted);
